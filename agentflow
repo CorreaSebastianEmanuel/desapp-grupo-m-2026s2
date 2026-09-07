@@ -1,12 +1,21 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse, json, re, shutil, subprocess, sys
+import argparse, json, re, shutil, subprocess, sys, threading, time
+from datetime import datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 BACKLOG = ROOT / "backlog"
 RUNS = ROOT / ".agentflow" / "runs"
 WORKFLOW = ROOT / ".agentflow" / "workflow.yml"
+SPEC_RUNS = ROOT / ".specify" / "workflows" / "runs"
+STEP_LABELS = {
+    "product": "Product specification", "architecture": "Architecture plan",
+    "checklist": "Requirements checklist", "tasks": "Implementation tasks",
+    "analyze": "Consistency analysis", "develop": "Development",
+    "converge": "Gap analysis", "remediate": "Remediation",
+    "qa": "Independent QA", "review": "Final review",
+}
 
 def files(): return sorted(BACKLOG.glob("TASK-*.md"))
 def meta(path):
@@ -61,11 +70,88 @@ def status(a):
     blockers=dependency_blockers(path)
     print(f"ready: {'yes' if not blockers and m.get('status')=='todo' else 'no'}")
     if blockers: print("blocked_by: "+", ".join(blockers))
+    run=m.get("active_run","none")
+    state=read_run_state(run)
+    if state:
+        current=state.get("current_step_id") or "pending"
+        index=int(state.get("current_step_index",0))+1
+        total=len(STEP_LABELS)
+        updated=state.get("updated_at","unknown")
+        print(f"workflow: {state.get('status','unknown')}")
+        print(f"stage: {index}/{total} {STEP_LABELS.get(current,current)}")
+        print(f"last_activity: {updated}")
+        print(f"log: {(SPEC_RUNS/run/'log.jsonl').relative_to(ROOT)}")
 def newest_feature():
     dirs=[p for p in (ROOT/"specs").glob("[0-9][0-9][0-9]-*") if p.is_dir()]
     return max(dirs,key=lambda p:p.stat().st_mtime) if dirs else None
 def git(*args, capture=True):
     return subprocess.run(["git",*args],cwd=ROOT,text=True,capture_output=capture)
+
+def read_run_state(run):
+    if run in (None,"none","unknown",""): return None
+    path=SPEC_RUNS/run/"state.json"
+    try: return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError,json.JSONDecodeError): return None
+
+def run_ids():
+    return {p.name for p in SPEC_RUNS.iterdir() if p.is_dir()} if SPEC_RUNS.exists() else set()
+
+def latest_run():
+    dirs=[p for p in SPEC_RUNS.iterdir() if p.is_dir()] if SPEC_RUNS.exists() else []
+    return max(dirs,key=lambda p:p.stat().st_mtime).name if dirs else None
+
+def monitor_process(cmd, task, run_hint=None):
+    """Run with inherited stdin, live output, durable logs, stage updates, and heartbeat."""
+    task_id=meta(task)["id"]
+    RUNS.mkdir(parents=True,exist_ok=True)
+    transcript=RUNS/f"{task_id}.live.log"
+    before=run_ids()
+    started=time.monotonic(); last_heartbeat=started; shown_step=None; run=run_hint
+    print(f"Live log: {transcript.relative_to(ROOT)}",flush=True)
+    process=subprocess.Popen(cmd,cwd=ROOT,stdin=None,stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,text=True,bufsize=1)
+    def pump():
+        assert process.stdout is not None
+        with transcript.open("a",encoding="utf-8") as log:
+            log.write(f"\n[{datetime.now().isoformat(timespec='seconds')}] {' '.join(cmd)}\n")
+            log.flush()
+            for line in process.stdout:
+                print(line,end="",flush=True); log.write(line); log.flush()
+    reader=threading.Thread(target=pump,daemon=True); reader.start()
+    try:
+        while process.poll() is None:
+            if not run:
+                created=run_ids()-before
+                if created:
+                    run=max(created,key=lambda ident:(SPEC_RUNS/ident).stat().st_mtime)
+                    field(task,"active_run",run)
+                    print(f"Run: {run}",flush=True)
+            state=read_run_state(run)
+            step=state.get("current_step_id") if state else None
+            if step and step != shown_step:
+                shown_step=step
+                index=int(state.get("current_step_index",0))+1
+                print(f"\n[{task_id}] Stage {index}/{len(STEP_LABELS)}: {STEP_LABELS.get(step,step)}",flush=True)
+            now=time.monotonic()
+            if now-last_heartbeat >= 20:
+                elapsed=int(now-started); label=STEP_LABELS.get(shown_step,shown_step or "starting")
+                print(f"[{task_id}] Still active — {elapsed//60:02d}:{elapsed%60:02d} — {label}",flush=True)
+                last_heartbeat=now
+            time.sleep(.5)
+    except KeyboardInterrupt:
+        print(f"\n[{task_id}] Interrupting safely…",flush=True)
+        process.terminate()
+        try: process.wait(timeout=10)
+        except subprocess.TimeoutExpired: process.kill(); process.wait()
+        reader.join(timeout=2)
+        run=run or latest_run()
+        if run: field(task,"active_run",run)
+        print(f"Progress preserved. Continue with: ./agentflow resume {task_id}",flush=True)
+        return 130,run
+    reader.join(timeout=2)
+    run=run or latest_run()
+    if run: field(task,"active_run",run)
+    return process.returncode,run
 def publish(task, task_meta, feature):
     branch=git("branch","--show-current").stdout.strip()
     if not branch or branch in ("main","master"):
@@ -90,6 +176,27 @@ def publish(task, task_meta, feature):
     pr=subprocess.run(["gh","pr","create","--base","main","--head",branch,"--title",f"{task_meta['id']}: {task_meta['title']}","--body-file",str(body)],cwd=ROOT,text=True,capture_output=True)
     if pr.returncode: raise RuntimeError(pr.stderr.strip() or "gh pr create failed")
     return pr.stdout.strip()
+
+def finalize(task, task_meta, code, no_pr=False):
+    feature=newest_feature()
+    passed=bool(code==0 and feature and all((feature/n).exists() and "Verdict: PASS" in (feature/n).read_text(encoding="utf-8") for n in ("qa-report.md","review-report.md")))
+    if not passed:
+        field(task,"status","blocked")
+        print(f"Verification failed; inspect {feature or 'specs/'} and .agentflow/runs",file=sys.stderr)
+        return code or 1
+    if no_pr:
+        field(task,"status","review")
+        print("QA and review passed. PR creation was disabled with --no-pr.")
+        return 0
+    try:
+        url=publish(task,task_meta,feature)
+        print(f"QA and review passed. Pull request created: {url}")
+        return 0
+    except RuntimeError as error:
+        field(task,"status","blocked")
+        print(f"Verification passed but PR publication failed: {error}",file=sys.stderr)
+        return 1
+
 def start(a):
     if not shutil.which("specify"): raise SystemExit("Specify CLI missing; run ./setup (macOS/Linux) or .\\setup.ps1 (Windows)")
     task=find(a.task); m=meta(task); selected=agent(a.agent)
@@ -105,35 +212,21 @@ def start(a):
         if auth.returncode: raise SystemExit("GitHub CLI is not authenticated; run `gh auth login` or use --no-pr")
     field(task,"status","wip")
     context="Use docs/PRODUCT.md, docs/ARCHITECTURE.md, docs/CHECKPOINTS.md and the constitution.\n\n"+task.read_text(encoding="utf-8")
-    cmd=["specify","workflow","run",str(WORKFLOW),"--input",f"integration={selected}","--input",f"spec={context}","--json"]
-    result=subprocess.run(cmd,cwd=ROOT,text=True,capture_output=True); RUNS.mkdir(parents=True,exist_ok=True)
-    (RUNS/f"{m['id']}.stdout.json").write_text(result.stdout,encoding="utf-8"); (RUNS/f"{m['id']}.stderr.log").write_text(result.stderr,encoding="utf-8")
-    run="unknown"
-    try:
-        data=json.loads(result.stdout); run=str(data.get("run_id",data.get("id","unknown")))
-    except json.JSONDecodeError: pass
-    field(task,"active_run",run); feature=newest_feature()
-    passed=bool(feature and all((feature/n).exists() and "Verdict: PASS" in (feature/n).read_text(encoding="utf-8") for n in ("qa-report.md","review-report.md")))
-    if not passed:
-        field(task,"status","blocked")
-        print(f"Verification failed; inspect {feature or 'specs/'} and .agentflow/runs",file=sys.stderr)
-        return result.returncode or 1
-    if a.no_pr:
-        field(task,"status","review")
-        print("QA and review passed. PR creation was disabled with --no-pr.")
-        return 0
-    try:
-        url=publish(task,m,feature)
-        print(f"QA and review passed. Pull request created: {url}")
-        return 0
-    except RuntimeError as error:
-        field(task,"status","blocked")
-        print(f"Verification passed but PR publication failed: {error}",file=sys.stderr)
-        return 1
+    cmd=["specify","workflow","run",str(WORKFLOW),"--input",f"integration={selected}","--input",f"spec={context}"]
+    code,run=monitor_process(cmd,task)
+    if code==130: return code
+    return finalize(task,m,code,a.no_pr)
 def resume(a):
-    run=meta(find(a.task)).get("active_run","none")
+    task=find(a.task); run=meta(task).get("active_run","none")
     if run in ("none","unknown",""): raise SystemExit("No resumable run; use start")
-    return subprocess.run(["specify","workflow","resume",run],cwd=ROOT).returncode
+    print(f"Resuming {a.task.upper()} — run {run}")
+    code,_=monitor_process(["specify","workflow","resume",run],task,run)
+    if code==130: return code
+    if code:
+        field(task,"status","blocked")
+        print(f"Resume failed. Inspect {(SPEC_RUNS/run/'state.json').relative_to(ROOT)}",file=sys.stderr)
+        return code
+    return finalize(task,meta(task),code)
 def complete(a):
     task=find(a.task); m=meta(task)
     if m.get("status")!="review": raise SystemExit(f"Only a reviewed task can be completed; current status is {m.get('status')}")

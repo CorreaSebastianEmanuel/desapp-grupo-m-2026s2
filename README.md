@@ -19,6 +19,8 @@ This repository includes a local Spec Kit workflow using an authenticated Codex 
 
 `start` runs specification, architecture, tasks, implementation, convergence, QA, and final review. When both verification gates pass it commits the generated feature branch, pushes it, and creates a GitHub PR. Merge remains human-controlled. Use `--no-pr` for a local-only run. Start from a clean, up-to-date `main` branch.
 
+Agentflow prints every stage, a heartbeat every 20 seconds, and underlying CLI output in real time. It keeps stdin attached so permission or authentication prompts remain interactive. Runtime output is saved to `.agentflow/runs/TASK-NNN.live.log`; `status` reports the current stage and last activity. If interrupted with `Ctrl+C`, continue the preserved Spec Kit run with `./agentflow resume TASK-NNN`.
+
 ### Windows PowerShell
 
 Install Python 3, Git for Windows (including Git Bash), `uv`, and Codex CLI or Claude Code. Then run:

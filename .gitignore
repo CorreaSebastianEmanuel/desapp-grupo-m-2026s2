@@ -1,5 +1,5 @@
 __pycache__/
 *.py[cod]
 .agentflow/runs/
+.specify/workflows/runs/
 .DS_Store
-

@@ -52,10 +52,12 @@ steps:
   - id: qa
     type: prompt
     integration: "{{ inputs.integration }}"
+    timeout: 1200
     prompt: |
-      Act as independent QA. Do not trust summaries or modify implementation code. Locate the active feature; read spec.md, plan.md, tasks.md and the diff. Run applicable checks and verify every acceptance criterion with evidence. Write qa-report.md in the feature directory. End exactly with `Verdict: PASS` only if everything passes; otherwise `Verdict: FAIL` with blockers.
+      Act as independent QA. Do not invoke agentflow, its verify skill, or another agent. Do not trust summaries or modify implementation code. Locate the active feature; read spec.md, plan.md, tasks.md and the diff. Run applicable checks directly and verify every acceptance criterion with evidence. Write qa-report.md in the feature directory. End exactly with `Verdict: PASS` only if everything passes; otherwise `Verdict: FAIL` with blockers.
   - id: review
     type: prompt
     integration: "{{ inputs.integration }}"
+    timeout: 1200
     prompt: |
-      Act as final independent reviewer and do not modify implementation code. Inspect the active specification, architecture, QA report, diff, security, checkpoint coverage, and evidence. Write review-report.md in the feature directory. End exactly with `Verdict: PASS` only when ready for human merge; otherwise `Verdict: FAIL` with blockers.
+      Act as final independent reviewer. Do not invoke agentflow, its verify skill, or another agent, and do not modify implementation code. Inspect the active specification, architecture, QA report, diff, security, checkpoint coverage, and evidence directly. Write review-report.md in the feature directory. End exactly with `Verdict: PASS` only when ready for human merge; otherwise `Verdict: FAIL` with blockers.

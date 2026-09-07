@@ -132,8 +132,12 @@ def monitor_process(cmd, task, run_hint=None):
     before=run_ids()
     started=time.monotonic(); last_heartbeat=started; shown_step=None; run=run_hint
     print(f"Live log: {transcript.relative_to(ROOT)}",flush=True)
+    child_env=os.environ.copy()
+    # Spec Kit's Codex integration otherwise defaults to read-only. Current
+    # Codex CLI accepts --approve-for-me on its own and selects workspace-write.
+    child_env.setdefault("SPECKIT_INTEGRATION_CODEX_EXTRA_ARGS","--approve-for-me")
     process=subprocess.Popen(cmd,cwd=ROOT,stdin=None,stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,text=True,bufsize=1)
+        stderr=subprocess.STDOUT,text=True,bufsize=1,env=child_env)
     marker=RUNS/f"{task_id}.process.json"
     marker.write_text(json.dumps({"pid":process.pid,"run_id":run})+"\n",encoding="utf-8")
     def pump():
@@ -269,7 +273,7 @@ def complete(a):
 def verify(a):
     selected=agent(a.agent); prompt=f"Independently verify {a.task}; run checks and update qa-report.md and review-report.md without changing implementation code."
     if a.dry_run: print(f"Would verify {a.task} with {selected}"); return 0
-    cmd=["codex","exec","-C",str(ROOT),"--sandbox","workspace-write","--approve-for-me","--ephemeral",prompt] if selected=="codex" else ["claude","-p","--permission-mode","auto","--max-turns","20",prompt]
+    cmd=["codex","exec","-C",str(ROOT),"--approve-for-me","--ephemeral",prompt] if selected=="codex" else ["claude","-p","--permission-mode","acceptEdits","--max-turns","20",prompt]
     return subprocess.run(cmd,cwd=ROOT).returncode
 def menu(parser):
     while True:

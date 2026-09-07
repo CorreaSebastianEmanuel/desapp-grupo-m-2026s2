@@ -1,0 +1,61 @@
+schema_version: "1.0"
+workflow:
+  id: "desapp-delivery"
+  name: "DesApp autonomous SDD delivery"
+  version: "1.0.0"
+  author: "Alquimistas"
+  description: "Specify, plan, implement, converge, and independently verify one task"
+requires:
+  speckit_version: ">=1.0.0"
+  integrations:
+    any: ["codex", "claude"]
+inputs:
+  spec: {type: string, required: true}
+  integration: {type: string, default: "auto"}
+steps:
+  - id: product
+    command: speckit.specify
+    integration: "{{ inputs.integration }}"
+    input: {args: "{{ inputs.spec }}"}
+  - id: architecture
+    command: speckit.plan
+    integration: "{{ inputs.integration }}"
+    input:
+      args: "Read docs/ARCHITECTURE.md. Design the smallest compliant solution and record durable deviations as ADRs."
+  - id: checklist
+    command: speckit.checklist
+    integration: "{{ inputs.integration }}"
+    input:
+      args: "Check product invariants, checkpoint coverage, testability, security, and failure behavior."
+  - id: tasks
+    command: speckit.tasks
+    integration: "{{ inputs.integration }}"
+    input:
+      args: "Order work test-first where practical; include docs and verification."
+  - id: analyze
+    command: speckit.analyze
+    integration: "{{ inputs.integration }}"
+    input:
+      args: "Check alignment with PRODUCT, ARCHITECTURE, CHECKPOINTS, spec, plan, and tasks; fix critical inconsistencies."
+  - id: develop
+    command: speckit.implement
+    integration: "{{ inputs.integration }}"
+    input: {args: "Implement and run all applicable checks. Do not commit, push, create a PR, or merge; Agentflow publishes only after verification."}
+  - id: converge
+    command: speckit.converge
+    integration: "{{ inputs.integration }}"
+    input: {args: "Independently find acceptance gaps and append concrete remaining tasks."}
+  - id: remediate
+    command: speckit.implement
+    integration: "{{ inputs.integration }}"
+    input: {args: "Complete only remaining convergence tasks and rerun checks."}
+  - id: qa
+    type: prompt
+    integration: "{{ inputs.integration }}"
+    prompt: |
+      Act as independent QA. Do not trust summaries or modify implementation code. Locate the active feature; read spec.md, plan.md, tasks.md and the diff. Run applicable checks and verify every acceptance criterion with evidence. Write qa-report.md in the feature directory. End exactly with `Verdict: PASS` only if everything passes; otherwise `Verdict: FAIL` with blockers.
+  - id: review
+    type: prompt
+    integration: "{{ inputs.integration }}"
+    prompt: |
+      Act as final independent reviewer and do not modify implementation code. Inspect the active specification, architecture, QA report, diff, security, checkpoint coverage, and evidence. Write review-report.md in the feature directory. End exactly with `Verdict: PASS` only when ready for human merge; otherwise `Verdict: FAIL` with blockers.

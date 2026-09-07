@@ -1,0 +1,4 @@
+interface:
+  display_name: "Create"
+  short_description: "Ejecuta Agentflow para create tareas locales"
+  default_prompt: "Usa /create para create una tarea del backlog agentico."

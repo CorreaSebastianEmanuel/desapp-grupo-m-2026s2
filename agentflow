@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse, json, re, shutil, subprocess, sys, threading, time
-from datetime import datetime
+import argparse, json, os, re, shutil, signal, subprocess, sys, threading, time
+from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
@@ -100,6 +100,30 @@ def latest_run():
     dirs=[p for p in SPEC_RUNS.iterdir() if p.is_dir()] if SPEC_RUNS.exists() else []
     return max(dirs,key=lambda p:p.stat().st_mtime).name if dirs else None
 
+def process_alive(pid):
+    try: os.kill(int(pid),0); return True
+    except (OSError,TypeError,ValueError): return False
+
+def recover_orphaned_run(task, run):
+    """Turn a stale RUNNING state into PAUSED after proving our runner is gone."""
+    state=read_run_state(run)
+    if not state or state.get("status")!="running": return
+    marker=RUNS/f"{meta(task)['id']}.process.json"
+    try: process_data=json.loads(marker.read_text(encoding="utf-8"))
+    except (OSError,json.JSONDecodeError): process_data={}
+    if process_data.get("run_id") == run and process_alive(process_data.get("pid")):
+        raise SystemExit(f"Run {run} is still active in process {process_data['pid']}; use status instead of resume")
+    state_path=SPEC_RUNS/run/"state.json"
+    backup=SPEC_RUNS/run/"state.orphaned-running.json"
+    if not backup.exists(): shutil.copy2(state_path,backup)
+    state["status"]="paused"
+    state["updated_at"]=datetime.now(timezone.utc).isoformat()
+    state["error"]="Recovered by Agentflow after the owning process was interrupted"
+    state_path.write_text(json.dumps(state,indent=2)+"\n",encoding="utf-8")
+    with (SPEC_RUNS/run/"log.jsonl").open("a",encoding="utf-8") as log:
+        log.write(json.dumps({"event":"orphaned_run_recovered","timestamp":state["updated_at"]})+"\n")
+    print(f"Recovered orphaned run {run}: running → paused",flush=True)
+
 def monitor_process(cmd, task, run_hint=None):
     """Run with inherited stdin, live output, durable logs, stage updates, and heartbeat."""
     task_id=meta(task)["id"]
@@ -110,6 +134,8 @@ def monitor_process(cmd, task, run_hint=None):
     print(f"Live log: {transcript.relative_to(ROOT)}",flush=True)
     process=subprocess.Popen(cmd,cwd=ROOT,stdin=None,stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,text=True,bufsize=1)
+    marker=RUNS/f"{task_id}.process.json"
+    marker.write_text(json.dumps({"pid":process.pid,"run_id":run})+"\n",encoding="utf-8")
     def pump():
         assert process.stdout is not None
         with transcript.open("a",encoding="utf-8") as log:
@@ -125,6 +151,7 @@ def monitor_process(cmd, task, run_hint=None):
                 if created:
                     run=max(created,key=lambda ident:(SPEC_RUNS/ident).stat().st_mtime)
                     field(task,"active_run",run)
+                    marker.write_text(json.dumps({"pid":process.pid,"run_id":run})+"\n",encoding="utf-8")
                     print(f"Run: {run}",flush=True)
             state=read_run_state(run)
             step=state.get("current_step_id") if state else None
@@ -140,15 +167,20 @@ def monitor_process(cmd, task, run_hint=None):
             time.sleep(.5)
     except KeyboardInterrupt:
         print(f"\n[{task_id}] Interrupting safely…",flush=True)
-        process.terminate()
+        process.send_signal(signal.SIGINT)
         try: process.wait(timeout=10)
-        except subprocess.TimeoutExpired: process.kill(); process.wait()
+        except subprocess.TimeoutExpired:
+            process.terminate()
+            try: process.wait(timeout=5)
+            except subprocess.TimeoutExpired: process.kill(); process.wait()
         reader.join(timeout=2)
         run=run or latest_run()
         if run: field(task,"active_run",run)
+        marker.unlink(missing_ok=True)
         print(f"Progress preserved. Continue with: ./agentflow resume {task_id}",flush=True)
         return 130,run
     reader.join(timeout=2)
+    marker.unlink(missing_ok=True)
     run=run or latest_run()
     if run: field(task,"active_run",run)
     return process.returncode,run
@@ -219,6 +251,8 @@ def start(a):
 def resume(a):
     task=find(a.task); run=meta(task).get("active_run","none")
     if run in ("none","unknown",""): raise SystemExit("No resumable run; use start")
+    recover_orphaned_run(task,run)
+    field(task,"status","wip")
     print(f"Resuming {a.task.upper()} — run {run}")
     code,_=monitor_process(["specify","workflow","resume",run],task,run)
     if code==130: return code

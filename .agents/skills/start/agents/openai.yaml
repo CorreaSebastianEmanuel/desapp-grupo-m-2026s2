@@ -1,0 +1,4 @@
+interface:
+  display_name: "Start"
+  short_description: "Ejecuta Agentflow para start tareas locales"
+  default_prompt: "Usa $start para start una tarea del backlog agentico."

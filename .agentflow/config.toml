@@ -1,0 +1,4 @@
+default_agent = "auto"
+auto_commit = false
+auto_push = false
+

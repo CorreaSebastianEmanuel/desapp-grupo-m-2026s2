@@ -1,0 +1,4 @@
+interface:
+  display_name: "Complete task"
+  short_description: "Marca una tarea revisada como finalizada"
+  default_prompt: "Usa $complete para cerrar una tarea revisada y habilitar sus dependencias."

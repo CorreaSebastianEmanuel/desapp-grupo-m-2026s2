@@ -1,0 +1,125 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+import argparse, json, re, shutil, subprocess, sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent
+BACKLOG = ROOT / "backlog"
+RUNS = ROOT / ".agentflow" / "runs"
+WORKFLOW = ROOT / ".agentflow" / "workflow.yml"
+
+def files(): return sorted(BACKLOG.glob("TASK-*.md"))
+def meta(path):
+    front = path.read_text(encoding="utf-8").split("---", 2)[1]
+    return {k.strip(): v.strip().strip('"') for line in front.splitlines() if ":" in line for k,v in [line.split(":",1)]}
+def find(task):
+    found = list(BACKLOG.glob(f"{task.upper()}-*.md"))
+    if len(found) != 1: raise SystemExit(f"Task {task.upper()} not found or ambiguous")
+    return found[0]
+def field(path, key, value):
+    text = path.read_text(encoding="utf-8")
+    text, n = re.subn(rf"(?m)^{re.escape(key)}:\s*.*$", f"{key}: {value}", text, count=1)
+    if n != 1: raise SystemExit(f"Missing {key} in {path}")
+    path.write_text(text, encoding="utf-8")
+def slug(text): return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-") or "task"
+def dependency_ids(path):
+    raw=meta(path).get("depends_on","none")
+    return [] if raw in ("none","") else [x.strip().upper() for x in raw.split(",") if x.strip()]
+def dependency_blockers(path):
+    blockers=[]
+    for ident in dependency_ids(path):
+        try: state=meta(find(ident)).get("status","unknown")
+        except SystemExit: state="missing"
+        if state!="done": blockers.append(f"{ident} ({state})")
+    return blockers
+def agent(requested):
+    if requested == "copilot": raise SystemExit("Copilot may use project skills interactively; unattended local workflows require codex or claude")
+    if requested != "auto":
+        if not shutil.which(requested): raise SystemExit(f"{requested} CLI is not installed")
+        return requested
+    for name in ("codex", "claude"):
+        if shutil.which(name): return name
+    raise SystemExit("Install and authenticate Codex CLI or Claude Code")
+def create(a):
+    title = a.title or input("Task title: ").strip()
+    if not title: raise SystemExit("Task title is required")
+    outcome = a.outcome or input("Expected outcome: ").strip()
+    nums = [int(meta(p)["id"].split("-")[1]) for p in files()]
+    ident = f"TASK-{max(nums, default=0)+1:03d}"
+    path = BACKLOG / f"{ident}-{slug(title)}.md"
+    path.write_text(f"---\nid: {ident}\ntitle: {title}\ntype: task\ncheckpoint: {a.checkpoint}\npriority: {a.priority}\nstatus: todo\ndepends_on: none\nactive_run: none\n---\n\n## Outcome\n\n{outcome or title}\n", encoding="utf-8")
+    print(f"Created {ident}: {path.relative_to(ROOT)}")
+def backlog(_):
+    print(f"{'ID':<10} {'STATE':<9} {'CP':<4} {'PRIORITY':<9} TITLE\n" + "-"*76)
+    for p in files():
+        m=meta(p); state=m['status']
+        if state=="todo" and not dependency_blockers(p): state="ready"
+        print(f"{m['id']:<10} {state:<9} {m['checkpoint']:<4} {m['priority']:<9} {m['title']}")
+def status(a):
+    path=find(a.task); m=meta(path)
+    for k in ("id","title","checkpoint","priority","status","depends_on","active_run"): print(f"{k}: {m.get(k,'unknown')}")
+    blockers=dependency_blockers(path)
+    print(f"ready: {'yes' if not blockers and m.get('status')=='todo' else 'no'}")
+    if blockers: print("blocked_by: "+", ".join(blockers))
+def newest_feature():
+    dirs=[p for p in (ROOT/"specs").glob("[0-9][0-9][0-9]-*") if p.is_dir()]
+    return max(dirs,key=lambda p:p.stat().st_mtime) if dirs else None
+def start(a):
+    if not shutil.which("specify"): raise SystemExit("Specify CLI missing; run ./setup (macOS/Linux) or .\\setup.ps1 (Windows)")
+    task=find(a.task); m=meta(task); selected=agent(a.agent)
+    blockers=dependency_blockers(task)
+    if blockers: raise SystemExit("Unfinished dependencies: "+", ".join(blockers))
+    print(f"{m['id']} — {m['title']}\nAgent: {selected}\nFlow: product → architecture → development → QA → review")
+    if a.dry_run: print("Dry run passed; no agent invoked."); return 0
+    field(task,"status","wip")
+    context="Use docs/PRODUCT.md, docs/ARCHITECTURE.md, docs/CHECKPOINTS.md and the constitution.\n\n"+task.read_text(encoding="utf-8")
+    cmd=["specify","workflow","run",str(WORKFLOW),"--input",f"integration={selected}","--input",f"spec={context}","--json"]
+    result=subprocess.run(cmd,cwd=ROOT,text=True,capture_output=True); RUNS.mkdir(parents=True,exist_ok=True)
+    (RUNS/f"{m['id']}.stdout.json").write_text(result.stdout,encoding="utf-8"); (RUNS/f"{m['id']}.stderr.log").write_text(result.stderr,encoding="utf-8")
+    run="unknown"
+    try:
+        data=json.loads(result.stdout); run=str(data.get("run_id",data.get("id","unknown")))
+    except json.JSONDecodeError: pass
+    field(task,"active_run",run); feature=newest_feature()
+    passed=bool(feature and all((feature/n).exists() and "Verdict: PASS" in (feature/n).read_text(encoding="utf-8") for n in ("qa-report.md","review-report.md")))
+    field(task,"status","review" if result.returncode==0 and passed else "blocked")
+    if not passed: print(f"Verification failed; inspect {feature or 'specs/'} and .agentflow/runs",file=sys.stderr)
+    return 0 if passed else (result.returncode or 1)
+def resume(a):
+    run=meta(find(a.task)).get("active_run","none")
+    if run in ("none","unknown",""): raise SystemExit("No resumable run; use start")
+    return subprocess.run(["specify","workflow","resume",run],cwd=ROOT).returncode
+def complete(a):
+    task=find(a.task); m=meta(task)
+    if m.get("status")!="review": raise SystemExit(f"Only a reviewed task can be completed; current status is {m.get('status')}")
+    field(task,"status","done"); field(task,"active_run","none")
+    print(f"Completed {m['id']}. Dependent tasks may now become ready.")
+def verify(a):
+    selected=agent(a.agent); prompt=f"Independently verify {a.task}; run checks and update qa-report.md and review-report.md without changing implementation code."
+    if a.dry_run: print(f"Would verify {a.task} with {selected}"); return 0
+    cmd=["codex","exec","-C",str(ROOT),"--sandbox","workspace-write","--approve-for-me","--ephemeral",prompt] if selected=="codex" else ["claude","-p","--permission-mode","auto","--max-turns","20",prompt]
+    return subprocess.run(cmd,cwd=ROOT).returncode
+def menu(parser):
+    while True:
+        print("\nAgentflow\n1 Backlog  2 Create  3 Start  4 Status  5 Resume  6 Verify  7 Complete  0 Exit")
+        choice=input("> ").strip()
+        if choice=="0": return 0
+        argv={"1":["backlog"],"2":["create"]}.get(choice)
+        if choice in "34567": argv=[{"3":"start","4":"status","5":"resume","6":"verify","7":"complete"}[choice],input("Task id: ").strip()]
+        if not argv: print("Invalid option"); continue
+        try: x=parser.parse_args(argv); x.func(x)
+        except SystemExit as e: print(e)
+def parser():
+    p=argparse.ArgumentParser(description="Local multi-agent SDD workflow"); s=p.add_subparsers()
+    c=s.add_parser("create"); c.add_argument("title",nargs="?"); c.add_argument("--outcome"); c.add_argument("--checkpoint",choices=["CP1","CP2","CP3"],default="CP1"); c.add_argument("--priority",choices=["low","medium","high","critical"],default="medium"); c.set_defaults(func=create)
+    b=s.add_parser("backlog"); b.set_defaults(func=backlog)
+    q=s.add_parser("status"); q.add_argument("task"); q.set_defaults(func=status)
+    for name,fn in (("start",start),("verify",verify)):
+        q=s.add_parser(name); q.add_argument("task"); q.add_argument("--agent",choices=["auto","codex","claude","copilot"],default="auto"); q.add_argument("--dry-run",action="store_true"); q.set_defaults(func=fn)
+    q=s.add_parser("resume"); q.add_argument("task"); q.set_defaults(func=resume)
+    q=s.add_parser("complete"); q.add_argument("task"); q.set_defaults(func=complete)
+    return p
+if __name__=="__main__":
+    p=parser()
+    if len(sys.argv)==1: raise SystemExit(menu(p))
+    a=p.parse_args(); raise SystemExit(a.func(a) if hasattr(a,"func") else 2)

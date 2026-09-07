@@ -1,4 +1,5 @@
 default_agent = "auto"
-auto_commit = false
-auto_push = false
-
+auto_commit = true
+auto_push = true
+create_pull_request = true
+auto_merge = false

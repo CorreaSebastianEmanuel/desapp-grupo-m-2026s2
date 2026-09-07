@@ -64,13 +64,45 @@ def status(a):
 def newest_feature():
     dirs=[p for p in (ROOT/"specs").glob("[0-9][0-9][0-9]-*") if p.is_dir()]
     return max(dirs,key=lambda p:p.stat().st_mtime) if dirs else None
+def git(*args, capture=True):
+    return subprocess.run(["git",*args],cwd=ROOT,text=True,capture_output=capture)
+def publish(task, task_meta, feature):
+    branch=git("branch","--show-current").stdout.strip()
+    if not branch or branch in ("main","master"):
+        raise RuntimeError("Refusing to publish from a protected base branch")
+    field(task,"status","review")
+    staged=git("add","-A")
+    if staged.returncode: raise RuntimeError(staged.stderr.strip() or "git add failed")
+    commit=git("commit","-m",f"Implement {task_meta['id']}: {task_meta['title']}")
+    if commit.returncode: raise RuntimeError(commit.stderr.strip() or commit.stdout.strip() or "git commit failed")
+    pushed=git("push","-u","origin",branch)
+    if pushed.returncode: raise RuntimeError(pushed.stderr.strip() or "git push failed")
+    body=RUNS/f"{task_meta['id']}-pr.md"
+    body.write_text(
+        f"## Agentflow delivery\n\nCloses the implementation work for `{task_meta['id']}`.\n\n"
+        f"- Specification: `{feature.relative_to(ROOT)}/spec.md`\n"
+        f"- Plan: `{feature.relative_to(ROOT)}/plan.md`\n"
+        f"- Tasks: `{feature.relative_to(ROOT)}/tasks.md`\n"
+        f"- QA: `{feature.relative_to(ROOT)}/qa-report.md` — PASS\n"
+        f"- Final review: `{feature.relative_to(ROOT)}/review-report.md` — PASS\n\n"
+        "The PR was created automatically after independent QA and final review. Merge remains human-controlled.\n",
+        encoding="utf-8")
+    pr=subprocess.run(["gh","pr","create","--base","main","--head",branch,"--title",f"{task_meta['id']}: {task_meta['title']}","--body-file",str(body)],cwd=ROOT,text=True,capture_output=True)
+    if pr.returncode: raise RuntimeError(pr.stderr.strip() or "gh pr create failed")
+    return pr.stdout.strip()
 def start(a):
     if not shutil.which("specify"): raise SystemExit("Specify CLI missing; run ./setup (macOS/Linux) or .\\setup.ps1 (Windows)")
     task=find(a.task); m=meta(task); selected=agent(a.agent)
     blockers=dependency_blockers(task)
     if blockers: raise SystemExit("Unfinished dependencies: "+", ".join(blockers))
-    print(f"{m['id']} — {m['title']}\nAgent: {selected}\nFlow: product → architecture → development → QA → review")
-    if a.dry_run: print("Dry run passed; no agent invoked."); return 0
+    print(f"{m['id']} — {m['title']}\nAgent: {selected}\nFlow: product → architecture → development → QA → review → PR")
+    if a.dry_run: print(f"Dry run passed; no agent invoked. PR creation: {'disabled' if a.no_pr else 'enabled'}"); return 0
+    if git("status","--porcelain").stdout.strip(): raise SystemExit("Start requires a clean worktree; commit or stash existing changes")
+    if git("branch","--show-current").stdout.strip() not in ("main","master"): raise SystemExit("Start from an up-to-date main branch so Spec Kit can create an isolated feature branch")
+    if not a.no_pr:
+        if not shutil.which("gh"): raise SystemExit("GitHub CLI is required for automatic PR creation; install gh or use --no-pr")
+        auth=subprocess.run(["gh","auth","status"],cwd=ROOT,text=True,capture_output=True)
+        if auth.returncode: raise SystemExit("GitHub CLI is not authenticated; run `gh auth login` or use --no-pr")
     field(task,"status","wip")
     context="Use docs/PRODUCT.md, docs/ARCHITECTURE.md, docs/CHECKPOINTS.md and the constitution.\n\n"+task.read_text(encoding="utf-8")
     cmd=["specify","workflow","run",str(WORKFLOW),"--input",f"integration={selected}","--input",f"spec={context}","--json"]
@@ -82,9 +114,22 @@ def start(a):
     except json.JSONDecodeError: pass
     field(task,"active_run",run); feature=newest_feature()
     passed=bool(feature and all((feature/n).exists() and "Verdict: PASS" in (feature/n).read_text(encoding="utf-8") for n in ("qa-report.md","review-report.md")))
-    field(task,"status","review" if result.returncode==0 and passed else "blocked")
-    if not passed: print(f"Verification failed; inspect {feature or 'specs/'} and .agentflow/runs",file=sys.stderr)
-    return 0 if passed else (result.returncode or 1)
+    if not passed:
+        field(task,"status","blocked")
+        print(f"Verification failed; inspect {feature or 'specs/'} and .agentflow/runs",file=sys.stderr)
+        return result.returncode or 1
+    if a.no_pr:
+        field(task,"status","review")
+        print("QA and review passed. PR creation was disabled with --no-pr.")
+        return 0
+    try:
+        url=publish(task,m,feature)
+        print(f"QA and review passed. Pull request created: {url}")
+        return 0
+    except RuntimeError as error:
+        field(task,"status","blocked")
+        print(f"Verification passed but PR publication failed: {error}",file=sys.stderr)
+        return 1
 def resume(a):
     run=meta(find(a.task)).get("active_run","none")
     if run in ("none","unknown",""): raise SystemExit("No resumable run; use start")
@@ -115,7 +160,9 @@ def parser():
     b=s.add_parser("backlog"); b.set_defaults(func=backlog)
     q=s.add_parser("status"); q.add_argument("task"); q.set_defaults(func=status)
     for name,fn in (("start",start),("verify",verify)):
-        q=s.add_parser(name); q.add_argument("task"); q.add_argument("--agent",choices=["auto","codex","claude","copilot"],default="auto"); q.add_argument("--dry-run",action="store_true"); q.set_defaults(func=fn)
+        q=s.add_parser(name); q.add_argument("task"); q.add_argument("--agent",choices=["auto","codex","claude","copilot"],default="auto"); q.add_argument("--dry-run",action="store_true")
+        if name=="start": q.add_argument("--no-pr",action="store_true",help="leave verified changes local without commit, push, or PR")
+        q.set_defaults(func=fn)
     q=s.add_parser("resume"); q.add_argument("task"); q.set_defaults(func=resume)
     q=s.add_parser("complete"); q.add_argument("task"); q.set_defaults(func=complete)
     return p

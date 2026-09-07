@@ -17,7 +17,7 @@ This repository includes a local Spec Kit workflow using an authenticated Codex 
 ./agentflow complete TASK-001       # after human review/merge
 ```
 
-`start` runs specification, architecture, tasks, implementation, convergence, QA, and final review. It never pushes or merges. See `docs/`, `AGENTS.md`, and `.specify/memory/constitution.md`.
+`start` runs specification, architecture, tasks, implementation, convergence, QA, and final review. When both verification gates pass it commits the generated feature branch, pushes it, and creates a GitHub PR. Merge remains human-controlled. Use `--no-pr` for a local-only run. Start from a clean, up-to-date `main` branch.
 
 ### Windows PowerShell
 

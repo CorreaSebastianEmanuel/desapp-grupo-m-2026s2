@@ -40,7 +40,7 @@ steps:
   - id: develop
     command: speckit.implement
     integration: "{{ inputs.integration }}"
-    input: {args: "Implement and run all applicable checks. Never push or merge."}
+    input: {args: "Implement and run all applicable checks. Do not commit, push, create a PR, or merge; Agentflow publishes only after verification."}
   - id: converge
     command: speckit.converge
     integration: "{{ inputs.integration }}"
@@ -59,4 +59,3 @@ steps:
     integration: "{{ inputs.integration }}"
     prompt: |
       Act as final independent reviewer and do not modify implementation code. Inspect the active specification, architecture, QA report, diff, security, checkpoint coverage, and evidence. Write review-report.md in the feature directory. End exactly with `Verdict: PASS` only when ready for human merge; otherwise `Verdict: FAIL` with blockers.
-

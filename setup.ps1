@@ -12,6 +12,7 @@ function Require-Command([string] $Name, [string] $InstallHint) {
 
 Require-Command "git" "Install it with: winget install Git.Git"
 Require-Command "uv" "Install it with: winget install astral-sh.uv"
+Require-Command "gh" "Install it with: winget install GitHub.cli"
 
 if (-not (Get-Command specify -ErrorAction SilentlyContinue)) {
     & uv tool install specify-cli

@@ -8,6 +8,5 @@ This repository uses Spec-Driven Development. User instructions take precedence.
 4. Do not silently expand scope. Add tests for every behavioral change.
 5. Never claim a check passed without running it.
 6. Keep web, domain, persistence, and external adapters separated.
-7. Never push, merge, expose credentials, or run destructive commands without explicit approval.
+7. `agentflow start` explicitly authorizes Agentflow to commit, push its generated feature branch, and create a PR after both verification gates pass. Agents never merge, expose credentials, or run destructive commands.
 8. Completion requires independent QA and final review with `Verdict: PASS`.
-

@@ -11,10 +11,9 @@ FEEDBACK = ROOT / "backlog" / "feedback"
 WORKFLOW = ROOT / ".agentflow" / "workflow.yml"
 SPEC_RUNS = ROOT / ".specify" / "workflows" / "runs"
 STEP_LABELS = {
-    "product": "Product specification", "architecture": "Architecture plan",
-    "checklist": "Requirements checklist", "tasks": "Implementation tasks",
-    "analyze": "Consistency analysis", "develop": "Development",
-    "converge": "Gap analysis", "remediate": "Remediation",
+    "product": "Product specification", "product_challenge": "Independent product challenge",
+    "architecture": "Architecture synthesis", "tasks": "Validated implementation tasks",
+    "develop": "Development",
     "qa": "Independent QA", "review": "Final review",
 }
 STEP_ORDER = tuple(STEP_LABELS)
@@ -298,7 +297,15 @@ def publish(task, task_meta, feature):
 
 def finalize(task, task_meta, code, no_pr=False):
     feature=newest_feature()
-    passed=bool(code==0 and feature and all((feature/n).exists() and "Verdict: PASS" in (feature/n).read_text(encoding="utf-8") for n in ("qa-report.md","review-report.md")))
+    required=("spec.md","plan.md","tasks.md","qa-report.md","review-report.md")
+    def terminal_verdict(path):
+        lines=[line.strip() for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+        return lines[-1] if lines else ""
+    passed=bool(
+        code==0 and feature and all((feature/name).is_file() for name in required)
+        and terminal_verdict(feature/"qa-report.md")=="Verdict: PASS"
+        and terminal_verdict(feature/"review-report.md")=="Verdict: PASS"
+    )
     if not passed:
         field(task,"status","blocked")
         print(f"Verification failed; inspect {feature or 'specs/'} and .agentflow/runs",file=sys.stderr)
@@ -321,7 +328,7 @@ def start(a):
     task=find(a.task); m=meta(task); selected=agent(a.agent)
     blockers=dependency_blockers(task)
     if blockers: raise SystemExit("Unfinished dependencies: "+", ".join(blockers))
-    print(f"{m['id']} — {m['title']}\nAgent: {selected}\nFlow: product → architecture → development → QA → review → PR")
+    print(f"{m['id']} — {m['title']}\nAgent: {selected}\nFlow: product → challenge → architecture/tasks synthesis → development → QA → review → PR")
     if a.dry_run: print(f"Dry run passed; no agent invoked. PR creation: {'disabled' if a.no_pr else 'enabled'}"); return 0
     if git("status","--porcelain").stdout.strip(): raise SystemExit("Start requires a clean worktree; commit or stash existing changes")
     if git("branch","--show-current").stdout.strip() not in ("main","master"): raise SystemExit("Start from an up-to-date main branch so Spec Kit can create an isolated feature branch")

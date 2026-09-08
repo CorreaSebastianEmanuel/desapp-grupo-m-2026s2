@@ -20,7 +20,7 @@ Behavioral changes require automated tests. Formatting, compilation, tests, stat
 
 ### V. Independent verification
 
-Implementation, QA, and final review run in fresh agent sessions. QA does not modify implementation. A task reaches `review` only when QA and review reports both end in `Verdict: PASS`; humans retain merge authority.
+Product specification receives an independent challenge before architecture synthesizes a decision. Implementation, QA, and final review run in fresh agent sessions. Implementation has one code owner; QA and final review do not modify implementation. A task reaches `review` only when QA and review reports both end exactly in `Verdict: PASS`; humans retain merge authority.
 
 ## Safety and delivery
 

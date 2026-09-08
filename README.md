@@ -19,11 +19,13 @@ This repository includes a local Spec Kit workflow using an authenticated Codex 
 ./agentflow complete TASK-001       # after human review/merge
 ```
 
-`start` runs specification, architecture, tasks, implementation, convergence, QA, and final review. When both verification gates pass it commits the generated feature branch, pushes it, and creates a GitHub PR. Merge remains human-controlled. Use `--no-pr` for a local-only run. Start from a clean, up-to-date `main` branch.
+`start` runs seven fresh-agent stages: product specification, an independent product challenge, architecture synthesis, validated task planning, implementation, adversarial QA, and final review. Multiple perspectives are used at decision and verification boundaries; implementation keeps one owner to avoid conflicting edits. When both verification gates pass it commits the generated feature branch, pushes it, and creates a GitHub PR. A failed gate leaves the task blocked so feedback can rewind it to the affected stage. Merge remains human-controlled. Use `--no-pr` for a local-only run. Start from a clean, up-to-date `main` branch.
 
 Agentflow prints every stage, a heartbeat every 20 seconds, and underlying CLI output in real time. It keeps stdin attached so permission or authentication prompts remain interactive. Runtime output is saved to `.agentflow/runs/TASK-NNN.live.log`; `status` reports the current stage and last activity. If interrupted with `Ctrl+C`, continue the preserved Spec Kit run with `./agentflow resume TASK-NNN`.
 
 Agents exchange structured handoffs under the active feature's `handoffs/` directory. Human feedback is versioned in `backlog/feedback/TASK-NNN.md`; adding feedback rewinds the preserved workflow to the selected affected stage. `history` shows feedback, handoffs, and stage results. A task accepts at most three feedback cycles before it must be resolved or split, preventing unbounded autonomous loops.
+
+QA executes applicable checks rather than only inspecting code. When a task exposes or changes HTTP endpoints, QA must start the application and exercise the affected endpoints with real HTTP requests (such as `curl`), including specified success and failure cases. An unavailable runtime is reported as a blocker, not skipped.
 
 ### Windows PowerShell
 

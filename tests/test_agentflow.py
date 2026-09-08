@@ -30,9 +30,10 @@ class FeedbackLoopTest(unittest.TestCase):
         self.run_dir.mkdir(parents=True)
         globals_["RUNS"].mkdir(parents=True)
         state = {
-            "run_id": "run-1", "status": "completed", "current_step_index": 9,
+            "run_id": "run-1", "status": "completed", "current_step_index": 6,
             "current_step_id": "review", "step_results": {
                 "product": {"status": "completed"},
+                "product_challenge": {"status": "completed"},
                 "architecture": {"status": "completed"},
                 "develop": {"status": "completed"},
                 "qa": {"status": "completed"},
@@ -58,8 +59,8 @@ class FeedbackLoopTest(unittest.TestCase):
 
         self.assertEqual("paused", state["status"])
         self.assertEqual("architecture", state["current_step_id"])
-        self.assertEqual(1, state["current_step_index"])
-        self.assertEqual({"product"}, set(state["step_results"]))
+        self.assertEqual(2, state["current_step_index"])
+        self.assertEqual({"product", "product_challenge"}, set(state["step_results"]))
         self.assertIn("Keep adapters outside the domain.", feedback)
         self.assertIn("Keep adapters outside the domain.", inputs["inputs"]["spec"])
         self.assertIn("status: wip", task_text)

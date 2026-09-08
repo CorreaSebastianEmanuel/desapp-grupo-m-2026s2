@@ -1,10 +1,10 @@
 schema_version: "1.0"
 workflow:
   id: "desapp-delivery"
-  name: "DesApp autonomous SDD delivery"
-  version: "1.0.0"
+  name: "DesApp deliberative SDD delivery"
+  version: "2.0.0"
   author: "Alquimistas"
-  description: "Specify, plan, implement, converge, and independently verify one task"
+  description: "Specify, challenge, synthesize, implement, and independently verify one task"
 requires:
   speckit_version: ">=1.0.0"
   integrations:
@@ -16,46 +16,70 @@ steps:
   - id: product
     command: speckit.specify
     integration: "{{ inputs.integration }}"
-    input: {args: "{{ inputs.spec }}"}
+    input:
+      args: "{{ inputs.spec }}\n\nAfter the specification is written, create handoffs/product.md inside the active feature directory with decisions, assumptions, open questions, evidence, and guidance for the critic and architect."
+
+  - id: product_challenge
+    type: prompt
+    integration: "{{ inputs.integration }}"
+    timeout: 1200
+    prompt: |
+      Act as an independent product and requirements critic. Do not modify spec.md,
+      implementation code, or existing handoffs. Locate the active feature and read
+      the backlog task, all human feedback, docs/PRODUCT.md, docs/ARCHITECTURE.md,
+      docs/CHECKPOINTS.md, the constitution, spec.md, and handoffs/product.md.
+      Challenge assumptions; identify ambiguous or untestable acceptance criteria,
+      boundary cases, scope creep, security concerns, and checkpoint gaps. Present
+      credible alternatives where tradeoffs exist. Write only
+      handoffs/product-challenge.md with findings, evidence, and explicit recommendations
+      for the architect. This is a dissenting view, not a second specification.
+
   - id: architecture
     command: speckit.plan
     integration: "{{ inputs.integration }}"
     input:
-      args: "Read docs/ARCHITECTURE.md. Design the smallest compliant solution and record durable deviations as ADRs."
-  - id: checklist
-    command: speckit.checklist
-    integration: "{{ inputs.integration }}"
-    input:
-      args: "Check product invariants, checkpoint coverage, testability, security, and failure behavior."
+      args: "Read the active spec, handoffs/product.md, handoffs/product-challenge.md, and all human feedback. Read docs/ARCHITECTURE.md. Act as the synthesis owner: explicitly resolve the author's and critic's competing positions, choose the smallest compliant solution, explain rejected alternatives, and record durable deviations as ADRs. Create handoffs/architecture.md with decisions, assumptions, risks, evidence, and guidance for implementation."
+
   - id: tasks
     command: speckit.tasks
     integration: "{{ inputs.integration }}"
     input:
-      args: "Order work test-first where practical; include docs and verification."
-  - id: analyze
-    command: speckit.analyze
-    integration: "{{ inputs.integration }}"
-    input:
-      args: "Check alignment with PRODUCT, ARCHITECTURE, CHECKPOINTS, spec, plan, and tasks; fix critical inconsistencies."
+      args: "Read the spec, plan, every handoff, and human feedback. Before writing tasks, perform requirements-checklist and consistency-analysis responsibilities: verify product invariants, checkpoint coverage, testability, security, failure behavior, and alignment among PRODUCT, ARCHITECTURE, CHECKPOINTS, spec, and plan. Resolve critical inconsistencies in the appropriate planning artifact. Then order implementation test-first where practical, including docs and verification. Create handoffs/tasks.md with checks performed, resolutions, remaining risks, sequencing decisions, and implementation guidance."
+
   - id: develop
     command: speckit.implement
     integration: "{{ inputs.integration }}"
-    input: {args: "Implement and run all applicable checks. Never push or merge."}
-  - id: converge
-    command: speckit.converge
-    integration: "{{ inputs.integration }}"
-    input: {args: "Independently find acceptance gaps and append concrete remaining tasks."}
-  - id: remediate
-    command: speckit.implement
-    integration: "{{ inputs.integration }}"
-    input: {args: "Complete only remaining convergence tasks and rerun checks."}
+    input:
+      args: "Read spec.md, plan.md, tasks.md, all existing handoffs, and human feedback before coding. You are the sole implementation owner. Implement and run all applicable checks. Create handoffs/develop.md with changes, decisions, commands and results, risks, and exact guidance for QA. Do not commit, push, create a PR, or merge; Agentflow publishes only after verification."
+
   - id: qa
     type: prompt
     integration: "{{ inputs.integration }}"
+    timeout: 1200
     prompt: |
-      Act as independent QA. Do not trust summaries or modify implementation code. Locate the active feature; read spec.md, plan.md, tasks.md and the diff. Run applicable checks and verify every acceptance criterion with evidence. Write qa-report.md in the feature directory. End exactly with `Verdict: PASS` only if everything passes; otherwise `Verdict: FAIL` with blockers.
+      Act as independent QA and adversarial acceptance tester. Do not invoke agentflow,
+      its verify skill, or another agent. Do not trust summaries or modify implementation
+      code. Locate the active feature; read spec.md, plan.md, tasks.md, every handoff,
+      all human feedback, and the diff. Run applicable checks directly and verify every
+      acceptance criterion with evidence. When the task exposes or changes HTTP endpoints,
+      start the application and exercise every affected endpoint through real HTTP requests
+      (for example, curl), covering the specified success and failure cases and recording
+      status, relevant headers, and response evidence. Internal tests do not replace this
+      runtime check. If the required runtime or service cannot be started, report a blocker
+      instead of silently skipping it. Write qa-report.md and handoffs/qa.md in the feature
+      directory. End exactly with `Verdict: PASS` only if everything passes;
+      otherwise end exactly with `Verdict: FAIL` and list blockers. A failure returns
+      to development through Agentflow feedback; do not remediate it yourself.
+
   - id: review
     type: prompt
     integration: "{{ inputs.integration }}"
+    timeout: 1200
     prompt: |
-      Act as final independent reviewer and do not modify implementation code. Inspect the active specification, architecture, QA report, diff, security, checkpoint coverage, and evidence. Write review-report.md in the feature directory. End exactly with `Verdict: PASS` only when ready for human merge; otherwise `Verdict: FAIL` with blockers.
+      Act as the final independent reviewer and second verification perspective. Do not
+      invoke agentflow, its verify skill, or another agent, and do not modify implementation
+      code. Do not merely repeat QA: inspect design quality, maintainability, architecture,
+      security, checkpoint coverage, the active specification, every handoff, all human
+      feedback, QA report, diff, and evidence directly. Write review-report.md and
+      handoffs/review.md in the feature directory. End exactly with `Verdict: PASS` only
+      when ready for human merge; otherwise end exactly with `Verdict: FAIL` and list blockers.

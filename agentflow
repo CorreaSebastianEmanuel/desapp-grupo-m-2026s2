@@ -7,6 +7,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 BACKLOG = ROOT / "backlog"
 RUNS = ROOT / ".agentflow" / "runs"
+FEEDBACK = ROOT / "backlog" / "feedback"
 WORKFLOW = ROOT / ".agentflow" / "workflow.yml"
 SPEC_RUNS = ROOT / ".specify" / "workflows" / "runs"
 STEP_LABELS = {
@@ -16,6 +17,14 @@ STEP_LABELS = {
     "converge": "Gap analysis", "remediate": "Remediation",
     "qa": "Independent QA", "review": "Final review",
 }
+STEP_ORDER = tuple(STEP_LABELS)
+STAGE_ALIASES = {"product":"product","architecture":"architecture","development":"develop","develop":"develop","qa":"qa","review":"review"}
+def config_int(name, default):
+    try:
+        match=re.search(rf"(?m)^{re.escape(name)}\s*=\s*(\d+)\s*$",(ROOT/".agentflow"/"config.toml").read_text(encoding="utf-8"))
+        return int(match.group(1)) if match else default
+    except OSError: return default
+MAX_FEEDBACK_CYCLES = config_int("max_feedback_cycles",3)
 
 def files(): return sorted(BACKLOG.glob("TASK-*.md"))
 def meta(path):
@@ -30,6 +39,12 @@ def field(path, key, value):
     text, n = re.subn(rf"(?m)^{re.escape(key)}:\s*.*$", f"{key}: {value}", text, count=1)
     if n != 1: raise SystemExit(f"Missing {key} in {path}")
     path.write_text(text, encoding="utf-8")
+def feedback_path(task): return FEEDBACK/f"{meta(task)['id']}.md"
+def feedback_text(task):
+    path=feedback_path(task)
+    return path.read_text(encoding="utf-8") if path.exists() else "No human feedback has been recorded."
+def task_context(task):
+    return "Use docs/PRODUCT.md, docs/ARCHITECTURE.md, docs/CHECKPOINTS.md and the constitution.\n\n"+task.read_text(encoding="utf-8")+"\n\n## Human feedback\n\n"+feedback_text(task)
 def slug(text): return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-") or "task"
 def dependency_ids(path):
     raw=meta(path).get("depends_on","none")
@@ -70,6 +85,8 @@ def status(a):
     blockers=dependency_blockers(path)
     print(f"ready: {'yes' if not blockers and m.get('status')=='todo' else 'no'}")
     if blockers: print("blocked_by: "+", ".join(blockers))
+    fp=feedback_path(path)
+    if fp.exists(): print(f"feedback: {fp.relative_to(ROOT)} ({fp.read_text(encoding='utf-8').count('## Feedback ')} entries)")
     run=m.get("active_run","none")
     state=read_run_state(run)
     if state:
@@ -123,6 +140,77 @@ def recover_orphaned_run(task, run):
     with (SPEC_RUNS/run/"log.jsonl").open("a",encoding="utf-8") as log:
         log.write(json.dumps({"event":"orphaned_run_recovered","timestamp":state["updated_at"]})+"\n")
     print(f"Recovered orphaned run {run}: running → paused",flush=True)
+
+def rewind_run(task, run, stage):
+    state=read_run_state(run)
+    if not state: return False
+    marker=RUNS/f"{meta(task)['id']}.process.json"
+    try: process_data=json.loads(marker.read_text(encoding="utf-8"))
+    except (OSError,json.JSONDecodeError): process_data={}
+    if process_data.get("run_id")==run and process_alive(process_data.get("pid")):
+        raise SystemExit("Cannot add feedback while the workflow is active; interrupt it with Ctrl+C first")
+    recover_orphaned_run(task,run)
+    state=read_run_state(run) or state
+    index=STEP_ORDER.index(stage)
+    stamp=datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    state_path=SPEC_RUNS/run/"state.json"
+    shutil.copy2(state_path,SPEC_RUNS/run/f"state.before-feedback-{stamp}.json")
+    state["status"]="paused"; state["current_step_index"]=index; state["current_step_id"]=stage
+    state["step_results"]={k:v for k,v in state.get("step_results",{}).items() if k in STEP_ORDER[:index]}
+    state["error"]=None; state["updated_at"]=datetime.now(timezone.utc).isoformat()
+    state.setdefault("inputs",{})["spec"]=task_context(task)
+    state_path.write_text(json.dumps(state,indent=2)+"\n",encoding="utf-8")
+    inputs_path=SPEC_RUNS/run/"inputs.json"
+    try: inputs=json.loads(inputs_path.read_text(encoding="utf-8"))
+    except (OSError,json.JSONDecodeError): inputs={"inputs":{}}
+    inputs.setdefault("inputs",{})["spec"]=task_context(task)
+    inputs_path.write_text(json.dumps(inputs,indent=2)+"\n",encoding="utf-8")
+    if WORKFLOW.exists(): shutil.copy2(WORKFLOW,SPEC_RUNS/run/"workflow.yml")
+    with (SPEC_RUNS/run/"log.jsonl").open("a",encoding="utf-8") as log:
+        log.write(json.dumps({"event":"feedback_rewind","stage":stage,"timestamp":state["updated_at"]})+"\n")
+    return True
+
+def add_feedback(a):
+    task=find(a.task); m=meta(task); stage=STAGE_ALIASES[a.stage]
+    message=a.message or input("Feedback: ").strip()
+    if not message: raise SystemExit("Feedback text is required")
+    run=m.get("active_run","none")
+    if run not in ("none","unknown",""):
+        marker=RUNS/f"{m['id']}.process.json"
+        try: process_data=json.loads(marker.read_text(encoding="utf-8"))
+        except (OSError,json.JSONDecodeError): process_data={}
+        if process_data.get("run_id")==run and process_alive(process_data.get("pid")):
+            raise SystemExit("Cannot add feedback while the workflow is active; interrupt it with Ctrl+C first")
+    path=feedback_path(task); path.parent.mkdir(parents=True,exist_ok=True)
+    existing=path.read_text(encoding="utf-8") if path.exists() else f"# Feedback — {m['id']}\n\n"
+    count=existing.count("## Feedback ")
+    if count>=MAX_FEEDBACK_CYCLES: raise SystemExit(f"Feedback limit reached ({MAX_FEEDBACK_CYCLES}); resolve or split the task before another cycle")
+    stamp=datetime.now(timezone.utc).isoformat(timespec="seconds")
+    author=os.environ.get("USER") or os.environ.get("USERNAME") or "human"
+    entry=f"## Feedback {count+1}\n\n- Time: {stamp}\n- Author: {author}\n- Restart from: {stage}\n\n{message}\n\n"
+    path.write_text(existing+entry,encoding="utf-8")
+    rewound=run not in ("none","unknown","") and rewind_run(task,run,stage)
+    if m.get("status")!="todo": field(task,"status","wip")
+    print(f"Recorded feedback #{count+1} in {path.relative_to(ROOT)}")
+    print(f"Workflow rewound to {STEP_LABELS[stage]}. Run: ./agentflow resume {m['id']}" if rewound else f"Feedback will be included when {m['id']} starts")
+
+def history(a):
+    task=find(a.task); m=meta(task)
+    print(f"{m['id']} — {m['title']}\n")
+    fp=feedback_path(task)
+    print(fp.read_text(encoding="utf-8").rstrip() if fp.exists() else "No human feedback.")
+    feature=newest_feature()
+    if feature and (feature/"handoffs").exists():
+        print("\n# Agent handoffs")
+        for handoff in sorted((feature/"handoffs").glob("*.md")):
+            print(f"\n## {handoff.stem}\n{handoff.read_text(encoding='utf-8').rstrip()}")
+    run=m.get("active_run","none"); state=read_run_state(run)
+    if state:
+        print("\n# Workflow")
+        for step in STEP_ORDER:
+            result=state.get("step_results",{}).get(step)
+            mark=result.get("status","pending") if result else ("current" if step==state.get("current_step_id") else "pending")
+            print(f"- {step}: {mark}")
 
 def monitor_process(cmd, task, run_hint=None):
     """Run with inherited stdin, live output, durable logs, stage updates, and heartbeat."""
@@ -247,7 +335,7 @@ def start(a):
         auth=subprocess.run(["gh","auth","status"],cwd=ROOT,text=True,capture_output=True)
         if auth.returncode: raise SystemExit("GitHub CLI is not authenticated; run `gh auth login` or use --no-pr")
     field(task,"status","wip")
-    context="Use docs/PRODUCT.md, docs/ARCHITECTURE.md, docs/CHECKPOINTS.md and the constitution.\n\n"+task.read_text(encoding="utf-8")
+    context=task_context(task)
     cmd=["specify","workflow","run",str(WORKFLOW),"--input",f"integration={selected}","--input",f"spec={context}"]
     code,run=monitor_process(cmd,task)
     if code==130: return code
@@ -277,11 +365,12 @@ def verify(a):
     return subprocess.run(cmd,cwd=ROOT).returncode
 def menu(parser):
     while True:
-        print("\nAgentflow\n1 Backlog  2 Create  3 Start  4 Status  5 Resume  6 Verify  7 Complete  0 Exit")
+        print("\nAgentflow\n1 Backlog  2 Create  3 Start  4 Status  5 Resume  6 Verify  7 Complete  8 Feedback  9 History  0 Exit")
         choice=input("> ").strip()
         if choice=="0": return 0
         argv={"1":["backlog"],"2":["create"]}.get(choice)
-        if choice in "34567": argv=[{"3":"start","4":"status","5":"resume","6":"verify","7":"complete"}[choice],input("Task id: ").strip()]
+        if choice in "345679": argv=[{"3":"start","4":"status","5":"resume","6":"verify","7":"complete","9":"history"}[choice],input("Task id: ").strip()]
+        if choice=="8": argv=["feedback",input("Task id: ").strip(),input("Feedback: ").strip()]
         if not argv: print("Invalid option"); continue
         try: x=parser.parse_args(argv); x.func(x)
         except SystemExit as e: print(e)
@@ -296,6 +385,8 @@ def parser():
         q.set_defaults(func=fn)
     q=s.add_parser("resume"); q.add_argument("task"); q.set_defaults(func=resume)
     q=s.add_parser("complete"); q.add_argument("task"); q.set_defaults(func=complete)
+    q=s.add_parser("feedback"); q.add_argument("task"); q.add_argument("message",nargs="?"); q.add_argument("--stage",choices=sorted(STAGE_ALIASES),default="development"); q.set_defaults(func=add_feedback)
+    q=s.add_parser("history"); q.add_argument("task"); q.set_defaults(func=history)
     return p
 if __name__=="__main__":
     p=parser()

@@ -1,0 +1,4 @@
+interface:
+  display_name: "History"
+  short_description: "Muestra feedback, handoffs y progreso agentico"
+  default_prompt: "Usa $history para mostrar la trazabilidad completa de una tarea agentica."

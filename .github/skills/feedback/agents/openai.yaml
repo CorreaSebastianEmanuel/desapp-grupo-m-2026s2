@@ -1,0 +1,4 @@
+interface:
+  display_name: "Feedback"
+  short_description: "Registra feedback y rebobina una tarea agentica"
+  default_prompt: "Usa $feedback para agregar feedback humano a una tarea y retomarla desde la etapa afectada."

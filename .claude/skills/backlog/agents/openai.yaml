@@ -1,4 +1,0 @@
-interface:
-  display_name: "Backlog"
-  short_description: "Ejecuta Agentflow para backlog tareas locales"
-  default_prompt: "Usa /backlog para backlog una tarea del backlog agentico."

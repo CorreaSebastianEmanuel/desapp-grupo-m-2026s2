@@ -1,4 +1,0 @@
-interface:
-  display_name: "Resume"
-  short_description: "Ejecuta Agentflow para resume tareas locales"
-  default_prompt: "Usa /resume para resume una tarea del backlog agentico."

@@ -8,7 +8,7 @@ workflow:
 requires:
   speckit_version: ">=1.0.0"
   integrations:
-    any: ["codex", "claude"]
+    any: ["codex"]
 inputs:
   spec: {type: string, required: true}
   integration: {type: string, default: "auto"}
@@ -59,4 +59,3 @@ steps:
     integration: "{{ inputs.integration }}"
     prompt: |
       Act as final independent reviewer and do not modify implementation code. Inspect the active specification, architecture, QA report, diff, security, checkpoint coverage, and evidence. Write review-report.md in the feature directory. End exactly with `Verdict: PASS` only when ready for human merge; otherwise `Verdict: FAIL` with blockers.
-

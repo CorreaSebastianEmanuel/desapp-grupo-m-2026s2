@@ -4,9 +4,9 @@ title: Phoenix project foundation
 type: task
 checkpoint: CP1
 priority: critical
-status: todo
+status: blocked
 depends_on: none
-active_run: none
+active_run: 4321efe4
 ---
 
 ## Outcome

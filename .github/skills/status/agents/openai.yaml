@@ -1,4 +1,0 @@
-interface:
-  display_name: "Status"
-  short_description: "Ejecuta Agentflow para status tareas locales"
-  default_prompt: "Usa /status para status una tarea del backlog agentico."

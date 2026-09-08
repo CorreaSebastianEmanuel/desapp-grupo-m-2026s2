@@ -57,13 +57,8 @@ def dependency_blockers(path):
         if state!="done": blockers.append(f"{ident} ({state})")
     return blockers
 def agent(requested):
-    if requested == "copilot": raise SystemExit("Copilot may use project skills interactively; unattended local workflows require codex or claude")
-    if requested != "auto":
-        if not shutil.which(requested): raise SystemExit(f"{requested} CLI is not installed")
-        return requested
-    for name in ("codex", "claude"):
-        if shutil.which(name): return name
-    raise SystemExit("Install and authenticate Codex CLI or Claude Code")
+    if not shutil.which("codex"): raise SystemExit("Install and authenticate Codex CLI")
+    return "codex"
 def create(a):
     title = a.title or input("Task title: ").strip()
     if not title: raise SystemExit("Task title is required")
@@ -361,7 +356,7 @@ def complete(a):
 def verify(a):
     selected=agent(a.agent); prompt=f"Independently verify {a.task}; run checks and update qa-report.md and review-report.md without changing implementation code."
     if a.dry_run: print(f"Would verify {a.task} with {selected}"); return 0
-    cmd=["codex","exec","-C",str(ROOT),"--approve-for-me","--ephemeral",prompt] if selected=="codex" else ["claude","-p","--permission-mode","acceptEdits","--max-turns","20",prompt]
+    cmd=["codex","exec","-C",str(ROOT),"--approve-for-me","--ephemeral",prompt]
     return subprocess.run(cmd,cwd=ROOT).returncode
 def menu(parser):
     while True:
@@ -380,7 +375,7 @@ def parser():
     b=s.add_parser("backlog"); b.set_defaults(func=backlog)
     q=s.add_parser("status"); q.add_argument("task"); q.set_defaults(func=status)
     for name,fn in (("start",start),("verify",verify)):
-        q=s.add_parser(name); q.add_argument("task"); q.add_argument("--agent",choices=["auto","codex","claude","copilot"],default="auto"); q.add_argument("--dry-run",action="store_true")
+        q=s.add_parser(name); q.add_argument("task"); q.add_argument("--agent",choices=["auto","codex"],default="auto"); q.add_argument("--dry-run",action="store_true")
         if name=="start": q.add_argument("--no-pr",action="store_true",help="leave verified changes local without commit, push, or PR")
         q.set_defaults(func=fn)
     q=s.add_parser("resume"); q.add_argument("task"); q.set_defaults(func=resume)

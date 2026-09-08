@@ -23,11 +23,7 @@ if (-not (Get-Command bash -ErrorAction SilentlyContinue)) {
     throw "Git Bash is required by the checked-in Spec Kit skills. Install Git for Windows and enable bash.exe on PATH."
 }
 
-$HasCodex = [bool](Get-Command codex -ErrorAction SilentlyContinue)
-$HasClaude = [bool](Get-Command claude -ErrorAction SilentlyContinue)
-if (-not $HasCodex -and -not $HasClaude) {
-    throw "Install and authenticate Codex CLI or Claude Code."
-}
+Require-Command "codex" "Install and authenticate Codex CLI."
 
 Push-Location $Root
 try {

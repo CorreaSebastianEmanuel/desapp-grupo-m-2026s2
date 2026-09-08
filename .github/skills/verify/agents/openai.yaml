@@ -1,4 +1,0 @@
-interface:
-  display_name: "Verify"
-  short_description: "Ejecuta Agentflow para verify tareas locales"
-  default_prompt: "Usa /verify para verify una tarea del backlog agentico."

@@ -3,7 +3,7 @@ UNQ-Desarrollo de Aplicacion- Alquimistas
 
 ## Agentic SDD
 
-This repository includes a local Spec Kit workflow using an authenticated Codex CLI or Claude Code installation.
+This repository includes a local Spec Kit workflow using an authenticated Codex CLI installation.
 
 ```bash
 ./setup
@@ -12,6 +12,8 @@ This repository includes a local Spec Kit workflow using an authenticated Codex 
 ./agentflow create "Task title" --checkpoint CP1
 ./agentflow start TASK-001
 ./agentflow status TASK-001
+./agentflow feedback TASK-001 "Use Phoenix 1.8" --stage architecture
+./agentflow history TASK-001
 ./agentflow resume TASK-001
 ./agentflow verify TASK-001
 ./agentflow complete TASK-001       # after human review/merge
@@ -21,9 +23,11 @@ This repository includes a local Spec Kit workflow using an authenticated Codex 
 
 Agentflow prints every stage, a heartbeat every 20 seconds, and underlying CLI output in real time. It keeps stdin attached so permission or authentication prompts remain interactive. Runtime output is saved to `.agentflow/runs/TASK-NNN.live.log`; `status` reports the current stage and last activity. If interrupted with `Ctrl+C`, continue the preserved Spec Kit run with `./agentflow resume TASK-NNN`.
 
+Agents exchange structured handoffs under the active feature's `handoffs/` directory. Human feedback is versioned in `backlog/feedback/TASK-NNN.md`; adding feedback rewinds the preserved workflow to the selected affected stage. `history` shows feedback, handoffs, and stage results. A task accepts at most three feedback cycles before it must be resolved or split, preventing unbounded autonomous loops.
+
 ### Windows PowerShell
 
-Install Python 3, Git for Windows (including Git Bash), `uv`, and Codex CLI or Claude Code. Then run:
+Install Python 3, Git for Windows (including Git Bash), `uv`, and Codex CLI. Then run:
 
 ```powershell
 Set-ExecutionPolicy -Scope Process Bypass

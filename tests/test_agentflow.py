@@ -30,15 +30,20 @@ class FeedbackLoopTest(unittest.TestCase):
         self.run_dir.mkdir(parents=True)
         globals_["RUNS"].mkdir(parents=True)
         state = {
-            "run_id": "run-1", "status": "completed", "current_step_index": 8,
+            "run_id": "run-1", "status": "completed", "current_step_index": 12,
             "current_step_id": "review", "step_results": {
                 "product": {"status": "completed"},
                 "product_challenge": {"status": "completed"},
                 "product_decision": {"status": "completed"},
                 "product_check": {"status": "completed"},
                 "architecture": {"status": "completed"},
+                "plan_ready": {"status": "completed"},
+                "tasks": {"status": "completed"},
+                "tasks_ready": {"status": "completed"},
                 "develop": {"status": "completed"},
+                "develop_ready": {"status": "completed"},
                 "qa": {"status": "completed"},
+                "qa_ready": {"status": "completed"},
                 "review": {"status": "completed"},
             }, "inputs": {"spec": "old"},
         }
@@ -82,6 +87,8 @@ class ProductDecisionProbeTest(unittest.TestCase):
         (self.root / ".specify" / "feature.json").write_text(
             json.dumps({"feature_directory": "specs/001-example"}), encoding="utf-8"
         )
+        for relative in ("spec.md", "handoffs/product.md", "handoffs/product-challenge.md"):
+            (self.feature / relative).write_text("Evidence.\n", encoding="utf-8")
         self.probe = runpy.run_path(
             str(Path(__file__).parents[1] / "scripts" / "product_decision_probe.py")
         )["probe"]
@@ -111,6 +118,56 @@ class ProductDecisionProbeTest(unittest.TestCase):
         self.write_decision("human_check_required: maybe")
         with self.assertRaisesRegex(RuntimeError, "must start exactly"):
             self.probe(self.root)
+
+
+class WorkflowArtifactProbeTest(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self.tmp.name)
+        self.feature = self.root / "specs" / "001-example"
+        (self.feature / "handoffs").mkdir(parents=True)
+        (self.root / ".specify").mkdir()
+        (self.root / ".specify" / "feature.json").write_text(
+            json.dumps({"feature_directory": "specs/001-example"}), encoding="utf-8"
+        )
+        self.probe = runpy.run_path(
+            str(Path(__file__).parents[1] / "scripts" / "workflow_artifact_probe.py")
+        )["probe"]
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def write(self, relative, content="Evidence.\n"):
+        (self.feature / relative).write_text(content, encoding="utf-8")
+
+    def test_accepts_complete_plan_artifacts(self):
+        for relative in ("spec.md", "plan.md", "handoffs/architecture.md"):
+            self.write(relative)
+        self.assertTrue(self.probe(self.root, "plan")["valid"])
+
+    def test_rejects_missing_canonical_tasks_before_development(self):
+        for relative in ("spec.md", "plan.md", "handoffs/tasks.md"):
+            self.write(relative)
+        with self.assertRaisesRegex(RuntimeError, "tasks.md"):
+            self.probe(self.root, "tasks")
+
+    def test_rejects_empty_artifact(self):
+        for relative in ("spec.md", "plan.md", "handoffs/architecture.md"):
+            self.write(relative)
+        self.write("plan.md", "   \n")
+        with self.assertRaisesRegex(RuntimeError, "plan.md"):
+            self.probe(self.root, "plan")
+
+    def test_accepts_passing_qa_report(self):
+        self.write("qa-report.md", "Evidence.\n\nVerdict: PASS\n")
+        self.write("handoffs/qa.md")
+        self.assertTrue(self.probe(self.root, "qa")["valid"])
+
+    def test_rejects_failed_qa_before_final_review(self):
+        self.write("qa-report.md", "Blocker.\n\nVerdict: FAIL\n")
+        self.write("handoffs/qa.md")
+        with self.assertRaisesRegex(RuntimeError, "Final review will not run"):
+            self.probe(self.root, "qa")
 
 
 if __name__ == "__main__":

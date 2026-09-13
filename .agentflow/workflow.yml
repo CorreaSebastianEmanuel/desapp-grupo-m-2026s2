@@ -2,7 +2,7 @@ schema_version: "1.0"
 workflow:
   id: "desapp-delivery"
   name: "DesApp deliberative SDD delivery"
-  version: "2.1.0"
+  version: "2.2.0"
   author: "Alquimistas"
   description: "Specify, challenge, synthesize, implement, and independently verify one task"
 requires:
@@ -17,7 +17,7 @@ steps:
     command: speckit.specify
     integration: "{{ inputs.integration }}"
     input:
-      args: "{{ inputs.spec }}\n\nAfter the specification is written, create handoffs/product.md inside the active feature directory with decisions, assumptions, open questions, evidence, and guidance for the critic and architect."
+      args: "{{ inputs.spec }}\n\nWrite the canonical spec.md as the complete behavioral source of truth. Then create handoffs/product.md with only decisions, unresolved assumptions, and guidance not already stated in spec.md; do not duplicate the specification and keep the handoff under 300 words. Do not inspect .agentflow/runs or .specify/workflows/runs unless explicitly diagnosing the workflow runner."
 
   - id: product_challenge
     type: prompt
@@ -26,13 +26,15 @@ steps:
     prompt: |
       Act as an independent product and requirements critic. Do not modify spec.md,
       implementation code, or existing handoffs. Locate the active feature and read
-      the backlog task, all human feedback, docs/PRODUCT.md, docs/ARCHITECTURE.md,
-      docs/CHECKPOINTS.md, the constitution, spec.md, and handoffs/product.md.
+      the backlog task, current human feedback, docs/PRODUCT.md, docs/CHECKPOINTS.md,
+      the constitution, spec.md, and handoffs/product.md. Do not read unrelated feature
+      artifacts or workflow/live logs.
       Challenge assumptions; identify ambiguous or untestable acceptance criteria,
       boundary cases, scope creep, security concerns, and checkpoint gaps. Present
       credible alternatives where tradeoffs exist. Write only
-      handoffs/product-challenge.md with findings, evidence, and explicit recommendations
-      for the architect. This is a dissenting view, not a second specification.
+      handoffs/product-challenge.md with only material findings, evidence, and explicit
+      recommendations for the architect. This is a dissenting view, not a second
+      specification: do not restate accepted requirements and keep it under 500 words.
 
       Also write handoffs/product-decision.md. Its first line must be exactly
       `human_check_required: true` or `human_check_required: false`. Set it to true
@@ -42,8 +44,8 @@ steps:
       choice. Do not request human input for routine, internal, or reversible choices.
       When true, include: the precise decision needed, why it matters, concrete options
       and consequences, and one recommended option. When false, briefly explain why
-      the specification is sufficiently determined. Never invent a preference merely
-      to force a human check.
+      the specification is sufficiently determined. Keep this file under 300 words.
+      Never invent a preference merely to force a human check.
 
   - id: product_decision
     type: shell
@@ -65,19 +67,34 @@ steps:
     command: speckit.plan
     integration: "{{ inputs.integration }}"
     input:
-      args: "Read the active spec, handoffs/product.md, handoffs/product-challenge.md, handoffs/product-decision.md, and all human feedback. Any required human check has been approved before this stage; treat recorded human feedback as authoritative product behavior. Read docs/ARCHITECTURE.md. Act as the synthesis owner: explicitly resolve the author's and critic's competing positions, choose the smallest compliant solution, explain rejected alternatives, and record durable deviations as ADRs. Create handoffs/architecture.md with decisions, assumptions, risks, evidence, and guidance for implementation."
+      args: "Read spec.md, handoffs/product-challenge.md, handoffs/product-decision.md, current human feedback, and docs/ARCHITECTURE.md. Do not reread product.md because spec.md is canonical, and do not inspect workflow/live logs. Any required human check has been approved; treat recorded human feedback as authoritative. Act as synthesis owner: resolve the critic's material findings, choose the smallest compliant solution, explain rejected alternatives, and record durable deviations as ADRs. Create the canonical plan.md. Create handoffs/architecture.md with only decisions, risks, and implementation guidance not already present in plan.md; do not duplicate the plan and keep the handoff under 400 words."
+
+  - id: plan_ready
+    type: shell
+    run: "python3 scripts/workflow_artifact_probe.py plan"
+    output_format: json
 
   - id: tasks
     command: speckit.tasks
     integration: "{{ inputs.integration }}"
     input:
-      args: "Read the spec, plan, every handoff, and human feedback. Before writing tasks, perform requirements-checklist and consistency-analysis responsibilities: verify product invariants, checkpoint coverage, testability, security, failure behavior, and alignment among PRODUCT, ARCHITECTURE, CHECKPOINTS, spec, and plan. Resolve critical inconsistencies in the appropriate planning artifact. Then order implementation test-first where practical, including docs and verification. Create handoffs/tasks.md with checks performed, resolutions, remaining risks, sequencing decisions, and implementation guidance."
+      args: "Read spec.md, plan.md, handoffs/architecture.md, handoffs/product-decision.md, current human feedback, and the governing PRODUCT/CHECKPOINTS documents; do not read other handoffs or workflow/live logs. Verify product invariants, checkpoint coverage, testability, security, failure behavior, and spec/plan alignment. Resolve critical planning inconsistencies, then create the canonical tasks.md with test-first ordering, documentation, and verification. Confirm tasks.md exists and is complete. Create handoffs/tasks.md containing only resolutions, remaining risks, and sequencing guidance absent from tasks.md; never copy the task list and keep the handoff under 300 words."
+
+  - id: tasks_ready
+    type: shell
+    run: "python3 scripts/workflow_artifact_probe.py tasks"
+    output_format: json
 
   - id: develop
     command: speckit.implement
     integration: "{{ inputs.integration }}"
     input:
-      args: "Read spec.md, plan.md, tasks.md, all existing handoffs, and human feedback before coding. You are the sole implementation owner. Implement and run all applicable checks. Create handoffs/develop.md with changes, decisions, commands and results, risks, and exact guidance for QA. Do not commit, push, create a PR, or merge; Agentflow publishes only after verification."
+      args: "Read only spec.md, plan.md, tasks.md, handoffs/architecture.md, handoffs/tasks.md, and current human feedback before coding. Do not read product debate, stale QA/review artifacts, unrelated feature artifacts, or workflow/live logs. You are the sole implementation owner. Implement and run all applicable checks. Create one handoff, handoffs/develop.md, with concise changes, decisions, command outcomes, residual risks, and exact QA guidance; reference files instead of pasting output, do not create a second evidence handoff, and keep it under 400 words. Do not commit, push, create a PR, or merge; Agentflow publishes only after verification."
+
+  - id: develop_ready
+    type: shell
+    run: "python3 scripts/workflow_artifact_probe.py develop"
+    output_format: json
 
   - id: qa
     type: prompt
@@ -86,17 +103,27 @@ steps:
     prompt: |
       Act as independent QA and adversarial acceptance tester. Do not invoke agentflow,
       its verify skill, or another agent. Do not trust summaries or modify implementation
-      code. Locate the active feature; read spec.md, plan.md, tasks.md, every handoff,
-      all human feedback, and the diff. Run applicable checks directly and verify every
+      code. Locate the active feature; read spec.md, plan.md, tasks.md,
+      handoffs/architecture.md, handoffs/develop.md, current human feedback, and the
+      diff. Do not read product debate, stale QA/review reports, unrelated artifacts,
+      or workflow/live logs. Run applicable checks directly and verify every
       acceptance criterion with evidence. When the task exposes or changes HTTP endpoints,
       start the application and exercise every affected endpoint through real HTTP requests
       (for example, curl), covering the specified success and failure cases and recording
       status, relevant headers, and response evidence. Internal tests do not replace this
       runtime check. If the required runtime or service cannot be started, report a blocker
-      instead of silently skipping it. Write qa-report.md and handoffs/qa.md in the feature
-      directory. End exactly with `Verdict: PASS` only if everything passes;
+      instead of silently skipping it. Write qa-report.md as a compact evidence matrix,
+      referencing commands and relevant excerpts rather than pasting complete output;
+      keep it under 900 words. Write handoffs/qa.md with only the verdict, blockers or
+      residual risks, and reviewer guidance absent from the report; keep it under 250
+      words. End exactly with `Verdict: PASS` only if everything passes;
       otherwise end exactly with `Verdict: FAIL` and list blockers. A failure returns
       to development through Agentflow feedback; do not remediate it yourself.
+
+  - id: qa_ready
+    type: shell
+    run: "python3 scripts/workflow_artifact_probe.py qa"
+    output_format: json
 
   - id: review
     type: prompt
@@ -105,8 +132,13 @@ steps:
     prompt: |
       Act as the final independent reviewer and second verification perspective. Do not
       invoke agentflow, its verify skill, or another agent, and do not modify implementation
-      code. Do not merely repeat QA: inspect design quality, maintainability, architecture,
-      security, checkpoint coverage, the active specification, every handoff, all human
-      feedback, QA report, diff, and evidence directly. Write review-report.md and
-      handoffs/review.md in the feature directory. End exactly with `Verdict: PASS` only
+      code. Do not merely repeat QA. Read spec.md, plan.md, tasks.md,
+      handoffs/architecture.md, handoffs/develop.md, current human feedback, qa-report.md,
+      the diff, and implementation code directly. Do not read product debate, unrelated
+      artifacts, stale review reports, or workflow/live logs. Inspect design quality,
+      maintainability, architecture, security, checkpoint coverage, and QA evidence.
+      Treat fresh reproducible QA evidence as evidence: do not rerun the full suite by
+      default; execute only targeted checks needed to resolve a discrepancy or uncovered
+      risk, and explain why. Write review-report.md under 600 words and handoffs/review.md
+      under 250 words, without duplicating either QA or the report. End exactly with `Verdict: PASS` only
       when ready for human merge; otherwise end exactly with `Verdict: FAIL` and list blockers.

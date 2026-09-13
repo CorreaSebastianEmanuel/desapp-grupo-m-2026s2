@@ -13,9 +13,10 @@ SPEC_RUNS = ROOT / ".specify" / "workflows" / "runs"
 STEP_LABELS = {
     "product": "Product specification", "product_challenge": "Independent product challenge",
     "product_decision": "Product decision detection", "product_check": "Conditional human check",
-    "architecture": "Architecture synthesis", "tasks": "Validated implementation tasks",
-    "develop": "Development",
-    "qa": "Independent QA", "review": "Final review",
+    "architecture": "Architecture synthesis", "plan_ready": "Plan artifact gate",
+    "tasks": "Validated implementation tasks", "tasks_ready": "Tasks artifact gate",
+    "develop": "Development", "develop_ready": "Development artifact gate",
+    "qa": "Independent QA", "qa_ready": "QA verdict gate", "review": "Final review",
 }
 STEP_ORDER = tuple(STEP_LABELS)
 STAGE_ALIASES = {"product":"product","architecture":"architecture","development":"develop","develop":"develop","qa":"qa","review":"review"}

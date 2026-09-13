@@ -22,6 +22,16 @@ def probe(root: Path) -> dict[str, object]:
     if feature.parent != specs:
         raise RuntimeError(f"Active feature must be an immediate child of {specs}")
 
+    required_product = (
+        feature / "spec.md",
+        feature / "handoffs" / "product.md",
+        feature / "handoffs" / "product-challenge.md",
+        feature / "handoffs" / "product-decision.md",
+    )
+    missing = [str(path) for path in required_product if not path.is_file()]
+    if missing:
+        raise RuntimeError("Missing required product artifact(s): " + ", ".join(missing))
+
     decision = feature / "handoffs" / "product-decision.md"
     try:
         first_line = decision.read_text(encoding="utf-8").splitlines()[0].strip()

@@ -4,12 +4,11 @@ title: Phoenix project foundation
 type: task
 checkpoint: CP1
 priority: critical
-status: blocked
+status: review
 depends_on: none
-active_run: 4321efe4
+active_run: fc2d435d
 ---
 
 ## Outcome
 
 Create a compiling Phoenix application with a minimal test baseline and documented local startup.
-

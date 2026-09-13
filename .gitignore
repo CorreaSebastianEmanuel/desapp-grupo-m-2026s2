@@ -3,3 +3,31 @@ __pycache__/
 .agentflow/runs/
 .specify/workflows/runs/
 .DS_Store
+Thumbs.db
+*.tmp
+*.swp
+.vscode/
+.idea/
+
+# Elixir/Phoenix build and dependency outputs
+/_build/
+/deps/
+/cover/
+/doc/
+/erl_crash.dump
+*.ez
+*.beam
+
+# Generated assets and package-manager outputs
+/priv/static/assets/
+/priv/static/cache_manifest.json
+/assets/node_modules/
+/node_modules/
+/dist/
+/build/
+*.log
+
+# Local configuration and credentials
+.env
+.env.*
+!.env.example

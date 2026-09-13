@@ -1,9 +1,80 @@
 # desapp-grupo-m-2026s2
 UNQ-Desarrollo de Aplicacion- Alquimistas
 
+## Football Player Market application
+
+This repository contains the Phoenix foundation for Football Player Market. TASK-001 deliberately starts without PostgreSQL or Redis; persistence is activated by TASK-002.
+
+### Prerequisites
+
+- macOS or Linux, Git, and `curl`
+- Erlang/OTP 29.0.3 (ERTS 17.0.6)
+- Elixir 1.20.3 with Mix
+- Hex and Rebar (the preparation commands install them if absent)
+- Phoenix dependencies locked by `mix.lock`; `phx_new` is not needed to build the checked-in application
+- Network access during preparation only
+- TCP port 4000 free on loopback
+
+The supported baseline is exact. Select the pinned toolchain in your version manager, then run:
+
+```bash
+./scripts/check_toolchain.sh
+```
+
+The check exits nonzero and names the mismatch when Elixir, OTP, ERTS, Mix, or Erlang is absent or unsupported. Do not continue on a mismatch.
+
+### Prepare, compile, and test
+
+From a clean checkout, run these commands in order:
+
+```bash
+mix local.hex --if-missing --force
+mix local.rebar --if-missing --force
+mix deps.get --locked
+mix assets.setup
+mix assets.build
+mix compile --warnings-as-errors
+mix compile --warnings-as-errors
+mix test
+test/scripts/verify_foundation_test.sh
+```
+
+Only the preparation commands (`local.hex`, `local.rebar`, `deps.get`, and first-time asset setup) require downloads. Compilation and tests must not fetch dependencies. A missing package, unavailable network during preparation, compiler warning, or failing assertion produces a nonzero exit.
+
+### Start, verify, stop, and restart
+
+Start Phoenix in the foreground:
+
+```bash
+mix phx.server
+```
+
+In another terminal, run the bounded HTTP oracle. It retries for no more than 30 seconds and requires both HTTP 200 and the application-owned marker `Football Player Market`:
+
+```bash
+./scripts/verify_foundation.sh
+```
+
+Stop the foreground server with `Ctrl+C`, then `a` when the Erlang shell asks whether to abort. It should exit within 10 seconds. Confirm that nothing remains reachable:
+
+```bash
+if curl --silent --show-error --max-time 2 http://127.0.0.1:4000/ >/dev/null; then
+  echo "error: port 4000 is still serving" >&2
+  exit 1
+else
+  echo "server stopped and port 4000 is released"
+fi
+```
+
+Repeat `mix phx.server`, run `./scripts/verify_foundation.sh` again, and stop it a second time to prove restartability.
+
+Common failures are explicit: use `lsof -nP -iTCP:4000 -sTCP:LISTEN` when the port is occupied; rerun preparation when dependencies or asset binaries are missing; inspect the Phoenix terminal when the HTTP oracle times out or receives a bad status/marker. The development endpoint binds only to `127.0.0.1`, requires no credentials, and does not start PostgreSQL or Redis.
+
 ## Agentic SDD
 
 This repository includes a local Spec Kit workflow using an authenticated Codex CLI installation.
+
+The complete workflow diagram and presentation notes are available in [`docs/METODOLOGIA_AGENTICA.md`](docs/METODOLOGIA_AGENTICA.md).
 
 ```bash
 ./setup

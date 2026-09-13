@@ -2,7 +2,7 @@ schema_version: "1.0"
 workflow:
   id: "desapp-delivery"
   name: "DesApp deliberative SDD delivery"
-  version: "2.0.0"
+  version: "2.1.0"
   author: "Alquimistas"
   description: "Specify, challenge, synthesize, implement, and independently verify one task"
 requires:
@@ -34,11 +34,38 @@ steps:
       handoffs/product-challenge.md with findings, evidence, and explicit recommendations
       for the architect. This is a dissenting view, not a second specification.
 
+      Also write handoffs/product-decision.md. Its first line must be exactly
+      `human_check_required: true` or `human_check_required: false`. Set it to true
+      only when documentation and evidence cannot resolve a decision that materially
+      changes observable product behavior, a business rule, scope, permissions,
+      privacy, security, data integrity, or a costly and difficult-to-reverse technical
+      choice. Do not request human input for routine, internal, or reversible choices.
+      When true, include: the precise decision needed, why it matters, concrete options
+      and consequences, and one recommended option. When false, briefly explain why
+      the specification is sufficiently determined. Never invent a preference merely
+      to force a human check.
+
+  - id: product_decision
+    type: shell
+    run: "python3 scripts/product_decision_probe.py"
+    output_format: json
+
+  - id: product_check
+    type: if
+    condition: "{{ steps.product_decision.output.data.required }}"
+    then:
+      - id: human_product_check
+        type: gate
+        message: "A material product or critical technical decision requires human confirmation. Review the analysis below. Approve the recommended behavior, or reject and record the chosen behavior with ./agentflow feedback TASK-NNN \"decision\" --stage product before resuming."
+        show_file: "{{ steps.product_decision.output.data.file }}"
+        options: [approve, reject]
+        on_reject: abort
+
   - id: architecture
     command: speckit.plan
     integration: "{{ inputs.integration }}"
     input:
-      args: "Read the active spec, handoffs/product.md, handoffs/product-challenge.md, and all human feedback. Read docs/ARCHITECTURE.md. Act as the synthesis owner: explicitly resolve the author's and critic's competing positions, choose the smallest compliant solution, explain rejected alternatives, and record durable deviations as ADRs. Create handoffs/architecture.md with decisions, assumptions, risks, evidence, and guidance for implementation."
+      args: "Read the active spec, handoffs/product.md, handoffs/product-challenge.md, handoffs/product-decision.md, and all human feedback. Any required human check has been approved before this stage; treat recorded human feedback as authoritative product behavior. Read docs/ARCHITECTURE.md. Act as the synthesis owner: explicitly resolve the author's and critic's competing positions, choose the smallest compliant solution, explain rejected alternatives, and record durable deviations as ADRs. Create handoffs/architecture.md with decisions, assumptions, risks, evidence, and guidance for implementation."
 
   - id: tasks
     command: speckit.tasks

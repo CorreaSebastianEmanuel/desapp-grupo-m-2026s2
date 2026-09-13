@@ -12,6 +12,7 @@ WORKFLOW = ROOT / ".agentflow" / "workflow.yml"
 SPEC_RUNS = ROOT / ".specify" / "workflows" / "runs"
 STEP_LABELS = {
     "product": "Product specification", "product_challenge": "Independent product challenge",
+    "product_decision": "Product decision detection", "product_check": "Conditional human check",
     "architecture": "Architecture synthesis", "tasks": "Validated implementation tasks",
     "develop": "Development",
     "qa": "Independent QA", "review": "Final review",
@@ -328,7 +329,7 @@ def start(a):
     task=find(a.task); m=meta(task); selected=agent(a.agent)
     blockers=dependency_blockers(task)
     if blockers: raise SystemExit("Unfinished dependencies: "+", ".join(blockers))
-    print(f"{m['id']} — {m['title']}\nAgent: {selected}\nFlow: product → challenge → architecture/tasks synthesis → development → QA → review → PR")
+    print(f"{m['id']} — {m['title']}\nAgent: {selected}\nFlow: product → challenge → conditional human check → architecture/tasks synthesis → development → QA → review → PR")
     if a.dry_run: print(f"Dry run passed; no agent invoked. PR creation: {'disabled' if a.no_pr else 'enabled'}"); return 0
     if git("status","--porcelain").stdout.strip(): raise SystemExit("Start requires a clean worktree; commit or stash existing changes")
     if git("branch","--show-current").stdout.strip() not in ("main","master"): raise SystemExit("Start from an up-to-date main branch so Spec Kit can create an isolated feature branch")

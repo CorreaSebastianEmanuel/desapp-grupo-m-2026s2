@@ -30,10 +30,12 @@ class FeedbackLoopTest(unittest.TestCase):
         self.run_dir.mkdir(parents=True)
         globals_["RUNS"].mkdir(parents=True)
         state = {
-            "run_id": "run-1", "status": "completed", "current_step_index": 6,
+            "run_id": "run-1", "status": "completed", "current_step_index": 8,
             "current_step_id": "review", "step_results": {
                 "product": {"status": "completed"},
                 "product_challenge": {"status": "completed"},
+                "product_decision": {"status": "completed"},
+                "product_check": {"status": "completed"},
                 "architecture": {"status": "completed"},
                 "develop": {"status": "completed"},
                 "qa": {"status": "completed"},
@@ -59,12 +61,56 @@ class FeedbackLoopTest(unittest.TestCase):
 
         self.assertEqual("paused", state["status"])
         self.assertEqual("architecture", state["current_step_id"])
-        self.assertEqual(2, state["current_step_index"])
-        self.assertEqual({"product", "product_challenge"}, set(state["step_results"]))
+        self.assertEqual(4, state["current_step_index"])
+        self.assertEqual(
+            {"product", "product_challenge", "product_decision", "product_check"},
+            set(state["step_results"]),
+        )
         self.assertIn("Keep adapters outside the domain.", feedback)
         self.assertIn("Keep adapters outside the domain.", inputs["inputs"]["spec"])
         self.assertIn("status: wip", task_text)
         self.assertTrue(list(self.run_dir.glob("state.before-feedback-*.json")))
+
+
+class ProductDecisionProbeTest(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self.tmp.name)
+        self.feature = self.root / "specs" / "001-example"
+        (self.feature / "handoffs").mkdir(parents=True)
+        (self.root / ".specify").mkdir()
+        (self.root / ".specify" / "feature.json").write_text(
+            json.dumps({"feature_directory": "specs/001-example"}), encoding="utf-8"
+        )
+        self.probe = runpy.run_path(
+            str(Path(__file__).parents[1] / "scripts" / "product_decision_probe.py")
+        )["probe"]
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def write_decision(self, marker):
+        (self.feature / "handoffs" / "product-decision.md").write_text(
+            marker + "\n\nRationale.\n", encoding="utf-8"
+        )
+
+    def test_reads_required_human_check(self):
+        self.write_decision("human_check_required: true")
+        result = self.probe(self.root)
+        self.assertTrue(result["required"])
+        self.assertEqual(
+            (self.feature / "handoffs" / "product-decision.md").resolve(),
+            Path(result["file"]).resolve(),
+        )
+
+    def test_reads_automatic_continuation(self):
+        self.write_decision("human_check_required: false")
+        self.assertFalse(self.probe(self.root)["required"])
+
+    def test_rejects_missing_or_ambiguous_marker(self):
+        self.write_decision("human_check_required: maybe")
+        with self.assertRaisesRegex(RuntimeError, "must start exactly"):
+            self.probe(self.root)
 
 
 if __name__ == "__main__":

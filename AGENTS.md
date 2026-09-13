@@ -10,3 +10,4 @@ This repository uses Spec-Driven Development. User instructions take precedence.
 6. Keep web, domain, persistence, and external adapters separated.
 7. `agentflow start` explicitly authorizes Agentflow to commit, push its generated feature branch, and create a PR after both verification gates pass. Agents never merge, expose credentials, or run destructive commands.
 8. Completion requires independent QA and final review with `Verdict: PASS`.
+9. Continue autonomously for documented, routine, or reversible choices. Request a human product check only when an unresolved decision materially changes observable behavior, a business rule, scope, permissions, security, data integrity, or a costly and difficult-to-reverse technical choice. State the decision, impact, alternatives, and recommendation precisely.

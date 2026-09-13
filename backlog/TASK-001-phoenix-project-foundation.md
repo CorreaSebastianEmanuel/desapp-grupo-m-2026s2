@@ -4,9 +4,9 @@ title: Phoenix project foundation
 type: task
 checkpoint: CP1
 priority: critical
-status: review
+status: done
 depends_on: none
-active_run: fc2d435d
+active_run: none
 ---
 
 ## Outcome

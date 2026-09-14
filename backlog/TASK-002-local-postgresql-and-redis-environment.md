@@ -4,9 +4,9 @@ title: Local PostgreSQL and Redis environment
 type: task
 checkpoint: CP1
 priority: critical
-status: todo
+status: blocked
 depends_on: TASK-001
-active_run: none
+active_run: 212dec52
 ---
 
 ## Outcome

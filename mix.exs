@@ -44,6 +44,7 @@ defmodule FootballMarket.MixProject do
       {:phoenix_ecto, "~> 4.5"},
       {:ecto_sql, "~> 3.13"},
       {:postgrex, ">= 0.0.0"},
+      {:redix, "~> 1.5.2"},
       {:phoenix_html, "~> 4.1"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_live_view, "~> 1.2.0"},
@@ -81,7 +82,12 @@ defmodule FootballMarket.MixProject do
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
-      setup: ["deps.get", "assets.setup", "assets.build"],
+      setup: ["deps.get", "infrastructure.database.setup", "assets.setup", "assets.build"],
+      "ecto.create": ["infrastructure.database.create"],
+      "ecto.migrate": ["infrastructure.database.migrate"],
+      "ecto.setup": ["infrastructure.database.setup"],
+      "test.prepare": ["infrastructure.database.test_prepare"],
+      test: ["infrastructure.database.test_prepare", "test"],
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
       "assets.build": ["compile", "tailwind football_market", "esbuild football_market"],
       "assets.deploy": [

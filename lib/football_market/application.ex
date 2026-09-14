@@ -8,6 +8,7 @@ defmodule FootballMarket.Application do
   @impl true
   def start(_type, _args) do
     children = [
+      FootballMarket.Repo,
       FootballMarketWeb.Telemetry,
       {DNSCluster, query: Application.get_env(:football_market, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: FootballMarket.PubSub},

@@ -1,13 +1,21 @@
 import Config
 
+parse_port = fn value ->
+  case Integer.parse(value) do
+    {port, ""} when port in 1..65_535 -> port
+    _ -> value
+  end
+end
+
 # Configure your database
 config :football_market, FootballMarket.Repo,
-  username: "postgres",
-  password: "postgres",
-  hostname: "localhost",
-  database: "football_market_dev",
+  username: System.get_env("POSTGRES_USER", "postgres"),
+  password: System.get_env("POSTGRES_PASSWORD", "postgres"),
+  hostname: System.get_env("POSTGRES_HOST", "127.0.0.1"),
+  port: parse_port.(System.get_env("POSTGRES_PORT", "5432")),
+  database: System.get_env("POSTGRES_DB", "football_market_dev"),
   stacktrace: true,
-  show_sensitive_data_on_connection_error: true,
+  show_sensitive_data_on_connection_error: false,
   pool_size: 10
 
 # For development, we disable any cache and enable
@@ -54,6 +62,11 @@ config :football_market, FootballMarketWeb.Endpoint,
 
 # No development-only operational routes are exposed in TASK-001.
 config :football_market, dev_routes: false
+
+config :football_market, :redis,
+  host: System.get_env("REDIS_HOST", "127.0.0.1"),
+  port: parse_port.(System.get_env("REDIS_PORT", "6379")),
+  password: System.get_env("REDIS_PASSWORD")
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :default_formatter, format: "[$level] $message\n"

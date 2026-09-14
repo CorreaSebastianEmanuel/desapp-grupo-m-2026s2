@@ -3,7 +3,7 @@ UNQ-Desarrollo de Aplicacion- Alquimistas
 
 ## Football Player Market application
 
-This repository contains the Phoenix foundation for Football Player Market. TASK-001 deliberately starts without PostgreSQL or Redis; persistence is activated by TASK-002.
+This repository contains the Phoenix foundation for Football Player Market. PostgreSQL is the authoritative durable store; Redis is only a replaceable connectivity/read-optimization dependency and never authoritative.
 
 ### Prerequisites
 
@@ -13,7 +13,31 @@ This repository contains the Phoenix foundation for Football Player Market. TASK
 - Hex and Rebar (the preparation commands install them if absent)
 - Phoenix dependencies locked by `mix.lock`; `phx_new` is not needed to build the checked-in application
 - Network access during preparation only
-- TCP port 4000 free on loopback
+- Docker Engine 27+ or current Docker Desktop with Compose v2
+- TCP ports 4000, 5432, and 6379 free on loopback
+
+### Local PostgreSQL and Redis
+
+Defaults are tracked in `.env.example`; they work without editing files and are unsafe for shared or production environments. Override them through environment variables or copy them to an untracked `.env`.
+
+Run the nine lifecycle actions in order as needed:
+
+```bash
+cp .env.example .env                         # configure
+./scripts/local_services.sh start            # start
+./scripts/local_services.sh inspect          # inspect
+./scripts/local_services.sh ready             # verify readiness, bounded to 30 seconds
+mix infrastructure.database.setup             # prepare database and migrate
+mix infrastructure.database.migrate           # rerun ordered migrations safely
+mix infrastructure.verify                     # application connectivity for both dependencies
+./scripts/local_services.sh stop              # stop while preserving data
+./scripts/local_services.sh restart           # converge containers to running, then wait until healthy
+./scripts/local_services.sh reset --confirm   # DESTRUCTIVE: remove only repository-scoped volumes
+```
+
+The verifier reports PostgreSQL and Redis independently, prints only host/port/database targets, and exits nonzero if either fails. There is intentionally no public health endpoint. Test databases are restricted to `football_market_test` plus `MIX_TEST_PARTITION`; unsafe overrides fail before connection or schema mutation.
+
+For occupied ports, stop the conflicting process or override `POSTGRES_PORT`/`REDIS_PORT` consistently. Authentication, invalid configuration, unavailable service, readiness timeout, and migration failures name the affected category without printing passwords. Lifecycle mutations are serialized for this repository, and restart converges stopped or stale containers back to the declared Compose state before readiness succeeds. Routine start, stop, and restart preserve both named volumes; only the explicitly confirmed reset deletes them.
 
 The supported baseline is exact. Select the pinned toolchain in your version manager, then run:
 

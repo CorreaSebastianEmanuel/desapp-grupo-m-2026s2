@@ -1,15 +1,32 @@
 import Config
 
+parse_port = fn value ->
+  case Integer.parse(value) do
+    {port, ""} when port in 1..65_535 -> port
+    _ -> value
+  end
+end
+
+partition = System.get_env("MIX_TEST_PARTITION", "")
+test_database = System.get_env("TEST_DATABASE_NAME", "football_market_test#{partition}")
+development_database = System.get_env("POSTGRES_DB", "football_market_dev")
+
+if test_database != "football_market_test#{partition}" or test_database == development_database do
+  raise "unsafe test database identity (expected football_market_test#{partition})"
+end
+
 # Configure your database
 #
 # The MIX_TEST_PARTITION environment variable can be used
 # to provide built-in test partitioning in CI environment.
 # Run `mix help test` for more information.
 config :football_market, FootballMarket.Repo,
-  username: "postgres",
-  password: "postgres",
-  hostname: "localhost",
-  database: "football_market_test#{System.get_env("MIX_TEST_PARTITION")}",
+  username: System.get_env("POSTGRES_USER", "postgres"),
+  password: System.get_env("POSTGRES_PASSWORD", "postgres"),
+  hostname: System.get_env("POSTGRES_HOST", "127.0.0.1"),
+  port: parse_port.(System.get_env("POSTGRES_PORT", "5432")),
+  database: test_database,
+  show_sensitive_data_on_connection_error: false,
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: System.schedulers_online() * 2
 
@@ -22,6 +39,11 @@ config :football_market, FootballMarketWeb.Endpoint,
 
 # Print only warnings and errors during test
 config :logger, level: :warning
+
+config :football_market, :redis,
+  host: System.get_env("REDIS_HOST", "127.0.0.1"),
+  port: parse_port.(System.get_env("REDIS_PORT", "6379")),
+  password: System.get_env("REDIS_PASSWORD")
 
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime

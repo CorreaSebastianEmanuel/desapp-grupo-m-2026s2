@@ -1,0 +1,12 @@
+.git/
+_build/
+deps/
+node_modules/
+assets/node_modules/
+coverage/
+cover/
+*.log*
+.env*
+!.env.example
+.agentflow/
+.specify/workflows/

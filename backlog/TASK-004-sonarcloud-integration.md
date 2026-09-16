@@ -4,9 +4,9 @@ title: SonarCloud integration
 type: task
 checkpoint: CP1
 priority: high
-status: todo
+status: wip
 depends_on: TASK-003
-active_run: none
+active_run: 120ebc71
 ---
 
 ## Outcome

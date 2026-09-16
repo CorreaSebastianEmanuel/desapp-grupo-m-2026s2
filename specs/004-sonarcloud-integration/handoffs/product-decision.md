@@ -1,0 +1,5 @@
+human_check_required: false
+
+The observable product policy is sufficiently determined. CP1 requires fewer than 10 issues; the specification fixes the boundary at 0–9 passing and 10+ failing, requires analysis for every pull request and `main`, and forbids incomplete or unpublished analysis from passing. Current human feedback also resolves the only material permissions/security ambiguity: fork contributions are unsupported, all changes use trusted internal branches, and SonarCloud analysis is mandatory there.
+
+The remaining gaps—selecting the exact SonarCloud measure and filters that faithfully represent unresolved project issues, defining the supported CI event matrix, handling superseded runs, enumerating source exclusions, and choosing deterministic verification fixtures—are technical traceability and test-design decisions. They are constrained by the existing observable rules and can be documented conservatively by the architect without changing product behavior, scope, permissions, security posture, or data integrity. No additional preference should be invented to pause delivery.

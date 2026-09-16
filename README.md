@@ -82,6 +82,23 @@ scripts/ci_unit_tests.sh
 
 These commands are non-mutating quality checks. They require no production credentials, Redis instance, or live football provider.
 
+### SonarCloud analysis and CP1 gate
+
+The separate `SonarCloud analysis and CP1 gate` check runs for every internal pull-request revision targeting `main` (including drafts) and every push to `main`. In a pull request, open the check from the Checks view and follow its findings link: the summary deliberately separates the exact-head PR analysis from the current published `main` count. The latter is contextual and does not predict the post-merge count. On `main`, the gate first requires the latest published analysis revision to equal the triggering commit.
+
+CP1 passes only when SonarCloud's native scan and publication succeed and the primary branch reports 0–9 `open_issues`; 10 or more fails. The scanner analyzes repository-owned `lib` and `assets/js` source plus `test`, excluding only `_build`, `deps`, vendored assets, generated static assets, digested JavaScript, and source maps. No coverage setting or coverage threshold is part of this integration.
+
+Before enabling the required check, a maintainer must import/bind the repository as `CorreaSebastianEmanuel_desapp-grupo-m-2026s2` in the `correasebastianemanuel` SonarCloud organization, make `main` primary, disable SonarCloud automatic analysis, and add `SONAR_TOKEN` as a protected GitHub Actions secret. The workflow never places that token in an argument, URL, persisted file, or summary. The organization does not yet exist in SonarCloud's public project index, so hosted publication remains a deployment prerequisite rather than locally fabricated evidence.
+
+Failure diagnostics are intentionally classified. `threshold` means the published count is 10 or greater; `stale-analysis` means a `main` result is not for the triggering SHA; `authentication`/`authorization` means the protected secret or its access must be corrected; `configuration` means project/branch binding is wrong; `service`/`network` may be rerun after availability recovers; and `malformed-response` requires API-contract review. Superseded runs are canceled and never govern a newer SHA. Use GitHub's **Re-run failed jobs** only for the same revision; a code update automatically creates the governing replacement run.
+
+Local deterministic verification requires no SonarCloud credentials:
+
+```bash
+python3 -m unittest test/scripts/sonar_checkpoint_gate_test.py
+MIX_ENV=test mix test test/ci/sonarcloud_contract_test.exs
+```
+
 ### Start, verify, stop, and restart
 
 Start Phoenix in the foreground:

@@ -41,6 +41,7 @@ jobs:
       - name: Evaluate whole-project CP1 threshold
         shell: bash
         run: |
+          set -o pipefail
           args=(
             --project "$SONAR_PROJECT_KEY"
             --branch main

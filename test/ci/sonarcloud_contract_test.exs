@@ -81,6 +81,7 @@ defmodule FootballMarket.SonarCloudContractTest do
   test "workflow propagates failures and does not persist or summarize secrets" do
     workflow = File.read!(@workflow)
     normalized = String.downcase(workflow)
+    assert workflow =~ "set -o pipefail"
     assert workflow =~ "::error title=SonarCloud %s"
     assert normalized =~ "authentication/authorization failures"
     assert normalized =~ "configuration failures"

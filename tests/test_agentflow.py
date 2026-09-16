@@ -2,6 +2,8 @@ import json
 import runpy
 import tempfile
 import unittest
+from contextlib import redirect_stdout
+from io import StringIO
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -82,6 +84,61 @@ class DependencyLifecycleTest(unittest.TestCase):
 
         self.assertEqual([], completed)
         self.assertEqual("review", self.api["meta"](self.dependency)["status"])
+
+
+class NextTaskTest(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self.tmp.name)
+        self.backlog = self.root / "backlog"
+        self.backlog.mkdir()
+        self.api = runpy.run_path(str(AGENTFLOW_PATH))
+        globals_ = self.api["ready_tasks"].__globals__
+        globals_["ROOT"] = self.root
+        globals_["BACKLOG"] = self.backlog
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def write_task(self, ident, checkpoint="CP1", priority="high", status="todo", depends_on="none"):
+        path = self.backlog / f"{ident}-example.md"
+        path.write_text(
+            f"---\nid: {ident}\ntitle: Example {ident}\ntype: task\ncheckpoint: {checkpoint}\n"
+            f"priority: {priority}\nstatus: {status}\ndepends_on: {depends_on}\n"
+            "active_run: none\n---\n\n## Outcome\n\nExample.\n",
+            encoding="utf-8",
+        )
+        return path
+
+    def test_orders_ready_tasks_by_checkpoint_priority_and_id(self):
+        self.write_task("TASK-001", status="done")
+        self.write_task("TASK-020", checkpoint="CP2", priority="critical")
+        self.write_task("TASK-004", priority="high", depends_on="TASK-001")
+        self.write_task("TASK-003", priority="critical", depends_on="TASK-001")
+
+        ready = [self.api["meta"](path)["id"] for path in self.api["ready_tasks"]()]
+
+        self.assertEqual(["TASK-003", "TASK-004", "TASK-020"], ready)
+
+    def test_excludes_non_todo_and_dependency_blocked_tasks(self):
+        self.write_task("TASK-001", status="blocked")
+        self.write_task("TASK-002", depends_on="TASK-001")
+        self.write_task("TASK-003", status="wip")
+
+        self.assertEqual([], self.api["ready_tasks"]())
+
+    def test_next_prints_recommendation_and_alternatives(self):
+        self.write_task("TASK-001", priority="critical")
+        self.write_task("TASK-002", priority="high")
+        output = StringIO()
+
+        with redirect_stdout(output):
+            code = self.api["next_task"](SimpleNamespace())
+
+        self.assertEqual(0, code)
+        self.assertIn("Next: TASK-001", output.getvalue())
+        self.assertIn("./agentflow start TASK-001", output.getvalue())
+        self.assertIn("Also ready: TASK-002", output.getvalue())
 
 
 class FeedbackLoopTest(unittest.TestCase):

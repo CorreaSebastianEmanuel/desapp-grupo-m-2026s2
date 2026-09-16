@@ -121,6 +121,7 @@ The complete workflow diagram and presentation notes are available in [`docs/MET
 ./setup
 ./agentflow                         # menu
 ./agentflow backlog
+./agentflow next                    # recommend the next dependency-ready task
 ./agentflow create "Task title" --checkpoint CP1
 ./agentflow start TASK-001
 ./agentflow status TASK-001
@@ -132,6 +133,8 @@ The complete workflow diagram and presentation notes are available in [`docs/MET
 ```
 
 `start` runs seven fresh-agent stages: product specification, an independent product challenge, architecture synthesis, validated task planning, implementation, adversarial QA, and final review. Between product challenge and architecture, an automated decision probe pauses for a human check only when an unresolved choice materially affects product behavior, business rules, scope, permissions, security, data integrity, or a difficult-to-reverse technical decision. Routine and reversible choices continue automatically. Multiple perspectives are used at decision and verification boundaries; implementation keeps one owner to avoid conflicting edits. When both verification gates pass it commits the generated feature branch, pushes it, and creates a GitHub PR. A failed or rejected gate leaves the task blocked so feedback can rewind it to the affected stage. Merge remains human-controlled. Reviewed dependencies no longer block later tasks; after entering the later task's feature branch, Agentflow checks GitHub and changes each dependency whose PR was merged to `done`. Use `complete` only for manual or local-only completion. Use `--no-pr` for a local-only run. Start from a clean, up-to-date `main` branch.
+
+`next` considers only `todo` tasks with no unfinished dependencies. It recommends deterministically by earliest checkpoint, then `critical`/`high`/`medium`/`low` priority, then task ID, and lists any other tasks that can be started in parallel.
 
 Agentflow prints every stage, a heartbeat every 20 seconds, and underlying CLI output in real time. It keeps stdin attached so permission or authentication prompts remain interactive. Runtime output is saved to `.agentflow/runs/TASK-NNN.live.log`; `status` reports the current stage and last activity. If interrupted with `Ctrl+C`, continue the preserved Spec Kit run with `./agentflow resume TASK-NNN`.
 

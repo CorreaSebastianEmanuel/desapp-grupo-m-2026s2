@@ -20,6 +20,8 @@ STEP_LABELS = {
 }
 STEP_ORDER = tuple(STEP_LABELS)
 STAGE_ALIASES = {"product":"product","architecture":"architecture","development":"develop","develop":"develop","qa":"qa","review":"review"}
+CHECKPOINT_ORDER = {"CP1": 1, "CP2": 2, "CP3": 3}
+PRIORITY_ORDER = {"critical": 0, "high": 1, "medium": 2, "low": 3}
 def config_int(name, default):
     try:
         match=re.search(rf"(?m)^{re.escape(name)}\s*=\s*(\d+)\s*$",(ROOT/".agentflow"/"config.toml").read_text(encoding="utf-8"))
@@ -64,6 +66,18 @@ def dependency_blockers(path):
         # against in parallel, so only pre-review states block dependants.
         if state not in ("done","review"): blockers.append(f"{ident} ({state})")
     return blockers
+
+def ready_tasks():
+    """Return startable backlog tasks in delivery order."""
+    candidates = [
+        path for path in files()
+        if meta(path).get("status") == "todo" and not dependency_blockers(path)
+    ]
+    return sorted(candidates, key=lambda path: (
+        CHECKPOINT_ORDER.get(meta(path).get("checkpoint"), 99),
+        PRIORITY_ORDER.get(meta(path).get("priority"), 99),
+        meta(path).get("id", ""),
+    ))
 
 def review_pr_merged(task):
     """Return whether the task's deterministic branch was merged to the base branch."""
@@ -110,6 +124,18 @@ def backlog(_):
         m=meta(p); state=m['status']
         if state=="todo" and not dependency_blockers(p): state="ready"
         print(f"{m['id']:<10} {state:<9} {m['checkpoint']:<4} {m['priority']:<9} {m['title']}")
+def next_task(_):
+    ready=ready_tasks()
+    if not ready:
+        print("No tasks are ready. Every todo task has unfinished dependencies.")
+        return 1
+    path=ready[0]; m=meta(path)
+    print(f"Next: {m['id']} — {m['title']}")
+    print(f"Checkpoint: {m['checkpoint']} | Priority: {m['priority']} | Depends on: {m.get('depends_on','none')}")
+    print(f"Start with: ./agentflow start {m['id']}")
+    if len(ready)>1:
+        print("Also ready: "+", ".join(meta(candidate)["id"] for candidate in ready[1:]))
+    return 0
 def status(a):
     path=find(a.task); m=meta(path)
     for k in ("id","title","checkpoint","priority","status","depends_on","active_run"): print(f"{k}: {m.get(k,'unknown')}")
@@ -430,10 +456,10 @@ def verify(a):
     return subprocess.run(cmd,cwd=ROOT).returncode
 def menu(parser):
     while True:
-        print("\nAgentflow\n1 Backlog  2 Create  3 Start  4 Status  5 Resume  6 Verify  7 Complete  8 Feedback  9 History  0 Exit")
+        print("\nAgentflow\n1 Backlog  2 Create  3 Start  4 Status  5 Resume  6 Verify  7 Complete  8 Feedback  9 History  10 Next  0 Exit")
         choice=input("> ").strip()
         if choice=="0": return 0
-        argv={"1":["backlog"],"2":["create"]}.get(choice)
+        argv={"1":["backlog"],"2":["create"],"10":["next"]}.get(choice)
         if choice in "345679": argv=[{"3":"start","4":"status","5":"resume","6":"verify","7":"complete","9":"history"}[choice],input("Task id: ").strip()]
         if choice=="8": argv=["feedback",input("Task id: ").strip(),input("Feedback: ").strip()]
         if not argv: print("Invalid option"); continue
@@ -443,6 +469,7 @@ def parser():
     p=argparse.ArgumentParser(description="Local multi-agent SDD workflow"); s=p.add_subparsers()
     c=s.add_parser("create"); c.add_argument("title",nargs="?"); c.add_argument("--outcome"); c.add_argument("--checkpoint",choices=["CP1","CP2","CP3"],default="CP1"); c.add_argument("--priority",choices=["low","medium","high","critical"],default="medium"); c.set_defaults(func=create)
     b=s.add_parser("backlog"); b.set_defaults(func=backlog)
+    n=s.add_parser("next",help="recommend the next task whose dependencies are satisfied"); n.set_defaults(func=next_task)
     q=s.add_parser("status"); q.add_argument("task"); q.set_defaults(func=status)
     for name,fn in (("start",start),("verify",verify)):
         q=s.add_parser(name); q.add_argument("task"); q.add_argument("--agent",choices=["auto","codex"],default="auto"); q.add_argument("--dry-run",action="store_true")

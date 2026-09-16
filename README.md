@@ -142,6 +142,8 @@ Agents exchange structured handoffs under the active feature's `handoffs/` direc
 
 Each agent receives only the canonical artifacts and handoffs required by its role. Handoffs are short, delta-only records rather than copies of specifications, plans, tasks, or reports. Agents do not inspect workflow/live logs during delivery; Agentflow checks canonical plan, task, development, and QA artifacts with token-free probes before dispatching the next agent. A failed QA verdict stops the flow before final review. QA remains exhaustive, while final review validates passing QA evidence and reruns only targeted checks needed for an uncovered risk or discrepancy.
 
+Final review also records a lightweight `Backlog impact:` assessment from the evidence already in scope. It does not scan the full backlog by default. The reviewer inspects directly related future tasks only when the completed work reveals a concrete change to requirements, architecture, dependencies, priority, or scope; isolated changes without downstream effects record `none`. Review recommends follow-up but never edits backlog tasks automatically.
+
 QA executes applicable checks rather than only inspecting code. When a task exposes or changes HTTP endpoints, QA must start the application and exercise the affected endpoints with real HTTP requests (such as `curl`), including specified success and failure cases. An unavailable runtime is reported as a blocker, not skipped.
 
 ### Windows PowerShell

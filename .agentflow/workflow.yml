@@ -2,7 +2,7 @@ schema_version: "1.0"
 workflow:
   id: "desapp-delivery"
   name: "DesApp deliberative SDD delivery"
-  version: "2.2.1"
+  version: "2.2.2"
   author: "Alquimistas"
   description: "Specify, challenge, synthesize, implement, and independently verify one task"
 requires:
@@ -139,6 +139,15 @@ steps:
       maintainability, architecture, security, checkpoint coverage, and QA evidence.
       Treat fresh reproducible QA evidence as evidence: do not rerun the full suite by
       default; execute only targeted checks needed to resolve a discrepancy or uncovered
-      risk, and explain why. Write review-report.md under 600 words and handoffs/review.md
-      under 250 words, without duplicating either QA or the report. End exactly with `Verdict: PASS` only
-      when ready for human merge; otherwise end exactly with `Verdict: FAIL` and list blockers.
+      risk, and explain why. From the evidence already reviewed, make a lightweight
+      backlog-impact assessment. Do not inspect the whole backlog by default. Only when
+      this task reveals a concrete change to future requirements, architecture,
+      dependencies, priority, or scope, inspect the directly related backlog tasks and
+      identify their TASK IDs and the recommended follow-up. Routine or isolated changes
+      with no downstream effect, such as a self-contained CI/CD adjustment, require no
+      broader backlog review. Include exactly one concise `Backlog impact:` entry in
+      review-report.md: `none` with a reason, or the affected TASK IDs with the reason and
+      recommendation. Do not edit backlog tasks during review. Write review-report.md
+      under 600 words and handoffs/review.md under 250 words, without duplicating either
+      QA or the report. End exactly with `Verdict: PASS` only when ready for human merge;
+      otherwise end exactly with `Verdict: FAIL` and list blockers.

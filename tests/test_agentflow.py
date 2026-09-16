@@ -305,5 +305,26 @@ class WorkflowArtifactProbeTest(unittest.TestCase):
             self.probe(self.root, "qa")
 
 
+class WorkflowBacklogImpactPolicyTest(unittest.TestCase):
+    def setUp(self):
+        self.root = Path(__file__).parents[1]
+        workflow = self.root / ".specify" / "workflows" / "desapp-delivery" / "workflow.yml"
+        self.workflow_text = workflow.read_text(encoding="utf-8")
+        self.review_prompt = self.workflow_text.split("  - id: review\n", 1)[1]
+
+    def test_runtime_workflow_matches_versioned_definition(self):
+        runtime = (self.root / ".agentflow" / "workflow.yml").read_text(encoding="utf-8")
+        self.assertEqual(self.workflow_text, runtime)
+
+    def test_review_requires_a_backlog_impact_entry(self):
+        self.assertIn("Include exactly one concise `Backlog impact:` entry", self.review_prompt)
+        self.assertIn("Do not edit backlog tasks during review", self.review_prompt)
+
+    def test_review_avoids_unconditional_full_backlog_scan(self):
+        self.assertIn("Do not inspect the whole backlog by default", self.review_prompt)
+        self.assertIn("Only when", self.review_prompt)
+        self.assertIn("directly related backlog tasks", self.review_prompt)
+
+
 if __name__ == "__main__":
     unittest.main()

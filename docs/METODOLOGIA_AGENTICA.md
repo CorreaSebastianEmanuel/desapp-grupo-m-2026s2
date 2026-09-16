@@ -80,6 +80,7 @@ flowchart LR
 5. **QA prueba el sistema en funcionamiento.** Si se crean o modifican endpoints HTTP, debe levantar la aplicación y probar casos exitosos y fallidos mediante solicitudes reales, por ejemplo con `curl`. Los tests internos no reemplazan esa comprobación.
 6. **Los fallos son visibles.** Si falta evidencia, un servicio no puede iniciarse o un criterio no se cumple, la tarea queda bloqueada; no se declara éxito parcial.
 7. **La automatización publica, las personas deciden.** Agentflow puede crear el commit, subir la rama y abrir el pull request únicamente después de los dos `PASS`. El merge permanece bajo control humano.
+8. **El backlog evoluciona con evidencia y en forma proporcional.** La revisión final evalúa brevemente si el trabajo cambia requisitos, arquitectura, dependencias, prioridad o alcance futuro. No recorre todo el backlog por defecto: solo inspecciona tareas directamente relacionadas cuando existe un impacto concreto y recomienda el seguimiento sin modificarlas automáticamente.
 
 ## Artefactos y responsables
 
@@ -91,7 +92,7 @@ flowchart LR
 | Tareas | Validar consistencia y ordenar el trabajo | `tasks.md`, `handoffs/tasks.md` |
 | Desarrollo | Implementar con tests y ejecutar checks | Código, tests, `handoffs/develop.md` |
 | QA | Validar cada criterio con evidencia independiente | `qa-report.md`, `handoffs/qa.md` |
-| Revisión | Evaluar calidad integral y preparación para merge | `review-report.md`, `handoffs/review.md` |
+| Revisión | Evaluar calidad integral, preparación para merge e impacto concreto sobre trabajo futuro | `review-report.md` con `Backlog impact:`, `handoffs/review.md` |
 
 ## Mensaje breve para una presentación
 

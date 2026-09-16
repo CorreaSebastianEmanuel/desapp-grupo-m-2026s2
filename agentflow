@@ -59,8 +59,39 @@ def dependency_blockers(path):
     for ident in dependency_ids(path):
         try: state=meta(find(ident)).get("status","unknown")
         except SystemExit: state="missing"
-        if state!="done": blockers.append(f"{ident} ({state})")
+        # A reviewed task has passed both automated verification gates and is
+        # waiting only for the human-controlled merge. It may be developed
+        # against in parallel, so only pre-review states block dependants.
+        if state not in ("done","review"): blockers.append(f"{ident} ({state})")
     return blockers
+
+def review_pr_merged(task):
+    """Return whether the task's deterministic branch was merged to the base branch."""
+    if not shutil.which("gh"): return False
+    result=subprocess.run(
+        ["gh","pr","view",task_branch(task),"--json","state,mergedAt,baseRefName"],
+        cwd=ROOT,text=True,capture_output=True,
+    )
+    if result.returncode: return False
+    try: pr=json.loads(result.stdout)
+    except json.JSONDecodeError: return False
+    return bool(
+        pr.get("state")=="MERGED" and pr.get("mergedAt")
+        and pr.get("baseRefName") in ("main","master")
+    )
+
+def reconcile_merged_dependencies(path):
+    """Persist merged reviewed dependencies after entering the new feature branch."""
+    completed=[]
+    for ident in dependency_ids(path):
+        dependency=find(ident)
+        if meta(dependency).get("status")=="review" and review_pr_merged(dependency):
+            field(dependency,"status","done")
+            field(dependency,"active_run","none")
+            completed.append(ident)
+    if completed:
+        print("Merged dependencies reconciled: "+", ".join(completed))
+    return completed
 def agent(requested):
     if not shutil.which("codex"): raise SystemExit("Install and authenticate Codex CLI")
     return "codex"
@@ -360,6 +391,7 @@ def start(a):
     try: branch=ensure_feature_branch(task)
     except RuntimeError as error: raise SystemExit(str(error)) from error
     print(f"Feature branch: {branch}")
+    reconcile_merged_dependencies(task)
     field(task,"status","wip")
     context=task_context(task)
     cmd=["specify","workflow","run",str(WORKFLOW),"--input",f"integration={selected}","--input",f"spec={context}"]

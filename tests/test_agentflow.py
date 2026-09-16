@@ -4,6 +4,84 @@ import tempfile
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
+from unittest.mock import patch
+
+
+AGENTFLOW_PATH = Path(__file__).parents[1] / "agentflow"
+
+
+class DependencyLifecycleTest(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self.tmp.name)
+        self.backlog = self.root / "backlog"
+        self.backlog.mkdir()
+        self.dependency = self.write_task("TASK-001", "Dependency", "review", "none", "run-1")
+        self.dependant = self.write_task("TASK-002", "Dependant", "todo", "TASK-001", "none")
+        self.api = runpy.run_path(str(AGENTFLOW_PATH))
+        globals_ = self.api["dependency_blockers"].__globals__
+        globals_["ROOT"] = self.root
+        globals_["BACKLOG"] = self.backlog
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def write_task(self, ident, title, status, depends_on, active_run):
+        path = self.backlog / f"{ident}-{title.lower()}.md"
+        path.write_text(
+            f"---\nid: {ident}\ntitle: {title}\ntype: task\ncheckpoint: CP1\n"
+            f"priority: high\nstatus: {status}\ndepends_on: {depends_on}\n"
+            f"active_run: {active_run}\n---\n\n## Outcome\n\n{title}.\n",
+            encoding="utf-8",
+        )
+        return path
+
+    def test_reviewed_dependency_does_not_block(self):
+        self.assertEqual([], self.api["dependency_blockers"](self.dependant))
+
+    def test_review_pr_merged_requires_merged_pr_on_main(self):
+        response = SimpleNamespace(
+            returncode=0,
+            stdout=json.dumps({
+                "state": "MERGED", "mergedAt": "2026-09-16T11:24:07Z", "baseRefName": "main"
+            }),
+        )
+        globals_ = self.api["review_pr_merged"].__globals__
+        with patch.object(globals_["shutil"], "which", return_value="/usr/bin/gh"), patch.object(
+            globals_["subprocess"], "run", return_value=response
+        ):
+            self.assertTrue(self.api["review_pr_merged"](self.dependency))
+
+    def test_review_pr_merged_rejects_open_pr(self):
+        response = SimpleNamespace(
+            returncode=0,
+            stdout=json.dumps({"state": "OPEN", "mergedAt": None, "baseRefName": "main"}),
+        )
+        globals_ = self.api["review_pr_merged"].__globals__
+        with patch.object(globals_["shutil"], "which", return_value="/usr/bin/gh"), patch.object(
+            globals_["subprocess"], "run", return_value=response
+        ):
+            self.assertFalse(self.api["review_pr_merged"](self.dependency))
+
+    def test_merged_reviewed_dependency_is_reconciled_to_done(self):
+        with patch.dict(self.api["reconcile_merged_dependencies"].__globals__, {
+            "review_pr_merged": lambda _task: True,
+        }):
+            completed = self.api["reconcile_merged_dependencies"](self.dependant)
+
+        metadata = self.api["meta"](self.dependency)
+        self.assertEqual(["TASK-001"], completed)
+        self.assertEqual("done", metadata["status"])
+        self.assertEqual("none", metadata["active_run"])
+
+    def test_open_reviewed_dependency_remains_in_review(self):
+        with patch.dict(self.api["reconcile_merged_dependencies"].__globals__, {
+            "review_pr_merged": lambda _task: False,
+        }):
+            completed = self.api["reconcile_merged_dependencies"](self.dependant)
+
+        self.assertEqual([], completed)
+        self.assertEqual("review", self.api["meta"](self.dependency)["status"])
 
 
 class FeedbackLoopTest(unittest.TestCase):
@@ -18,7 +96,7 @@ class FeedbackLoopTest(unittest.TestCase):
             "---\n\n## Outcome\n\nExample outcome.\n",
             encoding="utf-8",
         )
-        self.api = runpy.run_path(str(Path(__file__).parents[1] / "agentflow"))
+        self.api = runpy.run_path(str(AGENTFLOW_PATH))
         globals_ = self.api["add_feedback"].__globals__
         globals_["ROOT"] = root
         globals_["BACKLOG"] = root / "backlog"

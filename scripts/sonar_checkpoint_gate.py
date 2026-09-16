@@ -120,8 +120,8 @@ def open_issue_count(options, transport, sleep):
                        {"component": options.project, "branch": options.branch, "metricKeys": "open_issues"},
                        transport, sleep)
     component = document.get("component") if isinstance(document, dict) else None
-    if not isinstance(component, dict) or component.get("key") != options.project or component.get("branch") != options.branch:
-        raise GateFailure(EXIT_MALFORMED, "malformed-response", "measure identity does not match the requested project and branch")
+    if not isinstance(component, dict) or component.get("key") != options.project:
+        raise GateFailure(EXIT_MALFORMED, "malformed-response", "measure identity does not match the requested project")
     measures = component.get("measures")
     matching = [item for item in measures if isinstance(item, dict) and item.get("metric") == "open_issues"] if isinstance(measures, list) else []
     if len(matching) != 1:

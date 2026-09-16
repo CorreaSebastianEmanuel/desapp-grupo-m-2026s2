@@ -129,6 +129,7 @@ class GateTest(unittest.TestCase):
     def test_authorization_header_and_url_are_not_printed(self):
         code, output, transport = self.invoke([fixture("measure_9.json")])
         self.assertEqual(code, 0, output)
+        self.assertIn("branch=main", transport.requests[0][0])
         self.assertEqual(transport.requests[0][1]["Authorization"], f"Bearer {TOKEN}")
         self.assertNotIn("token=", output.lower())
         self.assertNotIn("Authorization", output)

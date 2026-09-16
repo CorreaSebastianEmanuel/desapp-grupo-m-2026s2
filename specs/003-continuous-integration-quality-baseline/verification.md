@@ -4,7 +4,7 @@ Verified at `2026-09-15T21:33:27Z` against revision `a7dbc0c0199b6c9bc66ea6fc0e6
 
 ## Environment and positive parity (T017/T018)
 
-- `PATH=/private/tmp/elixir-1.20.3-otp29/bin:$PATH ./scripts/check_toolchain.sh` — exit 0; Elixir 1.20.3, Erlang/OTP 29.0.3, ERTS 17.0.6, Mix 1.20.3.
+- `PATH=/private/tmp/elixir-1.20.3-otp29/bin:$PATH ./scripts/check_toolchain.sh` — exit 0; Elixir 1.20.3, Erlang/OTP 29.0.6, ERTS 17.0.6, Mix 1.20.3. The original 29.0.3 label was corrected after hosted setup proved that release contains ERTS 17.0.3.
 - README-order preparation: `mix deps.get --locked` and `MIX_ENV=test mix deps.compile` — exit 0. Dependency compilation emitted upstream warnings; the project warning-fatal category below remained clean.
 - `mix format --check-formatted` — exit 0.
 - `MIX_ENV=test mix compile --warnings-as-errors` — exit 0.

@@ -8,7 +8,7 @@ This repository contains the Phoenix foundation for Football Player Market. Post
 ### Prerequisites
 
 - macOS or Linux, Git, and `curl`
-- Erlang/OTP 29.0.3 (ERTS 17.0.6)
+- Erlang/OTP 29.0.6 (ERTS 17.0.6)
 - Elixir 1.20.3 with Mix
 - Hex and Rebar (the preparation commands install them if absent)
 - Phoenix dependencies locked by `mix.lock`; `phx_new` is not needed to build the checked-in application
@@ -69,7 +69,7 @@ Only the preparation commands (`local.hex`, `local.rebar`, `deps.get`, and first
 
 GitHub Actions runs the stable `Quality baseline` job for pull requests targeting `main` and pushes to `main`. It uses only locked, non-secret build dependencies and an ephemeral PostgreSQL test database. TASK-003 intentionally enforces exactly three categories: formatting, warnings-as-errors compilation, and the complete unit test suite. It does not enforce coverage, SonarCloud, end-to-end or architecture checks, releases, or deployments.
 
-To reproduce the job locally, use Elixir 1.20.3 with Erlang/OTP 29.0.3, make PostgreSQL available with the test defaults documented above, prepare the locked dependencies, and run:
+To reproduce the job locally, use Elixir 1.20.3 with Erlang/OTP 29.0.6, make PostgreSQL available with the test defaults documented above, prepare the locked dependencies, and run:
 
 ```bash
 ./scripts/check_toolchain.sh

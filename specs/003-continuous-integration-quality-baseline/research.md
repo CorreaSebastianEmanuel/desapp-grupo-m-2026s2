@@ -26,7 +26,7 @@
 
 ## Execution environment
 
-**Decision**: Use the exact documented Elixir 1.20.3 / OTP 29.0.3 toolchain, locked Mix dependencies, and an ephemeral PostgreSQL service; do not start Redis or external providers.
+**Decision**: Use the exact documented Elixir 1.20.3 / OTP 29.0.6 toolchain (ERTS 17.0.6), locked Mix dependencies, and an ephemeral PostgreSQL service; do not start Redis or external providers.
 
 **Rationale**: The canonical `mix test` alias prepares PostgreSQL. Existing ExUnit tests do not require live Redis or providers. Exact versions maximize local/CI parity.
 

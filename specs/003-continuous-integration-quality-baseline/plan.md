@@ -8,7 +8,7 @@ Add one GitHub Actions workflow that validates pull requests targeting `main` an
 
 ## Technical Context
 
-**Language/Version**: Elixir 1.20.3, Erlang/OTP 29.0.3 (ERTS 17.0.6); YAML for GitHub Actions  
+**Language/Version**: Elixir 1.20.3, Erlang/OTP 29.0.6 (ERTS 17.0.6); YAML for GitHub Actions
 **Primary Dependencies**: Phoenix 1.8.13 and locked Mix dependencies; `actions/checkout@v4`; `erlef/setup-beam@v1`; GitHub-hosted PostgreSQL service  
 **Storage**: Ephemeral PostgreSQL test database only; no schema or persistent-data change  
 **Testing**: ExUnit via the repository's unfiltered `mix test` alias, with test-file warnings fatal and a discovery sentinel  

@@ -36,10 +36,10 @@ defmodule FootballMarket.QualityBaselineContractTest do
     assert workflow =~ "cancel-in-progress: true"
     assert workflow =~ "github.event.pull_request.number || github.ref"
     assert workflow =~ "elixir-version: '1.20.3'"
-    assert workflow =~ "otp-version: '29.0.3'"
+    assert workflow =~ "otp-version: '29.0.6'"
 
     assert workflow =~
-             "key: ${{ runner.os }}-otp-29.0.3-elixir-1.20.3-${{ hashFiles('mix.lock') }}"
+             "key: ${{ runner.os }}-otp-29.0.6-elixir-1.20.3-${{ hashFiles('mix.lock') }}"
 
     assert workflow =~ "postgres:16"
     assert workflow =~ "pg_isready -U postgres -d football_market_test"
@@ -78,7 +78,7 @@ defmodule FootballMarket.QualityBaselineContractTest do
     readme = File.read!(@readme)
 
     assert readme =~ "Elixir 1.20.3"
-    assert readme =~ "Erlang/OTP 29.0.3"
+    assert readme =~ "Erlang/OTP 29.0.6"
     assert readme =~ "PostgreSQL"
     assert readme =~ "./scripts/check_toolchain.sh"
     assert readme =~ "mix format --check-formatted"

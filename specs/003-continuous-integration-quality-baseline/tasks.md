@@ -23,7 +23,7 @@ description: "Dependency-ordered implementation tasks for the continuous integra
 
 **Purpose**: Confirm the inherited TASK-001 foundation before adding CI behavior.
 
-- [X] T001 Verify the exact Elixir 1.20.3 / Erlang/OTP 29.0.3 pins, locked dependency workflow, PostgreSQL-backed default test alias, and existing toolchain/service helpers in `.tool-versions`, `mix.exs`, `mix.lock`, `scripts/check_toolchain.sh`, and `scripts/local_services.sh`; record any mismatch in `specs/003-continuous-integration-quality-baseline/handoffs/tasks.md` and stop rather than broadening the plan
+- [X] T001 Verify the exact Elixir 1.20.3 / Erlang/OTP 29.0.6 pins, locked dependency workflow, PostgreSQL-backed default test alias, and existing toolchain/service helpers in `.tool-versions`, `mix.exs`, `mix.lock`, `scripts/check_toolchain.sh`, and `scripts/local_services.sh`; record any mismatch in `specs/003-continuous-integration-quality-baseline/handoffs/tasks.md` and stop rather than broadening the plan
 
 ---
 

@@ -8,7 +8,7 @@ This feature introduces no product entity, database table, migration, cache entr
 
 - **Revision**: immutable Git commit SHA checked out once per job
 - **Event**: pull request targeting `main`, or push to `main`
-- **Toolchain**: Elixir 1.20.3 and Erlang/OTP 29.0.3
+- **Toolchain**: Elixir 1.20.3 and Erlang/OTP 29.0.6
 - **Setup state**: checkout, toolchain, locked dependencies, ephemeral PostgreSQL readiness
 - **Categories**: formatting, warnings-as-errors compilation, unit tests
 - **Conclusion**: success only if setup and all three categories succeed; failure otherwise; an older superseded run may be cancelled

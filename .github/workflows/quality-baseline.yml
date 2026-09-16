@@ -39,7 +39,7 @@ jobs:
         uses: erlef/setup-beam@v1
         with:
           elixir-version: '1.20.3'
-          otp-version: '29.0.3'
+          otp-version: '29.0.6'
 
       - name: Verify exact toolchain
         run: ./scripts/check_toolchain.sh
@@ -50,7 +50,7 @@ jobs:
           path: |
             deps
             _build
-          key: ${{ runner.os }}-otp-29.0.3-elixir-1.20.3-${{ hashFiles('mix.lock') }}
+          key: ${{ runner.os }}-otp-29.0.6-elixir-1.20.3-${{ hashFiles('mix.lock') }}
 
       - name: Install package managers
         run: |

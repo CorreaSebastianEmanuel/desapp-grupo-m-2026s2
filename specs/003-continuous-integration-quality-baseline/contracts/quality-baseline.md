@@ -21,7 +21,7 @@ The script preserves the repository's normal test-alias status, including test d
 
 ## Environment contract
 
-- Elixir 1.20.3 and Erlang/OTP 29.0.3
+- Elixir 1.20.3 and Erlang/OTP 29.0.6
 - dependencies resolved from `mix.lock`
 - ephemeral PostgreSQL with test-only credentials and health checking
 - no production secret, Redis requirement, or live football-provider call

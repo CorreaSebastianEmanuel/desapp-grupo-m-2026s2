@@ -3,7 +3,7 @@
 ## Prerequisites
 
 - Check out the target revision on the documented macOS/Linux environment.
-- Install Elixir 1.20.3 and Erlang/OTP 29.0.3, then run `./scripts/check_toolchain.sh`.
+- Install Elixir 1.20.3 and Erlang/OTP 29.0.6, then run `./scripts/check_toolchain.sh`.
 - Start the repository PostgreSQL service with `./scripts/local_services.sh start` and wait with `./scripts/local_services.sh ready`.
 - Install Hex/Rebar and fetch locked dependencies as documented in README.
 

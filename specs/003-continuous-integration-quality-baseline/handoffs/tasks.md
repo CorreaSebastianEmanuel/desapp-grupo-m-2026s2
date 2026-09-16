@@ -8,7 +8,7 @@
 
 ## Remaining risks
 
-- Hosted availability of Elixir 1.20.3 / OTP 29.0.3 is unproven until publication. Do not widen versions or introduce a container without reviewed replanning/ADR.
+- Hosted availability of Elixir 1.20.3 / OTP 29.0.6 is proven by setup; the PR run must still prove the complete gate. Do not widen versions or introduce a container without reviewed replanning/ADR.
 - Workflow tests must parse YAML and account for YAML 1.1 treating plain `on` as a boolean-like key.
 - Controlled defects can contaminate later evidence unless each is restored and the worktree is checked before continuing.
 - CP1 remains incomplete until hosted PR-head and post-merge `main` evidence is captured, including a cold-cache or equivalent cache-miss proof.

@@ -4,7 +4,7 @@ title: SonarCloud integration
 type: task
 checkpoint: CP1
 priority: high
-status: blocked
+status: wip
 depends_on: TASK-003
 active_run: 120ebc71
 ---

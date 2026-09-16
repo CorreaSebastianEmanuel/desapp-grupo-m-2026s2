@@ -22,9 +22,9 @@ erts_version=$(erl -noshell -eval 'io:format("~s", [erlang:system_info(version)]
   exit 1
 }
 [ "$erts_version" = "$expected_erts" ] || {
-  printf 'error: expected ERTS %s (OTP 29.0.3), found %s\n' "$expected_erts" "$erts_version" >&2
+  printf 'error: expected ERTS %s (OTP 29.0.6), found %s\n' "$expected_erts" "$erts_version" >&2
   exit 1
 }
 
-printf 'toolchain ok: Elixir %s, Erlang/OTP 29.0.3 (ERTS %s), %s\n' \
+printf 'toolchain ok: Elixir %s, Erlang/OTP 29.0.6 (ERTS %s), %s\n' \
   "$elixir_version" "$erts_version" "$(mix --version | tail -n 1)"

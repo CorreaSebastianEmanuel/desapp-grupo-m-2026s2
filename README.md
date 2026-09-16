@@ -65,6 +65,23 @@ test/scripts/verify_foundation_test.sh
 
 Only the preparation commands (`local.hex`, `local.rebar`, `deps.get`, and first-time asset setup) require downloads. Compilation and tests must not fetch dependencies. A missing package, unavailable network during preparation, compiler warning, or failing assertion produces a nonzero exit.
 
+### Continuous integration quality baseline
+
+GitHub Actions runs the stable `Quality baseline` job for pull requests targeting `main` and pushes to `main`. It uses only locked, non-secret build dependencies and an ephemeral PostgreSQL test database. TASK-003 intentionally enforces exactly three categories: formatting, warnings-as-errors compilation, and the complete unit test suite. It does not enforce coverage, SonarCloud, end-to-end or architecture checks, releases, or deployments.
+
+To reproduce the job locally, use Elixir 1.20.3 with Erlang/OTP 29.0.3, make PostgreSQL available with the test defaults documented above, prepare the locked dependencies, and run:
+
+```bash
+./scripts/check_toolchain.sh
+mix deps.get --locked
+MIX_ENV=test mix deps.compile
+mix format --check-formatted
+MIX_ENV=test mix compile --warnings-as-errors
+scripts/ci_unit_tests.sh
+```
+
+These commands are non-mutating quality checks. They require no production credentials, Redis instance, or live football provider.
+
 ### Start, verify, stop, and restart
 
 Start Phoenix in the foreground:

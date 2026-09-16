@@ -47,6 +47,10 @@ def feedback_text(task):
 def task_context(task):
     return "Use docs/PRODUCT.md, docs/ARCHITECTURE.md, docs/CHECKPOINTS.md and the constitution.\n\n"+task.read_text(encoding="utf-8")+"\n\n## Human feedback\n\n"+feedback_text(task)
 def slug(text): return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-") or "task"
+def task_branch(task):
+    m=meta(task)
+    number=m["id"].split("-",1)[1]
+    return f"{number}-{slug(m['title'])}"
 def dependency_ids(path):
     raw=meta(path).get("depends_on","none")
     return [] if raw in ("none","") else [x.strip().upper() for x in raw.split(",") if x.strip()]
@@ -99,6 +103,18 @@ def newest_feature():
     return max(dirs,key=lambda p:p.stat().st_mtime) if dirs else None
 def git(*args, capture=True):
     return subprocess.run(["git",*args],cwd=ROOT,text=True,capture_output=capture)
+
+def ensure_feature_branch(task):
+    expected=task_branch(task)
+    current=git("branch","--show-current").stdout.strip()
+    if current==expected: return expected
+    if current not in ("main","master"):
+        raise RuntimeError(f"Expected feature branch {expected}, found {current or 'detached HEAD'}")
+    exists=git("show-ref","--verify","--quiet",f"refs/heads/{expected}").returncode==0
+    switched=git("switch",expected) if exists else git("switch","-c",expected)
+    if switched.returncode:
+        raise RuntimeError(switched.stderr.strip() or switched.stdout.strip() or f"Cannot switch to {expected}")
+    return expected
 
 def read_run_state(run):
     if run in (None,"none","unknown",""): return None
@@ -274,8 +290,11 @@ def monitor_process(cmd, task, run_hint=None):
     return process.returncode,run
 def publish(task, task_meta, feature):
     branch=git("branch","--show-current").stdout.strip()
-    if not branch or branch in ("main","master"):
-        raise RuntimeError("Refusing to publish from a protected base branch")
+    expected=task_branch(task)
+    if branch != expected:
+        if not branch or branch in ("main","master"):
+            raise RuntimeError(f"Refusing to publish from a protected base branch; expected {expected}")
+        raise RuntimeError(f"Refusing to publish {task_meta['id']} from {branch}; expected {expected}")
     field(task,"status","review")
     staged=git("add","-A")
     if staged.returncode: raise RuntimeError(staged.stderr.strip() or "git add failed")
@@ -338,6 +357,9 @@ def start(a):
         if not shutil.which("gh"): raise SystemExit("GitHub CLI is required for automatic PR creation; install gh or use --no-pr")
         auth=subprocess.run(["gh","auth","status"],cwd=ROOT,text=True,capture_output=True)
         if auth.returncode: raise SystemExit("GitHub CLI is not authenticated; run `gh auth login` or use --no-pr")
+    try: branch=ensure_feature_branch(task)
+    except RuntimeError as error: raise SystemExit(str(error)) from error
+    print(f"Feature branch: {branch}")
     field(task,"status","wip")
     context=task_context(task)
     cmd=["specify","workflow","run",str(WORKFLOW),"--input",f"integration={selected}","--input",f"spec={context}"]
@@ -347,9 +369,16 @@ def start(a):
 def resume(a):
     task=find(a.task); run=meta(task).get("active_run","none")
     if run in ("none","unknown",""): raise SystemExit("No resumable run; use start")
+    try: branch=ensure_feature_branch(task)
+    except RuntimeError as error: raise SystemExit(str(error)) from error
+    print(f"Feature branch: {branch}")
     recover_orphaned_run(task,run)
     field(task,"status","wip")
     print(f"Resuming {a.task.upper()} — run {run}")
+    state=read_run_state(run)
+    if state and state.get("status")=="completed":
+        print("Workflow already completed; retrying verified publication only.")
+        return finalize(task,meta(task),0)
     code,_=monitor_process(["specify","workflow","resume",run],task,run)
     if code==130: return code
     if code:

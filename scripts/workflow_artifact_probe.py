@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -14,6 +15,10 @@ STAGES = {
     "develop": ("spec.md", "plan.md", "tasks.md", "handoffs/develop.md"),
     "qa": ("qa-report.md", "handoffs/qa.md"),
 }
+
+COMPLETED_TASK = re.compile(r"^\s*- \[[xX]\]\s+T\d+\b")
+BACKTICK_VALUE = re.compile(r"`([^`]+)`")
+ARTIFACT_SUFFIXES = {".ex", ".exs", ".json", ".md", ".sh", ".toml", ".yaml", ".yml"}
 
 
 def active_feature(root: Path) -> Path:
@@ -32,6 +37,32 @@ def active_feature(root: Path) -> Path:
     return feature
 
 
+def completed_task_artifacts(root: Path, feature: Path) -> list[str]:
+    """Return missing files explicitly named by completed checklist tasks."""
+    tasks = (feature / "tasks.md").read_text(encoding="utf-8")
+    missing: set[str] = set()
+    for line in tasks.splitlines():
+        if not COMPLETED_TASK.match(line):
+            continue
+        for value in BACKTICK_VALUE.findall(line):
+            if any(character.isspace() for character in value):
+                continue
+            candidate = Path(value.rstrip(".,;:"))
+            if candidate.suffix not in ARTIFACT_SUFFIXES:
+                continue
+            paths = [candidate] if candidate.is_absolute() else [root / candidate]
+            if len(candidate.parts) == 1:
+                paths.append(feature / candidate)
+            try:
+                for path in paths:
+                    path.resolve().relative_to(root.resolve())
+            except ValueError:
+                continue
+            if not any(path.is_file() for path in paths):
+                missing.add(value)
+    return sorted(missing)
+
+
 def probe(root: Path, stage: str) -> dict[str, object]:
     if stage not in STAGES:
         raise RuntimeError(f"Unknown artifact stage: {stage}")
@@ -46,6 +77,14 @@ def probe(root: Path, stage: str) -> dict[str, object]:
             missing.append(relative)
     if missing:
         raise RuntimeError(f"Missing or empty {stage} artifact(s): {', '.join(missing)}")
+    if stage == "develop":
+        missing_outputs = completed_task_artifacts(root, feature)
+        if missing_outputs:
+            raise RuntimeError(
+                "Completed tasks reference missing artifact(s): "
+                + ", ".join(missing_outputs)
+                + ". Create them or leave the tasks incomplete before QA."
+            )
     if stage == "qa":
         lines = [
             line.strip()

@@ -2,7 +2,7 @@ schema_version: "1.0"
 workflow:
   id: "desapp-delivery"
   name: "DesApp deliberative SDD delivery"
-  version: "2.2.0"
+  version: "2.2.1"
   author: "Alquimistas"
   description: "Specify, challenge, synthesize, implement, and independently verify one task"
 requires:
@@ -89,7 +89,7 @@ steps:
     command: speckit.implement
     integration: "{{ inputs.integration }}"
     input:
-      args: "Read only spec.md, plan.md, tasks.md, handoffs/architecture.md, handoffs/tasks.md, and current human feedback before coding. Do not read product debate, stale QA/review artifacts, unrelated feature artifacts, or workflow/live logs. You are the sole implementation owner. Implement and run all applicable checks. Create one handoff, handoffs/develop.md, with concise changes, decisions, command outcomes, residual risks, and exact QA guidance; reference files instead of pasting output, do not create a second evidence handoff, and keep it under 400 words. Do not commit, push, create a PR, or merge; Agentflow publishes only after verification."
+      args: "Read only spec.md, plan.md, tasks.md, handoffs/architecture.md, handoffs/tasks.md, and current human feedback before coding. Do not read product debate, stale QA/review artifacts, unrelated feature artifacts, or workflow/live logs. You are the sole implementation owner. Implement and run all applicable checks. Before marking a task complete, create every artifact that task explicitly requires; before handoff, reconcile every [X] task against its named files and leave any unsatisfied task unchecked. Create one handoff, handoffs/develop.md, with concise changes, decisions, command outcomes, residual risks, and exact QA guidance; reference files instead of pasting output, do not create a second evidence handoff unless tasks.md explicitly requires it, and keep it under 400 words. Do not commit, push, create a PR, or merge; Agentflow publishes only after verification."
 
   - id: develop_ready
     type: shell

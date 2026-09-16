@@ -1,0 +1,73 @@
+name: Quality baseline
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-baseline:
+    name: Quality baseline
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: football_market_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d football_market_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Check out triggering revision
+        uses: actions/checkout@v4
+
+      - name: Install exact BEAM toolchain
+        uses: erlef/setup-beam@v1
+        with:
+          elixir-version: '1.20.3'
+          otp-version: '29.0.3'
+
+      - name: Verify exact toolchain
+        run: ./scripts/check_toolchain.sh
+
+      - name: Restore locked dependency cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-otp-29.0.3-elixir-1.20.3-${{ hashFiles('mix.lock') }}
+
+      - name: Install package managers
+        run: |
+          mix local.hex --if-missing --force
+          mix local.rebar --if-missing --force
+
+      - name: Fetch locked dependencies
+        run: mix deps.get --locked
+
+      - name: Compile dependencies
+        run: MIX_ENV=test mix deps.compile
+
+      - name: Formatting
+        run: mix format --check-formatted
+
+      - name: Warnings-as-errors
+        run: MIX_ENV=test mix compile --warnings-as-errors
+
+      - name: Unit tests
+        run: scripts/ci_unit_tests.sh

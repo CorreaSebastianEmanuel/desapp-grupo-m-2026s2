@@ -1,0 +1,74 @@
+name: SonarCloud analysis
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sonarcloud-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sonarcloud:
+    name: SonarCloud analysis and CP1 gate
+    runs-on: ubuntu-24.04
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      EXPECTED_REVISION: ${{ github.event.pull_request.head.sha || github.sha }}
+      ANALYSIS_MODE: ${{ github.event_name == 'pull_request' && 'pr' || 'main' }}
+      SONAR_PROJECT_KEY: CorreaSebastianEmanuel_desapp-grupo-m-2026s2
+    steps:
+      - name: Check out triggering revision
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Publish exact-revision analysis and await native gate
+        uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602
+        with:
+          args: >-
+            -Dsonar.qualitygate.wait=true
+            -Dsonar.qualitygate.timeout=300
+
+      - name: Evaluate whole-project CP1 threshold
+        shell: bash
+        run: |
+          args=(
+            --project "$SONAR_PROJECT_KEY"
+            --branch main
+            --mode "$ANALYSIS_MODE"
+          )
+          if [[ "$ANALYSIS_MODE" == "main" ]]; then
+            args+=(--expected-revision "$EXPECTED_REVISION")
+          fi
+          python3 scripts/sonar_checkpoint_gate.py "${args[@]}" 2>&1 | tee sonar-gate-summary.txt
+
+      - name: Publish non-sensitive analysis summary
+        if: always()
+        shell: bash
+        run: |
+          if [[ "$ANALYSIS_MODE" == "pr" ]]; then
+            printf '## Exact-head SonarCloud analysis\n\nRevision: `%s`\n\n' "$EXPECTED_REVISION" >> "$GITHUB_STEP_SUMMARY"
+            printf '[Open PR findings](https://sonarcloud.io/dashboard?id=%s&pullRequest=%s)\n\n' "$SONAR_PROJECT_KEY" '${{ github.event.pull_request.number }}' >> "$GITHUB_STEP_SUMMARY"
+            printf '## Current primary-branch CP1 count\n\n' >> "$GITHUB_STEP_SUMMARY"
+          else
+            printf '## Integrated main analysis\n\nRevision: `%s`\n\n' "$EXPECTED_REVISION" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [[ -f sonar-gate-summary.txt ]]; then
+            sed -E 's#(findings: )https://#\1https://#' sonar-gate-summary.txt >> "$GITHUB_STEP_SUMMARY"
+            diagnostic="$(sed -n 's/^diagnostic: //p' sonar-gate-summary.txt | head -n 1)"
+            if [[ -n "$diagnostic" ]]; then
+              printf '::error title=SonarCloud %s::The analysis did not pass; use the non-sensitive remediation guidance in the job summary.\n' "$diagnostic"
+            fi
+          else
+            printf 'Gate result unavailable. Review the failed scanner/gate step and the [SonarCloud project](https://sonarcloud.io/dashboard?id=%s).\n' "$SONAR_PROJECT_KEY" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          printf '\nAuthentication/authorization failures require checking the protected repository secret. Configuration failures require checking project binding, primary branch, and automatic-analysis settings. Service/network failures may be rerun after availability recovers.\n' >> "$GITHUB_STEP_SUMMARY"

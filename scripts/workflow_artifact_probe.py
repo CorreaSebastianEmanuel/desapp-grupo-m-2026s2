@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import glob
 import re
 import sys
 from pathlib import Path
@@ -53,12 +54,21 @@ def completed_task_artifacts(root: Path, feature: Path) -> list[str]:
             paths = [candidate] if candidate.is_absolute() else [root / candidate]
             if len(candidate.parts) == 1:
                 paths.append(feature / candidate)
-            try:
-                for path in paths:
-                    path.resolve().relative_to(root.resolve())
-            except ValueError:
-                continue
-            if not any(path.is_file() for path in paths):
+            matches: list[Path] = []
+            for path in paths:
+                expanded = (
+                    [Path(match) for match in glob.glob(str(path))]
+                    if glob.has_magic(str(path))
+                    else [path]
+                )
+                for match in expanded:
+                    try:
+                        match.resolve().relative_to(root.resolve())
+                    except ValueError:
+                        continue
+                    if match.is_file():
+                        matches.append(match)
+            if not matches:
                 missing.add(value)
     return sorted(missing)
 

@@ -56,6 +56,38 @@ class WorkflowArtifactProbeTest(unittest.TestCase):
         )
         self.assertTrue(PROBE.probe(self.root, "develop")["valid"])
 
+    def test_develop_accepts_glob_when_an_artifact_matches(self):
+        (self.feature / "tasks.md").write_text(
+            "- [X] T005 Create `priv/repo/migrations/*_create_catalog_tables.exs`\n",
+            encoding="utf-8",
+        )
+        migration = self.root / "priv" / "repo" / "migrations" / "20260917090000_create_catalog_tables.exs"
+        migration.parent.mkdir(parents=True)
+        migration.write_text("migration\n", encoding="utf-8")
+
+        self.assertTrue(PROBE.probe(self.root, "develop")["valid"])
+
+    def test_develop_rejects_glob_without_a_matching_artifact(self):
+        (self.feature / "tasks.md").write_text(
+            "- [X] T005 Create `priv/repo/migrations/*_create_catalog_tables.exs`\n",
+            encoding="utf-8",
+        )
+
+        with self.assertRaisesRegex(RuntimeError, r"\*_create_catalog_tables"):
+            PROBE.probe(self.root, "develop")
+
+    def test_develop_rejects_glob_that_escapes_repository(self):
+        outside = self.root.parent / f"escaped-{self.root.name}.md"
+        outside.write_text("outside repository\n", encoding="utf-8")
+        self.addCleanup(outside.unlink, missing_ok=True)
+        (self.feature / "tasks.md").write_text(
+            f"- [X] T005 Create `../escaped-{self.root.name[:4]}*.md`\n",
+            encoding="utf-8",
+        )
+
+        with self.assertRaisesRegex(RuntimeError, r"escaped-.*\*\.md"):
+            PROBE.probe(self.root, "develop")
+
 
 if __name__ == "__main__":
     unittest.main()

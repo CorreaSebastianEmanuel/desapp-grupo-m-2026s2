@@ -155,6 +155,11 @@ def status(a):
         print(f"stage: {index}/{total} {STEP_LABELS.get(current,current)}")
         print(f"last_activity: {updated}")
         print(f"log: {(SPEC_RUNS/run/'log.jsonl').relative_to(ROOT)}")
+def feature_for_task(task):
+    """Resolve a task's feature directory without cross-task mtime coupling."""
+    number=meta(task)["id"].split("-",1)[1]
+    dirs=[p for p in (ROOT/"specs").glob(f"{number}-*") if p.is_dir()]
+    return max(dirs,key=lambda p:p.stat().st_mtime) if dirs else None
 def newest_feature():
     dirs=[p for p in (ROOT/"specs").glob("[0-9][0-9][0-9]-*") if p.is_dir()]
     return max(dirs,key=lambda p:p.stat().st_mtime) if dirs else None
@@ -374,7 +379,7 @@ def publish(task, task_meta, feature):
     return pr.stdout.strip()
 
 def finalize(task, task_meta, code, no_pr=False):
-    feature=newest_feature()
+    feature=feature_for_task(task)
     required=("spec.md","plan.md","tasks.md","qa-report.md","review-report.md")
     def terminal_verdict(path):
         lines=[line.strip() for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]

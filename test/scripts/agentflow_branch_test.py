@@ -2,6 +2,7 @@
 import importlib.machinery
 import importlib.util
 import subprocess
+import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -73,6 +74,29 @@ class AgentflowBranchTest(unittest.TestCase):
         ):
             with self.assertRaisesRegex(RuntimeError, "expected 003-continuous"):
                 AGENTFLOW.publish(self.task, self.metadata, Path("specs/003-example"))
+
+    def test_feature_lookup_is_isolated_to_the_requested_task(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            expected = root / "specs" / "003-quality-baseline"
+            unrelated = root / "specs" / "004-newer-unrelated-feature"
+            expected.mkdir(parents=True)
+            unrelated.mkdir(parents=True)
+
+            with patch.object(AGENTFLOW, "ROOT", root), patch.object(
+                AGENTFLOW, "meta", return_value=self.metadata
+            ):
+                self.assertEqual(AGENTFLOW.feature_for_task(self.task), expected)
+
+    def test_feature_lookup_returns_none_when_task_has_no_artifacts(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "specs" / "004-unrelated-feature").mkdir(parents=True)
+
+            with patch.object(AGENTFLOW, "ROOT", root), patch.object(
+                AGENTFLOW, "meta", return_value=self.metadata
+            ):
+                self.assertIsNone(AGENTFLOW.feature_for_task(self.task))
 
 
 if __name__ == "__main__":

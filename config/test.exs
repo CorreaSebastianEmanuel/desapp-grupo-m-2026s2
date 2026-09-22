@@ -45,6 +45,13 @@ config :football_market, :redis,
   port: parse_port.(System.get_env("REDIS_PORT", "6379")),
   password: System.get_env("REDIS_PASSWORD")
 
+# The dependency documents m_cost: 8 as its test-only low-cost setting.
+config :argon2_elixir,
+  t_cost: 1,
+  m_cost: 8,
+  parallelism: 1,
+  argon2_type: 2
+
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
 

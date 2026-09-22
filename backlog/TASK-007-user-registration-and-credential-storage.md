@@ -4,9 +4,9 @@ title: User registration and credential storage
 type: task
 checkpoint: CP1
 priority: critical
-status: review
+status: done
 depends_on: TASK-002
-active_run: bbc8850b
+active_run: none
 ---
 
 ## Outcome

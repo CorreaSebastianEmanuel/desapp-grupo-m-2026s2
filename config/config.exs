@@ -11,6 +11,13 @@ config :football_market,
   ecto_repos: [FootballMarket.Repo],
   generators: [timestamp_type: :utc_datetime]
 
+# argon2_elixir represents the 65,536 KiB profile as exponent 16.
+config :argon2_elixir,
+  t_cost: 2,
+  m_cost: 16,
+  parallelism: 1,
+  argon2_type: 2
+
 # Configure the endpoint
 config :football_market, FootballMarketWeb.Endpoint,
   url: [host: "localhost"],

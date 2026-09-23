@@ -1,0 +1,47 @@
+name: Finalize merged Agentflow task
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: agentflow-backlog-finalization
+  cancel-in-progress: false
+
+jobs:
+  finalize:
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Reconcile merged task
+        id: reconcile
+        env:
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: |
+          if [[ ! "$HEAD_REF" =~ ^[0-9]{3}-[a-z0-9][a-z0-9-]*$ ]]; then
+            echo "Not an Agentflow delivery branch; no backlog state changed."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          python3 scripts/reconcile_merged_task.py --head-ref "$HEAD_REF"
+          if git diff --quiet -- backlog; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Commit finalized backlog state
+        if: steps.reconcile.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add backlog
+          git commit -m "Finalize merged Agentflow task"
+          git pull --rebase origin main
+          git push origin HEAD:main

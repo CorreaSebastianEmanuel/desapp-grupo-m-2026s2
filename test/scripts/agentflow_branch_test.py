@@ -98,6 +98,31 @@ class AgentflowBranchTest(unittest.TestCase):
             ):
                 self.assertIsNone(AGENTFLOW.feature_for_task(self.task))
 
+    def test_verify_promotes_both_pass_verdicts_without_recursing(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            feature = root / "specs" / "003-example"
+            feature.mkdir(parents=True)
+            for name in ("spec.md", "plan.md", "tasks.md"):
+                (feature / name).write_text("artifact\n", encoding="utf-8")
+            for name in ("qa-report.md", "review-report.md"):
+                (feature / name).write_text("report\n\nVerdict: PASS\n", encoding="utf-8")
+            args = type("Args", (), {"task": "TASK-003", "agent": "auto", "dry_run": False})()
+
+            with patch.object(AGENTFLOW, "ROOT", root), patch.object(
+                AGENTFLOW, "find", return_value=self.task
+            ), patch.object(AGENTFLOW, "feature_for_task", return_value=feature), patch.object(
+                AGENTFLOW, "agent", return_value="codex"
+            ), patch.object(AGENTFLOW.subprocess, "run", return_value=result()) as run_agent, patch.object(
+                AGENTFLOW, "field"
+            ) as set_field:
+                self.assertEqual(AGENTFLOW.verify(args), 0)
+
+            command = run_agent.call_args.args[0]
+            prompt = command[-1]
+            self.assertIn("Do not invoke `./agentflow verify`", prompt)
+            set_field.assert_called_once_with(self.task, "status", "review")
+
 
 if __name__ == "__main__":
     unittest.main()

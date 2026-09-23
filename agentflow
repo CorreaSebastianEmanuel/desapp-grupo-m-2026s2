@@ -380,15 +380,7 @@ def publish(task, task_meta, feature):
 
 def finalize(task, task_meta, code, no_pr=False):
     feature=feature_for_task(task)
-    required=("spec.md","plan.md","tasks.md","qa-report.md","review-report.md")
-    def terminal_verdict(path):
-        lines=[line.strip() for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
-        return lines[-1] if lines else ""
-    passed=bool(
-        code==0 and feature and all((feature/name).is_file() for name in required)
-        and terminal_verdict(feature/"qa-report.md")=="Verdict: PASS"
-        and terminal_verdict(feature/"review-report.md")=="Verdict: PASS"
-    )
+    passed=verification_passed(feature,code)
     if not passed:
         field(task,"status","blocked")
         print(f"Verification failed; inspect {feature or 'specs/'} and .agentflow/runs",file=sys.stderr)
@@ -454,11 +446,37 @@ def complete(a):
     if m.get("status")!="review": raise SystemExit(f"Only a reviewed task can be completed; current status is {m.get('status')}")
     field(task,"status","done"); field(task,"active_run","none")
     print(f"Completed {m['id']}. Dependent tasks may now become ready.")
+def terminal_verdict(path):
+    lines=[line.strip() for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    return lines[-1] if lines else ""
+def verification_passed(feature,code):
+    required=("spec.md","plan.md","tasks.md","qa-report.md","review-report.md")
+    return bool(
+        code==0 and feature and all((feature/name).is_file() for name in required)
+        and terminal_verdict(feature/"qa-report.md")=="Verdict: PASS"
+        and terminal_verdict(feature/"review-report.md")=="Verdict: PASS"
+    )
 def verify(a):
-    selected=agent(a.agent); prompt=f"Independently verify {a.task}; run checks and update qa-report.md and review-report.md without changing implementation code."
+    selected=agent(a.agent)
+    task=find(a.task); feature=feature_for_task(task)
+    prompt=(
+        f"You are the delegated independent verifier for {a.task}. Do not invoke "
+        "`./agentflow verify`, the verify skill, or another Codex session: that would recurse. "
+        f"Inspect the canonical artifacts in {feature.relative_to(ROOT) if feature else 'specs/'}, "
+        "run the applicable checks, and update only qa-report.md and review-report.md. "
+        "Do not change implementation code. End each report exactly with `Verdict: PASS` only "
+        "when its gate passes; otherwise end it with `Verdict: FAIL`."
+    )
     if a.dry_run: print(f"Would verify {a.task} with {selected}"); return 0
     cmd=["codex","exec","-C",str(ROOT),"--approve-for-me","--ephemeral",prompt]
-    return subprocess.run(cmd,cwd=ROOT).returncode
+    code=subprocess.run(cmd,cwd=ROOT).returncode
+    if verification_passed(feature,code):
+        field(task,"status","review")
+        print(f"Independent QA and final review passed for {a.task.upper()}.")
+        return 0
+    field(task,"status","blocked")
+    print(f"Independent verification failed for {a.task.upper()}.",file=sys.stderr)
+    return code or 1
 def menu(parser):
     while True:
         print("\nAgentflow\n1 Backlog  2 Create  3 Start  4 Status  5 Resume  6 Verify  7 Complete  8 Feedback  9 History  10 Next  0 Exit")

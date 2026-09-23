@@ -4,9 +4,9 @@ title: Football catalog domain model
 type: task
 checkpoint: CP1
 priority: critical
-status: review
+status: done
 depends_on: TASK-002
-active_run: bb3abbdd
+active_run: none
 ---
 
 ## Outcome

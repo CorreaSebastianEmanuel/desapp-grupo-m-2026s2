@@ -1,0 +1,5 @@
+# Tasks handoff: API key lifecycle
+
+- **Planning resolutions:** The plan now requires safe UUID casting before revocation queries, distinguishes confirmed insert rejection from an ambiguous post-insert failure, and uses a test-only database trigger to exercise a digest collision through normal issuance. This avoids a production entropy override. A dedicated security test file was added to the planned layout.
+- **Remaining risk:** Ecto query telemetry can carry parameter metadata even when SQL logging is disabled. The current metrics export durations without parameter tags; implementation and QA should inspect any handler/exporter changes for credential forwarding. A database outage around an uncertain commit cannot justify reporting that issuance definitely created no row.
+- **Sequencing guidance:** Keep forced-failure and collision triggers confined to SQL Sandbox transactions and remove them through rollback. The local timing sample depends on machine and PostgreSQL load; report the measured counts if the environment fails the threshold, without relaxing the requirement. Later API authentication must derive owner identity from its authenticated context.

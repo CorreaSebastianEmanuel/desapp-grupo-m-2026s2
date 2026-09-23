@@ -1,10 +1,11 @@
 defmodule FootballMarket.Accounts do
-  @moduledoc "Internal user registration and password-verification boundary."
+  @moduledoc "Internal account and credential boundary."
 
   import Ecto.Changeset
+  import Ecto.Query
 
   alias Ecto.Multi
-  alias FootballMarket.Accounts.{PasswordCredential, User}
+  alias FootballMarket.Accounts.{ApiKey, PasswordCredential, User}
   alias FootballMarket.Repo
 
   @doc "Registers a user and its password credential atomically."
@@ -47,6 +48,78 @@ defmodule FootballMarket.Accounts do
   end
 
   def get_user_by_email(_email), do: {:error, :not_found}
+
+  @doc "Issues a new API key for a trusted account ID, disclosing its secret once."
+  def issue_api_key(user_id) do
+    with {:ok, owner_id} <- Ecto.UUID.cast(user_id) do
+      secret = 32 |> :crypto.strong_rand_bytes() |> Base.url_encode64(padding: false)
+      digest = :crypto.hash(:sha256, secret)
+
+      changeset = ApiKey.changeset(%ApiKey{}, %{user_id: owner_id, secret_hash: digest})
+
+      case insert_api_key(changeset) do
+        {:ok, key} -> {:ok, %{id: key.id, secret: secret}}
+        {:error, _reason} -> {:error, :issuance_failed}
+      end
+    else
+      :error -> {:error, :issuance_failed}
+    end
+  end
+
+  defp insert_api_key(changeset) do
+    Repo.insert(changeset, mode: :savepoint, log: false)
+  rescue
+    _error in Postgrex.Error -> {:error, :database_rejection}
+  end
+
+  @doc "Identifies an active key from its complete canonical secret."
+  def identify_api_key(secret) when is_binary(secret) do
+    with true <- byte_size(secret) == 43 and String.valid?(secret),
+         true <- String.match?(secret, ~r/\A[A-Za-z0-9_-]{43}\z/),
+         {:ok, bytes} <- Base.url_decode64(secret, padding: false),
+         true <- byte_size(bytes) == 32,
+         true <- Base.url_encode64(bytes, padding: false) == secret do
+      digest = :crypto.hash(:sha256, secret)
+
+      case Repo.one(
+             from(key in ApiKey,
+               where: key.secret_hash == ^digest and is_nil(key.revoked_at),
+               select: {key.user_id, key.id}
+             ),
+             log: false
+           ) do
+        {user_id, key_id} -> {:ok, %{account_id: user_id, key_id: key_id}}
+        nil -> {:error, :invalid_key}
+      end
+    else
+      _ -> {:error, :invalid_key}
+    end
+  end
+
+  def identify_api_key(_secret), do: {:error, :invalid_key}
+
+  @doc "Irreversibly revokes an owned key by its management ID."
+  def revoke_api_key(user_id, key_id) do
+    with {:ok, owner_id} <- Ecto.UUID.cast(user_id),
+         {:ok, management_id} <- Ecto.UUID.cast(key_id) do
+      owned =
+        from(key in ApiKey,
+          where: key.id == ^management_id and key.user_id == ^owner_id
+        )
+
+      active = from(key in owned, where: is_nil(key.revoked_at))
+
+      case Repo.update_all(active, [set: [revoked_at: DateTime.utc_now()]], log: false) do
+        {1, _} ->
+          :ok
+
+        {0, _} ->
+          if Repo.exists?(owned, log: false), do: :ok, else: {:error, :not_found}
+      end
+    else
+      :error -> {:error, :not_found}
+    end
+  end
 
   defp valid_email(%Ecto.Changeset{valid?: true}), do: :ok
   defp valid_email(_changeset), do: {:error, :email}

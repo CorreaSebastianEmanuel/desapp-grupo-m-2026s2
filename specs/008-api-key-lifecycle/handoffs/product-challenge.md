@@ -1,0 +1,11 @@
+# Product challenge: API key lifecycle
+
+- **Revocation timing is underspecified at the concurrency boundary.** FR-008 says revocation takes effect for “subsequent identification,” while Story 3 expects the next attempt to fail. A lookup racing with revocation could otherwise produce inconsistent results. Treat the committed revocation as the boundary: lookups started after commit must reject the key, and identification must read authoritative state. Test the post-commit case; document how an in-flight lookup is ordered.
+
+- **The internal trust boundary carries a future privilege risk.** FR-001 excludes public management routes, but issuance and revocation accept a specified account, and TASK-010 will later expose authenticated requests. The architect should keep these operations behind a domain interface and require any later web adapter to obtain the owner from authenticated context. Add a boundary test or architecture check that this task adds no callable public route. Do not add caller authentication to this feature.
+
+- **Failure parity needs a precise, testable interpretation.** Story 2 requires revoked and unknown secrets to fail in the same externally observable way; FR-009 requires the same for unknown and other-account identifiers on revocation. Recommend identical safe result shapes and no record-existence details in errors, logs, or telemetry. Uniform timing is difficult to guarantee and is not an explicit acceptance criterion; the high-entropy secret and no public endpoint limit present exposure. Avoid promising timing parity without evidence.
+
+- **The verification and performance criteria need bounded evidence.** SC-001 and SC-002 use 100% language that tests cannot establish across all possible random keys; SC-005 gives a 95% one-second local target without a sample size or measurement boundary. Verify representative issued keys, deterministic collision and failure cases, and the storage uniqueness constraint. For SC-005, specify a repeatable local sample and measure issuance and identification separately, including persistence. CP1 lists tests but no performance gate, so avoid costly optimization solely to satisfy an undefined benchmark.
+
+No TASK-008 human feedback file is present under `backlog/feedback/`. These recommendations fit the current product invariants and checkpoint without expanding the feature.

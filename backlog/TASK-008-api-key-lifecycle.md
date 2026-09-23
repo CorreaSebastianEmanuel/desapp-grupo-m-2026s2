@@ -4,9 +4,9 @@ title: API key lifecycle
 type: task
 checkpoint: CP1
 priority: critical
-status: review
+status: done
 depends_on: TASK-007
-active_run: cdcaf2cf
+active_run: none
 ---
 
 ## Outcome

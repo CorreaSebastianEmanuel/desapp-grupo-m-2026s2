@@ -5,7 +5,7 @@ defmodule FootballMarket.Accounts do
   import Ecto.Query
 
   alias Ecto.Multi
-  alias FootballMarket.Accounts.{ApiKey, PasswordCredential, User}
+  alias FootballMarket.Accounts.{ApiKey, Authentication, PasswordCredential, User}
   alias FootballMarket.Repo
 
   @doc "Registers a user and its password credential atomically."
@@ -48,6 +48,70 @@ defmodule FootballMarket.Accounts do
   end
 
   def get_user_by_email(_email), do: {:error, :not_found}
+
+  @doc "Authenticates credentials and issues one short-lived access token."
+  def login(credentials) do
+    timed_authentication(:login, fn -> authenticate(credentials) end)
+  end
+
+  @doc "Validates a JWT access token without consulting persistence."
+  def validate_access_token(token) do
+    timed_authentication(:validation, fn -> Authentication.validate(token) end)
+  end
+
+  defp authenticate(credentials) when is_map(credentials) do
+    email = Map.get(credentials, :email, Map.get(credentials, "email"))
+    password = Map.get(credentials, :password, Map.get(credentials, "password"))
+
+    with true <- is_binary(email) and is_binary(password),
+         normalized_email <- email |> String.trim() |> String.downcase(),
+         {user_id, password_hash} when is_binary(password_hash) <-
+           credential_for(normalized_email),
+         true <- PasswordCredential.verify_password(password, password_hash),
+         {:ok, token} <- Authentication.issue(user_id) do
+      {:ok, %{access_token: token}}
+    else
+      nil ->
+        Argon2.no_user_verify()
+        {:error, :authentication_failed}
+
+      _ ->
+        {:error, :authentication_failed}
+    end
+  rescue
+    _ -> {:error, :authentication_failed}
+  end
+
+  defp authenticate(_credentials), do: {:error, :authentication_failed}
+
+  defp credential_for(normalized_email) do
+    Repo.one(
+      from(user in User,
+        join: credential in PasswordCredential,
+        on: credential.user_id == user.id,
+        where: user.email == ^normalized_email,
+        select: {user.id, credential.password_hash}
+      ),
+      log: false
+    )
+  end
+
+  defp timed_authentication(operation, function) do
+    started = System.monotonic_time()
+    result = function.()
+    outcome = if match?({:ok, _}, result), do: :ok, else: :error
+
+    :telemetry.execute(
+      [:football_market, :authentication, telemetry_event(operation)],
+      %{duration: System.monotonic_time() - started},
+      %{operation: operation, outcome: outcome}
+    )
+
+    result
+  end
+
+  defp telemetry_event(:login), do: :login
+  defp telemetry_event(:validation), do: :validation
 
   @doc "Issues a new API key for a trusted account ID, disclosing its secret once."
   def issue_api_key(user_id) do

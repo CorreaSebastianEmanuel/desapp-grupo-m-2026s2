@@ -45,6 +45,7 @@ defmodule FootballMarket.MixProject do
       {:ecto_sql, "~> 3.13"},
       {:postgrex, ">= 0.0.0"},
       {:argon2_elixir, "4.1.3"},
+      {:joken, "~> 2.7"},
       {:redix, "~> 1.5.2"},
       {:phoenix_html, "~> 4.1"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},

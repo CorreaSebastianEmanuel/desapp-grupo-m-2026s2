@@ -1,5 +1,8 @@
 defmodule FootballMarket.CatalogQueryTest do
-  use FootballMarket.DataCase, async: true
+  # This module creates the fixed supported-league catalog, which is shared by
+  # other catalog tests. Run it serially to avoid PostgreSQL lock cycles while
+  # those tests insert into the same hierarchy.
+  use FootballMarket.DataCase, async: false
 
   alias FootballMarket.Catalog
   import FootballMarket.CatalogCase

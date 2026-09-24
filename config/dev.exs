@@ -1,5 +1,7 @@
 import Config
 
+config :football_market, development_seed_enabled: true
+
 parse_port = fn value ->
   case Integer.parse(value) do
     {port, ""} when port in 1..65_535 -> port

@@ -47,6 +47,18 @@ The supported baseline is exact. Select the pinned toolchain in your version man
 
 The check exits nonzero and names the mismatch when Elixir, OTP, ERTS, Mix, or Erlang is absent or unsupported. Do not continue on a mismatch.
 
+### Development demonstration catalog
+
+After migrating a development database, explicitly load the fixed fictional 2026–2027 catalog with:
+
+```bash
+mix catalog.seed
+```
+
+The first run reports `total=44 created=44 reused=0` with 5 leagues, 5 seasons, 10 teams, 4 positions, and 20 players. Repeating it reports `created=0 reused=44` and preserves existing identities, literal normalized-equivalent values, timestamps, and relationships. PostgreSQL must be reachable; Redis, a football provider, and network access are not required.
+
+This command is enabled only by checked-in development and test configuration. It is never called by application startup, `mix setup`, Ecto aliases, migrations, releases, or deployment, and production/unknown environments fail before database access. Failures are nonzero and expose only the categories `disabled`, `validation`, `conflict`, and `persistence`; the causes `invalid_manifest`, `alternate_identity`, `misplaced_relationship`, `attribute_mismatch`, `relationship_mismatch`, `database`, `write_failed`, `concurrent_write`, and `database_unavailable`; an allowlisted entity; and a manifest-owned identity. Any unknown internal failure becomes the generic `persistence/write_failed` result. Resolve conflicts in the named local record; retry a `concurrent_write` after the other seed run finishes; investigate local PostgreSQL for `database` or `database_unavailable` failures. The complete isolated-database and timing procedure is in [`specs/006-development-seed-data/quickstart.md`](specs/006-development-seed-data/quickstart.md).
+
 ### Prepare, compile, and test
 
 From a clean checkout, run these commands in order:

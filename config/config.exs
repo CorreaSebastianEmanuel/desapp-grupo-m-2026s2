@@ -9,7 +9,8 @@ import Config
 
 config :football_market,
   ecto_repos: [FootballMarket.Repo],
-  generators: [timestamp_type: :utc_datetime]
+  generators: [timestamp_type: :utc_datetime],
+  development_seed_enabled: false
 
 # argon2_elixir represents the 65,536 KiB profile as exponent 16.
 config :argon2_elixir,
@@ -64,6 +65,11 @@ config :logger, :default_formatter,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
-# Import environment specific config. This must remain at the bottom
-# of this file so it overrides the configuration defined above.
-import_config "#{config_env()}.exs"
+# Import a checked-in environment config when one exists. Unknown environments
+# retain the fail-closed defaults above so command-level capability checks can
+# reject them without attempting application or database startup.
+environment_config = Path.join(__DIR__, "#{config_env()}.exs")
+
+if File.exists?(environment_config) do
+  import_config environment_config
+end

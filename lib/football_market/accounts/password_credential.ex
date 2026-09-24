@@ -3,7 +3,7 @@ defmodule FootballMarket.Accounts.PasswordCredential do
 
   import Ecto.Changeset
 
-  @derive {Inspect, except: [:password_hash]}
+  @derive {Inspect, except: [:user_id, :password_hash]}
   @primary_key {:user_id, :binary_id, autogenerate: false}
 
   schema "password_credentials" do

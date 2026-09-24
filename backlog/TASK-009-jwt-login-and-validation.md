@@ -4,9 +4,9 @@ title: JWT login and validation
 type: task
 checkpoint: CP1
 priority: critical
-status: todo
+status: review
 depends_on: TASK-007
-active_run: none
+active_run: 1aeef0b4
 ---
 
 ## Outcome

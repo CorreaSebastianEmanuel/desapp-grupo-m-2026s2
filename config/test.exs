@@ -54,6 +54,15 @@ config :argon2_elixir,
   parallelism: 1,
   argon2_type: 2
 
+# Test-only JWT material. Production reads independent values in runtime.exs.
+config :football_market, FootballMarket.Accounts.Authentication,
+  issuer: "football-market-test",
+  audience: "football-market-test-client",
+  signing_key: Base.encode64(String.duplicate("test-only-jwt-signing-key-byte!", 2)),
+  clock: {FootballMarket.Accounts.Authentication, :system_time, []},
+  jti_provider: {FootballMarket.Accounts.Authentication, :generate_jti, []},
+  clock_skew_seconds: 0
+
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
 

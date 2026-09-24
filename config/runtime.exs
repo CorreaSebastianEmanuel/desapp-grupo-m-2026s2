@@ -38,6 +38,36 @@ if config_env() == :dev do
 end
 
 if config_env() == :prod do
+  jwt_issuer =
+    System.get_env("JWT_ISSUER") || raise "JWT issuer configuration is missing"
+
+  jwt_audience =
+    System.get_env("JWT_AUDIENCE") || raise "JWT audience configuration is missing"
+
+  jwt_key =
+    case System.get_env("JWT_SIGNING_KEY_BASE64") do
+      nil ->
+        raise "JWT signing key configuration is missing"
+
+      encoded ->
+        case Base.decode64(encoded) do
+          {:ok, decoded} when byte_size(decoded) >= 32 -> encoded
+          _ -> raise "JWT signing key configuration is invalid"
+        end
+    end
+
+  if jwt_issuer == "" or jwt_audience == "" do
+    raise "JWT issuer or audience configuration is invalid"
+  end
+
+  config :football_market, FootballMarket.Accounts.Authentication,
+    issuer: jwt_issuer,
+    audience: jwt_audience,
+    signing_key: jwt_key,
+    clock: {FootballMarket.Accounts.Authentication, :system_time, []},
+    jti_provider: {FootballMarket.Accounts.Authentication, :generate_jti, []},
+    clock_skew_seconds: 0
+
   database_url =
     System.get_env("DATABASE_URL") ||
       raise """

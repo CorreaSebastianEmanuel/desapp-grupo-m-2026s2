@@ -16,7 +16,7 @@ defmodule FootballMarket.Accounts.PasswordCredentialTest do
     end
   end
 
-  test "uses Argon2id verification and redacts stored hashes from inspection" do
+  test "uses Argon2id verification and redacts credential secrets and ownership from inspection" do
     password = "a secure password"
     hash = PasswordCredential.hash_password(password)
 
@@ -25,6 +25,9 @@ defmodule FootballMarket.Accounts.PasswordCredentialTest do
     refute PasswordCredential.verify_password("a distinct secure password", hash)
 
     credential = %PasswordCredential{user_id: Ecto.UUID.generate(), password_hash: hash}
-    refute inspect(credential) =~ hash
+    inspected = inspect(credential)
+
+    refute inspected =~ credential.user_id
+    refute inspected =~ hash
   end
 end

@@ -1,4 +1,4 @@
-# ADR-0004: Keep Development Seeds Production-Prohibited and Semantically Convergent
+# ADR-0005: Keep Development Seeds Production-Prohibited and Semantically Convergent
 
 **Status**: Accepted
 

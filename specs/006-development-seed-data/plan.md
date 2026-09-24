@@ -32,14 +32,14 @@ Add one explicit `mix catalog.seed` action that reconciles a fixed, fictional 20
 
 *GATE: Passed before Phase 0 and re-checked after Phase 1.*
 
-- **Specification before implementation — PASS**: the design traces to FR-001–FR-020. The current human approval adopts both recommendations in `handoffs/product-decision.md`; [ADR-0004](../../docs/adr/0004-development-seed-safety-and-semantic-convergence.md) records their durable meaning.
+- **Specification before implementation — PASS**: the design traces to FR-001–FR-020. The current human approval adopts both recommendations in `handoffs/product-decision.md`; [ADR-0005](../../docs/adr/0005-development-seed-safety-and-semantic-convergence.md) records their durable meaning.
 - **Domain integrity — PASS**: the existing catalog business identities and database constraints remain authoritative. One transaction, conflict-before-mutation behavior, and no update/delete path preserve catalog integrity.
 - **Modular simplicity — PASS**: the feature stays inside the existing Catalog/Repo boundary and adds no service, adapter, cache, worker, endpoint, schema, or dependency.
 - **Evidence-based quality — PASS**: automated tests cover every required state and failure class; [quickstart.md](quickstart.md) defines the reproducible command and performance evidence.
 - **Independent verification — PASS**: the product challenge was synthesized, its two material choices are approved, and rejected alternatives are explicit below and in [research.md](research.md).
 - **Safety and delivery — PASS**: the seed capability is false by default, enabled only in development/test configuration, denied before database access elsewhere, and neither automatic nor destructive.
 
-Post-design re-check: **PASS**. The data model adds no persistent entity, the command contract preserves domain/persistence separation, and the validation guide covers checkpoint-visible catalog data. ADR-0004 records a durable interpretation and safety policy, not a deviation from the modular-monolith baseline. No constitution exception is required.
+Post-design re-check: **PASS**. The data model adds no persistent entity, the command contract preserves domain/persistence separation, and the validation guide covers checkpoint-visible catalog data. ADR-0005 records a durable interpretation and safety policy, not a deviation from the modular-monolith baseline. No constitution exception is required.
 
 ## Design Decisions
 
@@ -102,7 +102,7 @@ specs/006-development-seed-data/
     └── architecture.md
 
 docs/adr/
-└── 0004-development-seed-safety-and-semantic-convergence.md
+└── 0005-development-seed-safety-and-semantic-convergence.md
 ```
 
 ### Source Code (repository root)

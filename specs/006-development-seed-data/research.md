@@ -4,7 +4,7 @@
 
 - **Decision**: Preserve and reuse identity values that are equivalent under TASK-005 normalization, and prohibit production execution through an explicit development/test-only capability.
 - **Rationale**: The current human check approved the recommendations in `handoffs/product-decision.md`. Semantic convergence satisfies normalized reuse without changing developer data; fail-closed execution protects authoritative catalogs.
-- **Alternatives considered**: Rejecting variants contradicts normalized reuse. Rewriting them violates preservation. Permitting deliberate production use risks fictional live data. See `docs/adr/0004-development-seed-safety-and-semantic-convergence.md`.
+- **Alternatives considered**: Rejecting variants contradicts normalized reuse. Rewriting them violates preservation. Permitting deliberate production use risks fictional live data. See `docs/adr/0005-development-seed-safety-and-semantic-convergence.md`.
 
 ## Entry point and error contract
 

@@ -4,9 +4,9 @@ title: Development seed data
 type: task
 checkpoint: CP1
 priority: high
-status: review
+status: done
 depends_on: TASK-005
-active_run: 2a1502b8
+active_run: none
 ---
 
 ## Outcome

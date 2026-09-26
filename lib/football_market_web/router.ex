@@ -10,8 +10,13 @@ defmodule FootballMarketWeb.Router do
     plug :put_secure_browser_headers
   end
 
-  pipeline :api do
+  pipeline :api_public do
     plug :accepts, ["json"]
+  end
+
+  pipeline :api_protected do
+    plug :accepts, ["json"]
+    plug FootballMarketWeb.Plugs.AuthenticateAPI
   end
 
   scope "/", FootballMarketWeb do
@@ -19,9 +24,4 @@ defmodule FootballMarketWeb.Router do
 
     get "/", PageController, :home
   end
-
-  # Other scopes may use custom stacks.
-  # scope "/api", FootballMarketWeb do
-  #   pipe_through :api
-  # end
 end

@@ -4,9 +4,9 @@ title: API authentication pipeline
 type: task
 checkpoint: CP1
 priority: critical
-status: todo
+status: review
 depends_on: TASK-008, TASK-009
-active_run: none
+active_run: ad86e5de
 ---
 
 ## Outcome

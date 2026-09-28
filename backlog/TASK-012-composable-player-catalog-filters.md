@@ -4,9 +4,9 @@ title: Composable player catalog filters
 type: task
 checkpoint: CP1
 priority: high
-status: todo
+status: review
 depends_on: TASK-011
-active_run: none
+active_run: 5c6990b4
 ---
 
 ## Outcome

@@ -92,9 +92,13 @@ defmodule FootballMarket.Catalog do
 
   def list_player_page(opts) when is_map(opts) do
     page_size = Map.fetch!(opts, :page_size)
+    filters = Map.get(opts, :filters, %{})
 
-    with {:ok, anchor} <- decode_anchor(Map.get(opts, :cursor)) do
-      rows = Query.player_page(anchor, page_size + 1) |> Repo.all(player_page_log_options(anchor))
+    with {:ok, anchor} <- decode_anchor(Map.get(opts, :cursor), filters) do
+      rows =
+        Query.player_page(anchor, page_size + 1, filters)
+        |> Repo.all(player_page_log_options(anchor))
+
       {page_rows, extra} = Enum.split(rows, page_size)
       players = Enum.map(page_rows, &elem(&1, 0))
       has_more = extra != []
@@ -102,7 +106,7 @@ defmodule FootballMarket.Catalog do
       next_cursor =
         if has_more do
           {last, normalized_name} = List.last(page_rows)
-          PlayerCursor.encode(%{name: normalized_name, id: last.id})
+          PlayerCursor.encode(%{name: normalized_name, id: last.id}, filters)
         end
 
       {:ok,
@@ -185,8 +189,8 @@ defmodule FootballMarket.Catalog do
   defp preload_one_player(player),
     do: {:ok, Repo.preload(player, team: [season: :league], position: [])}
 
-  defp decode_anchor(nil), do: {:ok, nil}
-  defp decode_anchor(cursor), do: PlayerCursor.decode(cursor)
+  defp decode_anchor(nil, _filters), do: {:ok, nil}
+  defp decode_anchor(cursor, filters), do: PlayerCursor.decode(cursor, filters)
 
   # Cursor anchors are intentionally opaque. Ecto debug logs include bound query
   # parameters, so continuation reads must not emit the decoded name/UUID tuple.

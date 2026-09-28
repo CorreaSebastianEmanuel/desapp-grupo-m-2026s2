@@ -35,4 +35,25 @@ defmodule FootballMarket.CatalogCase do
     {:ok, team} = FootballMarket.Catalog.create_team(team_attrs(season))
     %{league: league, season: season, team: team}
   end
+
+  def insert_catalog!(names \\ ["Player"]) do
+    hierarchy = insert_hierarchy!()
+    {:ok, position} = FootballMarket.Catalog.create_position(position_attrs())
+
+    players =
+      Enum.map(names, fn name ->
+        {:ok, player} =
+          FootballMarket.Catalog.create_player(
+            player_attrs(hierarchy.team, position, %{display_name: name})
+          )
+
+        player
+      end)
+
+    Map.merge(hierarchy, %{position: position, players: players})
+  end
+
+  def insert_players!(count),
+    do:
+      insert_catalog!(Enum.map(1..count, &"Player #{String.pad_leading(to_string(&1), 4, "0")}"))
 end

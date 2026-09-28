@@ -10,10 +10,10 @@ defmodule FootballMarketWeb.RouterAuthenticationPolicyTest do
     public_allowlist = MapSet.new()
 
     Enum.each(api_routes, fn route ->
-      policies = Enum.filter(route.pipe_through, &(&1 in [:api_public, :api_protected]))
-      assert length(policies) == 1
+      policy = route.metadata[:authentication_policy]
+      assert policy in [:api_public, :api_protected]
 
-      if :api_public in policies do
+      if policy == :api_public do
         assert MapSet.member?(public_allowlist, {route.verb, route.path})
       end
     end)

@@ -17,7 +17,11 @@ defmodule FootballMarket.DataCase do
   end
 
   def setup_sandbox(tags) do
-    owner = Ecto.Adapters.SQL.Sandbox.start_owner!(FootballMarket.Repo, shared: not tags[:async])
+    options =
+      [shared: not tags[:async]]
+      |> Keyword.put(:ownership_timeout, tags[:ownership_timeout] || 120_000)
+
+    owner = Ecto.Adapters.SQL.Sandbox.start_owner!(FootballMarket.Repo, options)
     on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(owner) end)
   end
 

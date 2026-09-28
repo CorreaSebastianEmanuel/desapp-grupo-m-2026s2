@@ -62,8 +62,11 @@ config :logger, :default_formatter,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
 
-# Use Jason for JSON parsing in Phoenix
-config :phoenix, :json_library, Jason
+# Use Jason for JSON parsing in Phoenix and redact opaque catalog continuations
+# before controller parameter logging can expose them.
+config :phoenix,
+  json_library: Jason,
+  filter_parameters: ["password", "token", "cursor"]
 
 # Import a checked-in environment config when one exists. Unknown environments
 # retain the fail-closed defaults above so command-level capability checks can

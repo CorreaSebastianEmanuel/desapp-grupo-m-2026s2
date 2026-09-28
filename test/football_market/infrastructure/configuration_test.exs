@@ -14,7 +14,11 @@ defmodule FootballMarket.Infrastructure.ConfigurationTest do
 
   test "test database identity is fail closed" do
     assert :ok =
-             Configuration.validate_test_database!("football_market_test", "football_market_dev")
+             Configuration.validate_test_database!(
+               "football_market_test",
+               "football_market_dev",
+               ""
+             )
 
     assert :ok =
              Configuration.validate_test_database!(
@@ -39,6 +43,20 @@ defmodule FootballMarket.Infrastructure.ConfigurationTest do
     refute Configuration.sanitize("password=top-secret ecto://u:top-secret@localhost/db", [
              "top-secret"
            ]) =~ "top-secret"
+  end
+
+  test "Phoenix filters credentials and player catalog cursors from parameter logs" do
+    assert Phoenix.Logger.filter_values(%{
+             "password" => "password-secret",
+             "token" => "token-secret",
+             "cursor" => "cursor-secret",
+             "visible" => "public"
+           }) == %{
+             "password" => "[FILTERED]",
+             "token" => "[FILTERED]",
+             "cursor" => "[FILTERED]",
+             "visible" => "public"
+           }
   end
 
   test "invalid ports fail by configuration category" do

@@ -54,6 +54,25 @@ defmodule FootballMarket.Catalog.Query do
     end
   end
 
+  def player_page(anchor, limit) when is_integer(limit) and limit > 0 do
+    query =
+      from player in base_players(),
+        order_by: [asc: fragment("lower(btrim(?))", player.display_name), asc: player.id],
+        select: {player, fragment("lower(btrim(?))", player.display_name)},
+        limit: ^limit
+
+    case anchor do
+      nil ->
+        query
+
+      %{name: name, id: id} ->
+        from [player, _team, _season, _league, _position] in query,
+          where:
+            fragment("lower(btrim(?))", player.display_name) > ^name or
+              (fragment("lower(btrim(?))", player.display_name) == ^name and player.id > ^id)
+    end
+  end
+
   defp base_players do
     from player in Player,
       join: team in assoc(player, :team),

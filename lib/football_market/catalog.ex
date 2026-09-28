@@ -3,7 +3,7 @@ defmodule FootballMarket.Catalog do
 
   import Ecto.Changeset
 
-  alias FootballMarket.Catalog.{League, Player, Position, Query, Season, Team}
+  alias FootballMarket.Catalog.{League, Player, PlayerCursor, Position, Query, Season, Team}
   alias FootballMarket.Repo
 
   @supported_leagues [
@@ -81,6 +81,43 @@ defmodule FootballMarket.Catalog do
 
   def get_player(id), do: Query.by_id(Player, id) |> Repo.one() |> preload_one_player()
 
+  def get_player_detail(id) do
+    with {:ok, uuid} <- Ecto.UUID.cast(id),
+         %Player{} = player <- Query.by_id(Player, uuid) |> Repo.one() do
+      {:ok, Repo.preload(player, team: [season: :league], position: [])}
+    else
+      _ -> {:error, :not_found}
+    end
+  end
+
+  def list_player_page(opts) when is_map(opts) do
+    page_size = Map.fetch!(opts, :page_size)
+
+    with {:ok, anchor} <- decode_anchor(Map.get(opts, :cursor)) do
+      rows = Query.player_page(anchor, page_size + 1) |> Repo.all(player_page_log_options(anchor))
+      {page_rows, extra} = Enum.split(rows, page_size)
+      players = Enum.map(page_rows, &elem(&1, 0))
+      has_more = extra != []
+
+      next_cursor =
+        if has_more do
+          {last, normalized_name} = List.last(page_rows)
+          PlayerCursor.encode(%{name: normalized_name, id: last.id})
+        end
+
+      {:ok,
+       %{
+         players: players,
+         pagination: %{
+           page_size: page_size,
+           returned_count: length(players),
+           has_more: has_more,
+           next_cursor: next_cursor
+         }
+       }}
+    end
+  end
+
   def get_player(season_id, identity),
     do: Query.player(season_id, identity) |> Repo.one() |> preload_one_player()
 
@@ -147,4 +184,12 @@ defmodule FootballMarket.Catalog do
 
   defp preload_one_player(player),
     do: {:ok, Repo.preload(player, team: [season: :league], position: [])}
+
+  defp decode_anchor(nil), do: {:ok, nil}
+  defp decode_anchor(cursor), do: PlayerCursor.decode(cursor)
+
+  # Cursor anchors are intentionally opaque. Ecto debug logs include bound query
+  # parameters, so continuation reads must not emit the decoded name/UUID tuple.
+  defp player_page_log_options(nil), do: []
+  defp player_page_log_options(_anchor), do: [log: false]
 end

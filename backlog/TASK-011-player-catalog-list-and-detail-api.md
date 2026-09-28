@@ -4,9 +4,9 @@ title: Player catalog list and detail API
 type: task
 checkpoint: CP1
 priority: critical
-status: review
+status: done
 depends_on: TASK-005, TASK-010
-active_run: 46cc7033
+active_run: none
 ---
 
 ## Outcome

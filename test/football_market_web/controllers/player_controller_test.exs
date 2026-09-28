@@ -7,6 +7,155 @@ defmodule FootballMarketWeb.PlayerControllerTest do
 
   @endpoint FootballMarketWeb.Endpoint
 
+  test "single filters use IDs from player JSON and preserve the response shape", %{token: token} do
+    fixture = FootballMarket.CatalogFilterCase.build!()
+    conn = auth(token)
+    unfiltered = conn |> get("/api/players?page_size=1") |> json_response(200)
+    ids = hd(unfiltered["data"])
+
+    for {key, dimension} <- [
+          {"league_id", "league"},
+          {"team_id", "team"},
+          {"position_id", "position"}
+        ] do
+      id = ids[dimension]["id"]
+      body = conn |> get("/api/players?page_size=100&#{key}=#{id}") |> json_response(200)
+      assert Map.keys(body) |> Enum.sort() == ["data", "pagination"]
+      assert Enum.all?(body["data"], &exact_player?/1)
+      atom = String.to_existing_atom(key)
+
+      assert Enum.map(body["data"], & &1["id"]) ==
+               FootballMarket.CatalogFilterCase.expected(fixture.players, %{atom => id})
+               |> Enum.take(100)
+    end
+
+    assert conn |> get("/api/players?team_id=#{Ecto.UUID.generate()}") |> json_response(200) == %{
+             "data" => [],
+             "pagination" => %{
+               "page_size" => 25,
+               "returned_count" => 0,
+               "has_more" => false,
+               "next_cursor" => nil
+             }
+           }
+  end
+
+  test "all pairs and three filters are intersections across five leagues", %{token: token} do
+    fixture = FootballMarket.CatalogFilterCase.build!()
+    conn = auth(token)
+    target = fixture.target
+
+    ids = %{
+      league_id: target.team.season.league.id,
+      team_id: target.team.id,
+      position_id: target.position.id
+    }
+
+    for keys <- [
+          [:league_id, :team_id],
+          [:league_id, :position_id],
+          [:team_id, :position_id],
+          [:league_id, :team_id, :position_id]
+        ] do
+      filters = Map.take(ids, keys)
+      query = Enum.map_join(filters, "&", fn {key, id} -> "#{key}=#{id}" end)
+      actual = traverse_filtered(conn, query, 37)
+      assert actual == FootballMarket.CatalogFilterCase.expected(fixture.players, filters)
+    end
+
+    for league_id <- fixture.players |> Enum.map(& &1.team.season.league.id) |> Enum.uniq() do
+      actual = traverse_filtered(conn, "league_id=#{league_id}", 100)
+
+      assert actual ==
+               FootballMarket.CatalogFilterCase.expected(fixture.players, %{league_id: league_id})
+    end
+
+    for position <- fixture.positions do
+      actual = traverse_filtered(conn, "position_id=#{position.id}", 100)
+
+      assert actual ==
+               FootballMarket.CatalogFilterCase.expected(fixture.players, %{
+                 position_id: position.id
+               })
+    end
+
+    first_a =
+      conn
+      |> get("/api/players?team_id=#{ids.team_id}&league_id=#{ids.league_id}&page_size=3")
+      |> json_response(200)
+
+    first_b =
+      conn
+      |> get(
+        "/api/players?league_id=#{String.upcase(ids.league_id)}&team_id=#{String.upcase(ids.team_id)}&page_size=3&ignored=anything"
+      )
+      |> json_response(200)
+
+    assert first_a == first_b
+
+    other_league =
+      Enum.find(fixture.players, &(&1.team.season.league.id != ids.league_id)).team.season.league.id
+
+    assert conn
+           |> get("/api/players?league_id=#{other_league}&team_id=#{ids.team_id}")
+           |> json_response(200) == %{
+             "data" => [],
+             "pagination" => %{
+               "page_size" => 25,
+               "returned_count" => 0,
+               "has_more" => false,
+               "next_cursor" => nil
+             }
+           }
+  end
+
+  test "filtered cursors accept equivalent IDs, page-size changes, and reject mismatches", %{
+    token: token
+  } do
+    fixture = FootballMarket.CatalogFilterCase.build!()
+    conn = auth(token)
+    team_id = fixture.target.team.id
+    league_id = fixture.target.team.season.league.id
+
+    first =
+      conn
+      |> get("/api/players?team_id=#{team_id}&league_id=#{league_id}&page_size=1")
+      |> json_response(200)
+
+    cursor = first["pagination"]["next_cursor"]
+    assert is_binary(cursor)
+
+    assert conn
+           |> get(
+             "/api/players?league_id=#{String.upcase(league_id)}&team_id=#{String.upcase(team_id)}&page_size=2&cursor=#{cursor}"
+           )
+           |> json_response(200)
+           |> get_in(["pagination", "returned_count"]) == 2
+
+    for query <- [
+          "",
+          "team_id=#{team_id}",
+          "team_id=#{Ecto.UUID.generate()}&league_id=#{league_id}",
+          "team_id=#{team_id}&league_id=#{league_id}&position_id=#{fixture.target.position.id}"
+        ] do
+      assert conn |> get("/api/players?#{query}&cursor=#{cursor}") |> json_response(400) == %{
+               "error" => %{"code" => "invalid_cursor"}
+             }
+    end
+
+    unfiltered = conn |> get("/api/players?page_size=1") |> json_response(200)
+    legacy_cursor = unfiltered["pagination"]["next_cursor"]
+
+    assert conn
+           |> get("/api/players?cursor=#{legacy_cursor}")
+           |> json_response(200)
+           |> Map.has_key?("data")
+
+    assert conn
+           |> get("/api/players?cursor=#{legacy_cursor}&team_id=#{team_id}")
+           |> json_response(400) == %{"error" => %{"code" => "invalid_cursor"}}
+  end
+
   setup do
     {:ok, user} = FootballMarket.Accounts.register_user(registration_attrs())
     {:ok, token} = FootballMarket.Accounts.Authentication.issue(user.id)
@@ -132,6 +281,19 @@ defmodule FootballMarketWeb.PlayerControllerTest do
           accumulated
         )
     end
+  end
+
+  defp traverse_filtered(conn, query, page_size, cursor \\ nil, ids \\ []) do
+    path =
+      "/api/players?#{query}&page_size=#{page_size}" <>
+        if(cursor, do: "&cursor=#{URI.encode_www_form(cursor)}", else: "")
+
+    body = conn |> recycle() |> get(path) |> json_response(200)
+    accumulated = ids ++ Enum.map(body["data"], & &1["id"])
+
+    if next = body["pagination"]["next_cursor"],
+      do: traverse_filtered(conn, query, page_size, next, accumulated),
+      else: accumulated
   end
 
   defp exact_player?(data) do

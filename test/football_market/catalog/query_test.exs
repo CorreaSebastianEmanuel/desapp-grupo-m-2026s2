@@ -7,6 +7,28 @@ defmodule FootballMarket.CatalogQueryTest do
   alias FootballMarket.Catalog
   import FootballMarket.CatalogCase
 
+  test "bounded joined page intersects filters by exact team identity" do
+    fixture = FootballMarket.CatalogFilterCase.build!()
+    target = fixture.target
+
+    filters = %{
+      league_id: target.team.season.league.id,
+      team_id: target.team.id,
+      position_id: target.position.id
+    }
+
+    actual =
+      FootballMarket.Catalog.Query.player_page(nil, 200, filters)
+      |> FootballMarket.Repo.all()
+      |> Enum.map(fn {player, _name} -> player.id end)
+
+    assert actual == FootballMarket.CatalogFilterCase.expected(fixture.players, filters)
+
+    assert Enum.any?(fixture.players, fn player ->
+             player.team.name == target.team.name and player.team.id != target.team.id
+           end)
+  end
+
   test "singular fetches support stable and normalized business identities" do
     %{league: league, season: season, team: team} = insert_hierarchy!()
     {:ok, position} = Catalog.create_position(%{code: "GK", name: "Goalkeeper"})

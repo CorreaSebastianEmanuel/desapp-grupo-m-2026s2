@@ -54,9 +54,9 @@ defmodule FootballMarket.Catalog.Query do
     end
   end
 
-  def player_page(anchor, limit) when is_integer(limit) and limit > 0 do
+  def player_page(anchor, limit, filters \\ %{}) when is_integer(limit) and limit > 0 do
     query =
-      from player in base_players(),
+      from player in Enum.reduce(filters, base_players(), &apply_filter/2),
         order_by: [asc: fragment("lower(btrim(?))", player.display_name), asc: player.id],
         select: {player, fragment("lower(btrim(?))", player.display_name)},
         limit: ^limit

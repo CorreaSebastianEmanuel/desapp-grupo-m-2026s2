@@ -1,6 +1,8 @@
 defmodule FootballMarket.SonarCloudContractTest do
   use ExUnit.Case, async: true
 
+  @moduletag :unit
+
   @root Path.expand("../..", __DIR__)
   @workflow Path.join(@root, ".github/workflows/sonarcloud.yml")
   @baseline Path.join(@root, ".github/workflows/quality-baseline.yml")

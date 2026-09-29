@@ -1,6 +1,8 @@
 defmodule FootballMarket.QualityBaselineContractTest do
   use ExUnit.Case, async: true
 
+  @moduletag :unit
+
   @root Path.expand("../..", __DIR__)
   @workflow Path.join(@root, ".github/workflows/quality-baseline.yml")
   @readme Path.join(@root, "README.md")
@@ -84,5 +86,15 @@ defmodule FootballMarket.QualityBaselineContractTest do
     assert readme =~ "mix format --check-formatted"
     assert readme =~ "MIX_ENV=test mix compile --warnings-as-errors"
     assert readme =~ "scripts/ci_unit_tests.sh"
+  end
+
+  test "CP1 tooling remains outside the locked baseline" do
+    workflow = File.read!(@workflow)
+    runner = File.read!(Path.join(@root, "scripts/ci_unit_tests.sh"))
+
+    refute workflow =~ "test_profile"
+    refute workflow =~ "cp1_coverage"
+    refute runner =~ "test_profile"
+    refute runner =~ "coverage"
   end
 end

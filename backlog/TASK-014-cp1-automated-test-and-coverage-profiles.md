@@ -4,9 +4,9 @@ title: CP1 automated test and coverage profiles
 type: task
 checkpoint: CP1
 priority: critical
-status: todo
+status: review
 depends_on: TASK-003, TASK-013
-active_run: none
+active_run: fce062e6
 ---
 
 ## Outcome

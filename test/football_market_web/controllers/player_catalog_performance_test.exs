@@ -1,5 +1,7 @@
 defmodule FootballMarketWeb.PlayerCatalogPerformanceTest do
   use FootballMarket.DataCase, async: false
+
+  @moduletag :integration
   import Ecto.Query
   import Phoenix.ConnTest
   import Plug.Conn

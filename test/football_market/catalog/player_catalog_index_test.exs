@@ -1,6 +1,8 @@
 defmodule FootballMarket.Catalog.PlayerCatalogIndexTest do
   use FootballMarket.DataCase, async: false
 
+  @moduletag :integration
+
   test "catalog ordering index exists with the normalized expression" do
     %{rows: [[definition]]} =
       Ecto.Adapters.SQL.query!(

@@ -1,5 +1,7 @@
 defmodule FootballMarket.Accounts.AuthenticationTest do
   use FootballMarket.DataCase, async: false
+
+  @moduletag :integration
   use FootballMarket.AccountsCase
 
   alias FootballMarket.Accounts.Authentication

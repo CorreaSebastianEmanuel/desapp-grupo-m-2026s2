@@ -1,6 +1,8 @@
 defmodule FootballMarket.Catalog.PlayerPaginationTest do
   use FootballMarket.DataCase, async: false
 
+  @moduletag :integration
+
   import FootballMarket.CatalogCase
   alias FootballMarket.Catalog
 

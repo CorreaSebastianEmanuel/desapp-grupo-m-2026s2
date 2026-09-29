@@ -1,5 +1,7 @@
 defmodule FootballMarketWeb.PlayerDetailControllerTest do
   use FootballMarket.DataCase, async: false
+
+  @moduletag :integration
   import Phoenix.ConnTest
   import Plug.Conn
   import FootballMarket.CatalogCase

@@ -1,5 +1,7 @@
 defmodule FootballMarket.Catalog.PlayerDetailTest do
   use FootballMarket.DataCase, async: false
+
+  @moduletag :integration
   import FootballMarket.CatalogCase
 
   test "loads authoritative hierarchy and collapses malformed and absent identities" do

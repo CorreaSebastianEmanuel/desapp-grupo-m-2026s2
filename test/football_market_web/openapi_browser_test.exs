@@ -1,5 +1,7 @@
 defmodule FootballMarketWeb.OpenAPIBrowserTest do
   use FootballMarket.DataCase, async: false
+
+  @moduletag :integration
   import Phoenix.ConnTest
   import Plug.Conn
   import FootballMarket.OpenAPICase
@@ -35,9 +37,8 @@ defmodule FootballMarketWeb.OpenAPIBrowserTest do
           stderr_to_stdout: true
         )
 
-      assert status == 0, output
-      assert output =~ "Browser discovery"
-      IO.puts(output)
+      assert status == 0
+      assert output == "CP1_BROWSER_RECEIPT status=complete behavior=published-contract\n"
     after
       Supervisor.stop(server)
     end

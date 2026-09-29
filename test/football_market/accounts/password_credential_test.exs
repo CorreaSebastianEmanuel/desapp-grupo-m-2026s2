@@ -1,6 +1,8 @@
 defmodule FootballMarket.Accounts.PasswordCredentialTest do
   use ExUnit.Case, async: true
 
+  @moduletag :unit
+
   alias FootballMarket.Accounts.PasswordCredential
 
   test "accepts passwords at both length boundaries without changing whitespace" do

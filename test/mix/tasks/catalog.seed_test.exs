@@ -1,6 +1,8 @@
 defmodule Mix.Tasks.Catalog.SeedTest do
   use FootballMarket.DataCase, async: false
 
+  @moduletag :integration
+
   setup do
     previous = Application.get_env(:football_market, :development_seed_enabled)
     previous_env = System.get_env("DEVELOPMENT_SEED_ENABLED")
@@ -210,6 +212,8 @@ end
 
 defmodule Mix.Tasks.Catalog.SeedProcessTest do
   use ExUnit.Case, async: false
+
+  @moduletag :integration
 
   alias Ecto.Adapters.SQL.Sandbox
   alias FootballMarket.Catalog.{League, Player, Position, Season, Team}

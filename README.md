@@ -111,6 +111,32 @@ scripts/ci_unit_tests.sh
 
 These commands are non-mutating quality checks. They require no production credentials, Redis instance, or live football provider.
 
+### CP1 test profiles and coverage
+
+CP1 test evidence is separate from the locked three-category quality baseline. Run the focused profiles against deterministic local fixtures with:
+
+```bash
+mix test.unit
+mix test.integration
+```
+
+Each profile audits every default-discovered `test/**/*_test.exs` module before running it. A module has exactly one `:unit` or `:integration` tag: tests asserting HTTP, browser/public-contract, or Ecto/PostgreSQL boundaries are integration; isolated behavior is unit. The runners include selected performance tests, require a nonzero completed count and profile sentinel, reject skips, and retain no credential-bearing diagnostics.
+
+The integration profile requires Node.js 24.x, the locked OpenAPI packages, and Playwright Chromium. Prepare them once with:
+
+```bash
+npm ci --prefix tools/openapi
+tools/openapi/node_modules/.bin/playwright-core install --with-deps --only-shell chromium
+```
+
+Missing or mismatched prerequisites fail closed with a safe category; the browser regression is never skipped. For an informational native Mix coverage report, both profiles must pass and all non-generated inputs must be tracked (staged or unstaged changes are supported), then run:
+
+```bash
+mix test.cp1_coverage
+```
+
+It publishes a fresh ignored `cover/cp1/<base-head>-<run-id>/` directory with `report.html`, native source pages, and a snapshot manifest. The manifest binds base HEAD, the full tracked binary-diff hash, inventory hash, and both profile receipts; nonempty diffs are labelled working-tree snapshots. Coverage has threshold zero: it is a report, never a CI or merge gate. See the [CP1 quickstart](specs/014-cp1-test-coverage-profiles/quickstart.md) for failure behavior and prerequisites.
+
 ### SonarCloud analysis and CP1 gate
 
 The separate `SonarCloud analysis and CP1 gate` check runs for every internal pull-request revision targeting `main` (including drafts) and every push to `main`. In a pull request, open the check from the Checks view and follow its findings link: the summary deliberately separates the exact-head PR analysis from the current published `main` count. The latter is contextual and does not predict the post-merge count. On `main`, the gate first requires the latest published analysis revision to equal the triggering commit.

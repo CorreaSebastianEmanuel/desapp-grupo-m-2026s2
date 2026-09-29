@@ -1,6 +1,8 @@
 defmodule FootballMarket.Infrastructure.ConfigurationTest do
   use FootballMarket.InfrastructureCase, async: true
 
+  @moduletag :unit
+
   test "parses defaults and environment overrides" do
     assert %{hostname: "db", port: 5544, database: "sample"} =
              Configuration.postgres(

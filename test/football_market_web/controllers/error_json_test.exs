@@ -1,6 +1,8 @@
 defmodule FootballMarketWeb.ErrorJSONTest do
   use FootballMarketWeb.ConnCase, async: true
 
+  @moduletag :unit
+
   test "renders 404" do
     assert FootballMarketWeb.ErrorJSON.render("404.json", %{}) == %{
              errors: %{detail: "Not Found"}

@@ -110,10 +110,9 @@ try {
   await page.route('**/api-docs/swagger-ui-bundle.js', route => route.abort());
   await page.reload();
   assert(await page.locator('#docs-error').isVisible(), 'Broken UI asset load was not visible');
-  process.stdout.write(`Browser discovery completed in ${discoveryMs} ms; JWT, API key, 401, and load failures passed; credential headers reported by presence only.\n`);
-} catch (error) {
-  const safeMessage = String(error.message).replaceAll(jwt, '[redacted]').replaceAll(key, '[redacted]');
-  process.stderr.write(`Browser acceptance failed: ${safeMessage}\n`);
+  process.stdout.write('CP1_BROWSER_RECEIPT status=complete behavior=published-contract\n');
+} catch (_error) {
+  process.stderr.write('CP1_BROWSER_OUTCOME status=failed category=browser-regression\n');
   process.exitCode = 1;
 } finally {
   await browser?.close();

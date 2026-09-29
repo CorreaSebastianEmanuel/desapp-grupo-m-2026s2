@@ -1,6 +1,8 @@
 defmodule FootballMarket.Catalog.DevelopmentSeedTest do
   use FootballMarket.DataCase, async: false
 
+  @moduletag :integration
+
   alias FootballMarket.Catalog.DevelopmentSeed
   alias FootballMarket.Catalog.DevelopmentSeed.Manifest
   alias FootballMarket.{Catalog, Repo}
@@ -644,6 +646,8 @@ end
 
 defmodule FootballMarket.Catalog.DevelopmentSeedRaceTest do
   use ExUnit.Case, async: false
+
+  @moduletag :integration
 
   alias Ecto.Adapters.SQL.Sandbox
   alias FootballMarket.Catalog.DevelopmentSeed

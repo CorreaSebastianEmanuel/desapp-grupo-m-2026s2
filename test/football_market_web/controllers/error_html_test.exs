@@ -1,6 +1,8 @@
 defmodule FootballMarketWeb.ErrorHTMLTest do
   use FootballMarketWeb.ConnCase, async: true
 
+  @moduletag :unit
+
   # Bring render_to_string/4 for testing custom views
   import Phoenix.Template, only: [render_to_string: 4]
 

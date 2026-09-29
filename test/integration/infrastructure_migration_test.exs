@@ -1,6 +1,8 @@
 defmodule FootballMarket.InfrastructureMigrationTest do
   use ExUnit.Case, async: true
 
+  @moduletag :unit
+
   test "migration is infrastructure-only and reversible" do
     source = File.read!("priv/repo/migrations/20260913000000_create_infrastructure_probe.exs")
     assert source =~ "infrastructure_probe"

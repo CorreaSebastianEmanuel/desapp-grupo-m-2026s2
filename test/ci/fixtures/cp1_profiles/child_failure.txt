@@ -1,0 +1,1 @@
+CP1 controlled child failure fixture; this value is safe to report.

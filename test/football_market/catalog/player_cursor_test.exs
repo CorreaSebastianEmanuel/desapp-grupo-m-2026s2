@@ -1,6 +1,8 @@
 defmodule FootballMarket.Catalog.PlayerCursorTest do
   use ExUnit.Case, async: false
 
+  @moduletag :unit
+
   alias FootballMarket.Catalog.PlayerCursor
 
   # Generated before TASK-012 changes with:

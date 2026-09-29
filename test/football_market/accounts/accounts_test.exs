@@ -1,5 +1,7 @@
 defmodule FootballMarket.AccountsTest do
   use FootballMarket.DataCase, async: true
+
+  @moduletag :integration
   use FootballMarket.AccountsCase
 
   test "registers one normalized public user with a private verifiable credential" do

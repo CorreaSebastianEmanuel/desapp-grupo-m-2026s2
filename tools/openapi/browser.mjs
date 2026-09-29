@@ -1,4 +1,5 @@
 import { chromium } from 'playwright-core';
+import { existsSync } from 'node:fs';
 import assertDeep from 'node:assert/strict';
 
 const base = process.argv[2];
@@ -13,7 +14,10 @@ let browser;
 const assert = (condition, message) => { if (!condition) throw new Error(message); };
 
 try {
-  browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || '/usr/bin/chromium', headless: true, args: ['--no-sandbox'] });
+  const launchOptions = { headless: true, args: ['--no-sandbox'] };
+  if (process.env.CHROMIUM_PATH) launchOptions.executablePath = process.env.CHROMIUM_PATH;
+  else if (existsSync('/usr/bin/chromium')) launchOptions.executablePath = '/usr/bin/chromium';
+  browser = await chromium.launch(launchOptions);
   const context = await browser.newContext();
   const page = await context.newPage();
   const requests = [];

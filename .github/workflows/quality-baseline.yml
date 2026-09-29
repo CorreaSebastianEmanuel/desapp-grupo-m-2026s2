@@ -69,5 +69,23 @@ jobs:
       - name: Warnings-as-errors
         run: MIX_ENV=test mix compile --warnings-as-errors
 
+      - name: Install Node test toolchain
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: tools/openapi/package-lock.json
+
+      - name: Install OpenAPI test dependencies
+        run: npm ci --prefix tools/openapi
+
+      - name: Install headless Chromium
+        run: tools/openapi/node_modules/.bin/playwright-core install --with-deps --only-shell chromium
+
+      - name: Validate OpenAPI contract
+        run: |
+          npm test --prefix tools/openapi
+          node tools/openapi/validate.mjs priv/static/openapi.json
+
       - name: Unit tests
         run: scripts/ci_unit_tests.sh

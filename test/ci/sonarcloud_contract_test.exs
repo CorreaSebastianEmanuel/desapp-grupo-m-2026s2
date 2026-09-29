@@ -18,6 +18,26 @@ defmodule FootballMarket.SonarCloudContractTest do
     assert File.read!(@baseline) =~ "name: Quality baseline"
   end
 
+  test "quality baseline prepares the pinned browser before browser-backed ExUnit tests" do
+    workflow = File.read!(@baseline)
+
+    steps = [
+      "node-version: '24'",
+      "cache-dependency-path: tools/openapi/package-lock.json",
+      "npm ci --prefix tools/openapi",
+      "playwright-core install --with-deps --only-shell chromium",
+      "scripts/ci_unit_tests.sh"
+    ]
+
+    positions =
+      Enum.map(steps, fn step ->
+        assert {position, _length} = :binary.match(workflow, step)
+        position
+      end)
+
+    assert positions == Enum.sort(positions)
+  end
+
   test "workflow covers every internal PR revision and main with least privilege" do
     workflow = File.read!(@workflow)
 

@@ -1,0 +1,13 @@
+# Contract: CP1 Regression Matrix
+
+| Requirement | Profile | Deterministic success evidence | Rejection/boundary evidence |
+|---|---|---|---|
+| FR-008 Registration | Unit + integration | `accounts_test.exs` covers validation and normalized projections; `persistence_test.exs` covers create, normalized-email uniqueness, atomic state, and credential verification. | Invalid registration and duplicate normalized email preserve no partial account state; projections do not disclose credentials. |
+| FR-009 API keys | Unit + integration | `api_key_persistence_test.exs` covers issuance, independent multiple keys, identification, and revocation. | `api_key_security_test.exs` covers invalid/revoked rejection and the one-time-only raw secret result; verification material is never projected. |
+| FR-010 Login/JWT | Unit + integration | `authentication_test.exs` covers valid credential login and token validation at deterministic clock boundaries. | Invalid credentials and expired/not-yet-valid tokens produce the generic non-disclosing unauthenticated outcome. |
+| FR-011 Protected catalog | Integration | `player_catalog_auth_precedence_test.exs` covers JWT and API-key access plus the documented challenge. | Missing, malformed, repeated, and conflicting credentials are rejected before request validation or catalog reads. |
+| FR-012 Catalog/filtering | Unit + integration | `player_catalog_index_test.exs`, `player_cursor_test.exs`, and `player_controller_test.exs` cover list/detail, ordering, pagination, cursor, league/team/position filtering, and empty local results. | Malformed/repeated inputs, unknown/conflicting valid identities, and cursor misuse retain their established response; local reads make no provider call. |
+| FR-013 Published contract | Integration | `openapi_contract_test.exs` and `openapi_browser_test.exs` cover public docs/OpenAPI, both protected operations, and Node/Chromium interaction using opaque status handoff. | Unsupported capabilities remain absent; uncredentialed access and broken contract/browser asset loading have their specified outcomes without credential-bearing output. |
+| Tooling safety | Unit + integration | `test/ci/*profile*`, inventory, and coverage contracts cover complete classification, profile receipts, inventory scope, zero threshold, and snapshot provenance. | Missing prerequisites, skipped/incomplete execution, unsafe sentinels, scope failures, untracked input, and snapshot mutation fail safely and publish no report. |
+
+Every row has a success case and every applicable stated rejection/boundary. Fixtures are local and deterministic.

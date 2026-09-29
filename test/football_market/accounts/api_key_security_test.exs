@@ -1,5 +1,7 @@
 defmodule FootballMarket.Accounts.ApiKeySecurityTest do
   use FootballMarket.DataCase
+
+  @moduletag :integration
   use FootballMarket.AccountsCase
 
   import ExUnit.CaptureLog

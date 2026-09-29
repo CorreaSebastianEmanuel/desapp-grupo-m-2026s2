@@ -1,6 +1,8 @@
 defmodule FootballMarket.Accounts.UserTest do
   use ExUnit.Case, async: true
 
+  @moduletag :unit
+
   alias FootballMarket.Accounts.User
 
   test "normalizes valid email identity by trimming and lowercasing" do

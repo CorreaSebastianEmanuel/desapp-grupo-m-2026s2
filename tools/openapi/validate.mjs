@@ -22,8 +22,8 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   try {
     await validate(process.argv[2] || 'priv/static/openapi.json');
     process.stdout.write('OpenAPI 3 validation passed\n');
-  } catch (error) {
-    process.stderr.write(`OpenAPI validation failed: ${error.message}\n`);
+  } catch (_error) {
+    process.stderr.write('OpenAPI validation failed: category=contract\n');
     process.exitCode = 1;
   }
 }

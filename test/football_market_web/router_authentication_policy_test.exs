@@ -1,6 +1,8 @@
 defmodule FootballMarketWeb.RouterAuthenticationPolicyTest do
   use ExUnit.Case, async: true
 
+  @moduletag :unit
+
   test "every production API route has exactly one named policy and public routes are allowlisted" do
     api_routes =
       FootballMarketWeb.Router

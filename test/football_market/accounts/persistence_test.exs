@@ -1,5 +1,7 @@
 defmodule FootballMarket.Accounts.PersistenceTest do
   use FootballMarket.DataCase, async: true
+
+  @moduletag :integration
   use FootballMarket.AccountsCase
 
   test "uses UUID user identity and a one-to-one credential relationship" do

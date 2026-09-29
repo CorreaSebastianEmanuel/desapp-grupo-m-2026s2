@@ -1,5 +1,7 @@
 defmodule FootballMarket.Accounts.ApiKeyPersistenceTest do
   use FootballMarket.DataCase
+
+  @moduletag :integration
   use FootballMarket.AccountsCase
 
   alias FootballMarket.Accounts.ApiKey

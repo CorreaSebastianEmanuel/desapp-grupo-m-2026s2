@@ -4,6 +4,8 @@ defmodule FootballMarket.CatalogQueryTest do
   # those tests insert into the same hierarchy.
   use FootballMarket.DataCase, async: false
 
+  @moduletag :integration
+
   alias FootballMarket.Catalog
   import FootballMarket.CatalogCase
 

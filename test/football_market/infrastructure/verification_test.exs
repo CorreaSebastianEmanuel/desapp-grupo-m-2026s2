@@ -1,5 +1,7 @@
 defmodule FootballMarket.Infrastructure.VerificationTest do
   use ExUnit.Case, async: true
+
+  @moduletag :unit
   alias FootballMarket.Infrastructure.Verification
 
   test "renders both results and fails closed" do

@@ -1,5 +1,7 @@
 defmodule FootballMarket.Infrastructure.RedisTest do
   use ExUnit.Case, async: true
+
+  @moduletag :unit
   alias FootballMarket.Infrastructure.Redis
 
   test "exposes only connectivity operations" do

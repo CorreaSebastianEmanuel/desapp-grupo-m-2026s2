@@ -2,6 +2,13 @@ import Config
 
 config :football_market, development_seed_enabled: true
 
+# The report is informational only. Its denominator is deliberately restricted
+# to repository-owned application modules; test, generated, and dependency code
+# never contributes to the total.
+config :football_market, :cp1_coverage,
+  source_inventory: "config/cp1_coverage_inventory.exs",
+  threshold: 0
+
 parse_port = fn value ->
   case Integer.parse(value) do
     {port, ""} when port in 1..65_535 -> port

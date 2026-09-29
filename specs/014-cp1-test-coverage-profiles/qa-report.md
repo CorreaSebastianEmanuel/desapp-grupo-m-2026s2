@@ -1,0 +1,16 @@
+# Independent QA — TASK-014
+
+Scope: current tracked working-tree snapshot at HEAD `500e539d93c443998403495c76a75e0ed8e31ea3`. Read the canonical spec, plan, tasks, architecture/development handoffs, feedback, and diff. This task adds test tooling and coverage reporting; it does not add or change HTTP endpoints. The integration profile exercises the existing HTTP contracts.
+
+| Acceptance area | Direct check and evidence | Result |
+|---|---|---|
+| Format, compilation, baseline (FR-018–019) | `mix format --check-formatted` passed; `MIX_ENV=test mix compile --warnings-as-errors` passed outside the sandbox after local TCP locking was denied inside it. `scripts/ci_unit_tests.sh` passed with `POSTGRES_PORT=15432`, Node 24, and Chromium configured. Its complete output was captured privately and deleted; the discovery marker occurred once and a private search found zero `$argon2*` verification hashes. `git diff HEAD` shows no change to `quality-baseline.yml` or `scripts/ci_unit_tests.sh`. | PASS |
+| Exact profile classification and completion (FR-001–005) | `mix test.unit` emitted `audit_count=19 status=complete`; `mix test.integration` emitted `audit_count=32 status=complete`, including the browser regression. Direct `TestProfileAudit.discovered_modules/0` inspection found 51 uniquely classified modules in 48 files: 19 unit, 32 integration. The baseline ran the runner, audit, and sentinel contracts. | PASS |
+| Safe failure and regression behavior (FR-006–013) | With a PATH lacking Node 24, `sh scripts/test_profile.sh integration` exited 127 with only `category=node-runtime`; no child diagnostic was released. The full baseline and both profiles passed the deterministic registration, key, login/JWT, protected catalog, filtering, OpenAPI, browser, failure-fixture, and safe-capture tests mapped in `contracts/cp1-regression-matrix.md`. Private baseline output contained no Argon2 verification hash. | PASS |
+| Native source scope and percentage (FR-014–015) | `mix test.cp1_coverage` succeeded for a working-tree snapshot. Independent comparison of generated `native/*.html` to the evaluated 20-entry inventory found exactly 20 pages, zero missing, zero extra. The 20 publisher source pages and manifest source modules equal that same inventory. Aggregate: 426/474 executable lines, 89.87%, threshold 0. | PASS |
+| Provenance and safe publication (FR-016–017) | The generated manifest records HEAD above; independently recomputed binary diff SHA-256 `197cf8c07e72d02d9e4292d24edc590f14715fbe8179701de69e63f00a41f814` and inventory SHA-256 `867034b42b3911423de89b817283babc3e66c621e3279733133e29097727cab9`, both equal its metadata. Label is `working-tree snapshot`; profile receipts are complete 19/32. No non-generated untracked input was found. A recursive scan of the published artifact found no Argon2 hash or controlled secret/hash sentinel. | PASS |
+| Diff hygiene | `git diff HEAD --check` passed. | PASS |
+
+Coverage artifact: `cover/cp1/500e539d93c443998403495c76a75e0ed8e31ea3-20260929T061516Z-138495/report.html` and adjacent `manifest.json`. It is ignored generated output. The committed-revision label was not run because the feature is uncommitted; the working-tree case is the required pre-QA flow. No credential or raw child output is reproduced here.
+
+Verdict: PASS

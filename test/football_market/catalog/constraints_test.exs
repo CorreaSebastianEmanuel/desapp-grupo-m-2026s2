@@ -1,6 +1,8 @@
 defmodule FootballMarket.CatalogConstraintsTest do
   use FootballMarket.DataCase, async: true
 
+  @moduletag :integration
+
   alias FootballMarket.Catalog
   alias FootballMarket.Repo
   import FootballMarket.CatalogCase
@@ -177,6 +179,8 @@ end
 
 defmodule FootballMarket.CatalogConcurrencyTest do
   use ExUnit.Case, async: false
+
+  @moduletag :integration
 
   alias Ecto.Adapters.SQL.Sandbox
   alias FootballMarket.Catalog

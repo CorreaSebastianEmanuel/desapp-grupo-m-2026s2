@@ -1,5 +1,7 @@
 defmodule FootballMarketWeb.PlayerCatalogSecurityTest do
   use FootballMarket.DataCase, async: false
+
+  @moduletag :integration
   import ExUnit.CaptureLog
   import Phoenix.ConnTest
   import Plug.Conn
@@ -53,8 +55,6 @@ defmodule FootballMarketWeb.PlayerCatalogSecurityTest do
 
   test "continuation requests redact the cursor and decoded anchor from logs" do
     previous_level = Logger.level()
-    Logger.configure(level: :debug)
-    on_exit(fn -> Logger.configure(level: previous_level) end)
 
     {:ok, user} = FootballMarket.Accounts.register_user(registration_attrs())
     {:ok, key} = FootballMarket.Accounts.issue_api_key(user.id)
@@ -67,7 +67,7 @@ defmodule FootballMarketWeb.PlayerCatalogSecurityTest do
     cursor = first["pagination"]["next_cursor"]
 
     log =
-      capture_log([level: :debug], fn ->
+      capture_debug_log(fn ->
         assert conn
                |> recycle()
                |> put_req_header("x-api-key", key.secret)
@@ -78,12 +78,11 @@ defmodule FootballMarketWeb.PlayerCatalogSecurityTest do
     refute log =~ cursor
     refute log =~ anchor_name
     refute log =~ anchor.id
+    assert Logger.level() == previous_level
   end
 
   test "filtered continuation keeps cursor and anchor out of logs" do
     previous_level = Logger.level()
-    Logger.configure(level: :debug)
-    on_exit(fn -> Logger.configure(level: previous_level) end)
 
     {:ok, user} = FootballMarket.Accounts.register_user(registration_attrs())
     {:ok, key} = FootballMarket.Accounts.issue_api_key(user.id)
@@ -94,7 +93,7 @@ defmodule FootballMarketWeb.PlayerCatalogSecurityTest do
     cursor = first["pagination"]["next_cursor"]
 
     log =
-      capture_log([level: :debug], fn ->
+      capture_debug_log(fn ->
         assert conn
                |> recycle()
                |> put_req_header("x-api-key", key.secret)
@@ -107,6 +106,7 @@ defmodule FootballMarketWeb.PlayerCatalogSecurityTest do
     refute log =~ cursor
     refute log =~ name
     refute log =~ anchor.id
+    assert Logger.level() == previous_level
   end
 
   test "filtered pages never call the Redis cache adapter" do
@@ -131,5 +131,19 @@ defmodule FootballMarketWeb.PlayerCatalogSecurityTest do
            |> get_in(["pagination", "returned_count"]) == 1
 
     refute_receive {:trace, _, :call, {Redix, _, _}}
+  end
+
+  defp capture_debug_log(fun) do
+    previous_level = Logger.level()
+
+    capture_log([level: :debug], fn ->
+      Logger.configure(level: :debug)
+
+      try do
+        fun.()
+      after
+        Logger.configure(level: previous_level)
+      end
+    end)
   end
 end

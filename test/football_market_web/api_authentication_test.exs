@@ -1,5 +1,7 @@
 defmodule FootballMarketWeb.APIAuthenticationTest do
   use FootballMarket.DataCase, async: false
+
+  @moduletag :integration
   use FootballMarket.AccountsCase
 
   import Plug.Conn

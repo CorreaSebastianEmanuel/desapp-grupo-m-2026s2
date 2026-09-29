@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "include": {
+    "root": "lib",
+    "patterns": [
+      "football_market/accounts*.ex",
+      "football_market/catalog*.ex",
+      "football_market_web/controllers/api_docs*.ex",
+      "football_market_web/controllers/player_*.ex",
+      "football_market_web/plugs/authenticate_api.ex",
+      "football_market_web/router.ex"
+    ],
+    "rationale": "CP1 account, credential, catalog, protected API, and published-contract behavior is the report denominator."
+  },
+  "exclude": {
+    "patterns": ["test/**", "deps/**", "_build/**", "priv/static/**", "lib/football_market/application.ex", "lib/football_market/repo.ex", "lib/football_market/infrastructure/**", "lib/football_market_web/components/**", "lib/football_market_web/endpoint.ex", "lib/football_market_web/telemetry.ex"],
+    "rationale": "Test-only, third-party, generated, startup, infrastructure, telemetry, UI scaffold, and compiled material must not inflate CP1 application coverage."
+  },
+  "threshold": 0
+}

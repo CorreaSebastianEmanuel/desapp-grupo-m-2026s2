@@ -1,6 +1,8 @@
 defmodule FootballMarket.CatalogTest do
   use FootballMarket.DataCase, async: true
 
+  @moduletag :integration
+
   alias FootballMarket.Catalog
   import FootballMarket.CatalogCase
 

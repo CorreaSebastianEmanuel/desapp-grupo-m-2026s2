@@ -1,5 +1,7 @@
 defmodule FootballMarket.Accounts.ApiKeysPerformanceTest do
   use FootballMarket.DataCase
+
+  @moduletag :integration
   use FootballMarket.AccountsCase
 
   @moduletag :performance

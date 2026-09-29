@@ -1,6 +1,8 @@
 defmodule FootballMarket.Infrastructure.DatabaseWorkflowTest do
   use ExUnit.Case, async: true
 
+  @moduletag :unit
+
   test "all mutation entry points share the guard" do
     source = File.read!("lib/mix/tasks/infrastructure.database.ex")
     assert length(Regex.scan(~r/guard!\(\)/, source)) >= 3

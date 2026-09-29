@@ -1,5 +1,7 @@
 defmodule FootballMarket.Accounts.AuthenticationSecurityTest do
   use FootballMarket.DataCase, async: false
+
+  @moduletag :integration
   use FootballMarket.AccountsCase
 
   import ExUnit.CaptureLog

@@ -358,10 +358,18 @@ def publish(task, task_meta, feature):
             raise RuntimeError(f"Refusing to publish from a protected base branch; expected {expected}")
         raise RuntimeError(f"Refusing to publish {task_meta['id']} from {branch}; expected {expected}")
     field(task,"status","review")
-    staged=git("add","-A")
-    if staged.returncode: raise RuntimeError(staged.stderr.strip() or "git add failed")
-    commit=git("commit","-m",f"Implement {task_meta['id']}: {task_meta['title']}")
-    if commit.returncode: raise RuntimeError(commit.stderr.strip() or commit.stdout.strip() or "git commit failed")
+    commit_message=f"Implement {task_meta['id']}: {task_meta['title']}"
+    changes=git("status","--porcelain")
+    if changes.returncode: raise RuntimeError(changes.stderr.strip() or "git status failed")
+    if changes.stdout.strip():
+        staged=git("add","-A")
+        if staged.returncode: raise RuntimeError(staged.stderr.strip() or "git add failed")
+        commit=git("commit","-m",commit_message)
+        if commit.returncode: raise RuntimeError(commit.stderr.strip() or commit.stdout.strip() or "git commit failed")
+    else:
+        previous=git("log","-1","--format=%s")
+        if previous.returncode or previous.stdout.strip()!=commit_message:
+            raise RuntimeError("Clean feature branch has no verified task commit to publish")
     pushed=git("push","-u","origin",branch)
     if pushed.returncode: raise RuntimeError(pushed.stderr.strip() or "git push failed")
     body=RUNS/f"{task_meta['id']}-pr.md"

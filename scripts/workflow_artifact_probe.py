@@ -51,6 +51,9 @@ def completed_task_artifacts(root: Path, feature: Path) -> list[str]:
             candidate = Path(value.rstrip(".,;:"))
             if candidate.suffix not in ARTIFACT_SUFFIXES:
                 continue
+            if candidate.is_absolute() and not candidate.is_relative_to(root):
+                # Documentation routes such as `/openapi.json` are not files.
+                continue
             paths = [candidate] if candidate.is_absolute() else [root / candidate]
             if len(candidate.parts) == 1:
                 paths.append(feature / candidate)

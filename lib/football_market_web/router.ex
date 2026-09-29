@@ -23,6 +23,7 @@ defmodule FootballMarketWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    get "/docs", ApiDocsController, :index
   end
 
   scope "/api", FootballMarketWeb do

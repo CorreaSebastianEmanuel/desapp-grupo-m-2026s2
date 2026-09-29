@@ -1,0 +1,42 @@
+<link
+  rel="stylesheet"
+  href="/api-docs/swagger-ui.css"
+  onerror="document.getElementById('docs-error').hidden=false"
+/>
+<style>
+  .docs-control { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; padding: 1rem; background: #f4f6f8; }
+  .docs-control input { border: 1px solid #667; padding: .4rem; }
+  .docs-control select { border: 1px solid #667; padding: .4rem; }
+  .swagger-ui .auth-wrapper, .swagger-ui .authorization__btn, .swagger-ui .authorize { display: none !important; }
+  #docs-error { color: #a00; padding: 1rem; font-weight: bold; }
+</style>
+<main>
+  <h1 style="padding: 1rem">Football Market CP1 API documentation</h1>
+  <div class="docs-control">
+    <label for="credential-mode">Credential method</label>
+    <select id="credential-mode" aria-label="Credential method">
+      <option value="jwt">Bearer JWT</option>
+      <option value="api_key">API key</option>
+    </select>
+    <label for="credential-value">Credential</label>
+    <input
+      id="credential-value"
+      type="password"
+      autocomplete="off"
+      spellcheck="false"
+      aria-label="Credential"
+    />
+    <span>One credential at a time. Switching method clears the value.</span>
+  </div>
+  <p id="docs-error" role="alert" hidden>
+    API documentation failed to load. Check the local documentation assets and contract.
+  </p>
+  <div id="swagger-ui"></div>
+</main>
+<script
+  src="/api-docs/swagger-ui-bundle.js"
+  onerror="document.getElementById('docs-error').hidden=false"
+>
+</script>
+<script src="/api-docs/docs.js" onerror="document.getElementById('docs-error').hidden=false">
+</script>

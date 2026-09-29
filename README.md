@@ -59,6 +59,23 @@ The first run reports `total=44 created=44 reused=0` with 5 leagues, 5 seasons, 
 
 This command is enabled only by checked-in development and test configuration. It is never called by application startup, `mix setup`, Ecto aliases, migrations, releases, or deployment, and production/unknown environments fail before database access. Failures are nonzero and expose only the categories `disabled`, `validation`, `conflict`, and `persistence`; the causes `invalid_manifest`, `alternate_identity`, `misplaced_relationship`, `attribute_mismatch`, `relationship_mismatch`, `database`, `write_failed`, `concurrent_write`, and `database_unavailable`; an allowlisted entity; and a manifest-owned identity. Any unknown internal failure becomes the generic `persistence/write_failed` result. Resolve conflicts in the named local record; retry a `concurrent_write` after the other seed run finishes; investigate local PostgreSQL for `database` or `database_unavailable` failures. The complete isolated-database and timing procedure is in [`specs/006-development-seed-data/quickstart.md`](specs/006-development-seed-data/quickstart.md).
 
+### CP1 API documentation
+
+With Phoenix running (`mix phx.server`), open [the interactive API documentation](http://127.0.0.1:4000/docs) or retrieve [the OpenAPI 3 JSON description](http://127.0.0.1:4000/openapi.json). Both are public. The page documents only `GET /api/players` and `GET /api/players/{player_id}`; executing either route requires one valid credential.
+
+In `/docs`, choose **Bearer JWT** or **API key**, enter your own credential in the masked field, open an operation, and select **Try it out** then **Execute**. The page sends `Authorization: Bearer <JWT>` or `X-API-Key: <key>` for the selected method. Switching methods clears the field. Leave it empty to see the generic 401 and `WWW-Authenticate: Bearer realm="api"`. The credential is not part of the documentation URL or saved in browser storage. These placeholders are not functional credentials; there is no public login or key-issuance HTTP route.
+
+For a reproducible local walkthrough with short-lived test credentials, install Node 24, npm, and Chromium, then run:
+
+```bash
+npm ci --prefix tools/openapi
+node tools/openapi/validate.mjs priv/static/openapi.json
+npm test --prefix tools/openapi
+MIX_ENV=test mix test test/football_market_web/openapi_contract_test.exs test/football_market_web/openapi_browser_test.exs
+```
+
+The browser test starts an isolated loopback server, discovers both operations and all five list parameters within three minutes, executes JWT → API key → JWT requests, verifies 401 with no credential, and closes Chromium and the server. It reports header presence and status without printing credential values. See the [TASK-013 quickstart](specs/013-openapi-cp1-contracts/quickstart.md) for the full check sequence.
+
 ### Prepare, compile, and test
 
 From a clean checkout, run these commands in order:

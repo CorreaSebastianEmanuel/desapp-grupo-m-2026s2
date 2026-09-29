@@ -75,6 +75,37 @@ class AgentflowBranchTest(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, "expected 003-continuous"):
                 AGENTFLOW.publish(self.task, self.metadata, Path("specs/003-example"))
 
+    def test_publish_retries_clean_verified_commit_without_committing_again(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            feature = root / "specs" / "003-example"
+            feature.mkdir(parents=True)
+            calls = []
+            branch = "003-continuous-integration-quality-baseline"
+            message = "Implement TASK-003: Continuous integration quality baseline"
+
+            def fake_git(*args, **_kwargs):
+                calls.append(args)
+                if args == ("branch", "--show-current"):
+                    return result(stdout=branch + "\n")
+                if args == ("log", "-1", "--format=%s"):
+                    return result(stdout=message + "\n")
+                return result()
+
+            with patch.object(AGENTFLOW, "ROOT", root), patch.object(
+                AGENTFLOW, "RUNS", root
+            ), patch.object(AGENTFLOW, "meta", return_value=self.metadata), patch.object(
+                AGENTFLOW, "git", side_effect=fake_git
+            ), patch.object(AGENTFLOW, "field"), patch.object(
+                AGENTFLOW.subprocess, "run", return_value=result(stdout="https://example.test/pr/1\n")
+            ):
+                url = AGENTFLOW.publish(self.task, self.metadata, feature)
+
+            self.assertEqual(url, "https://example.test/pr/1")
+            self.assertIn(("push", "-u", "origin", branch), calls)
+            self.assertNotIn(("add", "-A"), calls)
+            self.assertFalse(any(call and call[0] == "commit" for call in calls))
+
     def test_feature_lookup_is_isolated_to_the_requested_task(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

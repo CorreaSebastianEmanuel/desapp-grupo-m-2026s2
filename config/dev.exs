@@ -62,6 +62,16 @@ config :football_market, FootballMarketWeb.Endpoint,
 # configured to run both http and https servers on
 # different ports.
 
+# Development-only JWT material so browser and API login work locally.
+# Production reads independent values in runtime.exs.
+config :football_market, FootballMarket.Accounts.Authentication,
+  issuer: "football-market-dev",
+  audience: "football-market-dev-client",
+  signing_key: Base.encode64(String.duplicate("dev-only-jwt-signing-key-bytes!!", 2)),
+  clock: {FootballMarket.Accounts.Authentication, :system_time, []},
+  jti_provider: {FootballMarket.Accounts.Authentication, :generate_jti, []},
+  clock_skew_seconds: 0
+
 # No development-only operational routes are exposed in TASK-001.
 config :football_market, dev_routes: false
 

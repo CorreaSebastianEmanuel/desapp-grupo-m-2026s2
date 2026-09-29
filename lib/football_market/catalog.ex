@@ -62,6 +62,12 @@ defmodule FootballMarket.Catalog do
   def delete_position(%Position{} = position),
     do: position |> Position.delete_changeset() |> Repo.delete()
 
+  def list_leagues, do: Repo.all(Query.leagues())
+  def list_positions, do: Repo.all(Query.positions())
+
+  @doc "Lists teams with their season and league, optionally narrowed by `:league_id`."
+  def list_teams(filters \\ %{}), do: filters |> Map.new() |> Query.teams() |> Repo.all()
+
   def get_league(id), do: one(Query.by_id(League, id))
   def fetch_league!(id), do: Repo.get!(League, id)
   def get_league_by_code(code), do: one(Query.league_by(:code, code))

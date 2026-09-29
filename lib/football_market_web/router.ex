@@ -1,6 +1,15 @@
 defmodule FootballMarketWeb.Router do
   use FootballMarketWeb, :router
 
+  import FootballMarketWeb.UserAuth,
+    only: [
+      fetch_current_user: 2,
+      require_authenticated_user: 2,
+      redirect_if_user_is_authenticated: 2
+    ]
+
+  alias FootballMarketWeb.UserAuth
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -8,6 +17,7 @@ defmodule FootballMarketWeb.Router do
     plug :put_root_layout, html: {FootballMarketWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug :fetch_current_user
   end
 
   pipeline :api_public do
@@ -22,8 +32,33 @@ defmodule FootballMarketWeb.Router do
   scope "/", FootballMarketWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
     get "/docs", ApiDocsController, :index
+    delete "/users/log-out", UserSessionController, :delete
+
+    live_session :public, on_mount: [{UserAuth, :mount_current_user}] do
+      live "/", HomeLive
+    end
+  end
+
+  scope "/", FootballMarketWeb do
+    pipe_through [:browser, :redirect_if_user_is_authenticated]
+
+    post "/users/log-in", UserSessionController, :create
+
+    live_session :guest, on_mount: [{UserAuth, :redirect_if_authenticated}] do
+      live "/users/log-in", UserLoginLive
+      live "/users/register", UserRegistrationLive
+    end
+  end
+
+  scope "/", FootballMarketWeb do
+    pipe_through [:browser, :require_authenticated_user]
+
+    live_session :authenticated, on_mount: [{UserAuth, :require_authenticated}] do
+      live "/players", PlayerLive.Index
+      live "/players/:player_id", PlayerLive.Show
+      live "/account", AccountLive
+    end
   end
 
   scope "/api", FootballMarketWeb do

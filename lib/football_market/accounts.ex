@@ -49,6 +49,16 @@ defmodule FootballMarket.Accounts do
 
   def get_user_by_email(_email), do: {:error, :not_found}
 
+  @doc "Finds a user by account ID and returns only its public projection."
+  def get_user(user_id) do
+    with {:ok, id} <- Ecto.UUID.cast(user_id),
+         %User{} = user <- Repo.get(User, id) do
+      {:ok, User.public_projection(user)}
+    else
+      _ -> {:error, :not_found}
+    end
+  end
+
   @doc "Authenticates credentials and issues one short-lived access token."
   def login(credentials) do
     timed_authentication(:login, fn -> authenticate(credentials) end)
@@ -134,6 +144,24 @@ defmodule FootballMarket.Accounts do
     Repo.insert(changeset, mode: :savepoint, log: false)
   rescue
     _error in Postgrex.Error -> {:error, :database_rejection}
+  end
+
+  @doc "Lists an account's API keys, newest first, without any secret material."
+  def list_api_keys(user_id) do
+    case Ecto.UUID.cast(user_id) do
+      {:ok, owner_id} ->
+        Repo.all(
+          from(key in ApiKey,
+            where: key.user_id == ^owner_id,
+            order_by: [desc: key.inserted_at, desc: key.id],
+            select: %{id: key.id, inserted_at: key.inserted_at, revoked_at: key.revoked_at}
+          ),
+          log: false
+        )
+
+      :error ->
+        []
+    end
   end
 
   @doc "Identifies an active key from its complete canonical secret."

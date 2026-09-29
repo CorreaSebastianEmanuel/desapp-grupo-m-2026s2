@@ -7,6 +7,33 @@ defmodule FootballMarket.Catalog.Query do
 
   def by_id(schema, id), do: from(record in schema, where: record.id == ^id)
 
+  def leagues, do: from(league in League, order_by: [asc: league.name, asc: league.id])
+
+  def positions,
+    do: from(position in Position, order_by: [asc: position.name, asc: position.id])
+
+  def teams(filters) do
+    query =
+      from team in Team,
+        join: season in assoc(team, :season),
+        join: league in assoc(season, :league),
+        order_by: [
+          asc: league.name,
+          desc: season.start_year,
+          asc: fragment("lower(btrim(?))", team.name),
+          asc: team.id
+        ],
+        preload: [season: {season, league: league}]
+
+    case filters do
+      %{league_id: league_id} ->
+        from([team, season, league] in query, where: league.id == ^league_id)
+
+      _ ->
+        query
+    end
+  end
+
   def league_by(field, value) when field in [:code, :name] do
     from league in League,
       where:

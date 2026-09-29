@@ -23,6 +23,7 @@ Thumbs.db
 /priv/static/cache_manifest.json
 /assets/node_modules/
 /node_modules/
+/tools/openapi/node_modules/
 /dist/
 /build/
 *.log

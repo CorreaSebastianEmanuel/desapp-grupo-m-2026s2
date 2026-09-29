@@ -50,6 +50,17 @@ class WorkflowArtifactProbeTest(unittest.TestCase):
         (self.root / "README.md").write_text("instructions\n", encoding="utf-8")
         self.assertTrue(PROBE.probe(self.root, "develop")["valid"])
 
+    def test_develop_ignores_documented_url_with_file_suffix(self):
+        (self.feature / "tasks.md").write_text(
+            "- [X] T014 Serve `/openapi.json` from `priv/static/openapi.json`\n",
+            encoding="utf-8",
+        )
+        contract = self.root / "priv" / "static" / "openapi.json"
+        contract.parent.mkdir(parents=True)
+        contract.write_text("{}\n", encoding="utf-8")
+
+        self.assertTrue(PROBE.probe(self.root, "develop")["valid"])
+
     def test_unchecked_task_does_not_require_future_artifact(self):
         (self.feature / "tasks.md").write_text(
             "- [ ] T014 Record evidence in `verification.md`\n", encoding="utf-8"

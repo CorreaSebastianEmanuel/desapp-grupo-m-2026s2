@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "scripts": {
+    "test": "node validate.test.mjs"
+  },
+  "dependencies": {
+    "@apidevtools/swagger-parser": "13.1.0",
+    "playwright-core": "1.63.0",
+    "swagger-ui-dist": "5.33.0"
+  }
+}

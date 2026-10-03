@@ -81,9 +81,11 @@ discards that active approval so changed decisions must pass the gate again. Ear
 unaffected artifacts remain intact. Legacy runs retain separate architecture/tasks
 and their prior readiness requirements; new ones rewind combined planning together.
 
-TASK-015's files and run snapshot were not migrated or resumed by this change. A
-future resume uses its existing DAG; current runner logging applies, but new checks
-and combined planning are not silently inserted. No fabricated feedback is needed.
+TASK-015's pilot used its saved legacy DAG with current runner logging; new checks
+and combined planning were not inserted into its snapshot. The pilot exposed the
+nested-step parsing defect, now corrected and independently verified. The user
+subsequently withdrew checkpoint acceptance automation; its run is obsolete and
+must not be resumed. Retained pilot metrics are historical evidence, not savings.
 
 ## Validation and limits
 

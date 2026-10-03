@@ -23,3 +23,7 @@ Corrección técnica del runner durante el piloto: el parser confundía un gate 
 - Restart from: develop
 
 Corregir los cuatro bloqueos B1–B4 del nuevo qa-report.md antes de publicar el PR: B1 correlacionar branch gobernante e identidad exacta de workflow además de nombre/SHA/status; B2 exigir recibos locales reales completos y pruebas/referencias accesibles para todo PASS clean-commit, no permitir ausencia opcional de local-evidence; B3 rechazar valores secretos en JSON citado (password, api_key_secret, secret_hash, provider_payload) y no publicarlos en observed/JSON/Markdown; B4 validar/stagear/publicar cobertura real generada por mix test.cp1_coverage sin confundir código fuente HTML legítimo con capturas de credenciales, manteniendo seguridad de runtime. Añadir regresiones de las reproducciones adversarias y cobertura HTML real, ejecutar checks y demos requeridos, actualizar guía/handoff concisos. QA observó 19 Python/7 CP1/195 baseline, perfiles completos y dos demos PASS, pero el agregado final FAIL. Conservar políticas de producto y TASK053. Ver qa-report.md y probes sanitizados referenciados solo si son necesarios para reproducir cada defecto.
+
+## Scope withdrawal — 2026-10-03
+
+The user requested removal of automated checkpoint acceptance because the team performs it during the demo. Remove TASK-015 automation and equivalent future checkpoint acceptance work. Preserve normal quality checks and workflow optimization. Earlier implementation and acceptance reports are superseded.

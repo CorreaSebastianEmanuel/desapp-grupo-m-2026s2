@@ -28,8 +28,3 @@ erts_version=$(erl -noshell -eval 'io:format("~s", [erlang:system_info(version)]
 
 printf 'toolchain ok: Elixir %s, Erlang/OTP 29.0.6 (ERTS %s), %s\n' \
   "$elixir_version" "$erts_version" "$(mix --version | tail -n 1)"
-
-[ "${1:-}" = "--with-node" ] || exit 0
-
-command -v node >/dev/null 2>&1 || { echo 'error: Node 24 is not installed' >&2; exit 1; }
-node --version | grep -Eq '^v24\.' || { echo 'error: expected Node 24' >&2; exit 1; }

@@ -39,7 +39,7 @@ The verifier reports PostgreSQL and Redis independently, prints only host/port/d
 
 For occupied ports, stop the conflicting process or override `POSTGRES_PORT`/`REDIS_PORT` consistently. Authentication, invalid configuration, unavailable service, readiness timeout, and migration failures name the affected category without printing passwords. Lifecycle mutations are serialized for this repository, and restart converges stopped or stale containers back to the declared Compose state before readiness succeeds. Routine start, stop, and restart preserve both named volumes; only the explicitly confirmed reset deletes them.
 
-The supported baseline is exact. Activate the Elixir, OTP, and Node entries in `.tool-versions`; the [CP1 guide](specs/015-cp1-acceptance-evidence/quickstart.md#activate-the-toolchain) includes the tested activation procedure. Then run:
+The supported baseline is exact. Select the pinned toolchain in your version manager, then run:
 
 ```bash
 ./scripts/check_toolchain.sh
@@ -153,12 +153,6 @@ Local deterministic verification requires no SonarCloud credentials:
 python3 -m unittest test/scripts/sonar_checkpoint_gate_test.py
 MIX_ENV=test mix test test/ci/sonarcloud_contract_test.exs
 ```
-
-### CP1 acceptance evidence and repeatable demo
-
-The [CP1 acceptance guide](specs/015-cp1-acceptance-evidence/quickstart.md) is the stable entry point for local verification and the isolated demonstration. The generated JSON record is authoritative; its Markdown companion is a deterministic projection. Local and pull-request results are preflight evidence and cannot claim final acceptance.
-
-After merge, open the [CP1 acceptance workflow](https://github.com/CorreaSebastianEmanuel/desapp-grupo-m-2026s2/actions/workflows/cp1-acceptance.yml) for the integrated `main` SHA, then download its `cp1-acceptance-<full-sha>` artifact. The run and artifact require normal GitHub repository authorization. Its Sonar evidence links to the [project overview](https://sonarcloud.io/project/overview?id=CorreaSebastianEmanuel_desapp-grupo-m-2026s2), which may likewise require ordinary project access. A missing, inaccessible, stale, unsafe, partial, or nonterminal result is `NOT PASSING`.
 
 ### Start, verify, stop, and restart
 

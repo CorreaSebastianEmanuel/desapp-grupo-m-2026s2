@@ -1,8 +1,8 @@
 ---
 name: "speckit-plan"
 description: "Execute the implementation planning workflow using the plan template to generate design artifacts."
-compatibility: "Requires spec-kit project structure with .specify/ directory"
 metadata:
+  compatibility: "Requires spec-kit project structure with .specify/ directory"
   author: "github-spec-kit"
   source: "templates/commands/plan.md"
 ---
@@ -103,25 +103,20 @@ Check if `.specify/extensions.yml` exists in the project root.
 
 ## Completion Report
 
-Command ends after Phase 1 design. Report branch, IMPL_PLAN path, and generated artifacts.
+Report branch, IMPL_PLAN path, and generated artifacts briefly. When the active workflow explicitly requests task generation in the same session, complete required plan hooks, then continue with $speckit-tasks using the context already loaded. Otherwise end after Phase 1 design.
 
 ## Phases
 
 ### Phase 0: Outline & Research
 
-1. **Extract unknowns from Technical Context** above:
-   - For each NEEDS CLARIFICATION → research task
-   - For each dependency → best practices task
-   - For each integration → patterns task
+1. **Identify feature-specific unknowns** from Technical Context. Reuse established
+   repository architecture, ADRs and contracts for settled choices. Do not create
+   best-practice surveys for every dependency or technology by default.
 
-2. **Generate and dispatch research agents**:
-
-   ```text
-   For each unknown in Technical Context:
-     Task: "Research {unknown} for {feature context}"
-   For each technology choice:
-     Task: "Find best practices for {tech} in {domain}"
-   ```
+2. **Resolve only material unknowns** with focused local inspection or authoritative
+   documentation. Delegate a narrowly scoped research question only when independent
+   investigation adds value; avoid automatic research-agent fan-out. Keep irrelevant
+   stack details out of research.md and reference existing decisions instead.
 
 3. **Consolidate findings** in `research.md` using format:
    - Decision: [what was chosen]

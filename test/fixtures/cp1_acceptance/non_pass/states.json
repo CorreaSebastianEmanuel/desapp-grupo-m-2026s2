@@ -1,0 +1,1 @@
+{"states":["failed","skipped","interrupted","canceled","timed-out","undiscovered","unavailable","inaccessible","stale","unpublished"],"mixed_shas":["aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"],"malformed":{"status":"maybe"},"duplicate":"repository","unknown":"eleventh_gate","missing":"sonarcloud"}

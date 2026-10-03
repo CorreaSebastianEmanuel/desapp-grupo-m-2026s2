@@ -20,7 +20,10 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
     assert String.starts_with?(content_type, "application/json")
     doc = Jason.decode!(json_conn.resp_body)
     assert doc == document!()
-    assert build_conn() |> get("/docs") |> html_response(200) =~ "/api-docs/docs.js"
+    docs_html = build_conn() |> get("/docs") |> html_response(200)
+    assert docs_html =~ "/api-docs/docs.js"
+    assert docs_html =~ ~r/<main[^>]*class="docs-page"[^>]*data-theme="light"/
+    assert docs_html =~ "color-scheme: light"
 
     assert build_conn() |> get("/api-docs/swagger-ui-bundle.js") |> response(200) =~
              "SwaggerUIBundle"

@@ -29,7 +29,21 @@ Thumbs.db
 /build/
 *.log
 
+# CP1 acceptance: generated/publication staging and disposable demo state
+/cp1-acceptance-*/
+/tmp/cp1-acceptance/
+/tmp/cp1-demo-*/
+/tmp/cp1-demo-*.json
+/.cp1-private-receipts/
+/specs/015-cp1-acceptance-evidence/generated/
+
 # Local configuration and credentials
 .env
 .env.*
 !.env.example
+
+/tmp/cp1-toolchain/
+/tmp/local-receipts/
+/tmp/cp1-verification/
+
+/tmp/cp1-sanitized-local/

@@ -4,7 +4,7 @@ title: Withdraw automated CP1 acceptance
 type: task
 checkpoint: CP1
 priority: critical
-status: review
+status: done
 depends_on: TASK-004, TASK-006, TASK-013, TASK-014
 active_run: none
 ---

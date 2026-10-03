@@ -310,6 +310,44 @@ defmodule Mix.Tasks.Catalog.SeedProcessTest do
     refute output =~ "You don't need to worry"
   end
 
+  test "a failed seed leaves no owned database workers logging after its error" do
+    script = ~S"""
+    try do
+      Mix.Tasks.Catalog.Seed.run([])
+    rescue
+      error in Mix.Error ->
+        Mix.shell().error(Exception.message(error))
+        Process.sleep(1500)
+        System.halt(1)
+    end
+    """
+
+    {output, status} =
+      System.cmd("mix", ["run", "--no-start", "-e", script],
+        cd: File.cwd!(),
+        env: [
+          {"MIX_ENV", "dev"},
+          {"POSTGRES_HOST", "127.0.0.1"},
+          {"POSTGRES_PORT", "1"},
+          {"POSTGRES_USER", "sentinel-user"},
+          {"POSTGRES_PASSWORD", "sentinel-password"},
+          {"POSTGRES_DB", "sentinel-database"}
+        ],
+        stderr_to_stdout: true
+      )
+
+    assert status != 0
+
+    assert output =~
+             "catalog seed failed: category=persistence entity=seed identity=development-seed cause=database_unavailable"
+
+    refute output =~ "127.0.0.1"
+    refute output =~ "sentinel"
+    refute output =~ "connection refused"
+    refute output =~ "DBConnection"
+    refute output =~ "Postgrex"
+  end
+
   defp clear_catalog do
     Repo.delete_all(Player)
     Repo.delete_all(Team)

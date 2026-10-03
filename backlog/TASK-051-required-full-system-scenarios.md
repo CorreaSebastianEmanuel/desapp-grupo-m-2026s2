@@ -11,5 +11,5 @@ active_run: none
 
 ## Outcome
 
-Automate and demonstrate ingestion, dated quotes across five leagues, four users, five-player purchases, and current portfolios.
+Implement and test ingestion, dated quotes across five leagues, four users, five-player purchases, and current portfolios. The team demonstrates these scenarios manually; do not add an automated checkpoint acceptance workflow or evidence generator.
 

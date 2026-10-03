@@ -1,6 +1,6 @@
 # Metodología de trabajo: SDD deliberativo con verificación independiente
 
-La metodología combina desarrollo guiado por especificaciones (SDD), deliberación entre agentes con responsabilidades distintas, evidencia ejecutable y aprobación humana final. Cada tarea del backlog recorre siete sesiones independientes y deja decisiones y resultados trazables en el repositorio.
+La metodología combina desarrollo guiado por especificaciones (SDD), deliberación entre agentes con responsabilidades distintas, evidencia ejecutable y aprobación humana final. Cada tarea del backlog recorre seis sesiones independientes y deja decisiones y resultados trazables en el repositorio.
 
 ```mermaid
 flowchart LR
@@ -10,12 +10,10 @@ flowchart LR
         direction TB
         P[Agente de producto<br/><b>Especifica el comportamiento</b>]
         PC[Crítico independiente<br/><b>Cuestiona supuestos y alternativas</b>]
-        ARQ[Arquitecto sintetizador<br/><b>Resuelve el debate y diseña</b>]
-        TASKS[Planificador<br/><b>Valida consistencia y ordena tareas</b>]
+        ARQ[Arquitecto y planificador<br/><b>Diseña y ordena tareas en una sesión</b>]
 
         P -->|spec.md + product.md| PC
         PC -->|product-challenge.md| ARQ
-        ARQ -->|plan.md + decisiones| TASKS
     end
 
     subgraph DEV[2 · Construcción]
@@ -44,7 +42,7 @@ flowchart LR
     FB[Feedback versionado<br/>máximo 3 ciclos]
 
     IN --> P
-    TASKS -->|tasks.md| IMP
+    ARQ -->|plan.md + tasks.md + verification.json| IMP
     EV -->|develop.md + diff| QA
     GATE -->|Sí| PUB
     PUB --> HUMAN
@@ -64,7 +62,7 @@ flowchart LR
     classDef automation fill:#E0F2FE,stroke:#0369A1,color:#082F49;
 
     class IN,HUMAN,DONE human;
-    class P,PC,ARQ,TASKS deliberation;
+    class P,PC,ARQ deliberation;
     class IMP,EV execution;
     class QA,REAL,REV,GATE verification;
     class BLOCK,FB failure;
@@ -97,3 +95,5 @@ flowchart LR
 ## Mensaje breve para una presentación
 
 > No usamos muchos agentes para producir más texto: asignamos perspectivas independientes en los puntos donde una sola mirada puede equivocarse. Una persona propone, otra cuestiona, una tercera sintetiza, un único responsable implementa y dos controles independientes exigen evidencia real antes de que un humano autorice el merge.
+
+El workflow 2.3.0 agrega recibos ejecutados y hashes de vigencia antes de QA, métricas por etapa y consola resumida. Los runs existentes conservan su snapshot. Véase [ajustes aplicados](WORKFLOW_OPTIMIZATIONS.md).

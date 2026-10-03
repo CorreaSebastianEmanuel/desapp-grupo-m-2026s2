@@ -1,0 +1,189 @@
+{
+  "candidate_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "provenance": "committed",
+  "receipts": [
+    {
+      "kind": "repository",
+      "status": "PASS",
+      "candidate_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "observed": "accessible",
+      "reference": "https://github.com/example/project"
+    },
+    {
+      "kind": "quality_build",
+      "status": "PASS",
+      "candidate_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "observed": "all categories passed",
+      "reference": "https://github.com/example/project/actions/runs/1"
+    },
+    {
+      "kind": "sonarcloud",
+      "status": "PASS",
+      "candidate_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "observed": "9 open issues",
+      "reference": "https://sonarcloud.io/project/overview?id=example",
+      "project": "CorreaSebastianEmanuel_desapp-grupo-m-2026s2",
+      "branch": "main",
+      "analysis_status": "completed",
+      "analysis_id": "synthetic-analysis",
+      "retrieved_at": "2026-09-29T12:00:00Z",
+      "metric": "open_issues",
+      "open_issues": 9,
+      "profiles": [
+        "elixir-way",
+        "sonar-way"
+      ]
+    },
+    {
+      "kind": "demo",
+      "status": "PASS",
+      "candidate_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "observed": "all behavior IDs passed",
+      "reference": "specs/015-cp1-acceptance-evidence/quickstart.md",
+      "runs": [
+        {
+          "schema_version": 1,
+          "kind": "demo",
+          "status": "PASS",
+          "candidate_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "observed": "all behavior IDs passed",
+          "reference": "specs/015-cp1-acceptance-evidence/quickstart.md",
+          "provider_access": false,
+          "seed_assertions": [
+            {
+              "leagues": 5,
+              "seasons": 5,
+              "teams": 10,
+              "positions": 4,
+              "players": 20,
+              "total": 44
+            },
+            {
+              "leagues": 5,
+              "seasons": 5,
+              "teams": 10,
+              "positions": 4,
+              "players": 20,
+              "total": 44
+            }
+          ],
+          "elapsed_seconds": 10,
+          "behaviors": [
+            "SEED_FIRST",
+            "SEED_SECOND",
+            "SEED_RELATIONSHIPS",
+            "USER_CREATE",
+            "USER_DUPLICATE",
+            "JWT_VALID_LOGIN",
+            "JWT_INVALID_LOGIN",
+            "JWT_PROTECTED_ACCESS",
+            "API_KEY_ISSUE",
+            "API_KEY_VERIFY",
+            "API_KEY_PROTECTED_ACCESS",
+            "API_KEY_REVOKE",
+            "API_KEY_REVOKED_REJECTED",
+            "CATALOG_LIST",
+            "CATALOG_DETAIL",
+            "CATALOG_CONTINUATION",
+            "CATALOG_FILTER_LEAGUE",
+            "CATALOG_FILTER_TEAM",
+            "CATALOG_FILTER_POSITION",
+            "CATALOG_FILTER_COMBINED",
+            "CATALOG_EMPTY",
+            "CATALOG_INVALID",
+            "OPENAPI_JSON_PUBLIC",
+            "OPENAPI_UI_PUBLIC",
+            "OPENAPI_JWT_REQUEST",
+            "OPENAPI_API_KEY_REQUEST"
+          ],
+          "provenance": "committed",
+          "snapshot_sha256": "e33cdf9c7f7120b98e8c78408953e07f2ecd183006b5606df349b4c212acf43e"
+        },
+        {
+          "schema_version": 1,
+          "kind": "demo",
+          "status": "PASS",
+          "candidate_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "observed": "all behavior IDs passed",
+          "reference": "specs/015-cp1-acceptance-evidence/quickstart.md",
+          "provider_access": false,
+          "seed_assertions": [
+            {
+              "leagues": 5,
+              "seasons": 5,
+              "teams": 10,
+              "positions": 4,
+              "players": 20,
+              "total": 44
+            },
+            {
+              "leagues": 5,
+              "seasons": 5,
+              "teams": 10,
+              "positions": 4,
+              "players": 20,
+              "total": 44
+            }
+          ],
+          "elapsed_seconds": 10,
+          "behaviors": [
+            "SEED_FIRST",
+            "SEED_SECOND",
+            "SEED_RELATIONSHIPS",
+            "USER_CREATE",
+            "USER_DUPLICATE",
+            "JWT_VALID_LOGIN",
+            "JWT_INVALID_LOGIN",
+            "JWT_PROTECTED_ACCESS",
+            "API_KEY_ISSUE",
+            "API_KEY_VERIFY",
+            "API_KEY_PROTECTED_ACCESS",
+            "API_KEY_REVOKE",
+            "API_KEY_REVOKED_REJECTED",
+            "CATALOG_LIST",
+            "CATALOG_DETAIL",
+            "CATALOG_CONTINUATION",
+            "CATALOG_FILTER_LEAGUE",
+            "CATALOG_FILTER_TEAM",
+            "CATALOG_FILTER_POSITION",
+            "CATALOG_FILTER_COMBINED",
+            "CATALOG_EMPTY",
+            "CATALOG_INVALID",
+            "OPENAPI_JSON_PUBLIC",
+            "OPENAPI_UI_PUBLIC",
+            "OPENAPI_JWT_REQUEST",
+            "OPENAPI_API_KEY_REQUEST"
+          ],
+          "provenance": "committed",
+          "snapshot_sha256": "e33cdf9c7f7120b98e8c78408953e07f2ecd183006b5606df349b4c212acf43e"
+        }
+      ]
+    },
+    {
+      "kind": "tests",
+      "status": "PASS",
+      "candidate_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "observed": "unit integration coverage passed",
+      "reference": "specs/015-cp1-acceptance-evidence/quickstart.md",
+      "profiles": [
+        {
+          "profile": "unit",
+          "audit_count": 10,
+          "status": "complete"
+        },
+        {
+          "profile": "integration",
+          "audit_count": 10,
+          "status": "complete"
+        }
+      ],
+      "coverage": {
+        "candidate_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "snapshot_label": "committed revision",
+        "inventory_sha256": "867034b42b3911423de89b817283babc3e66c621e3279733133e29097727cab9",
+        "source_count": 10,
+        "report_reference": "cover/cp1/synthetic/report.html"
+      }
+    }
+  ]
+}

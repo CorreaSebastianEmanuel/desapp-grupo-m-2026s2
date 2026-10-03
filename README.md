@@ -39,7 +39,7 @@ The verifier reports PostgreSQL and Redis independently, prints only host/port/d
 
 For occupied ports, stop the conflicting process or override `POSTGRES_PORT`/`REDIS_PORT` consistently. Authentication, invalid configuration, unavailable service, readiness timeout, and migration failures name the affected category without printing passwords. Lifecycle mutations are serialized for this repository, and restart converges stopped or stale containers back to the declared Compose state before readiness succeeds. Routine start, stop, and restart preserve both named volumes; only the explicitly confirmed reset deletes them.
 
-The supported baseline is exact. Select the pinned toolchain in your version manager, then run:
+The supported baseline is exact. Activate the Elixir, OTP, and Node entries in `.tool-versions`; the [CP1 guide](specs/015-cp1-acceptance-evidence/quickstart.md#activate-the-toolchain) includes the tested activation procedure. Then run:
 
 ```bash
 ./scripts/check_toolchain.sh
@@ -154,6 +154,12 @@ python3 -m unittest test/scripts/sonar_checkpoint_gate_test.py
 MIX_ENV=test mix test test/ci/sonarcloud_contract_test.exs
 ```
 
+### CP1 acceptance evidence and repeatable demo
+
+The [CP1 acceptance guide](specs/015-cp1-acceptance-evidence/quickstart.md) is the stable entry point for local verification and the isolated demonstration. The generated JSON record is authoritative; its Markdown companion is a deterministic projection. Local and pull-request results are preflight evidence and cannot claim final acceptance.
+
+After merge, open the [CP1 acceptance workflow](https://github.com/CorreaSebastianEmanuel/desapp-grupo-m-2026s2/actions/workflows/cp1-acceptance.yml) for the integrated `main` SHA, then download its `cp1-acceptance-<full-sha>` artifact. The run and artifact require normal GitHub repository authorization. Its Sonar evidence links to the [project overview](https://sonarcloud.io/project/overview?id=CorreaSebastianEmanuel_desapp-grupo-m-2026s2), which may likewise require ordinary project access. A missing, inaccessible, stale, unsafe, partial, or nonterminal result is `NOT PASSING`.
+
 ### Start, verify, stop, and restart
 
 Start Phoenix in the foreground:
@@ -197,6 +203,7 @@ The complete workflow diagram and presentation notes are available in [`docs/MET
 ./agentflow create "Task title" --checkpoint CP1
 ./agentflow start TASK-001
 ./agentflow status TASK-001
+./agentflow metrics TASK-001          # usage by stage, without raw logs
 ./agentflow feedback TASK-001 "Use Phoenix 1.8" --stage architecture
 ./agentflow history TASK-001
 ./agentflow resume TASK-001
@@ -204,13 +211,15 @@ The complete workflow diagram and presentation notes are available in [`docs/MET
 ./agentflow complete TASK-001       # manual completion for local-only runs
 ```
 
-`start` runs seven fresh-agent stages: product specification, an independent product challenge, architecture synthesis, validated task planning, implementation, adversarial QA, and final review. Between product challenge and architecture, an automated decision probe pauses for a human check only when an unresolved choice materially affects product behavior, business rules, scope, permissions, security, data integrity, or a difficult-to-reverse technical decision. Routine and reversible choices continue automatically. Multiple perspectives are used at decision and verification boundaries; implementation keeps one owner to avoid conflicting edits. When both verification gates pass it commits the generated feature branch, pushes it, and creates a GitHub PR. A failed or rejected gate leaves the task blocked so feedback can rewind it to the affected stage. Merge remains human-controlled. After a verified Agentflow PR is merged into `main`, the `Finalize merged Agentflow task` workflow validates both terminal PASS verdicts and commits the task's `done` state automatically. Reviewed dependencies no longer block later tasks while that reconciliation runs. Use `complete` only for manual or local-only completion. Use `--no-pr` for a local-only run. Start from a clean, up-to-date `main` branch.
+`start` runs six fresh-agent stages: product specification, an independent product challenge, combined architecture/task planning, implementation, adversarial QA, and final review. Planning produces both canonical artifacts in one session and keeps both artifact gates. A required verification manifest maps requirement IDs to executable checks; current successful receipts and source/output hashes must pass the development readiness gate before QA. Between product challenge and architecture, an automated decision probe pauses for a human check only when an unresolved choice materially affects product behavior, business rules, scope, permissions, security, data integrity, or a difficult-to-reverse technical decision. Routine and reversible choices continue automatically. Multiple perspectives are used at decision and verification boundaries; implementation keeps one owner to avoid conflicting edits. When both verification gates pass it commits the generated feature branch, pushes it, and creates a GitHub PR. A failed or rejected gate leaves the task blocked so feedback can rewind it to the affected stage. Merge remains human-controlled. After a verified Agentflow PR is merged into `main`, the `Finalize merged Agentflow task` workflow validates both terminal PASS verdicts and commits the task's `done` state automatically. Reviewed dependencies no longer block later tasks while that reconciliation runs. Use `complete` only for manual or local-only completion. Use `--no-pr` for a local-only run. Start from a clean, up-to-date `main` branch.
 
 `next` considers only `todo` tasks with no unfinished dependencies. It recommends deterministically by earliest checkpoint, then `critical`/`high`/`medium`/`low` priority, then task ID, and lists any other tasks that can be started in parallel.
 
-Agentflow prints every stage, a heartbeat every 20 seconds, and underlying CLI output in real time. It keeps stdin attached so permission or authentication prompts remain interactive. Runtime output is saved to `.agentflow/runs/TASK-NNN.live.log`; `status` reports the current stage and last activity. If interrupted with `Ctrl+C`, continue the preserved Spec Kit run with `./agentflow resume TASK-NNN`.
+Agentflow prints every stage, a heartbeat every 20 seconds, and concise agent/check/usage outcomes. Agent payloads remain in local logs; human gates retain interactive stdin and prompt fragments. Use `AGENTFLOW_CONSOLE=full` for explicit full console diagnostics. Noninteractive Codex agents cannot consume piped gate answers. Runtime output is saved to `.agentflow/runs/TASK-NNN.live.log`; `status` reports the current stage and last activity. If interrupted with `Ctrl+C`, continue the preserved Spec Kit run with `./agentflow resume TASK-NNN`.
 
-Agents exchange structured handoffs under the active feature's `handoffs/` directory. Human feedback is versioned in `backlog/feedback/TASK-NNN.md`; adding feedback rewinds the preserved workflow to the selected affected stage. `history` shows feedback, handoffs, and stage results. A task accepts at most three feedback cycles before it must be resolved or split, preventing unbounded autonomous loops.
+Agents exchange structured handoffs under the active feature's `handoffs/` directory. Human feedback is versioned in `backlog/feedback/TASK-NNN.md`; adding feedback rewinds according to the saved workflow step order without upgrading its snapshot. Unaffected prior approvals are kept; product feedback invalidates its active approval. `history` shows feedback, handoffs, and stage results. A task accepts at most three feedback cycles before it must be resolved or split, preventing unbounded autonomous loops.
+
+See [applied workflow optimizations](docs/WORKFLOW_OPTIMIZATIONS.md) and the [verification manifest](docs/AGENT_VERIFICATION.md) for usage, adoption, and compatibility with existing runs.
 
 Each agent receives only the canonical artifacts and handoffs required by its role. Handoffs are short, delta-only records rather than copies of specifications, plans, tasks, or reports. Agents do not inspect workflow/live logs during delivery; Agentflow checks canonical plan, task, development, and QA artifacts with token-free probes before dispatching the next agent. A failed QA verdict stops the flow before final review. QA remains exhaustive, while final review validates passing QA evidence and reruns only targeted checks needed for an uncovered risk or discrepancy.
 

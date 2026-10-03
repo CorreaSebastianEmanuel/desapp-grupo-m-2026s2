@@ -1,0 +1,1 @@
+{"terminal":["success","failure","cancelled","skipped","timed_out"],"sonar_boundaries":[9,10],"cases":["success","stale_sha","unavailable","inaccessible","unsafe_staging"]}

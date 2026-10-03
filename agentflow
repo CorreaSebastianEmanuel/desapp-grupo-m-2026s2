@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 import argparse, json, os, re, shutil, signal, subprocess, sys, threading, time
+from scripts.agentflow_runtime import Console, metrics_summary
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -149,7 +150,7 @@ def status(a):
     if state:
         current=state.get("current_step_id") or "pending"
         index=int(state.get("current_step_index",0))+1
-        total=len(STEP_LABELS)
+        total=len(workflow_step_order(SPEC_RUNS/run/"workflow.yml"))
         updated=state.get("updated_at","unknown")
         print(f"workflow: {state.get('status','unknown')}")
         print(f"stage: {index}/{total} {STEP_LABELS.get(current,current)}")
@@ -183,6 +184,19 @@ def read_run_state(run):
     path=SPEC_RUNS/run/"state.json"
     try: return json.loads(path.read_text(encoding="utf-8"))
     except (OSError,json.JSONDecodeError): return None
+
+def workflow_step_order(path):
+    """Read top-level step IDs from either source or Spec Kit's YAML snapshot."""
+    try: content=path.read_text(encoding="utf-8")
+    except OSError: raise RuntimeError("Saved workflow is missing; refusing to guess rewind indexes")
+    if "steps:" not in content: raise RuntimeError("Workflow has no step list")
+    section=content.split("steps:",1)[1]
+    first=re.search(r"(?m)^([ ]*)- id:",section)
+    if not first: raise RuntimeError("Workflow has no step list")
+    indentation=re.escape(first.group(1))
+    steps=tuple(re.findall(r"(?m)^"+indentation+r"- id: ['\"]?([a-z_]+)['\"]?\s*$",section))
+    if not steps or len(set(steps))!=len(steps): raise RuntimeError("Workflow step order is invalid")
+    return steps
 
 def run_ids():
     return {p.name for p in SPEC_RUNS.iterdir() if p.is_dir()} if SPEC_RUNS.exists() else set()
@@ -225,12 +239,16 @@ def rewind_run(task, run, stage):
         raise SystemExit("Cannot add feedback while the workflow is active; interrupt it with Ctrl+C first")
     recover_orphaned_run(task,run)
     state=read_run_state(run) or state
-    index=STEP_ORDER.index(stage)
+    order=workflow_step_order(SPEC_RUNS/run/"workflow.yml")
+    if stage not in order: raise SystemExit(f"Stage {stage} is not present in the saved workflow")
+    index=order.index(stage)
     stamp=datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     state_path=SPEC_RUNS/run/"state.json"
     shutil.copy2(state_path,SPEC_RUNS/run/f"state.before-feedback-{stamp}.json")
     state["status"]="paused"; state["current_step_index"]=index; state["current_step_id"]=stage
-    state["step_results"]={k:v for k,v in state.get("step_results",{}).items() if k in STEP_ORDER[:index]}
+    retained=set(order[:index])
+    if "product_check" in retained: retained.add("human_product_check")
+    state["step_results"]={k:v for k,v in state.get("step_results",{}).items() if k in retained}
     state["error"]=None; state["updated_at"]=datetime.now(timezone.utc).isoformat()
     state.setdefault("inputs",{})["spec"]=task_context(task)
     state_path.write_text(json.dumps(state,indent=2)+"\n",encoding="utf-8")
@@ -239,7 +257,6 @@ def rewind_run(task, run, stage):
     except (OSError,json.JSONDecodeError): inputs={"inputs":{}}
     inputs.setdefault("inputs",{})["spec"]=task_context(task)
     inputs_path.write_text(json.dumps(inputs,indent=2)+"\n",encoding="utf-8")
-    if WORKFLOW.exists(): shutil.copy2(WORKFLOW,SPEC_RUNS/run/"workflow.yml")
     with (SPEC_RUNS/run/"log.jsonl").open("a",encoding="utf-8") as log:
         log.write(json.dumps({"event":"feedback_rewind","stage":stage,"timestamp":state["updated_at"]})+"\n")
     return True
@@ -273,7 +290,7 @@ def history(a):
     print(f"{m['id']} — {m['title']}\n")
     fp=feedback_path(task)
     print(fp.read_text(encoding="utf-8").rstrip() if fp.exists() else "No human feedback.")
-    feature=newest_feature()
+    feature=feature_for_task(task)
     if feature and (feature/"handoffs").exists():
         print("\n# Agent handoffs")
         for handoff in sorted((feature/"handoffs").glob("*.md")):
@@ -281,7 +298,7 @@ def history(a):
     run=m.get("active_run","none"); state=read_run_state(run)
     if state:
         print("\n# Workflow")
-        for step in STEP_ORDER:
+        for step in workflow_step_order(SPEC_RUNS/run/"workflow.yml"):
             result=state.get("step_results",{}).get(step)
             mark=result.get("status","pending") if result else ("current" if step==state.get("current_step_id") else "pending")
             print(f"- {step}: {mark}")
@@ -298,17 +315,37 @@ def monitor_process(cmd, task, run_hint=None):
     # Spec Kit's Codex integration otherwise defaults to read-only. Current
     # Codex CLI accepts --approve-for-me on its own and selects workspace-write.
     child_env.setdefault("SPECKIT_INTEGRATION_CODEX_EXTRA_ARGS","--approve-for-me")
+    if not child_env.get("SPECKIT_INTEGRATION_CODEX_EXECUTABLE"):
+        child_env["AGENTFLOW_CODEX_REAL"]=shutil.which("codex") or "codex"
+        child_env["SPECKIT_INTEGRATION_CODEX_EXECUTABLE"]=str(ROOT/"scripts"/("agentflow_codex.cmd" if os.name=="nt" else "agentflow_codex.py"))
+    child_env["AGENTFLOW_TASK_ID"]=task_id
+    child_env["AGENTFLOW_METRICS_FILE"]=str(RUNS/f"{task_id}.metrics.jsonl")
     process=subprocess.Popen(cmd,cwd=ROOT,stdin=None,stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,text=True,bufsize=1,env=child_env)
+        stderr=subprocess.STDOUT,text=True,bufsize=1,env=child_env,
+        start_new_session=os.name=="posix",
+        creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if os.name=="nt" else 0)
     marker=RUNS/f"{task_id}.process.json"
     marker.write_text(json.dumps({"pid":process.pid,"run_id":run})+"\n",encoding="utf-8")
     def pump():
         assert process.stdout is not None
         with transcript.open("a",encoding="utf-8") as log:
-            log.write(f"\n[{datetime.now().isoformat(timespec='seconds')}] {' '.join(cmd)}\n")
+            log.write(f"\n[{datetime.now().isoformat(timespec='seconds')}] specify workflow {'resume' if run_hint else 'run'}\n")
             log.flush()
-            for line in process.stdout:
-                print(line,end="",flush=True); log.write(line); log.flush()
+            console=Console(full=os.environ.get("AGENTFLOW_CONSOLE")=="full")
+            while True:
+                chunk=os.read(process.stdout.fileno(),8192)
+                if not chunk: break
+                # Decode across byte fragments so unicode gate messages survive.
+                text=decoder.decode(chunk)
+                log.write(text); log.flush()
+                visible=console.feed(text)
+                if visible: print(visible,end="",flush=True)
+            tail=decoder.decode(b"",final=True)
+            log.write(tail)
+            visible=console.feed(tail,final=True)
+            if visible: print(visible,end="",flush=True)
+    import codecs
+    decoder=codecs.getincrementaldecoder("utf-8")(errors="replace")
     reader=threading.Thread(target=pump,daemon=True); reader.start()
     try:
         while process.poll() is None:
@@ -324,7 +361,8 @@ def monitor_process(cmd, task, run_hint=None):
             if step and step != shown_step:
                 shown_step=step
                 index=int(state.get("current_step_index",0))+1
-                print(f"\n[{task_id}] Stage {index}/{len(STEP_LABELS)}: {STEP_LABELS.get(step,step)}",flush=True)
+                count=len(workflow_step_order(SPEC_RUNS/run/"workflow.yml"))
+                print(f"\n[{task_id}] Stage {index}/{count}: {STEP_LABELS.get(step,step)}",flush=True)
             now=time.monotonic()
             if now-last_heartbeat >= 20:
                 elapsed=int(now-started); label=STEP_LABELS.get(shown_step,shown_step or "starting")
@@ -333,12 +371,17 @@ def monitor_process(cmd, task, run_hint=None):
             time.sleep(.5)
     except KeyboardInterrupt:
         print(f"\n[{task_id}] Interrupting safely…",flush=True)
-        process.send_signal(signal.SIGINT)
+        if os.name=="posix": os.killpg(process.pid,signal.SIGINT)
+        else: process.send_signal(signal.CTRL_BREAK_EVENT)
         try: process.wait(timeout=10)
         except subprocess.TimeoutExpired:
-            process.terminate()
+            if os.name=="posix": os.killpg(process.pid,signal.SIGTERM)
+            else: process.terminate()
             try: process.wait(timeout=5)
-            except subprocess.TimeoutExpired: process.kill(); process.wait()
+            except subprocess.TimeoutExpired:
+                if os.name=="posix": os.killpg(process.pid,signal.SIGKILL)
+                else: process.kill()
+                process.wait()
         reader.join(timeout=2)
         run=run or latest_run()
         if run: field(task,"active_run",run)
@@ -510,6 +553,9 @@ def parser():
     q=s.add_parser("complete"); q.add_argument("task"); q.set_defaults(func=complete)
     q=s.add_parser("feedback"); q.add_argument("task"); q.add_argument("message",nargs="?"); q.add_argument("--stage",choices=sorted(STAGE_ALIASES),default="development"); q.set_defaults(func=add_feedback)
     q=s.add_parser("history"); q.add_argument("task"); q.set_defaults(func=history)
+    q=s.add_parser("metrics",help="summarize structured usage without prompts or private session IDs")
+    q.add_argument("task")
+    q.set_defaults(func=lambda a: print(json.dumps(metrics_summary(RUNS/f"{meta(find(a.task))['id']}.metrics.jsonl"),indent=2)))
     return p
 if __name__=="__main__":
     p=parser()

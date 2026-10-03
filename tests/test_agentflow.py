@@ -182,6 +182,7 @@ class FeedbackLoopTest(unittest.TestCase):
                 "review": {"status": "completed"},
             }, "inputs": {"spec": "old"},
         }
+        (self.run_dir / "workflow.yml").write_text("steps:\n" + "".join(f"  - id: {step}\n" for step in self.api["STEP_ORDER"]), encoding="utf-8")
         (self.run_dir / "state.json").write_text(json.dumps(state), encoding="utf-8")
         (self.run_dir / "inputs.json").write_text(json.dumps({"inputs": {"spec": "old"}}), encoding="utf-8")
         (self.run_dir / "log.jsonl").write_text("", encoding="utf-8")

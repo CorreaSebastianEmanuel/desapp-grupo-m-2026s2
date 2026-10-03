@@ -2,7 +2,7 @@ schema_version: "1.0"
 workflow:
   id: "desapp-delivery"
   name: "DesApp deliberative SDD delivery"
-  version: "2.2.2"
+  version: "2.3.0"
   author: "Alquimistas"
   description: "Specify, challenge, synthesize, implement, and independently verify one task"
 requires:
@@ -17,13 +17,15 @@ steps:
     command: speckit.specify
     integration: "{{ inputs.integration }}"
     input:
-      args: "{{ inputs.spec }}\n\nWrite the canonical spec.md as the complete behavioral source of truth. Then create handoffs/product.md with only decisions, unresolved assumptions, and guidance not already stated in spec.md; do not duplicate the specification and keep the handoff under 300 words. Do not inspect .agentflow/runs or .specify/workflows/runs unless explicitly diagnosing the workflow runner."
+      args: "Agentflow stage: product\nFollow docs/AGENT_CONTEXT_POLICY.md. {{ inputs.spec }}\n\nWrite the canonical spec.md as the complete behavioral source of truth. Then create handoffs/product.md with only decisions, unresolved assumptions, and guidance not already stated in spec.md; do not duplicate the specification and keep the handoff under 300 words. Do not inspect .agentflow/runs or .specify/workflows/runs unless explicitly diagnosing the workflow runner."
 
   - id: product_challenge
     type: prompt
     integration: "{{ inputs.integration }}"
     timeout: 1200
     prompt: |
+      Agentflow stage: product_challenge
+      Follow docs/AGENT_CONTEXT_POLICY.md.
       Act as an independent product and requirements critic. Do not modify spec.md,
       implementation code, or existing handoffs. Locate the active feature and read
       the backlog task, current human feedback, docs/PRODUCT.md, docs/CHECKPOINTS.md,
@@ -64,36 +66,49 @@ steps:
         on_reject: abort
 
   - id: architecture
-    command: speckit.plan
+    type: prompt
     integration: "{{ inputs.integration }}"
-    input:
-      args: "Read spec.md, handoffs/product-challenge.md, handoffs/product-decision.md, current human feedback, and docs/ARCHITECTURE.md. Do not reread product.md because spec.md is canonical, and do not inspect workflow/live logs. Any required human check has been approved; treat recorded human feedback as authoritative. Act as synthesis owner: resolve the critic's material findings, choose the smallest compliant solution, explain rejected alternatives, and record durable deviations as ADRs. Create the canonical plan.md. Create handoffs/architecture.md with only decisions, risks, and implementation guidance not already present in plan.md; do not duplicate the plan and keep the handoff under 400 words."
+    timeout: 1800
+    prompt: |
+      Agentflow stage: architecture
+      Follow docs/AGENT_CONTEXT_POLICY.md. In this single session use $speckit-plan
+      then $speckit-tasks; reuse unchanged context between the two skills. Do not
+      launch a separate planning session or research agents for settled technology.
+      Read spec.md, product-challenge.md, product-decision.md and current feedback.
+      Resolve the critic's material findings and record durable deviations as ADRs.
+      Produce complete plan.md and tasks.md, all required supporting artifacts, and
+      concise handoffs/architecture.md (under 400 words) and handoffs/tasks.md (under
+      300 words) with deltas only. Required human decisions were approved; recorded
+      feedback remains authoritative. Verify spec/plan/tasks alignment, test-first
+      ordering, product invariants and checkpoint coverage. Research only concrete
+      unknowns that could change this feature; cite existing decisions elsewhere.
+      Create verification.json using docs/AGENT_VERIFICATION.md: map every FR/AC/SC
+      identifier in spec.md to concrete executable checks, include service preflight
+      and assertion-based runtime checks for HTTP endpoints. The implementation
+      owner executes these checks before QA; QA reruns independently. Mark only
+      downstream QA/review tasks with [gate:qa] or [gate:review] and map them in
+      task_stages; all implementation and applicable test tasks must complete first.
+      Invoke both skills' required hooks. Do not implement or publish changes.
 
   - id: plan_ready
     type: shell
-    run: "python3 scripts/workflow_artifact_probe.py plan"
+    run: "python3 scripts/workflow_artifact_probe.py plan --readiness"
     output_format: json
-
-  - id: tasks
-    command: speckit.tasks
-    integration: "{{ inputs.integration }}"
-    input:
-      args: "Read spec.md, plan.md, handoffs/architecture.md, handoffs/product-decision.md, current human feedback, and the governing PRODUCT/CHECKPOINTS documents; do not read other handoffs or workflow/live logs. Verify product invariants, checkpoint coverage, testability, security, failure behavior, and spec/plan alignment. Resolve critical planning inconsistencies, then create the canonical tasks.md with test-first ordering, documentation, and verification. Confirm tasks.md exists and is complete. Create handoffs/tasks.md containing only resolutions, remaining risks, and sequencing guidance absent from tasks.md; never copy the task list and keep the handoff under 300 words."
 
   - id: tasks_ready
     type: shell
-    run: "python3 scripts/workflow_artifact_probe.py tasks"
+    run: "python3 scripts/workflow_artifact_probe.py tasks --readiness"
     output_format: json
 
   - id: develop
     command: speckit.implement
     integration: "{{ inputs.integration }}"
     input:
-      args: "Read only spec.md, plan.md, tasks.md, handoffs/architecture.md, handoffs/tasks.md, and current human feedback before coding. Do not read product debate, stale QA/review artifacts, unrelated feature artifacts, or workflow/live logs. You are the sole implementation owner. Implement and run all applicable checks. Before marking a task complete, create every artifact that task explicitly requires; before handoff, reconcile every [X] task against its named files and leave any unsatisfied task unchecked. Create one handoff, handoffs/develop.md, with concise changes, decisions, command outcomes, residual risks, and exact QA guidance; reference files instead of pasting output, do not create a second evidence handoff unless tasks.md explicitly requires it, and keep it under 400 words. Do not commit, push, create a PR, or merge; Agentflow publishes only after verification."
+      args: "Agentflow stage: develop\nFollow docs/AGENT_CONTEXT_POLICY.md. Read only spec.md, plan.md, tasks.md, handoffs/architecture.md, handoffs/tasks.md, and current human feedback before coding. Do not read product debate, stale QA/review artifacts, unrelated feature artifacts, or workflow/live logs. You are the sole implementation owner. Read verification.json and docs/AGENT_VERIFICATION.md. Implement and run all applicable checks through python3 scripts/agentflow_check.py CHECK_ID, including preflight and assertion-based runtime checks. Keep the coverage mapping current; never replace a required check with a trivial success command. Complete named artifacts before marking their tasks done; record successful check tasks only after execution. The readiness gate independently validates current checklist state, receipts, output hashes and source freshness. Before marking a task complete, create every artifact that task explicitly requires; before handoff, reconcile every [X] task against its named files and leave any unsatisfied task unchecked. Create one handoff, handoffs/develop.md, with concise changes, decisions, command outcomes, residual risks, and exact QA guidance; reference files instead of pasting output, do not create a second evidence handoff unless tasks.md explicitly requires it, and keep it under 400 words. Do not commit, push, create a PR, or merge; Agentflow publishes only after verification."
 
   - id: develop_ready
     type: shell
-    run: "python3 scripts/workflow_artifact_probe.py develop"
+    run: "python3 scripts/workflow_artifact_probe.py develop --readiness"
     output_format: json
 
   - id: qa
@@ -101,11 +116,15 @@ steps:
     integration: "{{ inputs.integration }}"
     timeout: 1200
     prompt: |
+      Agentflow stage: qa
+      Follow docs/AGENT_CONTEXT_POLICY.md.
       Act as independent QA and adversarial acceptance tester. Do not invoke agentflow,
       its verify skill, or another agent. Do not trust summaries or modify implementation
       code. Locate the active feature; read spec.md, plan.md, tasks.md,
       handoffs/architecture.md, handoffs/develop.md, current human feedback, and the
-      diff. Do not read product debate, stale QA/review reports, unrelated artifacts,
+      diff, and verification.json. Use the manifest to find checks, then independently
+      rerun them and challenge the coverage against spec.md; developer receipts do
+      not replace acceptance evidence. Do not read product debate, stale QA/review reports, unrelated artifacts,
       or workflow/live logs. Run applicable checks directly and verify every
       acceptance criterion with evidence. When the task exposes or changes HTTP endpoints,
       start the application and exercise every affected endpoint through real HTTP requests
@@ -130,6 +149,8 @@ steps:
     integration: "{{ inputs.integration }}"
     timeout: 1200
     prompt: |
+      Agentflow stage: review
+      Follow docs/AGENT_CONTEXT_POLICY.md.
       Act as the final independent reviewer and second verification perspective. Do not
       invoke agentflow, its verify skill, or another agent, and do not modify implementation
       code. Do not merely repeat QA. Read spec.md, plan.md, tasks.md,

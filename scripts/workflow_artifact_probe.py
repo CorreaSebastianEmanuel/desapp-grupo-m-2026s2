@@ -76,7 +76,7 @@ def completed_task_artifacts(root: Path, feature: Path) -> list[str]:
     return sorted(missing)
 
 
-def probe(root: Path, stage: str) -> dict[str, object]:
+def probe(root: Path, stage: str, require_readiness=False) -> dict[str, object]:
     if stage not in STAGES:
         raise RuntimeError(f"Unknown artifact stage: {stage}")
     feature = active_feature(root)
@@ -90,6 +90,14 @@ def probe(root: Path, stage: str) -> dict[str, object]:
             missing.append(relative)
     if missing:
         raise RuntimeError(f"Missing or empty {stage} artifact(s): {', '.join(missing)}")
+    if require_readiness:
+        try:
+            from scripts.agentflow_verification import manifest, readiness
+        except ModuleNotFoundError:
+            from agentflow_verification import manifest, readiness
+        manifest(feature)
+        if stage == "develop":
+            readiness(root, feature)
     if stage == "develop":
         missing_outputs = completed_task_artifacts(root, feature)
         if missing_outputs:
@@ -114,8 +122,8 @@ def probe(root: Path, stage: str) -> dict[str, object]:
 
 if __name__ == "__main__":
     try:
-        if len(sys.argv) != 2:
-            raise RuntimeError("Usage: workflow_artifact_probe.py <plan|tasks|develop|qa>")
-        print(json.dumps(probe(Path.cwd(), sys.argv[1])))
+        if len(sys.argv) not in (2, 3) or (len(sys.argv) == 3 and sys.argv[2] != "--readiness"):
+            raise RuntimeError("Usage: workflow_artifact_probe.py <plan|tasks|develop|qa> [--readiness]")
+        print(json.dumps(probe(Path.cwd(), sys.argv[1], len(sys.argv) == 3)))
     except RuntimeError as error:
         raise SystemExit(str(error)) from error

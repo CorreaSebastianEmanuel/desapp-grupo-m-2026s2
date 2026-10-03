@@ -26,13 +26,27 @@ defmodule Mix.Tasks.Catalog.Seed do
   end
 
   defp with_quiet_logs(fun) do
+    application_was_running =
+      Enum.any?(Application.started_applications(), fn {name, _, _} ->
+        name == :football_market
+      end)
+
     previous_level = :logger.get_primary_config() |> Map.fetch!(:level)
     previous_configured_level = Application.get_env(:logger, :level)
     Application.put_env(:logger, :level, :none)
     :ok = :logger.set_primary_config(:level, :none)
 
     try do
-      fun.()
+      result = fun.()
+
+      # Failed connections keep retrying after the command returns. Stop only
+      # the application this invocation started, while its logs remain quiet.
+      if match?({:error, _}, result) and not application_was_running do
+        Application.stop(:football_market)
+        Logger.flush()
+      end
+
+      result
     after
       restore_logger_config(previous_configured_level)
       :ok = :logger.set_primary_config(:level, previous_level)

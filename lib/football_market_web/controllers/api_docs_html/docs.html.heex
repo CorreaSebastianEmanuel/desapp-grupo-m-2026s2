@@ -4,13 +4,14 @@
   onerror="document.getElementById('docs-error').hidden=false"
 />
 <style>
-  .docs-control { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; padding: 1rem; background: #f4f6f8; }
-  .docs-control input { border: 1px solid #667; padding: .4rem; }
-  .docs-control select { border: 1px solid #667; padding: .4rem; }
+  .docs-page { min-height: 100vh; background: #fff; color: #3b4151; color-scheme: light; }
+  .docs-control { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; padding: 1rem; background: #f4f6f8; color: #3b4151; }
+  .docs-control input { border: 1px solid #667; padding: .4rem; background: #fff; color: #3b4151; }
+  .docs-control select { border: 1px solid #667; padding: .4rem; background: #fff; color: #3b4151; }
   .swagger-ui .auth-wrapper, .swagger-ui .authorization__btn, .swagger-ui .authorize { display: none !important; }
   #docs-error { color: #a00; padding: 1rem; font-weight: bold; }
 </style>
-<main>
+<main class="docs-page" data-theme="light">
   <h1 style="padding: 1rem">Football Market CP1 API documentation</h1>
   <div class="docs-control">
     <label for="credential-mode">Credential method</label>

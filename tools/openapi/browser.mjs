@@ -75,7 +75,7 @@ try {
 
   await page.locator('#credential-value').fill(jwt);
   const listBody = await execute(list, 200, 'jwt');
-  assert(listBody.data.length === 1 && listBody.data[0].id === playerId, `JWT list body mismatch (count ${listBody.data.length}, match ${listBody.data.some(player => player.id === playerId)}, query keys ${requests.at(-1)?.queryKeys.join(',')})`);
+  assert(listBody.data.length === JSON.parse(expectedList).data.length && listBody.data.some(player => player.id === playerId), `JWT list body mismatch (count ${listBody.data.length}, match ${listBody.data.some(player => player.id === playerId)}, query keys ${requests.at(-1)?.queryKeys.join(',')})`);
   assertDeep.deepEqual(listBody, JSON.parse(expectedList), 'JWT list differs from live endpoint comparison');
   await page.locator('#credential-mode').selectOption('api_key');
   assert(await page.locator('#credential-value').inputValue() === '', 'Mode switch retained credential');

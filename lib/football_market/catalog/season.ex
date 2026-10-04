@@ -22,7 +22,15 @@ defmodule FootballMarket.Catalog.Season do
     |> check_constraint(:end_year, name: :seasons_valid_year_span)
   end
 
-  def delete_changeset(season), do: season |> change() |> no_assoc_constraint(:teams)
+  def delete_changeset(season) do
+    season
+    |> change()
+    |> no_assoc_constraint(:teams)
+    |> foreign_key_constraint(:matches,
+      name: :matches_season_witness_fkey,
+      message: "still has historical matches"
+    )
+  end
 
   defp validate_year_span(changeset) do
     start_year = get_field(changeset, :start_year)

@@ -1,0 +1,29 @@
+[
+  {
+    "id": "integration_coverage",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "--include",
+      "performance",
+      "--only",
+      "integration",
+      "--cover"
+    ],
+    "exit": 0,
+    "seconds": 91.2
+  },
+  {
+    "id": "regression",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "--include",
+      "performance"
+    ],
+    "exit": 2,
+    "seconds": 117.7
+  }
+]

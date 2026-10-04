@@ -1,0 +1,180 @@
+[
+  {
+    "id": "toolchain",
+    "argv": [
+      "sh",
+      "scripts/check_toolchain.sh"
+    ],
+    "exit": 0,
+    "seconds": 1.3
+  },
+  {
+    "id": "prepare",
+    "argv": [
+      "mix",
+      "test.prepare"
+    ],
+    "exit": 1,
+    "seconds": 0.7
+  },
+  {
+    "id": "preflight",
+    "argv": [
+      "mix",
+      "infrastructure.verify"
+    ],
+    "exit": 1,
+    "seconds": 0.6
+  },
+  {
+    "id": "format",
+    "argv": [
+      "mix",
+      "format",
+      "--check-formatted"
+    ],
+    "exit": 0,
+    "seconds": 0.8
+  },
+  {
+    "id": "compile",
+    "argv": [
+      "mix",
+      "compile",
+      "--warnings-as-errors"
+    ],
+    "exit": 1,
+    "seconds": 0.6
+  },
+  {
+    "id": "input",
+    "argv": [
+      "mix",
+      "test",
+      "test/football_market/statistics/input_test.exs",
+      "test/football_market/statistics/count_test.exs",
+      "--warnings-as-errors"
+    ],
+    "exit": 1,
+    "seconds": 0.7
+  },
+  {
+    "id": "storage",
+    "argv": [
+      "mix",
+      "test",
+      "test/football_market/statistics/storage_test.exs",
+      "--warnings-as-errors"
+    ],
+    "exit": 1,
+    "seconds": 0.6
+  },
+  {
+    "id": "integrity",
+    "argv": [
+      "mix",
+      "test",
+      "test/football_market/statistics/integrity_test.exs",
+      "--warnings-as-errors"
+    ],
+    "exit": 1,
+    "seconds": 0.6
+  },
+  {
+    "id": "concurrency",
+    "argv": [
+      "mix",
+      "test",
+      "test/football_market/statistics/concurrency_test.exs",
+      "--warnings-as-errors"
+    ],
+    "exit": 1,
+    "seconds": 0.6
+  },
+  {
+    "id": "history",
+    "argv": [
+      "mix",
+      "test",
+      "test/football_market/statistics/history_test.exs",
+      "--warnings-as-errors"
+    ],
+    "exit": 1,
+    "seconds": 0.6
+  },
+  {
+    "id": "feature_scope",
+    "argv": [
+      "mix",
+      "test",
+      "test/football_market/statistics/scope_test.exs",
+      "--warnings-as-errors"
+    ],
+    "exit": 1,
+    "seconds": 0.6
+  },
+  {
+    "id": "unit_profile",
+    "argv": [
+      "mix",
+      "test.unit"
+    ],
+    "exit": 1,
+    "seconds": 0.7
+  },
+  {
+    "id": "integration_profile",
+    "argv": [
+      "mix",
+      "test.integration"
+    ],
+    "exit": 1,
+    "seconds": 0.6
+  },
+  {
+    "id": "integration_coverage",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "--include",
+      "performance",
+      "--only",
+      "integration",
+      "--cover"
+    ],
+    "exit": 1,
+    "seconds": 0.6
+  },
+  {
+    "id": "coverage",
+    "argv": [
+      "mix",
+      "test.cp1_coverage"
+    ],
+    "exit": 1,
+    "seconds": 0.6
+  },
+  {
+    "id": "regression",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "--include",
+      "performance"
+    ],
+    "exit": 1,
+    "seconds": 0.6
+  },
+  {
+    "id": "diff",
+    "argv": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit": 0,
+    "seconds": 0.0
+  }
+]

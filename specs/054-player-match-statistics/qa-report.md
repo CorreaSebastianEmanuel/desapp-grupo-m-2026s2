@@ -1,0 +1,26 @@
+# Independent QA — TASK-020
+
+Active feature resolved from `.specify/feature.json`. Read specification, plan, tasks, required repository policies, architecture/development handoffs, all current human feedback, manifest, and every affected implementation/test diff. No implementation changes, Agentflow invocation, delegated agents, or stale QA/review evidence.
+
+Evidence: [round3/results.json](qa-evidence/round3/results.json) records exact manifest argv/environment and independent exit statuses; adjacent logs retain command output. All 18 checks ultimately passed. Used pinned Elixir/Node PATH prefixes documented in develop.md and local socket access. Coverage alone required an isolated intent-to-add Git index; the real index was preserved. An initial diff diagnostic using that temporary index flagged an extra EOF blank in human feedback; ordinary `git diff --check` passed (both attempts retained). [source-hashes.json](qa-evidence/round3/source-hashes.json) confirms all 22 affected implementation/test files stayed unchanged.
+
+| Acceptance criteria | Independent evidence and result |
+| --- | --- |
+| US1.1–2; FR-001–003; SC-001, SC-005 | `storage`: 3 passed. Five leagues × two seasons; match identity/instant/participants and two independently read player performances retain every submitted fact and relationship. |
+| US1.3–4; FR-005–007 | `input`: 5 passed; `storage`: every metric persists positive, zero, omitted and explicit nil distinctly. Minutes 0/90/123 accepted, including positive counts with zero minutes. QA adversarial persistence accepts each metric at 10^70 without precision loss. |
+| US2.1; FR-004; SC-002 | `integrity`: 9 passed; dedicated `concurrency`: 3 passed. Identical/conflicting pair and normalized-match races produce exactly one success and one conflict, retaining the winner unchanged. Barrier/lock-wait evidence establishes independent connections and both season-mutation interleavings. |
+| US2.2; FR-002; feedback B1 | Integrity exercises all 25 Unicode whitespace characters through writes, scoped reads and direct changesets; cross-season identity reuse succeeds. QA scratch-table migration checks reject legacy collisions/blanks, preserve original rows on failure, and successfully recompute valid keys without disabling immutable triggers. |
+| US2.3–4; FR-003, FR-007, FR-009 | Input/integrity reject missing, cross-season, identical-team, nonparticipant and unknown-position references with identified fields. Every metric rejects negatives, fractions, floats, strings and booleans; SQL checks also reject nonfinite numeric facts. Unsupported fields, missing minutes and invalid instants fail. QA independently exercises all invalid metric combinations through persistence and malformed binary instants/bounds without partial facts. |
+| US2.5–6; FR-008; SC-004 | Integrity checks immutable APIs, direct UPDATE/DELETE and restrictive catalog deletion/key changes. QA additionally attempts actual changes to match identity/kickoff/participants/season and performance metrics/player/team/position/match; every SQL operation is rejected and independent reads remain identical. |
+| US2.7; FR-009; feedback B2 | Late invalid batch values, duplicate nested performances and malformed identities roll back earlier matches/performances. NUL at start/middle/end and invalid UTF-8 return match_identity/invalid_identity on writes/scoped reads; batch errors retain zero-based indexes and prior facts. |
+| US3.1–2; FR-010–011; SC-003 | `history`: 3 passed. Exact-player/season isolation; ascending kickoff and normalized identity ties; omitted/equal/inverted/malformed bounds; inclusive endpoints at ±1 microsecond; equivalent offsets and same-day events. |
+| US3.3–5; FR-010–011; SC-004–005 | History distinguishes empty/absent/not-found/validation results, preserves original event-time team/position after transfer, accepts subsequent team-B facts, and repeats identical local reads without provider dependencies. |
+| FR-012–013; feedback B3 | `feature_scope`: 2 passed; source inspection confirms no HTTP/web/provider/cache/valuation changes. Catalog focused checks passed twice (6 each), asserting distinct backend PIDs and preserving conflict/count/original-row assertions; default drivers execute real races and clear inherited profile evidence variables. |
+
+Additional acceptance command: `MIX_ENV=test mix test specs/054-player-match-statistics/qa-evidence/round3/acceptance_test.exs --warnings-as-errors`: **4 passed**; see [adversarial.log](qa-evidence/round3/adversarial.log). Repeated Catalog command uses manifest argv with `MIX_TEST_PARTITION=catalog_concurrency`; [catalog-repeat.log](qa-evidence/round3/catalog-repeat.log): **6 passed**.
+
+Quality checks: toolchain, service preparation/preflight, formatting and warning-free compilation passed. Unit/integration profiles completed with 22/36 audited files. Informational CP1 integration coverage: **93.17%**; combined coverage publication completed. Full regression: **215 passed**. No affected HTTP endpoint exists; runtime HTTP acceptance is inapplicable under FR-013, consistent with the actual diff and manifest.
+
+Blockers: none. T001–T027 artifacts are present; QA/review are the only deferred gates. Final review remains required before delivery.
+
+Verdict: PASS

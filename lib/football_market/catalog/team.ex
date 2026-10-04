@@ -25,6 +25,18 @@ defmodule FootballMarket.Catalog.Team do
   def delete_changeset(team) do
     team
     |> change()
+    |> foreign_key_constraint(:matches,
+      name: :matches_home_team_id_season_fkey,
+      message: "still has historical matches"
+    )
+    |> foreign_key_constraint(:matches,
+      name: :matches_away_team_id_season_fkey,
+      message: "still has historical matches"
+    )
+    |> foreign_key_constraint(:performances,
+      name: :performances_team_id_season_fkey,
+      message: "still has historical performances"
+    )
     |> foreign_key_constraint(:players,
       name: :players_team_season_fkey,
       message: "still has associated players"

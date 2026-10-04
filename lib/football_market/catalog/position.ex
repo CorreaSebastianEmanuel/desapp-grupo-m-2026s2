@@ -20,7 +20,15 @@ defmodule FootballMarket.Catalog.Position do
     |> unique_constraint(:name, name: :positions_normalized_name_index)
   end
 
-  def delete_changeset(position), do: position |> change() |> no_assoc_constraint(:players)
+  def delete_changeset(position) do
+    position
+    |> change()
+    |> no_assoc_constraint(:players)
+    |> foreign_key_constraint(:performances,
+      name: :player_match_performances_position_id_fkey,
+      message: "still has historical performances"
+    )
+  end
 
   defp trim(changeset, fields),
     do:

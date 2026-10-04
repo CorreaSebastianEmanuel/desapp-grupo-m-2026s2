@@ -179,110 +179,121 @@ end
 
 defmodule FootballMarket.CatalogConcurrencyTest do
   use ExUnit.Case, async: false
-
   @moduletag :integration
 
-  alias Ecto.Adapters.SQL.Sandbox
-  alias FootballMarket.Catalog
-  alias FootballMarket.Repo
+  if System.get_env("MIX_TEST_PARTITION") == "catalog_concurrency" do
+    alias Ecto.Adapters.SQL.Sandbox
+    alias FootballMarket.{Catalog, Repo}
+    alias FootballMarket.Catalog.{League, Season, Team, Position, Player}
+    import Ecto.Query
+    import FootballMarket.CatalogConcurrencyCase
+    import FootballMarket.CatalogCase
 
-  test "normalized unique indexes arbitrate concurrent catalog writes" do
-    Sandbox.unboxed_run(Repo, fn ->
-      results =
-        1..2
-        |> Task.async_stream(
-          fn _ -> Catalog.create_league(%{code: " PL ", name: " Premier League "}) end,
-          max_concurrency: 2,
-          ordered: false
+    setup do
+      setup_race()
+    end
+
+    test "normalized unique indexes arbitrate concurrent catalog writes", context do
+      Sandbox.unboxed_run(Repo, fn ->
+        existing = Repo.all(from l in League, select: l.code)
+
+        {code, name} =
+          Enum.find(Catalog.supported_leagues(), fn {code, _} -> code not in existing end)
+
+        results =
+          race(context, fn -> Catalog.create_league(%{code: " #{code} ", name: " #{name} "}) end)
+
+        {:ok, league} = Enum.find(results, &match?({:ok, _}, &1))
+        assert Repo.get!(League, league.id) == league
+
+        season_results =
+          race(context, fn ->
+            Catalog.create_season(season_attrs(league, %{start_year: 2032, end_year: 2033}))
+          end)
+
+        {:ok, season} = Enum.find(season_results, &match?({:ok, _}, &1))
+        assert Repo.aggregate(from(s in Season, where: s.league_id == ^league.id), :count) == 1
+        assert Repo.get!(Season, season.id) == season
+
+        code = unique_code("DUPE")
+        name = unique_code("Duplicate Team ")
+
+        team_results =
+          race(context, fn ->
+            Catalog.create_team(%{season_id: season.id, code: " #{code} ", name: " #{name} "})
+          end)
+
+        {:ok, team} = Enum.find(team_results, &match?({:ok, _}, &1))
+        assert Repo.aggregate(from(t in Team, where: t.season_id == ^season.id), :count) == 1
+        assert Repo.get!(Team, team.id) == team
+      end)
+    end
+
+    test "concurrent player identity writes preserve one original record", context do
+      Sandbox.unboxed_run(Repo, fn ->
+        league =
+          Repo.get_by(League, code: "PL") ||
+            own(context, elem(Catalog.create_league(league_attrs()), 1))
+
+        year =
+          (Repo.one(from s in Season, where: s.league_id == ^league.id, select: max(s.end_year)) ||
+             2029) + 1
+
+        {:ok, season} =
+          Catalog.create_season(season_attrs(league, %{start_year: year, end_year: year + 1}))
+
+        own(context, season)
+        {:ok, team} = Catalog.create_team(team_attrs(season))
+        own(context, team)
+
+        code = unique_code("RACE")
+        name = unique_code("Race Position ")
+
+        position_results =
+          race(context, fn -> Catalog.create_position(%{code: " #{code} ", name: " #{name} "}) end)
+
+        {:ok, position} = Enum.find(position_results, &match?({:ok, _}, &1))
+        assert Repo.get!(Position, position.id) == position
+        assert Repo.aggregate(from(p in Position, where: p.code == ^code), :count) == 1
+
+        attrs =
+          player_attrs(team, position, %{
+            catalog_identity: "race-player",
+            display_name: "Race Player"
+          })
+
+        results = race(context, fn -> Catalog.create_player(attrs) end)
+        {:ok, player} = Enum.find(results, &match?({:ok, _}, &1))
+        assert Repo.aggregate(from(p in Player, where: p.season_id == ^season.id), :count) == 1
+
+        assert Repo.get!(Player, player.id) |> Repo.preload(team: [season: :league], position: []) ==
+                 player
+
+        assert player.catalog_identity == attrs.catalog_identity
+        assert player.display_name == attrs.display_name
+        assert player.team_id == team.id
+        assert player.position_id == position.id
+      end)
+    end
+  else
+    test "default suite executes both committed Catalog races" do
+      env = [
+        {"MIX_TEST_PARTITION", "catalog_concurrency"},
+        {"CP1_PROFILE", nil},
+        {"CP1_PROFILE_COVERAGE", nil},
+        {"CP1_PROFILE_RECEIPT", nil},
+        {"CP1_PROFILE_SENTINEL_PATH", nil}
+      ]
+
+      {out, status} =
+        System.cmd("mix", ["test", __ENV__.file, "--warnings-as-errors"],
+          env: env,
+          stderr_to_stdout: true
         )
-        |> Enum.map(fn {:ok, result} -> result end)
 
-      assert Enum.count(results, &match?({:ok, _}, &1)) == 1
-      assert Enum.count(results, &match?({:error, %Ecto.Changeset{}}, &1)) == 1
-
-      league = Repo.get_by!(FootballMarket.Catalog.League, code: "PL")
-
-      season_results =
-        1..2
-        |> Task.async_stream(
-          fn _ ->
-            Catalog.create_season(%{league_id: league.id, start_year: 2032, end_year: 2033})
-          end,
-          max_concurrency: 2,
-          ordered: false
-        )
-        |> Enum.map(fn {:ok, result} -> result end)
-
-      assert Enum.count(season_results, &match?({:ok, _}, &1)) == 1
-      assert Enum.count(season_results, &match?({:error, %Ecto.Changeset{}}, &1)) == 1
-      season = Repo.get_by!(FootballMarket.Catalog.Season, league_id: league.id)
-
-      team_results =
-        1..2
-        |> Task.async_stream(
-          fn _ ->
-            Catalog.create_team(%{season_id: season.id, code: " DUPE ", name: " Duplicate Team "})
-          end,
-          max_concurrency: 2,
-          ordered: false
-        )
-        |> Enum.map(fn {:ok, result} -> result end)
-
-      assert Enum.count(team_results, &match?({:ok, _}, &1)) == 1
-      assert Enum.count(team_results, &match?({:error, %Ecto.Changeset{}}, &1)) == 1
-
-      Repo.delete_all(FootballMarket.Catalog.Team)
-      Repo.delete!(season)
-      Repo.delete!(league)
-    end)
-  end
-
-  test "concurrent player identity writes preserve one original record" do
-    Sandbox.unboxed_run(Repo, fn ->
-      {:ok, league} = Catalog.create_league(%{code: "PL", name: "Premier League"})
-
-      {:ok, season} =
-        Catalog.create_season(%{league_id: league.id, start_year: 2030, end_year: 2031})
-
-      {:ok, team} = Catalog.create_team(%{season_id: season.id, code: "RACE", name: "Race Team"})
-
-      position_results =
-        1..2
-        |> Task.async_stream(
-          fn _ -> Catalog.create_position(%{code: " RACE ", name: " Race Position "}) end,
-          max_concurrency: 2,
-          ordered: false
-        )
-        |> Enum.map(fn {:ok, result} -> result end)
-
-      assert Enum.count(position_results, &match?({:ok, _}, &1)) == 1
-      assert Enum.count(position_results, &match?({:error, %Ecto.Changeset{}}, &1)) == 1
-      position = Repo.get_by!(FootballMarket.Catalog.Position, code: "RACE")
-
-      attrs = %{
-        team_id: team.id,
-        position_id: position.id,
-        catalog_identity: "race-player",
-        display_name: "Race Player"
-      }
-
-      results =
-        1..2
-        |> Task.async_stream(fn _ -> Catalog.create_player(attrs) end,
-          max_concurrency: 2,
-          ordered: false
-        )
-        |> Enum.map(fn {:ok, result} -> result end)
-
-      assert Enum.count(results, &match?({:ok, _}, &1)) == 1
-      assert Enum.count(results, &match?({:error, %Ecto.Changeset{}}, &1)) == 1
-      assert Repo.aggregate(FootballMarket.Catalog.Player, :count) == 1
-
-      Repo.delete_all(FootballMarket.Catalog.Player)
-      Repo.delete!(position)
-      Repo.delete!(team)
-      Repo.delete!(season)
-      Repo.delete!(league)
-    end)
+      assert status == 0, String.slice(out, -4000, 4000)
+      assert Regex.match?(~r/Result: 6 passed/, out), out
+      refute String.contains?(out, "Failed:")
+    end
   end
 end

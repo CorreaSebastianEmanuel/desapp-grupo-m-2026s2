@@ -1,0 +1,266 @@
+[
+  {
+    "id": "toolchain",
+    "argv": [
+      "sh",
+      "scripts/check_toolchain.sh"
+    ],
+    "env": {},
+    "exit_code": 0,
+    "seconds": 0.81,
+    "log": "specs/054-player-match-statistics/qa-evidence/round3/toolchain.log"
+  },
+  {
+    "id": "prepare",
+    "argv": [
+      "mix",
+      "test.prepare"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "seconds": 0.66,
+    "log": "specs/054-player-match-statistics/qa-evidence/round3/prepare.log"
+  },
+  {
+    "id": "preflight",
+    "argv": [
+      "mix",
+      "infrastructure.verify"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "seconds": 0.62,
+    "log": "specs/054-player-match-statistics/qa-evidence/round3/preflight.log"
+  },
+  {
+    "id": "format",
+    "argv": [
+      "mix",
+      "format",
+      "--check-formatted"
+    ],
+    "env": {},
+    "exit_code": 0,
+    "seconds": 0.57,
+    "log": "specs/054-player-match-statistics/qa-evidence/round3/format.log"
+  },
+  {
+    "id": "compile",
+    "argv": [
+      "mix",
+      "compile",
+      "--warnings-as-errors"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "seconds": 0.51,
+    "log": "specs/054-player-match-statistics/qa-evidence/round3/compile.log"
+  },
+  {
+    "id": "input",
+    "argv": [
+      "mix",
+      "test",
+      "test/football_market/statistics/input_test.exs",
+      "test/football_market/statistics/count_test.exs",
+      "--warnings-as-errors"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "seconds": 0.94,
+    "log": "specs/054-player-match-statistics/qa-evidence/round3/input.log"
+  },
+  {
+    "id": "storage",
+    "argv": [
+      "mix",
+      "test",
+      "test/football_market/statistics/storage_test.exs",
+      "--warnings-as-errors"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "seconds": 2.49,
+    "log": "specs/054-player-match-statistics/qa-evidence/round3/storage.log"
+  },
+  {
+    "id": "integrity",
+    "argv": [
+      "mix",
+      "test",
+      "test/football_market/statistics/integrity_test.exs",
+      "--warnings-as-errors"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "seconds": 3.11,
+    "log": "specs/054-player-match-statistics/qa-evidence/round3/integrity.log"
+  },
+  {
+    "id": "concurrency",
+    "argv": [
+      "mix",
+      "test",
+      "test/football_market/statistics/concurrency_test.exs",
+      "--warnings-as-errors"
+    ],
+    "env": {
+      "MIX_ENV": "test",
+      "MIX_TEST_PARTITION": "statistics_concurrency"
+    },
+    "exit_code": 0,
+    "seconds": 1.43,
+    "log": "specs/054-player-match-statistics/qa-evidence/round3/concurrency.log"
+  },
+  {
+    "id": "catalog_concurrency",
+    "argv": [
+      "mix",
+      "test",
+      "test/football_market/catalog/constraints_test.exs",
+      "--warnings-as-errors"
+    ],
+    "env": {
+      "MIX_ENV": "test",
+      "MIX_TEST_PARTITION": "catalog_concurrency"
+    },
+    "exit_code": 0,
+    "seconds": 1.26,
+    "log": "specs/054-player-match-statistics/qa-evidence/round3/catalog_concurrency.log"
+  },
+  {
+    "id": "history",
+    "argv": [
+      "mix",
+      "test",
+      "test/football_market/statistics/history_test.exs",
+      "--warnings-as-errors"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "seconds": 1.5,
+    "log": "specs/054-player-match-statistics/qa-evidence/round3/history.log"
+  },
+  {
+    "id": "feature_scope",
+    "argv": [
+      "mix",
+      "test",
+      "test/football_market/statistics/scope_test.exs",
+      "--warnings-as-errors"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "seconds": 0.86,
+    "log": "specs/054-player-match-statistics/qa-evidence/round3/feature_scope.log"
+  },
+  {
+    "id": "unit_profile",
+    "argv": [
+      "mix",
+      "test.unit"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "seconds": 2.5,
+    "log": "specs/054-player-match-statistics/qa-evidence/round3/unit_profile.log"
+  },
+  {
+    "id": "integration_profile",
+    "argv": [
+      "mix",
+      "test.integration"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "seconds": 105.13,
+    "log": "specs/054-player-match-statistics/qa-evidence/round3/integration_profile.log"
+  },
+  {
+    "id": "integration_coverage",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "--include",
+      "performance",
+      "--only",
+      "integration",
+      "--cover"
+    ],
+    "env": {
+      "MIX_ENV": "test",
+      "CP1_PROFILE": "integration",
+      "CP1_PROFILE_COVERAGE": "1",
+      "CP1_COVERAGE_OUTPUT": "cover/cp1/statistics-diagnostics"
+    },
+    "exit_code": 0,
+    "seconds": 107.57,
+    "log": "specs/054-player-match-statistics/qa-evidence/round3/integration_coverage.log"
+  },
+  {
+    "id": "coverage",
+    "argv": [
+      "mix",
+      "test.cp1_coverage"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "seconds": 223.82,
+    "log": "specs/054-player-match-statistics/qa-evidence/round3/coverage.log"
+  },
+  {
+    "id": "regression",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "--include",
+      "performance"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "seconds": 129.83,
+    "log": "specs/054-player-match-statistics/qa-evidence/round3/regression.log"
+  },
+  {
+    "id": "diff",
+    "argv": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "env": {},
+    "exit_code": 0,
+    "seconds": 0.03,
+    "log": "specs/054-player-match-statistics/qa-evidence/round3/diff.log",
+    "diagnostic_attempt": {
+      "exit_code": 2,
+      "reason": "Temporary intent-to-add index included human feedback file with blank EOF; rerun manifest command with normal index."
+    }
+  }
+]

@@ -1,0 +1,76 @@
+defmodule FootballMarket.Statistics.ScopeTest do
+  use ExUnit.Case, async: true
+  @moduletag :unit
+  alias FootballMarket.Statistics.{Input, Match, Performance}
+
+  test "FR-013 context contract has no web provider cache or financial dependency" do
+    files = [
+      "lib/football_market/statistics.ex" | Path.wildcard("lib/football_market/statistics/*.ex")
+    ]
+
+    assert length(files) == 7
+
+    for path <- files do
+      source = File.read!(path)
+
+      refute Regex.match?(
+               ~r/FootballMarketWeb|FootballMarket\.(Providers|Valuation|Quotes|Trading|Cache)|\b(Finch|Req|Redix|HTTPoison)\b/,
+               source
+             ),
+             path
+    end
+
+    assert File.read!("specs/054-player-match-statistics/contracts/statistics-context.md") =~
+             "No HTTP route"
+
+    forbidden = [:score, :weight, :price, :money, :provider_id, :rating, :provenance]
+
+    for module <- [Match, Performance], field <- forbidden do
+      refute field in module.__schema__(:fields)
+    end
+
+    for field <- forbidden do
+      assert {:error, %{reason: :unsupported_field}} = Input.performance(%{field => 1})
+      assert {:error, %{reason: :unsupported_field}} = Input.match(%{field => 1})
+    end
+  end
+
+  test "product edits stay within plan boundary" do
+    {out, 0} =
+      System.cmd("git", [
+        "status",
+        "--porcelain",
+        "--untracked-files=all",
+        "--",
+        "lib",
+        "priv",
+        "test"
+      ])
+
+    allowed = [
+      "lib/football_market/statistics.ex",
+      "lib/football_market/statistics/",
+      "priv/repo/migrations/20261003000000_create_match_statistics.exs",
+      "priv/repo/migrations/20261004000000_align_statistics_identity_whitespace.exs",
+      "lib/football_market/catalog/team.ex",
+      "lib/football_market/catalog/season.ex",
+      "lib/football_market/catalog/position.ex",
+      "test/support/statistics_case.ex",
+      "test/support/catalog_concurrency_case.ex",
+      "test/football_market/catalog/constraints_test.exs",
+      "test/football_market/statistics/"
+    ]
+
+    allowed_ci_paths = [
+      "test/ci/quality_baseline_contract_test.exs",
+      "test/ci/fixtures/quality-baseline.sha256"
+    ]
+
+    for line <- String.split(out, "\n", trim: true) do
+      path = String.slice(line, 3..-1//1)
+
+      assert path in allowed_ci_paths or Enum.any?(allowed, &String.starts_with?(path, &1)),
+             "outside plan: #{path}"
+    end
+  end
+end

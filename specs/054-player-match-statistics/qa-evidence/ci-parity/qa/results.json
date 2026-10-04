@@ -1,0 +1,325 @@
+{
+  "path_prefix": [
+    "/private/tmp/task020-elixir-1.20.3/bin",
+    "/private/tmp/node-v24.0.0-darwin-x64/bin"
+  ],
+  "manifest_sha256": "095567afcc373104f358623000a4907bf7c41b105709389f96495b0a2037aab2",
+  "checks": [
+    {
+      "id": "toolchain",
+      "argv": [
+        "sh",
+        "scripts/check_toolchain.sh"
+      ],
+      "env": {},
+      "execution_overrides": {},
+      "started_at": "2026-10-04T14:13:32.421914+00:00",
+      "duration_seconds": 1.24,
+      "exit_code": 0,
+      "log": "toolchain.log"
+    },
+    {
+      "id": "prepare",
+      "argv": [
+        "mix",
+        "test.prepare"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "execution_overrides": {},
+      "started_at": "2026-10-04T14:13:33.663021+00:00",
+      "duration_seconds": 1.1,
+      "exit_code": 0,
+      "log": "prepare.log"
+    },
+    {
+      "id": "preflight",
+      "argv": [
+        "mix",
+        "infrastructure.verify"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "execution_overrides": {},
+      "started_at": "2026-10-04T14:13:34.766367+00:00",
+      "duration_seconds": 0.9,
+      "exit_code": 0,
+      "log": "preflight.log"
+    },
+    {
+      "id": "format",
+      "argv": [
+        "mix",
+        "format",
+        "--check-formatted"
+      ],
+      "env": {},
+      "execution_overrides": {},
+      "started_at": "2026-10-04T14:13:35.668674+00:00",
+      "duration_seconds": 0.84,
+      "exit_code": 0,
+      "log": "format.log"
+    },
+    {
+      "id": "compile",
+      "argv": [
+        "mix",
+        "compile",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "execution_overrides": {},
+      "started_at": "2026-10-04T14:13:36.512837+00:00",
+      "duration_seconds": 0.72,
+      "exit_code": 0,
+      "log": "compile.log"
+    },
+    {
+      "id": "ci_database_contract",
+      "argv": [
+        "mix",
+        "test",
+        "test/ci/quality_baseline_contract_test.exs",
+        "test/ci/sonarcloud_contract_test.exs",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "execution_overrides": {},
+      "started_at": "2026-10-04T14:13:37.231961+00:00",
+      "duration_seconds": 1.59,
+      "exit_code": 0,
+      "log": "ci_database_contract.log"
+    },
+    {
+      "id": "input",
+      "argv": [
+        "mix",
+        "test",
+        "test/football_market/statistics/input_test.exs",
+        "test/football_market/statistics/count_test.exs",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "execution_overrides": {},
+      "started_at": "2026-10-04T14:13:38.821672+00:00",
+      "duration_seconds": 1.22,
+      "exit_code": 0,
+      "log": "input.log"
+    },
+    {
+      "id": "storage",
+      "argv": [
+        "mix",
+        "test",
+        "test/football_market/statistics/storage_test.exs",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "execution_overrides": {},
+      "started_at": "2026-10-04T14:13:40.045662+00:00",
+      "duration_seconds": 3.55,
+      "exit_code": 0,
+      "log": "storage.log"
+    },
+    {
+      "id": "integrity",
+      "argv": [
+        "mix",
+        "test",
+        "test/football_market/statistics/integrity_test.exs",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "execution_overrides": {},
+      "started_at": "2026-10-04T14:13:43.593832+00:00",
+      "duration_seconds": 4.23,
+      "exit_code": 0,
+      "log": "integrity.log"
+    },
+    {
+      "id": "concurrency",
+      "argv": [
+        "mix",
+        "test",
+        "test/football_market/statistics/concurrency_test.exs",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "MIX_TEST_PARTITION": "statistics_concurrency"
+      },
+      "execution_overrides": {},
+      "started_at": "2026-10-04T14:13:47.824972+00:00",
+      "duration_seconds": 1.93,
+      "exit_code": 0,
+      "log": "concurrency.log"
+    },
+    {
+      "id": "catalog_concurrency",
+      "argv": [
+        "mix",
+        "test",
+        "test/football_market/catalog/constraints_test.exs",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "MIX_TEST_PARTITION": "catalog_concurrency"
+      },
+      "execution_overrides": {},
+      "started_at": "2026-10-04T14:13:49.753713+00:00",
+      "duration_seconds": 1.72,
+      "exit_code": 0,
+      "log": "catalog_concurrency.log"
+    },
+    {
+      "id": "history",
+      "argv": [
+        "mix",
+        "test",
+        "test/football_market/statistics/history_test.exs",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "execution_overrides": {},
+      "started_at": "2026-10-04T14:13:51.472627+00:00",
+      "duration_seconds": 2.06,
+      "exit_code": 0,
+      "log": "history.log"
+    },
+    {
+      "id": "feature_scope",
+      "argv": [
+        "mix",
+        "test",
+        "test/football_market/statistics/scope_test.exs",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "execution_overrides": {},
+      "started_at": "2026-10-04T14:13:53.531228+00:00",
+      "duration_seconds": 1.13,
+      "exit_code": 0,
+      "log": "feature_scope.log"
+    },
+    {
+      "id": "unit_profile",
+      "argv": [
+        "mix",
+        "test.unit"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "execution_overrides": {},
+      "started_at": "2026-10-04T14:13:54.665815+00:00",
+      "duration_seconds": 3.55,
+      "exit_code": 0,
+      "log": "unit_profile.log"
+    },
+    {
+      "id": "integration_profile",
+      "argv": [
+        "mix",
+        "test.integration"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "execution_overrides": {},
+      "started_at": "2026-10-04T14:13:58.215169+00:00",
+      "duration_seconds": 385.75,
+      "exit_code": 0,
+      "log": "integration_profile.log"
+    },
+    {
+      "id": "integration_coverage",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "--include",
+        "performance",
+        "--only",
+        "integration",
+        "--cover"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "CP1_PROFILE": "integration",
+        "CP1_PROFILE_COVERAGE": "1",
+        "CP1_COVERAGE_OUTPUT": "cover/cp1/statistics-diagnostics"
+      },
+      "execution_overrides": {},
+      "started_at": "2026-10-04T14:20:23.952287+00:00",
+      "duration_seconds": 116.16,
+      "exit_code": 0,
+      "log": "integration_coverage.log"
+    },
+    {
+      "id": "coverage",
+      "argv": [
+        "mix",
+        "test.cp1_coverage"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "execution_overrides": {
+        "GIT_INDEX_FILE": "/private/tmp/task020-ci-parity-independent-qa/coverage.index"
+      },
+      "started_at": "2026-10-04T14:22:20.237427+00:00",
+      "duration_seconds": 123.51,
+      "exit_code": 0,
+      "log": "coverage.log"
+    },
+    {
+      "id": "regression",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "--include",
+        "performance"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "execution_overrides": {},
+      "started_at": "2026-10-04T14:24:23.746128+00:00",
+      "duration_seconds": 85.25,
+      "exit_code": 0,
+      "log": "regression.log"
+    },
+    {
+      "id": "diff",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "env": {},
+      "execution_overrides": {},
+      "started_at": "2026-10-04T14:25:48.994712+00:00",
+      "duration_seconds": 0.06,
+      "exit_code": 0,
+      "log": "diff.log"
+    }
+  ]
+}

@@ -1,0 +1,242 @@
+[
+  {
+    "id": "toolchain",
+    "argv": [
+      "sh",
+      "scripts/check_toolchain.sh"
+    ],
+    "env": {},
+    "exit": 0,
+    "seconds": 0.81
+  },
+  {
+    "id": "prepare",
+    "argv": [
+      "mix",
+      "test.prepare"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit": 0,
+    "seconds": 0.67
+  },
+  {
+    "id": "preflight",
+    "argv": [
+      "mix",
+      "infrastructure.verify"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit": 0,
+    "seconds": 0.66
+  },
+  {
+    "id": "format",
+    "argv": [
+      "mix",
+      "format",
+      "--check-formatted"
+    ],
+    "env": {},
+    "exit": 0,
+    "seconds": 0.56
+  },
+  {
+    "id": "compile",
+    "argv": [
+      "mix",
+      "compile",
+      "--warnings-as-errors"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit": 0,
+    "seconds": 0.5
+  },
+  {
+    "id": "input",
+    "argv": [
+      "mix",
+      "test",
+      "test/football_market/statistics/input_test.exs",
+      "test/football_market/statistics/count_test.exs",
+      "--warnings-as-errors"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit": 0,
+    "seconds": 0.92
+  },
+  {
+    "id": "storage",
+    "argv": [
+      "mix",
+      "test",
+      "test/football_market/statistics/storage_test.exs",
+      "--warnings-as-errors"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit": 0,
+    "seconds": 2.32
+  },
+  {
+    "id": "integrity",
+    "argv": [
+      "mix",
+      "test",
+      "test/football_market/statistics/integrity_test.exs",
+      "--warnings-as-errors"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit": 0,
+    "seconds": 2.22
+  },
+  {
+    "id": "concurrency",
+    "argv": [
+      "mix",
+      "test",
+      "test/football_market/statistics/concurrency_test.exs",
+      "--warnings-as-errors"
+    ],
+    "env": {
+      "MIX_ENV": "test",
+      "MIX_TEST_PARTITION": "statistics_concurrency"
+    },
+    "exit": 0,
+    "seconds": 1.34
+  },
+  {
+    "id": "history",
+    "argv": [
+      "mix",
+      "test",
+      "test/football_market/statistics/history_test.exs",
+      "--warnings-as-errors"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit": 0,
+    "seconds": 1.49
+  },
+  {
+    "id": "feature_scope",
+    "argv": [
+      "mix",
+      "test",
+      "test/football_market/statistics/scope_test.exs",
+      "--warnings-as-errors"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit": 0,
+    "seconds": 0.93
+  },
+  {
+    "id": "unit_profile",
+    "argv": [
+      "mix",
+      "test.unit"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit": 0,
+    "seconds": 2.74
+  },
+  {
+    "id": "integration_profile",
+    "argv": [
+      "mix",
+      "test.integration"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit": 0,
+    "seconds": 102.55
+  },
+  {
+    "id": "integration_coverage",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "--include",
+      "performance",
+      "--only",
+      "integration",
+      "--cover"
+    ],
+    "env": {
+      "MIX_ENV": "test",
+      "CP1_PROFILE": "integration",
+      "CP1_PROFILE_COVERAGE": "1",
+      "CP1_COVERAGE_OUTPUT": "cover/cp1/statistics-diagnostics"
+    },
+    "exit": 0,
+    "seconds": 109.05
+  },
+  {
+    "id": "coverage",
+    "argv": [
+      "mix",
+      "test.cp1_coverage"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit": 1,
+    "seconds": 1.25
+  },
+  {
+    "id": "regression",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "--include",
+      "performance"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit": 0,
+    "seconds": 85.58
+  },
+  {
+    "id": "diff",
+    "argv": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "env": {},
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "id": "coverage",
+    "argv": [
+      "mix",
+      "test.cp1_coverage"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit": 0,
+    "seconds": 94.17,
+    "note": "retry after indexing authored QA evidence in disposable index; capture outside repository during snapshot"
+  }
+]

@@ -1,0 +1,9 @@
+{
+  "exit_code": 0,
+  "check_identity": "784b07a7ad8f09838980bb84275eb8452a8400923ace5ca9668ff4cf2e631132",
+  "source_before": "73145bac7b3872673d83c678658252330a2642d64f193c2d860f797a7fd2d32f",
+  "source_after": "73145bac7b3872673d83c678658252330a2642d64f193c2d860f797a7fd2d32f",
+  "inputs": "39e4786676a7a606e71e5a1605687fbed3e2f2db594541e5e62aed72efde4721",
+  "evidence": ".agentflow/runs/checks/3c74422dd866478b95a64679cc0be76e.log",
+  "evidence_sha256": "8ef8e0310c11efe4efab2b69ddfff4418914c5298d2f0bd31d27352de01af2c6"
+}

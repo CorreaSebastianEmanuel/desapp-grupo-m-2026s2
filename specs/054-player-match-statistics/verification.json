@@ -1,0 +1,318 @@
+{
+  "schema_version": 1,
+  "runtime_required": false,
+  "checks": [
+    {
+      "id": "toolchain",
+      "argv": [
+        "sh",
+        "scripts/check_toolchain.sh"
+      ]
+    },
+    {
+      "id": "prepare",
+      "argv": [
+        "mix",
+        "test.prepare"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "preflight",
+      "argv": [
+        "mix",
+        "infrastructure.verify"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "format",
+      "argv": [
+        "mix",
+        "format",
+        "--check-formatted"
+      ]
+    },
+    {
+      "id": "compile",
+      "argv": [
+        "mix",
+        "compile",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "ci_database_contract",
+      "argv": [
+        "mix",
+        "test",
+        "test/ci/quality_baseline_contract_test.exs",
+        "test/ci/sonarcloud_contract_test.exs",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "input",
+      "argv": [
+        "mix",
+        "test",
+        "test/football_market/statistics/input_test.exs",
+        "test/football_market/statistics/count_test.exs",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "storage",
+      "argv": [
+        "mix",
+        "test",
+        "test/football_market/statistics/storage_test.exs",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "integrity",
+      "argv": [
+        "mix",
+        "test",
+        "test/football_market/statistics/integrity_test.exs",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "concurrency",
+      "argv": [
+        "mix",
+        "test",
+        "test/football_market/statistics/concurrency_test.exs",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "MIX_TEST_PARTITION": "statistics_concurrency"
+      }
+    },
+    {
+      "id": "catalog_concurrency",
+      "argv": [
+        "mix",
+        "test",
+        "test/football_market/catalog/constraints_test.exs",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "MIX_TEST_PARTITION": "catalog_concurrency"
+      }
+    },
+    {
+      "id": "history",
+      "argv": [
+        "mix",
+        "test",
+        "test/football_market/statistics/history_test.exs",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "feature_scope",
+      "argv": [
+        "mix",
+        "test",
+        "test/football_market/statistics/scope_test.exs",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "unit_profile",
+      "argv": [
+        "mix",
+        "test.unit"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "integration_profile",
+      "argv": [
+        "mix",
+        "test.integration"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "integration_coverage",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "--include",
+        "performance",
+        "--only",
+        "integration",
+        "--cover"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "CP1_PROFILE": "integration",
+        "CP1_PROFILE_COVERAGE": "1",
+        "CP1_COVERAGE_OUTPUT": "cover/cp1/statistics-diagnostics"
+      }
+    },
+    {
+      "id": "coverage",
+      "argv": [
+        "mix",
+        "test.cp1_coverage"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "regression",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "--include",
+        "performance"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "diff",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ]
+    }
+  ],
+  "coverage": {
+    "FR-001": [
+      "storage",
+      "history"
+    ],
+    "FR-002": [
+      "storage",
+      "integrity",
+      "concurrency"
+    ],
+    "FR-003": [
+      "storage",
+      "integrity",
+      "concurrency",
+      "history"
+    ],
+    "FR-004": [
+      "integrity",
+      "concurrency"
+    ],
+    "FR-005": [
+      "input",
+      "storage"
+    ],
+    "FR-006": [
+      "input",
+      "storage",
+      "feature_scope"
+    ],
+    "FR-007": [
+      "input",
+      "storage",
+      "integrity"
+    ],
+    "FR-008": [
+      "integrity",
+      "concurrency",
+      "history"
+    ],
+    "FR-009": [
+      "integrity",
+      "concurrency",
+      "input"
+    ],
+    "FR-010": [
+      "input",
+      "storage",
+      "history",
+      "integrity"
+    ],
+    "FR-011": [
+      "history",
+      "feature_scope"
+    ],
+    "FR-012": [
+      "input",
+      "storage",
+      "integrity",
+      "concurrency",
+      "history",
+      "unit_profile",
+      "integration_profile",
+      "regression",
+      "integration_coverage",
+      "catalog_concurrency"
+    ],
+    "FR-013": [
+      "feature_scope"
+    ],
+    "SC-001": [
+      "storage"
+    ],
+    "SC-002": [
+      "input",
+      "integrity",
+      "concurrency"
+    ],
+    "SC-003": [
+      "history"
+    ],
+    "SC-004": [
+      "integrity",
+      "concurrency",
+      "history"
+    ],
+    "SC-005": [
+      "storage",
+      "history"
+    ]
+  },
+  "task_stages": {
+    "T028": "qa",
+    "T029": "review",
+    "T033": "qa",
+    "T034": "review"
+  }
+}

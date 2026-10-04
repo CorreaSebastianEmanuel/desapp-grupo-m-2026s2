@@ -1,0 +1,13 @@
+diff --git a/.github/workflows/quality-baseline.yml b/.github/workflows/quality-baseline.yml
+index eacfe0b..b88ade5 100644
+--- a/.github/workflows/quality-baseline.yml
++++ b/.github/workflows/quality-baseline.yml
+@@ -19,7 +19,7 @@ jobs:
+     runs-on: ubuntu-24.04
+     services:
+       postgres:
+-        image: postgres:16
++        image: postgres:17.6-alpine@sha256:ef257d85f76e48da1c64832459b59fcaba1a4dac97bf5d7450c77753542eee94
+         env:
+           POSTGRES_USER: postgres
+           POSTGRES_PASSWORD: postgres

@@ -1,0 +1,73 @@
+{
+  "acceptance": {
+    "argv": [
+      "mix",
+      "test",
+      "specs/054-player-match-statistics/qa-evidence/round3/acceptance_test.exs",
+      "--warnings-as-errors"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "passed": 4,
+    "log": "acceptance.log"
+  },
+  "catalog_repeat": {
+    "argv": [
+      "mix",
+      "test",
+      "test/football_market/catalog/constraints_test.exs",
+      "--warnings-as-errors"
+    ],
+    "env": {
+      "MIX_ENV": "test",
+      "MIX_TEST_PARTITION": "catalog_concurrency"
+    },
+    "exit_code": 0,
+    "passed": 6,
+    "log": "catalog-repeat.log"
+  },
+  "database": {
+    "argv": [
+      "docker",
+      "compose",
+      "exec",
+      "-T",
+      "postgres",
+      "psql",
+      "-U",
+      "postgres",
+      "-d",
+      "football_market_test",
+      "-c",
+      "SHOW server_version;",
+      "-c",
+      "SELECT version FROM schema_migrations ORDER BY version;"
+    ],
+    "exit_code": 0,
+    "log": "postgres-version-migrations.log"
+  },
+  "runtime_images": {
+    "argv": [
+      "docker",
+      "compose",
+      "ps",
+      "--format",
+      "json"
+    ],
+    "exit_code": 0,
+    "log": "runtime-images.jsonl"
+  },
+  "workflow_diff": {
+    "argv": [
+      "git",
+      "diff",
+      "--",
+      ".github/workflows/quality-baseline.yml"
+    ],
+    "exit_code": 0,
+    "log": "workflow.diff"
+  },
+  "fingerprint_sha256": "036dceae96623134105d6a61b100d144ad55a469f54b1a43c6283d997abf863f"
+}

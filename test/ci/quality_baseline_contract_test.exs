@@ -6,6 +6,8 @@ defmodule FootballMarket.QualityBaselineContractTest do
   @root Path.expand("../..", __DIR__)
   @workflow Path.join(@root, ".github/workflows/quality-baseline.yml")
   @readme Path.join(@root, "README.md")
+  @compose Path.join(@root, "compose.yaml")
+  @postgres_image "postgres:17.6-alpine@sha256:ef257d85f76e48da1c64832459b59fcaba1a4dac97bf5d7450c77753542eee94"
 
   setup_all do
     ruby = """
@@ -17,7 +19,15 @@ defmodule FootballMarket.QualityBaselineContractTest do
     """
 
     {json, 0} = System.cmd("ruby", ["-e", ruby, @workflow], stderr_to_stdout: true)
-    {:ok, workflow_document: Jason.decode!(json)}
+    {compose_json, 0} = System.cmd("ruby", ["-e", ruby, @compose], stderr_to_stdout: true)
+
+    {:ok, workflow_document: Jason.decode!(json), compose_document: Jason.decode!(compose_json)}
+  end
+
+  test "CI PostgreSQL uses the exact planned local service image", context do
+    image = context.workflow_document["jobs"]["quality-baseline"]["services"]["postgres"]["image"]
+    assert image == @postgres_image
+    assert image == context.compose_document["services"]["postgres"]["image"]
   end
 
   test "workflow gates main pull requests and pushes in one least-privilege job", context do
@@ -43,7 +53,6 @@ defmodule FootballMarket.QualityBaselineContractTest do
     assert workflow =~
              "key: ${{ runner.os }}-otp-29.0.6-elixir-1.20.3-${{ hashFiles('mix.lock') }}"
 
-    assert workflow =~ "postgres:16"
     assert workflow =~ "pg_isready -U postgres -d football_market_test"
     assert workflow =~ "mix deps.get --locked"
     assert workflow =~ "run: MIX_ENV=test mix deps.compile"

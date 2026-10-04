@@ -1,19 +1,19 @@
-# Develop handoff — TASK-020 feedback 3
+# Develop handoff — TASK-020 CI PostgreSQL parity
 
-## Changes and decisions
+## Delta and decisions
 
-Preserved completed Statistics storage, immutable database guards, atomic batches, exact counts/instants and deterministic history. B1 retains all 25 Unicode whitespace cases and corrective-migration safeguards. B2 rejects original NUL/invalid UTF-8 identities before SQL on writes/scoped reads, with indexed atomic batch failures; maintained tests are in input_test.exs, storage_test.exs and integrity_test.exs.
+Completed T030–T032 within the plan delivery amendment. The only workflow edit replaces PostgreSQL 16 with the exact planned PostgreSQL 17.6 Alpine tag/digest from unchanged compose.yaml. The existing quality-baseline contract now parses both service images and requires exact parity; every other assertion stays intact. Refreshed the existing byte fingerprint after confirming the one-line image diff. Scope admits only the two exact CI test/fixture paths, not a broader CI prefix. No product code, migrations, CI commands, permissions, dependencies or other services changed.
 
-Previously diagnosed B3 causality: the original Catalog Task.async_stream workers inherited ancestor Sandbox ownership rather than acquiring lifetime-owned connections; owner exit interrupted their Repo calls (feedback 2; pre-repair constraints_test.exs diff). CatalogConcurrencyCase now establishes each worker's unboxed connection, asserts distinct backend PIDs, gates readiness, propagates failures and registers task/fixture cleanup. Both Catalog races preserve conflict, count and original-row assertions. Default drivers clear inherited profile evidence variables and assert dedicated child execution.
+## Executed evidence
 
-No further product changes, database resets or publication occurred in this resume. Feedback 3's approved diagnostic cleanup was already completed.
+Before changing CI, `MIX_ENV=test mix test test/ci/quality_baseline_contract_test.exs --warnings-as-errors` failed only the added image assertion: postgres:16 versus the required 17.6 pin (5/6 passed). After alignment, the quality-baseline and SonarCloud contracts passed all 13 tests. Evidence: qa-evidence/ci-parity/develop-red.log and develop-green.log.
 
-## Command outcomes
+Added ci_database_contract to verification.json while preserving all 18 original checks; T033/T034 are explicit independent gate deferrals. `python3 /private/tmp/task020_ci_develop_checks.py` ran all 19 checks sequentially via `python3 scripts/agentflow_check.py <id>` after final source stabilization. Every check returned zero, with source_changed false; canonical handoffs/check-*.json identify command evidence. Bounded summary: qa-evidence/ci-parity/develop-results.json. Full regression, profiles, coverage, migration preparation, storage/integrity, both concurrency checks and feature scope all passed.
 
-All 18 verification.json checks ran sequentially through python3 scripts/agentflow_check.py and passed on unchanged sources; see handoffs/check-*.json. Catalog concurrency passed twice. Full regression: 215 passed. Informational integration coverage: 93.17%; CP1 report: cover/cp1/1f0a80078f11c082bd90278935f8cf7c6d3a692c-20261004T023819Z-67532/report.html.
+Environment: restored Elixir 1.20.3 in /private/tmp/task020-elixir-1.20.3/bin and Node 24.0.0 in /private/tmp/node-v24.0.0-darwin-x64/bin. OTP is 29.0.6. Started existing Docker services without reset; readiness/preflight passed. Mix requires local socket access outside the sandbox. Coverage used a separate intent-to-add GIT_INDEX_FILE and left the real index unchanged. Initial environment attempts (missing temporary tools/stopped services and denied Mix sockets) were not attributed to the image regression; the retained red evidence is the explicit image assertion failure on the correct environment.
 
-Use PATH prefixes /private/tmp/task020-elixir-1.20.3/bin and /private/tmp/node-v24.0.0-darwin-x64/bin; system defaults fail version prerequisites. Mix requires socket/service access outside the sandbox. Coverage used an isolated intent-to-add GIT_INDEX_FILE (/private/tmp/task020-develop-index-qsrdglfm/index), preserving the real index and source fingerprint without commits.
+## Independent gates and delivery
 
-## QA guidance and residual risks
+Fresh QA must rerun every manifest check and challenge exact image parity plus corrective migration compatibility on PostgreSQL 17.6. Fresh final review must assess the one-line workflow diff, unchanged fingerprint enforcement, exact scope allowlist and current QA evidence. Earlier PASS reports apply only to the earlier revision; both amended gates remain pending. Keep canonical files stable during independent coverage; use temporary logs until it finishes.
 
-Independently rerun all checks and adversarially challenge malformed identity write/read/batch errors, Unicode migration collisions/blanks, independent races, immutability, historical transfers and microsecond bounds. Reconcile tasks/artifacts and run python3 scripts/workflow_artifact_probe.py develop --readiness. T028/T029 remain independent gates; no QA/review verdict is claimed. Keep late-arriving quote input membership/reproducibility in TASK-022; immutable rows alone do not settle it.
+The existing PR is #26. Update its feature branch only after fresh independent QA and final review PASS; require green remote CI for the resulting head before declaring delivery complete. Human merge authority remains unchanged. TASK-022 must still capture immutable selected input membership for quote reproducibility under late arrivals.

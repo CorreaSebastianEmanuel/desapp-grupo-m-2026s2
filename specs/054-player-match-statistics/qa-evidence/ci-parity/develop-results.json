@@ -1,0 +1,78 @@
+[
+  {
+    "id": "toolchain",
+    "exit_code": 0
+  },
+  {
+    "id": "prepare",
+    "exit_code": 0
+  },
+  {
+    "id": "preflight",
+    "exit_code": 0
+  },
+  {
+    "id": "format",
+    "exit_code": 0
+  },
+  {
+    "id": "compile",
+    "exit_code": 0
+  },
+  {
+    "id": "ci_database_contract",
+    "exit_code": 0
+  },
+  {
+    "id": "input",
+    "exit_code": 0
+  },
+  {
+    "id": "storage",
+    "exit_code": 0
+  },
+  {
+    "id": "integrity",
+    "exit_code": 0
+  },
+  {
+    "id": "concurrency",
+    "exit_code": 0
+  },
+  {
+    "id": "catalog_concurrency",
+    "exit_code": 0
+  },
+  {
+    "id": "history",
+    "exit_code": 0
+  },
+  {
+    "id": "feature_scope",
+    "exit_code": 0
+  },
+  {
+    "id": "unit_profile",
+    "exit_code": 0
+  },
+  {
+    "id": "integration_profile",
+    "exit_code": 0
+  },
+  {
+    "id": "integration_coverage",
+    "exit_code": 0
+  },
+  {
+    "id": "coverage",
+    "exit_code": 0
+  },
+  {
+    "id": "regression",
+    "exit_code": 0
+  },
+  {
+    "id": "diff",
+    "exit_code": 0
+  }
+]

@@ -61,9 +61,16 @@ defmodule FootballMarket.Statistics.ScopeTest do
       "test/football_market/statistics/"
     ]
 
+    allowed_ci_paths = [
+      "test/ci/quality_baseline_contract_test.exs",
+      "test/ci/fixtures/quality-baseline.sha256"
+    ]
+
     for line <- String.split(out, "\n", trim: true) do
       path = String.slice(line, 3..-1//1)
-      assert Enum.any?(allowed, &String.starts_with?(path, &1)), "outside plan: #{path}"
+
+      assert path in allowed_ci_paths or Enum.any?(allowed, &String.starts_with?(path, &1)),
+             "outside plan: #{path}"
     end
   end
 end

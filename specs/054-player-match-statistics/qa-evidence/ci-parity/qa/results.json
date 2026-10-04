@@ -1,13 +1,22 @@
 {
-  "schema_version": 1,
-  "runtime_required": false,
+  "path_prefix": [
+    "/private/tmp/task020-elixir-1.20.3/bin",
+    "/private/tmp/node-v24.0.0-darwin-x64/bin"
+  ],
+  "manifest_sha256": "095567afcc373104f358623000a4907bf7c41b105709389f96495b0a2037aab2",
   "checks": [
     {
       "id": "toolchain",
       "argv": [
         "sh",
         "scripts/check_toolchain.sh"
-      ]
+      ],
+      "env": {},
+      "execution_overrides": {},
+      "started_at": "2026-10-04T14:13:32.421914+00:00",
+      "duration_seconds": 1.24,
+      "exit_code": 0,
+      "log": "toolchain.log"
     },
     {
       "id": "prepare",
@@ -17,7 +26,12 @@
       ],
       "env": {
         "MIX_ENV": "test"
-      }
+      },
+      "execution_overrides": {},
+      "started_at": "2026-10-04T14:13:33.663021+00:00",
+      "duration_seconds": 1.1,
+      "exit_code": 0,
+      "log": "prepare.log"
     },
     {
       "id": "preflight",
@@ -27,7 +41,12 @@
       ],
       "env": {
         "MIX_ENV": "test"
-      }
+      },
+      "execution_overrides": {},
+      "started_at": "2026-10-04T14:13:34.766367+00:00",
+      "duration_seconds": 0.9,
+      "exit_code": 0,
+      "log": "preflight.log"
     },
     {
       "id": "format",
@@ -35,7 +54,13 @@
         "mix",
         "format",
         "--check-formatted"
-      ]
+      ],
+      "env": {},
+      "execution_overrides": {},
+      "started_at": "2026-10-04T14:13:35.668674+00:00",
+      "duration_seconds": 0.84,
+      "exit_code": 0,
+      "log": "format.log"
     },
     {
       "id": "compile",
@@ -46,7 +71,12 @@
       ],
       "env": {
         "MIX_ENV": "test"
-      }
+      },
+      "execution_overrides": {},
+      "started_at": "2026-10-04T14:13:36.512837+00:00",
+      "duration_seconds": 0.72,
+      "exit_code": 0,
+      "log": "compile.log"
     },
     {
       "id": "ci_database_contract",
@@ -59,7 +89,12 @@
       ],
       "env": {
         "MIX_ENV": "test"
-      }
+      },
+      "execution_overrides": {},
+      "started_at": "2026-10-04T14:13:37.231961+00:00",
+      "duration_seconds": 1.59,
+      "exit_code": 0,
+      "log": "ci_database_contract.log"
     },
     {
       "id": "input",
@@ -72,7 +107,12 @@
       ],
       "env": {
         "MIX_ENV": "test"
-      }
+      },
+      "execution_overrides": {},
+      "started_at": "2026-10-04T14:13:38.821672+00:00",
+      "duration_seconds": 1.22,
+      "exit_code": 0,
+      "log": "input.log"
     },
     {
       "id": "storage",
@@ -84,7 +124,12 @@
       ],
       "env": {
         "MIX_ENV": "test"
-      }
+      },
+      "execution_overrides": {},
+      "started_at": "2026-10-04T14:13:40.045662+00:00",
+      "duration_seconds": 3.55,
+      "exit_code": 0,
+      "log": "storage.log"
     },
     {
       "id": "integrity",
@@ -96,7 +141,12 @@
       ],
       "env": {
         "MIX_ENV": "test"
-      }
+      },
+      "execution_overrides": {},
+      "started_at": "2026-10-04T14:13:43.593832+00:00",
+      "duration_seconds": 4.23,
+      "exit_code": 0,
+      "log": "integrity.log"
     },
     {
       "id": "concurrency",
@@ -109,7 +159,12 @@
       "env": {
         "MIX_ENV": "test",
         "MIX_TEST_PARTITION": "statistics_concurrency"
-      }
+      },
+      "execution_overrides": {},
+      "started_at": "2026-10-04T14:13:47.824972+00:00",
+      "duration_seconds": 1.93,
+      "exit_code": 0,
+      "log": "concurrency.log"
     },
     {
       "id": "catalog_concurrency",
@@ -122,7 +177,12 @@
       "env": {
         "MIX_ENV": "test",
         "MIX_TEST_PARTITION": "catalog_concurrency"
-      }
+      },
+      "execution_overrides": {},
+      "started_at": "2026-10-04T14:13:49.753713+00:00",
+      "duration_seconds": 1.72,
+      "exit_code": 0,
+      "log": "catalog_concurrency.log"
     },
     {
       "id": "history",
@@ -134,7 +194,12 @@
       ],
       "env": {
         "MIX_ENV": "test"
-      }
+      },
+      "execution_overrides": {},
+      "started_at": "2026-10-04T14:13:51.472627+00:00",
+      "duration_seconds": 2.06,
+      "exit_code": 0,
+      "log": "history.log"
     },
     {
       "id": "feature_scope",
@@ -146,7 +211,12 @@
       ],
       "env": {
         "MIX_ENV": "test"
-      }
+      },
+      "execution_overrides": {},
+      "started_at": "2026-10-04T14:13:53.531228+00:00",
+      "duration_seconds": 1.13,
+      "exit_code": 0,
+      "log": "feature_scope.log"
     },
     {
       "id": "unit_profile",
@@ -156,7 +226,12 @@
       ],
       "env": {
         "MIX_ENV": "test"
-      }
+      },
+      "execution_overrides": {},
+      "started_at": "2026-10-04T14:13:54.665815+00:00",
+      "duration_seconds": 3.55,
+      "exit_code": 0,
+      "log": "unit_profile.log"
     },
     {
       "id": "integration_profile",
@@ -166,7 +241,12 @@
       ],
       "env": {
         "MIX_ENV": "test"
-      }
+      },
+      "execution_overrides": {},
+      "started_at": "2026-10-04T14:13:58.215169+00:00",
+      "duration_seconds": 385.75,
+      "exit_code": 0,
+      "log": "integration_profile.log"
     },
     {
       "id": "integration_coverage",
@@ -185,7 +265,12 @@
         "CP1_PROFILE": "integration",
         "CP1_PROFILE_COVERAGE": "1",
         "CP1_COVERAGE_OUTPUT": "cover/cp1/statistics-diagnostics"
-      }
+      },
+      "execution_overrides": {},
+      "started_at": "2026-10-04T14:20:23.952287+00:00",
+      "duration_seconds": 116.16,
+      "exit_code": 0,
+      "log": "integration_coverage.log"
     },
     {
       "id": "coverage",
@@ -195,7 +280,14 @@
       ],
       "env": {
         "MIX_ENV": "test"
-      }
+      },
+      "execution_overrides": {
+        "GIT_INDEX_FILE": "/private/tmp/task020-ci-parity-independent-qa/coverage.index"
+      },
+      "started_at": "2026-10-04T14:22:20.237427+00:00",
+      "duration_seconds": 123.51,
+      "exit_code": 0,
+      "log": "coverage.log"
     },
     {
       "id": "regression",
@@ -208,7 +300,12 @@
       ],
       "env": {
         "MIX_ENV": "test"
-      }
+      },
+      "execution_overrides": {},
+      "started_at": "2026-10-04T14:24:23.746128+00:00",
+      "duration_seconds": 85.25,
+      "exit_code": 0,
+      "log": "regression.log"
     },
     {
       "id": "diff",
@@ -216,103 +313,13 @@
         "git",
         "diff",
         "--check"
-      ]
+      ],
+      "env": {},
+      "execution_overrides": {},
+      "started_at": "2026-10-04T14:25:48.994712+00:00",
+      "duration_seconds": 0.06,
+      "exit_code": 0,
+      "log": "diff.log"
     }
-  ],
-  "coverage": {
-    "FR-001": [
-      "storage",
-      "history"
-    ],
-    "FR-002": [
-      "storage",
-      "integrity",
-      "concurrency"
-    ],
-    "FR-003": [
-      "storage",
-      "integrity",
-      "concurrency",
-      "history"
-    ],
-    "FR-004": [
-      "integrity",
-      "concurrency"
-    ],
-    "FR-005": [
-      "input",
-      "storage"
-    ],
-    "FR-006": [
-      "input",
-      "storage",
-      "feature_scope"
-    ],
-    "FR-007": [
-      "input",
-      "storage",
-      "integrity"
-    ],
-    "FR-008": [
-      "integrity",
-      "concurrency",
-      "history"
-    ],
-    "FR-009": [
-      "integrity",
-      "concurrency",
-      "input"
-    ],
-    "FR-010": [
-      "input",
-      "storage",
-      "history",
-      "integrity"
-    ],
-    "FR-011": [
-      "history",
-      "feature_scope"
-    ],
-    "FR-012": [
-      "input",
-      "storage",
-      "integrity",
-      "concurrency",
-      "history",
-      "unit_profile",
-      "integration_profile",
-      "regression",
-      "integration_coverage",
-      "catalog_concurrency"
-    ],
-    "FR-013": [
-      "feature_scope"
-    ],
-    "SC-001": [
-      "storage"
-    ],
-    "SC-002": [
-      "input",
-      "integrity",
-      "concurrency"
-    ],
-    "SC-003": [
-      "history"
-    ],
-    "SC-004": [
-      "integrity",
-      "concurrency",
-      "history"
-    ],
-    "SC-005": [
-      "storage",
-      "history"
-    ]
-  },
-  "task_stages": {
-    "T028": "qa",
-    "T029": "review",
-    "T033": "qa",
-    "T034": "review"
-  }
+  ]
 }

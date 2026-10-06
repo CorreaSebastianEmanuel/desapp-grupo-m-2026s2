@@ -4,7 +4,7 @@ Run these commands from the repository root on `016-external-football-provider-c
 
 ## Prerequisites
 
-Use `.tool-versions` (Elixir 1.20.3/OTP 29.0.6), installed Mix dependencies and the existing local PostgreSQL/Redis environment. Integration profile also requires the repository's Node 24, installed `tools/openapi` dependencies and Playwright Chromium. These are existing prerequisites, not new provider infrastructure. No football service/account/key is required; never place credentials in fixtures or the verification manifest.
+Use `.tool-versions` (Elixir 1.20.3/OTP 29.0.6), installed Mix dependencies and the existing local PostgreSQL/Redis environment. Integration profile also requires the repository's Node 24, installed `tools/openapi` dependencies and Playwright Chromium. These are existing prerequisites, not new provider infrastructure. Pure fixture preservation uses literal pre-refactor SHA-256 fingerprints and requires neither Git nor historical commits; its manifest check runs with a failing Git shim. CI fetch/history is unchanged. Original-commit term equality is separate local QA evidence only. No football service/account/key is required; never place credentials in fixtures or the verification manifest.
 
 Pure acceptance is intentionally independent of those local services:
 
@@ -23,6 +23,7 @@ elixir test/provider_contract_offline.exs performances
 elixir test/provider_contract_offline.exs deadline
 elixir test/provider_contract_offline.exs safety
 elixir test/provider_contract_offline.exs fixtures
+python3 scripts/agentflow_check.py fixture-preservation
 ```
 
 - Request: unsupported/malformed scope, bounds and timeout fail before any adapter work; normalized valid input covers all leagues and same-year seasons.
@@ -30,6 +31,7 @@ elixir test/provider_contract_offline.exs fixtures
 - Performances: inclusive microsecond bounds/offsets, eligibility-before-full-validation, complete directory closure, current versus historical affiliation, unknown versus zero, no invented facts.
 - Deadline: default/custom before/equal/after outcomes, delayed validation, all portions under one budget, late replies and real blocked-worker cleanup.
 - Safety: all error categories/retry delay semantics plus sentinel leaks in full returned outcomes and inspection; no raw exception or hostile key reflection.
+- Preservation: deterministic expanded-term fingerprints of cases/expected/source_a/source_b equal independently captured literal baseline hashes, all 217 entries per file, with Git unavailable. QA additionally compares original terms locally and inspects readable bases/overrides independently.
 - Fixtures: both sources and every stable variant run twice; check five leagues/two seasons, 17 scenario links, bijective equivalence and negative same-name edge tests.
 
 Detailed expected outcomes and stable fixture families: [contracts/fixtures.md](contracts/fixtures.md). DTO shape and lifecycle: [data-model.md](data-model.md), [contracts/provider.md](contracts/provider.md).
@@ -60,7 +62,7 @@ git add -- specs/016-external-football-provider-contract docs/adr/0013-provider-
 Run every check in verification.json through the helper, in manifest order:
 
 ```bash
-for provider_check_id in toolchain format compile service-preflight request catalog performances deadline safety fixtures offline-all catalog-isolation scope regression unit-profile integration-profile coverage; do
+for provider_check_id in toolchain format compile service-preflight request catalog performances deadline safety fixtures fixture-preservation offline-all catalog-isolation scope regression unit-profile integration-profile coverage; do
   python3 scripts/agentflow_check.py "$provider_check_id" || exit 1
 done
 python3 scripts/workflow_artifact_probe.py develop --readiness

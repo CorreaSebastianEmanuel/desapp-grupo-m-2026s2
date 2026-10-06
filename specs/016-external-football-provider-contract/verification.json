@@ -95,6 +95,15 @@
       "expectation": "F-O01 through F-O03 repeat every source/case twice offline, enforce five leagues/two seasons and all 17 scenario links, prove reference bijections detect same-name merges/swapped edges."
     },
     {
+      "id": "fixture-preservation",
+      "argv": [
+        "sh",
+        "-c",
+        "set -eu\nfixture_git_shim=$(mktemp -d /tmp/task016-no-git.XXXXXX)\ntrap 'rm -f \"$fixture_git_shim/git\"; rmdir \"$fixture_git_shim\"' EXIT\nprintf '#!/bin/sh\\nexit 99\\n' > \"$fixture_git_shim/git\"\nchmod +x \"$fixture_git_shim/git\"\nPATH=\"$fixture_git_shim:$PATH\" elixir test/provider_contract_offline.exs fixture-preservation"
+      ],
+      "expectation": "With a failing Git shim first on PATH, assert fixed independently captured SHA-256 fingerprints of deterministic Erlang serialization for all four expanded fixture terms and exactly 217 entries per file. No Git/history prerequisite or current-fixture-derived expected fingerprint."
+    },
+    {
       "id": "offline-all",
       "argv": [
         "elixir",
@@ -234,14 +243,16 @@
     "FR-013": [
       "fixtures",
       "catalog-isolation",
-      "offline-all"
+      "offline-all",
+      "fixture-preservation"
     ],
     "FR-014": [
       "scope",
       "regression"
     ],
     "SC-001": [
-      "fixtures"
+      "fixtures",
+      "fixture-preservation"
     ],
     "SC-002": [
       "request",
@@ -255,14 +266,16 @@
     ],
     "SC-004": [
       "fixtures",
-      "offline-all"
+      "offline-all",
+      "fixture-preservation"
     ],
     "SC-005": [
       "catalog",
       "performances",
       "fixtures",
       "safety",
-      "request"
+      "request",
+      "fixture-preservation"
     ],
     "SC-006": [
       "catalog-isolation"

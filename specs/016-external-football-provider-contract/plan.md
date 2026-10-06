@@ -2,7 +2,7 @@
 
 **Branch**: `016-external-football-provider-contract` | **Date**: 2026-10-06 | **Spec**: [spec.md](spec.md)
 
-**Input**: TASK-016, CP2; prerequisite TASK-005. Current correction feedback: `backlog/feedback/TASK-016.md` (B1/B2); no scope or architecture expansion is required.
+**Input**: TASK-016, CP2; prerequisite TASK-005. Current feedback: `backlog/feedback/TASK-016.md` (B1/B2 corrections retained; reversible fixture refactor with portable independent fingerprints captured before that refactor (baseline `7a0e115`, local QA only)). Production behavior and all 217 cases remain unchanged.
 
 ## Summary
 
@@ -60,13 +60,13 @@ lib/football_market/providers/
 test/provider_contract_offline.exs
 test/support/provider_contract_case.ex
 test/support/providers/
-  fixture_source_a.ex, fixture_source_b.ex, fixture_runtime.ex, fact_oracle.ex
+  fixture_data.ex, fixture_source_a.ex, fixture_source_b.ex, fixture_runtime.ex, fact_oracle.ex
 test/fixtures/providers/
   cases.exs, source_a.exs, source_b.exs, expected.exs
 test/football_market/providers/
   request_test.exs, catalog_contract_test.exs, performance_contract_test.exs
   deadline_test.exs, error_safety_test.exs, equivalence_test.exs
-  fixture_matrix_test.exs, catalog_isolation_test.exs, scope_test.exs
+  fixture_matrix_test.exs, fixture_preservation_test.exs, catalog_isolation_test.exs, scope_test.exs
 ```
 
 **Structure Decision**: Pure provider DTOs remain separate from Ecto Catalog/Statistics schemas and web modules. `Providers` resolves internal adapter/runtime/vocabulary options and delegates. `Adapter` is the replaceable source port; fixture implementations are test support only. No production Catalog, Statistics, router, supervision, migration, dependency or permission changes. Mix test discovery ignores only the four fixture data files and offline bootstrap; scope tests compare the remaining Mix AST to HEAD. The existing Statistics worktree guard retains its original paths and recognizes the exact TASK-016 files only when this feature is active; its statistics integrity/dependency assertions remain unchanged. These test-only adjustments resolve regression evidence from development. New ExUnit modules carry exactly one existing `:unit` or `:integration` module tag.
@@ -105,7 +105,15 @@ Only provenance admits source IDs/fixture IDs. Adapters must select public-safe 
 
 `ProviderContractCase.assert_contract!/2` takes an adapter and stable fixture ID. Case metadata connects source examples, explicit expected outcome, scenario and FR/SC coverage. `FactOracle` uses declared per-kind entity correspondences and reference bijections, comparing unordered values/edges and provenance separately. Negative oracle tests swap same-name players' teams and performance edges. This support cannot become production reconciliation.
 
-`test/provider_contract_offline.exs` bootstraps pure modules/support/tests in explicit dependency order without Mix/application startup. Suite selectors are `request`, `catalog`, `performances`, `deadline`, `safety`, `fixtures`, `all`; unknown/empty selections fail, and ExUnit failures return nonzero. Run fixture examples twice with fixed clocks and no provider network/credentials. Separate database-backed isolation tests assert unchanged rows/reads for every error and zero provider calls on local reads.
+`test/provider_contract_offline.exs` bootstraps pure modules/support/tests in explicit dependency order without Mix/application startup. Suite selectors are `request`, `catalog`, `performances`, `deadline`, `safety`, `fixtures`, `fixture-preservation`, `all`; unknown/empty selections fail, and ExUnit failures return nonzero. Run fixture examples twice with fixed clocks and no provider network/credentials. Separate database-backed isolation tests assert unchanged rows/reads for every error and zero provider calls on local reads.
+
+### Fixture refactor boundary (feedback 2)
+
+Keep the four fixture entry files and independent catalog/performance bases in each file. `FixtureData` is test-only structural editing: explicit put/drop paths traverse maps, zero-based rows and source B cells while preserving packet wrappers/order. It stamps controlled case IDs, never translates source A into B or derives expectations from production validators. Short error outcomes remain explicit literals; every stable case and its mappings remain declared.
+
+Load `fixture_data.ex` before synthetic adapters in the pure bootstrap; direct entry-file evaluation loads that same helper when needed. Mix retains its five exact data/bootstrap ignore filters. Extend the active Statistics test allowlist only for this helper and `fixture_preservation_test.exs`. No production/configuration/inventory changes.
+
+The preservation test asserts fixed SHA-256 fingerprints independently captured from pre-refactor terms, serialized with `:erlang.term_to_binary(term, [:deterministic])`, plus 217 entries each. Expected hashes are literal and never derived from current fixtures. The same test runs in fixtures/all, unit/regression, and a dedicated manifest check that places a failing Git shim first on PATH. Pure preservation requires neither Git nor repository history; CI checkout/fetch remains unchanged. The protected backup branch remains intact. Independent QA separately compares original-commit terms locally and reviews override readability. Temporary saved terms and historical Git are supplemental local QA evidence, never fixture or persistent test prerequisites.
 
 ## Alignment, Invariants and Checkpoint Coverage
 

@@ -1,9 +1,9 @@
 # Review handoff — TASK-016
 
-The final findings and acceptance decision are owned by `../review-report.md`; there is no implementation correction to hand back.
+Human merge may proceed using `../review-report.md` and the fresh independent QA evidence referenced there. Review changed only its report and this handoff; implementation, backlog, branch references and publication state were preserved.
 
-The additional review probe is retained at `/tmp/review-task016-runtime.exs`, with output beside it. It loads pure production modules directly and is supplemental review evidence, outside the committed acceptance inventory. Preserve it if transferring this workspace's evidence. If process ownership, reply correlation or cancellation changes after review, repeat that probe and the deadline selector before relying on this decision; broader regression reruns depend on the actual change.
+No new product decision or downstream requirement emerged. When extending fixture coverage, keep source and expected declarations independent. Any intentional baseline change needs reviewed replacement fingerprints; deriving them from current fixtures during test setup would destroy preservation evidence.
 
-T039/T040 checkboxes remain untouched for the workflow owner. Human merge authority is retained; review performed no commit, push or publication.
+Retain the protected backup until the human is satisfied with the refactor. Publication must include the staged helper, preservation test and reconciled design/manifest files. Suite outcomes belong to QA; review did not rerun them. Human merge authority remains unchanged.
 
 Verdict: PASS

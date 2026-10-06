@@ -18,7 +18,13 @@ files = [
 for file <- files, do: Code.require_file("lib/football_market/providers/#{file}.ex", root)
 Code.require_file("lib/football_market/providers.ex", root)
 
-for file <- ["fixture_runtime", "fixture_source_a", "fixture_source_b", "fact_oracle"],
+for file <- [
+      "fixture_data",
+      "fixture_runtime",
+      "fixture_source_a",
+      "fixture_source_b",
+      "fact_oracle"
+    ],
     do: Code.require_file("test/support/providers/#{file}.ex", root)
 
 Code.require_file("test/support/provider_contract_case.ex", root)
@@ -29,12 +35,13 @@ suites = %{
   "performances" => ["performance_contract"],
   "deadline" => ["deadline"],
   "safety" => ["error_safety"],
-  "fixtures" => ["equivalence", "fixture_matrix"]
+  "fixtures" => ["equivalence", "fixture_matrix", "fixture_preservation"],
+  "fixture-preservation" => ["fixture_preservation"]
 }
 
 selected =
   case System.argv() do
-    ["all"] -> Enum.flat_map(suites, &elem(&1, 1))
+    ["all"] -> Enum.flat_map(suites, &elem(&1, 1)) |> Enum.uniq()
     [key] -> Map.get(suites, key, [])
     _ -> []
   end

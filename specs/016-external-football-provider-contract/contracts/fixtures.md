@@ -8,6 +8,12 @@ The source fixture collection itself is entirely pure. F-I01 reuses each error s
 
 Source A uses nested named maps/string IDs and ordered pages. Source B uses packet/tuple/list fields with uppercase column names, distinct source IDs/result refs and reversed entity/page order. Its adapter restores logical portion order while aggregating the complete result. Both raw shapes include conflicting synthetic ratings, team totals and attempted-tackle extras that their adapters ignore. Both include ignorable synthetic source extras. Fixed retrieval time is `2026-10-06T12:00:00.000000Z`. No real athlete contact data, subscription, secret or external host is used; sentinel secrets are explicitly fake adversarial tokens.
 
+## Fixture representation and preservation
+
+Each of the four entry files declares its own readable catalog/performance bases and per-ID overrides through `test/support/providers/fixture_data.ex`. Put/drop paths use literal keys and zero-based rows; source B retains independent uppercase cells, tuples, order and identifiers. Expected bases and overrides are independent declarations. Structural editing performs no normalization or validation. Short errors are explicit literals. Entry-file evaluation still returns the original list/map interface.
+
+`fixture_preservation_test.exs` asserts four literal, independently captured baseline SHA-256 fingerprints of deterministic Erlang term serialization, preserving mappings, ordering, errors and source extras, with 217 entries each. Expected fingerprints are never derived from live fixtures. The `fixture-preservation` manifest check runs the offline selector with a failing Git shim; fixtures/all and the existing unit/regression profiles also include the assertions. Git and historical commits are not persistent test prerequisites. Independent QA separately compares original terms from `7a0e115` locally using the protected backup `backup/task-016-before-fixture-refactor-20261006`. No saved binary term or baseline file supplies live fixture data.
+
 ## Catalog and requests
 
 | Stable ID / variants | Expected oracle | Numbered scenarios / requirements |

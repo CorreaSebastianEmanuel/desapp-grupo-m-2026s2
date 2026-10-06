@@ -81,12 +81,12 @@ defmodule FootballMarket.Statistics.ScopeTest do
             &"lib/football_market/providers/#{&1}.ex"
           ) ++
           Enum.map(
-            ~w(fixture_source_a fixture_source_b fixture_runtime fact_oracle),
+            ~w(fixture_data fixture_source_a fixture_source_b fixture_runtime fact_oracle),
             &"test/support/providers/#{&1}.ex"
           ) ++
           Enum.map(~w(cases source_a source_b expected), &"test/fixtures/providers/#{&1}.exs") ++
           Enum.map(
-            ~w(request catalog_contract performance_contract deadline error_safety equivalence fixture_matrix catalog_isolation scope),
+            ~w(request catalog_contract performance_contract deadline error_safety equivalence fixture_matrix fixture_preservation catalog_isolation scope),
             &"test/football_market/providers/#{&1}_test.exs"
           )
       else

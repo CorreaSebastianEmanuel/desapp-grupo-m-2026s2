@@ -4,9 +4,9 @@ title: Football Data API adapter
 type: task
 checkpoint: CP2
 priority: high
-status: todo
+status: review
 depends_on: TASK-016
-active_run: none
+active_run: ef95ddd1
 ---
 
 ## Outcome

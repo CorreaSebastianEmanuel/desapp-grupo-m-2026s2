@@ -12,6 +12,25 @@ config :football_market,
   generators: [timestamp_type: :utc_datetime],
   development_seed_enabled: false
 
+# Provider selection is internal and disabled in every checked-in environment.
+config :football_market, FootballMarket.Providers,
+  provider: nil,
+  positions: %{
+    "GK" => "Goalkeeper",
+    "DEF" => "Defender",
+    "MID" => "Midfielder",
+    "FWD" => "Forward"
+  }
+
+config :football_market, FootballMarket.Providers.FootballData,
+  enabled: false,
+  position_mapping: %{
+    "Goalkeeper" => "GK",
+    "Defence" => "DEF",
+    "Midfield" => "MID",
+    "Offence" => "FWD"
+  }
+
 # argon2_elixir represents the 65,536 KiB profile as exponent 16.
 config :argon2_elixir,
   t_cost: 2,

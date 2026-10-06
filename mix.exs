@@ -15,7 +15,11 @@ defmodule FootballMarket.MixProject do
         "test/fixtures/providers/cases.exs",
         "test/fixtures/providers/expected.exs",
         "test/fixtures/providers/source_a.exs",
-        "test/fixtures/providers/source_b.exs"
+        "test/fixtures/providers/source_b.exs",
+        "test/football_data_offline.exs",
+        "test/fixtures/football_data/exchanges.exs",
+        "test/fixtures/football_data/expected.exs",
+        "test/fixtures/football_data/cases.exs"
       ],
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
@@ -118,6 +122,7 @@ defmodule FootballMarket.MixProject do
       {:telemetry_poller, "~> 1.0"},
       {:gettext, "~> 1.0"},
       {:jason, "~> 1.2"},
+      {:mint, "~> 1.11"},
       {:dns_cluster, "~> 0.2.0"},
       {:bandit, "~> 1.5"}
     ]

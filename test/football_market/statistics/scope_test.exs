@@ -93,6 +93,32 @@ defmodule FootballMarket.Statistics.ScopeTest do
         []
       end
 
+    provider_paths =
+      provider_paths ++
+        if active_feature == "specs/055-football-data-api-adapter" do
+          [
+            "lib/football_market/providers/football_data.ex",
+            "lib/football_market/providers/runner.ex",
+            "test/football_data_offline.exs",
+            "test/football_market/providers/scope_test.exs"
+          ] ++
+            Enum.map(
+              ~w(configuration scope translator errors transport mint_transport),
+              &"lib/football_market/providers/football_data/#{&1}.ex"
+            ) ++
+            Enum.map(
+              ~w(fixture_data recording_transport contract_case tls_server),
+              &"test/support/providers/football_data/#{&1}.ex"
+            ) ++
+            Enum.map(~w(exchanges expected cases), &"test/fixtures/football_data/#{&1}.exs") ++
+            Enum.map(
+              ~w(configuration catalog scope_evidence security errors retry_expiry deadline fixtures isolation scope transport_runtime),
+              &"test/football_market/providers/football_data/#{&1}_test.exs"
+            )
+        else
+          []
+        end
+
     allowed_ci_paths = [
       "test/ci/quality_baseline_contract_test.exs",
       "test/ci/fixtures/quality-baseline.sha256"

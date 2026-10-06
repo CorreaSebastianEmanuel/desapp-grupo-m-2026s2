@@ -144,3 +144,30 @@ if config_env() == :prod do
   #
   # Check `Plug.SSL` for all available options in `force_ssl`.
 end
+
+# Explicit opt-in selects the internal adapter; invalid settings fail safely on use.
+source_setting = System.get_env("FOOTBALL_DATA_ENABLED")
+
+source_provider =
+  if source_setting in [nil, "false"] do
+    nil
+  else
+    source_options =
+      Application.get_env(:football_market, FootballMarket.Providers.FootballData, [])
+
+    state =
+      FootballMarket.Providers.FootballData.Configuration.new(%{
+        enabled: if(source_setting == "true", do: true, else: :invalid),
+        token: System.get_env("FOOTBALL_DATA_TOKEN"),
+        position_mapping:
+          Keyword.get(
+            source_options,
+            :position_mapping,
+            FootballMarket.Providers.FootballData.Configuration.mapping()
+          )
+      })
+
+    {FootballMarket.Providers.FootballData, state}
+  end
+
+config :football_market, FootballMarket.Providers, provider: source_provider

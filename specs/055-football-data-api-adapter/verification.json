@@ -1,0 +1,395 @@
+{
+  "schema_version": 1,
+  "runtime_required": true,
+  "checks": [
+    {
+      "id": "toolchain",
+      "argv": [
+        "sh",
+        "scripts/check_toolchain.sh"
+      ]
+    },
+    {
+      "id": "format",
+      "argv": [
+        "mix",
+        "format",
+        "--check-formatted"
+      ]
+    },
+    {
+      "id": "compile",
+      "argv": [
+        "mix",
+        "compile",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "service-preflight",
+      "argv": [
+        "sh",
+        "-c",
+        "mix test.prepare && mix infrastructure.verify"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "expectation": "Guarded test database setup and PostgreSQL migration probe succeed; Redis PONG succeeds; unavailable services fail, never skip."
+    },
+    {
+      "id": "provider-contract",
+      "argv": [
+        "elixir",
+        "test/provider_contract_offline.exs",
+        "all"
+      ],
+      "expectation": "Original provider-neutral suites/fixed 217-case fingerprints pass unchanged; huge positive timeout acceptance and invalid-timeout scope feedback regressions remain intact."
+    },
+    {
+      "id": "adapter-catalog",
+      "argv": [
+        "mix",
+        "run",
+        "--no-start",
+        "--no-compile",
+        "test/football_data_offline.exs",
+        "catalog"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "expectation": "FD-C01 through FD-C05 execute the actual FootballData adapter through Providers: five leagues, exact season years, complete/empty collections, mapped roles, independent expected facts/bindings, same-name distinct identities, malformed/duplicate facts, one-sided stale transfer and changed discovery; no partial success."
+    },
+    {
+      "id": "adapter-configuration",
+      "argv": [
+        "mix",
+        "run",
+        "--no-start",
+        "--no-compile",
+        "test/football_data_offline.exs",
+        "configuration"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "expectation": "FD-S01/S02/S05: disabled/default environment selection, enabled missing/blank token, malformed enablement/mapping/config/vocabulary, invalid request precedence under every configuration and both operations; exact safe categories/scope and zero outbound attempts."
+    },
+    {
+      "id": "adapter-errors",
+      "argv": [
+        "mix",
+        "run",
+        "--no-start",
+        "--no-compile",
+        "test/football_data_offline.exs",
+        "errors"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "expectation": "FD-E01 through FD-E06: absent versus denied/historical/performance scope, every status/transport category with unreadable bodies, all delay formats/expiry/duplicates, no source-message classification, 523-call complete example and fail-fast quota failure at call 11; no partial facts/retries/waiting. Parser receipt/expiry cases remain; retry-expiry independently proves freshness after complete normalization, never replacing source-independent assertions."
+    },
+    {
+      "id": "retry-expiry",
+      "argv": [
+        "mix",
+        "run",
+        "--no-start",
+        "--no-compile",
+        "test/football_data_offline.exs",
+        "retry-expiry"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "expectation": "Source-independent full Providers boundary assertions port original QA B1 oracle: Retry-After delta, HTTP-date and reset use original nonzero receipt anchor; separately controlled parsing and later normalization; two-second wait at readiness 0/1/2/3 seconds after receipt yields 2000/1000/nil/nil, positive overstated waits shrink, sub-ms/expired become nil. Feedback 2 fractional HTTP-date receipts preserve microseconds through parsing and normalization: independent UTC fractions/monotonic origins, literal positive/exact-1-ms/sub-ms/expired waits, repeated identical outcomes and changing later UTC. Missing/incoherent receipt means unknown. Later wall-clock changes do not renew expiry. No public metadata or cross-call leakage on synchronous/repeated/registered-then-success/non-rate/invalid/exception outcomes. Other adapters retain exact legacy outcomes; original QA source-independent assertions remain unchanged."
+    },
+    {
+      "id": "adapter-deadline",
+      "argv": [
+        "mix",
+        "run",
+        "--no-start",
+        "--no-compile",
+        "test/football_data_offline.exs",
+        "deadline"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "expectation": "FD-D01/D02: default/custom/4294968000/10000000000000 ms, success/error readiness before/at/after deadline, shared discovery/team/person/translation/validation budget and no next portion after expiry; production runtime caller-exit cleanup and no late outcomes/mailbox pollution. Private expiry wrapping preserves strict readiness and huge budgets, timeout/caller cancellation precedence and no late callback/outcome."
+    },
+    {
+      "id": "adapter-safety",
+      "argv": [
+        "mix",
+        "run",
+        "--no-start",
+        "--no-compile",
+        "test/football_data_offline.exs",
+        "safety"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "expectation": "FD-S03/S04: known token absent from outputs/Inspect/provenance/captured diagnostics; fixed destination/path/header handling, unsafe configuration/IDs refused, same/cross-origin redirects never followed and raw transport exceptions/bodies never reflected. Trusted test overrides are loopback-only and unavailable in production."
+    },
+    {
+      "id": "adapter-fixtures",
+      "argv": [
+        "mix",
+        "run",
+        "--no-start",
+        "--no-compile",
+        "test/football_data_offline.exs",
+        "fixtures"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "expectation": "FD-O01 inventory contains every required scenario/prefix, five leagues/two season contexts and explicit unsupported capabilities; every case executes twice with controlled UTC/elapsed time and identical independent expected outcomes/provenance. No application, DB, Redis or live network starts; nonempty selection enforced. Operator guide assertions require exact enablement/injection/settings, historical/performance and quota limits, corrective versus retryable actions and placeholder-only examples. Include B1 complete-boundary FD-E05 matrix without modifying original TASK-016 terms or fingerprints."
+    },
+    {
+      "id": "adapter-all",
+      "argv": [
+        "mix",
+        "run",
+        "--no-start",
+        "--no-compile",
+        "test/football_data_offline.exs",
+        "all"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "expectation": "All new pure adapter fixture suites run together without application/external service startup; actual adapter and independent source-neutral oracle used, nonempty test count and failure exit status required."
+    },
+    {
+      "id": "transport-runtime",
+      "argv": [
+        "mix",
+        "run",
+        "--no-start",
+        "--no-compile",
+        "test/football_data_offline.exs",
+        "transport-runtime"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "expectation": "Assert bounded readiness of an ephemeral loopback TLS service (unavailable listener fails). Actual MintTransport/facade exercise discovery, season teams, team and person HTTP routes: correct method/path and token header only at approved fixture destination; 200 JSON bodies normalize to complete independent facts/bindings; 401/403/404/429/5xx and malformed bodies map to expected errors, delay headers parsed without leakage. Same/cross-origin 3xx cause unavailable and redirect targets receive zero requests. TLS hostname/CA mismatch refuses connection. Blocked headers/body/handshake timeout and caller exit yield no late result, no owned continuing retrieval and independently observed peer socket closure; captured diagnostics contain no sentinel. Observed non-200 status survives unreadable/protocol-failing bodies; truncated 200 cannot succeed or become an empty collection. B1 real HTTPS delta/date/reset cover parsing and later normalization separately, still-positive bounds anchored to receipt/readiness and exact expired nil; preserved Retry-After:1 with 1200-ms normalization pause returns nil before request deadline with peer-observed closure. No delayed normalization may renew a source wait.",
+      "runtime": true
+    },
+    {
+      "id": "isolation",
+      "argv": [
+        "mix",
+        "test",
+        "test/football_market/providers/football_data/isolation_test.exs",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "expectation": "FD-I01/FD-S01: snapshot every Catalog and Statistics table/read, actual adapter success/all eight categories/cancellation leave exact state unchanged; application starts without provider token under default configuration and enabled missing-token state; evaluate dev/test/prod defaults with unrelated required app config supplied; local reads start zero provider work."
+    },
+    {
+      "id": "scope",
+      "argv": [
+        "mix",
+        "test",
+        "test/football_market/providers/football_data/scope_test.exs",
+        "test/football_market/providers/scope_test.exs",
+        "test/football_market/statistics/scope_test.exs",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "expectation": "Exact active TASK-017 production path/dependency/Mix AST allowances; no domain/web/Repo/write/financial/seed/startup retrieval dependencies, only Runner.run/4 plus named with_retry_window/1 and refine_retry_delay/3 constrained AST deltas authorized by ADR-0015; work/4 and every other protected boundary form/byte remain unchanged; no other altered existing boundary source or original fixture inventory/fingerprints. Existing provider/statistics checks remain asserted; all actual tests discoverable/tagged."
+    },
+    {
+      "id": "regression",
+      "argv": [
+        "mix",
+        "test",
+        "--include",
+        "performance",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "expectation": "All existing and new application tests pass, including catalog/auth/OpenAPI/statistics/architecture contracts; no skipped applicable tests."
+    },
+    {
+      "id": "unit-profile",
+      "argv": [
+        "sh",
+        "scripts/test_profile.sh",
+        "unit"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "expectation": "Existing separate unit profile completes with nonempty audited file set and no skipped/secret diagnostics."
+    },
+    {
+      "id": "integration-profile",
+      "argv": [
+        "sh",
+        "scripts/test_profile.sh",
+        "integration"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "expectation": "Existing integration/browser profile preflight and all applicable E2E tests complete independently of live provider."
+    },
+    {
+      "id": "coverage",
+      "argv": [
+        "sh",
+        "scripts/coverage_report.sh"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "expectation": "Existing CP1 inventory coverage working-tree snapshot and both-profile publication checks remain intact. Stage all new source/artifact files first; no new CP2 valuation completeness claim."
+    }
+  ],
+  "coverage": {
+    "FR-001": [
+      "provider-contract",
+      "adapter-catalog",
+      "adapter-fixtures",
+      "retry-expiry"
+    ],
+    "FR-002": [
+      "adapter-catalog",
+      "adapter-errors"
+    ],
+    "FR-003": [
+      "adapter-catalog",
+      "adapter-fixtures"
+    ],
+    "FR-004": [
+      "adapter-catalog",
+      "adapter-configuration"
+    ],
+    "FR-005": [
+      "adapter-catalog",
+      "adapter-errors"
+    ],
+    "FR-006": [
+      "adapter-errors",
+      "adapter-configuration",
+      "scope"
+    ],
+    "FR-007": [
+      "adapter-catalog",
+      "adapter-safety",
+      "adapter-fixtures"
+    ],
+    "FR-008": [
+      "adapter-configuration",
+      "isolation",
+      "adapter-safety"
+    ],
+    "FR-009": [
+      "adapter-safety",
+      "transport-runtime",
+      "adapter-configuration"
+    ],
+    "FR-010": [
+      "adapter-errors",
+      "adapter-deadline",
+      "transport-runtime"
+    ],
+    "FR-011": [
+      "adapter-errors",
+      "transport-runtime",
+      "retry-expiry"
+    ],
+    "FR-012": [
+      "provider-contract",
+      "adapter-deadline",
+      "transport-runtime",
+      "isolation"
+    ],
+    "FR-013": [
+      "adapter-catalog",
+      "adapter-errors",
+      "adapter-deadline"
+    ],
+    "FR-014": [
+      "isolation",
+      "scope",
+      "regression"
+    ],
+    "FR-015": [
+      "adapter-fixtures",
+      "adapter-all",
+      "adapter-catalog",
+      "adapter-configuration",
+      "adapter-errors",
+      "adapter-deadline",
+      "adapter-safety",
+      "transport-runtime",
+      "isolation",
+      "retry-expiry"
+    ],
+    "FR-016": [
+      "provider-contract",
+      "adapter-fixtures",
+      "adapter-all",
+      "transport-runtime",
+      "retry-expiry"
+    ],
+    "FR-017": [
+      "scope",
+      "regression"
+    ],
+    "SC-001": [
+      "adapter-catalog",
+      "adapter-fixtures"
+    ],
+    "SC-002": [
+      "adapter-errors",
+      "adapter-catalog",
+      "isolation",
+      "retry-expiry"
+    ],
+    "SC-003": [
+      "adapter-configuration",
+      "adapter-safety",
+      "transport-runtime"
+    ],
+    "SC-004": [
+      "adapter-deadline",
+      "transport-runtime",
+      "isolation"
+    ],
+    "SC-005": [
+      "adapter-fixtures",
+      "adapter-all",
+      "provider-contract",
+      "retry-expiry"
+    ],
+    "SC-006": [
+      "adapter-configuration",
+      "adapter-errors",
+      "isolation",
+      "adapter-fixtures"
+    ]
+  },
+  "task_stages": {
+    "T045": "qa",
+    "T046": "review"
+  }
+}

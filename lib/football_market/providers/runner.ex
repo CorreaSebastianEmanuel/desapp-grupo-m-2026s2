@@ -7,12 +7,25 @@ defmodule FootballMarket.Providers.Runner do
     context = %{deadline_us: deadline, runtime: {runtime, state}, positions: positions}
 
     handle =
-      runtime.launch(fn -> work(request, adapter, adapter_state, context) end, deadline, state)
+      runtime.launch(
+        fn ->
+          with_retry_window(fn record ->
+            work(
+              request,
+              adapter,
+              adapter_state,
+              Map.put(context, :record_retry_not_before, record)
+            )
+          end)
+        end,
+        deadline,
+        state
+      )
 
     try do
       case runtime.await(handle, deadline, state) do
-        {:ready, outcome, ready} when ready < deadline ->
-          outcome
+        {:ready, {outcome, expiry}, ready} when ready < deadline ->
+          refine_retry_delay(outcome, expiry, ready)
 
         {:ready, _, _} ->
           timeout(request, runtime, handle, state)
@@ -29,6 +42,35 @@ defmodule FootballMarket.Providers.Runner do
       runtime.close(handle, state)
     end
   end
+
+  defp with_retry_window(work) do
+    key = make_ref()
+
+    record = fn
+      expiry when is_integer(expiry) ->
+        previous = Process.get(key)
+        Process.put(key, if(is_integer(previous), do: min(previous, expiry), else: expiry))
+        :ok
+
+      _ ->
+        :ok
+    end
+
+    try do
+      outcome = work.(record)
+      {outcome, Process.get(key)}
+    after
+      Process.delete(key)
+    end
+  end
+
+  defp refine_retry_delay({:error, %Error{category: :rate_limited} = error}, expiry, ready)
+       when is_integer(expiry) do
+    remaining = div(max(expiry - ready, 0), 1000)
+    {:error, %{error | retry_after_ms: if(remaining > 0, do: remaining, else: nil)}}
+  end
+
+  defp refine_retry_delay(outcome, _, _), do: outcome
 
   defp timeout(request, runtime, handle, state) do
     runtime.cancel(handle, state)

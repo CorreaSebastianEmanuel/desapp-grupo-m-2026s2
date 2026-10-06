@@ -4,9 +4,9 @@ title: External football provider contract
 type: task
 checkpoint: CP2
 priority: high
-status: review
+status: done
 depends_on: TASK-005
-active_run: de4a617a
+active_run: none
 ---
 
 ## Outcome

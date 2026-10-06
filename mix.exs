@@ -10,6 +10,13 @@ defmodule FootballMarket.MixProject do
       version: "0.1.0",
       elixir: "~> 1.20.3",
       test_coverage: test_coverage(),
+      test_ignore_filters: [
+        "test/provider_contract_offline.exs",
+        "test/fixtures/providers/cases.exs",
+        "test/fixtures/providers/expected.exs",
+        "test/fixtures/providers/source_a.exs",
+        "test/fixtures/providers/source_b.exs"
+      ],
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),

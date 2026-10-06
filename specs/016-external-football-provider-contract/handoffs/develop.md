@@ -1,0 +1,11 @@
+# Development handoff — TASK-016
+
+Retained the authorized fixture refactor and replaced historical Git evaluation in `test/football_market/providers/fixture_preservation_test.exs` with the four literal SHA-256 fingerprints supplied in feedback 3. Hashes use deterministic Erlang term serialization and assert 217 entries per file. Production code and existing assertions remain unchanged. `plan.md`, `contracts/fixtures.md`, `quickstart.md`, `tasks.md` and `verification.json` describe the portable oracle; no CI fetch/history change.
+
+The dedicated `fixture-preservation` manifest check puts a failing Git shim first on PATH. It failed with the former Git-dependent test, then passed after correction. Fixture bases/overrides remain independent through `test/support/providers/fixture_data.ex`; the offline bootstrap and active Statistics path guard recognize these exact support/test paths.
+
+Measured lines against `7a0e115`: cases 11,682 → 2,932; expected 3,549 → 575; source A 15,685 → 2,101; source B 20,604 → 2,568. Total 51,520 → 8,176 (84.1% reduction). Saved-term comparison (`elixir /tmp/task016-fixture-parity.exs compare`) and separate local evaluation of all four original-commit files both proved exact term equality. The protected backup still points to `7a0e1153ebd3c6db6598dd2ac979379705319f08`.
+
+All 18 manifest checks passed through `python3 scripts/agentflow_check.py CHECK_ID`; receipts are `handoffs/check-*.json`. Offline-all: 28 tests; regression: 248 tests. Initial compile/preflight sandbox TCP failures were rerun successfully with local-socket access. Coverage retains the existing CP1 inventory. Named-artifact reconciliation and the development readiness gate passed. Local staging only; no publication.
+
+QA: independently rerun every check using the loop in `quickstart.md`, then `python3 scripts/workflow_artifact_probe.py develop --readiness`. Independently evaluate original terms via `git show 7a0e115:test/fixtures/providers/NAME.exs` and compare each to current entry-file evaluation; Git is required only for this local QA comparison. Check the four literal hashes against feedback 3, inspect override readability/independence, and confirm the Git-shim selector passes. Obtain fresh QA and final-review PASS; T039/T040 remain unchecked. Existing TASK-017 live feasibility and TASK-022 valuation risks remain downstream.

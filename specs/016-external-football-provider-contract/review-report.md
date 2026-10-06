@@ -1,0 +1,17 @@
+# Final independent review — TASK-016
+
+2026-10-06. Ready for human merge; no blockers found. Reviewed the active spec, plan, tasks, architecture/develop handoffs, all three human feedback entries, current QA report, branch changes from `ec04b23`, refactor diff against `7a0e115`, and production/test code directly. No implementation or backlog edits, delegation, Agentflow invocation, or workflow-log inspection.
+
+The production boundary follows the plan: plain provider values, pure validation, an injected adapter, and isolated orchestration without web, Ecto, transport or persistence dependencies. Directory validation preserves lists until duplicate detection. Performance selection rejects undecidable eligibility, retains current affiliation dependencies, and validates historical participating teams independently. Counts preserve unknown versus zero; result references and qualified provenance do not establish persistent identity. This supports ingestion without moving reconciliation or valuation policy into the provider layer.
+
+Process lifecycle inspection supports the deadline design. Caller and coordinator cap individual VM waits while recomputing the same absolute deadline, retaining arbitrary positive integer budgets. Caller monitoring cancels blocked workers; alias deactivation and correlation-specific draining prevent late replies contaminating subsequent calls. Worker exceptions become safe errors. Fixed input keys avoid arbitrary atom creation; template errors omit raw diagnostics. Provenance checks reject recognizable secret/transport content, while concrete adapters remain responsible for selecting public-safe opaque identifiers.
+
+The fixture refactor improves maintainability: independently declared bases make normal facts readable, literal per-case edits expose exceptional behavior, and the 64-line structural helper performs no translation or expected-result calculation. Source B preserves its distinct cells, identifiers and ordering; complex pagination examples remain explicit. Existing assertions are retained. Four literal deterministic-term fingerprints match feedback 3, with exact 217-entry inventories and no historical-Git prerequisite in the preservation test. QA's separate original-commit equality evidence establishes preservation beyond test success: 51,520 → 8,176 fixture lines, an 84.1% reduction. Production and CI paths are unchanged by this correction.
+
+Evidence assessment: inspected `/tmp/qa-task016-fresh-20261006/final-results.json`, its runner/parity scripts, and relevant test-log outcomes; all 18 argv/environment entries match the current manifest and report zero exits. Fresh cancellation, adversarial, oracle and database evidence supports the claims that need runtime verification. The existing CP1 inventory/profile evidence remains intact; the feature supplies the CP2 provider boundary without claiming live-provider feasibility or complete CP2 readiness. No endpoint change requires HTTP acceptance.
+
+No discrepancy or uncovered risk warranted additional suite execution. Review executed manifest/evidence reconciliation and both Git whitespace checks successfully; full-suite results are attributed to independent QA. Direct command evidence suffices without reopening prohibited workflow logs.
+
+Backlog impact: none — fixture representation and CI portability corrections preserve existing behavior, requirements, dependencies and downstream responsibilities; no broader backlog inspection or follow-up is warranted.
+
+Verdict: PASS

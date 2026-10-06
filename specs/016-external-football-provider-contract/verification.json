@@ -1,0 +1,288 @@
+{
+  "schema_version": 1,
+  "runtime_required": false,
+  "checks": [
+    {
+      "id": "toolchain",
+      "argv": [
+        "sh",
+        "scripts/check_toolchain.sh"
+      ]
+    },
+    {
+      "id": "format",
+      "argv": [
+        "mix",
+        "format",
+        "--check-formatted"
+      ]
+    },
+    {
+      "id": "compile",
+      "argv": [
+        "mix",
+        "compile",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "service-preflight",
+      "argv": [
+        "sh",
+        "-c",
+        "mix test.prepare && mix infrastructure.verify"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "expectation": "Guarded test database setup succeeds; PostgreSQL migration probe and Redis PONG both succeed; absent services fail."
+    },
+    {
+      "id": "request",
+      "argv": [
+        "elixir",
+        "test/provider_contract_offline.exs",
+        "request"
+      ],
+      "expectation": "F-R01 through F-R04 assert input normalization/rejection, zero adapter calls for invalid inputs, and no unsafe reflected values. Both operations retain independently validated scope on every invalid timeout type/key format while omitting malformed scope/bounds."
+    },
+    {
+      "id": "catalog",
+      "argv": [
+        "elixir",
+        "test/provider_contract_offline.exs",
+        "catalog"
+      ],
+      "expectation": "F-C01 through F-C05 assert complete catalog facts, empty/missing/unsupported distinctions, bindings and all retained uniqueness/reference failures."
+    },
+    {
+      "id": "performances",
+      "argv": [
+        "elixir",
+        "test/provider_contract_offline.exs",
+        "performances"
+      ],
+      "expectation": "F-P01 through F-P10 assert completed inclusive intervals, eligibility precedence, retained closure, historical affiliation, all nine count meanings/types and no invented rows."
+    },
+    {
+      "id": "deadline",
+      "argv": [
+        "elixir",
+        "test/provider_contract_offline.exs",
+        "deadline"
+      ],
+      "expectation": "F-D01 through F-D05 assert default/custom strict readiness deadlines, normalization and portions sharing one budget, terminal timeout and real blocked-worker cancellation. Production Runtime accepts 4294968000 and 10000000000000 ms budgets in both operations with immediate success/error, retains correlation and cancels huge-budget blocked workers on caller exit."
+    },
+    {
+      "id": "safety",
+      "argv": [
+        "elixir",
+        "test/provider_contract_offline.exs",
+        "safety"
+      ],
+      "expectation": "F-E01 through F-E03 assert every error category/retry rule and sentinel absence in every inspected caller-visible value, including provenance and hostile diagnostic inputs."
+    },
+    {
+      "id": "fixtures",
+      "argv": [
+        "elixir",
+        "test/provider_contract_offline.exs",
+        "fixtures"
+      ],
+      "expectation": "F-O01 through F-O03 repeat every source/case twice offline, enforce five leagues/two seasons and all 17 scenario links, prove reference bijections detect same-name merges/swapped edges."
+    },
+    {
+      "id": "fixture-preservation",
+      "argv": [
+        "sh",
+        "-c",
+        "set -eu\nfixture_git_shim=$(mktemp -d /tmp/task016-no-git.XXXXXX)\ntrap 'rm -f \"$fixture_git_shim/git\"; rmdir \"$fixture_git_shim\"' EXIT\nprintf '#!/bin/sh\\nexit 99\\n' > \"$fixture_git_shim/git\"\nchmod +x \"$fixture_git_shim/git\"\nPATH=\"$fixture_git_shim:$PATH\" elixir test/provider_contract_offline.exs fixture-preservation"
+      ],
+      "expectation": "With a failing Git shim first on PATH, assert fixed independently captured SHA-256 fingerprints of deterministic Erlang serialization for all four expanded fixture terms and exactly 217 entries per file. No Git/history prerequisite or current-fixture-derived expected fingerprint."
+    },
+    {
+      "id": "offline-all",
+      "argv": [
+        "elixir",
+        "test/provider_contract_offline.exs",
+        "all"
+      ],
+      "expectation": "Every pure suite executes together without application/service startup, including nonempty selection, failure exit status and deterministic matrix assertions."
+    },
+    {
+      "id": "catalog-isolation",
+      "argv": [
+        "mix",
+        "test",
+        "test/football_market/providers/catalog_isolation_test.exs",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "expectation": "F-I01 asserts exact catalog state/read equality after all eight failures and zero provider calls during each local read; no retries or fallback."
+    },
+    {
+      "id": "scope",
+      "argv": [
+        "mix",
+        "test",
+        "test/football_market/providers/scope_test.exs",
+        "test/football_market/statistics/scope_test.exs",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "expectation": "AST dependency/shape and changed-production-path assertions enforce FR-014, no Repo/web/transport dependencies, league parity and no writes/scoring/new endpoint. Existing Statistics invariants remain asserted; Mix ignores only the five exact data/bootstrap files and its other AST is unchanged."
+    },
+    {
+      "id": "regression",
+      "argv": [
+        "mix",
+        "test",
+        "--include",
+        "performance",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "unit-profile",
+      "argv": [
+        "sh",
+        "scripts/test_profile.sh",
+        "unit"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "integration-profile",
+      "argv": [
+        "sh",
+        "scripts/test_profile.sh",
+        "integration"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "coverage",
+      "argv": [
+        "sh",
+        "scripts/coverage_report.sh"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    }
+  ],
+  "coverage": {
+    "FR-001": [
+      "request",
+      "catalog",
+      "performances",
+      "fixtures"
+    ],
+    "FR-002": [
+      "request"
+    ],
+    "FR-003": [
+      "catalog",
+      "performances",
+      "deadline"
+    ],
+    "FR-004": [
+      "catalog",
+      "performances"
+    ],
+    "FR-005": [
+      "catalog",
+      "performances",
+      "fixtures",
+      "safety"
+    ],
+    "FR-006": [
+      "performances",
+      "fixtures"
+    ],
+    "FR-007": [
+      "performances"
+    ],
+    "FR-008": [
+      "catalog",
+      "performances"
+    ],
+    "FR-009": [
+      "safety",
+      "deadline",
+      "request"
+    ],
+    "FR-010": [
+      "request",
+      "deadline"
+    ],
+    "FR-011": [
+      "catalog-isolation",
+      "deadline",
+      "scope"
+    ],
+    "FR-012": [
+      "safety",
+      "catalog",
+      "performances"
+    ],
+    "FR-013": [
+      "fixtures",
+      "catalog-isolation",
+      "offline-all",
+      "fixture-preservation"
+    ],
+    "FR-014": [
+      "scope",
+      "regression"
+    ],
+    "SC-001": [
+      "fixtures",
+      "fixture-preservation"
+    ],
+    "SC-002": [
+      "request",
+      "catalog",
+      "performances",
+      "safety",
+      "catalog-isolation"
+    ],
+    "SC-003": [
+      "deadline"
+    ],
+    "SC-004": [
+      "fixtures",
+      "offline-all",
+      "fixture-preservation"
+    ],
+    "SC-005": [
+      "catalog",
+      "performances",
+      "fixtures",
+      "safety",
+      "request",
+      "fixture-preservation"
+    ],
+    "SC-006": [
+      "catalog-isolation"
+    ]
+  },
+  "task_stages": {
+    "T039": "qa",
+    "T040": "review"
+  }
+}

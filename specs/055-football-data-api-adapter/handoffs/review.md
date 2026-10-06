@@ -1,11 +1,9 @@
-# Review handoff — TASK-017
+# Final-review handoff — TASK-017
 
-Use ../review-report.md as the current final-review decision; previous B1 findings are superseded by the accepted corrections and fresh evidence.
+Delivery guidance: retain the verified feature directory `specs/055-football-data-api-adapter` on branch `017-football-data-api-adapter`. Publication must update existing PR #28. Human merge authority remains unchanged; this review performed no commit, push, merge or backlog transition.
 
-This stage overwrote only review-report.md and this handoff. It made no implementation, task-checkbox or backlog changes and performed no commit, push, PR creation or merge.
+Keep `/tmp/task017-final-review/evidence-audit.json` with the fresh QA evidence for any targeted reproduction. Preserve the original probes in `/tmp/task017-independent-qa` and `/tmp/task017-review`; portable tracked equivalents remain the acceptance source for other environments.
 
-For delivery, retain the existing QA snapshot/results and preserved-probe references so the human reviewer can reproduce acceptance. Temporary probes supplement the tracked regressions; they are not clean-checkout prerequisites. Any subsequent source change requires verification against that new tree before relying on this decision.
-
-The downstream prerequisite recommendation is advisory and belongs to later planning. It does not authorize changing TASK-021 or adding performance retrieval to this branch.
+Any further source, guard or verification-command change requires affected evidence and independent gates to be refreshed. Review/report-only edits are later documentation, so the historical coverage whole-diff hash should not be presented as the final publication snapshot. Recheck repository whitespace after assembling delivery artifacts.
 
 Verdict: PASS

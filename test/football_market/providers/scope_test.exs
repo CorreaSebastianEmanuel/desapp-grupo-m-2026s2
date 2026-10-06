@@ -17,11 +17,6 @@ defmodule FootballMarket.Providers.ScopeTest do
         &"lib/football_market/providers/football_data/#{&1}.ex"
       )
   ]
-  defp adapter_active?,
-    do:
-      Jason.decode!(File.read!(".specify/feature.json"))["feature_directory"] ==
-        "specs/055-football-data-api-adapter"
-
   test "FR-014 AST dependencies stay pure, read-only and within planned production paths" do
     for path <- @production do
       source = File.read!(path)
@@ -77,11 +72,8 @@ defmodule FootballMarket.Providers.ScopeTest do
 
     allowed =
       @production ++
-        ["mix.exs"] ++
-        if(adapter_active?(),
-          do: @adapter ++ ["mix.lock", "config/config.exs", "config/runtime.exs"],
-          else: []
-        )
+        @adapter ++
+        ["mix.exs", "mix.lock", "config/config.exs", "config/runtime.exs"]
 
     assert Enum.all?(production, &(&1 in allowed))
 
@@ -89,13 +81,7 @@ defmodule FootballMarket.Providers.ScopeTest do
              Path.wildcard("lib/football_market/providers/*.ex") ++
                ["lib/football_market/providers.ex"]
            ) ==
-             Enum.sort(
-               @production ++
-                 if(adapter_active?(),
-                   do: ["lib/football_market/providers/football_data.ex"],
-                   else: []
-                 )
-             )
+             Enum.sort(@production ++ ["lib/football_market/providers/football_data.ex"])
   end
 
   test "league parity and plain DTO fields preserve catalog and financial boundaries" do
@@ -133,13 +119,10 @@ defmodule FootballMarket.Providers.ScopeTest do
 
     expected =
       expected ++
-        if(adapter_active?(),
-          do: [
-            "test/football_data_offline.exs"
-            | Enum.map(~w(exchanges expected cases), &"test/fixtures/football_data/#{&1}.exs")
-          ],
-          else: []
-        )
+        [
+          "test/football_data_offline.exs"
+          | Enum.map(~w(exchanges expected cases), &"test/fixtures/football_data/#{&1}.exs")
+        ]
 
     assert Enum.sort(Mix.Project.config()[:test_ignore_filters] || []) == Enum.sort(expected)
     {original, 0} = System.cmd("git", ["show", "HEAD:mix.exs"])
@@ -152,7 +135,7 @@ defmodule FootballMarket.Providers.ScopeTest do
           list =
             if Keyword.keyword?(list), do: Keyword.delete(list, :test_ignore_filters), else: list
 
-          if adapter_active?(), do: Enum.reject(list, &(&1 == {:mint, "~> 1.11"})), else: list
+          Enum.reject(list, &(&1 == {:mint, "~> 1.11"}))
 
         node ->
           node

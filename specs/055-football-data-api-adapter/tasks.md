@@ -2,7 +2,7 @@
 
 **Input**: `specs/055-football-data-api-adapter/` design artifacts; actual branch `017-football-data-api-adapter`.
 
-**Prerequisites**: plan.md, spec.md, research.md, data-model.md, contracts/football-data.md, contracts/fixtures.md, quickstart.md, verification.json, ADR-0014 and ADR-0015. TASK-016 is completed. TASK-017 feedback 1 and feedback 2 are authoritative; preserve directly relevant TASK-016 feedback as stated in plan.md.
+**Prerequisites**: plan.md, spec.md, research.md, data-model.md, contracts/football-data.md, contracts/fixtures.md, quickstart.md, verification.json, ADR-0014 and ADR-0015. TASK-016 is completed. TASK-017 feedback 1, feedback 2 and feedback 3 are authoritative; preserve directly relevant TASK-016 feedback as stated in plan.md.
 
 **Tests**: Required by FR-015/016, repository rules and this stage's test-first instruction. Preserve historical red/green work; write each new B1 assertion and observe meaningful failure before its production change. A missing-module failure can establish initial wiring, but must become behavioral assertions once the port exists. Each new ExUnit module has exactly one existing `:unit` or `:integration` module tag. All paths below are repository-relative.
 
@@ -104,6 +104,7 @@
 
 All implementation/test/support/documentation work must complete here before independent gates. Existing receipt freshness binds final source and canonical artifacts: earlier incremental passing receipts must be rerun once final source stabilizes.
 
+- [X] T047 Correct the provider/statistics scope guards to use committed source expectations rather than ignored `.specify/feature.json`; preserve exact file/dependency/discovery/Runner protections. Create `scripts/check_task017_clean_checkout.py` and map `clean-checkout` in `specs/055-football-data-api-adapter/verification.json`: reproduce the missing metadata failure in a separate shallow checkout without changing local workflow state, overlay the final working snapshot and execute `scripts/ci_unit_tests.sh` there. Preserve and rerun the original QA expiry and final-review precision probes if present.
 - [X] T036 Reconcile exact active-feature allowances in `test/football_market/providers/scope_test.exs` and `test/football_market/statistics/scope_test.exs` with `test/football_market/providers/football_data/scope_test.exs`; preserve original pure-module/invariant/Mix AST assertions, allow only named TASK-017 files, the ADR-0015 Runner AST exception and Mint/bootstrap deltas, preserving all other byte guards/217 fingerprints; rerun original /tmp QA probes unchanged if present, require their tracked portable equivalents, and execute `scope` from `specs/055-football-data-api-adapter/verification.json`.
 - [X] T037 Execute `transport-runtime` from `specs/055-football-data-api-adapter/verification.json`; inspect `specs/055-football-data-api-adapter/handoffs/check-transport-runtime.json` and require asserted local TLS readiness, all affected outbound routes/status/header/body outcomes, no credential forwarding and independent peer closure on every cancellation path.
 - [X] T038 Execute `service-preflight` and `isolation` from `specs/055-football-data-api-adapter/verification.json`; inspect canonical receipts and require local PostgreSQL/Redis readiness plus exact unchanged Catalog/Statistics state and zero startup/read provider work.
@@ -111,7 +112,7 @@ All implementation/test/support/documentation work must complete here before ind
 - [X] T040 Execute `regression` from `specs/055-football-data-api-adapter/verification.json`, preserving every existing auth/catalog/OpenAPI/statistics/provider behavioral assertion; inspect the receipt for actual full test completion.
 - [X] T041 Execute `unit-profile` and `integration-profile` from `specs/055-football-data-api-adapter/verification.json`, with existing browser prerequisites; require nonempty, unskipped independent profiles rather than fixture-only substitutes.
 - [X] T042 Reconcile named outputs, scenario/FR/SC mappings and checkpoint limitations in `specs/055-football-data-api-adapter/verification.json`, `specs/055-football-data-api-adapter/tasks.md` and `docs/FOOTBALL_DATA.md`; create final `specs/055-football-data-api-adapter/handoffs/develop.md` under 400 words with deltas/risks and references to canonical check receipts, then stage all new source/artifact files for coverage's existing snapshot requirement without committing/publishing.
-- [X] T043 After final source/canonical stabilization, execute every check in `specs/055-football-data-api-adapter/verification.json` through `scripts/agentflow_check.py`, including `coverage`; require all 20 fresh passing canonical receipts, no missing source outputs and existing snapshot-bound profile/coverage evidence. Do not manufacture receipts or weaken checks.
+- [X] T043 After final source/canonical stabilization, execute every check in `specs/055-football-data-api-adapter/verification.json` through `scripts/agentflow_check.py`, including `coverage`; require all 21 fresh passing canonical receipts, no missing source outputs and existing snapshot-bound profile/coverage evidence. Do not manufacture receipts or weaken checks.
 - [X] T044 Audit every completed task against its named files and all implementation/test/check tasks in `specs/055-football-data-api-adapter/tasks.md`; mark only actually completed work and run `python3 scripts/workflow_artifact_probe.py develop --readiness` with final `specs/055-football-data-api-adapter/handoffs/develop.md` present. A failure reopens the affected task/check; only T045/T046 may remain unchecked.
 - [ ] T045 [gate:qa] Independent QA reruns all manifest checks, challenges B1 source-anchored complete-readiness expiry, preserved QA probes and legacy/guard invariants plus source-scope/transfer/quota/diagnostic/peer-cleanup oracles and product/checkpoint mapping, and writes `specs/055-football-data-api-adapter/qa-report.md` plus `specs/055-football-data-api-adapter/handoffs/qa.md`; report must end `Verdict: PASS` before review, with no implementation edits.
 - [ ] T046 [gate:review] Final review assesses fresh QA evidence, exact constrained Runner AST/legacy-behavior/expiry protection plus scope/dependency/fixture protection and residual live-feasibility/CP2 risk; run targeted uncovered-risk checks and write `specs/055-football-data-api-adapter/review-report.md` plus `specs/055-football-data-api-adapter/handoffs/review.md`, ending `Verdict: PASS`; no implementation edits/merge/publication.
@@ -125,7 +126,7 @@ Foundation → (T009 || T010) → T011 → T012 → T013 → T014 [US1]
 US1 → (T015 || T016) → T017 → T018 → T019 → T020 [US2]
 US2 → (T021 || T022 || T023 || T024) → T025 → T026 → T027 → T028 → T029 → T030 [US3]
 US3 → T031 → T032 → T033 → T034 → T035 [US4]
-All stories → T036 → T037 → T038 → T039 → T040 → T041 → T042 → T043 → T044
+All stories → T047 → T036 → T037 → T038 → T039 → T040 → T041 → T042 → T043 → T044
 Owner readiness → T045 [QA] → T046 [review]
 ```
 
@@ -151,6 +152,6 @@ US1 is the first MVP increment: demonstrate complete conditional catalogs via th
 | US2 | 6 | FR-008/009; SC-003/006 | adapter-configuration, adapter-safety, isolation |
 | US3 | 10 | FR-005/006/010–014; SC-002/004 | adapter-errors, retry-expiry, adapter-deadline, transport-runtime, isolation |
 | US4 | 5 | FR-015/016; SC-005/006 | adapter-fixtures, adapter-all, provider-contract |
-| Setup/foundation/final | 19 | FR-017, all checkpoint/regression obligations | scope, toolchain/format/compile, preflight, regression, profiles, coverage, readiness, independent gates |
+| Setup/foundation/final | 20 | FR-017, all checkpoint/regression obligations | scope, toolchain/format/compile, preflight, regression, profiles, coverage, readiness, independent gates |
 
-Total: 46 tasks; all use standard checklist IDs, explicit file paths and required story labels. B1 adds three tasks inside US3; existing downstream IDs shift by three. Scenario coverage lives in contracts/fixtures.md; all canonical 23 FR/SC identifiers map exactly in verification.json. T045/T046 alone map to qa/review in task_stages.
+Total: 47 tasks; all use standard checklist IDs, explicit file paths and required story labels. B1 adds three tasks inside US3; existing downstream IDs shift by three. Scenario coverage lives in contracts/fixtures.md; all canonical 23 FR/SC identifiers map exactly in verification.json. T045/T046 alone map to qa/review in task_stages.

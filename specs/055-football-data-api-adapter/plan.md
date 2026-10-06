@@ -114,6 +114,10 @@ Test first at the complete facade: Retry-After delta, HTTP-date and reset header
 
 The narrowed Runner guard compares metadata-normalized AST with HEAD, allows changes only in run/4 and the private with_retry_window/1 and refine_retry_delay/3 helpers, and rejects other deletions/edits. Add independent invariant assertions for strict readiness, unchanged deadline/cancel/close paths, legacy-error equality, no vendor branch or forbidden dependencies/process creation. Do not simply remove Runner from protection or update a blanket fingerprint. Keep all other byte guards and the 217 independently pinned fixture cases intact.
 
+### Clean-checkout portability — feedback 3
+
+Committed provider guards use unconditional exact adapter expectations. Statistics selects its existing exact provider/adapter allowance by source-file presence, never ignored workflow metadata. A separate shallow clone overlays the current git-listed snapshot, confirms `.specify/feature.json` is absent and runs `scripts/ci_unit_tests.sh`; installed dependency/browser caches may be reused with an isolated build cache. No implementation, dependency pins or Actions changes are authorized. `clean-checkout` records this acceptance alongside all existing checks.
+
 ### Acceptance and checkpoint coverage
 
 contracts/fixtures.md maps each numbered scenario to stable synthetic cases; verification.json maps all 17 FR and six SC IDs to executable check IDs. It intentionally requires actual TLS runtime checks for outbound HTTP, with service readiness and status/header/body assertions; no public endpoint is introduced. Developer runs every manifest check via `scripts/agentflow_check.py`; QA reruns independently. Pure fixtures require no external services or internet; existing local services are required for application/regression evidence only.

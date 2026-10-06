@@ -261,6 +261,17 @@
         "MIX_ENV": "test"
       },
       "expectation": "Existing CP1 inventory coverage working-tree snapshot and both-profile publication checks remain intact. Stage all new source/artifact files first; no new CP2 valuation completeness claim."
+    },
+    {
+      "id": "clean-checkout",
+      "argv": [
+        "python3",
+        "scripts/check_task017_clean_checkout.py"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "expectation": "Independent shallow clone with no ignored .specify/feature.json runs scripts/ci_unit_tests.sh against current git-listed working snapshot. Full CI discovery sentinel and all tests must pass. Provider/statistics exact scope guards retain committed expectations without local feature selection; source, Actions and dependency pins remain unchanged. Portable expiry/precision equivalents execute in CI; retained original /tmp QA/review probes execute unchanged when present, with before/after hashes asserted."
     }
   ],
   "coverage": {
@@ -349,11 +360,13 @@
       "adapter-fixtures",
       "adapter-all",
       "transport-runtime",
-      "retry-expiry"
+      "retry-expiry",
+      "clean-checkout"
     ],
     "FR-017": [
       "scope",
-      "regression"
+      "regression",
+      "clean-checkout"
     ],
     "SC-001": [
       "adapter-catalog",
@@ -379,7 +392,8 @@
       "adapter-fixtures",
       "adapter-all",
       "provider-contract",
-      "retry-expiry"
+      "retry-expiry",
+      "clean-checkout"
     ],
     "SC-006": [
       "adapter-configuration",

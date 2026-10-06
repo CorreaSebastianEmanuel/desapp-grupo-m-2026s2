@@ -1,0 +1,11 @@
+# Develop handoff — TASK-016
+
+Correction follows `backlog/feedback/TASK-016.md` B1/B2 without reopening scope. Runtime caps each receive slice at the VM limit and recomputes remaining time against the original absolute deadline in both caller and coordinator. Positive integer request budgets remain unbounded. Invalid timeout errors now retain the already validated scope; malformed league-season/bounds remain omitted.
+
+Regressions: `request_test.exs` covers both operations, atom/string keys, invalid timeout types, canonical scope, normalized bounds, malformed scope and zero provider work. `deadline_test.exs` covers immediate real-runtime success/error at 4294968000 and 10000000000000 ms, mailbox correlation and huge-budget caller-exit cancellation. Four timeout fixture scope expectations and requirement metadata were corrected independently in `test/fixtures/providers/cases.exs`; contracts, plan and verification mappings agree.
+
+The new request/deadline assertions failed before production edits and passed afterward through `scripts/agentflow_check.py`. All 17 final manifest checks passed through `python3 scripts/agentflow_check.py CHECK_ID` with unchanged source; canonical `handoffs/check-*.json` receipts and output hashes match current inputs. Offline-all: 27 tests; full regression including performance: 247 tests. Both profiles and unchanged CP1 coverage passed. Every completed task's named artifact exists; T039/T040 remain unchecked. `python3 scripts/workflow_artifact_probe.py develop --readiness` passed after artifact reconciliation and local staging.
+
+QA: independently rerun every verification.json command. Reuse `/tmp/qa-task016-20261006/adversarial.exs` and `repro.exs`; challenge both operations and immediate outcomes for large budgets, short strict deadlines, blocked-worker cancellation, mailbox isolation, invalid timeout scope preservation and malformed input nonreflection. Fixture cases run twice across both sources. Existing catalog isolation/regression/profiles/CP1 coverage remain required.
+
+Residual risks remain TASK-017 live capability/source-ID classification and TASK-022 incomplete valuation inputs. This handoff does not establish fresh independent QA/review PASS or complete CP2 readiness. No publication is authorized in development.

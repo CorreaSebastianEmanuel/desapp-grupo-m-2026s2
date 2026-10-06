@@ -61,6 +61,38 @@ defmodule FootballMarket.Statistics.ScopeTest do
       "test/football_market/statistics/"
     ]
 
+    active_feature =
+      case File.read(".specify/feature.json") do
+        {:ok, json} -> Jason.decode!(json)["feature_directory"]
+        {:error, _} -> nil
+      end
+
+    # TASK-016 adds an independent read-only provider boundary. Retain this
+    # task's original allowlist and permit only that active plan's exact files.
+    provider_paths =
+      if active_feature == "specs/016-external-football-provider-contract" do
+        [
+          "lib/football_market/providers.ex",
+          "test/provider_contract_offline.exs",
+          "test/support/provider_contract_case.ex"
+        ] ++
+          Enum.map(
+            ~w(adapter types request instant error validator catalog performances provenance runner runtime),
+            &"lib/football_market/providers/#{&1}.ex"
+          ) ++
+          Enum.map(
+            ~w(fixture_source_a fixture_source_b fixture_runtime fact_oracle),
+            &"test/support/providers/#{&1}.ex"
+          ) ++
+          Enum.map(~w(cases source_a source_b expected), &"test/fixtures/providers/#{&1}.exs") ++
+          Enum.map(
+            ~w(request catalog_contract performance_contract deadline error_safety equivalence fixture_matrix catalog_isolation scope),
+            &"test/football_market/providers/#{&1}_test.exs"
+          )
+      else
+        []
+      end
+
     allowed_ci_paths = [
       "test/ci/quality_baseline_contract_test.exs",
       "test/ci/fixtures/quality-baseline.sha256"
@@ -69,7 +101,8 @@ defmodule FootballMarket.Statistics.ScopeTest do
     for line <- String.split(out, "\n", trim: true) do
       path = String.slice(line, 3..-1//1)
 
-      assert path in allowed_ci_paths or Enum.any?(allowed, &String.starts_with?(path, &1)),
+      assert path in provider_paths or path in allowed_ci_paths or
+               Enum.any?(allowed, &String.starts_with?(path, &1)),
              "outside plan: #{path}"
     end
   end

@@ -1,0 +1,3 @@
+# Receipts bind this workspace and ignored local check-output files.
+# Keep them available for readiness; do not publish unusable cross-workspace evidence.
+/handoffs/check-*.json

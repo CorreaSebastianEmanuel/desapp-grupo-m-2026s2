@@ -80,6 +80,12 @@ CRITICAL_VALUES = {
 }
 METADATA_CASES = tuple(f"hidden:{key}:{form}" for key in CRITICAL_VALUES for form in
     ("space", "indent", "quoted", "uppercase", "duplicate", "collection", "mapping", "block", "folded", "tag", "anchor", "alias", "quote", "nested"))
+COMPETING_ID_FORMS = tuple(form for whitespace in (' ', '\u00a0', '\u202f', '\u2003', '\u3000') for form in
+    (f'id{whitespace}: TASK-017', f'{whitespace}id: TASK-017')) + (
+        'id: task-017', 'ID: task-017', 'id: TaSk-017') + tuple(
+        f'note: Other{separator}id: TASK-017' for separator in
+        ('\n', '\r\n', '\r', '\v', '\f', '\x1c', '\x1d', '\x1e', '\x85', '\u2028', '\u2029'))
+COMPETING_ID_CASES = tuple(f'competing-id:{i}' for i in range(len(COMPETING_ID_FORMS)))
 ASSOCIATION_CASES = (
     'missing','ambiguous','ambiguous-with-metadata','duplicate-declaration','malformed-declaration',
     'heading-declaration','same-task-wrong','metadata-conflict','metadata-foreign-branch',
@@ -87,13 +93,16 @@ ASSOCIATION_CASES = (
     'metadata-duplicate','multiple-legacy','foreign-legacy','legacy-missing-spec',
     'directory-escape','nested-alias','spec-escape','invalid-utf8-spec','duplicate-task','foreign-reports',
     'foreign-qa-report','foreign-review-report','outside-qa-report','outside-review-report',
-) + METADATA_CASES
+) + METADATA_CASES + COMPETING_ID_CASES
 REPORT_VALUES = (None,b'',b'Verdict: FAIL\n',b'Verdict: PASS\nVerdict: FAIL\n',b'Verdict: PASS\ncommentary\n',b'Verdict: pass\n',b'Verdict : PASS\n',b'\xff')
 
 def poison(f, case):
     import shutil
     p=f.feature/'spec.md'
-    if case.startswith('hidden:'):
+    if case.startswith('competing-id:'):
+        # A different filename and canonical ID must not conceal another claim.
+        f.make_task('TASK-099','Other',extra=COMPETING_ID_FORMS[int(case.split(':')[1])]+'\n')
+    elif case.startswith('hidden:'):
         _,key,form=case.split(':');value=CRITICAL_VALUES[key]
         lines={"space":f"{key} : {value}", "indent":f" {key}: {value}",
                "quoted":f'"{key}": {value}', "uppercase":f"{key.upper()}: {value}",
@@ -158,7 +167,7 @@ class AdversarialResolutionTest(Fixture):
                     with self.assertRaises(ValueError) as error:
                         association=f.resolve();policy.require_reports(association)
                     self.assertIn('TASK-017',str(error.exception))
-                    if case not in METADATA_CASES and case not in ('duplicate-task','metadata-duplicate'):self.assertIn('017-football-data-api-adapter',str(error.exception))
+                    if case not in METADATA_CASES + COMPETING_ID_CASES and case not in ('duplicate-task','metadata-duplicate'):self.assertIn('017-football-data-api-adapter',str(error.exception))
                 finally:f.doCleanups()
     def test_contained_symlinks_aliases_and_unrelated_malformed_spec(self):
         malformed=self.make_feature('099-other','099-other');(malformed/'spec.md').write_text('**Feature Branch**: nonsense\n')
@@ -220,9 +229,18 @@ class StrictMetadataTest(Fixture):
         self.assertEqual(self.resolve().feature,self.feature)
         self.assertEqual(self.task.read_bytes(),before)
     def test_competing_alternate_id_claim_is_not_discarded(self):
-        for form in ('id : TASK-017', ' "id": TASK-017', 'ID: TASK-017'):
+        for form in (*COMPETING_ID_FORMS, ' "id": TASK-017', 'ID: TASK-017'):
             other=self.make_task('TASK-099','Other',extra=form+'\n')
+            before={p:p.read_bytes() for p in self.root.rglob('*.md')}
+            with self.assertRaises(ValueError):policy.metadata(other)
             with self.assertRaises(ValueError):policy.task_for_id(self.root,'TASK-017')
+            self.assertEqual({p:p.read_bytes() for p in before},before)
+            other.unlink()
+    def test_unrelated_unsupported_identity_does_not_require_historical_repair(self):
+        for form in COMPETING_ID_FORMS:
+            other=self.make_task('TASK-099','Other',extra=form.replace('017','098')+'\n')
+            self.assertEqual(policy.task_for_id(self.root,'TASK-017'),self.task)
+            self.assertEqual(self.resolve().feature,self.feature)
             other.unlink()
 
 class ForeignPreproductTest(Fixture):

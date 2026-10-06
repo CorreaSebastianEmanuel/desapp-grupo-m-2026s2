@@ -1,25 +1,34 @@
-# Independent QA — TASK-054, Feedback 1
+# Independent QA — TASK-054
 
-Active feature: `specs/055-task-feature-binding`, resolved from `.specify/feature.json` and checked against the delivery branch. Read canonical spec, plan, tasks, architecture/develop handoffs, current human feedback and relevant file-sized diffs against `dbddd6f`. No implementation edits, Agentflow invocation, delegation, publication or workflow/live-log inspection occurred.
+Fresh QA assessed the current worktree on `054-agentflow-task-feature-directory-binding`, HEAD `211e11e642ee6c27ed1b72bec7062effd2856999`, against AGENTS.md, product, architecture, checkpoints, constitution, active spec/plan/contracts/tasks, verification.json and develop handoff. Only the approved contract was judged.
 
-Executed all ten `verification.json` argv directly, independently of developer receipts. Command/result index: `/tmp/task054-qa-current/results.json`; each check's full independent output is `/tmp/task054-qa-current/<check-id>.log`. All exited 0: 70 unittest tests, syntax compilation of 11 files, and whitespace validation. Manifest validation confirms all 12 FR and 5 SC mappings. Current source/input/command fingerprints also match all ten developer receipts; those receipts did not supply acceptance evidence.
+Independently executed **all 12 exact manifest argv**, directly: every check exited 0. Bounded output, exact command arrays and exits are outside the repository in `/tmp/task054-fresh-qa-20261006-i4nly22c/manifest-results.json` and adjacent logs.
 
-| Acceptance / requirements | Independently executed evidence | Result |
-|---|---|---|
-| US1.1–2; FR-001–003; SC-001 | `resolver` (18 tests), `local-delivery` (18), `stage-probe` (11): exact TASK-017/055 and TASK-020/054 associations; owned publication links; branch/task identity retained. Stage/check selection rejects base, detached and wrong branches. | PASS |
-| US1.3; FR-006; SC-004 | `local-delivery`: successful captured publication and no-pr review promotion; nonzero workflow, wrong branch, missing/invalid canonical artifacts, unverified clean commit and either failed report refuse push/PR. Verifier ownership is revalidated after dispatch. | PASS |
-| US1.4; FR-004 | `resolver`, `local-delivery`, `post-merge` (10): declaration-free unique legacy resolution, explicit ownership precedence, multiple/malformed/missing legacy candidates refused. | PASS |
-| US1.5; Feedback 1 | `RealStartPreproductTest`: actual Git start adapter on temporary main, one/two foreign 055 specs, absent/stale pointer, product workflow dispatch, retained TASK-055/branch identity and unchanged foreign/unrelated bytes. Unique headerless legacy succeeds; ambiguous, malformed, duplicate, unreadable, unsafe, same-task wrong and explicit foreign metadata refuse before dispatch. Unchanged `python3 /tmp/task054-root-missing-feature.py` exits 0: “unrelated equal-number specifications do not prevent new task creation.” | PASS |
-| US2.1–2; FR-007,011; SC-003 | `tooling-preflight` (1), `actual-provider` (2), `post-merge`: real reconciler subprocess on exact four pinned PR #28 snapshots from commit `1aa2731…`; TASK-020 CLI also exercised. First copied TASK-017 run prints `Finalized backlog/TASK-017-football-data-api-adapter.md`; entire fixture comparison permits exactly status review→done and active_run→none. Real files, source objects and refs preserved. | PASS |
-| US2.3–4; FR-007,009 | `post-merge`, `actual-provider`, `workflow-scope` (3): second execution reports already finalized with no changes; done retry tolerates absent feature/reports but rejects wrong full branch or malformed metadata. Other task states/invalid branches refuse; workflow non-delivery skip and merged/main predicate unchanged. | PASS |
-| US3.1,5; FR-002–005,010; SC-002 | Shared 112-case association matrix across resolver, verification/publication, explicit/dependency completion, post-merge and applicable stage selection: missing/duplicate/conflicting declarations, unsafe paths, foreign evidence, duplicate task claims and strict metadata forms refuse. Diagnostics identify task/path/key/candidate. Metadata refusals preserve every backlog byte and pointer; no blocked overwrite, verifier, commit, push or PR follows. | PASS |
-| US3.2–3; FR-006,008 | `local-completion` (7), `post-merge`, `local-delivery`, `resolver`: both independent report gates reject missing, unreadable, empty, FAIL, earlier/nonterminal PASS, spelling variations, invalid UTF-8 and foreign/outside symlinks. Explicit review boundary and confirmed merged-dependency prerequisite remain; unrelated/unmerged dependencies unchanged. Atomic failure and quoted CRLF preservation asserted. | PASS |
-| US3.4; FR-003,010 | `resolver`, `local-delivery`, `stage-probe`: absent/stale/foreign pointers and newer distraction mtimes leave durable selection unchanged. | PASS |
-| Feedback 1 adversarial extension; SC-002 | `python3 /tmp/task054-qa-current/challenge.py` exits 0: 144 real CLI single-unsupported-key refusals across review/done, 18 malformed/missing report refusals across both gates, and one whitespace-terminal PASS success. Every refusal compares all files byte-for-byte; success checks exact two-value delta. Output: `challenge.log`. | PASS |
-| FR-009,012; SC-005 | `workflow-scope`, captured TASK-054 publication: unchanged workflow bytes, permissions, checkout pin, concurrency and human merge boundary; tracked/untracked allowlist and README boundary pass. Captured separate-PR body includes merge-before-PR-#28 guidance. No Elixir, provider, real TASK-017 or unrelated backlog changes. | PASS |
+| Check | Executed result |
+|---|---|
+| tooling-preflight | 1 test, PASS |
+| resolver | 19 tests, PASS |
+| local-delivery | 19 tests, PASS |
+| local-completion | 7 tests, PASS |
+| post-merge | 11 tests, PASS |
+| actual-provider | 2 tests, PASS |
+| workflow-scope | 3 tests, PASS |
+| stage-probe | 11 tests, PASS |
+| legacy-tooling | 20 tests, PASS |
+| legacy-delivery | 21 tests, PASS |
+| syntax | 11 tooling files compiled |
+| whitespace | Scoped baseline check passed |
 
-Original diagnostic hashes match research.md: adversarial `2466482…d6a5`, root probe `1a640fe…1125`. Historical exploitation assertions were preserved, not substituted for refusal tests. Prior QA artifacts were archived unchanged under `/tmp/task054-qa-current/prior-qa-*.md` without inspecting their content.
+Total: 114 tests. `python3 scripts/workflow_artifact_probe.py develop --readiness` independently exited 0 with `valid: true`. All 12 developer receipt command identities, source-before/source-after and canonical-input fingerprints match current files; readiness validated evidence integrity. See `receipt-freshness.json` and `additional-results.json`. No ignored workflow/run logs were opened for contextual inspection.
 
-No HTTP endpoints are exposed or changed; spec, contract, manifest and diff agree. Phoenix/PostgreSQL/Redis and unrelated Elixir suites are therefore inapplicable. No runtime blocker or acceptance failure remains. Final review and actual separate-PR publication are subsequent gates, not claimed completed here.
+The shared rejection matrices cover hidden/duplicate metadata, unsafe/conflicting associations, both terminal verdict gates and competing identities across parser `splitlines()` boundaries and case variants. Discovery, stage selection, real start, verifier/publication, explicit/dependency completion and actual CLI review/done retries enforce refusal and unchanged backlog/pointer bytes or absent side effects. Positive tests retain unequal TASK-017/055 and TASK-020/054 ownership, legacy compatibility, foreign-number pre-product creation, authorized completion and captured delivery guards.
+
+Both unchanged review probes exited 0: line_identity_probe.py covers nine separators in review/done; provider_control_probe.py covers LF/CRLF/U+2028 against verbatim provider copies. The unchanged root-missing-feature probe also passed. Before/after script hashes match. An independent 66-case provider-copy challenge additionally crossed 11 line boundaries, canonical/uppercase/quoted id keys, task-value case variants and review/done states: parser/discovery/CLI refusal with every copied file unchanged. See `boundary-case-provider-results.json`.
+
+Actual-provider tests verified four pinned snapshots against available source commit `1aa2731f048efcb1056a589b3b2ea938b843edd4`, real files and refs. An additional real CLI run changed only copied TASK-017 status to done and active_run to none; its retry succeeded without changes (`actual-provider-positive.json`). Legacy fixture edits retain all 37 and 71 original assertions structurally, with fixture preconditions only (`legacy-assertion-preservation.json`). Previous B1 is resolved.
+
+The whitespace exception excludes exactly the immutable TASK-017 fixture. Full baseline checking reports only its original final blank line; scoped committed/current checks against dbddd6f, origin/main and HEAD pass. Pinned length/hash/provenance and source-byte equality protect it. Workflow permissions/trigger/pin/serialization, real TASK-017, application/provider files and scope remain intact. Before report writes, all 818 tracked/unignored file hashes were unchanged.
+
+Blockers: none. Only this report and handoffs/qa.md were updated; tasks/backlog and review-report.md remain untouched. Fresh final review is pending. Existing draft PR #29 may be updated only after both gates pass; humans merge #29 before #28.
 
 Verdict: PASS

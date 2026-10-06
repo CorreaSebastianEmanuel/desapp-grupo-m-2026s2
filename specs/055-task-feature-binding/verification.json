@@ -75,6 +75,32 @@
       ]
     },
     {
+      "id": "legacy-tooling",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_agentflow.py"
+      ]
+    },
+    {
+      "id": "legacy-delivery",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_agentflow_delivery.py"
+      ]
+    },
+    {
       "id": "syntax",
       "argv": [
         "python3",
@@ -88,7 +114,10 @@
         "git",
         "diff",
         "--check",
-        "dbddd6f"
+        "dbddd6f",
+        "--",
+        ".",
+        ":(top,literal,exclude)test/scripts/fixtures/task_feature_binding/provider/backlog/TASK-017-football-data-api-adapter.md"
       ]
     }
   ],
@@ -151,7 +180,9 @@
       "actual-provider",
       "stage-probe",
       "syntax",
-      "whitespace"
+      "whitespace",
+      "legacy-tooling",
+      "legacy-delivery"
     ],
     "FR-011": [
       "tooling-preflight",
@@ -188,7 +219,9 @@
       "workflow-scope",
       "stage-probe",
       "syntax",
-      "whitespace"
+      "whitespace",
+      "legacy-tooling",
+      "legacy-delivery"
     ],
     "SC-005": [
       "workflow-scope",

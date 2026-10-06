@@ -99,9 +99,9 @@ class AgentflowBranchTest(DeliveryFixture):
 
 class ConsumerRejectionTest(DeliveryFixture):
     def test_same_association_matrix_blocks_verifier_and_publication(self):
-        from test.scripts.agentflow_feature_test import ASSOCIATION_CASES,METADATA_CASES,poison
+        from test.scripts.agentflow_feature_test import ASSOCIATION_CASES,METADATA_CASES,COMPETING_ID_CASES,poison
         for case in ASSOCIATION_CASES:
-            if case in METADATA_CASES or case in ('metadata-duplicate','duplicate-task'):continue # stronger byte-preservation entrypoint matrix below
+            if case in METADATA_CASES + COMPETING_ID_CASES or case in ('metadata-duplicate','duplicate-task'):continue # stronger byte-preservation entrypoint matrix below
             report_case=case=='foreign-reports' or case.startswith(('foreign-qa-','foreign-review-','outside-'))
             with self.subTest(case=case):
                 f=Fixture();f.setUp()
@@ -189,6 +189,33 @@ class VerificationRevalidationTest(DeliveryFixture):
         self.assertFalse(any(call[0] in ('push','add','commit') for call in self.calls))
 
 class StrictConsumerMetadataTest(DeliveryFixture):
+    def test_cross_file_claims_refuse_all_entrypoints_without_side_effects(self):
+        from test.scripts.agentflow_feature_test import COMPETING_ID_CASES,poison
+        for case in COMPETING_ID_CASES:
+            with self.subTest(case=case):
+                f=StrictConsumerMetadataTest();f.setUp()
+                try:
+                    poison(f,case)
+                    f.assert_entrypoints_refuse()
+                finally:f.doCleanups()
+    def assert_entrypoints_refuse(self):
+        valid=AGENTFLOW.meta(self.task)
+        pointer=self.root/'.specify/feature.json';pointer.parent.mkdir(exist_ok=True)
+        pointer.write_text('{"feature_directory":"specs/099-other"}')
+        before={p:p.read_bytes() for p in self.root.rglob('*.md')};pointer_before=pointer.read_bytes()
+        args=SimpleNamespace(task='TASK-017',agent='auto',dry_run=False,no_pr=True)
+        actions=(lambda:AGENTFLOW.feature_for_task(self.task),lambda:AGENTFLOW.verify(args),
+                 lambda:AGENTFLOW.publish(self.task,valid,self.feature),lambda:AGENTFLOW.finalize(self.task,valid,0),
+                 lambda:AGENTFLOW.finalize(self.task,valid,9,True),lambda:AGENTFLOW.finalize(self.task,valid,0,True),
+                 lambda:AGENTFLOW.start(args),lambda:AGENTFLOW.resume(args),lambda:AGENTFLOW.ready_tasks())
+        with patch.object(AGENTFLOW.shutil,'which',return_value='/captured/tool'),patch.object(AGENTFLOW.subprocess,'run') as dispatch,patch.object(AGENTFLOW,'monitor_process') as monitor:
+            for action in actions:
+                self.calls.clear()
+                with self.assertRaises((ValueError,SystemExit)):action()
+                self.assertEqual({p:p.read_bytes() for p in before},before)
+                self.assertEqual(pointer.read_bytes(),pointer_before)
+                self.assertFalse(any(c[0] in ('push','add','commit','switch') for c in self.calls))
+                dispatch.assert_not_called();monitor.assert_not_called()
     def test_all_entrypoints_refuse_before_any_write_or_dispatch(self):
         from test.scripts.agentflow_feature_test import METADATA_CASES,poison
         valid=AGENTFLOW.meta(self.task)
@@ -229,6 +256,10 @@ class RealStartPreproductTest(Fixture):
         elif invalid=='escape':
             candidate=self.make_feature('055-unsafe',None);outside=self.root/'outside';candidate.rename(outside);candidate.symlink_to(outside,target_is_directory=True)
         elif invalid=='metadata':self.task=self.make_task('TASK-055','New work',status='todo',extra='feature_directory: specs/055-football-data-api-adapter\n')
+        elif invalid and invalid.startswith('competing-id:'):
+            from test.scripts.agentflow_feature_test import COMPETING_ID_FORMS
+            claim=COMPETING_ID_FORMS[int(invalid.split(':')[1])].replace('017','055')
+            self.make_task('TASK-099','Other',extra=claim+'\n')
         session=self.root/'.specify/feature.json';session.parent.mkdir()
         if pointer:session.write_text('{"feature_directory":"specs/055-football-data-api-adapter"}')
         (self.root/'.gitignore').write_text('.specify/\n')
@@ -242,6 +273,8 @@ class RealStartPreproductTest(Fixture):
                 with self.assertRaises((ValueError,SystemExit)):AGENTFLOW.start(args)
                 launch.assert_not_called();self.assertEqual(self.task.read_bytes(),before)
                 self.assertEqual(session.read_bytes() if session.exists() else None,pointer_before)
+                if invalid.startswith('competing-id:'):
+                    self.assertEqual(git('branch','--show-current').stdout.strip(),'main')
             else:
                 self.assertEqual(AGENTFLOW.start(args),130)
                 launch.assert_called_once()
@@ -261,7 +294,8 @@ class RealStartPreproductTest(Fixture):
                     try:f.exercise_start(count,pointer)
                     finally:f.doCleanups()
     def test_actual_start_retains_legacy_and_rejects_invalid_candidates(self):
-        for case in ('headerless','two-headerless','malformed','duplicate','wrong','unreadable','escape','metadata'):
+        from test.scripts.agentflow_feature_test import COMPETING_ID_CASES
+        for case in ('headerless','two-headerless','malformed','duplicate','wrong','unreadable','escape','metadata',*COMPETING_ID_CASES):
             with self.subTest(case=case):
                 f=RealStartPreproductTest();f.setUp()
                 try:f.exercise_start(2,True,case)

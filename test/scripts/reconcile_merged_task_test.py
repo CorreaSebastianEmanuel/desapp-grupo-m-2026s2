@@ -90,6 +90,21 @@ class PostMergeRejectionMatrixTest(Fixture):
                 finally:f.doCleanups()
 
 class StrictPostMergeCLIRegressionTest(Fixture):
+    def test_cross_file_claims_refuse_actual_command_even_done_retry(self):
+        from test.scripts.agentflow_feature_test import COMPETING_ID_CASES,poison
+        for case in COMPETING_ID_CASES:
+            for done in (False,True):
+                with self.subTest(case=case,done=done):
+                    f=Fixture();f.setUp()
+                    try:
+                        poison(f,case)
+                        if done:f.task.write_bytes(f.task.read_bytes().replace(b'status: review',b'status: done'))
+                        before={p:p.read_bytes() for p in (f.root/'backlog').glob('*.md')}
+                        command=subprocess.run([sys.executable,str(SCRIPT),'--head-ref','017-football-data-api-adapter','--root',str(f.root)],capture_output=True,text=True)
+                        self.assertNotEqual(command.returncode,0,command.stdout)
+                        self.assertIn('TASK-017',command.stderr);self.assertIn('TASK-099-other.md',command.stderr)
+                        self.assertEqual({p:p.read_bytes() for p in before},before)
+                    finally:f.doCleanups()
     def test_actual_command_rejects_all_hidden_metadata_even_done_retry(self):
         from test.scripts.agentflow_feature_test import METADATA_CASES,poison
         for case in METADATA_CASES:

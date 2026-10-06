@@ -86,7 +86,12 @@ def task_for_id(root, task_id):
             text = read_text(candidate)
             header = FRONTMATTER.match(text)
             front = header.group(1) if header else text if text.startswith('---') else ''
-            claims = re.findall(r"(?im)^[ \t]*[\"']?id[\"']?[ \t]*:[^\r\n]*?(TASK-\d{3})", front)
+            # Discovery is deliberately broader than the accepted scalar grammar:
+            # unsupported Unicode whitespace must not hide a competing ID claim.
+            # Use the parser's line boundaries and normalize case-insensitive
+            # claims before comparing them with the canonical task identity.
+            claims = [claim.upper() for line in front.splitlines() for claim in
+                      re.findall(r"(?i)^[^\S\r\n]*[\"']?id[\"']?[^\S\r\n]*:[^\r\n]*?(TASK-\d{3})", line)]
         except AssociationError:
             if filename_claim:
                 raise

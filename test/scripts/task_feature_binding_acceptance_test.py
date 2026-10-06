@@ -85,6 +85,7 @@ class WorkflowScopeTest(unittest.TestCase):
         untracked=subprocess.check_output(['git','ls-files','--others','--exclude-standard','-z'],cwd=ROOT).decode().split('\0')
         exact={'agentflow','scripts/agentflow_feature.py','scripts/reconcile_merged_task.py','scripts/workflow_artifact_probe.py','scripts/agentflow_check.py','README.md','docs/adr/0014-durable-agentflow-feature-ownership.md','backlog/TASK-054-agentflow-task-feature-directory-binding.md','backlog/feedback/TASK-054.md'}
         exact.update('test/scripts/'+name for name in ('agentflow_feature_test.py','agentflow_branch_test.py','agentflow_completion_test.py','reconcile_merged_task_test.py','workflow_artifact_probe_test.py','task_feature_binding_acceptance_test.py'))
+        exact.update(('tests/test_agentflow.py','tests/test_agentflow_delivery.py'))
         exact.update('test/scripts/fixtures/task_feature_binding/provider/'+name for name in set(PINNED)|{'provenance.json'})
         illegal=[p for p in set(tracked+untracked)-{''} if p not in exact and not p.startswith('specs/055-task-feature-binding/')]
         self.assertEqual(illegal,[],f'Changes outside tooling/active-feature scope: {illegal}')

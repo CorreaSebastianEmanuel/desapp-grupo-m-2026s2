@@ -1,5 +1,6 @@
 import json
 import runpy
+import subprocess
 import tempfile
 import unittest
 from contextlib import redirect_stdout
@@ -24,6 +25,11 @@ class DependencyLifecycleTest(unittest.TestCase):
         globals_ = self.api["dependency_blockers"].__globals__
         globals_["ROOT"] = self.root
         globals_["BACKLOG"] = self.backlog
+        feature = self.root / "specs" / "001-dependency"
+        feature.mkdir(parents=True)
+        (feature / "spec.md").write_text("**Feature Branch**: `001-dependency`\n")
+        for report in ("qa-report.md", "review-report.md"):
+            (feature / report).write_text("Verdict: PASS\n")
 
     def tearDown(self):
         self.tmp.cleanup()
@@ -262,6 +268,16 @@ class WorkflowArtifactProbeTest(unittest.TestCase):
         self.root = Path(self.tmp.name)
         self.feature = self.root / "specs" / "001-example"
         (self.feature / "handoffs").mkdir(parents=True)
+        backlog = self.root / "backlog"
+        backlog.mkdir()
+        (backlog / "TASK-001-example.md").write_text(
+            "---\nid: TASK-001\ntitle: Example\nstatus: wip\nactive_run: none\n---\n"
+        )
+        (self.feature / "spec.md").write_text("**Feature Branch**: `001-example`\n")
+        subprocess.run(
+            ["git", "init", "-q", "-b", "001-example", str(self.root)],
+            check=True, capture_output=True,
+        )
         (self.root / ".specify").mkdir()
         (self.root / ".specify" / "feature.json").write_text(
             json.dumps({"feature_directory": "specs/001-example"}), encoding="utf-8"

@@ -313,6 +313,7 @@ class SnapshotTest(unittest.TestCase):
             foreign = root / "specs/002-foreign/handoffs"
             own.mkdir(parents=True)
             foreign.mkdir(parents=True)
+            (own.parent / "spec.md").write_text("**Feature Branch**: `001-test`\n")
             (own / "develop.md").write_text("OWN_FEATURE")
             (foreign / "develop.md").write_text("FOREIGN_FEATURE")
             run = g["SPEC_RUNS"] / "run"

@@ -7,7 +7,13 @@ import json
 import glob
 import re
 import sys
+import subprocess
 from pathlib import Path
+
+try:
+    from scripts.agentflow_feature import task_id_from_head, task_for_id, resolve_feature
+except ModuleNotFoundError:
+    from agentflow_feature import task_id_from_head, task_for_id, resolve_feature
 
 
 STAGES = {
@@ -23,19 +29,12 @@ ARTIFACT_SUFFIXES = {".ex", ".exs", ".json", ".md", ".sh", ".toml", ".yaml", ".y
 
 
 def active_feature(root: Path) -> Path:
-    try:
-        value = json.loads(
-            (root / ".specify" / "feature.json").read_text(encoding="utf-8")
-        )["feature_directory"]
-    except (OSError, KeyError, TypeError, json.JSONDecodeError) as error:
-        raise RuntimeError("Cannot resolve the active feature from .specify/feature.json") from error
-    feature = Path(value)
-    if not feature.is_absolute():
-        feature = root / feature
-    feature = feature.resolve()
-    if feature.parent != (root / "specs").resolve():
-        raise RuntimeError("Active feature must be an immediate child of specs/")
-    return feature
+    branch=subprocess.run(["git","branch","--show-current"],cwd=root,text=True,capture_output=True)
+    if branch.returncode:
+        raise RuntimeError("Cannot read current Git delivery branch")
+    head=branch.stdout.strip()
+    task=task_for_id(root,task_id_from_head(head))
+    return resolve_feature(root,task,head_ref=head).feature
 
 
 def completed_task_artifacts(root: Path, feature: Path) -> list[str]:

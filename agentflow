@@ -2,6 +2,7 @@
 from __future__ import annotations
 import argparse, json, os, re, shutil, signal, subprocess, sys, threading, time
 from scripts.agentflow_runtime import Console, metrics_summary
+from scripts.agentflow_feature import (expected_branch, resolve_feature, contained_file, require_reports, complete_reviewed_task, task_for_id, metadata as task_metadata, parsed_metadata)
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -32,17 +33,15 @@ MAX_FEEDBACK_CYCLES = config_int("max_feedback_cycles",3)
 
 def files(): return sorted(BACKLOG.glob("TASK-*.md"))
 def meta(path):
-    front = path.read_text(encoding="utf-8").split("---", 2)[1]
-    return {k.strip(): v.strip().strip('"') for line in front.splitlines() if ":" in line for k,v in [line.split(":",1)]}
+    return task_metadata(path)
 def find(task):
-    found = list(BACKLOG.glob(f"{task.upper()}-*.md"))
-    if len(found) != 1: raise SystemExit(f"Task {task.upper()} not found or ambiguous")
-    return found[0]
+    try: return task_for_id(ROOT,task.upper())
+    except RuntimeError as error: raise SystemExit(str(error)) from error
 def field(path, key, value):
-    text = path.read_text(encoding="utf-8")
-    text, n = re.subn(rf"(?m)^{re.escape(key)}:\s*.*$", f"{key}: {value}", text, count=1)
-    if n != 1: raise SystemExit(f"Missing {key} in {path}")
-    path.write_text(text, encoding="utf-8")
+    text, _, spans = parsed_metadata(path)
+    if key not in spans: raise SystemExit(f"Missing {key} in {path}")
+    start, end = spans[key]
+    path.write_bytes((text[:start] + value + text[end:]).encode('utf-8'))
 def feedback_path(task): return FEEDBACK/f"{meta(task)['id']}.md"
 def feedback_text(task):
     path=feedback_path(task)
@@ -51,9 +50,7 @@ def task_context(task):
     return "Use docs/PRODUCT.md, docs/ARCHITECTURE.md, docs/CHECKPOINTS.md and the constitution.\n\n"+task.read_text(encoding="utf-8")+"\n\n## Human feedback\n\n"+feedback_text(task)
 def slug(text): return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-") or "task"
 def task_branch(task):
-    m=meta(task)
-    number=m["id"].split("-",1)[1]
-    return f"{number}-{slug(m['title'])}"
+    return expected_branch(task)
 def dependency_ids(path):
     raw=meta(path).get("depends_on","none")
     return [] if raw in ("none","") else [x.strip().upper() for x in raw.split(",") if x.strip()]
@@ -98,12 +95,25 @@ def review_pr_merged(task):
 def reconcile_merged_dependencies(path):
     """Persist merged reviewed dependencies after entering the new feature branch."""
     completed=[]
+    dependencies=[]
+    # Validate the entire dependency metadata set before the first write.
     for ident in dependency_ids(path):
-        dependency=find(ident)
-        if meta(dependency).get("status")=="review" and review_pr_merged(dependency):
-            field(dependency,"status","done")
-            field(dependency,"active_run","none")
-            completed.append(ident)
+        try:
+            dependency=task_for_id(ROOT,ident)
+            state=task_metadata(dependency).get("status")
+        except RuntimeError as error:
+            print(f"Merged dependency {ident} refused: {error}",file=sys.stderr)
+            return []
+        dependencies.append((ident,dependency,state))
+    for ident,dependency,state in dependencies:
+        if state!="review": continue
+        try:
+            if not review_pr_merged(dependency): continue
+            complete_reviewed_task(ROOT,dependency,head_ref=task_branch(dependency))
+        except RuntimeError as error:
+            print(f"Merged dependency {ident} refused: {error}",file=sys.stderr)
+            continue
+        completed.append(ident)
     if completed:
         print("Merged dependencies reconciled: "+", ".join(completed))
     return completed
@@ -156,14 +166,30 @@ def status(a):
         print(f"stage: {index}/{total} {STEP_LABELS.get(current,current)}")
         print(f"last_activity: {updated}")
         print(f"log: {(SPEC_RUNS/run/'log.jsonl').relative_to(ROOT)}")
-def feature_for_task(task):
-    """Resolve a task's feature directory without cross-task mtime coupling."""
-    number=meta(task)["id"].split("-",1)[1]
-    dirs=[p for p in (ROOT/"specs").glob(f"{number}-*") if p.is_dir()]
-    return max(dirs,key=lambda p:p.stat().st_mtime) if dirs else None
-def newest_feature():
-    dirs=[p for p in (ROOT/"specs").glob("[0-9][0-9][0-9]-*") if p.is_dir()]
-    return max(dirs,key=lambda p:p.stat().st_mtime) if dirs else None
+def feature_for_task(task, allow_missing=False):
+    association=resolve_feature(ROOT,task,allow_missing=allow_missing)
+    return association.feature if association else None
+
+def session_feature(task, head_ref=None, allow_missing=False):
+    association=resolve_feature(ROOT,task,head_ref=head_ref,allow_missing=allow_missing)
+    pointer=ROOT/".specify"/"feature.json"
+    if association is None:
+        pointer.unlink(missing_ok=True)
+    else:
+        pointer.parent.mkdir(parents=True,exist_ok=True)
+        pointer.write_text(json.dumps({"feature_directory":association.feature.relative_to(ROOT).as_posix()})+"\n",encoding="utf-8")
+    return association
+
+def delivery_association(task, feature=None):
+    branch=git("branch","--show-current").stdout.strip()
+    association=resolve_feature(ROOT,task,head_ref=branch)
+    if feature is not None and feature.resolve()!=association.feature:
+        raise RuntimeError(f"Refusing caller feature {feature}; expected {association.feature}")
+    for name in ("spec.md","plan.md","tasks.md"):
+        contained_file(association.feature,name)
+    require_reports(association)
+    return association
+
 def git(*args, capture=True):
     return subprocess.run(["git",*args],cwd=ROOT,text=True,capture_output=capture)
 
@@ -290,7 +316,7 @@ def history(a):
     print(f"{m['id']} — {m['title']}\n")
     fp=feedback_path(task)
     print(fp.read_text(encoding="utf-8").rstrip() if fp.exists() else "No human feedback.")
-    feature=feature_for_task(task)
+    feature=feature_for_task(task,allow_missing=True)
     if feature and (feature/"handoffs").exists():
         print("\n# Agent handoffs")
         for handoff in sorted((feature/"handoffs").glob("*.md")):
@@ -394,12 +420,10 @@ def monitor_process(cmd, task, run_hint=None):
     if run: field(task,"active_run",run)
     return process.returncode,run
 def publish(task, task_meta, feature):
-    branch=git("branch","--show-current").stdout.strip()
-    expected=task_branch(task)
-    if branch != expected:
-        if not branch or branch in ("main","master"):
-            raise RuntimeError(f"Refusing to publish from a protected base branch; expected {expected}")
-        raise RuntimeError(f"Refusing to publish {task_meta['id']} from {branch}; expected {expected}")
+    association=delivery_association(task,feature)
+    feature=association.feature
+    branch=association.branch
+    task_meta=meta(task)
     field(task,"status","review")
     commit_message=f"Implement {task_meta['id']}: {task_meta['title']}"
     changes=git("status","--porcelain")
@@ -415,6 +439,7 @@ def publish(task, task_meta, feature):
             raise RuntimeError("Clean feature branch has no verified task commit to publish")
     pushed=git("push","-u","origin",branch)
     if pushed.returncode: raise RuntimeError(pushed.stderr.strip() or "git push failed")
+    RUNS.mkdir(parents=True,exist_ok=True)
     body=RUNS/f"{task_meta['id']}-pr.md"
     body.write_text(
         f"## Agentflow delivery\n\nCloses the implementation work for `{task_meta['id']}`.\n\n"
@@ -423,18 +448,24 @@ def publish(task, task_meta, feature):
         f"- Tasks: `{feature.relative_to(ROOT)}/tasks.md`\n"
         f"- QA: `{feature.relative_to(ROOT)}/qa-report.md` — PASS\n"
         f"- Final review: `{feature.relative_to(ROOT)}/review-report.md` — PASS\n\n"
-        "The PR was created automatically after independent QA and final review. Merge remains human-controlled.\n",
+        "The PR was created automatically after independent QA and final review. Merge remains human-controlled.\n\n"
+        + task.read_text(encoding="utf-8").split("## Outcome",1)[-1].strip() + "\n",
         encoding="utf-8")
     pr=subprocess.run(["gh","pr","create","--base","main","--head",branch,"--title",f"{task_meta['id']}: {task_meta['title']}","--body-file",str(body)],cwd=ROOT,text=True,capture_output=True)
     if pr.returncode: raise RuntimeError(pr.stderr.strip() or "gh pr create failed")
     return pr.stdout.strip()
 
 def finalize(task, task_meta, code, no_pr=False):
-    feature=feature_for_task(task)
-    passed=verification_passed(feature,code)
-    if not passed:
+    # Invalid metadata cannot authorize even the automatic blocked transition.
+    task_meta=meta(task)
+    task_for_id(ROOT,task_meta.get("id",""))
+    feature=None
+    try:
+        if code: raise RuntimeError(f"Workflow exited {code}")
+        feature=delivery_association(task).feature
+    except RuntimeError as error:
         field(task,"status","blocked")
-        print(f"Verification failed; inspect {feature or 'specs/'} and .agentflow/runs",file=sys.stderr)
+        print(f"Verification failed: {error}",file=sys.stderr)
         return code or 1
     if no_pr:
         field(task,"status","review")
@@ -465,6 +496,7 @@ def start(a):
     try: branch=ensure_feature_branch(task)
     except RuntimeError as error: raise SystemExit(str(error)) from error
     print(f"Feature branch: {branch}")
+    session_feature(task,head_ref=branch,allow_missing=True)
     reconcile_merged_dependencies(task)
     field(task,"status","wip")
     context=task_context(task)
@@ -478,6 +510,8 @@ def resume(a):
     try: branch=ensure_feature_branch(task)
     except RuntimeError as error: raise SystemExit(str(error)) from error
     print(f"Feature branch: {branch}")
+    state=read_run_state(run)
+    session_feature(task,head_ref=branch,allow_missing=bool(state and state.get("current_step_id")=="product"))
     recover_orphaned_run(task,run)
     field(task,"status","wip")
     print(f"Resuming {a.task.upper()} — run {run}")
@@ -493,23 +527,23 @@ def resume(a):
         return code
     return finalize(task,meta(task),code)
 def complete(a):
-    task=find(a.task); m=meta(task)
-    if m.get("status")!="review": raise SystemExit(f"Only a reviewed task can be completed; current status is {m.get('status')}")
-    field(task,"status","done"); field(task,"active_run","none")
-    print(f"Completed {m['id']}. Dependent tasks may now become ready.")
-def terminal_verdict(path):
-    lines=[line.strip() for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
-    return lines[-1] if lines else ""
-def verification_passed(feature,code):
-    required=("spec.md","plan.md","tasks.md","qa-report.md","review-report.md")
-    return bool(
-        code==0 and feature and all((feature/name).is_file() for name in required)
-        and terminal_verdict(feature/"qa-report.md")=="Verdict: PASS"
-        and terminal_verdict(feature/"review-report.md")=="Verdict: PASS"
-    )
+    # The explicit command is the existing human acceptance boundary.
+    task=find(a.task)
+    try: complete_reviewed_task(ROOT,task)
+    except RuntimeError as error: raise SystemExit(str(error)) from error
+    print(f"Completed {meta(task)['id']}. Dependent tasks may now become ready.")
+def verification_passed(task,feature,code):
+    if code: return False
+    try:
+        delivery_association(task,feature)
+        return True
+    except RuntimeError as error:
+        print(f"Verification refused: {error}",file=sys.stderr)
+        return False
 def verify(a):
+    task=find(a.task)
+    feature=session_feature(task,head_ref=git("branch","--show-current").stdout.strip()).feature
     selected=agent(a.agent)
-    task=find(a.task); feature=feature_for_task(task)
     prompt=(
         f"You are the delegated independent verifier for {a.task}. Do not invoke "
         "`./agentflow verify`, the verify skill, or another Codex session: that would recurse. "
@@ -521,7 +555,7 @@ def verify(a):
     if a.dry_run: print(f"Would verify {a.task} with {selected}"); return 0
     cmd=["codex","exec","-C",str(ROOT),"--approve-for-me","--ephemeral",prompt]
     code=subprocess.run(cmd,cwd=ROOT).returncode
-    if verification_passed(feature,code):
+    if verification_passed(task,feature,code):
         field(task,"status","review")
         print(f"Independent QA and final review passed for {a.task.upper()}.")
         return 0
@@ -538,7 +572,7 @@ def menu(parser):
         if choice=="8": argv=["feedback",input("Task id: ").strip(),input("Feedback: ").strip()]
         if not argv: print("Invalid option"); continue
         try: x=parser.parse_args(argv); x.func(x)
-        except SystemExit as e: print(e)
+        except (SystemExit, RuntimeError) as e: print(e)
 def parser():
     p=argparse.ArgumentParser(description="Local multi-agent SDD workflow"); s=p.add_subparsers()
     c=s.add_parser("create"); c.add_argument("title",nargs="?"); c.add_argument("--outcome"); c.add_argument("--checkpoint",choices=["CP1","CP2","CP3"],default="CP1"); c.add_argument("--priority",choices=["low","medium","high","critical"],default="medium"); c.set_defaults(func=create)
@@ -560,4 +594,6 @@ def parser():
 if __name__=="__main__":
     p=parser()
     if len(sys.argv)==1: raise SystemExit(menu(p))
-    a=p.parse_args(); raise SystemExit(a.func(a) if hasattr(a,"func") else 2)
+    a=p.parse_args()
+    try: raise SystemExit(a.func(a) if hasattr(a,"func") else 2)
+    except RuntimeError as error: raise SystemExit(str(error)) from error

@@ -1,0 +1,202 @@
+{
+  "schema_version": 1,
+  "runtime_required": false,
+  "checks": [
+    {
+      "id": "tooling-preflight",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "test.scripts.task_feature_binding_acceptance_test.ToolingPreflightTest"
+      ]
+    },
+    {
+      "id": "resolver",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "test.scripts.agentflow_feature_test"
+      ]
+    },
+    {
+      "id": "local-delivery",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "test.scripts.agentflow_branch_test"
+      ]
+    },
+    {
+      "id": "local-completion",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "test.scripts.agentflow_completion_test"
+      ]
+    },
+    {
+      "id": "post-merge",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "test.scripts.reconcile_merged_task_test"
+      ]
+    },
+    {
+      "id": "actual-provider",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "test.scripts.task_feature_binding_acceptance_test.ActualProviderFixtureTest"
+      ]
+    },
+    {
+      "id": "workflow-scope",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "test.scripts.task_feature_binding_acceptance_test.WorkflowScopeTest"
+      ]
+    },
+    {
+      "id": "stage-probe",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "test.scripts.workflow_artifact_probe_test"
+      ]
+    },
+    {
+      "id": "syntax",
+      "argv": [
+        "python3",
+        "-c",
+        "from pathlib import Path; paths = ['agentflow', 'scripts/agentflow_feature.py', 'scripts/reconcile_merged_task.py', 'scripts/workflow_artifact_probe.py', 'scripts/agentflow_check.py', 'test/scripts/agentflow_feature_test.py', 'test/scripts/agentflow_branch_test.py', 'test/scripts/agentflow_completion_test.py', 'test/scripts/reconcile_merged_task_test.py', 'test/scripts/workflow_artifact_probe_test.py', 'test/scripts/task_feature_binding_acceptance_test.py']; [compile(Path(p).read_bytes(), p, 'exec') for p in paths]; print('Compiled syntax for', len(paths), 'tooling files')"
+      ]
+    },
+    {
+      "id": "whitespace",
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "dbddd6f"
+      ]
+    }
+  ],
+  "coverage": {
+    "FR-001": [
+      "resolver",
+      "local-delivery",
+      "post-merge",
+      "actual-provider"
+    ],
+    "FR-002": [
+      "resolver",
+      "local-delivery",
+      "post-merge",
+      "local-completion"
+    ],
+    "FR-003": [
+      "resolver",
+      "local-delivery",
+      "local-completion",
+      "post-merge",
+      "stage-probe"
+    ],
+    "FR-004": [
+      "resolver",
+      "local-delivery",
+      "post-merge"
+    ],
+    "FR-005": [
+      "resolver",
+      "local-delivery",
+      "local-completion",
+      "post-merge",
+      "stage-probe"
+    ],
+    "FR-006": [
+      "resolver",
+      "local-delivery",
+      "local-completion",
+      "post-merge"
+    ],
+    "FR-007": [
+      "post-merge",
+      "actual-provider",
+      "local-completion"
+    ],
+    "FR-008": [
+      "local-completion",
+      "workflow-scope"
+    ],
+    "FR-009": [
+      "workflow-scope",
+      "post-merge"
+    ],
+    "FR-010": [
+      "resolver",
+      "local-delivery",
+      "local-completion",
+      "post-merge",
+      "actual-provider",
+      "stage-probe",
+      "syntax",
+      "whitespace"
+    ],
+    "FR-011": [
+      "tooling-preflight",
+      "actual-provider"
+    ],
+    "FR-012": [
+      "workflow-scope",
+      "local-delivery"
+    ],
+    "SC-001": [
+      "resolver",
+      "local-delivery",
+      "post-merge",
+      "actual-provider"
+    ],
+    "SC-002": [
+      "resolver",
+      "local-delivery",
+      "local-completion",
+      "post-merge",
+      "stage-probe"
+    ],
+    "SC-003": [
+      "tooling-preflight",
+      "actual-provider"
+    ],
+    "SC-004": [
+      "tooling-preflight",
+      "resolver",
+      "local-delivery",
+      "local-completion",
+      "post-merge",
+      "actual-provider",
+      "workflow-scope",
+      "stage-probe",
+      "syntax",
+      "whitespace"
+    ],
+    "SC-005": [
+      "workflow-scope",
+      "local-delivery"
+    ]
+  },
+  "task_stages": {
+    "T028": "qa",
+    "T029": "review"
+  }
+}

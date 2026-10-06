@@ -1,0 +1,23 @@
+{
+  "commit": "1aa2731f048efcb1056a589b3b2ea938b843edd4",
+  "branch": "017-football-data-api-adapter",
+  "pr": 28,
+  "files": {
+    "backlog/TASK-017-football-data-api-adapter.md": {
+      "bytes": 262,
+      "sha256": "fa36022776fccf0228b8bff58d41cf9fd4bce39606b3fea3c57799fee52dc13c"
+    },
+    "specs/055-football-data-api-adapter/spec.md": {
+      "bytes": 23308,
+      "sha256": "36d29071eaf11739503e289b9d7f842ab6f5c1f7473561e79569252f03618386"
+    },
+    "specs/055-football-data-api-adapter/qa-report.md": {
+      "bytes": 5949,
+      "sha256": "b80d21e503597d65390774f962f3ec0ad7367a49d74ac258f20e77092016a462"
+    },
+    "specs/055-football-data-api-adapter/review-report.md": {
+      "bytes": 3668,
+      "sha256": "03578ff095635a889f4f10c21a91295687bea5052a2dfe60ac54e12e5eea5b48"
+    }
+  }
+}

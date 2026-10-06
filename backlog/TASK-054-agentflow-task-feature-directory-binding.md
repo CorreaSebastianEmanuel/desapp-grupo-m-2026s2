@@ -4,9 +4,9 @@ title: Agentflow task feature directory binding
 type: task
 checkpoint: CP1
 priority: high
-status: todo
+status: review
 depends_on: none
-active_run: none
+active_run: e2263724
 ---
 
 ## Outcome

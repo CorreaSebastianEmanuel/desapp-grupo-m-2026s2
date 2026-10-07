@@ -11,5 +11,6 @@ active_run: none
 
 ## Outcome
 
-Run durable, retry-safe automatic and manual catalog synchronization with execution history.
+Run local Oban initial/manual/scheduled catalog synchronization with jobs in PostgreSQL, durable history, deduplication and bounded retries. Domain idempotency remains required; Redis does not own processed state. Reuse job infrastructure for statistics and conditional orders.
 
+Follow [CP2 architecture](../docs/CP2_ARCHITECTURE.md) and [ADR-0017](../docs/adr/0017-cp2-charts-and-conditional-orders.md).

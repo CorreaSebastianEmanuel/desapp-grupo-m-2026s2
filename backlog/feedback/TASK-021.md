@@ -23,4 +23,3 @@ Arquitectura aceptada por el usuario el 2026-10-06: todo local, Phoenix modular,
 - Restart from: architecture
 
 Planificacion CP2 reconciliada con main: reutilizar TASK-016 del PR #27; no usar el intento local duplicado. TASK-055 es el scraper, TASK-056 la frescura TTL (TASK-054 en main pertenece a Agentflow). Seguir ADR-0016 y ADR-0017. PR #28/TASK-017 ofrece catalogo Football-Data.org opcional, no estadisticas por partido suficientes. Conservar las decisiones pendientes de posicion mas frecuente: ventana, empates e historial insuficiente requieren especificacion antes de derivar; no usar usualPosition como frecuencia demostrada. Graficos y ordenes condicionales son nuevos requisitos CP2; no ampliar ingesta a implementarlos.
-

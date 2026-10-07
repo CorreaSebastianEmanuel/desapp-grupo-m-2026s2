@@ -1,6 +1,6 @@
 # Independent QA — TASK-017, feedback 3
 
-2026-10-06 UTC. Active feature resolved from `.specify/feature.json`: `specs/055-football-data-api-adapter`; branch `017-football-data-api-adapter`, HEAD `b21af36` plus current feedback-3 changes. Read canonical spec/plan/tasks, architecture/develop handoffs, all current feedback, manifest and relevant diffs. Implementation was not modified.
+2026-10-06 UTC. At QA time, `.specify/feature.json` pointed to the then-named directory `specs/055-football-data-api-adapter`; that directory was subsequently renamed to match branch `017-football-data-api-adapter`. The artifact contents were preserved. Branch `017-football-data-api-adapter`, HEAD `b21af36` plus current feedback-3 changes. Read canonical spec/plan/tasks, architecture/develop handoffs, all current feedback, manifest and relevant diffs. Implementation was not modified.
 
 All **21 manifest checks passed independently**. `/tmp/task017-qa-fresh/run_manifest.py` executed each manifest `argv` and environment directly, without Agentflow or developer receipts. Exact commands, exits and timestamps: `/tmp/task017-qa-fresh/results.json`; full evidence: matching `<check-id>.log` files. Initial sandbox socket denials were resolved by authorized reruns; no checks were skipped.
 

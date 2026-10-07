@@ -2,7 +2,7 @@
 
 **Branch**: `017-football-data-api-adapter` | **Date**: 2026-10-06 | **Spec**: [spec.md](spec.md)
 
-**Input**: `specs/055-football-data-api-adapter/spec.md`; TASK-017, CP2, dependency TASK-016.
+**Input**: `specs/017-football-data-api-adapter/spec.md`; TASK-017, CP2, dependency TASK-016.
 
 ## Summary
 
@@ -45,7 +45,7 @@ These are architecture assessments, not claims that future code checks ran. No u
 ### Documentation (this feature)
 
 ```text
-specs/055-football-data-api-adapter/
+specs/017-football-data-api-adapter/
   spec.md, plan.md, research.md, data-model.md, quickstart.md, tasks.md
   contracts/football-data.md, contracts/fixtures.md
   verification.json, .gitignore

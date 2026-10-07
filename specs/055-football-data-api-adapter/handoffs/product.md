@@ -1,7 +1,0 @@
-# Product handoff — TASK-017
-
-- Active feature resolution was stale at TASK-016. The specify skill's sequential numbering follows existing maximum 054, so this task uses `specs/055-football-data-api-adapter` while its existing branch remains `017-football-data-api-adapter`. Downstream stages should resolve `.specify/feature.json`, not derive the directory from branch or task ID.
-- Product challenge should scrutinize the source's current-season squad affiliation: season rosters can include transferred players, and the contract forbids duplicate/conflicting identity. Architecture needs representative transfer fixtures and must preserve the specified refusal rather than silently reconcile them.
-- Architecture should record vendor-status/delay translation and demonstrate owned transport cleanup under the existing provider worker's cancellation model. A worker terminating does not alone prove its transport resources terminate.
-- TASK-021 depends on this adapter, but usable player-performance coverage is not established by public vendor documentation. Its later product stage must assess source suitability before promising valuation ingestion; this task grants no additional source or subscription work.
-- No unresolved human product decision is required for this draft. Independent product challenge and architecture synthesis remain pending; this artifact does not constitute their approval or task completion.

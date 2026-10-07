@@ -29,6 +29,6 @@ A known rate-limit wait stays anchored to the original source-header receipt. `r
 
 Only rate-limited, unavailable and timeout are retry eligible. Retry eligibility never performs work within this call. No source message interpretation is needed.
 
-Offline acceptance and independent QA commands are in [the feature quickstart](../specs/055-football-data-api-adapter/quickstart.md). The synthetic fixture suites require no account, external services or live network; actual transport checks run a private ready-checked loopback TLS listener. Application regression/isolation checks use the existing local PostgreSQL/Redis only.
+Offline acceptance and independent QA commands are in [the feature quickstart](../specs/017-football-data-api-adapter/quickstart.md). The synthetic fixture suites require no account, external services or live network; actual transport checks run a private ready-checked loopback TLS listener. Application regression/isolation checks use the existing local PostgreSQL/Redis only.
 
 An optional live smoke is operator-only: explicitly enable and inject the token, then invoke the existing internal Providers API for a verified accessible current season. Do not print configured state, token, transport exchanges or raw exceptions. Disable afterward. A live smoke is neither an acceptance prerequisite nor a startup action; access, quota, latency or ambiguous affiliations can still refuse the request.

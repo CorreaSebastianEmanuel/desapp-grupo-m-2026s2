@@ -1,0 +1,2 @@
+- Spec Kit initially allocated the next available feature directory, `specs/055-football-data-api-adapter`, while the active backlog task and branch were TASK-017 / `017-football-data-api-adapter`. Following the product owner’s direction, the feature directory and its references were renamed to `specs/017-football-data-api-adapter` so task, branch and folder numbering match.
+- Downstream stages should resolve the active feature from `.specify/feature.json`; do not derive the directory from a branch name when an explicit binding exists.

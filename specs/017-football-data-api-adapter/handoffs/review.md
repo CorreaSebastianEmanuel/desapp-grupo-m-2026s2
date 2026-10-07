@@ -1,6 +1,6 @@
 # Final-review handoff — TASK-017
 
-Delivery guidance: retain the verified feature directory `specs/055-football-data-api-adapter` on branch `017-football-data-api-adapter`. Publication must update existing PR #28. Human merge authority remains unchanged; this review performed no commit, push, merge or backlog transition.
+Delivery guidance: retain the verified feature directory `specs/017-football-data-api-adapter` on branch `017-football-data-api-adapter`. Publication must update existing PR #28. Human merge authority remains unchanged; this review performed no commit, push, merge or backlog transition.
 
 Keep `/tmp/task017-final-review/evidence-audit.json` with the fresh QA evidence for any targeted reproduction. Preserve the original probes in `/tmp/task017-independent-qa` and `/tmp/task017-review`; portable tracked equivalents remain the acceptance source for other environments.
 

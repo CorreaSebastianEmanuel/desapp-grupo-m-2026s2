@@ -1,0 +1,279 @@
+{
+  "schema_version": 1,
+  "runtime_required": false,
+  "checks": [
+    {
+      "id": "toolchain",
+      "argv": [
+        "sh",
+        "scripts/check_toolchain.sh"
+      ]
+    },
+    {
+      "id": "format",
+      "argv": [
+        "mix",
+        "format",
+        "--check-formatted"
+      ]
+    },
+    {
+      "id": "compile",
+      "argv": [
+        "mix",
+        "compile",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "service-preflight",
+      "argv": [
+        "sh",
+        "-c",
+        "sh scripts/local_services.sh ready && MIX_ENV=test mix infrastructure.verify"
+      ],
+      "reuse": false
+    },
+    {
+      "id": "assessment",
+      "argv": [
+        "elixir",
+        "test/scraping_adapter_offline.exs",
+        "assessment"
+      ]
+    },
+    {
+      "id": "catalog",
+      "argv": [
+        "elixir",
+        "test/scraping_adapter_offline.exs",
+        "catalog"
+      ]
+    },
+    {
+      "id": "performances",
+      "argv": [
+        "elixir",
+        "test/scraping_adapter_offline.exs",
+        "performances"
+      ]
+    },
+    {
+      "id": "safety",
+      "argv": [
+        "elixir",
+        "test/scraping_adapter_offline.exs",
+        "safety"
+      ]
+    },
+    {
+      "id": "deadline",
+      "argv": [
+        "elixir",
+        "test/scraping_adapter_offline.exs",
+        "deadline"
+      ]
+    },
+    {
+      "id": "matrix",
+      "argv": [
+        "elixir",
+        "test/scraping_adapter_offline.exs",
+        "matrix"
+      ]
+    },
+    {
+      "id": "equivalence",
+      "argv": [
+        "elixir",
+        "test/scraping_adapter_offline.exs",
+        "equivalence"
+      ]
+    },
+    {
+      "id": "repeat",
+      "argv": [
+        "elixir",
+        "test/scraping_adapter_offline.exs",
+        "repeat"
+      ]
+    },
+    {
+      "id": "provider-contract",
+      "argv": [
+        "elixir",
+        "test/provider_contract_offline.exs",
+        "all"
+      ]
+    },
+    {
+      "id": "isolation",
+      "argv": [
+        "sh",
+        "-c",
+        "sh scripts/local_services.sh ready && MIX_ENV=test mix infrastructure.verify && MIX_ENV=test mix test test/football_market/providers/scraping/isolation_test.exs"
+      ],
+      "reuse": false
+    },
+    {
+      "id": "unit-profile",
+      "argv": [
+        "sh",
+        "scripts/test_profile.sh",
+        "unit"
+      ]
+    },
+    {
+      "id": "integration-profile",
+      "argv": [
+        "sh",
+        "scripts/test_profile.sh",
+        "integration"
+      ]
+    },
+    {
+      "id": "workflow-controls",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "tests.test_agentflow_delivery",
+        "tests.test_agentflow",
+        "tests.test_workflow_token_audit",
+        "test.scripts.workflow_artifact_probe_test"
+      ]
+    },
+    {
+      "id": "publication-gate",
+      "argv": [
+        "elixir",
+        "specs/056-football-scraping-adapter/handoffs/qa-evidence/publication-gate.exs"
+      ]
+    }
+  ],
+  "coverage": {
+    "FR-001": [
+      "provider-contract",
+      "equivalence",
+      "catalog",
+      "performances"
+    ],
+    "FR-002": [
+      "assessment",
+      "matrix"
+    ],
+    "FR-003": [
+      "assessment",
+      "safety",
+      "publication-gate"
+    ],
+    "FR-004": [
+      "assessment",
+      "matrix"
+    ],
+    "FR-005": [
+      "catalog",
+      "matrix"
+    ],
+    "FR-006": [
+      "catalog",
+      "performances",
+      "safety"
+    ],
+    "FR-007": [
+      "performances",
+      "assessment"
+    ],
+    "FR-008": [
+      "performances",
+      "matrix"
+    ],
+    "FR-009": [
+      "catalog",
+      "performances",
+      "matrix",
+      "equivalence"
+    ],
+    "FR-010": [
+      "deadline",
+      "provider-contract",
+      "isolation",
+      "publication-gate"
+    ],
+    "FR-011": [
+      "safety",
+      "provider-contract"
+    ],
+    "FR-012": [
+      "safety",
+      "isolation",
+      "repeat"
+    ],
+    "FR-013": [
+      "matrix",
+      "catalog",
+      "performances",
+      "assessment",
+      "safety",
+      "deadline",
+      "isolation"
+    ],
+    "FR-014": [
+      "repeat",
+      "equivalence",
+      "matrix"
+    ],
+    "FR-015": [
+      "assessment",
+      "matrix",
+      "safety",
+      "isolation"
+    ],
+    "SC-001": [
+      "assessment",
+      "matrix",
+      "publication-gate"
+    ],
+    "SC-002": [
+      "catalog",
+      "performances",
+      "equivalence"
+    ],
+    "SC-003": [
+      "performances",
+      "matrix"
+    ],
+    "SC-004": [
+      "matrix",
+      "repeat"
+    ],
+    "SC-005": [
+      "equivalence",
+      "provider-contract"
+    ],
+    "SC-006": [
+      "isolation",
+      "deadline"
+    ],
+    "SC-007": [
+      "assessment",
+      "matrix"
+    ],
+    "FR-016": [
+      "workflow-controls"
+    ],
+    "FR-017": [
+      "workflow-controls"
+    ],
+    "FR-018": [
+      "workflow-controls"
+    ]
+  },
+  "task_stages": {
+    "T030": "qa",
+    "T031": "review"
+  }
+}

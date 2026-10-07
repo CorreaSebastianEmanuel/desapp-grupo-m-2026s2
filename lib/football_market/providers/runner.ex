@@ -40,9 +40,24 @@ defmodule FootballMarket.Providers.Runner do
       label = adapter.provider_label()
 
       if FootballMarket.Providers.Provenance.safe_text?(label) do
+        guard =
+          if function_exported?(adapter, :publication_guard, 3),
+            do: adapter.publication_guard(request, context, state),
+            else: fn -> :ok end
+
         case adapter.read(request, Map.put(context, :provider_label, label), state) do
           {:ok, candidate} ->
-            Validator.validate(candidate, request, context, label)
+            case Validator.validate(candidate, request, context, label) do
+              {:ok, _} = result ->
+                case guard.() do
+                  :ok -> result
+                  {:error, failure} -> {:error, Error.failure(failure, request)}
+                  _ -> {:error, Error.new(:invalid_response, request.operation, request.scope)}
+                end
+
+              failure ->
+                failure
+            end
 
           {:error, failure} ->
             error = Error.failure(failure, request)

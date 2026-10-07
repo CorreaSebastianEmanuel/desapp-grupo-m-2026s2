@@ -9,9 +9,9 @@ defmodule FootballMarket.CoverageReportContractTest do
 
     assert runner =~ "git diff --binary --full-index HEAD"
     assert runner =~ "snapshot_paths()"
-    assert runner =~ ":(exclude)specs/014-cp1-test-coverage-profiles/qa-report.md"
-    assert runner =~ ":(exclude)specs/014-cp1-test-coverage-profiles/review-report.md"
-    assert runner =~ ":(exclude)specs/014-cp1-test-coverage-profiles/handoffs"
+    assert runner =~ ":(glob,exclude)specs/*/qa-report.md"
+    assert runner =~ ":(glob,exclude)specs/*/review-report.md"
+    assert runner =~ ":(glob,exclude)specs/*/handoffs/**"
     assert runner =~ "working-tree snapshot"
     assert runner =~ "committed revision"
     assert runner =~ "non-generated-untracked-input"

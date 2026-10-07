@@ -17,7 +17,7 @@ SPEC.loader.exec_module(PROBE)
 class ProbeFixture(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
-        self.root = Path(self.temp.name)
+        self.root = Path(self.temp.name).resolve()
         self.feature = self.root / "specs" / "003-example"
         (self.root / ".specify").mkdir()
         self.feature.mkdir(parents=True)

@@ -93,6 +93,32 @@ defmodule FootballMarket.Statistics.ScopeTest do
         []
       end
 
+    scraper_paths =
+      if active_feature == "specs/056-football-scraping-adapter" do
+        [
+          "lib/football_market/providers/scraping.ex",
+          "lib/football_market/providers/adapter.ex",
+          "lib/football_market/providers/runner.ex",
+          "test/scraping_adapter_offline.exs",
+          "test/support/providers/scraping_fixture_data.ex",
+          "test/support/providers/fixture_source_a.ex",
+          "test/scripts/workflow_artifact_probe_test.py",
+          "test/ci/coverage_report_contract_test.exs",
+          "test/football_market/providers/scope_test.exs"
+        ] ++
+          Enum.map(
+            ~w(assessment source translator transport disabled_transport fixture_transport),
+            &"lib/football_market/providers/scraping/#{&1}.ex"
+          ) ++
+          Enum.map(~w(cases documents expected inventory), &"test/fixtures/scraping/#{&1}.exs") ++
+          Enum.map(
+            ~w(assessment catalog performances safety deadline matrix equivalence isolation),
+            &"test/football_market/providers/scraping/#{&1}_test.exs"
+          )
+      else
+        []
+      end
+
     allowed_ci_paths = [
       "test/ci/quality_baseline_contract_test.exs",
       "test/ci/fixtures/quality-baseline.sha256"
@@ -101,7 +127,7 @@ defmodule FootballMarket.Statistics.ScopeTest do
     for line <- String.split(out, "\n", trim: true) do
       path = String.slice(line, 3..-1//1)
 
-      assert path in provider_paths or path in allowed_ci_paths or
+      assert path in provider_paths or path in scraper_paths or path in allowed_ci_paths or
                Enum.any?(allowed, &String.starts_with?(path, &1)),
              "outside plan: #{path}"
     end

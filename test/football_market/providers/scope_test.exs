@@ -10,8 +10,15 @@ defmodule FootballMarket.Providers.ScopeTest do
         &"lib/football_market/providers/#{&1}.ex"
       )
   ]
+  @scraping_production [
+    "lib/football_market/providers/scraping.ex"
+    | Enum.map(
+        ~w(assessment source translator transport disabled_transport fixture_transport),
+        &"lib/football_market/providers/scraping/#{&1}.ex"
+      )
+  ]
   test "FR-014 AST dependencies stay pure, read-only and within planned production paths" do
-    for path <- @production do
+    for path <- @production ++ @scraping_production do
       source = File.read!(path)
       ast = Code.string_to_quoted!(source)
 
@@ -63,12 +70,15 @@ defmodule FootballMarket.Providers.ScopeTest do
           path in ["mix.exs", "mix.lock"]
       end)
 
-    assert Enum.all?(production, &(&1 in @production or &1 == "mix.exs"))
+    assert Enum.all?(
+             production,
+             &(&1 in (@production ++ @scraping_production) or &1 == "mix.exs")
+           )
 
     assert Enum.sort(
-             Path.wildcard("lib/football_market/providers/*.ex") ++
+             Path.wildcard("lib/football_market/providers/**/*.ex") ++
                ["lib/football_market/providers.ex"]
-           ) == Enum.sort(@production)
+           ) == Enum.sort(@production ++ @scraping_production)
   end
 
   test "league parity and plain DTO fields preserve catalog and financial boundaries" do
@@ -98,6 +108,11 @@ defmodule FootballMarket.Providers.ScopeTest do
   test "Mix changes only exact fixture/bootstrap ignore filters; all actual tests remain discoverable" do
     expected = [
       "test/provider_contract_offline.exs",
+      "test/scraping_adapter_offline.exs",
+      "test/fixtures/scraping/cases.exs",
+      "test/fixtures/scraping/documents.exs",
+      "test/fixtures/scraping/expected.exs",
+      "test/fixtures/scraping/inventory.exs",
       "test/fixtures/providers/cases.exs",
       "test/fixtures/providers/expected.exs",
       "test/fixtures/providers/source_a.exs",

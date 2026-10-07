@@ -16,7 +16,7 @@ AGENTFLOW_PATH = Path(__file__).parents[1] / "agentflow"
 class DependencyLifecycleTest(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
-        self.root = Path(self.tmp.name)
+        self.root = Path(self.tmp.name).resolve()
         self.backlog = self.root / "backlog"
         self.backlog.mkdir()
         self.dependency = self.write_task("TASK-001", "Dependency", "review", "none", "run-1")
@@ -95,7 +95,7 @@ class DependencyLifecycleTest(unittest.TestCase):
 class NextTaskTest(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
-        self.root = Path(self.tmp.name)
+        self.root = Path(self.tmp.name).resolve()
         self.backlog = self.root / "backlog"
         self.backlog.mkdir()
         self.api = runpy.run_path(str(AGENTFLOW_PATH))
@@ -150,7 +150,7 @@ class NextTaskTest(unittest.TestCase):
 class FeedbackLoopTest(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
-        root = Path(self.tmp.name)
+        root = Path(self.tmp.name).resolve()
         self.task = root / "backlog" / "TASK-001-example.md"
         self.task.parent.mkdir(parents=True)
         self.task.write_text(
@@ -222,7 +222,7 @@ class FeedbackLoopTest(unittest.TestCase):
 class ProductDecisionProbeTest(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
-        self.root = Path(self.tmp.name)
+        self.root = Path(self.tmp.name).resolve()
         self.feature = self.root / "specs" / "001-example"
         (self.feature / "handoffs").mkdir(parents=True)
         (self.root / ".specify").mkdir()
@@ -265,7 +265,7 @@ class ProductDecisionProbeTest(unittest.TestCase):
 class WorkflowArtifactProbeTest(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
-        self.root = Path(self.tmp.name)
+        self.root = Path(self.tmp.name).resolve()
         self.feature = self.root / "specs" / "001-example"
         (self.feature / "handoffs").mkdir(parents=True)
         backlog = self.root / "backlog"

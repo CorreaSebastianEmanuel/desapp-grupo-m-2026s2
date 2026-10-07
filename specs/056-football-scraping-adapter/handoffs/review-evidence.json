@@ -1,0 +1,11 @@
+{
+  "qa_inputs_verified": 45,
+  "qa_evidence_hashes_verified": 24,
+  "manifest_commands_verified": 18,
+  "mismatches": [],
+  "targeted_command": "PATH=/tmp/football-market-elixir-1.20.3/bin:$PATH elixir specs/056-football-scraping-adapter/handoffs/review-guard.exs",
+  "targeted_exit": 0,
+  "targeted_assertions": 12,
+  "targeted_output_sha256": "43814f48704edc6331bfd7cf6cec151d087b414c49ccd181beb8ee4afb78bf4b",
+  "diff_check_exit": 0
+}

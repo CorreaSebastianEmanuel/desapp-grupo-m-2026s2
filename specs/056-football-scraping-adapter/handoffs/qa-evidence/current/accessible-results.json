@@ -1,0 +1,64 @@
+[
+  {
+    "id": "compile",
+    "argv": [
+      "mix",
+      "compile",
+      "--warnings-as-errors"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit": 0,
+    "seconds": 0.812,
+    "access": "expanded"
+  },
+  {
+    "id": "service-preflight",
+    "argv": [
+      "sh",
+      "-c",
+      "sh scripts/local_services.sh ready && MIX_ENV=test mix infrastructure.verify"
+    ],
+    "env": {},
+    "exit": 0,
+    "seconds": 1.259,
+    "access": "expanded"
+  },
+  {
+    "id": "isolation",
+    "argv": [
+      "sh",
+      "-c",
+      "sh scripts/local_services.sh ready && MIX_ENV=test mix infrastructure.verify && MIX_ENV=test mix test test/football_market/providers/scraping/isolation_test.exs"
+    ],
+    "env": {},
+    "exit": 0,
+    "seconds": 12.825,
+    "access": "expanded"
+  },
+  {
+    "id": "unit-profile",
+    "argv": [
+      "sh",
+      "scripts/test_profile.sh",
+      "unit"
+    ],
+    "env": {},
+    "exit": 0,
+    "seconds": 31.728,
+    "access": "expanded"
+  },
+  {
+    "id": "integration-profile",
+    "argv": [
+      "sh",
+      "scripts/test_profile.sh",
+      "integration"
+    ],
+    "env": {},
+    "exit": 0,
+    "seconds": 139.86,
+    "access": "expanded"
+  }
+]

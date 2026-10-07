@@ -27,6 +27,12 @@ as argument arrays without implicit shell expansion. Use an explicit shell only
 when the real check requires it; keep secrets out of arguments, manifests and
 evidence. Environment overrides may not repurpose HOME or CODEX_HOME.
 
+For CP2, do not add the historical CP1 coverage report merely because it exists:
+it repeats both test profiles. Preserve coverage infrastructure and CI; include
+the report locally only for a concrete affected obligation or explicit request.
+Record user-authorized changes to required checks in current feedback and align
+the spec, plan, tasks and manifest rather than bypassing a failed gate silently.
+
 For affected HTTP endpoints, include an executable runtime check with
 `"runtime": true` and an `"expectation"` describing status/header/body assertions.
 The gate independently detects method/route declarations (case-insensitive) and
@@ -49,6 +55,22 @@ After implementation, run each check:
 ```bash
 python3 scripts/agentflow_check.py unit
 ```
+
+Finish source/design edits before running final checks. Within development, use
+`python3 scripts/agentflow_check.py unit --reuse` to avoid repeating an unchanged
+passing check. Reuse validates the same fingerprints and output hash as readiness;
+missing, stale, failed or corrupted evidence triggers execution. Reuse is never
+implicit and cannot reuse QA evidence. Runtime assertion checks always execute;
+set `"reuse": false` for other checks requiring fresh service/environment state. QA executes commands independently or uses
+`python3 scripts/agentflow_check.py unit --stage qa` without `--reuse`; review may
+use `--stage review` for targeted checks.
+
+After two failed executions in a stage with unchanged command/source/design inputs,
+the helper refuses a third execution. Stop and diagnose; do not rerun commands
+directly or change irrelevant inputs to evade the limit. Corrective input changes
+start a new attempt scope; independent stages have separate counters. The summary
+includes elapsed check time, failure count and evidence. Do not infer token usage
+from test runtime; use Agentflow metrics for recorded model usage.
 
 The helper captures complete output under ignored `.agentflow/runs/checks/` and
 prints only the check ID, exit code, freshness status and evidence path. Inspect

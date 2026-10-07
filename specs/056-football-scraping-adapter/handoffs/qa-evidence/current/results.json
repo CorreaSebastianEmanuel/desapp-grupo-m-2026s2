@@ -1,0 +1,204 @@
+[
+  {
+    "id": "toolchain",
+    "argv": [
+      "sh",
+      "scripts/check_toolchain.sh"
+    ],
+    "env": {},
+    "exit": 0,
+    "seconds": 1.207
+  },
+  {
+    "id": "format",
+    "argv": [
+      "mix",
+      "format",
+      "--check-formatted"
+    ],
+    "env": {},
+    "exit": 0,
+    "seconds": 0.922
+  },
+  {
+    "id": "compile",
+    "argv": [
+      "mix",
+      "compile",
+      "--warnings-as-errors"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit": 1,
+    "seconds": 0.703
+  },
+  {
+    "id": "service-preflight",
+    "argv": [
+      "sh",
+      "-c",
+      "sh scripts/local_services.sh ready && MIX_ENV=test mix infrastructure.verify"
+    ],
+    "env": {},
+    "exit": 1,
+    "seconds": 50.461
+  },
+  {
+    "id": "assessment",
+    "argv": [
+      "elixir",
+      "test/scraping_adapter_offline.exs",
+      "assessment"
+    ],
+    "env": {},
+    "exit": 0,
+    "seconds": 8.037
+  },
+  {
+    "id": "catalog",
+    "argv": [
+      "elixir",
+      "test/scraping_adapter_offline.exs",
+      "catalog"
+    ],
+    "env": {},
+    "exit": 0,
+    "seconds": 7.096
+  },
+  {
+    "id": "performances",
+    "argv": [
+      "elixir",
+      "test/scraping_adapter_offline.exs",
+      "performances"
+    ],
+    "env": {},
+    "exit": 0,
+    "seconds": 7.515
+  },
+  {
+    "id": "safety",
+    "argv": [
+      "elixir",
+      "test/scraping_adapter_offline.exs",
+      "safety"
+    ],
+    "env": {},
+    "exit": 0,
+    "seconds": 7.451
+  },
+  {
+    "id": "deadline",
+    "argv": [
+      "elixir",
+      "test/scraping_adapter_offline.exs",
+      "deadline"
+    ],
+    "env": {},
+    "exit": 0,
+    "seconds": 7.369
+  },
+  {
+    "id": "matrix",
+    "argv": [
+      "elixir",
+      "test/scraping_adapter_offline.exs",
+      "matrix"
+    ],
+    "env": {},
+    "exit": 0,
+    "seconds": 6.923
+  },
+  {
+    "id": "equivalence",
+    "argv": [
+      "elixir",
+      "test/scraping_adapter_offline.exs",
+      "equivalence"
+    ],
+    "env": {},
+    "exit": 0,
+    "seconds": 7.182
+  },
+  {
+    "id": "repeat",
+    "argv": [
+      "elixir",
+      "test/scraping_adapter_offline.exs",
+      "repeat"
+    ],
+    "env": {},
+    "exit": 0,
+    "seconds": 12.497
+  },
+  {
+    "id": "provider-contract",
+    "argv": [
+      "elixir",
+      "test/provider_contract_offline.exs",
+      "all"
+    ],
+    "env": {},
+    "exit": 0,
+    "seconds": 37.162
+  },
+  {
+    "id": "isolation",
+    "argv": [
+      "sh",
+      "-c",
+      "sh scripts/local_services.sh ready && MIX_ENV=test mix infrastructure.verify && MIX_ENV=test mix test test/football_market/providers/scraping/isolation_test.exs"
+    ],
+    "env": {},
+    "exit": 1,
+    "seconds": 50.12
+  },
+  {
+    "id": "unit-profile",
+    "argv": [
+      "sh",
+      "scripts/test_profile.sh",
+      "unit"
+    ],
+    "env": {},
+    "exit": 1,
+    "seconds": 0.791
+  },
+  {
+    "id": "integration-profile",
+    "argv": [
+      "sh",
+      "scripts/test_profile.sh",
+      "integration"
+    ],
+    "env": {},
+    "exit": 1,
+    "seconds": 1.1
+  },
+  {
+    "id": "workflow-controls",
+    "argv": [
+      "python3",
+      "-m",
+      "unittest",
+      "tests.test_agentflow_delivery",
+      "tests.test_agentflow",
+      "tests.test_workflow_token_audit",
+      "test.scripts.workflow_artifact_probe_test"
+    ],
+    "env": {},
+    "exit": 0,
+    "seconds": 14.266
+  },
+  {
+    "id": "publication-gate",
+    "argv": [
+      "elixir",
+      "specs/056-football-scraping-adapter/handoffs/qa-evidence/publication-gate.exs"
+    ],
+    "env": {},
+    "exit": 0,
+    "seconds": 7.124
+  }
+]

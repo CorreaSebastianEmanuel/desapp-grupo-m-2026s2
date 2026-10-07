@@ -21,3 +21,9 @@ Build a market where football performance determines historical player quotes an
 6. Provider failure does not break local reads.
 7. Quotes are reproducible from stored inputs, configuration, and strategy version.
 
+
+## CP2 frontend and additional feature
+
+The revised CP2 includes authenticated visualizations of user-owned portfolio data and a planned additional feature: conditional buy orders. Charts distinguish current allocation, historical portfolio value, realized profit/loss and unrealized profit/loss; missing historical quotes are visible gaps, never invented zero values.
+
+Conditional orders request an integer quantity of player tokens at or below a user-specified maximum unit price before an explicit expiry. A worker uses the then-current authoritative quote, balance and inventory and delegates execution to the existing atomic idempotent purchase rules. Orders do not reserve funds or inventory. Proposed lifecycle, cancellation race and rejection semantics are recorded in ADR-0017 and must be specified and challenged in TASK-059 before implementation. No partial fills, external broker, real-time market guarantee or external notification service is added.

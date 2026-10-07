@@ -11,5 +11,6 @@ active_run: none
 
 ## Outcome
 
-Calculate current quotes automatically/manually and append reproducible historical records.
+Calculate quotes from accepted persisted statistics and versioned strategies; append reproducible immutable history. Emit durable follow-up evaluation after confirmed quote changes for TASK-060. Retry safely and track calculation separately from statistics import.
 
+Follow [CP2 architecture](../docs/CP2_ARCHITECTURE.md) and [ADR-0017](../docs/adr/0017-cp2-charts-and-conditional-orders.md).

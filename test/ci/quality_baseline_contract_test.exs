@@ -9,6 +9,8 @@ defmodule FootballMarket.QualityBaselineContractTest do
   @compose Path.join(@root, "compose.yaml")
   @postgres_image "postgres:17.6-alpine@sha256:ef257d85f76e48da1c64832459b59fcaba1a4dac97bf5d7450c77753542eee94"
 
+  @redis_image "redis:8.2.1-alpine@sha256:987c376c727652f99625c7d205a1cba3cb2c53b92b0b62aade2bd48ee1593232"
+
   setup_all do
     ruby = """
     require "yaml"
@@ -28,6 +30,29 @@ defmodule FootballMarket.QualityBaselineContractTest do
     image = context.workflow_document["jobs"]["quality-baseline"]["services"]["postgres"]["image"]
     assert image == @postgres_image
     assert image == context.compose_document["services"]["postgres"]["image"]
+  end
+
+  test "CI Redis uses the pinned local image, test port and bounded health readiness", context do
+    services = context.workflow_document["jobs"]["quality-baseline"]["services"]
+    assert Enum.sort(Map.keys(services)) == ["postgres", "redis"]
+    redis = services["redis"]
+    assert is_map(redis)
+    assert redis["image"] == @redis_image
+    assert redis["image"] == context.compose_document["services"]["redis"]["image"]
+    assert redis["ports"] == ["6379:6379"]
+    assert Application.fetch_env!(:football_market, :redis)[:port] == 6379
+
+    assert String.split(redis["options"]) == [
+             "--health-cmd",
+             "\"redis-cli",
+             "ping\"",
+             "--health-interval",
+             "10s",
+             "--health-timeout",
+             "5s",
+             "--health-retries",
+             "5"
+           ]
   end
 
   test "workflow gates main pull requests and pushes in one least-privilege job", context do
@@ -71,7 +96,7 @@ defmodule FootballMarket.QualityBaselineContractTest do
     assert workflow =~ "run: mix format --check-formatted"
     assert workflow =~ "run: MIX_ENV=test mix compile --warnings-as-errors"
     assert workflow =~ "run: scripts/ci_unit_tests.sh"
-    refute workflow =~ ~r/(secrets\.|redis|sonar|coverage|deploy|release|e2e|architecture)/i
+    refute workflow =~ ~r/(secrets\.|sonar|coverage|deploy|release|e2e|architecture)/i
     refute workflow =~ ~r/mix format\s*$/m
     refute workflow =~ ~r/mix test.*(--stale|--only|--exclude|test\/)/
   end
@@ -91,6 +116,7 @@ defmodule FootballMarket.QualityBaselineContractTest do
     assert readme =~ "Elixir 1.20.3"
     assert readme =~ "Erlang/OTP 29.0.6"
     assert readme =~ "PostgreSQL"
+    assert readme =~ "Redis"
     assert readme =~ "./scripts/check_toolchain.sh"
     assert readme =~ "mix format --check-formatted"
     assert readme =~ "MIX_ENV=test mix compile --warnings-as-errors"

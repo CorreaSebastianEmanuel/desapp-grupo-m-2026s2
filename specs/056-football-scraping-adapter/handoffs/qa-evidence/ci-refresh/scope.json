@@ -1,0 +1,8 @@
+{
+  "checked_at": "2026-10-07T22:42:05.720546+00:00",
+  "workflow_without_new_redis_equals_HEAD": true,
+  "workflow_sha256": "4651228af0e897a2c6bad41c5a7c2778fe467fd4dc272701b9a814e40559915a",
+  "discovery_isolation_publication_reproduction_unchanged_from_HEAD": true,
+  "head": "635cbb09dd1e379227dd6059332e84a79d909883",
+  "documented_path": "/tmp/football-market-elixir-1.20.3/bin:/Users/ezequielgonzalez/.nvm/versions/node/v24.21.0/bin"
+}

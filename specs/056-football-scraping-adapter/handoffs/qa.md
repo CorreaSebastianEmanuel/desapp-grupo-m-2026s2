@@ -1,11 +1,7 @@
-# QA handoff — TASK-055
+Independent QA passed all 20 manifest checks plus eight adversarial tests. No acceptance blockers. Final review can use qa-report.md and its independent-ci evidence; developer receipts were not reused.
 
-Independent QA passed; see ../qa-report.md and qa-evidence/current/final-results.json for fresh evidence. No acceptance blockers.
+Reviewer guidance: contracts/adapter.md retains an earlier `fotmob` label example; the implementation and verified provenance consistently use `fotmob-shaped-offline`. This documentation shorthand does not alter the required stable, qualified provenance, but reviewers should use the tested value when inspecting results.
 
-Reviewer guidance: preserve the human-named publication-gate.exs unchanged. Inspect the optional Adapter callback and Runner's final-validation guard placement, while retaining deadline precedence and existing adapter compatibility. The report accepts only the current offline delivery; final review must not convert this into approval for live transport, permission, coverage, freshness or valuation.
-
-Current evidence is under qa-evidence/current/, separate from older evidence. Preliminary sandbox failures are retained alongside successful accessible executions; use final-results.json to select the authoritative run for each check. Input hashes were verified unchanged after tests. No developer receipt was overwritten or reused. Profiles keep private child output by design; their fresh complete receipts are emitted only after audit, nonempty tests, sentinel and no-skip checks succeed.
-
-Residual risk: the real source remains unusable until independently reviewed access, completeness, aggregate limits and event-position evidence exist. No source activation or downstream implementation is authorized here.
+Hosted Actions was not rerun by QA; the unchanged full-discovery command ran locally against healthy PostgreSQL/Redis. Publication, PR update and final review remain outside this QA stage.
 
 Verdict: PASS

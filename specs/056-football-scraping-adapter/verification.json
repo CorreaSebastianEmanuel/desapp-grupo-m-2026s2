@@ -152,6 +152,26 @@
         "elixir",
         "specs/056-football-scraping-adapter/handoffs/qa-evidence/publication-gate.exs"
       ]
+    },
+    {
+      "id": "ci-service-contract",
+      "argv": [
+        "mix",
+        "test",
+        "test/ci/quality_baseline_contract_test.exs",
+        "test/ci/sonarcloud_contract_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "ci-baseline",
+      "argv": [
+        "sh",
+        "scripts/ci_unit_tests.sh"
+      ],
+      "reuse": false
     }
   ],
   "coverage": {
@@ -263,7 +283,9 @@
       "matrix"
     ],
     "FR-016": [
-      "workflow-controls"
+      "workflow-controls",
+      "ci-service-contract",
+      "ci-baseline"
     ],
     "FR-017": [
       "workflow-controls"

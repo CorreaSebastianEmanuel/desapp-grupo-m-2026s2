@@ -72,3 +72,7 @@ The user removed the duplicate CP1 coverage gate for TASK-055. Unit/integration 
 ## Final-publication regression
 
 Run `python3 scripts/agentflow_check.py publication-gate` for the unchanged six-case human reproduction. The assessment selector additionally checks all six cases during final Validator clock advancement and preserves deadline precedence. Existing adapters need no publication guard; Scraping captures and rechecks current assessment through Runner after successful validation. This changes no consumer DTO or transport enablement.
+
+## CI dependency regression
+
+Quality baseline provisions PostgreSQL and Redis using the exact pinned compose.yaml images. Redis maps test port 6379 and must pass bounded redis-cli ping health readiness before job steps. Run ci-service-contract for exact provisioning, permissions and workflow byte-oracle assertions, then ci-baseline for unchanged complete discovery including ScrapingIsolationTest. Both run through agentflow_check.py; unit/integration profiles remain required. No skipped integration test or suppressed connection failure is accepted.

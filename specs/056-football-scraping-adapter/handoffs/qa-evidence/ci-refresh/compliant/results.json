@@ -1,0 +1,198 @@
+[
+  {
+    "id": "toolchain",
+    "argv": [
+      "sh",
+      "scripts/check_toolchain.sh"
+    ],
+    "env": {},
+    "exit": 0,
+    "seconds": 0.911,
+    "log": "specs/056-football-scraping-adapter/handoffs/qa-evidence/ci-refresh/compliant/toolchain.log",
+    "sha256": "d26f020c67adf23d872b7c3b9beda3e56501e34de2e830cf1a8ec814bd1a2e65"
+  },
+  {
+    "id": "format",
+    "argv": [
+      "mix",
+      "format",
+      "--check-formatted"
+    ],
+    "env": {},
+    "exit": 0,
+    "seconds": 0.902,
+    "log": "specs/056-football-scraping-adapter/handoffs/qa-evidence/ci-refresh/compliant/format.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "compile",
+    "argv": [
+      "mix",
+      "compile",
+      "--warnings-as-errors"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit": 0,
+    "seconds": 0.59,
+    "log": "specs/056-football-scraping-adapter/handoffs/qa-evidence/ci-refresh/compliant/compile.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "service-preflight",
+    "argv": [
+      "sh",
+      "-c",
+      "sh scripts/local_services.sh ready && MIX_ENV=test mix infrastructure.verify"
+    ],
+    "env": {},
+    "exit": 0,
+    "seconds": 1.118,
+    "log": "specs/056-football-scraping-adapter/handoffs/qa-evidence/ci-refresh/compliant/service-preflight.log",
+    "sha256": "23b6257ef40bf81f77c240a32a396d497469b1b4a860f4db1f93efeaea735afa"
+  },
+  {
+    "id": "assessment",
+    "argv": [
+      "elixir",
+      "test/scraping_adapter_offline.exs",
+      "assessment"
+    ],
+    "env": {},
+    "exit": 0,
+    "seconds": 7.571,
+    "log": "specs/056-football-scraping-adapter/handoffs/qa-evidence/ci-refresh/compliant/assessment.log",
+    "sha256": "c1560cd823362152b8032be75f6e9672e595f5c71c3f3447d0deb5d0279eaf61"
+  },
+  {
+    "id": "catalog",
+    "argv": [
+      "elixir",
+      "test/scraping_adapter_offline.exs",
+      "catalog"
+    ],
+    "env": {},
+    "exit": 0,
+    "seconds": 6.479,
+    "log": "specs/056-football-scraping-adapter/handoffs/qa-evidence/ci-refresh/compliant/catalog.log",
+    "sha256": "a9db6f8439f3a4dab37dd84aa7acaf40f284fe10fbede0c2643a0192986b001e"
+  },
+  {
+    "id": "performances",
+    "argv": [
+      "elixir",
+      "test/scraping_adapter_offline.exs",
+      "performances"
+    ],
+    "env": {},
+    "exit": 0,
+    "seconds": 6.445,
+    "log": "specs/056-football-scraping-adapter/handoffs/qa-evidence/ci-refresh/compliant/performances.log",
+    "sha256": "bd09cf365a7862197fa8fe2b0126f334180f8c9df9a4f252bca1ca19fa314d2a"
+  },
+  {
+    "id": "safety",
+    "argv": [
+      "elixir",
+      "test/scraping_adapter_offline.exs",
+      "safety"
+    ],
+    "env": {},
+    "exit": 0,
+    "seconds": 7.115,
+    "log": "specs/056-football-scraping-adapter/handoffs/qa-evidence/ci-refresh/compliant/safety.log",
+    "sha256": "ef3c9e0d3e0304a7ec5292eb1f8061fc1038de4719b168d5062d7614e6666f27"
+  },
+  {
+    "id": "deadline",
+    "argv": [
+      "elixir",
+      "test/scraping_adapter_offline.exs",
+      "deadline"
+    ],
+    "env": {},
+    "exit": 0,
+    "seconds": 6.813,
+    "log": "specs/056-football-scraping-adapter/handoffs/qa-evidence/ci-refresh/compliant/deadline.log",
+    "sha256": "e749ca399e30b43ee95c78099546afb2b7cc067f9d3157d0e535556a3b58f993"
+  },
+  {
+    "id": "matrix",
+    "argv": [
+      "elixir",
+      "test/scraping_adapter_offline.exs",
+      "matrix"
+    ],
+    "env": {},
+    "exit": 0,
+    "seconds": 6.807,
+    "log": "specs/056-football-scraping-adapter/handoffs/qa-evidence/ci-refresh/compliant/matrix.log",
+    "sha256": "553cf066cce3a389f126917db6896cf20150d1fcb9f27e071749ba7a24abe89e"
+  },
+  {
+    "id": "equivalence",
+    "argv": [
+      "elixir",
+      "test/scraping_adapter_offline.exs",
+      "equivalence"
+    ],
+    "env": {},
+    "exit": 0,
+    "seconds": 6.877,
+    "log": "specs/056-football-scraping-adapter/handoffs/qa-evidence/ci-refresh/compliant/equivalence.log",
+    "sha256": "1a09dd5bcb6a37b0954daff41c6f22273e3d7c5c5327920a0ba0ead17a51492f"
+  },
+  {
+    "id": "repeat",
+    "argv": [
+      "elixir",
+      "test/scraping_adapter_offline.exs",
+      "repeat"
+    ],
+    "env": {},
+    "exit": 0,
+    "seconds": 10.405,
+    "log": "specs/056-football-scraping-adapter/handoffs/qa-evidence/ci-refresh/compliant/repeat.log",
+    "sha256": "d5b6afdd544377e92ea3d4d5e501191014b3c6573e52772bdf0458a810261c56"
+  },
+  {
+    "id": "provider-contract",
+    "argv": [
+      "elixir",
+      "test/provider_contract_offline.exs",
+      "all"
+    ],
+    "env": {},
+    "exit": 0,
+    "seconds": 34.938,
+    "log": "specs/056-football-scraping-adapter/handoffs/qa-evidence/ci-refresh/compliant/provider-contract.log",
+    "sha256": "1dfad6e6a17fe99fc959c7addd978da04f11862779a5705a1b0c6b199ee5055e"
+  },
+  {
+    "id": "isolation",
+    "argv": [
+      "sh",
+      "-c",
+      "sh scripts/local_services.sh ready && MIX_ENV=test mix infrastructure.verify && MIX_ENV=test mix test test/football_market/providers/scraping/isolation_test.exs"
+    ],
+    "env": {},
+    "exit": 0,
+    "seconds": 12.17,
+    "log": "specs/056-football-scraping-adapter/handoffs/qa-evidence/ci-refresh/compliant/isolation.log",
+    "sha256": "c0ca6637cac95ac5ad4ff9c1639f10bb65210ac334c3109e44dbcd5bd597e80f"
+  },
+  {
+    "id": "unit-profile",
+    "argv": [
+      "sh",
+      "scripts/test_profile.sh",
+      "unit"
+    ],
+    "env": {},
+    "exit": 0,
+    "seconds": 32.057,
+    "log": "specs/056-football-scraping-adapter/handoffs/qa-evidence/ci-refresh/compliant/unit-profile.log",
+    "sha256": "c279a14ed7796e50618ee290db5a546d5bf9d6301123aa3a328335aa2aa1e6e8"
+  }
+]

@@ -105,3 +105,9 @@ Cross-cutting FR-015/SC-007 and CP1/CP2 safeguards: T027–T031. Executable mapp
 - [X] T036 Add six assessment regressions and deadline-precedence assertions in `test/football_market/providers/scraping/assessment_test.exs`; preserve and execute `specs/056-football-scraping-adapter/handoffs/qa-evidence/publication-gate.exs` unchanged via the publication-gate manifest check.
 - [X] T037 Add optional publication guard in `lib/football_market/providers/adapter.ex`, invoke it after successful final validation in `lib/football_market/providers/runner.ex`, and capture/recheck assessment revision in `lib/football_market/providers/scraping.ex` and permit only Adapter/Runner in the active-feature inventory of `test/football_market/statistics/scope_test.exs`; preserve existing adapters, safe errors and cancellation.
 - [X] T038 Refresh all manifest checks, reconcile named artifacts and sole `specs/056-football-scraping-adapter/handoffs/develop.md`, and pass development readiness; independent QA/review remain pending.
+
+## CI dependency correction (current human feedback)
+
+- [X] T039 Add bounded exact Redis image/port/health readiness assertions in `test/ci/quality_baseline_contract_test.exs`, preserving discovery and all remaining prohibitions; execute ci-service-contract to demonstrate the missing dependency.
+- [X] T040 Provision the pinned Redis service in `.github/workflows/quality-baseline.yml`, update `test/ci/fixtures/quality-baseline.sha256`, permit that exact workflow in `test/football_market/statistics/scope_test.exs`, and align `README.md`, `specs/056-football-scraping-adapter/plan.md` and `specs/056-football-scraping-adapter/quickstart.md`.
+- [X] T041 Execute ci-service-contract, ci-baseline and every applicable manifest check, reconcile named artifacts and refresh sole `specs/056-football-scraping-adapter/handoffs/develop.md`; pass development readiness and leave independent QA/review pending.

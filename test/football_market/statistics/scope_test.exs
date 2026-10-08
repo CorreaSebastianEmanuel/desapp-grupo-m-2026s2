@@ -44,7 +44,8 @@ defmodule FootballMarket.Statistics.ScopeTest do
         "--",
         "lib",
         "priv",
-        "test"
+        "test",
+        ".github/workflows"
       ])
 
     allowed = [
@@ -104,6 +105,7 @@ defmodule FootballMarket.Statistics.ScopeTest do
           "test/support/providers/fixture_source_a.ex",
           "test/scripts/workflow_artifact_probe_test.py",
           "test/ci/coverage_report_contract_test.exs",
+          ".github/workflows/quality-baseline.yml",
           "test/football_market/providers/scope_test.exs"
         ] ++
           Enum.map(

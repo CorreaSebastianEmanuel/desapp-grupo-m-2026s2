@@ -12,6 +12,11 @@ defmodule FootballMarket.MixProject do
       test_coverage: test_coverage(),
       test_ignore_filters: [
         "test/provider_contract_offline.exs",
+        "test/scraping_adapter_offline.exs",
+        "test/fixtures/scraping/cases.exs",
+        "test/fixtures/scraping/documents.exs",
+        "test/fixtures/scraping/expected.exs",
+        "test/fixtures/scraping/inventory.exs",
         "test/fixtures/providers/cases.exs",
         "test/fixtures/providers/expected.exs",
         "test/fixtures/providers/source_a.exs",

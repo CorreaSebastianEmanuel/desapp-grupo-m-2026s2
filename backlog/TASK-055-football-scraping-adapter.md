@@ -4,9 +4,9 @@ title: Football scraping adapter
 type: task
 checkpoint: CP2
 priority: high
-status: todo
+status: review
 depends_on: TASK-016
-active_run: none
+active_run: b20a37fa
 ---
 
 ## Outcome

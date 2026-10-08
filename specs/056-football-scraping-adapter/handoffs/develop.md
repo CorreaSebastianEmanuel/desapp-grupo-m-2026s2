@@ -1,0 +1,11 @@
+# Development delta — TASK-055
+
+Feedback 3: Quality baseline now provisions the existing pinned Redis image from compose.yaml at test port 6379 with bounded redis-cli ping health readiness. PostgreSQL, least privilege, test discovery and scraper behavior are preserved. QualityBaselineContractTest asserts exact services/image/port/health; only the obsolete blanket Redis prohibition was removed. The workflow byte oracle is refreshed. Statistics scope allows the exact baseline workflow; README and quickstart describe both service prerequisites. Plan/tasks/verification map this bounded correction.
+
+Red regression: ci-service-contract first failed on sandbox TCP lock, then demonstrated missing Redis (13/14 passed). Two unchanged failures totalled 2.533 seconds; stopped and corrected the workflow before retrying. Check receipts record command outcomes and evidence references.
+
+Final verification: all 20 manifest checks executed successfully with unchanged source/design fingerprints, including ci-service-contract, ci-baseline, service-preflight, isolation, both profiles, workflow-controls and publication-gate. Canonical outcomes/output hashes are in handoffs/check-*.json; no CP1 coverage invocation. `python3 scripts/workflow_artifact_probe.py develop --readiness` passed; only T030/T031 remain unchecked.
+
+QA: independently rerun all verification.json checks without reuse, especially ci-service-contract, ci-baseline and isolation. Confirm the complete discovery sentinel and real PostgreSQL/Redis readiness, exact pinned Redis image and port, bounded health command, unchanged permissions and no skipped tests. Challenge workflow byte oracle, source freshness, coverage mappings and named artifacts. Preserve and rerun the publication-gate reproduction unchanged; recheck deadline precedence/cancellation and all six assessment changes during final validation.
+
+Actual source remains BLOCKED: recurring-use permission, complete rosters/season detail witnesses, aggregate access limits and required event-time positions are unverified. Fixtures do not establish live coverage, freshness or valuation. TASK-021 owns substitute-position derivation. No provider contact, source activation, persistence or consumer behavior change. Independent QA/review are pending; Agentflow publishes afterward. No commit, push, PR creation/update or merge performed.

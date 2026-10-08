@@ -18,11 +18,43 @@ from scripts.agentflow_verification import manifest, readiness
 ROOT = Path(__file__).resolve().parents[1]
 
 
+class CoverageSnapshotTest(unittest.TestCase):
+    def test_generated_reports_are_excluded_but_source_and_design_changes_are_bound(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            subprocess.run(["git", "init", "-q"], cwd=root, check=True)
+            feature = root / "specs/056-football-scraping-adapter"
+            (feature / "handoffs").mkdir(parents=True)
+            paths = [root / "src.py", feature / "spec.md", feature / "plan.md",
+                     feature / "qa-report.md", feature / "review-report.md",
+                     feature / "handoffs/check-unit.json", feature / "handoffs/develop.md"]
+            for path in paths:
+                path.write_text("original")
+            subprocess.run(["git", "add", "."], cwd=root, check=True)
+            subprocess.run(["git", "-c", "user.name=Test", "-c", "user.email=test@example.invalid",
+                            "commit", "-qm", "baseline"], cwd=root, check=True)
+            source = (ROOT / "scripts/coverage_report.sh").read_text()
+            function = "snapshot_paths() {" + source.split("snapshot_paths() {", 1)[1].split("\n}", 1)[0] + "\n}"
+            command = function + "\ngit diff --binary --full-index HEAD -- $(snapshot_paths)"
+            def snapshot():
+                return subprocess.run(["sh", "-c", command], cwd=root, check=True,
+                                      capture_output=True).stdout
+            self.assertEqual(b"", snapshot())
+            for path in paths[3:]:
+                path.write_text("updated reporting output")
+            self.assertEqual(b"", snapshot())
+            for path in paths[:3]:
+                with self.subTest(path=path.name):
+                    path.write_text("changed input")
+                    self.assertIn(b"changed input", snapshot())
+                    path.write_text("original")
+
+
 class VerificationTest(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
-        self.root = Path(self.tmp.name)
+        self.root = Path(self.tmp.name).resolve()
         subprocess.run(["git", "init", "-q"], cwd=self.root, check=True)
         (self.root / ".gitignore").write_text(".agentflow/runs/\n")
         (self.root / "src.py").write_text("source")
@@ -104,6 +136,68 @@ class VerificationTest(unittest.TestCase):
         self.assertEqual(3, self.check())
         with self.assertRaisesRegex(RuntimeError, "failed"):
             readiness(self.root, self.feature)
+
+    def test_development_reuse_requires_current_inputs_and_intact_output(self):
+        self.check()
+        with patch("scripts.agentflow_check.execute_check") as execute:
+            with redirect_stdout(StringIO()) as output:
+                self.assertEqual(0, run_check(self.root, self.feature, "unit", reuse=True))
+            execute.assert_not_called()
+            self.assertTrue(json.loads(output.getvalue())["reused"])
+        receipt = json.loads((self.feature / "handoffs/check-unit.json").read_text())
+        (self.root / receipt["evidence"]).write_text("corrupted")
+        with redirect_stdout(StringIO()) as output:
+            self.assertEqual(0, run_check(self.root, self.feature, "unit", reuse=True))
+        self.assertFalse(json.loads(output.getvalue())["reused"])
+        (self.feature / "plan.md").write_text("Changed plan")
+        with redirect_stdout(StringIO()) as output:
+            self.assertEqual(0, run_check(self.root, self.feature, "unit", reuse=True))
+        self.assertFalse(json.loads(output.getvalue())["reused"])
+
+    def test_qa_executes_independently_and_never_reuses_development_receipt(self):
+        self.check()
+        with redirect_stdout(StringIO()) as output:
+            self.assertEqual(0, run_check(self.root, self.feature, "unit", stage="qa"))
+        self.assertFalse(json.loads(output.getvalue())["reused"])
+        with self.assertRaisesRegex(RuntimeError, "development"):
+            run_check(self.root, self.feature, "unit", stage="qa", reuse=True)
+
+    def test_runtime_and_explicitly_fresh_checks_execute_despite_reuse_request(self):
+        for settings in ({"runtime": True, "expectation": "Assert current runtime state"}, {"reuse": False}):
+            with self.subTest(settings=settings):
+                self.data["checks"][0] = {"id": "unit", "argv": [sys.executable, "-c", "print('FULL_OUTPUT_SENTINEL')"], **settings}
+                self.write_manifest()
+                self.check()
+                with redirect_stdout(StringIO()) as output:
+                    self.assertEqual(0, run_check(self.root, self.feature, "unit", reuse=True))
+                self.assertFalse(json.loads(output.getvalue())["reused"])
+
+    def test_two_failures_halt_unchanged_check_and_changed_inputs_allow_correction(self):
+        self.data["checks"][0]["argv"] = [sys.executable, "-c", "raise SystemExit(3)"]
+        self.write_manifest()
+        self.assertEqual(3, self.check())
+        self.assertEqual(3, self.check())
+        with patch("scripts.agentflow_check.execute_check") as execute:
+            with redirect_stdout(StringIO()) as output:
+                self.assertEqual(2, run_check(self.root, self.feature, "unit"))
+            execute.assert_not_called()
+            summary = json.loads(output.getvalue())
+            self.assertTrue(summary["retry_limit_reached"])
+            self.assertEqual(2, summary["consecutive_failures"])
+            self.assertIn("elapsed_seconds", summary)
+        (self.root / "src.py").write_text("corrected")
+        self.assertEqual(3, self.check())
+        with redirect_stdout(StringIO()):
+            self.assertEqual(3, run_check(self.root, self.feature, "unit", stage="qa"))
+
+    def test_reporting_outputs_do_not_invalidate_development_reuse(self):
+        self.check()
+        (self.feature / "handoffs/develop.md").write_text("Updated report")
+        (self.feature / "qa-report.md").write_text("QA report")
+        with patch("scripts.agentflow_check.execute_check") as execute:
+            with redirect_stdout(StringIO()):
+                self.assertEqual(0, run_check(self.root, self.feature, "unit", reuse=True))
+            execute.assert_not_called()
 
     def test_check_changing_source_is_not_ready(self):
         self.data["checks"][0]["argv"] = [sys.executable, "-c", "from pathlib import Path; Path('src.py').write_text('changed')"]
@@ -201,7 +295,7 @@ class VerificationTest(unittest.TestCase):
 class RuntimeTest(unittest.TestCase):
     def test_mock_pipeline_human_stdin_fragments_failure_and_durable_metrics(self):
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
+            root = Path(directory).resolve()
             (root / "scripts").mkdir()
             for name in ("agentflow_codex.py", "agentflow_runtime.py"):
                 shutil.copy2(ROOT / "scripts" / name, root / "scripts" / name)
@@ -260,7 +354,7 @@ class RuntimeTest(unittest.TestCase):
 
     def test_metric_summary_omits_private_values_and_preserves_absent_usage(self):
         with tempfile.TemporaryDirectory() as directory:
-            path = Path(directory) / "metrics.jsonl"
+            path = Path(directory).resolve() / "metrics.jsonl"
             values = [{"event": "agent_started", "stage": "develop", "session_hash": "PRIVATE_SENTINEL"},
                       {"event": "usage", "stage": "develop", "incremental_usage": {"input_tokens": 100, "cached_input_tokens": 80, "output_tokens": 20}, "text": "PRIVATE_SENTINEL"},
                       {"event": "agent_ended", "stage": "develop", "exit_code": 0, "elapsed_seconds": 2},
@@ -275,7 +369,7 @@ class RuntimeTest(unittest.TestCase):
 
     def test_wrapper_forwarding_usage_resume_and_summary_console(self):
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
+            root = Path(directory).resolve()
             fake = root / "fake-codex"
             fake.write_text("#!" + sys.executable + "\nimport json,sys\n"
                             "assert '--json' in sys.argv and '--model' in sys.argv\n"
@@ -302,7 +396,7 @@ class RuntimeTest(unittest.TestCase):
 class SnapshotTest(unittest.TestCase):
     def test_history_and_status_use_requested_feature_and_saved_step_count(self):
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
+            root = Path(directory).resolve()
             api = runpy.run_path(str(ROOT / "agentflow"))
             g = api["history"].__globals__
             g.update(ROOT=root, BACKLOG=root / "backlog", SPEC_RUNS=root / ".specify/workflows/runs",
@@ -333,7 +427,7 @@ class SnapshotTest(unittest.TestCase):
     def test_rewind_uses_legacy_and_combined_order_preserves_snapshot_and_prior_gate(self):
         for combined in (False, True):
             with self.subTest(combined=combined), tempfile.TemporaryDirectory() as directory:
-                root = Path(directory)
+                root = Path(directory).resolve()
                 api = runpy.run_path(str(ROOT / "agentflow"))
                 g = api["rewind_run"].__globals__
                 g.update(ROOT=root, RUNS=root / ".agentflow/runs", SPEC_RUNS=root / ".specify/workflows/runs",

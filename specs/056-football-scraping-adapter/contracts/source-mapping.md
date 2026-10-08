@@ -1,0 +1,31 @@
+# Source-shaped parsing and evidence classification
+
+This table records observed paths from the 2026-10-04 exploratory report/prototype, not current source promises. No captured payload is copied. Synthetic documents reproduce these structures and mutate them for independent acceptance examples. An unobserved mapping or completeness witness stays explicitly hypothetical; no invented FotMob field is introduced to make a valid performance.
+
+| Path/observation | Translation | Actual coverage status |
+|---|---|---|
+| HTML script `__NEXT_DATA__`, JSON `props.pageProps` | Extract fixed JSON path; reject absent/malformed/repeated ambiguous script; no browser fallback | Observed schedule shape only |
+| `details.selectedSeason`, `fixtures.allMatches` | Compare explicit season and assessment's external competition mapping; preserve fixture IDs/teams/status/kickoff | Five sampled 2024/25 schedules; no terminal completeness evidence |
+| `general.matchId`, `parentLeagueId`, `matchTimeUTCDate`, `finished`, `homeTeam.id`, `awayTeam.id` | Match discovery identity, league and kickoff; status mapping explicitly excludes known irrelevant states, fails undecidable eligibility | Seven sampled matches only |
+| `content.playerStats` entries: `id`, `name`, `teamId`, `positionId`, `usualPosition` | Scoped player reference/name/event team; explicit positionId mapping; usualPosition never historical fallback | 62/216 sample performances missing positionId; baseline required coverage blocked |
+| Player `stats` groups, nested `stats` values, `key`, `stat.value` | Fixed dictionary metric keys; reject duplicate claimed keys/invalid values; minutes_played required | Observed nested shape; semantics need per-metric evidence |
+| `minutes_played` | Measured integer minutes, no 90/120 cap; absent on a supplied appearance fails | Observed but not all performances verified |
+| `goals`, `assists`, `ShotsOnTarget`, `interceptions`, `saves`, `goals_conceded`, `matchstats.headers.tackles` | Map only with assessed player-match semantics; tackle and conceded labels alone are insufficient | Unverified for complete scoped use; synthetic verified semantics do not promote actual coverage |
+| `content.shotmap.shots`, `content.matchFacts.events.events` | Retain no derived counters without completeness/attribution proof; own-goal and keeper examples must not use team totals | Partial sample reconstruction is not accepted full-season evidence |
+| Complete team/roster retrieval | No evidenced FotMob schema exists in canonical material; use clearly hypothetical test-only roster documents with source IDs, names, short codes, profile positions and scope | Actual catalog unsupported/unverified, not fabricated live coverage |
+
+Hypothetical roster fixture shape is `{competition: {id, season}, teams: [{id, name, shortCode}], rosters: [{teamId, season, players: [{id, name, positionCode}]}]}`. It exercises the same catalog translator with explicit assessment mapping and external IDs; it is not documented as FotMob's current roster schema. Keep hypothetical roster parsing isolated from observed match paths. Fixture observation metadata (outside source document) identifies collection presence, pagination terminal and required detail IDs, referring to independently authored synthetic witness policy. None of these flags are invented claimed source fields.
+
+Position fixtures use explicit synthetic external IDs and literal mapping to supplied canonical vocabulary; classify as synthetic mapping until actual ID meanings are evidenced. Required-position absence is exercised using the observed omission pattern. Do not claim actual IDs/meanings from the report's statement that IDs existed.
+
+All nine optional counts require separate assessment entries: ordinary goals (not own goals), assists, shots_on_target (ordinary attempts), tackles (successful), interceptions (opposition passes), saves (keeper), goals_conceded (opposition goals while on field), yellow_cards and red_cards. Direct verified synthetic values test all nine; unverified labels/events yield unknown, not zero. No event reconstruction code is authorized here. Supplied invalid verified counts fail; unrelated rating/aggregate fields are ignored and never returned.
+
+Completeness tests distinguish missing collection, explicit present-empty collection with terminal evidence, truncated/nonterminal pagination, missing detail, repeated portion and cross-season identity. No expected team/match count or HTTP success serves as witness. Proven irrelevant matches follow existing TASK-016 filtering before validating their unused player facts.
+
+## Implemented synthetic boundary
+
+`Scraping.Source` reads `catalog`, required `roster:ID`, `schedule` and eligible `match:ID` portions synchronously. Inventory witnesses are transport observations, not claimed source fields: `terminal`, `witness` and `destination` must agree with the immutable synthetic assessment. Every fetch and final candidate submission rechecks revision/permission/expiry; Runner retains final validation, deadline and cancellation.
+
+The synthetic schedule's `details.leagueId`, match summary `status/kickoff/home/away`, reference `teams`, detail `general.season` and player `currentTeamId` are **hypothetical fixture scaffolding**, not observed FotMob promises. They supply explicit identity/season/current-directory evidence for testing the existing contract. Missing or inconsistent required synthetic evidence fails; no actual coverage is inferred. `usualPosition` is used only for that synthetic current profile directory, never as an event position or most-frequent historical position. `positionId` is independently required for every supplied appearance. A future real transport must first establish equivalent evidence without assuming these fields exist.
+
+Fixture admission optionally uses an explicitly shared ETS budget for atomic concurrent caller reservations, cumulative request volume and cadence. This is synthetic admission evidence; no production live-admission implementation or HTTP client is delivered. Actual transport remains deny-only. Field extraction uses Jason and fixed string keys; no dynamic source atoms, event reconstruction, retries or source fallback.

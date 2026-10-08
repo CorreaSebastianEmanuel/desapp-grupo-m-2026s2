@@ -81,6 +81,8 @@ def manifest(feature: Path) -> dict:
             raise RuntimeError("Invalid check environment")
         if type(check.get("runtime", False)) is not bool:
             raise RuntimeError("runtime must be boolean")
+        if type(check.get("reuse", True)) is not bool:
+            raise RuntimeError("reuse must be boolean")
         if check.get("runtime") and not isinstance(check.get("expectation"), str):
             raise RuntimeError("Runtime checks require expected status/body assertions")
         if check.get("runtime") and not check["expectation"].strip():
@@ -142,6 +144,22 @@ def check_identity(check: dict) -> str:
     return digest(json.dumps({"argv": check["argv"], "env": check.get("env", {})}, sort_keys=True).encode())
 
 
+def current_receipt(root: Path, feature: Path, check: dict, source: str, inputs: str) -> dict:
+    """Validate the same evidence for readiness and explicit development reuse."""
+    receipt = load_json(feature / "handoffs" / f"check-{check['id']}.json")
+    if not isinstance(receipt, dict) or type(receipt.get("exit_code")) is not int or receipt["exit_code"] != 0:
+        raise RuntimeError(f"Required check failed or is incomplete: {check['id']}")
+    if receipt.get("check_identity") != check_identity(check) or receipt.get("source_before") != source or receipt.get("source_after") != source or receipt.get("inputs") != inputs:
+        raise RuntimeError(f"Stale check evidence: {check['id']}")
+    relative = receipt.get("evidence")
+    if not isinstance(relative, str):
+        raise RuntimeError("Missing check evidence")
+    evidence = (root / relative).resolve()
+    if not evidence.is_relative_to(root.resolve() / ".agentflow/runs/checks") or not evidence.is_file() or receipt.get("evidence_sha256") != digest(evidence.read_bytes()):
+        raise RuntimeError("Missing or changed check output")
+    return receipt
+
+
 def readiness(root: Path, feature: Path) -> dict:
     data = manifest(feature)
     tasks = TASK.findall((feature / "tasks.md").read_text())
@@ -164,15 +182,5 @@ def readiness(root: Path, feature: Path) -> dict:
     source = source_fingerprint(root)
     inputs = input_fingerprint(feature)
     for check in data["checks"]:
-        receipt = load_json(feature / "handoffs" / f"check-{check['id']}.json")
-        if not isinstance(receipt, dict) or type(receipt.get("exit_code")) is not int or receipt["exit_code"] != 0:
-            raise RuntimeError(f"Required check failed or is incomplete: {check['id']}")
-        if receipt.get("check_identity") != check_identity(check) or receipt.get("source_before") != source or receipt.get("source_after") != source or receipt.get("inputs") != inputs:
-            raise RuntimeError(f"Stale check evidence: {check['id']}")
-        relative = receipt.get("evidence")
-        if not isinstance(relative, str):
-            raise RuntimeError("Missing check evidence")
-        evidence = (root / relative).resolve()
-        if not evidence.is_relative_to(root.resolve() / ".agentflow/runs/checks") or not evidence.is_file() or receipt.get("evidence_sha256") != digest(evidence.read_bytes()):
-            raise RuntimeError(f"Missing or changed check output: {check['id']}")
+        current_receipt(root, feature, check, source, inputs)
     return {"checks": len(data["checks"]), "requirements": len(data["coverage"]), "ready": True}

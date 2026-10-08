@@ -28,9 +28,9 @@ capture_command() {
 
 snapshot_paths() {
   printf '%s\n' . \
-    ':(exclude)specs/014-cp1-test-coverage-profiles/qa-report.md' \
-    ':(exclude)specs/014-cp1-test-coverage-profiles/review-report.md' \
-    ':(exclude)specs/014-cp1-test-coverage-profiles/handoffs'
+    ':(glob,exclude)specs/*/qa-report.md' \
+    ':(glob,exclude)specs/*/review-report.md' \
+    ':(glob,exclude)specs/*/handoffs/**'
 }
 
 snapshot() {

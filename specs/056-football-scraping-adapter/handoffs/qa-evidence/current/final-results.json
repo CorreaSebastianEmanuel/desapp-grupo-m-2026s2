@@ -1,0 +1,248 @@
+{
+  "checks": [
+    {
+      "id": "toolchain",
+      "argv": [
+        "sh",
+        "scripts/check_toolchain.sh"
+      ],
+      "env": {},
+      "exit": 0,
+      "seconds": 1.207
+    },
+    {
+      "id": "format",
+      "argv": [
+        "mix",
+        "format",
+        "--check-formatted"
+      ],
+      "env": {},
+      "exit": 0,
+      "seconds": 0.922
+    },
+    {
+      "id": "compile",
+      "argv": [
+        "mix",
+        "compile",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "exit": 0,
+      "seconds": 0.812,
+      "access": "expanded"
+    },
+    {
+      "id": "service-preflight",
+      "argv": [
+        "sh",
+        "-c",
+        "sh scripts/local_services.sh ready && MIX_ENV=test mix infrastructure.verify"
+      ],
+      "env": {},
+      "exit": 0,
+      "seconds": 1.259,
+      "access": "expanded"
+    },
+    {
+      "id": "assessment",
+      "argv": [
+        "elixir",
+        "test/scraping_adapter_offline.exs",
+        "assessment"
+      ],
+      "env": {},
+      "exit": 0,
+      "seconds": 8.037
+    },
+    {
+      "id": "catalog",
+      "argv": [
+        "elixir",
+        "test/scraping_adapter_offline.exs",
+        "catalog"
+      ],
+      "env": {},
+      "exit": 0,
+      "seconds": 7.096
+    },
+    {
+      "id": "performances",
+      "argv": [
+        "elixir",
+        "test/scraping_adapter_offline.exs",
+        "performances"
+      ],
+      "env": {},
+      "exit": 0,
+      "seconds": 7.515
+    },
+    {
+      "id": "safety",
+      "argv": [
+        "elixir",
+        "test/scraping_adapter_offline.exs",
+        "safety"
+      ],
+      "env": {},
+      "exit": 0,
+      "seconds": 7.451
+    },
+    {
+      "id": "deadline",
+      "argv": [
+        "elixir",
+        "test/scraping_adapter_offline.exs",
+        "deadline"
+      ],
+      "env": {},
+      "exit": 0,
+      "seconds": 7.369
+    },
+    {
+      "id": "matrix",
+      "argv": [
+        "elixir",
+        "test/scraping_adapter_offline.exs",
+        "matrix"
+      ],
+      "env": {},
+      "exit": 0,
+      "seconds": 6.923
+    },
+    {
+      "id": "equivalence",
+      "argv": [
+        "elixir",
+        "test/scraping_adapter_offline.exs",
+        "equivalence"
+      ],
+      "env": {},
+      "exit": 0,
+      "seconds": 7.182
+    },
+    {
+      "id": "repeat",
+      "argv": [
+        "elixir",
+        "test/scraping_adapter_offline.exs",
+        "repeat"
+      ],
+      "env": {},
+      "exit": 0,
+      "seconds": 12.497
+    },
+    {
+      "id": "provider-contract",
+      "argv": [
+        "elixir",
+        "test/provider_contract_offline.exs",
+        "all"
+      ],
+      "env": {},
+      "exit": 0,
+      "seconds": 37.162
+    },
+    {
+      "id": "isolation",
+      "argv": [
+        "sh",
+        "-c",
+        "sh scripts/local_services.sh ready && MIX_ENV=test mix infrastructure.verify && MIX_ENV=test mix test test/football_market/providers/scraping/isolation_test.exs"
+      ],
+      "env": {},
+      "exit": 0,
+      "seconds": 12.825,
+      "access": "expanded"
+    },
+    {
+      "id": "unit-profile",
+      "argv": [
+        "sh",
+        "scripts/test_profile.sh",
+        "unit"
+      ],
+      "env": {},
+      "exit": 0,
+      "seconds": 31.728,
+      "access": "expanded"
+    },
+    {
+      "id": "integration-profile",
+      "argv": [
+        "sh",
+        "scripts/test_profile.sh",
+        "integration"
+      ],
+      "env": {},
+      "exit": 0,
+      "seconds": 139.86,
+      "access": "expanded"
+    },
+    {
+      "id": "workflow-controls",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "tests.test_agentflow_delivery",
+        "tests.test_agentflow",
+        "tests.test_workflow_token_audit",
+        "test.scripts.workflow_artifact_probe_test"
+      ],
+      "env": {},
+      "exit": 0,
+      "seconds": 14.266
+    },
+    {
+      "id": "publication-gate",
+      "argv": [
+        "elixir",
+        "specs/056-football-scraping-adapter/handoffs/qa-evidence/publication-gate.exs"
+      ],
+      "env": {},
+      "exit": 0,
+      "seconds": 7.124
+    }
+  ],
+  "all_passed": true,
+  "inputs_unchanged": true,
+  "extra_checks": {
+    "adversarial": {
+      "exit": 0,
+      "assertions": 16
+    },
+    "diff-check": {
+      "exit": 0
+    }
+  },
+  "evidence_sha256": {
+    "format.log": "30199ad9c58d1fac4c5cb86f906bb9d3fb9f64d18a0819f5e5b8e9b198cbd708",
+    "service-preflight-accessible.log": "6456090f7ed8777c1d531569892dd31dde0d180132d8b60886dc550653d5e0f7",
+    "performances.log": "51104c6a46a1531a4e41cb3a7917347b4a388f99375946af948d3bc866035673",
+    "provider-contract.log": "dedc4408bb3306e97976e095ee23192f273ffe2db60ad74e4ae5f8d2c0aa4b7f",
+    "assessment.log": "e13a3c58757b74702f5cb2582f880f35999ee75dd55f53a2dfb2bbacba2028b9",
+    "service-preflight.log": "e3cfbdd014ad2c4c74004bb41378fe0fdedc404476e443408a4dd03ae87c99a6",
+    "compile.log": "e10cbee50e01b07ab2cf163c0fede103c5bb7cfbb8a51f2ee434856106979efb",
+    "unit-profile.log": "ce4777fa635d42bc559a1a60ab1896e02ec3904d62b7c75f1fd7af58a51aadf4",
+    "deadline.log": "beaa91fdc3886b10d49859802c62bf2652988544ef4f5008d544ae982a104107",
+    "integration-profile.log": "befa09d63eb3e51c35f5b57ca8ea4ac2a291866375f6481e36acad182a6e680b",
+    "safety.log": "c5e8eb2022543456d2efd7cb73c2d7651e02e916956f390b1d8cc9de2286aab4",
+    "workflow-controls.log": "cb3519e81d64e398ca1c65c3f6f48b84932bf1a21f15dfa52c21c7a4e64f865f",
+    "repeat.log": "99402743949d29fa045704060e0034828f7f6bf545825f9bde14b8de4b5f66e3",
+    "matrix.log": "4afe011a27709234914ed25ca2901cf9bd77c4e4c2474bfa332cf7c2a1d178ac",
+    "equivalence.log": "b754f3383d08f6ef5d82b1bb733f27e09c0e7a37978642d5563edf411d802027",
+    "unit-profile-accessible.log": "c279a14ed7796e50618ee290db5a546d5bf9d6301123aa3a328335aa2aa1e6e8",
+    "catalog.log": "57d441a3461fb5b226b17fa6280e9da24f8a001ce6623b1bff14f1206ab30150",
+    "isolation-accessible.log": "9c87c16a023c43cb46716bdbe589f82870bb8cf7bc111ed10769fb8d72ccb21f",
+    "integration-profile-accessible.log": "b70440f3b3b3a9b7aef12ca072fd4bff94d3ef1b8f5b5bf0fa642ab3bfea6d25",
+    "toolchain.log": "d26f020c67adf23d872b7c3b9beda3e56501e34de2e830cf1a8ec814bd1a2e65",
+    "publication-gate.log": "d704c34dfa6d612b3276ae971227e8b13cc6905983a7890a422101dd4d461043",
+    "isolation.log": "e3cfbdd014ad2c4c74004bb41378fe0fdedc404476e443408a4dd03ae87c99a6",
+    "adversarial.log": "d9a446d24819e220e3c2b0230178200dc3fd7fbe8ec4018d76185d0cea591268",
+    "compile-accessible.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

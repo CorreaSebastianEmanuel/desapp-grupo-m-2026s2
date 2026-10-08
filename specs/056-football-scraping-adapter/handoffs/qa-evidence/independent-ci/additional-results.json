@@ -1,0 +1,13 @@
+{
+  "adversarial": {
+    "command": [
+      "elixir",
+      "specs/056-football-scraping-adapter/handoffs/qa-evidence/independent-ci/adversarial.exs"
+    ],
+    "exit": 0,
+    "tests": 8,
+    "log_sha256": "61b03fdae0c2bd9c7d4bc72f9e616ee15f016369359bdbb79f2fa534a4079c59"
+  },
+  "publication_reproduction_sha256": "4eedd294e348a02a1e516b6cbd43ec874dcbaa3a230ec30c30b86332a1490713",
+  "input_hashes_unchanged": true
+}

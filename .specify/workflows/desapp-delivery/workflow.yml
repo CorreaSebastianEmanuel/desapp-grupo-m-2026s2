@@ -84,7 +84,9 @@ steps:
       unknowns that could change this feature; cite existing decisions elsewhere.
       Create verification.json using docs/AGENT_VERIFICATION.md: map every FR/AC/SC
       identifier in spec.md to concrete executable checks, include service preflight
-      and assertion-based runtime checks for HTTP endpoints. The implementation
+      and assertion-based runtime checks for HTTP endpoints. Do not add a historical
+      CP1 coverage report as a default extra CP2 gate; follow current human feedback
+      and avoid duplicate full-profile executions. The implementation
       owner executes these checks before QA; QA reruns independently. Mark only
       downstream QA/review tasks with [gate:qa] or [gate:review] and map them in
       task_stages; all implementation and applicable test tasks must complete first.
@@ -104,7 +106,7 @@ steps:
     command: speckit.implement
     integration: "{{ inputs.integration }}"
     input:
-      args: "Agentflow stage: develop\nFollow docs/AGENT_CONTEXT_POLICY.md. Read only spec.md, plan.md, tasks.md, handoffs/architecture.md, handoffs/tasks.md, and current human feedback before coding. Do not read product debate, stale QA/review artifacts, unrelated feature artifacts, or workflow/live logs. You are the sole implementation owner. Read verification.json and docs/AGENT_VERIFICATION.md. Implement and run all applicable checks through python3 scripts/agentflow_check.py CHECK_ID, including preflight and assertion-based runtime checks. Keep the coverage mapping current; never replace a required check with a trivial success command. Complete named artifacts before marking their tasks done; record successful check tasks only after execution. The readiness gate independently validates current checklist state, receipts, output hashes and source freshness. Before marking a task complete, create every artifact that task explicitly requires; before handoff, reconcile every [X] task against its named files and leave any unsatisfied task unchecked. Create one handoff, handoffs/develop.md, with concise changes, decisions, command outcomes, residual risks, and exact QA guidance; reference files instead of pasting output, do not create a second evidence handoff unless tasks.md explicitly requires it, and keep it under 400 words. Do not commit, push, create a PR, or merge; Agentflow publishes only after verification."
+      args: "Agentflow stage: develop\nFollow docs/AGENT_CONTEXT_POLICY.md. Read only spec.md, plan.md, tasks.md, handoffs/architecture.md, handoffs/tasks.md, and current human feedback before coding. Do not read product debate, stale QA/review artifacts, unrelated feature artifacts, or workflow/live logs. You are the sole implementation owner. Read verification.json and docs/AGENT_VERIFICATION.md. Implement and run all applicable checks through python3 scripts/agentflow_check.py CHECK_ID --reuse, including preflight and assertion-based runtime checks. Finish source/design edits before final checks. Reuse applies only to intact current development receipts. Stop and report after two failures with unchanged inputs; do not bypass the helper or change irrelevant inputs to reset the limit. Report elapsed check time and evidence. Keep the coverage mapping current; never replace a required check with a trivial success command. Complete named artifacts before marking their tasks done; record successful check tasks only after execution. The readiness gate independently validates current checklist state, receipts, output hashes and source freshness. Before marking a task complete, create every artifact that task explicitly requires; before handoff, reconcile every [X] task against its named files and leave any unsatisfied task unchecked. Create one handoff, handoffs/develop.md, with concise changes, decisions, command outcomes, residual risks, and exact QA guidance; reference files instead of pasting output, do not create a second evidence handoff unless tasks.md explicitly requires it, and keep it under 400 words. Do not commit, push, create a PR, or merge; Agentflow publishes only after verification."
 
   - id: develop_ready
     type: shell
@@ -125,7 +127,9 @@ steps:
       diff, and verification.json. Use the manifest to find checks, then independently
       rerun them and challenge the coverage against spec.md; developer receipts do
       not replace acceptance evidence. Do not read product debate, stale QA/review reports, unrelated artifacts,
-      or workflow/live logs. Run applicable checks directly and verify every
+      or workflow/live logs. Run applicable checks directly or through agentflow_check.py CHECK_ID --stage qa
+      without --reuse. Stop and report after two failures with unchanged inputs; do
+      not bypass retry limits. Verify every
       acceptance criterion with evidence. When the task exposes or changes HTTP endpoints,
       start the application and exercise every affected endpoint through real HTTP requests
       (for example, curl), covering the specified success and failure cases and recording

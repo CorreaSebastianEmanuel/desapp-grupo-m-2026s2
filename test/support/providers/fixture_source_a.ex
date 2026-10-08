@@ -63,8 +63,12 @@ defmodule FootballMarket.Providers.FixtureSourceA do
   def source_key, do: :a
   def example_ids, do: Map.keys(@examples)
 
-  def read(request, context, id) do
-    raw = Map.fetch!(@examples, id)
+  def read(request, context, {:scraping_reference, raw}),
+    do: read_raw(request, context, %{"document" => raw})
+
+  def read(request, context, id), do: read_raw(request, context, Map.fetch!(@examples, id))
+
+  defp read_raw(request, context, raw) do
     data = decode(Map.fetch!(raw, "document"))
     FootballMarket.Providers.FixtureRuntime.advance(data.elapsed_us)
     candidate = data.candidate

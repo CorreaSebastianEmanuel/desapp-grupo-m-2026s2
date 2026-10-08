@@ -1,0 +1,235 @@
+[
+  {
+    "id": "toolchain",
+    "argv": [
+      "sh",
+      "scripts/check_toolchain.sh"
+    ],
+    "env": {},
+    "exit_code": 0,
+    "seconds": 1.08
+  },
+  {
+    "id": "service-preflight",
+    "argv": [
+      "sh",
+      "-c",
+      "sh scripts/local_services.sh ready && MIX_ENV=test mix infrastructure.verify"
+    ],
+    "env": {
+      "MIX_TEST_PARTITION": "task018_ingestion"
+    },
+    "exit_code": 0,
+    "seconds": 1.537
+  },
+  {
+    "id": "format",
+    "argv": [
+      "mix",
+      "format",
+      "--check-formatted"
+    ],
+    "env": {},
+    "exit_code": 0,
+    "seconds": 0.858
+  },
+  {
+    "id": "compile",
+    "argv": [
+      "mix",
+      "compile",
+      "--warnings-as-errors"
+    ],
+    "env": {
+      "MIX_ENV": "test",
+      "MIX_TEST_PARTITION": "task018_ingestion"
+    },
+    "exit_code": 0,
+    "seconds": 0.538
+  },
+  {
+    "id": "whitespace",
+    "argv": [
+      "python3",
+      "-c",
+      "import os, subprocess, sys; status = subprocess.run([\"git\", \"diff\", \"--check\", \"HEAD\"]).returncode; paths = subprocess.check_output([\"git\", \"ls-files\", \"--others\", \"--exclude-standard\", \"-z\"]).split(b\"\\0\"); results = [subprocess.run([\"git\", \"diff\", \"--no-index\", \"--check\", \"/dev/null\", os.fsdecode(p)]).returncode for p in paths if p]; sys.exit(1 if status or any(c not in (0, 1) for c in results) else 0)"
+    ],
+    "env": {},
+    "exit_code": 0,
+    "seconds": 0.981
+  },
+  {
+    "id": "canonical",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "test/football_market/catalog/ingestion/canonical_test.exs"
+    ],
+    "env": {
+      "MIX_ENV": "test",
+      "MIX_TEST_PARTITION": "task018_ingestion"
+    },
+    "exit_code": 0,
+    "seconds": 1.029
+  },
+  {
+    "id": "publication",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "test/football_market/catalog/ingestion/reconciliation_test.exs",
+      "test/football_market/catalog/ingestion/publication_test.exs",
+      "test/football_market/catalog/constraints_test.exs"
+    ],
+    "env": {
+      "MIX_ENV": "test",
+      "MIX_TEST_PARTITION": "task018_ingestion"
+    },
+    "exit_code": 0,
+    "seconds": 3.697
+  },
+  {
+    "id": "identity",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "test/football_market/catalog/ingestion/identity_test.exs"
+    ],
+    "env": {
+      "MIX_ENV": "test",
+      "MIX_TEST_PARTITION": "task018_ingestion"
+    },
+    "exit_code": 0,
+    "seconds": 3.074
+  },
+  {
+    "id": "replay",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "test/football_market/catalog/ingestion/replay_test.exs"
+    ],
+    "env": {
+      "MIX_ENV": "test",
+      "MIX_TEST_PARTITION": "task018_ingestion"
+    },
+    "exit_code": 0,
+    "seconds": 1.914
+  },
+  {
+    "id": "concurrency",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "test/football_market/catalog/ingestion/concurrency_test.exs"
+    ],
+    "env": {
+      "MIX_ENV": "test",
+      "MIX_TEST_PARTITION": "task018_ingestion"
+    },
+    "exit_code": 0,
+    "seconds": 1.953
+  },
+  {
+    "id": "retention",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "test/football_market/catalog/ingestion/retention_test.exs"
+    ],
+    "env": {
+      "MIX_ENV": "test",
+      "MIX_TEST_PARTITION": "task018_ingestion"
+    },
+    "exit_code": 0,
+    "seconds": 1.423
+  },
+  {
+    "id": "outcomes",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "test/football_market/catalog/ingestion/outcome_test.exs"
+    ],
+    "env": {
+      "MIX_ENV": "test",
+      "MIX_TEST_PARTITION": "task018_ingestion"
+    },
+    "exit_code": 0,
+    "seconds": 1.818
+  },
+  {
+    "id": "isolation",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "test/football_market/catalog/ingestion/isolation_test.exs"
+    ],
+    "env": {
+      "MIX_ENV": "test",
+      "MIX_TEST_PARTITION": "task018_ingestion"
+    },
+    "exit_code": 0,
+    "seconds": 1.837
+  },
+  {
+    "id": "matrix",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "test/football_market/catalog/ingestion/matrix_test.exs"
+    ],
+    "env": {
+      "MIX_ENV": "test",
+      "MIX_TEST_PARTITION": "task018_ingestion"
+    },
+    "exit_code": 0,
+    "seconds": 5.041
+  },
+  {
+    "id": "provider-contract",
+    "argv": [
+      "elixir",
+      "test/provider_contract_offline.exs",
+      "all"
+    ],
+    "env": {},
+    "exit_code": 0,
+    "seconds": 33.332
+  },
+  {
+    "id": "unit-profile",
+    "argv": [
+      "sh",
+      "scripts/test_profile.sh",
+      "unit"
+    ],
+    "env": {
+      "MIX_TEST_PARTITION": "task018_ingestion"
+    },
+    "exit_code": 0,
+    "seconds": 29.88
+  },
+  {
+    "id": "integration-profile",
+    "argv": [
+      "sh",
+      "scripts/test_profile.sh",
+      "integration"
+    ],
+    "env": {
+      "MIX_TEST_PARTITION": "task018_ingestion"
+    },
+    "exit_code": 0,
+    "seconds": 185.213
+  }
+]

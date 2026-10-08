@@ -1,0 +1,8 @@
+# Tasks handoff — TASK-018
+
+- 35 unchecked tasks: US1 7, US2 8, US3 6; setup/foundation 6, owner polish/checks 6, independent gates 2. One owner proceeds sequentially; independent test authoring groups are marked [P].
+- T003 writes schema/uniqueness tests before migrations. T007–009, T014–017 and T022–024 precede associated story behavior; record assertion-based red/green evidence, not missing-module failures. All test modules need exactly one profile tag.
+- Database concurrency tests must use separate connections/barriers and disposable scoped committed fixtures. Include absent revision 0, different-season shared league creation, final-state swaps and lost replies. Independent expected data is authored in T002 and never derived from production code.
+- verification.json defines 17 checks and covers all 24 explicit FR/SC identifiers. All 16 numbered scenarios map through quickstart.md; spec contains no separate AC identifier. Planned test paths are created before final owner checks. Runtime HTTP is inapplicable because no endpoint changes are authorized.
+- T028–033 finish discovery, design alignment and all executable owner verification after edits. Run each full profile once; omit historical CP1 report. Service preflight is fresh, and concurrency/isolation/matrix plus integration-profile require fresh execution. Never fabricate receipts or bypass a failed service.
+- Only T034/T035 have gate tags and task_stages mappings. Every implementation/test/check/handoff task completes before QA. QA reruns independently; review uses fresh QA with targeted checks. Do not implement scheduling, mapping UI, live source access or downstream finance/statistics features.

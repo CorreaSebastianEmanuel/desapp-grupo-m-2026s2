@@ -121,6 +121,39 @@ defmodule FootballMarket.Statistics.ScopeTest do
         []
       end
 
+    # The active catalog ingestion plan has an independent domain/persistence
+    # boundary. Only its exact paths are added; statistics ownership is unchanged.
+    ingestion_paths =
+      if active_feature == "specs/057-idempotent-catalog-ingestion" do
+        [
+          "lib/football_market/catalog/ingestion.ex",
+          "lib/football_market/catalog/ingestion/canonical.ex",
+          "lib/football_market/catalog/ingestion/reconciler.ex",
+          "lib/football_market/catalog/ingestion/publisher.ex",
+          "lib/football_market/catalog/ingestion/outcome.ex",
+          "lib/football_market/catalog/ingestion/scope.ex",
+          "lib/football_market/catalog/ingestion/source_binding.ex",
+          "lib/football_market/catalog/ingestion/observation.ex",
+          "lib/football_market/catalog/ingestion/observation_binding.ex",
+          "priv/repo/migrations/20261008000000_create_catalog_ingestion_tables.exs",
+          "priv/repo/migrations/20261008000100_make_team_business_keys_deferrable.exs",
+          "test/support/ingestion_fixtures.ex",
+          "test/football_market/catalog/ingestion/canonical_test.exs",
+          "test/football_market/catalog/ingestion/reconciliation_test.exs",
+          "test/football_market/catalog/ingestion/publication_test.exs",
+          "test/football_market/catalog/ingestion/identity_test.exs",
+          "test/football_market/catalog/ingestion/replay_test.exs",
+          "test/football_market/catalog/ingestion/concurrency_test.exs",
+          "test/football_market/catalog/ingestion/retention_test.exs",
+          "test/football_market/catalog/ingestion/outcome_test.exs",
+          "test/football_market/catalog/ingestion/isolation_test.exs",
+          "test/football_market/catalog/ingestion/matrix_test.exs",
+          "test/football_market/providers/scope_test.exs"
+        ]
+      else
+        []
+      end
+
     allowed_ci_paths = [
       "test/ci/quality_baseline_contract_test.exs",
       "test/ci/fixtures/quality-baseline.sha256"
@@ -129,7 +162,8 @@ defmodule FootballMarket.Statistics.ScopeTest do
     for line <- String.split(out, "\n", trim: true) do
       path = String.slice(line, 3..-1//1)
 
-      assert path in provider_paths or path in scraper_paths or path in allowed_ci_paths or
+      assert path in provider_paths or path in scraper_paths or path in ingestion_paths or
+               path in allowed_ci_paths or
                Enum.any?(allowed, &String.starts_with?(path, &1)),
              "outside plan: #{path}"
     end

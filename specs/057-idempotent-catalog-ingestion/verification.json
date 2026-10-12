@@ -1,0 +1,320 @@
+{
+  "schema_version": 1,
+  "runtime_required": false,
+  "checks": [
+    {
+      "id": "toolchain",
+      "argv": [
+        "sh",
+        "scripts/check_toolchain.sh"
+      ]
+    },
+    {
+      "id": "service-preflight",
+      "argv": [
+        "sh",
+        "-c",
+        "sh scripts/local_services.sh ready && MIX_ENV=test mix infrastructure.verify"
+      ],
+      "reuse": false,
+      "env": {
+        "MIX_TEST_PARTITION": "task018_ingestion"
+      }
+    },
+    {
+      "id": "format",
+      "argv": [
+        "mix",
+        "format",
+        "--check-formatted"
+      ]
+    },
+    {
+      "id": "compile",
+      "argv": [
+        "mix",
+        "compile",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "MIX_TEST_PARTITION": "task018_ingestion"
+      }
+    },
+    {
+      "id": "whitespace",
+      "argv": [
+        "python3",
+        "-c",
+        "import os, subprocess, sys; status = subprocess.run([\"git\", \"diff\", \"--check\", \"HEAD\"]).returncode; paths = subprocess.check_output([\"git\", \"ls-files\", \"--others\", \"--exclude-standard\", \"-z\"]).split(b\"\\0\"); results = [subprocess.run([\"git\", \"diff\", \"--no-index\", \"--check\", \"/dev/null\", os.fsdecode(p)]).returncode for p in paths if p]; sys.exit(1 if status or any(c not in (0, 1) for c in results) else 0)"
+      ]
+    },
+    {
+      "id": "canonical",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/catalog/ingestion/canonical_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "MIX_TEST_PARTITION": "task018_ingestion"
+      }
+    },
+    {
+      "id": "publication",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/catalog/ingestion/reconciliation_test.exs",
+        "test/football_market/catalog/ingestion/publication_test.exs",
+        "test/football_market/catalog/constraints_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "MIX_TEST_PARTITION": "task018_ingestion"
+      }
+    },
+    {
+      "id": "identity",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/catalog/ingestion/identity_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "MIX_TEST_PARTITION": "task018_ingestion"
+      }
+    },
+    {
+      "id": "replay",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/catalog/ingestion/replay_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "MIX_TEST_PARTITION": "task018_ingestion"
+      }
+    },
+    {
+      "id": "concurrency",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/catalog/ingestion/concurrency_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "MIX_TEST_PARTITION": "task018_ingestion"
+      },
+      "reuse": false
+    },
+    {
+      "id": "retention",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/catalog/ingestion/retention_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "MIX_TEST_PARTITION": "task018_ingestion"
+      }
+    },
+    {
+      "id": "outcomes",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/catalog/ingestion/outcome_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "MIX_TEST_PARTITION": "task018_ingestion"
+      }
+    },
+    {
+      "id": "isolation",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/catalog/ingestion/isolation_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "MIX_TEST_PARTITION": "task018_ingestion"
+      },
+      "reuse": false
+    },
+    {
+      "id": "matrix",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/catalog/ingestion/matrix_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "MIX_TEST_PARTITION": "task018_ingestion"
+      },
+      "reuse": false
+    },
+    {
+      "id": "provider-contract",
+      "argv": [
+        "elixir",
+        "test/provider_contract_offline.exs",
+        "all"
+      ]
+    },
+    {
+      "id": "unit-profile",
+      "argv": [
+        "sh",
+        "scripts/test_profile.sh",
+        "unit"
+      ],
+      "env": {
+        "MIX_TEST_PARTITION": "task018_ingestion"
+      }
+    },
+    {
+      "id": "integration-profile",
+      "argv": [
+        "sh",
+        "scripts/test_profile.sh",
+        "integration"
+      ],
+      "reuse": false,
+      "env": {
+        "MIX_TEST_PARTITION": "task018_ingestion"
+      }
+    }
+  ],
+  "coverage": {
+    "FR-001": [
+      "publication",
+      "outcomes",
+      "provider-contract"
+    ],
+    "FR-002": [
+      "publication",
+      "identity",
+      "matrix"
+    ],
+    "FR-003": [
+      "publication",
+      "identity"
+    ],
+    "FR-004": [
+      "publication",
+      "identity"
+    ],
+    "FR-005": [
+      "identity"
+    ],
+    "FR-006": [
+      "identity",
+      "replay"
+    ],
+    "FR-007": [
+      "identity",
+      "isolation"
+    ],
+    "FR-008": [
+      "retention"
+    ],
+    "FR-009": [
+      "publication",
+      "concurrency"
+    ],
+    "FR-010": [
+      "canonical",
+      "replay"
+    ],
+    "FR-011": [
+      "concurrency"
+    ],
+    "FR-012": [
+      "retention",
+      "replay",
+      "canonical"
+    ],
+    "FR-013": [
+      "publication",
+      "replay",
+      "outcomes"
+    ],
+    "FR-014": [
+      "outcomes",
+      "replay",
+      "publication"
+    ],
+    "FR-015": [
+      "outcomes",
+      "isolation",
+      "matrix"
+    ],
+    "FR-016": [
+      "isolation",
+      "matrix"
+    ],
+    "FR-017": [
+      "publication",
+      "identity",
+      "replay",
+      "concurrency",
+      "retention",
+      "outcomes",
+      "isolation",
+      "matrix"
+    ],
+    "SC-001": [
+      "matrix",
+      "publication"
+    ],
+    "SC-002": [
+      "replay",
+      "canonical",
+      "identity"
+    ],
+    "SC-003": [
+      "publication",
+      "concurrency",
+      "outcomes"
+    ],
+    "SC-004": [
+      "identity",
+      "retention",
+      "isolation"
+    ],
+    "SC-005": [
+      "outcomes",
+      "matrix"
+    ],
+    "SC-006": [
+      "isolation",
+      "matrix"
+    ],
+    "SC-007": [
+      "matrix",
+      "outcomes"
+    ]
+  },
+  "task_stages": {
+    "T034": "qa",
+    "T035": "review"
+  }
+}

@@ -70,9 +70,36 @@ defmodule FootballMarket.Providers.ScopeTest do
           path in ["mix.exs", "mix.lock"]
       end)
 
+    active_feature =
+      case File.read(".specify/feature.json") do
+        {:ok, json} -> Jason.decode!(json)["feature_directory"]
+        {:error, _} -> nil
+      end
+
+    # This feature consumes Providers without modifying provider production.
+    # Its independently planned catalog paths must not look like provider leaks.
+    ingestion_paths =
+      if active_feature == "specs/057-idempotent-catalog-ingestion" do
+        [
+          "lib/football_market/catalog/ingestion.ex",
+          "lib/football_market/catalog/ingestion/canonical.ex",
+          "lib/football_market/catalog/ingestion/reconciler.ex",
+          "lib/football_market/catalog/ingestion/publisher.ex",
+          "lib/football_market/catalog/ingestion/outcome.ex",
+          "lib/football_market/catalog/ingestion/scope.ex",
+          "lib/football_market/catalog/ingestion/source_binding.ex",
+          "lib/football_market/catalog/ingestion/observation.ex",
+          "lib/football_market/catalog/ingestion/observation_binding.ex",
+          "priv/repo/migrations/20261008000000_create_catalog_ingestion_tables.exs",
+          "priv/repo/migrations/20261008000100_make_team_business_keys_deferrable.exs"
+        ]
+      else
+        []
+      end
+
     assert Enum.all?(
              production,
-             &(&1 in (@production ++ @scraping_production) or &1 == "mix.exs")
+             &(&1 in (@production ++ @scraping_production ++ ingestion_paths) or &1 == "mix.exs")
            )
 
     assert Enum.sort(

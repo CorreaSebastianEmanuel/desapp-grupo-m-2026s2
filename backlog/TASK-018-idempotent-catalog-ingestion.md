@@ -4,9 +4,9 @@ title: Idempotent catalog ingestion
 type: task
 checkpoint: CP2
 priority: critical
-status: review
+status: done
 depends_on: TASK-005, TASK-016, TASK-055
-active_run: ac992c7e
+active_run: none
 ---
 
 ## Outcome

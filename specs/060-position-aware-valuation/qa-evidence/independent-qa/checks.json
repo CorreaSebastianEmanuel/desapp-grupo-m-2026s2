@@ -1,0 +1,227 @@
+[
+  {
+    "id": "compile",
+    "argv": [
+      "mix",
+      "compile",
+      "--warnings-as-errors"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "stage": "qa",
+    "reuse": false,
+    "exit_code": 0,
+    "elapsed_seconds": 0.594,
+    "log": "specs/060-position-aware-valuation/qa-evidence/independent-qa/compile.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "services",
+    "argv": [
+      "sh",
+      "-c",
+      "mix test.prepare && mix infrastructure.verify"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "stage": "qa",
+    "reuse": false,
+    "exit_code": 0,
+    "elapsed_seconds": 1.497,
+    "log": "specs/060-position-aware-valuation/qa-evidence/independent-qa/services.log",
+    "sha256": "09e6aa3e08fef129b4c8ea2ee4f302e455cc66553655de1b1daec5f7cd618faa"
+  },
+  {
+    "id": "position-config",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "test/football_market/valuation/position_aware/config_test.exs"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "stage": "qa",
+    "reuse": false,
+    "exit_code": 0,
+    "elapsed_seconds": 1.019,
+    "log": "specs/060-position-aware-valuation/qa-evidence/independent-qa/position-config.log",
+    "sha256": "d1d32a445cc00c8c4f2915f8660884ec225305bdbe16b51606ac1d5e1c2d37d5"
+  },
+  {
+    "id": "position-formula",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "test/football_market/valuation/position_aware/formula_test.exs",
+      "test/football_market/valuation/position_aware/mixed_test.exs"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "stage": "qa",
+    "reuse": false,
+    "exit_code": 0,
+    "elapsed_seconds": 2.21,
+    "log": "specs/060-position-aware-valuation/qa-evidence/independent-qa/position-formula.log",
+    "sha256": "45499e7d597cb433277ed4bbd26f4cf1b8d26bf1e34c6297710a2bc5b23ba57d"
+  },
+  {
+    "id": "position-outcomes",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "test/football_market/valuation/position_aware/outcomes_test.exs"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "stage": "qa",
+    "reuse": false,
+    "exit_code": 0,
+    "elapsed_seconds": 1.675,
+    "log": "specs/060-position-aware-valuation/qa-evidence/independent-qa/position-outcomes.log",
+    "sha256": "c0983dcd511cb6dc2111d73dfc371b9b9d7a834a64fa2f71a43bd3433e77b462"
+  },
+  {
+    "id": "position-arithmetic",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "test/football_market/valuation/position_aware/arithmetic_test.exs"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "stage": "qa",
+    "reuse": false,
+    "exit_code": 0,
+    "elapsed_seconds": 5.508,
+    "log": "specs/060-position-aware-valuation/qa-evidence/independent-qa/position-arithmetic.log",
+    "sha256": "8e2cadd2898dfa41c79695a26ab998145e0ff32947f1992ba2d87c4979647b6e"
+  },
+  {
+    "id": "position-replay",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "test/football_market/valuation/position_aware/replay_test.exs"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "stage": "qa",
+    "reuse": false,
+    "exit_code": 0,
+    "elapsed_seconds": 2.332,
+    "log": "specs/060-position-aware-valuation/qa-evidence/independent-qa/position-replay.log",
+    "sha256": "b88d3ca7818d40aaa698c968476f303bf58b26ddc49fdda89c8959e63699bea0"
+  },
+  {
+    "id": "position-selection",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "test/football_market/valuation/position_aware/selection_test.exs"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "stage": "qa",
+    "reuse": false,
+    "exit_code": 0,
+    "elapsed_seconds": 1.375,
+    "log": "specs/060-position-aware-valuation/qa-evidence/independent-qa/position-selection.log",
+    "sha256": "2e722a9e7f11bb9f10a9c9386821a515ebd625216fd484d1611431e4f72efb52"
+  },
+  {
+    "id": "architecture",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "test/football_market/valuation/position_aware/scope_test.exs",
+      "test/football_market/valuation/scope_test.exs",
+      "test/football_market/statistics/scope_test.exs",
+      "test/football_market/providers/scope_test.exs"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "stage": "qa",
+    "reuse": false,
+    "exit_code": 0,
+    "elapsed_seconds": 1.486,
+    "log": "specs/060-position-aware-valuation/qa-evidence/independent-qa/architecture.log",
+    "sha256": "c148f596516783beff58bf32473a4c83716026abf8e9a790697344b25c3510ba"
+  },
+  {
+    "id": "valuation-regression",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "test/football_market/valuation/contract_test.exs",
+      "test/football_market/valuation/replay_test.exs",
+      "test/football_market/valuation/normalization_test.exs",
+      "test/football_market/valuation/scoring_test.exs",
+      "test/football_market/valuation/balanced/config_test.exs",
+      "test/football_market/valuation/balanced/formula_test.exs",
+      "test/football_market/valuation/balanced/outcomes_test.exs",
+      "test/football_market/valuation/balanced/arithmetic_test.exs",
+      "test/football_market/valuation/balanced/replay_test.exs",
+      "test/football_market/valuation/balanced/scope_test.exs"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "stage": "qa",
+    "reuse": false,
+    "exit_code": 0,
+    "elapsed_seconds": 3.875,
+    "log": "specs/060-position-aware-valuation/qa-evidence/independent-qa/valuation-regression.log",
+    "sha256": "7c2f21697752186edb836d472ea5e301e416e81956e47ebe44bf426627ce23bf"
+  },
+  {
+    "id": "unit-profile",
+    "argv": [
+      "sh",
+      "scripts/test_profile.sh",
+      "unit"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "stage": "qa",
+    "reuse": false,
+    "exit_code": 0,
+    "elapsed_seconds": 19.824,
+    "log": "specs/060-position-aware-valuation/qa-evidence/independent-qa/unit-profile.log",
+    "sha256": "06d792fb4d02dbadf302ee64576dc868593fde4adaaefb9e64cfb7a69c99b671"
+  },
+  {
+    "id": "integration-profile",
+    "argv": [
+      "sh",
+      "scripts/test_profile.sh",
+      "integration"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "stage": "qa",
+    "reuse": false,
+    "exit_code": 0,
+    "elapsed_seconds": 93.482,
+    "log": "specs/060-position-aware-valuation/qa-evidence/independent-qa/integration-profile.log",
+    "sha256": "7913cecc4b6c00cbf4392532420f920bc119a0891977f84863bb8ca2773e386d"
+  }
+]

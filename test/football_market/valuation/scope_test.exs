@@ -14,7 +14,11 @@ defmodule FootballMarket.Valuation.ScopeTest do
   ]
 
   @legacy_production @production
-  @production @production ++ ["lib/football_market/valuation/balanced.ex"]
+  @production @production ++
+                [
+                  "lib/football_market/valuation/balanced.ex",
+                  "lib/football_market/valuation/position_aware.ex"
+                ]
 
   test "AST dependencies, production inventory and absence of writes, time and providers" do
     assert Enum.sort(

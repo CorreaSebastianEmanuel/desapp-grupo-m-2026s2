@@ -1,0 +1,10 @@
+# Feedback — TASK-024
+
+## Feedback 1
+
+- Time: 2026-10-13T19:55:29+00:00
+- Author: sebo
+- Restart from: product
+
+Human explicitly approved the TASK-024 mixed-position rule after discussing same-production examples: SUM the exact weighted contributions of populated historical position groups, keeping separate [0,1] normalization caps per group and a shared explicit reference per metric. Accept the role-partition effect: 4 goals with reference 2 and weight 2 score 2 when concentrated in one role, versus 4 when split 2+2 across two roles. Do not average groups or replace with shared overall normalization. Keep weekly UTC intervals, cumulative counts, recorded match positions, no minute bonus/penalty, six-place nearest/ties-away rounding, inherited unknown-vs-zero and no-recorded-performance outcomes. Reconcile FR-006, every dependent scenario, assumptions, checklist and handoffs before planning; do not reopen this approved decision. Numerical production weights/references remain explicit configuration, not invented presets. Routine delivery guidance from prior tasks: keep QA evidence proportional, retain independent generators/probes/checksum summaries and generate bulk vectors in memory or ignored temporary outputs; do not commit expanded generated datasets. Preserve exact arithmetic/replay and scope. Preflight before start succeeded: pinned toolchain, authenticated Codex/GitHub, guarded test DB preparation, actual PostgreSQL 127.0.0.1:15432 and Redis 127.0.0.1:6379 connectivity, complete unit (44 audited files) and integration (61 including Chromium/browser) profiles. Mix socket lock restrictions require authorized expanded execution, not weakening checks. Retry limit prohibits unchanged repeated failing execution, not implementing the diagnosed missing behavior: after expected red test failures make the actual corresponding authorized source correction before rerunning; do not stop before corrective implementation merely because sandbox+red attempts reached limit. Do not reset histories or fabricate input changes. Fresh independent QA and final review PASS remain required before PR publication, no merge.
+

@@ -41,17 +41,37 @@ defmodule FootballMarket.Valuation.DecimalMath do
   end
 
   def weighted(terms) do
-    {n, d} =
-      Enum.reduce(terms, {0, 1}, fn {feature, weight}, {an, ad} ->
-        {fn_, fd} = ratio(feature)
-        {wn, wd} = ratio(weight)
-        {an * fd * wd + fn_ * wn * ad, ad * fd * wd}
-      end)
+    contributions =
+      Enum.reduce(terms, %{}, fn {feature, weight}, acc ->
+        {fc, fe} = coefficient(feature)
+        {wc, we} = coefficient(weight)
 
-    # All terms are finite decimals, hence the denominator is a power of ten.
-    decimal(n, d, 0)
+        if fc == 0 or wc == 0 do
+          acc
+        else
+          {c, e} = canonical(fc * wc, fe + we)
+          Map.put(acc, e, Map.get(acc, e, 0) + c)
+        end
+      end)
+      |> Enum.reject(fn {_, c} -> c == 0 end)
+
+    case contributions do
+      [] ->
+        %Decimal{sign: 1, coef: 0, exp: 0}
+
+      terms ->
+        exponent = terms |> Enum.map(&elem(&1, 0)) |> Enum.min()
+        sum = Enum.reduce(terms, 0, fn {e, c}, acc -> acc + c * Integer.pow(10, e - exponent) end)
+        {c, e} = canonical(sum, exponent)
+        %Decimal{sign: if(c < 0, do: -1, else: 1), coef: abs(c), exp: e}
+    end
   end
 
-  defp decimal(n, 1, e), do: %Decimal{sign: if(n < 0, do: -1, else: 1), coef: abs(n), exp: e}
-  defp decimal(n, d, e), do: decimal(n, div(d, 10), e - 1)
+  defp coefficient(n) when is_integer(n), do: {n, 0}
+  defp coefficient(%Decimal{sign: s, coef: c, exp: e}), do: {s * c, e}
+  defp canonical(0, _), do: {0, 0}
+
+  defp canonical(c, e) do
+    if rem(c, 10) == 0, do: canonical(div(c, 10), e + 1), else: {c, e}
+  end
 end

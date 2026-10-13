@@ -13,6 +13,9 @@ defmodule FootballMarket.Valuation.ScopeTest do
       )
   ]
 
+  @legacy_production @production
+  @production @production ++ ["lib/football_market/valuation/balanced.ex"]
+
   test "AST dependencies, production inventory and absence of writes, time and providers" do
     assert Enum.sort(
              Path.wildcard("lib/football_market/valuation/*.ex") ++
@@ -126,7 +129,7 @@ defmodule FootballMarket.Valuation.ScopeTest do
         ] do
       allowance = allowance(path)
       paths = allowance.(feature)
-      assert Enum.all?(@production, &(&1 in paths))
+      assert Enum.all?(@legacy_production, &(&1 in paths))
       refute "lib/football_market/valuation/unplanned.ex" in paths
       refute "lib/football_market/catalog.ex" in paths
       refute "test/football_market/valuation/unplanned_test.exs" in paths

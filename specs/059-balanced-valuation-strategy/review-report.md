@@ -1,0 +1,19 @@
+# Final independent review — TASK-023, Feedback 3
+
+Ready for human merge. No blockers found. Reviewed the complete active specification, plan, tasks, architecture/development handoffs, current human feedback and QA report; inspected relevant diffs and production/test/evidence code directly. No implementation changes, Agentflow invocation, delegation or publication.
+
+The production change satisfies the approved boundary: one balanced/1 scorer, a bounded exact-arithmetic helper refinement and nine test files. Configuration rejects unsupported shapes and nonfinite/inexact numeric values before traversal. Every configured metric, including zero weights, derives an overall requirement. The scorer uses rounded features without role/minute bonuses, per-product rounding or score clamps. Signed coefficient/exponent arithmetic preserves cancellation and avoids ambient Decimal context. The common engine remains responsible for selection, validation, final rounding and authoritative replay; no duplicate engine, schema or evidence store was introduced.
+
+Maintainability is appropriate for nine metrics: a small callback implementation, fixed metric ordering and explicit validation, with behavioral tests through public evaluate/authenticated-score/replay. Scope allowances preserve the historical TASK-022 boundary while admitting exactly the eleven planned paths. Direct inspection confirms no web, persistence, provider, job or financial dependency in Balanced. Existing authoritative replay compares original facts and effective rules; late arrivals cannot expand retained membership. Trusted internal consumers remain the security boundary. Very large finite numbers can consume resources, as explicitly accepted by the plan; no new public numeric input surface exists.
+
+Feedback 3 is implemented as evidence-only cleanup. Fraction generation now uses stdout; the probe consumes vectors in memory, checks the original fingerprint before creating fixtures and rejects generator failure. The baseline verifier compares parsed vectors with the approved Git object and all application source hashes. Three mandatory oracle checks disable reuse. The baseline backup remains available, and the expanded dataset is absent with deletion present in the diff. No application source changes relative to b14ad23 were found.
+
+Fresh QA evidence is sufficient: all 16 required manifest checks have successful independent executions, including both audited profiles, actual services, inherited helper/error regressions and the 511-case oracle. The failed sandbox compile and successful retry are recorded transparently. Additional QA challenges cover corrupted generation, all-zero completeness and microsecond boundaries.
+
+Review executed only a targeted Python integrity audit to resolve whether QA evidence still binds the reviewed worktree: exit 0; all 298 recorded input hashes, 17 execution-log hashes and three adversarial-log hashes match; argv/environment match the manifest; latest results all pass without reuse; application baseline and backup match. No discrepancy or uncovered behavioral risk justified repeating suites. Evidence: [QA inputs](qa-evidence/fresh-qa-cleanup-20261013/input-sha256.json), [executions](qa-evidence/fresh-qa-cleanup-20261013/results.json), [additional challenges](qa-evidence/fresh-qa-cleanup-20261013/adversarial-results.json).
+
+Checkpoint coverage is correctly limited to CP2's first configurable strategy. Operator calibration, second strategy, immutable configuration/quotes and frontend delivery remain documented downstream obligations, without being claimed complete here.
+
+Backlog impact: none — the authorized evidence cleanup changes no future requirements, architecture, dependencies, priority or scope; existing calibration and retention ownership remains sufficient.
+
+Verdict: PASS

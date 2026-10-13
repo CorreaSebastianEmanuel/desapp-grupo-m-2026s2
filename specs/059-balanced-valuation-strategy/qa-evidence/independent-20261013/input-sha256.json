@@ -1,0 +1,18 @@
+{
+  "backlog/feedback/TASK-023.md": "5eb0ab6a8d04453d02d76e57464635a2bc81bf827544da13314ed45d1719a719",
+  "lib/football_market/valuation/balanced.ex": "773d651c208ce42af6aeddf218325a9535f29877b6e27ac9cdcdd656c01af48c",
+  "lib/football_market/valuation/decimal_math.ex": "b2e87c4e3bdfdd76b12dcb911aae3277589adaf92ba9a0bd3997102aed508489",
+  "specs/059-balanced-valuation-strategy/plan.md": "78a2f20c5f328eef43375bfff8dd2f97918a49656677ac5fe7cb2577a79e08d1",
+  "specs/059-balanced-valuation-strategy/spec.md": "8879696fc8bb0a9009df27b415e0950fd9b85f4fba86899c666dd676eb1e0b5b",
+  "specs/059-balanced-valuation-strategy/tasks.md": "a883649c5a785e265457e1e961f7aca7d5b5bec5c3127410f935d8678aff2834",
+  "specs/059-balanced-valuation-strategy/verification.json": "e9d895711a55361df0260eebc354f96eb0f0521cad41ddac8eea7ec1835bb1c1",
+  "test/football_market/providers/scope_test.exs": "e5c2022ded35253474f4f19c65db1f94d81446f36ff42cdec71a1fcb9017966e",
+  "test/football_market/statistics/scope_test.exs": "9c5bc3d65e2c173e07ffa21202e7b1a35dcc4fa44d0fcc7a865118284fee856f",
+  "test/football_market/valuation/balanced/arithmetic_test.exs": "f7a458c921e4b4cd557f20b0a6b9b4cb54ecb589e956c2bb1045c14994404bb6",
+  "test/football_market/valuation/balanced/config_test.exs": "2a6cf7a55ad09244585b587bc6f9f0ecfe82a301e1b69fffff6d1606e7b00537",
+  "test/football_market/valuation/balanced/formula_test.exs": "7a2d0dcf60acff11e550ebff47db34b7acd164328749b03ef9542cb2509c4d64",
+  "test/football_market/valuation/balanced/outcomes_test.exs": "7307dec9701577627fc2fefd62602e316cb9e3b14734df2da127c91906063ef6",
+  "test/football_market/valuation/balanced/replay_test.exs": "2f3a49012cbd2d2035591102af18e87bd63883d3ae25f13e7e7514454b1fdd60",
+  "test/football_market/valuation/balanced/scope_test.exs": "9f27ac9098ff032b7cdb59f3142d3660e83c1201d7a72832602841b21da9f490",
+  "test/football_market/valuation/scope_test.exs": "a325217f013dc54256f048eeecbb8bcc604a7d466810025a3fd4c61dd55b68e4"
+}

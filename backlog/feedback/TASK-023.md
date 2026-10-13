@@ -1,0 +1,26 @@
+# Feedback — TASK-023
+
+## Feedback 1
+
+- Time: 2026-10-13T14:45:15+00:00
+- Author: sebo
+- Restart from: develop
+
+Development stopped at T002 because one sandbox denial and one actual closed host connection reached unchanged services retry limit. Root diagnosed the external runtime: Docker reported both services healthy and internal pg_isready/redis ping succeeded, but MIX_ENV=test mix infrastructure.verify independently failed for BOTH loopback services. Root executed documented reversible ./scripts/local_services.sh restart preserving volumes; after recreation MIX_ENV=test mix infrastructure.verify exited 0 with PostgreSQL OK at 127.0.0.1:15432/football_market_test and Redis OK at 127.0.0.1:6379. External blocking condition is corrected and current test DB connectivity verified. Preserve failure receipts/attempt history; do not delete counters, alter unrelated inputs or repeat the unchanged limited check. Routine sequencing correction: document the recovered runtime and defer T002 full guarded preparation receipt to final fresh services gate T024, keeping T002 unchecked until that real execution succeeds. Proceed with authorized test-first implementation T003 onward using current verified local services, then execute services under genuinely changed implementation inputs and all final checks; no fabricated source changes to reset retries. This only adjusts verification ordering after root independent connectivity evidence, not any product/architecture or check requirement. Update plan/tasks guidance accordingly and refresh every required receipt/readiness before fresh QA and final review. All existing specification scope, eleven-file boundary, exact arithmetic, ordinary malformed-input regression and operator calibration obligations remain unchanged. Do not restart sources or change ports/passwords/schema to mask the external transport issue.
+
+## Feedback 2
+
+- Time: 2026-10-13T14:50:33+00:00
+- Author: sebo
+- Restart from: develop
+
+T003-T006 red tests now demonstrate the deliberately missing Balanced module. Development handoff stopped incorrectly before the authorized T007 corrective implementation merely because sandbox denial plus expected absent-module red failures reached two unchanged attempts. Do not repeat unchanged checks, reset counters or stop before making the actual corrective source change. Immediately implement T007 lib/football_market/valuation/balanced.ex under the approved plan to satisfy these tests; that real source change allows fresh green executions. Continue remaining test-first phases, and when a deliberate red test diagnoses missing behavior perform the corresponding authorized implementation before retrying. Retry policy prevents repeated unchanged executions, not implementing the diagnosed behavior. Preserve all current red tests/evidence and recovered runtime Feedback 1 sequencing; do not request user product approval or widen scope. Complete all final checks including actual services and profiles, readiness, then independent QA/review. Keep product formula, eleven-file inventory and pending calibration ownership unchanged.
+
+## Feedback 3
+
+- Time: 2026-10-13T16:30:21+00:00
+- Author: sebo
+- Restart from: develop
+
+User explicitly authorized removing expanded generated QA data while preserving the independent validation, fresh QA/final-review gates and ability to restore the prior approved state. Baseline b14ad23cab3b13ef0a8446afac79f3382b592c59 is retained in local backup/task-023-before-qa-cleanup. Root has made the bounded cleanup concrete: generator now emits deterministic compact canonical JSON to stdout, probe invokes it and consumes output in memory, oracle-vectors.json removed, oracle-summary.json retains count/seed/arithmetic and canonical SHA256 78df86c2c0e14b68783be989b7fb35b501b133cd6d426b81c5ab75e28d96cd4d. Root compared all 511 regenerated cases with original JSON byte-independent parsed equality and successfully executed the original oracle after in-memory change (511 evaluate/authenticated-score/replay, 1 passed); checksum assertion and summary subsequently added require current verification. Plan/quickstart reflect authorized evidence-only boundary. Do NOT modify production modules, application tests, business rules, dependencies or global workflow. Finish scoped artifact formatting/documentation and add a required manifest check for this reproducible independent oracle; reconcile tasks/coverage/evidence for cleanup. Run the affected oracle and required readiness checks, then fresh independent QA and final review, each terminal PASS only on execution/evidence. Preserve historical QA records as historical; provide current bounded evidence, not expanded generated JSON or pasted outputs. Confirm no generated dataset is written or tracked, original expected data fingerprint preserved, generator failure fails the probe, and existing production/test source hashes match baseline. The PR #34 already exists and is OPEN; publication should update that branch after both gates pass, never create another PR or merge. Root will recover existing-PR publication if Agentflow gh create reports already exists. On failure preserve baseline and diagnose within scope; no destructive reset or force push.
+

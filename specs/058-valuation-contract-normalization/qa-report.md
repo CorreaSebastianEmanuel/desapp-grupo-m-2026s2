@@ -1,0 +1,27 @@
+# Independent QA — TASK-022
+
+2026-10-13. Active binding: `.specify/feature.json`; delivery branch `022-valuation-engine-contract-and-normalization`. Reviewed full spec, plan, tasks, architecture/develop handoffs, Feedback 1–3, manifest, all new production/test files and existing-file diffs. No implementation edits, agents, Agentflow invocation, reused receipts or historical reports.
+
+Evidence: [qa-evidence/fresh-20261013/](qa-evidence/fresh-20261013/). `results.json` records exact manifest argv/environment, exits and elapsed times; `source-sha256.txt` identifies reviewed inputs. Check IDs below refer to independently executed commands. All 15 manifest checks exited 0.
+
+| Acceptance / requirements | Executed evidence and relevant assertions | Result |
+|---|---|---|
+| US1.1; FR-003 | preparation-unit (week), history-integration: opening included; immediately before, closing and after excluded; offsets identical; player/season isolation; tied identities byte-ordered. Year-crossing and invalid precision tested. | PASS |
+| US1.2–3; FR-004 | preparation-unit (normalization), history-integration: goals 1+2/ref4 = `0.750000`, minutes 135 retained; 0/4/9 → `0.000000`/`1.000000`/`1.000000`. Decimal references and enormous counts tested. | PASS |
+| US1.4–5; FR-001, FR-011; SC-003 | history-integration, preparation-unit (canonical), architecture: current transfer/position changes preserve facts; 24 distinct permutations preserve inputs, descriptors and `1.000000` score; nested configuration ordering; no provider dependency. | PASS |
+| US1.6; FR-002, FR-013 | preparation-unit, scoring: missing/extra keys, invalid UUIDs/weeks, zero/negative/float/boolean/nonfinite/malformed references, unsupported requirements/mappings/configuration fail ordinarily; no inferred defaults. | PASS |
+| US2.1–7; FR-005–006, FR-008; SC-002 | missing-data, history-integration, matrix: nine known-zero/unknown cases; nil unrequired retained; nil required identifies scope/metric/performance deterministically; zero/123 minutes never exclude counts. Known empty, unknown subject and insufficient data differ. Match without performance manufactures no row. Extra public probe confirms identical `1.500000` weighted scores with 0 versus 135 minutes. | PASS |
+| US3.1–7; FR-007–008 | grouping: overall/defender/midfielder tackles `0.750000`/`0.500000`/`0.250000`; historical mapping preserved; duplicate/missing/unsupported mappings rejected; explicit defender/fullback mapping; four groups, absent goalkeeper, no applicable scope, mixed absent/present requirements, scoped missing metrics and independent caps verified. | PASS |
+| US4.1–2, US4.4–5; FR-009–010, FR-014; SC-004 | preparation-unit, scoring: signed scores `1.000000`/`-1.000000`; 1/6 → `0.166667` then ×3 → `0.500001`; 1/128 → `0.007813`; both-sign ties, negative zero, near-half ratios and exact cancellation under low Decimal precision. Restricted callback receives rounded features only. | PASS |
+| US4.3, US4.6–7; FR-011–012; SC-003 | replay: original membership survives late arrival, transfer and changed version/references/weights/mapping; fresh evidence changes. Unavailable originals/rules, duplicates, wrong subject/season/week and coordinated raw/derived tampering fail; caller-mutated Prepared is authenticated. | PASS |
+| US4.8; FR-013; SC-005 | scoring, missing-data, replay: unsupported strategy, scorer error/exception, nondecimal/nonfinite/malformed result and unavailable/inconsistent replay are ordinary distinct no-score outcomes. Explicit absent-contribution policies tested. | PASS |
+| Feedback 2–3; FR-013, FR-015 | feedback-regression: 7 passed; durable public improper-list assertions and adjacent nested shapes. Original unchanged `MIX_ENV=test mix run /tmp/task022_qa_adversarial.exs`: `cases=4 failures=0`. Extra `mix test --warnings-as-errors /tmp/task022_qa_fresh_acceptance_test.exs`: 2 passed; malformed fields across every public entrypoint and unchanged successful replay. Probe copies retained. | PASS |
+| FR-015; SC-001, SC-005 | matrix: ten league/season combinations and four groups; exact memberships/totals/features; grouped `27.000000`, overall `9.000000`, replay, nine unknown metrics and 61-digit stored counts. Complete profiles: unit 43 audited modules, 25.875 s; integration 55, 92.369 s, including actual browser E2E/performance; no skips. | PASS |
+| FR-016; product invariants / boundaries | architecture: 8 passed; exact inventory/legacy allowances, AST dependency/purity checks and runtime unchanged stored facts after prepare/evaluate/score/replay. No schema, provider, job, route, trading/quote write or dependency expansion. | PASS |
+| Execution prerequisites | toolchain, format, compile, services: exact toolchain; warnings-as-errors compilation; guarded migrations; `PostgreSQL: OK`, `Redis: OK`. HTTP inapplicable: no affected endpoint, FR-016 excludes routes and diff confirms it. | PASS |
+
+Resolved execution issues: sandbox TCP denial on first compile (0.785 s), followed by successful authorized local execution; extra probe initially used a nonmatching filename, then passed with `_test.exs`. Both failed outputs retained; no repeated unchanged failing checks or retry-limit bypass.
+
+Blockers: none. Descriptor retention/integrity and trusted production scorer/configuration lifecycle remain documented downstream obligations. Final independent review is still required.
+
+Verdict: PASS

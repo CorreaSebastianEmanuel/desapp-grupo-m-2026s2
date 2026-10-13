@@ -1,0 +1,303 @@
+{
+  "schema_version": 1,
+  "runtime_required": false,
+  "checks": [
+    {
+      "id": "toolchain",
+      "argv": [
+        "sh",
+        "scripts/check_toolchain.sh"
+      ]
+    },
+    {
+      "id": "format",
+      "argv": [
+        "mix",
+        "format",
+        "--check-formatted"
+      ]
+    },
+    {
+      "id": "compile",
+      "argv": [
+        "mix",
+        "compile",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "services",
+      "argv": [
+        "sh",
+        "-c",
+        "mix test.prepare && mix infrastructure.verify"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "reuse": false
+    },
+    {
+      "id": "preparation-unit",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/valuation/contract_test.exs",
+        "test/football_market/valuation/week_test.exs",
+        "test/football_market/valuation/normalization_test.exs",
+        "test/football_market/valuation/canonical_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "history-integration",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/valuation/history_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "missing-data",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/valuation/missing_data_test.exs",
+        "test/football_market/valuation/outcomes_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "grouping",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/valuation/position_groups_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "scoring",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/valuation/scoring_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "replay",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/valuation/replay_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "matrix",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/valuation/matrix_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "architecture",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/valuation/scope_test.exs",
+        "test/football_market/statistics/scope_test.exs",
+        "test/football_market/providers/scope_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "unit-profile",
+      "argv": [
+        "sh",
+        "scripts/test_profile.sh",
+        "unit"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "integration-profile",
+      "argv": [
+        "sh",
+        "scripts/test_profile.sh",
+        "integration"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "feedback-regression",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/valuation/contract_test.exs",
+        "test/football_market/valuation/replay_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "reuse": false
+    }
+  ],
+  "coverage": {
+    "FR-001": [
+      "preparation-unit",
+      "history-integration",
+      "scoring",
+      "replay",
+      "architecture"
+    ],
+    "FR-002": [
+      "preparation-unit",
+      "scoring",
+      "replay"
+    ],
+    "FR-003": [
+      "preparation-unit",
+      "history-integration",
+      "missing-data"
+    ],
+    "FR-004": [
+      "preparation-unit",
+      "history-integration",
+      "grouping"
+    ],
+    "FR-005": [
+      "preparation-unit",
+      "missing-data",
+      "grouping",
+      "matrix"
+    ],
+    "FR-006": [
+      "missing-data",
+      "grouping",
+      "matrix"
+    ],
+    "FR-007": [
+      "grouping",
+      "history-integration",
+      "replay"
+    ],
+    "FR-008": [
+      "history-integration",
+      "missing-data",
+      "grouping",
+      "replay"
+    ],
+    "FR-009": [
+      "preparation-unit",
+      "scoring",
+      "matrix"
+    ],
+    "FR-010": [
+      "preparation-unit",
+      "scoring"
+    ],
+    "FR-011": [
+      "preparation-unit",
+      "scoring",
+      "replay"
+    ],
+    "FR-012": [
+      "replay",
+      "scoring"
+    ],
+    "FR-013": [
+      "preparation-unit",
+      "missing-data",
+      "scoring",
+      "replay",
+      "feedback-regression"
+    ],
+    "FR-014": [
+      "scoring",
+      "architecture"
+    ],
+    "FR-015": [
+      "preparation-unit",
+      "history-integration",
+      "missing-data",
+      "grouping",
+      "scoring",
+      "replay",
+      "matrix",
+      "architecture",
+      "unit-profile",
+      "integration-profile",
+      "feedback-regression"
+    ],
+    "FR-016": [
+      "architecture"
+    ],
+    "SC-001": [
+      "matrix",
+      "history-integration",
+      "grouping"
+    ],
+    "SC-002": [
+      "missing-data",
+      "history-integration",
+      "scoring"
+    ],
+    "SC-003": [
+      "preparation-unit",
+      "replay"
+    ],
+    "SC-004": [
+      "preparation-unit",
+      "scoring",
+      "matrix"
+    ],
+    "SC-005": [
+      "scoring",
+      "replay",
+      "missing-data",
+      "matrix",
+      "architecture"
+    ]
+  },
+  "task_stages": {
+    "T039": "qa",
+    "T040": "review"
+  }
+}

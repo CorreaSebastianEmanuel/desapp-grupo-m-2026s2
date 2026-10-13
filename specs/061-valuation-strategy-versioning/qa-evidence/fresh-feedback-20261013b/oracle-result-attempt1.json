@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "mix",
+    "test",
+    "--warnings-as-errors",
+    "/home/sebo/desapp-grupo-m-2026s2/specs/061-valuation-strategy-versioning/qa-evidence/fresh-feedback-20261013b/oracle_test.exs"
+  ],
+  "exit_code": 2,
+  "elapsed_seconds": 2.1,
+  "vectors": 90,
+  "oracle": "Python Fraction; feature cap then six-place ties-away rounding, exact signed sum then final ties-away rounding",
+  "vector_sha256": "87689206b7feaf5c0eb07794437b1590e0ae27a5a5615b111ba8e00a77f020c1",
+  "log_sha256": "b025fc383c598a42d9863d01c8479d9460c46954bfbb85eaeefbf7c8d07bdfff"
+}

@@ -1,0 +1,307 @@
+{
+  "schema_version": 1,
+  "runtime_required": false,
+  "checks": [
+    {
+      "id": "toolchain",
+      "argv": [
+        "sh",
+        "scripts/check_toolchain.sh"
+      ]
+    },
+    {
+      "id": "format",
+      "argv": [
+        "mix",
+        "format",
+        "--check-formatted"
+      ]
+    },
+    {
+      "id": "compile",
+      "argv": [
+        "mix",
+        "compile",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "services",
+      "argv": [
+        "sh",
+        "-c",
+        "mix test.prepare && mix infrastructure.verify"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "reuse": false,
+      "expectation": "Guarded test database preparation/migrations, actual PostgreSQL marker query and Redis PONG must succeed; unavailable services fail rather than skip."
+    },
+    {
+      "id": "rules-codec",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/valuation/configurations/rules_test.exs",
+        "test/football_market/valuation/configurations/codec_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "expectation": "Both reviewed formula identities; derived zero-weight requirements and nonempty all-zero rules; strict map/proper-list/numeric validation with no float/string coercion; full four-group/reference-union/nonempty mapping validation. Exact typed integer/Decimal canonical round-trip including equivalent Decimals, negative zero, large coefficients/extreme exponents and varied contexts; no arbitrary atom/module decode."
+    },
+    {
+      "id": "versions",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/valuation/configurations/storage_test.exs",
+        "test/football_market/valuation/configurations/immutability_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "expectation": "Complete saves for both strategies, distinct UUID per save, full rules and stable creation-time/UUID ordering, no activation or partial writes; unknown versus empty versus storage failure. Direct Repo/SQL attempts to modify/delete/truncate versions/history/anchor including unused rules/metadata fail; constraints reject reused IDs, orphan targets and disconnected selection changes and unsupported write isolation; atomic rollback retains original state."
+    },
+    {
+      "id": "selection",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/valuation/configurations/activation_test.exs",
+        "test/football_market/valuation/configurations/concurrency_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "expectation": "Explicit first activation, switch/restore, expected-current conflict before no-op, matching no-op without history duplication; ordered previous/new/time records and saving without selection effects. Separate PostgreSQL backends with real commits, first-activation and competing different-target races, old/new reader visibility, equal-time ordering, and approved identity comparison after A-to-B-to-A."
+    },
+    {
+      "id": "managed",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/valuation/configurations/managed_test.exs",
+        "test/football_market/valuation/configurations/outcomes_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "expectation": "Active/explicit inactive evaluation fixes one full saved version before facts; controlled in-flight activation cannot mix rules. UUID/formula/evidence binding; exact balanced 1 versus 2 and approved position-aware 2 versus 4; override validation before empty history. Distinct no-active/not-found/unsupported/empty/unknown-required-metric/unmapped-position failures; no fallback or writes."
+    },
+    {
+      "id": "replay",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/valuation/configurations/replay_test.exs",
+        "test/football_market/valuation/configurations/canonical_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "expectation": "Original UUID lookup and full canonical rules/formula/reference/requirements/mapping comparison before inherited authoritative membership replay. Rule switching, late facts, current affiliation changes and absent/unused settings cannot substitute evidence; unavailable/unsupported/altered raw/derived/score evidence fails without score. At least 20 rule/mapping permutations produce canonical equivalent rules/results with distinct saved identities."
+    },
+    {
+      "id": "durability",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/valuation/configurations/durability_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "expectation": "Commit versions/selection/history in a guarded isolated test namespace; fresh BEAM application instances load solely from storage after terminating previous clients/runtime. Exact numeric canonical evidence survives restart under varied Decimal contexts, no implicit activation, stable list/history ties, explicit inactive evaluation and original-envelope replay after activation/late facts; child failures propagate as assertion failures."
+    },
+    {
+      "id": "architecture",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/valuation/configurations/scope_test.exs",
+        "test/football_market/valuation/scope_test.exs",
+        "test/football_market/statistics/scope_test.exs",
+        "test/football_market/providers/scope_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "expectation": "Exact 33-path active-feature inventory and role-separated AST checks preserve pure engine/formula restrictions and legacy allowances. Provider/HTTP/event/job call tracing plus SQL assertions: reads/evaluate/replay do not mutate any table; create/activation write only own version/history. Real storage failures stay visible; no routes, presets, quote/financial code or unversioned production market path."
+    },
+    {
+      "id": "unit-profile",
+      "argv": [
+        "sh",
+        "scripts/test_profile.sh",
+        "unit"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "expectation": "Complete audited unit profile, including new pure rules/codec tests and existing precision/formula regressions; nonempty no-skip execution."
+    },
+    {
+      "id": "integration-profile",
+      "argv": [
+        "sh",
+        "scripts/test_profile.sh",
+        "integration"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "expectation": "Complete audited integration profile including new persistence/activation/managed/replay/durability/architecture suites, inherited valuation regressions, and existing real Chromium/browser checks; service/browser unavailability fails."
+    },
+    {
+      "id": "legacy-metadata",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/catalog/constraints_test.exs",
+        "test/football_market/accounts/persistence_test.exs",
+        "test/football_market/catalog/player_catalog_index_test.exs",
+        "test/football_market/catalog/ingestion/publication_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "expectation": "Legacy exact schema/index/constraint assertions continue to verify the current schema, with retained protected configuration fixture namespaces present; no duplicate cross-schema metadata and no weakened identity/index/deferrability assertions."
+    }
+  ],
+  "coverage": {
+    "FR-001": [
+      "rules-codec",
+      "versions",
+      "selection",
+      "architecture"
+    ],
+    "FR-002": [
+      "versions",
+      "durability"
+    ],
+    "FR-003": [
+      "rules-codec",
+      "managed"
+    ],
+    "FR-004": [
+      "rules-codec",
+      "versions",
+      "managed"
+    ],
+    "FR-005": [
+      "rules-codec",
+      "durability",
+      "replay"
+    ],
+    "FR-006": [
+      "versions",
+      "durability"
+    ],
+    "FR-007": [
+      "selection",
+      "managed",
+      "durability"
+    ],
+    "FR-008": [
+      "selection"
+    ],
+    "FR-009": [
+      "selection",
+      "versions",
+      "durability"
+    ],
+    "FR-010": [
+      "managed",
+      "architecture"
+    ],
+    "FR-011": [
+      "managed",
+      "replay"
+    ],
+    "FR-012": [
+      "managed",
+      "replay",
+      "unit-profile",
+      "integration-profile"
+    ],
+    "FR-013": [
+      "managed",
+      "rules-codec",
+      "versions",
+      "architecture"
+    ],
+    "FR-014": [
+      "replay",
+      "durability"
+    ],
+    "FR-015": [
+      "architecture",
+      "versions",
+      "selection",
+      "durability"
+    ],
+    "FR-016": [
+      "rules-codec",
+      "versions",
+      "selection",
+      "managed",
+      "replay",
+      "durability",
+      "architecture",
+      "unit-profile",
+      "integration-profile"
+    ],
+    "FR-017": [
+      "architecture",
+      "unit-profile",
+      "integration-profile",
+      "legacy-metadata"
+    ],
+    "SC-001": [
+      "versions",
+      "selection",
+      "managed",
+      "durability"
+    ],
+    "SC-002": [
+      "rules-codec",
+      "versions",
+      "selection"
+    ],
+    "SC-003": [
+      "managed",
+      "replay"
+    ],
+    "SC-004": [
+      "replay",
+      "durability"
+    ],
+    "SC-005": [
+      "managed",
+      "replay",
+      "rules-codec"
+    ],
+    "SC-006": [
+      "architecture",
+      "durability",
+      "selection"
+    ]
+  },
+  "task_stages": {
+    "T037": "qa",
+    "T038": "review"
+  }
+}

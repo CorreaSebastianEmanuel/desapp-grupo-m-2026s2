@@ -7,7 +7,7 @@ defmodule FootballMarket.Catalog.PlayerCatalogIndexTest do
     %{rows: [[definition]]} =
       Ecto.Adapters.SQL.query!(
         FootballMarket.Repo,
-        "SELECT indexdef FROM pg_indexes WHERE indexname = 'players_catalog_order_index'"
+        "SELECT indexdef FROM pg_indexes WHERE schemaname = current_schema() AND indexname = 'players_catalog_order_index'"
       )
 
     assert definition =~ "lower(btrim(display_name))"

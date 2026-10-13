@@ -56,6 +56,35 @@ defmodule FootballMarket.Valuation.Request do
 
   def validate(_), do: Error.new(:validation, :invalid_request, [:request])
 
+  @doc "Validate a managed calculation's subject and explicit UTC week without football reads."
+  def subject_week(s) when is_map(s) and not is_struct(s) do
+    if Enum.sort(Map.keys(s)) == Enum.sort([:player_id, :season_id, :week_start, :week_end]) do
+      with {:ok, player} <- identifier(s.player_id, :player_id),
+           {:ok, season} <- identifier(s.season_id, :season_id),
+           {:ok, {a, b}} <- Week.validate(s.week_start, s.week_end) do
+        {:ok, %{s | player_id: player, season_id: season, week_start: a, week_end: b}}
+      end
+    else
+      Error.new(:validation, :invalid_request_keys, [:request])
+    end
+  end
+
+  def subject_week(_), do: Error.new(:validation, :invalid_request, [:request])
+
+  @doc "Validate reusable rule fields; preserves the explicit helper's empty-mapping behavior."
+  def rule_fields(required, refs, pairs) do
+    with {:ok, requirements} <- requirements(required),
+         :ok <- references(refs, requirements),
+         {:ok, position_mapping} <- mapping(pairs) do
+      {:ok,
+       %{
+         requirements: requirements,
+         references: Evidence.normalize_config(refs),
+         position_mapping: position_mapping
+       }}
+    end
+  end
+
   defp identifier(id, field) do
     case FootballMarket.Statistics.Input.identifier(id, field) do
       {:ok, canonical} -> {:ok, canonical}

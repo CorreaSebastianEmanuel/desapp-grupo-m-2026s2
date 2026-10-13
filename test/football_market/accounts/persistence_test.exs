@@ -15,7 +15,7 @@ defmodule FootballMarket.Accounts.PersistenceTest do
     %{rows: [[definition]]} =
       Ecto.Adapters.SQL.query!(
         Repo,
-        "SELECT indexdef FROM pg_indexes WHERE indexname = 'users_normalized_email_index'"
+        "SELECT indexdef FROM pg_indexes WHERE schemaname = current_schema() AND indexname = 'users_normalized_email_index'"
       )
 
     assert definition =~ "lower(btrim(email))"

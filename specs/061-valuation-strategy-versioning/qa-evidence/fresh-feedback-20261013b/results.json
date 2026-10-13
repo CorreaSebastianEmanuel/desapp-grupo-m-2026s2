@@ -1,0 +1,200 @@
+[
+  {
+    "id": "toolchain",
+    "argv": [
+      "sh",
+      "scripts/check_toolchain.sh"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 1.189,
+    "evidence": "/home/sebo/desapp-grupo-m-2026s2/specs/061-valuation-strategy-versioning/qa-evidence/fresh-feedback-20261013b/toolchain.log",
+    "sha256": "d26f020c67adf23d872b7c3b9beda3e56501e34de2e830cf1a8ec814bd1a2e65"
+  },
+  {
+    "id": "format",
+    "argv": [
+      "mix",
+      "format",
+      "--check-formatted"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 1.112,
+    "evidence": "/home/sebo/desapp-grupo-m-2026s2/specs/061-valuation-strategy-versioning/qa-evidence/fresh-feedback-20261013b/format.log",
+    "sha256": "30199ad9c58d1fac4c5cb86f906bb9d3fb9f64d18a0819f5e5b8e9b198cbd708"
+  },
+  {
+    "id": "compile",
+    "argv": [
+      "mix",
+      "compile",
+      "--warnings-as-errors"
+    ],
+    "exit_code": 1,
+    "elapsed_seconds": 0.806,
+    "evidence": "/home/sebo/desapp-grupo-m-2026s2/specs/061-valuation-strategy-versioning/qa-evidence/fresh-feedback-20261013b/compile.log",
+    "sha256": "e10cbee50e01b07ab2cf163c0fede103c5bb7cfbb8a51f2ee434856106979efb"
+  },
+  {
+    "id": "compile",
+    "argv": [
+      "mix",
+      "compile",
+      "--warnings-as-errors"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.7,
+    "evidence": "/home/sebo/desapp-grupo-m-2026s2/specs/061-valuation-strategy-versioning/qa-evidence/fresh-feedback-20261013b/compile-retry.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "services",
+    "argv": [
+      "sh",
+      "-c",
+      "mix test.prepare && mix infrastructure.verify"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 1.832,
+    "evidence": "/home/sebo/desapp-grupo-m-2026s2/specs/061-valuation-strategy-versioning/qa-evidence/fresh-feedback-20261013b/services.log",
+    "sha256": "68f8564a23c92662fca7bd17290ee61d585610095c3d358604c8ce2f5e565a48"
+  },
+  {
+    "id": "rules-codec",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "test/football_market/valuation/configurations/rules_test.exs",
+      "test/football_market/valuation/configurations/codec_test.exs"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 1.264,
+    "evidence": "/home/sebo/desapp-grupo-m-2026s2/specs/061-valuation-strategy-versioning/qa-evidence/fresh-feedback-20261013b/rules-codec.log",
+    "sha256": "f826e1b2448ba2cbb06948932abe1fe3cc3683d500f78e58ea1a9486c03a29fc"
+  },
+  {
+    "id": "versions",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "test/football_market/valuation/configurations/storage_test.exs",
+      "test/football_market/valuation/configurations/immutability_test.exs"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 2.079,
+    "evidence": "/home/sebo/desapp-grupo-m-2026s2/specs/061-valuation-strategy-versioning/qa-evidence/fresh-feedback-20261013b/versions.log",
+    "sha256": "e95d11b6d79cc7fda8c4814ba1aac59c94c44938f3b1f01a5691a98077841d50"
+  },
+  {
+    "id": "selection",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "test/football_market/valuation/configurations/activation_test.exs",
+      "test/football_market/valuation/configurations/concurrency_test.exs"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 3.284,
+    "evidence": "/home/sebo/desapp-grupo-m-2026s2/specs/061-valuation-strategy-versioning/qa-evidence/fresh-feedback-20261013b/selection.log",
+    "sha256": "f2aa74a4135e5faa6594abb6010042c1a9a1e2dc3db3d20c730cf7707b3728d5"
+  },
+  {
+    "id": "managed",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "test/football_market/valuation/configurations/managed_test.exs",
+      "test/football_market/valuation/configurations/outcomes_test.exs"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 2.909,
+    "evidence": "/home/sebo/desapp-grupo-m-2026s2/specs/061-valuation-strategy-versioning/qa-evidence/fresh-feedback-20261013b/managed.log",
+    "sha256": "c70e43ea0622bf424fe6a4d08fd0a0c85b62ea708808e7e1d1ad29cdaded4ebc"
+  },
+  {
+    "id": "replay",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "test/football_market/valuation/configurations/replay_test.exs",
+      "test/football_market/valuation/configurations/canonical_test.exs"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 2.148,
+    "evidence": "/home/sebo/desapp-grupo-m-2026s2/specs/061-valuation-strategy-versioning/qa-evidence/fresh-feedback-20261013b/replay.log",
+    "sha256": "a454c1e63251134e561b42341d38096ecaf68f0927df5d07c512be6ed7ce5c83"
+  },
+  {
+    "id": "durability",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "test/football_market/valuation/configurations/durability_test.exs"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 7.644,
+    "evidence": "/home/sebo/desapp-grupo-m-2026s2/specs/061-valuation-strategy-versioning/qa-evidence/fresh-feedback-20261013b/durability.log",
+    "sha256": "4afe13940dea55029a80ef7da0521983ea915e224518a9142b04481742d6e53a"
+  },
+  {
+    "id": "architecture",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "test/football_market/valuation/configurations/scope_test.exs",
+      "test/football_market/valuation/scope_test.exs",
+      "test/football_market/statistics/scope_test.exs",
+      "test/football_market/providers/scope_test.exs"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 1.969,
+    "evidence": "/home/sebo/desapp-grupo-m-2026s2/specs/061-valuation-strategy-versioning/qa-evidence/fresh-feedback-20261013b/architecture.log",
+    "sha256": "04b04654f16946c5a5c91cbc20a5f9b20b2bbb97565cae5fd687e1b56cc49c5e"
+  },
+  {
+    "id": "unit-profile",
+    "argv": [
+      "sh",
+      "scripts/test_profile.sh",
+      "unit"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 24.031,
+    "evidence": "/home/sebo/desapp-grupo-m-2026s2/specs/061-valuation-strategy-versioning/qa-evidence/fresh-feedback-20261013b/unit-profile.log",
+    "sha256": "aec4380ec142fa0500f76fe846a9fb50b624777324d0cc62c2f632397209a3d2"
+  },
+  {
+    "id": "integration-profile",
+    "argv": [
+      "sh",
+      "scripts/test_profile.sh",
+      "integration"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 207.453,
+    "evidence": "/home/sebo/desapp-grupo-m-2026s2/specs/061-valuation-strategy-versioning/qa-evidence/fresh-feedback-20261013b/integration-profile.log",
+    "sha256": "7495f3d82c08def8305a222b49bef96bd48bca8a2ef80b87c7acd798e87d22bc"
+  },
+  {
+    "id": "legacy-metadata",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "test/football_market/catalog/constraints_test.exs",
+      "test/football_market/accounts/persistence_test.exs",
+      "test/football_market/catalog/player_catalog_index_test.exs",
+      "test/football_market/catalog/ingestion/publication_test.exs"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 3.249,
+    "evidence": "/home/sebo/desapp-grupo-m-2026s2/specs/061-valuation-strategy-versioning/qa-evidence/fresh-feedback-20261013b/legacy-metadata.log",
+    "sha256": "0fd6ef0ae24208ffdb1160a9e57ad9d6b610e803404fabb8cb725de48abcb215"
+  }
+]

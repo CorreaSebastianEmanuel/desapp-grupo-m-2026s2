@@ -1,0 +1,274 @@
+{
+  "schema_version": 1,
+  "runtime_required": false,
+  "checks": [
+    {
+      "id": "toolchain",
+      "argv": [
+        "sh",
+        "scripts/check_toolchain.sh"
+      ]
+    },
+    {
+      "id": "format",
+      "argv": [
+        "mix",
+        "format",
+        "--check-formatted"
+      ]
+    },
+    {
+      "id": "compile",
+      "argv": [
+        "mix",
+        "compile",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "services",
+      "argv": [
+        "sh",
+        "-c",
+        "mix test.prepare && mix infrastructure.verify"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "reuse": false,
+      "expectation": "Guarded test preparation, actual migrated PostgreSQL query and Redis PONG must succeed; unavailable services fail."
+    },
+    {
+      "id": "position-config",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/valuation/position_aware/config_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "expectation": "Explicit identity and four nonempty metric maps; exact signed weights/zero and ordered derived requirements; malformed/duplicate collections fail without callback exceptions."
+    },
+    {
+      "id": "position-formula",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/valuation/position_aware/formula_test.exs",
+        "test/football_market/valuation/position_aware/mixed_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "expectation": "Every metric in every group, single and mixed fixture scores, independent caps, approved concentrated 2 versus split 4, zero-group non-dilution and historical-only grouping."
+    },
+    {
+      "id": "position-outcomes",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/valuation/position_aware/outcomes_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "expectation": "Group-specific unknowns, zero weights, absent/known-zero/empty/not-found distinctions, exact references/requirements, duplicate mappings and safe no-score validation."
+    },
+    {
+      "id": "position-arithmetic",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/valuation/position_aware/arithmetic_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "expectation": "Independent integer-rational oracle for rounded features and final-only signed rounding, within/cross-group ties and huge cancellation under changed Decimal contexts."
+    },
+    {
+      "id": "position-replay",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/valuation/position_aware/replay_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "expectation": "Authoritative fact verification before callback, original available rules/membership, tampering/unavailable/unsupported no-score outcomes and at least 20 deterministic permutations with identical canonical evidence."
+    },
+    {
+      "id": "position-selection",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/valuation/position_aware/selection_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "expectation": "Explicit half-open UTC weeks, offsets/year crossing, kickoff selection, subject/season isolation, same-instant distinct matches, large counts and safe invalid requests."
+    },
+    {
+      "id": "architecture",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/valuation/position_aware/scope_test.exs",
+        "test/football_market/valuation/scope_test.exs",
+        "test/football_market/statistics/scope_test.exs",
+        "test/football_market/providers/scope_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "expectation": "Exact thirteen-file active inventory, purity and negative exclusions; actual provider/event tracing and SQL no-write assertions plus isolated infrastructure failure visibility."
+    },
+    {
+      "id": "valuation-regression",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/valuation/contract_test.exs",
+        "test/football_market/valuation/replay_test.exs",
+        "test/football_market/valuation/normalization_test.exs",
+        "test/football_market/valuation/scoring_test.exs",
+        "test/football_market/valuation/balanced/config_test.exs",
+        "test/football_market/valuation/balanced/formula_test.exs",
+        "test/football_market/valuation/balanced/outcomes_test.exs",
+        "test/football_market/valuation/balanced/arithmetic_test.exs",
+        "test/football_market/valuation/balanced/replay_test.exs",
+        "test/football_market/valuation/balanced/scope_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "expectation": "Unchanged common valuation authentication/normalization/scoring/replay and production Balanced behavior including legacy scope exclusions."
+    },
+    {
+      "id": "unit-profile",
+      "argv": [
+        "sh",
+        "scripts/test_profile.sh",
+        "unit"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "integration-profile",
+      "argv": [
+        "sh",
+        "scripts/test_profile.sh",
+        "integration"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    }
+  ],
+  "coverage": {
+    "FR-001": [
+      "position-config",
+      "position-formula",
+      "position-replay"
+    ],
+    "FR-002": [
+      "position-config",
+      "position-formula",
+      "position-outcomes"
+    ],
+    "FR-003": [
+      "position-config",
+      "position-outcomes"
+    ],
+    "FR-004": [
+      "position-config",
+      "position-outcomes"
+    ],
+    "FR-005": [
+      "position-formula",
+      "position-arithmetic",
+      "position-selection"
+    ],
+    "FR-006": [
+      "position-formula",
+      "position-arithmetic"
+    ],
+    "FR-007": [
+      "position-outcomes",
+      "position-formula"
+    ],
+    "FR-008": [
+      "position-arithmetic",
+      "position-selection"
+    ],
+    "FR-009": [
+      "position-replay",
+      "position-formula"
+    ],
+    "FR-010": [
+      "position-replay",
+      "valuation-regression"
+    ],
+    "FR-011": [
+      "architecture",
+      "position-config",
+      "position-outcomes",
+      "position-replay"
+    ],
+    "FR-012": [
+      "position-config",
+      "position-formula",
+      "position-outcomes",
+      "position-arithmetic",
+      "position-replay",
+      "position-selection",
+      "architecture",
+      "valuation-regression",
+      "unit-profile",
+      "integration-profile"
+    ],
+    "FR-013": [
+      "architecture",
+      "valuation-regression"
+    ],
+    "SC-001": [
+      "position-formula",
+      "position-arithmetic"
+    ],
+    "SC-002": [
+      "position-outcomes"
+    ],
+    "SC-003": [
+      "position-replay",
+      "position-formula"
+    ],
+    "SC-004": [
+      "position-replay"
+    ],
+    "SC-005": [
+      "position-formula",
+      "position-replay",
+      "architecture"
+    ]
+  },
+  "task_stages": {
+    "T028": "qa",
+    "T029": "review"
+  }
+}

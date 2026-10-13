@@ -1,0 +1,14 @@
+{
+  "stage": "qa",
+  "argv": [
+    "mix",
+    "test",
+    "--warnings-as-errors",
+    "/tmp/task024_fraction_probe_test.exs"
+  ],
+  "generator": "python3 specs/060-position-aware-valuation/qa-evidence/independent-qa/fraction_probe.py",
+  "exit_code": 0,
+  "elapsed_seconds": 3.478,
+  "log": "specs/060-position-aware-valuation/qa-evidence/independent-qa/fraction-probe.log",
+  "sha256": "101268e9685ecd08a49fde552844dc3f8464b786cfee8cd0837dd54afe4cf63c"
+}

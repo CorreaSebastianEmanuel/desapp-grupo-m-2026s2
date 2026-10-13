@@ -1,0 +1,15 @@
+{
+  "lib/football_market/valuation/position_aware.ex": "9c4155d1ff05893a003a390b44a403e26b702ed7a38945b6b587d160ca89584e",
+  "test/support/position_aware_case.ex": "58c667cf27b274552a1603dab73e39990f01363d288b5295677fa2f7c6ad143c",
+  "test/football_market/valuation/position_aware/arithmetic_test.exs": "5c1e5cc92f165a060bab933280364e14ca539c5dab90a1422b643e029a801726",
+  "test/football_market/valuation/position_aware/config_test.exs": "f7601a05188715c866b44f096b510ab57eaf6bd5695624ed95336f4b7f762834",
+  "test/football_market/valuation/position_aware/formula_test.exs": "d53cfc78df30669ccc8950302d6649036231efb20d9c7e6546a1b4903d366340",
+  "test/football_market/valuation/position_aware/mixed_test.exs": "1c98ce6ed5e1063946c365c6c605fad5f57815d6e0a330647cad8d79db941bd3",
+  "test/football_market/valuation/position_aware/outcomes_test.exs": "76aedf07b49b032842311954bc75117564012bf261339eb6270a70899a7019db",
+  "test/football_market/valuation/position_aware/replay_test.exs": "384e909ab4f7ad29bd0331688e37b5f9d04ea9c7b0bcafb9b828178a070a3309",
+  "test/football_market/valuation/position_aware/scope_test.exs": "3e26961aac6e410dec28d7727ab7541052f89f6703802aeeab618929738daa76",
+  "test/football_market/valuation/position_aware/selection_test.exs": "8937d6dac3f4da9bb21c14f34b2e6f3b75b1f779b628e67f128fc958027b7c15",
+  "test/football_market/valuation/scope_test.exs": "6fee1f5934a4391f4ab47eec57085e29fbf39ee3da533f79dc2d2f2fe4d1737a",
+  "test/football_market/statistics/scope_test.exs": "23f948ee6929ab57e0db56a0132318f41242fe345ea6458b05708ae1f9df6d83",
+  "test/football_market/providers/scope_test.exs": "e11eb23e8476e9d95df8c1d9c898c79e91319d6f4e44fe977fe898981d8bdf3b"
+}

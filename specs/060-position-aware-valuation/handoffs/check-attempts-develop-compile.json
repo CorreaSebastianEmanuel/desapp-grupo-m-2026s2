@@ -1,0 +1,10 @@
+{
+  "scope": {
+    "source": "24d29e294fd99370d5e515dafcbfee4856a5e97710deb96775c80f69ba20ecec",
+    "inputs": "20eda8f21135484dc74884dc18b407ae2528e4ef66d2cf6f23aad7c8922cc614",
+    "check_identity": "84c5efffb1e8753fb9399ce673dc4399ba05c3f7a4d45ac3a2b7ffd7d569e279"
+  },
+  "consecutive_failures": 0,
+  "elapsed_seconds": 0.657,
+  "evidence": ".agentflow/runs/checks/a461518ee1eb49768f2b23953c8b7995.log"
+}

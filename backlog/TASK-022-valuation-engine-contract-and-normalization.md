@@ -4,9 +4,9 @@ title: Valuation engine contract and normalization
 type: task
 checkpoint: CP2
 priority: critical
-status: review
+status: done
 depends_on: TASK-020
-active_run: 1d4a9387
+active_run: none
 ---
 
 ## Outcome

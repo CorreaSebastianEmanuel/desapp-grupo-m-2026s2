@@ -1,0 +1,293 @@
+[
+  {
+    "id": "toolchain",
+    "argv": [
+      "sh",
+      "scripts/check_toolchain.sh"
+    ],
+    "env": {},
+    "exit_code": 0,
+    "elapsed_seconds": 0.987,
+    "log": "specs/059-balanced-valuation-strategy/qa-evidence/fresh-qa-cleanup-20261013/toolchain.log",
+    "log_sha256": "d26f020c67adf23d872b7c3b9beda3e56501e34de2e830cf1a8ec814bd1a2e65",
+    "reused": false
+  },
+  {
+    "id": "format",
+    "argv": [
+      "mix",
+      "format",
+      "--check-formatted"
+    ],
+    "env": {},
+    "exit_code": 0,
+    "elapsed_seconds": 0.782,
+    "log": "specs/059-balanced-valuation-strategy/qa-evidence/fresh-qa-cleanup-20261013/format.log",
+    "log_sha256": "30199ad9c58d1fac4c5cb86f906bb9d3fb9f64d18a0819f5e5b8e9b198cbd708",
+    "reused": false
+  },
+  {
+    "id": "compile",
+    "argv": [
+      "mix",
+      "compile",
+      "--warnings-as-errors"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 1,
+    "elapsed_seconds": 0.626,
+    "log": "specs/059-balanced-valuation-strategy/qa-evidence/fresh-qa-cleanup-20261013/compile.log",
+    "log_sha256": "e10cbee50e01b07ab2cf163c0fede103c5bb7cfbb8a51f2ee434856106979efb",
+    "reused": false
+  },
+  {
+    "id": "compile",
+    "argv": [
+      "mix",
+      "compile",
+      "--warnings-as-errors"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "elapsed_seconds": 0.916,
+    "log": "specs/059-balanced-valuation-strategy/qa-evidence/fresh-qa-cleanup-20261013/compile-retry.log",
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reused": false,
+    "attempt": 2
+  },
+  {
+    "id": "services",
+    "argv": [
+      "sh",
+      "-c",
+      "mix test.prepare && mix infrastructure.verify"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "elapsed_seconds": 2.15,
+    "log": "specs/059-balanced-valuation-strategy/qa-evidence/fresh-qa-cleanup-20261013/services.log",
+    "log_sha256": "b9ae5e671b85f8ca7ac06fab5f392c81ebe4c7c44a9dc2faa446fb8dd2ff29ca",
+    "reused": false,
+    "attempt": 1
+  },
+  {
+    "id": "balanced-config",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "test/football_market/valuation/balanced/config_test.exs"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "elapsed_seconds": 1.536,
+    "log": "specs/059-balanced-valuation-strategy/qa-evidence/fresh-qa-cleanup-20261013/balanced-config.log",
+    "log_sha256": "4c223198c434fd74df273a1cce803965db719a760b7b0250aafab296d4f9e191",
+    "reused": false,
+    "attempt": 1
+  },
+  {
+    "id": "balanced-formula",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "test/football_market/valuation/balanced/formula_test.exs"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "elapsed_seconds": 2.078,
+    "log": "specs/059-balanced-valuation-strategy/qa-evidence/fresh-qa-cleanup-20261013/balanced-formula.log",
+    "log_sha256": "ff8fb8f7a0fcdb6a8df7031f409239dbc926e6c5bf7ffaa07b9a9697b8bcdd0e",
+    "reused": false,
+    "attempt": 1
+  },
+  {
+    "id": "balanced-outcomes",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "test/football_market/valuation/balanced/outcomes_test.exs"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "elapsed_seconds": 2.08,
+    "log": "specs/059-balanced-valuation-strategy/qa-evidence/fresh-qa-cleanup-20261013/balanced-outcomes.log",
+    "log_sha256": "6735b9a899cca96a6ae0d2a7b0ed037a647181264197d12006377af29f7abedb",
+    "reused": false,
+    "attempt": 1
+  },
+  {
+    "id": "balanced-arithmetic",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "test/football_market/valuation/balanced/arithmetic_test.exs",
+      "test/football_market/valuation/normalization_test.exs",
+      "test/football_market/valuation/scoring_test.exs"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "elapsed_seconds": 2.771,
+    "log": "specs/059-balanced-valuation-strategy/qa-evidence/fresh-qa-cleanup-20261013/balanced-arithmetic.log",
+    "log_sha256": "045c304653c07efa11b84b52889a7f74bdf50a18971169438cac3587c60303b6",
+    "reused": false,
+    "attempt": 1
+  },
+  {
+    "id": "balanced-replay",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "test/football_market/valuation/balanced/replay_test.exs"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "elapsed_seconds": 2.562,
+    "log": "specs/059-balanced-valuation-strategy/qa-evidence/fresh-qa-cleanup-20261013/balanced-replay.log",
+    "log_sha256": "a77324572b35db666af5264ca399e90594f8281c693eb6ff4a761ad9c951685b",
+    "reused": false,
+    "attempt": 1
+  },
+  {
+    "id": "architecture",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "test/football_market/valuation/balanced/scope_test.exs",
+      "test/football_market/valuation/scope_test.exs",
+      "test/football_market/statistics/scope_test.exs",
+      "test/football_market/providers/scope_test.exs"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "elapsed_seconds": 1.713,
+    "log": "specs/059-balanced-valuation-strategy/qa-evidence/fresh-qa-cleanup-20261013/architecture.log",
+    "log_sha256": "c0cfd380a9990d2abf38455e9ea7fb10b5aaa66e0b841bbbb315f5c5a5eb28e0",
+    "reused": false,
+    "attempt": 1
+  },
+  {
+    "id": "feedback-regression",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "test/football_market/valuation/contract_test.exs",
+      "test/football_market/valuation/replay_test.exs"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "elapsed_seconds": 1.797,
+    "log": "specs/059-balanced-valuation-strategy/qa-evidence/fresh-qa-cleanup-20261013/feedback-regression.log",
+    "log_sha256": "59fa593c38248a679acf56c14b19c8ff238e5e30e1a788d88c50e5fcd5bd219e",
+    "reused": false,
+    "attempt": 1
+  },
+  {
+    "id": "unit-profile",
+    "argv": [
+      "sh",
+      "scripts/test_profile.sh",
+      "unit"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "elapsed_seconds": 26.18,
+    "log": "specs/059-balanced-valuation-strategy/qa-evidence/fresh-qa-cleanup-20261013/unit-profile.log",
+    "log_sha256": "3cf12183fb038791231708932c26e12fc42648cb488b90b600f66a7bbc9ab349",
+    "reused": false,
+    "attempt": 1
+  },
+  {
+    "id": "integration-profile",
+    "argv": [
+      "sh",
+      "scripts/test_profile.sh",
+      "integration"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "elapsed_seconds": 185.442,
+    "log": "specs/059-balanced-valuation-strategy/qa-evidence/fresh-qa-cleanup-20261013/integration-profile.log",
+    "log_sha256": "ac490355eff3f8dc2e36942f3c737af7001a2ef44a8a9600f33378b264dfb2ff",
+    "reused": false,
+    "attempt": 1
+  },
+  {
+    "id": "oracle-format",
+    "argv": [
+      "mix",
+      "format",
+      "--check-formatted",
+      "specs/059-balanced-valuation-strategy/qa-evidence/independent-20261013/oracle_probe_test.exs"
+    ],
+    "env": {},
+    "exit_code": 0,
+    "elapsed_seconds": 0.627,
+    "log": "specs/059-balanced-valuation-strategy/qa-evidence/fresh-qa-cleanup-20261013/oracle-format.log",
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reused": false,
+    "attempt": 1
+  },
+  {
+    "id": "oracle-integrity",
+    "argv": [
+      "python3",
+      "specs/059-balanced-valuation-strategy/qa-evidence/independent-20261013/verify_cleanup.py"
+    ],
+    "env": {},
+    "exit_code": 0,
+    "elapsed_seconds": 0.734,
+    "log": "specs/059-balanced-valuation-strategy/qa-evidence/fresh-qa-cleanup-20261013/oracle-integrity.log",
+    "log_sha256": "b7ad04bbabffc547ec707d94d2ce8202aa39e6d8bed43e9739fba2d471e31756",
+    "reused": false,
+    "attempt": 1
+  },
+  {
+    "id": "independent-oracle",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "specs/059-balanced-valuation-strategy/qa-evidence/independent-20261013/oracle_probe_test.exs"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "elapsed_seconds": 9.662,
+    "log": "specs/059-balanced-valuation-strategy/qa-evidence/fresh-qa-cleanup-20261013/independent-oracle.log",
+    "log_sha256": "0c12633916aae084cec0c7c642d56d1835b56052e8282ac9ae3ac037cc436335",
+    "reused": false,
+    "attempt": 1
+  }
+]

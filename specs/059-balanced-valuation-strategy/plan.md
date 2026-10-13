@@ -42,6 +42,10 @@ Pre/post-design gates pass with no constitution violation. This is a design asse
 
 ## Design and Implementation Boundary
 
+### Human-authorized QA evidence cleanup
+
+Preserve the independent Fraction generator and 511-subset ExUnit probe. Generate deterministic vectors on stdout and consume them in memory during the probe; do not retain the expanded generated JSON in Git or write it into the checkout. Keep a compact summary with seed, count and the canonical SHA-256 of the previously approved vectors. The probe must verify this fingerprint before checking features, scores and replay, and assert generator failure stops scoring. oracle-integrity compares all regenerated cases and every lib/test source hash with the approved baseline and verifies zero evidence writes. Required oracle-format, oracle-integrity and independent-oracle checks always execute (reuse: false) because evidence files are excluded from the common source fingerprint. This extension affects only QA evidence and its execution/documentation; production strategy/helper and application tests remain unchanged. Refresh independent QA and final review before updating PR #34. The approved baseline is commit b14ad23cab3b13ef0a8446afac79f3382b592c59, retained in local branch backup/task-023-before-qa-cleanup.
+
 ### Explicit configuration and requirements — US1/US2
 
 Definition config is exactly `%{weights: %{metric_atom => integer_or_finite_decimal}}`: plain maps, only `:weights`, nonempty. Reject structs as containers, nested role maps, list containers/tails, string keys, unsupported options, floats, strings, booleans, nonfinite/corrupted Decimal fields, missing/empty weights. Validate shape before traversal. Use fixed `Request.metrics/0`, never intern caller strings. The existing engine's `Evidence.normalize_config/1` canonicalizes equivalent Decimal representations; integer/Decimal config leaves retain the inherited typed distinction.

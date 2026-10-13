@@ -45,6 +45,9 @@ python3 scripts/agentflow_check.py architecture --reuse
 python3 scripts/agentflow_check.py feedback-regression --reuse
 python3 scripts/agentflow_check.py unit-profile --reuse
 python3 scripts/agentflow_check.py integration-profile --reuse
+python3 scripts/agentflow_check.py oracle-format --reuse
+python3 scripts/agentflow_check.py oracle-integrity --reuse
+python3 scripts/agentflow_check.py independent-oracle --reuse
 ```
 
 Service preflight prepares the guarded database and checks migration readiness/PostgreSQL connectivity/Redis PONG through application clients; unavailable dependencies fail. Targeted checks run files named in manifest. Arithmetic includes inherited normalization/scoring regressions for the shared helper. [acceptance-map.md](contracts/acceptance-map.md) defines numeric/error/evidence/original-replay/read-only assertions. Inspect bounded failures and reference local output via receipts.
@@ -54,6 +57,14 @@ Each full profile appears once; do not add the historical CP1 coverage report as
 Only mapped QA/review tasks may remain unchecked before readiness. Create handoffs/develop.md, reconcile checkboxes with actual named files/receipts, then run `python3 scripts/workflow_artifact_probe.py develop --readiness`. Implementation acceptance does not substitute for independent gates.
 
 ## Independent QA and review
+
+The independent 511-subset oracle regenerates its vectors in memory using Python's standard-library Fraction implementation. No expanded dataset is needed in the checkout. Run:
+
+```bash
+python3 scripts/agentflow_check.py independent-oracle --stage qa
+```
+
+The probe checks the canonical dataset checksum against oracle-summary.json, then validates features, scores and original replay for all 511 subsets. Python 3 must be available; a missing-generator regression verifies failure before scoring. oracle-integrity compares regenerated cases and every lib/test file hash with the approved baseline, asserts the dataset remains absent, and verifies generation writes no evidence files. These three oracle checks always execute because evidence paths are excluded from the common source fingerprint. Production weights/references remain explicit, and this evidence does not select presets.
 
 QA prepares services and reruns all checks with `python3 scripts/agentflow_check.py CHECK_ID --stage qa`, without reuse, then challenges scenario mappings using the production workflow. Review uses fresh QA evidence and targeted checks with --stage review. Reports must end Verdict: PASS before workflow publication; architecture publishes nothing.
 

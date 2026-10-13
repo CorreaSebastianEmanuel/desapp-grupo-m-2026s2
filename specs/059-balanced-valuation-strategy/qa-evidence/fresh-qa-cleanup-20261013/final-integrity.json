@@ -1,0 +1,10 @@
+{
+  "original_inputs_unchanged": true,
+  "required_checks_passed": 16,
+  "application_baseline": "b14ad23cab3b13ef0a8446afac79f3382b592c59",
+  "qa_probe_hashes": {
+    "adversarial_test.exs": "d22003ab0fb40ec3a52a4505020c3588fd0000e9e8644f6379e76a2de63f42f3",
+    "challenge_fingerprint.py": "54af12980f2627263d86d4c65148c281607b17c120e51a82860f425e95c0dde0"
+  },
+  "expanded_dataset_absent": true
+}

@@ -1,9 +1,9 @@
-# QA handoff — TASK-023
+# QA handoff — TASK-023 Feedback 3
 
-No blockers. Independent evidence and complete acceptance mapping are in ../qa-report.md.
+Verdict: PASS
 
-Residual risks: finite but extreme uncancelled decimal exponents can consume growing resources; this accepted contract introduces no numeric ceiling or performance guarantee. TASK-025/026 must still obtain intentional operator calibration and retain original rules/evidence; acceptance fixtures do not authorize production presets.
+No blockers or additional residual risks beyond qa-report.md.
 
-Reviewer guidance: the independent Fraction generator, vectors and ExUnit probe live only under qa-evidence/independent-20261013, outside the eleven implementation paths. They are QA evidence, not application tests or configuration. Direct check execution leaves developer check receipts untouched; use QA results.json and referenced local logs for fresh evidence. Retained failures document a resolved sandbox TCP denial and a corrected QA filename warning, not failed product behavior. Final review and human merge authority remain separate gates.
+Reviewer guidance: use the current `fresh-qa-cleanup-20261013` evidence, including the two QA-authored probe sources and their final hashes. Manifest checks ran directly, so this stage intentionally has no replacement Agentflow check receipts; exact commands, outputs and hashes are in results.json. The corrupted-generator child exit 2 is the expected rejection asserted by an exit-0 wrapper, not an unresolved acceptance failure. Any change to oracle evidence requires new targeted verification because common source fingerprints exclude those files. Final review remains an independent gate.
 
 Verdict: PASS

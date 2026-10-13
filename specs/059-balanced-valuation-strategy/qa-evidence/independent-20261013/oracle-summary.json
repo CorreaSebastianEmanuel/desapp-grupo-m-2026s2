@@ -1,0 +1,6 @@
+{
+  "subsets": 511,
+  "seed": 23059,
+  "arithmetic": "Fraction",
+  "canonical_vectors_sha256": "78df86c2c0e14b68783be989b7fb35b501b133cd6d426b81c5ab75e28d96cd4d"
+}

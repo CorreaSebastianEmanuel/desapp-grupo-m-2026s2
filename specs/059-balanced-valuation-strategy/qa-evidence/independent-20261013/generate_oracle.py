@@ -2,7 +2,6 @@
 import json
 import random
 from fractions import Fraction
-from pathlib import Path
 
 METRICS = [
     "goals", "assists", "shots_on_target", "tackles", "interceptions",
@@ -41,7 +40,4 @@ for mask in range(1, 512):
     vectors.append({"weights": weights, "references": references,
                     "features": features, "score": fixed(score)})
 
-Path(__file__).with_name("oracle-vectors.json").write_text(
-    json.dumps(vectors, indent=2) + "\n"
-)
-print("QA_ORACLE_GENERATION subsets=511 seed=23059 arithmetic=Fraction")
+print(json.dumps(vectors, sort_keys=True, separators=(",", ":")))

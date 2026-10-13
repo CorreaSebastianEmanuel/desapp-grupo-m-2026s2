@@ -1,10 +1,10 @@
 {
   "scope": {
     "source": "97ca5be88b2a2b30e75e2177d18aed0bb78b46c68e0a8c7c30cbf373d73edb40",
-    "inputs": "86d753a4aaf71d3576646a75e38ba0cb3ce6e37edebf9c64ebf03cb55d4b74f7",
+    "inputs": "f45a3431dd4ee0692b155b2e0ade22cf7d34297ce279d35dab121ca345a78513",
     "check_identity": "20c2ab4342ef38ad8cca55773830bec43847cb2ea28f4e67b79655c4ba5321d3"
   },
   "consecutive_failures": 0,
-  "elapsed_seconds": 0.778,
-  "evidence": ".agentflow/runs/checks/9eb06834c0904aba8508740d2a771a96.log"
+  "elapsed_seconds": 1.014,
+  "evidence": ".agentflow/runs/checks/227a7f386e6e47feb81bcbe0702d26b6.log"
 }

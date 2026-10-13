@@ -151,18 +151,51 @@
       "env": {
         "MIX_ENV": "test"
       }
+    },
+    {
+      "id": "oracle-format",
+      "argv": [
+        "mix",
+        "format",
+        "--check-formatted",
+        "specs/059-balanced-valuation-strategy/qa-evidence/independent-20261013/oracle_probe_test.exs"
+      ],
+      "reuse": false
+    },
+    {
+      "id": "oracle-integrity",
+      "argv": [
+        "python3",
+        "specs/059-balanced-valuation-strategy/qa-evidence/independent-20261013/verify_cleanup.py"
+      ],
+      "reuse": false
+    },
+    {
+      "id": "independent-oracle",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "specs/059-balanced-valuation-strategy/qa-evidence/independent-20261013/oracle_probe_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "reuse": false
     }
   ],
   "coverage": {
     "FR-001": [
       "balanced-config",
       "balanced-formula",
-      "balanced-replay"
+      "balanced-replay",
+      "independent-oracle"
     ],
     "FR-002": [
       "balanced-config",
       "balanced-formula",
-      "balanced-outcomes"
+      "balanced-outcomes",
+      "independent-oracle"
     ],
     "FR-003": [
       "balanced-config",
@@ -180,21 +213,25 @@
     ],
     "FR-006": [
       "balanced-formula",
-      "balanced-arithmetic"
+      "balanced-arithmetic",
+      "independent-oracle"
     ],
     "FR-007": [
       "balanced-arithmetic",
-      "balanced-replay"
+      "balanced-replay",
+      "independent-oracle"
     ],
     "FR-008": [
       "balanced-outcomes"
     ],
     "FR-009": [
-      "balanced-replay"
+      "balanced-replay",
+      "independent-oracle"
     ],
     "FR-010": [
       "balanced-replay",
-      "architecture"
+      "architecture",
+      "independent-oracle"
     ],
     "FR-011": [
       "balanced-config",
@@ -205,14 +242,18 @@
       "architecture",
       "feedback-regression",
       "unit-profile",
-      "integration-profile"
+      "integration-profile",
+      "independent-oracle",
+      "oracle-integrity"
     ],
     "FR-012": [
-      "architecture"
+      "architecture",
+      "oracle-integrity"
     ],
     "SC-001": [
       "balanced-formula",
-      "balanced-arithmetic"
+      "balanced-arithmetic",
+      "independent-oracle"
     ],
     "SC-002": [
       "balanced-outcomes"
@@ -222,13 +263,15 @@
       "balanced-replay"
     ],
     "SC-004": [
-      "balanced-replay"
+      "balanced-replay",
+      "independent-oracle"
     ],
     "SC-005": [
       "balanced-formula",
       "balanced-arithmetic",
       "balanced-replay",
-      "architecture"
+      "architecture",
+      "independent-oracle"
     ]
   },
   "task_stages": {

@@ -97,6 +97,14 @@ All applicable implementation and developer-check tasks must complete before ind
 - [ ] T030 Independent QA [gate:qa] rerun all manifest checks without reuse, challenge every scenario and calibration boundary, and write `specs/059-balanced-valuation-strategy/qa-report.md` plus `specs/059-balanced-valuation-strategy/handoffs/qa.md`; only a terminal Verdict: PASS permits final review.
 - [ ] T031 Final review [gate:review] assess alignment/invariants/exact edit scope/fresh QA evidence, run targeted uncovered-risk checks, and write `specs/059-balanced-valuation-strategy/review-report.md` plus `specs/059-balanced-valuation-strategy/handoffs/review.md`; terminal Verdict: PASS required; no merge/publication by implementation owner.
 
+## Feedback 3: Bounded QA evidence cleanup
+
+Production and application tests remain exactly at approved baseline b14ad23cab3b13ef0a8446afac79f3382b592c59. Historical completed implementation tasks retain their artifacts; final checks are reopened for current inputs. Complete this cleanup before T019–T029 and independent gates; no publication by this owner.
+
+- [X] T032 Preserve deterministic stdout-only Fraction generation in `specs/059-balanced-valuation-strategy/qa-evidence/independent-20261013/generate_oracle.py`, format the in-memory checksum/scoring/replay probe in `specs/059-balanced-valuation-strategy/qa-evidence/independent-20261013/oracle_probe_test.exs`, and retain seed/count/original fingerprint in `specs/059-balanced-valuation-strategy/qa-evidence/independent-20261013/oracle-summary.json`; remove the expanded dataset from the checkout.
+- [X] T033 Add baseline/data/no-write assertions in `specs/059-balanced-valuation-strategy/qa-evidence/independent-20261013/verify_cleanup.py`, generator-failure regression in `specs/059-balanced-valuation-strategy/qa-evidence/independent-20261013/oracle_probe_test.exs`, and oracle check/coverage entries in `specs/059-balanced-valuation-strategy/verification.json`; document execution in `specs/059-balanced-valuation-strategy/quickstart.md` and `specs/059-balanced-valuation-strategy/contracts/acceptance-map.md` before final checks.
+- [X] T034 Run oracle-format, oracle-integrity and independent-oracle through `scripts/agentflow_check.py` with --reuse (these evidence checks require fresh execution); require all 511 original vectors/features/scores/authenticated scores/replays, generator failure rejection, unchanged baseline application hashes and zero dataset writes before handoff.
+
 ## Dependencies and Execution Order
 
 Setup T001–T002 → foundation T003–T004 → US1 T005–T008 → US2 T009–T012 → US3 T013–T015 → US4 T016–T018 → design reconciliation T019–T020 → final developer checks T021–T028 → handoff/readiness T029 → independent QA T030 → review T031.

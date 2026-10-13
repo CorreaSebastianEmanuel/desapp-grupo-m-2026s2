@@ -4,9 +4,9 @@ title: Balanced valuation strategy
 type: task
 checkpoint: CP2
 priority: critical
-status: review
+status: done
 depends_on: TASK-022
-active_run: 99241cc1
+active_run: none
 ---
 
 ## Outcome

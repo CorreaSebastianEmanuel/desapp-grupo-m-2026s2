@@ -4,9 +4,9 @@ title: Player match statistics model
 type: task
 checkpoint: CP2
 priority: critical
-status: review
+status: done
 depends_on: TASK-005
-active_run: c3872085
+active_run: none
 ---
 
 ## Outcome

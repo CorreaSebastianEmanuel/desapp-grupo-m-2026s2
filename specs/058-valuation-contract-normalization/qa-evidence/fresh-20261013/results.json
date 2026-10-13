@@ -1,0 +1,253 @@
+{
+  "stage": "qa",
+  "reuse": false,
+  "checks": [
+    {
+      "id": "toolchain",
+      "argv": [
+        "sh",
+        "scripts/check_toolchain.sh"
+      ],
+      "env": {},
+      "exit": 0,
+      "excerpt": "toolchain ok: Elixir 1.20.3, Erlang/OTP 29.0.6 (ERTS 17.0.6), Mix 1.20.3 (compiled with Erlang/OTP 29)"
+    },
+    {
+      "id": "format",
+      "argv": [
+        "mix",
+        "format",
+        "--check-formatted"
+      ],
+      "env": {},
+      "exit": 0,
+      "elapsed": 0.95
+    },
+    {
+      "id": "compile",
+      "argv": [
+        "mix",
+        "compile",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "exit": 0,
+      "elapsed": 0.852
+    },
+    {
+      "id": "services",
+      "argv": [
+        "sh",
+        "-c",
+        "mix test.prepare && mix infrastructure.verify"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "exit": 0,
+      "elapsed": 2.076
+    },
+    {
+      "id": "preparation-unit",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/valuation/contract_test.exs",
+        "test/football_market/valuation/week_test.exs",
+        "test/football_market/valuation/normalization_test.exs",
+        "test/football_market/valuation/canonical_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "exit": 0,
+      "elapsed": 1.426
+    },
+    {
+      "id": "history-integration",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/valuation/history_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "exit": 0,
+      "elapsed": 1.543
+    },
+    {
+      "id": "missing-data",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/valuation/missing_data_test.exs",
+        "test/football_market/valuation/outcomes_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "exit": 0,
+      "elapsed": 1.588
+    },
+    {
+      "id": "grouping",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/valuation/position_groups_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "exit": 0,
+      "elapsed": 1.699
+    },
+    {
+      "id": "scoring",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/valuation/scoring_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "exit": 0,
+      "elapsed": 1.767
+    },
+    {
+      "id": "replay",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/valuation/replay_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "exit": 0,
+      "elapsed": 2.098
+    },
+    {
+      "id": "matrix",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/valuation/matrix_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "exit": 0,
+      "elapsed": 2.446
+    },
+    {
+      "id": "architecture",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/valuation/scope_test.exs",
+        "test/football_market/statistics/scope_test.exs",
+        "test/football_market/providers/scope_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "exit": 0,
+      "elapsed": 1.692
+    },
+    {
+      "id": "unit-profile",
+      "argv": [
+        "sh",
+        "scripts/test_profile.sh",
+        "unit"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "exit": 0,
+      "elapsed": 25.875
+    },
+    {
+      "id": "integration-profile",
+      "argv": [
+        "sh",
+        "scripts/test_profile.sh",
+        "integration"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "exit": 0,
+      "elapsed": 92.369
+    },
+    {
+      "id": "feedback-regression",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/valuation/contract_test.exs",
+        "test/football_market/valuation/replay_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "exit": 0,
+      "elapsed": 2.188
+    }
+  ],
+  "original_adversarial": {
+    "argv": [
+      "mix",
+      "run",
+      "/tmp/task022_qa_adversarial.exs"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit": 0,
+    "cases": 4,
+    "failures": 0
+  },
+  "extra_acceptance": {
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "/tmp/task022_qa_fresh_acceptance_test.exs"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit": 0,
+    "passed": 2
+  },
+  "resolved_attempts": [
+    {
+      "check": "compile",
+      "exit": 1,
+      "cause": "sandbox denies local Mix TCP lock (:eperm)",
+      "elapsed": 0.785,
+      "evidence": "compile.log"
+    },
+    {
+      "check": "extra-acceptance",
+      "exit": 1,
+      "cause": "temporary filename lacked configured _test.exs suffix; assertions passed but warnings-as-errors aborted",
+      "evidence": "extra-acceptance.log"
+    }
+  ]
+}

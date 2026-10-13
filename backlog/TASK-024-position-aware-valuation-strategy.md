@@ -4,9 +4,9 @@ title: Position-aware valuation strategy
 type: task
 checkpoint: CP2
 priority: critical
-status: review
+status: done
 depends_on: TASK-022
-active_run: e38d84a6
+active_run: none
 ---
 
 ## Outcome

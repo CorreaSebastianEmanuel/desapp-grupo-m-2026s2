@@ -1,0 +1,232 @@
+[
+  {
+    "id": "toolchain",
+    "argv": [
+      "sh",
+      "scripts/check_toolchain.sh"
+    ],
+    "env": {},
+    "exit_code": 0,
+    "seconds": 0.987
+  },
+  {
+    "id": "format",
+    "argv": [
+      "mix",
+      "format",
+      "--check-formatted"
+    ],
+    "env": {},
+    "exit_code": 0,
+    "seconds": 0.791
+  },
+  {
+    "id": "compile",
+    "argv": [
+      "mix",
+      "compile",
+      "--warnings-as-errors"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 1,
+    "seconds": 0.638
+  },
+  {
+    "id": "compile",
+    "attempt": 2,
+    "argv": [
+      "mix",
+      "compile",
+      "--warnings-as-errors"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "seconds": 0.68
+  },
+  {
+    "id": "services",
+    "attempt": 1,
+    "argv": [
+      "sh",
+      "-c",
+      "mix test.prepare && mix infrastructure.verify"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "seconds": 1.683
+  },
+  {
+    "id": "balanced-config",
+    "attempt": 1,
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "test/football_market/valuation/balanced/config_test.exs"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "seconds": 1.129
+  },
+  {
+    "id": "balanced-formula",
+    "attempt": 1,
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "test/football_market/valuation/balanced/formula_test.exs"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "seconds": 1.54
+  },
+  {
+    "id": "balanced-outcomes",
+    "attempt": 1,
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "test/football_market/valuation/balanced/outcomes_test.exs"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "seconds": 1.557
+  },
+  {
+    "id": "balanced-arithmetic",
+    "attempt": 1,
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "test/football_market/valuation/balanced/arithmetic_test.exs",
+      "test/football_market/valuation/normalization_test.exs",
+      "test/football_market/valuation/scoring_test.exs"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "seconds": 2.137
+  },
+  {
+    "id": "balanced-replay",
+    "attempt": 1,
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "test/football_market/valuation/balanced/replay_test.exs"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "seconds": 2.369
+  },
+  {
+    "id": "architecture",
+    "attempt": 1,
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "test/football_market/valuation/balanced/scope_test.exs",
+      "test/football_market/valuation/scope_test.exs",
+      "test/football_market/statistics/scope_test.exs",
+      "test/football_market/providers/scope_test.exs"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "seconds": 1.696
+  },
+  {
+    "id": "feedback-regression",
+    "attempt": 1,
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "test/football_market/valuation/contract_test.exs",
+      "test/football_market/valuation/replay_test.exs"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "seconds": 1.788
+  },
+  {
+    "id": "unit-profile",
+    "attempt": 1,
+    "argv": [
+      "sh",
+      "scripts/test_profile.sh",
+      "unit"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "seconds": 21.932
+  },
+  {
+    "id": "integration-profile",
+    "attempt": 1,
+    "argv": [
+      "sh",
+      "scripts/test_profile.sh",
+      "integration"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "seconds": 83.359
+  },
+  {
+    "id": "independent-oracle",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "specs/059-balanced-valuation-strategy/qa-evidence/independent-20261013/oracle_probe.exs"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 1,
+    "seconds": 9.216
+  },
+  {
+    "id": "independent-oracle",
+    "argv": [
+      "mix",
+      "test",
+      "--warnings-as-errors",
+      "specs/059-balanced-valuation-strategy/qa-evidence/independent-20261013/oracle_probe_test.exs"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "seconds": 8.059,
+    "corrective_input": "QA filename matches test load filter"
+  }
+]

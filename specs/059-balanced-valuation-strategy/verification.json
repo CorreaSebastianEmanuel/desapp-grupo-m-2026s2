@@ -1,0 +1,238 @@
+{
+  "schema_version": 1,
+  "runtime_required": false,
+  "checks": [
+    {
+      "id": "toolchain",
+      "argv": [
+        "sh",
+        "scripts/check_toolchain.sh"
+      ]
+    },
+    {
+      "id": "format",
+      "argv": [
+        "mix",
+        "format",
+        "--check-formatted"
+      ]
+    },
+    {
+      "id": "compile",
+      "argv": [
+        "mix",
+        "compile",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "services",
+      "argv": [
+        "sh",
+        "-c",
+        "mix test.prepare && mix infrastructure.verify"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "reuse": false
+    },
+    {
+      "id": "balanced-config",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/valuation/balanced/config_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "balanced-formula",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/valuation/balanced/formula_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "balanced-outcomes",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/valuation/balanced/outcomes_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "balanced-arithmetic",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/valuation/balanced/arithmetic_test.exs",
+        "test/football_market/valuation/normalization_test.exs",
+        "test/football_market/valuation/scoring_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "balanced-replay",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/valuation/balanced/replay_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "architecture",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/valuation/balanced/scope_test.exs",
+        "test/football_market/valuation/scope_test.exs",
+        "test/football_market/statistics/scope_test.exs",
+        "test/football_market/providers/scope_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "feedback-regression",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/valuation/contract_test.exs",
+        "test/football_market/valuation/replay_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "unit-profile",
+      "argv": [
+        "sh",
+        "scripts/test_profile.sh",
+        "unit"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "integration-profile",
+      "argv": [
+        "sh",
+        "scripts/test_profile.sh",
+        "integration"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    }
+  ],
+  "coverage": {
+    "FR-001": [
+      "balanced-config",
+      "balanced-formula",
+      "balanced-replay"
+    ],
+    "FR-002": [
+      "balanced-config",
+      "balanced-formula",
+      "balanced-outcomes"
+    ],
+    "FR-003": [
+      "balanced-config",
+      "balanced-outcomes",
+      "feedback-regression"
+    ],
+    "FR-004": [
+      "balanced-config",
+      "balanced-outcomes"
+    ],
+    "FR-005": [
+      "balanced-formula",
+      "balanced-outcomes",
+      "balanced-replay"
+    ],
+    "FR-006": [
+      "balanced-formula",
+      "balanced-arithmetic"
+    ],
+    "FR-007": [
+      "balanced-arithmetic",
+      "balanced-replay"
+    ],
+    "FR-008": [
+      "balanced-outcomes"
+    ],
+    "FR-009": [
+      "balanced-replay"
+    ],
+    "FR-010": [
+      "balanced-replay",
+      "architecture"
+    ],
+    "FR-011": [
+      "balanced-config",
+      "balanced-formula",
+      "balanced-outcomes",
+      "balanced-arithmetic",
+      "balanced-replay",
+      "architecture",
+      "feedback-regression",
+      "unit-profile",
+      "integration-profile"
+    ],
+    "FR-012": [
+      "architecture"
+    ],
+    "SC-001": [
+      "balanced-formula",
+      "balanced-arithmetic"
+    ],
+    "SC-002": [
+      "balanced-outcomes"
+    ],
+    "SC-003": [
+      "balanced-formula",
+      "balanced-replay"
+    ],
+    "SC-004": [
+      "balanced-replay"
+    ],
+    "SC-005": [
+      "balanced-formula",
+      "balanced-arithmetic",
+      "balanced-replay",
+      "architecture"
+    ]
+  },
+  "task_stages": {
+    "T030": "qa",
+    "T031": "review"
+  }
+}

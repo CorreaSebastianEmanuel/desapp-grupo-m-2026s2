@@ -35,7 +35,7 @@ defmodule FootballMarket.CatalogConstraintsTest do
     %{rows: constraint_rows} =
       Ecto.Adapters.SQL.query!(
         Repo,
-        "SELECT conname FROM pg_constraint WHERE conname = ANY($1)",
+        "SELECT conname FROM pg_constraint WHERE connamespace = current_schema()::regnamespace AND conname = ANY($1)",
         [constraints]
       )
 

@@ -174,72 +174,110 @@ defmodule FootballMarket.Providers.ScopeTest do
 
   # Exact active TASK-022 inventory; all legacy constraints remain enforced.
   def valuation_paths(active_feature) do
-    if active_feature == "specs/060-position-aware-valuation" do
+    if active_feature == "specs/061-valuation-strategy-versioning" do
       [
-        "lib/football_market/valuation/position_aware.ex",
-        "test/support/position_aware_case.ex",
-        "test/football_market/valuation/position_aware/config_test.exs",
-        "test/football_market/valuation/position_aware/formula_test.exs",
-        "test/football_market/valuation/position_aware/mixed_test.exs",
-        "test/football_market/valuation/position_aware/outcomes_test.exs",
-        "test/football_market/valuation/position_aware/arithmetic_test.exs",
-        "test/football_market/valuation/position_aware/replay_test.exs",
-        "test/football_market/valuation/position_aware/selection_test.exs",
-        "test/football_market/valuation/position_aware/scope_test.exs",
+        "lib/football_market/valuation/configurations.ex",
+        "lib/football_market/valuation/configurations/registry.ex",
+        "lib/football_market/valuation/configurations/rules.ex",
+        "lib/football_market/valuation/configurations/codec.ex",
+        "lib/football_market/valuation/configurations/version.ex",
+        "lib/football_market/valuation/configurations/selection_lock.ex",
+        "lib/football_market/valuation/configurations/selection_change.ex",
+        "lib/football_market/valuation/configurations/store.ex",
+        "lib/football_market/valuation/managed.ex",
+        "lib/football_market/valuation/managed_types.ex",
+        "priv/repo/migrations/20261013000000_create_valuation_configurations.exs",
+        "lib/football_market/valuation.ex",
+        "lib/football_market/valuation/request.ex",
+        "test/support/valuation_configuration_case.ex",
+        "test/football_market/valuation/configurations/rules_test.exs",
+        "test/football_market/valuation/configurations/codec_test.exs",
+        "test/football_market/valuation/configurations/storage_test.exs",
+        "test/football_market/valuation/configurations/activation_test.exs",
+        "test/football_market/valuation/configurations/concurrency_test.exs",
+        "test/football_market/valuation/configurations/durability_test.exs",
+        "test/football_market/valuation/configurations/immutability_test.exs",
+        "test/football_market/valuation/configurations/managed_test.exs",
+        "test/football_market/valuation/configurations/outcomes_test.exs",
+        "test/football_market/valuation/configurations/replay_test.exs",
+        "test/football_market/valuation/configurations/canonical_test.exs",
+        "test/football_market/valuation/configurations/scope_test.exs",
+        "test/football_market/catalog/constraints_test.exs",
+        "test/football_market/accounts/persistence_test.exs",
+        "test/football_market/catalog/player_catalog_index_test.exs",
+        "test/football_market/catalog/ingestion/publication_test.exs",
         "test/football_market/valuation/scope_test.exs",
         "test/football_market/statistics/scope_test.exs",
         "test/football_market/providers/scope_test.exs"
       ]
     else
-      if active_feature == "specs/059-balanced-valuation-strategy" do
+      if active_feature == "specs/060-position-aware-valuation" do
         [
-          "lib/football_market/valuation/balanced.ex",
-          "lib/football_market/valuation/decimal_math.ex",
-          "test/football_market/valuation/balanced/config_test.exs",
-          "test/football_market/valuation/balanced/formula_test.exs",
-          "test/football_market/valuation/balanced/outcomes_test.exs",
-          "test/football_market/valuation/balanced/arithmetic_test.exs",
-          "test/football_market/valuation/balanced/replay_test.exs",
-          "test/football_market/valuation/balanced/scope_test.exs",
+          "lib/football_market/valuation/position_aware.ex",
+          "test/support/position_aware_case.ex",
+          "test/football_market/valuation/position_aware/config_test.exs",
+          "test/football_market/valuation/position_aware/formula_test.exs",
+          "test/football_market/valuation/position_aware/mixed_test.exs",
+          "test/football_market/valuation/position_aware/outcomes_test.exs",
+          "test/football_market/valuation/position_aware/arithmetic_test.exs",
+          "test/football_market/valuation/position_aware/replay_test.exs",
+          "test/football_market/valuation/position_aware/selection_test.exs",
+          "test/football_market/valuation/position_aware/scope_test.exs",
           "test/football_market/valuation/scope_test.exs",
           "test/football_market/statistics/scope_test.exs",
           "test/football_market/providers/scope_test.exs"
         ]
       else
-        if active_feature == "specs/058-valuation-contract-normalization" do
+        if active_feature == "specs/059-balanced-valuation-strategy" do
           [
-            "lib/football_market/valuation.ex",
-            "lib/football_market/valuation/types.ex",
-            "lib/football_market/valuation/error.ex",
-            "lib/football_market/valuation/request.ex",
-            "lib/football_market/valuation/week.ex",
-            "lib/football_market/valuation/statistics_reader.ex",
-            "lib/football_market/valuation/preparation.ex",
-            "lib/football_market/valuation/position_groups.ex",
+            "lib/football_market/valuation/balanced.ex",
             "lib/football_market/valuation/decimal_math.ex",
-            "lib/football_market/valuation/scorer.ex",
-            "lib/football_market/valuation/scoring.ex",
-            "lib/football_market/valuation/evidence.ex",
-            "lib/football_market/valuation/replay.ex",
-            "test/support/valuation_case.ex",
-            "test/support/valuation_scorers.ex",
-            "test/football_market/valuation/contract_test.exs",
-            "test/football_market/valuation/week_test.exs",
-            "test/football_market/valuation/normalization_test.exs",
-            "test/football_market/valuation/history_test.exs",
-            "test/football_market/valuation/missing_data_test.exs",
-            "test/football_market/valuation/outcomes_test.exs",
-            "test/football_market/valuation/position_groups_test.exs",
-            "test/football_market/valuation/scoring_test.exs",
-            "test/football_market/valuation/replay_test.exs",
-            "test/football_market/valuation/canonical_test.exs",
-            "test/football_market/valuation/matrix_test.exs",
+            "test/football_market/valuation/balanced/config_test.exs",
+            "test/football_market/valuation/balanced/formula_test.exs",
+            "test/football_market/valuation/balanced/outcomes_test.exs",
+            "test/football_market/valuation/balanced/arithmetic_test.exs",
+            "test/football_market/valuation/balanced/replay_test.exs",
+            "test/football_market/valuation/balanced/scope_test.exs",
             "test/football_market/valuation/scope_test.exs",
             "test/football_market/statistics/scope_test.exs",
             "test/football_market/providers/scope_test.exs"
           ]
         else
-          []
+          if active_feature == "specs/058-valuation-contract-normalization" do
+            [
+              "lib/football_market/valuation.ex",
+              "lib/football_market/valuation/types.ex",
+              "lib/football_market/valuation/error.ex",
+              "lib/football_market/valuation/request.ex",
+              "lib/football_market/valuation/week.ex",
+              "lib/football_market/valuation/statistics_reader.ex",
+              "lib/football_market/valuation/preparation.ex",
+              "lib/football_market/valuation/position_groups.ex",
+              "lib/football_market/valuation/decimal_math.ex",
+              "lib/football_market/valuation/scorer.ex",
+              "lib/football_market/valuation/scoring.ex",
+              "lib/football_market/valuation/evidence.ex",
+              "lib/football_market/valuation/replay.ex",
+              "test/support/valuation_case.ex",
+              "test/support/valuation_scorers.ex",
+              "test/football_market/valuation/contract_test.exs",
+              "test/football_market/valuation/week_test.exs",
+              "test/football_market/valuation/normalization_test.exs",
+              "test/football_market/valuation/history_test.exs",
+              "test/football_market/valuation/missing_data_test.exs",
+              "test/football_market/valuation/outcomes_test.exs",
+              "test/football_market/valuation/position_groups_test.exs",
+              "test/football_market/valuation/scoring_test.exs",
+              "test/football_market/valuation/replay_test.exs",
+              "test/football_market/valuation/canonical_test.exs",
+              "test/football_market/valuation/matrix_test.exs",
+              "test/football_market/valuation/scope_test.exs",
+              "test/football_market/statistics/scope_test.exs",
+              "test/football_market/providers/scope_test.exs"
+            ]
+          else
+            []
+          end
         end
       end
     end

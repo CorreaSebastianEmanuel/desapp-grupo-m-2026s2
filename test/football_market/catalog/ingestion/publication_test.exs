@@ -45,7 +45,7 @@ defmodule FootballMarket.Catalog.Ingestion.PublicationTest do
     %{rows: rows} =
       Ecto.Adapters.SQL.query!(
         Repo,
-        "SELECT conname, condeferrable, condeferred FROM pg_constraint WHERE conname = ANY($1) ORDER BY conname",
+        "SELECT conname, condeferrable, condeferred FROM pg_constraint WHERE connamespace = current_schema()::regnamespace AND conname = ANY($1) ORDER BY conname",
         [~w(teams_season_normalized_code_index teams_season_normalized_name_index)]
       )
 

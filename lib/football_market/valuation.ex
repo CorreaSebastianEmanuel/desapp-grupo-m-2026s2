@@ -1,6 +1,15 @@
 defmodule FootballMarket.Valuation do
-  @moduledoc "Deterministic weekly preparation over accepted immutable local facts."
+  @moduledoc """
+  Deterministic weekly preparation over accepted immutable local facts.
+  Production market consumers use managed entrypoints to bind saved versions.
+  Explicit prepare/score/evaluate/replay remain formula and conformance helpers.
+  """
   alias FootballMarket.Valuation.{Request, StatisticsReader, Preparation}
+
+  def evaluate_managed(subject_week, selector),
+    do: FootballMarket.Valuation.Managed.evaluate(subject_week, selector)
+
+  def replay_managed(envelope), do: FootballMarket.Valuation.Managed.replay(envelope)
 
   def prepare(request) do
     with {:ok, request} <- Request.validate(request),

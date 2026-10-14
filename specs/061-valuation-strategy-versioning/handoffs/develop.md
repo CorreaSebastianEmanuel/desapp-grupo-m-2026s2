@@ -1,0 +1,13 @@
+# Developer handoff — TASK-025
+
+Implemented complete immutable configuration creation/inspection, explicit expected-identity activation/history, and saved-version managed evaluation/replay. Typed integer/Decimal JSONB preserves canonical numeric distinctions, all groups and unused mappings. Database guards protect versions, metadata, history and singleton; selection derives from the latest committed change. Existing formulas/common DTOs remain unchanged.
+
+Deltas: `plan.md` documents the 33-path boundary: four legacy metadata assertions now filter `current_schema()` because retained private test namespaces duplicated global catalog names. Their exact index/constraint assertions remain intact. Temporary integration diagnosis is removed from the manifest; `legacy-metadata` remains required. Effective time uses PostgreSQL transaction timestamp; change order governs ties. Identity expectation deliberately permits A→B→A. The fixture helper uses existing Input/changeset/DB acceptance directly because inherited identity trimming targets the default Repo.
+
+Checks: all 14 final manifest checks executed through `python3 scripts/agentflow_check.py CHECK_ID --reuse`, exit 0; current receipts are `handoffs/check-*.json` with output hashes/evidence paths. Final execution totals **155.363 seconds**, excluding incremental/diagnostic attempts. Complete unit/integration profiles audited 47/79 modules; Chromium ran. Targeted suites cover real distinct-backend commits/direct insertion races, SQL/effect traces, varied Decimal contexts, 24 permutations per formula and fresh BEAM replay. Initial socket denial, timeout-tag audit error and metadata failures were corrected; diagnostic evidence remains in `handoffs/check-integration-diagnostic.json` (114.274 seconds). No unchanged third failure attempt or weakened check.
+
+Artifacts/checklist reconciled. Readiness PASS: `python3 scripts/workflow_artifact_probe.py develop --readiness`.
+
+Residual limits: disposable guarded namespaces remain retained; database-owner DDL bypass is outside immutability guarantees. No production calibration, descriptor retention or quote conversion; TASK-026 owns those obligations. QA/review remain pending; no publication occurred.
+
+QA: independently execute every current manifest ID using `--stage qa`, without reuse, with PostgreSQL/Redis/Chromium available. Challenge all 24 scenarios via `contracts/acceptance-map.md`, particularly full unused/absent rule binding, no-op/stale ordering, direct SQL guards/isolation, in-flight fixation, actual fresh-runtime recovery, storage failure visibility and scoped legacy metadata. Preserve protected fixtures; do not disable guards or delete them. Require fresh terminal PASS before review.

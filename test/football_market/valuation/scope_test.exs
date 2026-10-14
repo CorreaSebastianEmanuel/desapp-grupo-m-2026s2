@@ -24,7 +24,14 @@ defmodule FootballMarket.Valuation.ScopeTest do
     assert Enum.sort(
              Path.wildcard("lib/football_market/valuation/*.ex") ++
                ["lib/football_market/valuation.ex"]
-           ) == Enum.sort(@production)
+           ) ==
+             Enum.sort(
+               @production ++
+                 Enum.map(
+                   ~w(configurations managed managed_types),
+                   &"lib/football_market/valuation/#{&1}.ex"
+                 )
+             )
 
     for path <- @production do
       source = File.read!(path)

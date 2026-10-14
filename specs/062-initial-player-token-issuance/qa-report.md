@@ -1,47 +1,48 @@
-Independent QA — TASK-028, 2026-10-14, current Feedback 1 (R1/P2).
+# Independent QA — TASK-028
 
-Resolved `.specify/feature.json`; read the canonical specification, plan, tasks, architecture/development handoffs and current feedback. Inspected each changed implementation/test file, tracked diff and untracked inventory. Implementation remains within the 25-file plan boundary. No implementation changes, developer receipt reuse, Agentflow invocation or delegation.
+Reviewed the active 062 binding, complete spec/plan/tasks, required architecture/development handoffs, all current human feedback, verification manifest, and the 25-file implementation/test diff against `2bc973f`. Current HEAD is `fad17e5`; the configuration-boundary correction is a working-tree change. No implementation changes or developer-receipt reuse occurred.
 
-Evidence directory: [independent-feedback-20261014](qa-evidence/independent-feedback-20261014/). Each check's `.json` records exact argv/environment, UTC start, exit status, duration and log hash. `summary.json` records aggregate results; `source-snapshot.json` verifies 404 source/check inputs remained unchanged through completion.
+Fresh evidence: [directory](qa-evidence/independent-20261014-current/). `results.json` records exact manifest argv, environments, exits and timings; `manifest-snapshot.json`, `source-fingerprint.json`, and retained command logs identify the checked inputs. All 11 checks have passing independent executions. One failed CI attempt preceded its successful unchanged retry; total manifest execution time, including that retry, was **414.018 seconds**.
 
-| Direct manifest command | Independent result |
+| Check / command | Fresh result and evidence |
 |---|---|
-| `sh scripts/check_toolchain.sh` | PASS; pinned Elixir/OTP/ERTS; 1.699s |
-| `mix format --check-formatted` | PASS; 1.375s |
-| `MIX_ENV=test mix compile --warnings-as-errors` | PASS; 1.361s |
-| `MIX_ENV=test mix infrastructure.database.test_prepare` | PASS; database/migrations current; 1.918s |
-| `MIX_ENV=test mix infrastructure.verify` | PASS; PostgreSQL and Redis `OK`; 2.082s |
-| `MIX_ENV=test mix test test/football_market/market/storage_test.exs --warnings-as-errors --only prefix_regression` | PASS; `Result: 1 passed, 6 excluded`; 4.475s |
-| `MIX_ENV=test sh scripts/test_profile.sh unit` (U) | PASS; `audit_count=49 status=complete`; 33.886s |
-| `MIX_ENV=test sh scripts/test_profile.sh integration` (I) | PASS; `audit_count=87 status=complete`; 215.559s |
+| toolchain: `sh scripts/check_toolchain.sh` | Exit 0; Elixir 1.20.3 / OTP 29.0.6. |
+| format: `mix format --check-formatted` | Exit 0. |
+| compile: `MIX_ENV=test mix compile --warnings-as-errors` | Exit 0. |
+| database_prepare: `mix infrastructure.database.test_prepare` | Exit 0; migrations current. |
+| service_preflight: `mix infrastructure.verify` | Exit 0; PostgreSQL and Redis both OK. |
+| prefix_regression: `mix test test/football_market/market/storage_test.exs --warnings-as-errors --only prefix_regression` | Exit 0; 1 passed. Target lock `[[1]]`; source search_path, lock rows and snapshots unchanged. |
+| scope_regression: `mix test test/football_market/market/scope_test.exs --warnings-as-errors` | Exit 0; 3 passed, including six configuration negative controls. |
+| committed_scope_regression: manifest Python argv | Exit 0; `shallow=true commits=1 approved_config=committed correction=scope_test_only`; 3 passed. Only corrected test overlaid; no commit created. |
+| unit_profile: `sh scripts/test_profile.sh unit` | Exit 0; `audit_count=49 status=complete`. |
+| integration_profile: `sh scripts/test_profile.sh integration` | Exit 0; `audit_count=87 status=complete`. Both audited profiles include performance cases and reject skipped/incomplete discovery. |
+| ci_unit_tests: `MIX_ENV=test sh scripts/ci_unit_tests.sh` | First exit 2: 468/469 passed. Second exit 0: **469 passed, 4 excluded**, discovery sentinel present. See `ci_unit_tests-attempt2.json`. |
 
-All eight checks ran independently, totaling 262.355s. Audited profiles enforce membership, completed execution and zero skips; the targeted prefix check intentionally excludes other storage cases, which execute in I. The initial sandbox compile failed once on Mix's TCP lock (`eperm`, 1.189s); execution with approved local-service permissions passed. No unchanged check failed twice. Logs retain this environmental failure separately as `compile-sandbox.*`.
+Acceptance matrix: filenames abbreviate `test/football_market/market/`; all named assertions executed through the audited profiles and complete CI suite. All 37 feature tests passed. U=unit, I=integration.
 
-Acceptance matrix: paths below abbreviate `test/football_market/market/`; evidence is executed assertions in U/I, inspected against spec.md rather than accepted from traceability claims.
+| Criterion | Executed acceptance evidence | Result |
+|---|---|---|
+| US1.1; FR-001–004; SC-001 | I `issuance_test`: 100 integer tokens, sole designated owner, Decimal price 1/value 100. | PASS |
+| US1.2; FR-003/009; SC-005 | I `issuance_test`, `durability_test`: linked IDs, dates/version and exact facts after Repo reconnect and fresh BEAM. | PASS |
+| US1.3; FR-007 | I `issuance_test`: three distinct player/season identities, independent supply and common recipient. | PASS |
+| US1.4; FR-005 | I `issuance_test`: complete account/credential/API-key and Decimal balance-sentinel snapshots unchanged; scope excludes financial writes. | PASS |
+| US2.1; FR-008; SC-002 | I `retry_test`: same issuance, already_completed, identical snapshots on repeated calls. | PASS |
+| US2.2; FR-007; SC-002 | I `concurrency_test`: distinct backend IDs, real blocking, one issued outcome and identical successful evidence. | PASS |
+| US2.3; FR-006; SC-003 | I `rollback_test`: faults at four write boundaries, sequence-confirmed execution, zero effects, successful retry. | PASS |
+| US2.4; FR-008; SC-004 | I `retry_test`, `concurrency_test`: 80/20 and 0/100 fixtures; both transfer/retry lock orders preserve original facts. | PASS |
+| US2.5; FR-008/009; SC-004 | I `retry_test`: later 7.15 quote and complete history retained, original quote unchanged. | PASS |
+| US3.1; FR-010; SC-006 | I `rejection_test`: missing player distinctly rejected without writes. | PASS |
+| US3.2; FR-010 | U `input_test`, I `rejection_test`: absent, duplicate, ambiguous and nonexistent recipients rejected before first/retry success. | PASS |
+| US3.3; FR-002/004/010 | U/I input/rejection tests: wrong recipient/quantity/price, floats and unknown assertions rejected unchanged. | PASS |
+| US3.4; FR-011; SC-006 | U `consistency_test`, I `rejection_test`/`storage_test`: orphan history, bad totals/missing facts/contradictory links rejected without repair. | PASS |
+| US3.5; FR-001/010 | I `rejection_test`: changed recipient cannot reassign initialized player. | PASS |
+| US3.6; FR-001/010 | I rejection/concurrency tests: different-player sequential/concurrent recipient conflict, only one market recipient. | PASS |
+| US3.7; FR-008/011 | I `rejection_test`: invalid designation/corruption overrides already_completed. | PASS |
 
-| Acceptance criterion | Independently executed evidence |
-|---|---|
-| US1.1 | I `issuance_test:14`: issued outcome, integer 100, only original owner, exact Decimal price 1. |
-| US1.2 | I `issuance_test:14`, `durability_test:7`: retained IDs/recipient/quantity, exact value 100, matching effective/completion dates and rule `initial_issuance/1`; reconnect and fresh BEAM retrieval. |
-| US1.3 | I `issuance_test:14`: three independent player/season identities, each supply 100, same recipient. |
-| US1.4 | I `issuance_test:14`: unchanged hashed account/credential/API-key and Decimal balance-sentinel snapshots. Scope test rejects account/financial writes; production has no balance model. |
-| US2.1 | I `retry_test:12`: three retries return identical original issuance and unchanged complete snapshots. |
-| US2.2 | I `concurrency_test:51`: distinct backends and blocking barriers; one issued, one already_completed, identical issuance, one initial quote. |
-| US2.3 | I `rollback_test:7`: faults after recipient, quote, holding and final issuance writes; sequence proves fault reached; zero surviving effects and exactly one resolved retry. |
-| US2.4 | I `retry_test:12`: 80/20 redistribution preserved with accounts/balances and original evidence unchanged. |
-| US2.5 | I `retry_test:12`: later 7.15 quote and complete quote history preserved, original link unchanged. |
-| US3.1 | I `rejection_test:12`: nonexistent player yields player_not_found, no effects. |
-| US3.2 | U `input_test:6`; I `rejection_test:12`: absent, duplicate/ambiguous and nonexistent designation rejected before first/retry success; snapshots unchanged. |
-| US3.3 | U `input_test:28`; I `rejection_test:12`: wrong recipient, quantity, price, floats and unsupported assertions rejected unchanged. |
-| US3.4 | U `consistency_test:75,101`; I `rejection_test:59,82`: orphan history, missing/contradictory facts and invalid totals rejected without repair. |
-| US3.5 | I `rejection_test:48`: changed recipient cannot reassign initialized player. |
-| US3.6 | I `rejection_test:48`, `concurrency_test:65,182`: sequential/concurrent different-player recipient conflict; one market recipient. |
-| US3.7 | I `rejection_test:12,82`: invalid designation/corruption overrides already_completed; state unchanged. |
+Additional edge evidence: rename/season identity and uninitialized getter (`issuance_test`); conflicting captured designations and both quote/issuance lock orders (`concurrency_test`); lost acknowledgement (`rollback_test`); append-only/null/FK/conservation guards (`storage_test`); negative offset holdings and contradictory original facts (`consistency_test`). FR-012–014 are covered by provider-independent issuance/restart and exact scope/profile assertions.
 
-Additional edge/invariant evidence: issuance tests cover rename/stable identity and unissued-not-zero semantics; durability/scope tests establish provider/statistics/strategy independence. Concurrency tests cover conflicting same-player recipients and both transfer/quote lock orders using `pg_blocking_pids`. Storage tests reject inflation, fractional/negative holdings, wrong first owner, invalid linkage, null facts and history mutation; rollback tests distinguish pre-commit interruption from lost acknowledgement.
+Independent supplemental command: `MIX_ENV=test mix run --no-compile specs/062-initial-player-token-issuance/qa-evidence/independent-20261014-current/adversarial_probe.exs`: **1 passed**. Its log confirms empty statistics/configuration, disabled provider, DB timestamp bounds, absent original-owner holding with supply 100, unchanged snapshots, and rejected nonfinite money assertions. No HTTP endpoints changed; diff and web-boundary assertions confirm HTTP runtime acceptance is inapplicable.
 
-QA-authored [adversarial_test.exs](qa-evidence/independent-feedback-20261014/adversarial_test.exs) runs via `MIX_ENV=test mix test …/adversarial_test.exs --warnings-as-errors`: two passes, 6.624s. `adversarial.log` records `QA_PREFIX_POPULATED_PASS` and `QA_ABSENT_OWNER_PASS`: explicit-prefix migration/guards preserve populated source history and search_path; absent original-owner holding remains absent with supply 100. Permanent prefix regression also passes in I. Migration line 12 explicitly qualifies the seed INSERT.
-
-FR-001–014 and SC-001–006 are satisfied by the matrix and invariant checks. No affected HTTP endpoint exists: web/router inventory is unchanged and Market exposes only the trusted internal contract; real committed PostgreSQL/restart checks fulfill applicable runtime evidence. No blockers found.
+Blockers: none. Residual risk: initial CI run hit PostgreSQL `40P01` in existing `CatalogConcurrencyTest` concurrent team creation (`constraints_test.exs:222/279`); unchanged retry passed. `ci_failure_excerpt.txt` preserves the failure. This is outside the feature diff and remains an intermittent baseline risk, not a repaired race. Balance evidence uses sentinels because production balances are outside scope.
 
 Verdict: PASS

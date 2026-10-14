@@ -1,9 +1,11 @@
-# Final review handoff — TASK-028
+# Review handoff — TASK-028
 
-The current feedback correction has completed final independent review. See ../review-report.md for the assessment; fresh QA evidence remains in ../qa-evidence/independent-feedback-20261014/. Human merge may proceed. This stage changed only its report and handoff; it did not publish or merge.
+Independent final review is complete; the authoritative result is `review-report.md`.
 
-Next-stage guidance: keep downstream preparation separate from this delivery. When TASK-026 is specified, reconcile its dependency metadata with the requirement to initialize fresh players before quoting and extend the established quote persistence. Carry the documented financial writer contract into TASK-029/030 specifications and tests. Avoid introducing an automatic backfill as an incidental integration change.
+Delivery must include the working-tree configuration-test correction and its current verification documentation. HEAD alone still contains the previously failing boundary test; the committed-checkout evidence overlays only that correction and does not claim it has been published. Preserve the reviewed source fingerprints when preparing the update to PR #37. Any implementation change after this gate requires affected verification to be refreshed.
 
-T025/T026 are workflow-managed gate entries; their unchecked source labels do not negate the completed independent reports. Update workflow bookkeeping through the owning process after it accepts both reports, without reopening settled product decisions.
+No implementation, backlog, commit, push, PR or merge action was performed during review. The review ran only a read-only evidence integrity check; it introduced no new runtime evidence or test fixture. QA's retained first CI failure must remain alongside its successful retry rather than being presented as an uninterrupted green run.
+
+The report identifies concrete downstream planning guidance for the shared quote store and financial writer coordination. Carry that guidance into the directly affected tasks during their normal planning stages; this review does not authorize expanding TASK-028.
 
 Verdict: PASS

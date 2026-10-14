@@ -28,12 +28,15 @@ python3 scripts/agentflow_check.py compile --reuse
 python3 scripts/agentflow_check.py database_prepare --reuse
 python3 scripts/agentflow_check.py service_preflight --reuse
 python3 scripts/agentflow_check.py prefix_regression --reuse
+python3 scripts/agentflow_check.py scope_regression --reuse
+python3 scripts/agentflow_check.py committed_scope_regression --reuse
 python3 scripts/agentflow_check.py unit_profile --reuse
 python3 scripts/agentflow_check.py integration_profile --reuse
+python3 scripts/agentflow_check.py ci_unit_tests --reuse
 python3 scripts/workflow_artifact_probe.py develop --readiness
 ```
 
-Fresh service/database checks have reuse=false. Final unit/integration profiles run once each for unchanged inputs. Do not run coverage_report.sh or mix test.cp1_coverage as an additional local CP2 gate; preserve their existing CI behavior. If a receipt is stale after a source/design correction, rerun affected checks under the helper's current-fingerprint policy. Stop after two unchanged failures and diagnose; do not bypass the helper. Mark implementation/check tasks only after required files and passing checks exist; only downstream QA/review stay unchecked.
+Fresh service/database and committed-checkout checks have reuse=false. The latter clones the existing local commit at depth 1, asserts the committed approved configuration, applies only the corrected scope test and runs its positive/negative assertions; it creates no commit. The boundary assertion itself reads no Git revision. ci_unit_tests runs the exact scripts/ci_unit_tests.sh command from Quality baseline. Workflow inspection confirms toolchain, formatting and compilation are already covered; dependency setup and unchanged OpenAPI validation remain existing CI obligations. Final unit/integration profiles run once each for unchanged inputs. Do not run coverage_report.sh or mix test.cp1_coverage as an additional local CP2 gate; preserve their existing CI behavior. If a receipt is stale after a source/design correction, rerun affected checks under the helper's current-fingerprint policy. Stop after two unchanged failures and diagnose; do not bypass the helper. Mark implementation/check tasks only after required files and passing checks exist; only downstream QA/review stay unchecked.
 
 ## Required asserted scenarios
 
@@ -55,6 +58,6 @@ All probes live in files mapped by traceability.md and execute in the audited pr
 
 ## Independent QA and CP2 demo
 
-QA reruns each manifest entry independently with `--stage qa`, never --reuse. It challenges every traceability row, verifies no skipped cases, and starts real dependencies. Review uses that fresh QA evidence and targeted checks for remaining risks. Reports end exactly in Verdict: PASS only on success.
+QA must verify the committed-checkout receipt and all six configuration negative controls, and retain fresh evidence for the real CI command. QA reruns each manifest entry independently with `--stage qa`, never --reuse. It challenges every traceability row, verifies no skipped cases, and starts real dependencies. Review uses that fresh QA evidence and targeted checks for remaining risks. Reports end exactly in Verdict: PASS only on success.
 
 For the CP2 demo, trusted operator code designates one **existing** user, initializes a **fresh unquoted** player, shows original evidence with get_initial_issuance, then hands the player to downstream valuation/trading. Demonstrate rejection of an unissued player with prior quotes. Do not promise all catalog entries become tradable or claim this feature completes charts, conditional orders or browser market E2E.

@@ -111,19 +111,48 @@ defmodule FootballMarket.Market.ScopeTest do
              ~w(Holding InitialRecipient Issuance Quote)
 
     refute store =~ ~r/Repo\.(update|delete|insert_all)|UPDATE\s|DELETE\s|INSERT\s/i
-    {original, 0} = System.cmd("git", ["show", "HEAD:config/config.exs"])
-
-    assert String.replace(
-             File.read!("config/config.exs"),
-             "development_seed_enabled: false,\n  initial_issuance_recipients: []",
-             "development_seed_enabled: false"
-           ) == original
+    assert_config_boundary(File.read!("config/config.exs"))
 
     assert Application.get_env(:football_market, :initial_issuance_recipients) == []
 
     for path <- Path.wildcard("lib/football_market_web/**/*.ex") do
       refute File.read!(path) =~ "initialize_player"
     end
+  end
+
+  test "configuration boundary rejects changes outside the approved fail-closed default" do
+    source = File.read!("config/config.exs")
+
+    for changed <- [
+          String.replace(
+            source,
+            "initial_issuance_recipients: []",
+            "initial_issuance_recipients: [:other]"
+          ),
+          String.replace(source, ",\n  initial_issuance_recipients: []", ""),
+          String.replace(
+            source,
+            "initial_issuance_recipients: []",
+            "initial_issuance_recipients: [], initial_issuance_recipients: []"
+          ),
+          String.replace(
+            source,
+            "development_seed_enabled: false",
+            "development_seed_enabled: true"
+          ),
+          String.replace(source, "t_cost: 2", "t_cost: 1"),
+          source <> "\nconfig :football_market, unplanned: true\n"
+        ] do
+      refute changed == source
+      assert_raise ExUnit.AssertionError, fn -> assert_config_boundary(changed) end
+    end
+  end
+
+  defp assert_config_boundary(source) do
+    # Pin the approved configuration, including the fail-closed issuance default.
+    # Git HEAD changes after publication and is not a stable content oracle.
+    assert Base.encode16(:crypto.hash(:sha256, source), case: :lower) ==
+             "b2f9904816f5efed3b630e782e7519058f96b18dc8b5d101dcbeb81ec8577251"
   end
 
   # Evaluate the actual allowlist function without loading the unit test module

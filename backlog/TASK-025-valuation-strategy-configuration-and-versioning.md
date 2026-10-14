@@ -4,9 +4,9 @@ title: Valuation strategy configuration and versioning
 type: task
 checkpoint: CP2
 priority: critical
-status: review
+status: done
 depends_on: TASK-023, TASK-024
-active_run: 794c0fbb
+active_run: none
 ---
 
 ## Outcome

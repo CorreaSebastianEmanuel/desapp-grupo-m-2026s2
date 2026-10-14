@@ -1,0 +1,19 @@
+{
+  "id": "prefix_regression",
+  "argv": [
+    "mix",
+    "test",
+    "test/football_market/market/storage_test.exs",
+    "--warnings-as-errors",
+    "--only",
+    "prefix_regression"
+  ],
+  "env": {
+    "MIX_ENV": "test"
+  },
+  "started_at": "2026-10-14T03:30:38.464624+00:00",
+  "exit_code": 0,
+  "elapsed_seconds": 4.475,
+  "output_sha256": "756710685690b7e56914a2bd2b02651861296e0f645c3b73c47a410029eba22f",
+  "reuse": false
+}

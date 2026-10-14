@@ -1,0 +1,16 @@
+{
+  "id": "integration_profile",
+  "argv": [
+    "sh",
+    "scripts/test_profile.sh",
+    "integration"
+  ],
+  "env": {
+    "MIX_ENV": "test"
+  },
+  "started_at": "2026-10-14T03:31:16.825282+00:00",
+  "exit_code": 0,
+  "elapsed_seconds": 215.559,
+  "output_sha256": "b30613b61992bdc84322fbf22d8c97a49e6f77183cbd63cff9f1f998b4eedf0a",
+  "reuse": false
+}

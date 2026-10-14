@@ -1,0 +1,167 @@
+{
+  "schema_version": 1,
+  "runtime_required": false,
+  "checks": [
+    {
+      "id": "toolchain",
+      "argv": [
+        "sh",
+        "scripts/check_toolchain.sh"
+      ]
+    },
+    {
+      "id": "format",
+      "argv": [
+        "mix",
+        "format",
+        "--check-formatted"
+      ]
+    },
+    {
+      "id": "compile",
+      "argv": [
+        "mix",
+        "compile",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "database_prepare",
+      "argv": [
+        "mix",
+        "infrastructure.database.test_prepare"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "reuse": false
+    },
+    {
+      "id": "service_preflight",
+      "argv": [
+        "mix",
+        "infrastructure.verify"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "reuse": false
+    },
+    {
+      "id": "prefix_regression",
+      "argv": [
+        "mix",
+        "test",
+        "test/football_market/market/storage_test.exs",
+        "--warnings-as-errors",
+        "--only",
+        "prefix_regression"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "unit_profile",
+      "argv": [
+        "sh",
+        "scripts/test_profile.sh",
+        "unit"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "integration_profile",
+      "argv": [
+        "sh",
+        "scripts/test_profile.sh",
+        "integration"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    }
+  ],
+  "coverage": {
+    "FR-001": [
+      "unit_profile",
+      "integration_profile"
+    ],
+    "FR-002": [
+      "unit_profile",
+      "integration_profile"
+    ],
+    "FR-003": [
+      "unit_profile",
+      "integration_profile"
+    ],
+    "FR-004": [
+      "unit_profile",
+      "integration_profile"
+    ],
+    "FR-005": [
+      "integration_profile"
+    ],
+    "FR-006": [
+      "integration_profile",
+      "prefix_regression"
+    ],
+    "FR-007": [
+      "integration_profile"
+    ],
+    "FR-008": [
+      "unit_profile",
+      "integration_profile"
+    ],
+    "FR-009": [
+      "unit_profile",
+      "integration_profile"
+    ],
+    "FR-010": [
+      "unit_profile",
+      "integration_profile"
+    ],
+    "FR-011": [
+      "unit_profile",
+      "integration_profile"
+    ],
+    "FR-012": [
+      "integration_profile"
+    ],
+    "FR-013": [
+      "unit_profile",
+      "integration_profile",
+      "prefix_regression"
+    ],
+    "FR-014": [
+      "integration_profile"
+    ],
+    "SC-001": [
+      "integration_profile"
+    ],
+    "SC-002": [
+      "integration_profile"
+    ],
+    "SC-003": [
+      "integration_profile"
+    ],
+    "SC-004": [
+      "integration_profile"
+    ],
+    "SC-005": [
+      "integration_profile"
+    ],
+    "SC-006": [
+      "integration_profile"
+    ]
+  },
+  "task_stages": {
+    "T025": "qa",
+    "T026": "review"
+  }
+}

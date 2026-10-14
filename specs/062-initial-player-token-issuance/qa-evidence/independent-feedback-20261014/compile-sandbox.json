@@ -1,0 +1,16 @@
+{
+  "id": "compile",
+  "argv": [
+    "mix",
+    "compile",
+    "--warnings-as-errors"
+  ],
+  "env": {
+    "MIX_ENV": "test"
+  },
+  "started_at": "2026-10-14T03:30:04.125110+00:00",
+  "exit_code": 1,
+  "elapsed_seconds": 1.189,
+  "output_sha256": "e10cbee50e01b07ab2cf163c0fede103c5bb7cfbb8a51f2ee434856106979efb",
+  "reuse": false
+}

@@ -163,7 +163,8 @@ defmodule FootballMarket.Statistics.ScopeTest do
       path = String.slice(line, 3..-1//1)
 
       assert path in provider_paths or path in scraper_paths or path in ingestion_paths or
-               path in valuation_paths(active_feature) or path in allowed_ci_paths or
+               path in valuation_paths(active_feature) or path in market_paths(active_feature) or
+               path in allowed_ci_paths or
                Enum.any?(allowed, &String.starts_with?(path, &1)),
              "outside plan: #{path}"
     end
@@ -277,6 +278,41 @@ defmodule FootballMarket.Statistics.ScopeTest do
           end
         end
       end
+    end
+  end
+
+  # Exact active TASK-028 inventory; unknown features receive no allowance.
+  def market_paths(active_feature) do
+    if active_feature == "specs/062-initial-player-token-issuance" do
+      [
+        "config/config.exs",
+        "lib/football_market/market.ex",
+        "priv/repo/migrations/20261014000000_create_initial_player_issuance.exs",
+        "test/support/market_case.ex",
+        "test/football_market/statistics/scope_test.exs",
+        "test/football_market/providers/scope_test.exs",
+        "lib/football_market/market/input.ex",
+        "lib/football_market/market/consistency.ex",
+        "lib/football_market/market/error.ex",
+        "lib/football_market/market/store.ex",
+        "lib/football_market/market/initialization_lock.ex",
+        "lib/football_market/market/initial_recipient.ex",
+        "lib/football_market/market/holding.ex",
+        "lib/football_market/market/quote.ex",
+        "lib/football_market/market/issuance.ex",
+        "test/football_market/market/input_test.exs",
+        "test/football_market/market/consistency_test.exs",
+        "test/football_market/market/issuance_test.exs",
+        "test/football_market/market/storage_test.exs",
+        "test/football_market/market/durability_test.exs",
+        "test/football_market/market/retry_test.exs",
+        "test/football_market/market/concurrency_test.exs",
+        "test/football_market/market/rollback_test.exs",
+        "test/football_market/market/rejection_test.exs",
+        "test/football_market/market/scope_test.exs"
+      ]
+    else
+      []
     end
   end
 end

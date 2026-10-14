@@ -1,0 +1,14 @@
+{
+  "id": "format",
+  "argv": [
+    "mix",
+    "format",
+    "--check-formatted"
+  ],
+  "env": {},
+  "started_at": "2026-10-14T03:30:02.743490+00:00",
+  "exit_code": 0,
+  "elapsed_seconds": 1.375,
+  "output_sha256": "30199ad9c58d1fac4c5cb86f906bb9d3fb9f64d18a0819f5e5b8e9b198cbd708",
+  "reuse": false
+}

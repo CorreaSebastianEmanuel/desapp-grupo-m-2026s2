@@ -1,0 +1,15 @@
+{
+  "id": "database_prepare",
+  "argv": [
+    "mix",
+    "infrastructure.database.test_prepare"
+  ],
+  "env": {
+    "MIX_ENV": "test"
+  },
+  "started_at": "2026-10-14T03:30:34.462008+00:00",
+  "exit_code": 0,
+  "elapsed_seconds": 1.918,
+  "output_sha256": "a7cf714d44bee0907647082cf27e723920b8d2c8f81b233d12c1c8ae2e517ec6",
+  "reuse": false
+}

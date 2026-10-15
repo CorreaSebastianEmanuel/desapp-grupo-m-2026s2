@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "mix",
+    "run",
+    "specs/063-scheduled-synchronization-jobs/qa-evidence/independent-20261015/adversarial.exs"
+  ],
+  "env": {
+    "MIX_ENV": "test"
+  },
+  "exit_code": 2,
+  "elapsed_seconds": 1.828,
+  "attempts": 1
+}

@@ -1,0 +1,14 @@
+{
+  "command": [
+    "mix",
+    "run",
+    "specs/063-scheduled-synchronization-jobs/qa-evidence/independent-20261015-b1/adversarial.exs"
+  ],
+  "env": {
+    "MIX_ENV": "test"
+  },
+  "exit_code": 0,
+  "tests_passed": 5,
+  "http_requests": 10,
+  "source_hashes_unchanged": true
+}

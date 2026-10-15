@@ -95,6 +95,7 @@ defmodule FootballMarket.MixProject do
       {:phoenix, "~> 1.8.13"},
       {:phoenix_ecto, "~> 4.5"},
       {:ecto_sql, "~> 3.13"},
+      {:oban, "~> 2.24.2"},
       {:postgrex, ">= 0.0.0"},
       {:argon2_elixir, "4.1.3"},
       {:joken, "~> 2.7"},

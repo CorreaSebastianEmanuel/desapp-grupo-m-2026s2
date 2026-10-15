@@ -1,0 +1,120 @@
+[
+  {
+    "id": "toolchain",
+    "argv": [
+      "sh",
+      "scripts/check_toolchain.sh"
+    ],
+    "env": {},
+    "exit_code": 0,
+    "elapsed_seconds": 0.886
+  },
+  {
+    "id": "browser_preflight",
+    "argv": [
+      "node",
+      "--input-type=module",
+      "-e",
+      "import assert from 'node:assert/strict'; import {createRequire} from 'node:module'; const require=createRequire(process.cwd()+'/tools/openapi/package.json'); const {chromium}=require('playwright-core'); assert.equal(Number(process.versions.node.split('.')[0]),24); const browser=await chromium.launch({headless:true}); const page=await browser.newPage(); await page.setContent('<p>ready</p>'); assert.equal(await page.locator('p').textContent(),'ready'); await browser.close(); console.log('Node 24 and Chromium ready');"
+    ],
+    "env": {},
+    "exit_code": 0,
+    "elapsed_seconds": 0.694
+  },
+  {
+    "id": "services",
+    "argv": [
+      "sh",
+      "scripts/local_services.sh",
+      "ready"
+    ],
+    "env": {},
+    "exit_code": 0,
+    "elapsed_seconds": 0.381
+  },
+  {
+    "id": "service_clients",
+    "argv": [
+      "mix",
+      "infrastructure.verify"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "elapsed_seconds": 0.733
+  },
+  {
+    "id": "format",
+    "argv": [
+      "mix",
+      "format",
+      "--check-formatted"
+    ],
+    "env": {},
+    "exit_code": 0,
+    "elapsed_seconds": 0.852
+  },
+  {
+    "id": "compile",
+    "argv": [
+      "mix",
+      "compile",
+      "--warnings-as-errors"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "elapsed_seconds": 0.544
+  },
+  {
+    "id": "unit",
+    "argv": [
+      "mix",
+      "test.unit"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "elapsed_seconds": 30.049
+  },
+  {
+    "id": "integration",
+    "argv": [
+      "mix",
+      "test.integration"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "elapsed_seconds": 227.713
+  },
+  {
+    "id": "runtime_http",
+    "argv": [
+      "mix",
+      "run",
+      "-e",
+      "FootballMarket.Synchronization.RuntimeProbe.run!()"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "elapsed_seconds": 5.978
+  },
+  {
+    "id": "whitespace",
+    "argv": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "env": {},
+    "exit_code": 0,
+    "elapsed_seconds": 0.023
+  }
+]

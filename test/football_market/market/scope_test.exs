@@ -27,7 +27,8 @@ defmodule FootballMarket.Market.ScopeTest do
       ])
 
     for line <- String.split(changed, "\n", trim: true) do
-      assert String.slice(line, 3..-1//1) in paths, "outside initial issuance plan: #{line}"
+      assert String.slice(line, 3..-1//1) in (paths ++ synchronization_paths(active_feature())),
+             "outside initial issuance plan: #{line}"
     end
 
     assert length(paths) == 25
@@ -171,4 +172,62 @@ defmodule FootballMarket.Market.ScopeTest do
     assert [fun] = functions
     fun
   end
+
+  def synchronization_paths(feature) do
+    if feature == "specs/063-scheduled-synchronization-jobs" do
+      [
+        "lib/football_market/synchronization.ex",
+        "lib/football_market/synchronization/input.ex",
+        "lib/football_market/synchronization/policy.ex",
+        "lib/football_market/synchronization/clock.ex",
+        "lib/football_market/synchronization/run.ex",
+        "lib/football_market/synchronization/attempt.ex",
+        "lib/football_market/synchronization/trigger.ex",
+        "lib/football_market/synchronization/schedule.ex",
+        "lib/football_market/synchronization/occurrence.ex",
+        "lib/football_market/synchronization/store.ex",
+        "lib/football_market/synchronization/execution_guard.ex",
+        "lib/football_market/synchronization/scheduler.ex",
+        "lib/football_market/synchronization/recovery.ex",
+        "lib/football_market/synchronization/dispatcher.ex",
+        "lib/football_market/workers/catalog_sync.ex",
+        "lib/football_market/catalog/ingestion/delivery_receipt.ex",
+        "config/synchronization.exs",
+        "priv/repo/migrations/20261015000000_add_oban.exs",
+        "priv/repo/migrations/20261015000100_create_synchronization_ledgers.exs",
+        "priv/repo/migrations/20261015000200_create_catalog_delivery_receipts.exs",
+        "test/support/synchronization/case.ex",
+        "test/support/synchronization/clock.ex",
+        "test/support/synchronization/fixtures.ex",
+        "test/support/synchronization/runtime_probe.ex",
+        "test/fixtures/synchronization/expected.exs",
+        "test/football_market/synchronization/input_test.exs",
+        "test/football_market/synchronization/policy_test.exs",
+        "test/football_market/synchronization/migration_test.exs",
+        "test/football_market/synchronization/request_test.exs",
+        "test/football_market/synchronization/inspection_test.exs",
+        "test/football_market/synchronization/scheduler_test.exs",
+        "test/football_market/synchronization/concurrency_test.exs",
+        "test/football_market/synchronization/retry_test.exs",
+        "test/football_market/synchronization/recovery_test.exs",
+        "test/football_market/synchronization/integrity_test.exs",
+        "test/football_market/synchronization/scope_test.exs",
+        "test/football_market/catalog/ingestion/delivery_receipt_test.exs",
+        "mix.exs",
+        "mix.lock",
+        "lib/football_market/application.ex",
+        "config/runtime.exs",
+        "config/test.exs",
+        "lib/football_market/catalog/ingestion.ex",
+        "lib/football_market/catalog/ingestion/publisher.ex",
+        "test/football_market/providers/scope_test.exs",
+        "test/football_market/statistics/scope_test.exs",
+        "test/football_market/market/scope_test.exs"
+      ]
+    else
+      []
+    end
+  end
+
+  defp active_feature, do: Jason.decode!(File.read!(".specify/feature.json"))["feature_directory"]
 end

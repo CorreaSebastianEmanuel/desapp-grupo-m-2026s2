@@ -1,0 +1,17 @@
+{
+  "id": "qa_adversarial",
+  "argv": [
+    "mix",
+    "test",
+    "specs/062-initial-player-token-issuance/qa-evidence/independent-feedback-20261014/adversarial_test.exs",
+    "--warnings-as-errors"
+  ],
+  "env": {
+    "MIX_ENV": "test"
+  },
+  "started_at": "2026-10-14T03:33:37.943560+00:00",
+  "exit_code": 0,
+  "elapsed_seconds": 6.624,
+  "output_sha256": "0ea42dd391435c813267c768a7ee6e559bb5c4d2fdd33e71ec461c68b12a0126",
+  "reuse": false
+}

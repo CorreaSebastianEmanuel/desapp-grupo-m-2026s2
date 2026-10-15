@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "mix",
+    "test",
+    "--warnings-as-errors",
+    "/tmp/task028-independent-qa.exs"
+  ],
+  "exit_code": 1,
+  "elapsed_seconds": 4.284
+}

@@ -1,0 +1,152 @@
+[
+  {
+    "id": "toolchain",
+    "argv": [
+      "sh",
+      "scripts/check_toolchain.sh"
+    ],
+    "env": {},
+    "exit_code": 0,
+    "seconds": 0.917,
+    "output": "specs/062-initial-player-token-issuance/qa-evidence/independent-20261014-current/toolchain.log"
+  },
+  {
+    "id": "format",
+    "argv": [
+      "mix",
+      "format",
+      "--check-formatted"
+    ],
+    "env": {},
+    "exit_code": 0,
+    "seconds": 0.719,
+    "output": "specs/062-initial-player-token-issuance/qa-evidence/independent-20261014-current/format.log"
+  },
+  {
+    "id": "compile",
+    "argv": [
+      "mix",
+      "compile",
+      "--warnings-as-errors"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "seconds": 0.602,
+    "output": "specs/062-initial-player-token-issuance/qa-evidence/independent-20261014-current/compile.log"
+  },
+  {
+    "id": "database_prepare",
+    "argv": [
+      "mix",
+      "infrastructure.database.test_prepare"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "seconds": 0.821,
+    "output": "specs/062-initial-player-token-issuance/qa-evidence/independent-20261014-current/database_prepare.log"
+  },
+  {
+    "id": "service_preflight",
+    "argv": [
+      "mix",
+      "infrastructure.verify"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "seconds": 0.785,
+    "output": "specs/062-initial-player-token-issuance/qa-evidence/independent-20261014-current/service_preflight.log"
+  },
+  {
+    "id": "prefix_regression",
+    "argv": [
+      "mix",
+      "test",
+      "test/football_market/market/storage_test.exs",
+      "--warnings-as-errors",
+      "--only",
+      "prefix_regression"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "seconds": 1.912,
+    "output": "specs/062-initial-player-token-issuance/qa-evidence/independent-20261014-current/prefix_regression.log"
+  },
+  {
+    "id": "scope_regression",
+    "argv": [
+      "mix",
+      "test",
+      "test/football_market/market/scope_test.exs",
+      "--warnings-as-errors"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "seconds": 1.115,
+    "output": "specs/062-initial-player-token-issuance/qa-evidence/independent-20261014-current/scope_regression.log"
+  },
+  {
+    "id": "committed_scope_regression",
+    "argv": [
+      "python3",
+      "-c",
+      "from pathlib import Path\nimport hashlib, subprocess, tempfile\nroot = Path.cwd()\ndef run(args, cwd=root):\n    return subprocess.run(args, cwd=cwd, check=True, text=True, capture_output=True).stdout\nwith tempfile.TemporaryDirectory(prefix=\"market-committed-scope-\") as directory:\n    checkout = Path(directory) / \"checkout\"\n    run([\"git\", \"clone\", \"--quiet\", \"--no-local\", \"--depth\", \"1\", \"--single-branch\", str(root), str(checkout)])\n    assert run([\"git\", \"rev-parse\", \"--is-shallow-repository\"], checkout).strip() == \"true\"\n    assert run([\"git\", \"rev-list\", \"--count\", \"HEAD\"], checkout).strip() == \"1\"\n    assert run([\"git\", \"status\", \"--porcelain\"], checkout) == \"\"\n    config = (checkout / \"config/config.exs\").read_bytes()\n    assert hashlib.sha256(config).hexdigest() == \"b2f9904816f5efed3b630e782e7519058f96b18dc8b5d101dcbeb81ec8577251\"\n    assert config == (root / \"config/config.exs\").read_bytes()\n    scope = \"test/football_market/market/scope_test.exs\"\n    (checkout / scope).write_bytes((root / scope).read_bytes())\n    changes = run([\"git\", \"status\", \"--porcelain\", \"--untracked-files=all\"], checkout).splitlines()\n    assert all(line[3:] == scope for line in changes), changes\n    for name in [\"deps\", \"_build\"]:\n        (checkout / name).symlink_to(root / name, target_is_directory=True)\n    print(\"COMMITTED_SCOPE shallow=true commits=1 approved_config=committed correction=scope_test_only\", flush=True)\n    subprocess.run([\"mix\", \"test\", scope, \"--warnings-as-errors\"], cwd=checkout, check=True)\n"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "seconds": 4.231,
+    "output": "specs/062-initial-player-token-issuance/qa-evidence/independent-20261014-current/committed_scope_regression.log"
+  },
+  {
+    "id": "unit_profile",
+    "argv": [
+      "sh",
+      "scripts/test_profile.sh",
+      "unit"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "seconds": 22.681,
+    "output": "specs/062-initial-player-token-issuance/qa-evidence/independent-20261014-current/unit_profile.log"
+  },
+  {
+    "id": "integration_profile",
+    "argv": [
+      "sh",
+      "scripts/test_profile.sh",
+      "integration"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "seconds": 125.004,
+    "output": "specs/062-initial-player-token-issuance/qa-evidence/independent-20261014-current/integration_profile.log"
+  },
+  {
+    "id": "ci_unit_tests",
+    "argv": [
+      "sh",
+      "scripts/ci_unit_tests.sh"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 2,
+    "seconds": 130.416,
+    "output": "specs/062-initial-player-token-issuance/qa-evidence/independent-20261014-current/ci_unit_tests.log"
+  }
+]

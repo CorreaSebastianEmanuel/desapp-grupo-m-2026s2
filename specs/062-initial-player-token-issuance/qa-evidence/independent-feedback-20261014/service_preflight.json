@@ -1,0 +1,15 @@
+{
+  "id": "service_preflight",
+  "argv": [
+    "mix",
+    "infrastructure.verify"
+  ],
+  "env": {
+    "MIX_ENV": "test"
+  },
+  "started_at": "2026-10-14T03:30:36.381044+00:00",
+  "exit_code": 0,
+  "elapsed_seconds": 2.082,
+  "output_sha256": "332b50e40ee9ce50f742db583da1de8eb0b7ecd6c2aa0bf64d32f4533b2eb20f",
+  "reuse": false
+}

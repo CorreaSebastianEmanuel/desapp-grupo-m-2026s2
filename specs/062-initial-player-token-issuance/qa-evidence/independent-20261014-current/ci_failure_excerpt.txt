@@ -1,0 +1,55 @@
+166:   1) test default suite executes both committed Catalog races (FootballMarket.CatalogConcurrencyTest)
+167:      test/football_market/catalog/constraints_test.exs:279
+168:      database already exists
+169: 
+170:      04:09:31.122 [info] Migrations already up
+171:      migrations current
+172:      Running ExUnit with seed: 255978, max_cases: 32
+173:      Excluding tags: [performance: true]
+174: 
+175:      .....04:09:32.568 [error] Task #PID<0.479.0> started from #PID<0.465.0> terminating
+176:      ** (Postgrex.Error) ERROR 40P01 (deadlock_detected) deadlock detected
+177: 
+178:          hint: See server log for query details.
+179: 
+180:      Process 194515 waits for ShareLock on transaction 430870; blocked by process 194513.
+193:        1) test normalized unique indexes arbitrate concurrent catalog writes (FootballMarket.CatalogConcurrencyTest)
+194:           test/football_market/catalog/constraints_test.exs:196
+195:           ** (exit) exited in: Task.await(%Task{mfa: {:erlang, :apply, 2}, owner: #PID<0.465.0>, pid: #PID<0.479.0>, ref: #Reference<0.0.59523.242721768.1319174145.222712>}, 10000)
+196:               ** (EXIT) an exception was raised:
+197:                   ** (Postgrex.Error) ERROR 40P01 (deadlock_detected) deadlock detected
+198: 
+199:               hint: See server log for query details.
+200: 
+201:           Process 194515 waits for ShareLock on transaction 430870; blocked by process 194513.
+202:           Process 194513 waits for ShareLock on transaction 430869; blocked by process 194515.
+203:                       (ecto_sql 3.14.0) lib/ecto/adapters/sql.ex:1121: Ecto.Adapters.SQL.raise_sql_call_error/1
+204:                       (ecto 3.14.2) lib/ecto/repo/schema.ex:1060: Ecto.Repo.Schema.apply/4
+205:                       (ecto 3.14.2) lib/ecto/repo/schema.ex:505: anonymous fn/17 in Ecto.Repo.Schema.do_insert/4
+206:                       (football_market 0.1.0) test/support/catalog_concurrency_case.ex:41: anonymous fn/4 in FootballMarket.CatalogConcurrencyCase.race/2
+207:                       (ecto_sql 3.14.0) lib/ecto/adapters/sql/sandbox.ex:630: Ecto.Adapters.SQL.Sandbox.unboxed_run/2
+208:                       (elixir 1.20.3) lib/task/supervised.ex:105: Task.Supervised.invoke_mfa/2
+209:                       (elixir 1.20.3) lib/task/supervised.ex:40: Task.Supervised.reply/4
+210:           code: Sandbox.unboxed_run(Repo, fn ->
+211:           stacktrace:
+212:             (elixir 1.20.3) lib/task.ex:890: Task.await_receive/3
+213:             (elixir 1.20.3) lib/enum.ex:1725: Enum."-map/2-lists^map/1-1-"/2
+214:             (elixir 1.20.3) lib/enum.ex:1725: Enum."-map/2-lists^map/1-1-"/2
+215:             (football_market 0.1.0) test/support/catalog_concurrency_case.ex:66: FootballMarket.CatalogConcurrencyCase.race/2
+216:             test/football_market/catalog/constraints_test.exs:222: anonymous fn/1 in FootballMarket.CatalogConcurrencyTest."test normalized unique indexes arbitrate concurrent catalog writes"/1
+217:             (ecto_sql 3.14.0) lib/ecto/adapters/sql/sandbox.ex:630: Ecto.Adapters.SQL.Sandbox.unboxed_run/2
+218:             test/football_market/catalog/constraints_test.exs:197: (test)
+219: 
+220: 
+221:      Finished in 1.3 seconds (0.2s async, 1.1s sync)
+222: 
+223:      Result: 5/6 passed
+224:      Failed: 1 test
+225: 
+226:      code: assert status == 0, String.slice(out, -4000, 4000)
+227:      stacktrace:
+228:        test/football_market/catalog/constraints_test.exs:294: (test)
+719: Finished in 128.8 seconds (17.0s async, 111.7s sync)
+720: 
+721: Result: 468/469 passed, 4 excluded
+722: Failed: 1 test

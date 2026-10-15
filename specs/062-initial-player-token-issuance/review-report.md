@@ -1,0 +1,19 @@
+# Final independent review — TASK-028
+
+Ready for human merge of the reviewed working tree. Blockers: none.
+
+Reviewed the complete spec, plan, tasks, architecture/development handoffs, current Feedback 1–3, QA report, implementation/test changes against `2bc973f`, and source directly. Active feature binding is 062; HEAD is `fad17e5`, with the configuration-test correction still uncommitted. This verdict covers those corrected inputs, not the unchanged published revision.
+
+Design and architecture: the trusted Market façade delegates pure validation and persistence separately. The implementation stays within the 25-file source/test inventory. No web initialization interface, role system, balance model, provider dependency, ingestion automation or performance valuation was added. Existing identity and season boundaries remain authoritative. The global initialization lock deliberately serializes recipient fixation; player locks coordinate holdings and quote writers. READ COMMITTED validation, rejection of nested initialization, and transaction completion before success preserve coherent retries and durable outcomes.
+
+Integrity and security: exact NUMERIC/Decimal values and integer holdings implement the fixed 100-at-one allocation. Unique issuance, linked quote/player foreign keys, deferred conservation and initial-owner checks reinforce the application transaction. Immutable history and TRUNCATE guards preserve original evidence. Retries validate prerequisites and retained state without replenishment or repair. Safe storage errors expose no database details, and snapshot assertions hash credential-bearing rows. Tests use guarded private schemas, separate legacy copies and genuinely distinct connections rather than shared-sandbox races. These guarantees apply to ordinary application DML; privileged destructive DDL remains outside the documented boundary.
+
+Feedback is resolved: the migration seed explicitly targets the migration prefix, with a permanent different-search_path regression. The configuration boundary now hashes the entire approved configuration independently of HEAD; its six negative controls retain the prior protections. Inspection of Quality baseline and the exact CI script confirms coverage of affected formatting, compilation and test steps. The shallow-checkout probe executes the corrected test against committed approved configuration without depending on earlier commits or remote refs. Future intentional config edits must update this reviewed hash.
+
+Evidence assessment: independently checked current HEAD, all 25 source fingerprints, manifest equality and all 13 retained output hashes against fresh QA evidence in `qa-evidence/independent-20261014-current/`. Inspected bounded result markers for prefix/configuration/committed-checkout regressions, audited profiles, CI discovery and the supplemental probe. QA has passing executions of all 11 checks. No application tests were rerun: direct inspection revealed no unresolved discrepancy requiring another runtime probe. The initial CI deadlock is preserved transparently; an unchanged complete retry passed. The unchanged catalog concurrency test remains an intermittent baseline risk.
+
+Checkpoint coverage is proportionate: this supplies CP2 initial inventory and preserves existing quality gates; it does not establish completion of charts, conditional orders or trading browser E2E. Balance nonmutation is supported by source inspection and sentinels, since production balances do not yet exist.
+
+Backlog impact: TASK-026, TASK-029, TASK-030 — inspected only these direct consumers. Recommend adding TASK-028 as a TASK-026 prerequisite and recording initialization-before-valuation plus reuse of `market_quotes`; carry ADR-0024 player-lock ordering, conserved holdings and immutable originals into purchase/sale acceptance criteria. Existing purchase/sale dependency ordering already supports this. No backlog files edited.
+
+Verdict: PASS

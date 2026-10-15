@@ -1,0 +1,104 @@
+[
+  {
+    "id": "toolchain",
+    "argv": [
+      "sh",
+      "scripts/check_toolchain.sh"
+    ],
+    "env": {},
+    "exit_code": 0,
+    "elapsed_seconds": 1.883
+  },
+  {
+    "id": "format",
+    "argv": [
+      "mix",
+      "format",
+      "--check-formatted"
+    ],
+    "env": {},
+    "exit_code": 0,
+    "elapsed_seconds": 1.565
+  },
+  {
+    "id": "compile",
+    "argv": [
+      "mix",
+      "compile",
+      "--warnings-as-errors"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 1,
+    "elapsed_seconds": 1.258
+  },
+  {
+    "id": "compile",
+    "argv": [
+      "mix",
+      "compile",
+      "--warnings-as-errors"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "elapsed_seconds": 1.485,
+    "execution": "outside sandbox for TCP/socket checks"
+  },
+  {
+    "id": "database_prepare",
+    "argv": [
+      "mix",
+      "infrastructure.database.test_prepare"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "elapsed_seconds": 1.939,
+    "execution": "outside sandbox for TCP/socket checks"
+  },
+  {
+    "id": "service_preflight",
+    "argv": [
+      "mix",
+      "infrastructure.verify"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "elapsed_seconds": 1.853,
+    "execution": "outside sandbox for TCP/socket checks"
+  },
+  {
+    "id": "unit_profile",
+    "argv": [
+      "sh",
+      "scripts/test_profile.sh",
+      "unit"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "elapsed_seconds": 34.68,
+    "execution": "outside sandbox for TCP/socket checks"
+  },
+  {
+    "id": "integration_profile",
+    "argv": [
+      "sh",
+      "scripts/test_profile.sh",
+      "integration"
+    ],
+    "env": {
+      "MIX_ENV": "test"
+    },
+    "exit_code": 0,
+    "elapsed_seconds": 234.279,
+    "execution": "outside sandbox for TCP/socket checks"
+  }
+]

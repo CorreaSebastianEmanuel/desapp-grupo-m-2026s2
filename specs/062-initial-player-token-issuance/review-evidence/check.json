@@ -1,0 +1,10 @@
+{
+  "command": "POSTGRES_PORT=15432 MIX_ENV=test mix test --warnings-as-errors /tmp/task028_review_prefix_test.exs",
+  "exit_code": 2,
+  "result": "0/1 passed; unique_violation market_initialization_locks_pkey",
+  "reason": "Resolve the unqualified migration seed against the explicit schema-prefix requirement; prior QA sets search_path to the migration prefix.",
+  "source_hash_check": {
+    "files": 25,
+    "drift": []
+  }
+}

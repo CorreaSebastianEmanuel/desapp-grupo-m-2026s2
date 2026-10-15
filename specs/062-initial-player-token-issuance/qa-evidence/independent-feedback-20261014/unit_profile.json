@@ -1,0 +1,16 @@
+{
+  "id": "unit_profile",
+  "argv": [
+    "sh",
+    "scripts/test_profile.sh",
+    "unit"
+  ],
+  "env": {
+    "MIX_ENV": "test"
+  },
+  "started_at": "2026-10-14T03:30:42.940734+00:00",
+  "exit_code": 0,
+  "elapsed_seconds": 33.886,
+  "output_sha256": "dbea1aef2d18273950d4925898f16d12bd13ab78bf17d00c009eb417dd508be8",
+  "reuse": false
+}

@@ -4,9 +4,9 @@ title: Initial player token issuance
 type: task
 checkpoint: CP2
 priority: critical
-status: todo
+status: review
 depends_on: TASK-005, TASK-007
-active_run: none
+active_run: 08db4c92
 ---
 
 ## Outcome

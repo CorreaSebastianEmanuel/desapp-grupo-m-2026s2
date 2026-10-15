@@ -10,7 +10,8 @@ import Config
 config :football_market,
   ecto_repos: [FootballMarket.Repo],
   generators: [timestamp_type: :utc_datetime],
-  development_seed_enabled: false
+  development_seed_enabled: false,
+  initial_issuance_recipients: []
 
 # argon2_elixir represents the 65,536 KiB profile as exponent 16.
 config :argon2_elixir,

@@ -1,0 +1,14 @@
+{
+  "id": "ci_unit_tests",
+  "attempt": 2,
+  "argv": [
+    "sh",
+    "scripts/ci_unit_tests.sh"
+  ],
+  "env": {
+    "MIX_ENV": "test"
+  },
+  "exit_code": 0,
+  "seconds": 124.815,
+  "output": "specs/062-initial-player-token-issuance/qa-evidence/independent-20261014-current/ci_unit_tests-attempt2.log"
+}

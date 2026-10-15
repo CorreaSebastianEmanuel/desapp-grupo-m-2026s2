@@ -1,9 +1,7 @@
-# QA handoff — TASK-019 CI repair
+# QA handoff — TASK-019 unfiltered CI discovery repair
 
-Fresh QA independently passed all ten verification.json checks through agentflow_check.py --stage qa without receipt reuse. Current receipts and zero-failure attempt histories are in handoffs/check-*.json and handoffs/check-attempts-qa-*.json; qa-report.md records exact fingerprints and timings.
+Fresh QA independently passed all eleven revised verification.json checks with --stage qa and no reuse. Unit/integration/runtime and exact unfiltered CI discovery all passed sequentially; ci_discovery took 91.808 seconds and validates warnings-as-errors plus the complete-discovery sentinel. Exact fixture exclusion is limited to a bare expected-value map still explicitly loaded by synchronization fixtures. No actual test or dependency guard is weakened.
 
-Missing and stale ignored metadata each independently produced one passing provider dependency test; original metadata restored byte-for-byte. Exact dependency mutation/discovery assertions remain. Catalog fixture timeout is isolated to its 99,999-row seed INSERT and all index assertions remain; the three scope guards add only its authorized exact path.
-
-Environment needed for reproduction: pinned Elixir1.20.3 PATH, PostgreSQL17.6 at POSTGRES_PORT=55432, MIX_TEST_PARTITION=task019_20261015, ERL_FLAGS='+S 4:4'. Host port5432 is PostgreSQL18 and must not be mistaken for the pinned test server. No production edits or unresolved blockers. Reviewer should inspect the focused repair and fresh QA receipts; final review remains separate.
+Source fingerprint: `8d835de6e1e90ff1ffc042f333c5dac5d47fd500646325380171a31af7116f04`. Design/input fingerprint: `fb0391a7bb1f074902cf9473e0cddc8aac85a25c087cda651f27261b178970b8`. Canonical check receipts and zero-failure QA attempt histories provide evidence references; qa-report.md contains timings and acceptance assessment. No prohibited evidence directory inspection. Environment: pinned Elixir1.20.3 PATH, PostgreSQL17.6 at POSTGRES_PORT=55432, MIX_TEST_PARTITION=task019_20261015, ERL_FLAGS='+S 4:4'. No production changes or unresolved blockers. Fresh independent final review remains required. Shared test database is now released.
 
 Verdict: PASS

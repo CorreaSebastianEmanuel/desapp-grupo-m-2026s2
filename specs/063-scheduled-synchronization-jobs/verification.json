@@ -94,6 +94,16 @@
       "expectation": "Fail unless PostgreSQL SELECT 1 succeeds and a real loopback listener is ready within bounded time. Assert authenticated player list/detail return 200, application/json and fixture player IDs/body while work is queued and after safe source failure; unauthenticated list/detail return 401 with WWW-Authenticate and safe JSON error, missing detail returns 404. Reads cause zero provider calls. Restart owned runtime against persisted jobs and repeat with isolated unavailable Redis, preserving run/attempt history. Generate only ephemeral test credentials, redact them, clean up owned listener/runtime/test rows, never shared services."
     },
     {
+      "id": "ci_discovery",
+      "argv": [
+        "sh",
+        "scripts/ci_unit_tests.sh"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
       "id": "whitespace",
       "argv": [
         "git",
@@ -164,7 +174,8 @@
     "FR-016": [
       "unit",
       "integration",
-      "runtime_http"
+      "runtime_http",
+      "ci_discovery"
     ],
     "SC-001": [
       "integration"

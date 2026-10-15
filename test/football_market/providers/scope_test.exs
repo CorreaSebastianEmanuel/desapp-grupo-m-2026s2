@@ -148,7 +148,8 @@ defmodule FootballMarket.Providers.ScopeTest do
       "test/fixtures/providers/cases.exs",
       "test/fixtures/providers/expected.exs",
       "test/fixtures/providers/source_a.exs",
-      "test/fixtures/providers/source_b.exs"
+      "test/fixtures/providers/source_b.exs",
+      "test/fixtures/synchronization/expected.exs"
     ]
 
     assert Enum.sort(Mix.Project.config()[:test_ignore_filters] || []) == Enum.sort(expected)

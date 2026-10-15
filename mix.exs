@@ -20,7 +20,8 @@ defmodule FootballMarket.MixProject do
         "test/fixtures/providers/cases.exs",
         "test/fixtures/providers/expected.exs",
         "test/fixtures/providers/source_a.exs",
-        "test/fixtures/providers/source_b.exs"
+        "test/fixtures/providers/source_b.exs",
+        "test/fixtures/synchronization/expected.exs"
       ],
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,

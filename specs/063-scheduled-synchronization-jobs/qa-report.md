@@ -1,33 +1,34 @@
-# Independent QA — TASK-019 CI repair
+# Independent QA — TASK-019 unfiltered CI discovery repair
 
-2026-10-15. Fresh QA session inspected AGENTS.md, product/architecture/checkpoints, constitution, canonical specification/plan/tasks/manifest, and current repair diff. No implementation edits, delegated work, Agentflow invocation, receipt reuse or workflow-run inspection.
+2026-10-15. Fresh independent QA read AGENTS.md, product/architecture/checkpoints, constitution, canonical specification/plan/tasks/manifest and current repair diff. No implementation edits, delegation, Agentflow invocation, receipt reuse or prohibited workflow-run inspection.
 
 ## Repair assessment
 
-The provider dependency guard now derives exact Oban approval from the committed synchronization plan. Required Oban `~> 2.24.2`, discovery inventory, changed-version, duplicate-Oban and unrelated-dependency rejection assertions remain executable. Ignored session metadata no longer controls dependency approval. Independently executed `mix test test/football_market/providers/scope_test.exs:140 --warnings-as-errors` with metadata absent and with a stale TASK-013 pointer: **one passed in each case**. Original metadata restored byte-for-byte. Direct command outputs: `/tmp/task019-qa-scope-missing.log`, `/tmp/task019-qa-scope-stale.log`; command statuses/digests: `/tmp/task019-qa-metadata-results.json`.
+The exact `test/fixtures/synchronization/expected.exs` path is added to Mix's ignored non-test inventory and the provider guard's expected list. Independently inspected the fixture: it is a bare expected-outcome map without any test module. `test/support/synchronization/fixtures.ex` explicitly loads it through `Code.eval_file/1`, so fixture assertions remain active. No actual test is ignored. Exact Oban version, duplicate-Oban and unrelated dependency rejection assertions remain in the provider guard. The existing missing/stale metadata repair and catalog fixture INSERT timeout are unchanged from independently verified commit9008f36.
 
-The catalog query-plan repair changes only the bulk seed INSERT timeout to 60 seconds. The 99,999 inserted rows, five filter-plan assertions and ANALYZE remain unchanged. Exact catalog/query_test.exs allowances in provider/statistics/market scope guards match the revised plan; unknown/nil features and unplanned production paths remain rejected by synchronization scope regressions. No production behavior/API/schema changed.
+The revised manifest adds actual `sh scripts/ci_unit_tests.sh` discovery, mapped to FR-016. That script executes unfiltered `mix test --warnings-as-errors`, propagates failure and requires the complete-discovery sentinel. This detects the concrete fixture warning that explicit unit/integration file lists missed. The later dated plan explicitly authorizes this additional check; earlier general guidance against duplicate suites does not remove this concrete regression check. No production API, schema, provider or domain behavior changes.
 
 ## Fresh verification
 
-Executed every manifest command independently using `python scripts/agentflow_check.py CHECK --stage qa`, without reuse. Environment: pinned Elixir 1.20.3/OTP29, `POSTGRES_PORT=55432`, `MIX_TEST_PARTITION=task019_20261015`, `ERL_FLAGS='+S 4:4'`; dedicated pinned PostgreSQL17.6, configured Redis, Node24 and Chromium. These settings avoid the host PostgreSQL18 compatibility/pool issue without changing shared data.
+Executed all eleven manifest commands independently using `python scripts/agentflow_check.py CHECK --stage qa`, without reuse. Environment: pinned Elixir1.20.3/OTP29 PATH, `POSTGRES_PORT=55432`, `MIX_TEST_PARTITION=task019_20261015`, `ERL_FLAGS='+S 4:4'`; pinned PostgreSQL17.6, Redis, Node24 and Chromium. Checks ran sequentially after developer release to avoid shared-database contention.
 
 | Manifest check | Seconds | Result |
 |---|---:|---|
-| toolchain | 0.673 | PASS |
-| browser_preflight | 0.357 | PASS |
-| services | 0.123 | PASS |
-| service_clients | 0.504 | PASS |
-| format | 0.518 | PASS |
-| compile | 0.384 | PASS |
-| unit | 15.876 | PASS |
-| integration | 102.917 | PASS |
-| runtime_http | 4.157 | PASS |
-| whitespace | 0.004 | PASS |
+| toolchain | 1.966 | PASS |
+| browser_preflight | 0.343 | PASS |
+| services | 0.126 | PASS |
+| service_clients | 0.511 | PASS |
+| format | 0.521 | PASS |
+| compile | 0.389 | PASS |
+| unit | 15.944 | PASS |
+| integration | 111.359 | PASS |
+| runtime_http | 3.433 | PASS |
+| ci_discovery | 91.808 | PASS |
+| whitespace | 0.005 | PASS |
 
-All ten commands exited zero on the first QA attempt. Canonical `handoffs/check-CHECK.json` receipts contain fresh stage `qa`, exact evidence references, digest and elapsed time; `handoffs/check-attempts-qa-CHECK.json` records zero consecutive failures. No prohibited evidence directories were inspected. Manifest command status capture: `/tmp/task019-qa-manifest-results.json`.
+All commands exited zero on their first QA attempt. In particular the exact unfiltered CI command passed with warnings treated as errors and its discovery sentinel observed. Canonical `handoffs/check-CHECK.json` receipts record stage `qa`, evidence references/digests and elapsed times; `handoffs/check-attempts-qa-CHECK.json` record zero consecutive failures. Status capture: `/tmp/task019-qa-discovery-manifest-results.json`. Prohibited evidence directories were not inspected, and test totals are not inferred from command status or file inventory.
 
-All receipts retain source fingerprint `9fa66bd05011b9ae71558afa42c02ebff446a7fd227ddd7dafdf850eec81c24e` and input fingerprint `edc4541948aef4b68bbec930b39d485a5547b35ea4262813d499f1854c9318d3`; before/after source and check inputs were unchanged. Test totals are not inferred from profile-file audit counts.
+All receipts bind unchanged source fingerprint `8d835de6e1e90ff1ffc042f333c5dac5d47fd500646325380171a31af7116f04` and design/input fingerprint `fb0391a7bb1f074902cf9473e0cddc8aac85a25c087cda651f27261b178970b8`. Report/handoff output updates do not alter those fingerprints.
 
 ## Acceptance challenge
 

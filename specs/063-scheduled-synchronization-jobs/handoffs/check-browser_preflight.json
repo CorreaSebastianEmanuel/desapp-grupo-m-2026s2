@@ -1,11 +1,11 @@
 {
   "exit_code": 0,
   "check_identity": "e00213c6c610e11172262fb877fd95336e51e7a84088e61adef6015b1bc62f07",
-  "source_before": "9fa66bd05011b9ae71558afa42c02ebff446a7fd227ddd7dafdf850eec81c24e",
-  "source_after": "9fa66bd05011b9ae71558afa42c02ebff446a7fd227ddd7dafdf850eec81c24e",
-  "inputs": "edc4541948aef4b68bbec930b39d485a5547b35ea4262813d499f1854c9318d3",
-  "evidence": ".agentflow/runs/checks/bc66a3c5661a4e01b34bd47e7f4b6a59.log",
+  "source_before": "8d835de6e1e90ff1ffc042f333c5dac5d47fd500646325380171a31af7116f04",
+  "source_after": "8d835de6e1e90ff1ffc042f333c5dac5d47fd500646325380171a31af7116f04",
+  "inputs": "fb0391a7bb1f074902cf9473e0cddc8aac85a25c087cda651f27261b178970b8",
+  "evidence": ".agentflow/runs/checks/6e629fb6642c41bfad620812e70775c0.log",
   "evidence_sha256": "3267efdbf07af624783449b5f062109af9b9ccfa0e9f7ed2cec16124f3d24a05",
   "stage": "qa",
-  "elapsed_seconds": 0.357
+  "elapsed_seconds": 0.343
 }

@@ -35,6 +35,12 @@ defmodule FootballMarket.Catalog.Ingestion.Publisher do
 
     transaction =
       Repo.transaction(fn ->
+        receipt =
+          FootballMarket.Catalog.Ingestion.DeliveryReceipt.lock!(
+            Keyword.get(options, :delivery_context),
+            result.scope
+          )
+
         lock(result.scope)
         current = scope_row(result.scope)
         instructions = Reconciler.instructions(result, current, options)
@@ -43,20 +49,23 @@ defmodule FootballMarket.Catalog.Ingestion.Publisher do
           if current,
             do: Repo.get_by(Observation, scope_id: current.id, delivery_digest: encoded.digest)
 
-        cond do
-          replay && replay.canonical_delivery != encoded.material ->
-            Reconciler.conflict(:delivery_digest_collision)
+        outcome =
+          cond do
+            replay && replay.canonical_delivery != encoded.material ->
+              Reconciler.conflict(:delivery_digest_collision)
 
-          replay ->
-            outcome(replay, result.scope, :replay)
+            replay ->
+              outcome(replay, result.scope, :replay)
 
-          if(current, do: current.revision, else: 0) != captured_revision ->
-            Repo.rollback({:concurrent_change, :scope_revision_changed})
+            if(current, do: current.revision, else: 0) != captured_revision ->
+              Repo.rollback({:concurrent_change, :scope_revision_changed})
 
-          true ->
-            order!(current, result)
-            accept(result, current, encoded, instructions)
-        end
+            true ->
+              order!(current, result)
+              accept(result, current, encoded, instructions)
+          end
+
+        FootballMarket.Catalog.Ingestion.DeliveryReceipt.confirm!(receipt, outcome)
       end)
 
     case transaction do

@@ -1,0 +1,209 @@
+{
+  "schema_version": 1,
+  "runtime_required": true,
+  "checks": [
+    {
+      "id": "toolchain",
+      "argv": [
+        "sh",
+        "scripts/check_toolchain.sh"
+      ]
+    },
+    {
+      "id": "browser_preflight",
+      "argv": [
+        "node",
+        "--input-type=module",
+        "-e",
+        "import assert from 'node:assert/strict'; import {createRequire} from 'node:module'; const require=createRequire(process.cwd()+'/tools/openapi/package.json'); const {chromium}=require('playwright-core'); assert.equal(Number(process.versions.node.split('.')[0]),24); const browser=await chromium.launch({headless:true}); const page=await browser.newPage(); await page.setContent('<p>ready</p>'); assert.equal(await page.locator('p').textContent(),'ready'); await browser.close(); console.log('Node 24 and Chromium ready');"
+      ],
+      "reuse": false
+    },
+    {
+      "id": "services",
+      "argv": [
+        "sh",
+        "scripts/local_services.sh",
+        "ready"
+      ],
+      "reuse": false
+    },
+    {
+      "id": "service_clients",
+      "argv": [
+        "mix",
+        "infrastructure.verify"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "reuse": false
+    },
+    {
+      "id": "format",
+      "argv": [
+        "mix",
+        "format",
+        "--check-formatted"
+      ]
+    },
+    {
+      "id": "compile",
+      "argv": [
+        "mix",
+        "compile",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "unit",
+      "argv": [
+        "mix",
+        "test.unit"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "integration",
+      "argv": [
+        "mix",
+        "test.integration"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "runtime_http",
+      "argv": [
+        "mix",
+        "run",
+        "-e",
+        "FootballMarket.Synchronization.RuntimeProbe.run!()"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "runtime": true,
+      "reuse": false,
+      "expectation": "Fail unless PostgreSQL SELECT 1 succeeds and a real loopback listener is ready within bounded time. Assert authenticated player list/detail return 200, application/json and fixture player IDs/body while work is queued and after safe source failure; unauthenticated list/detail return 401 with WWW-Authenticate and safe JSON error, missing detail returns 404. Reads cause zero provider calls. Restart owned runtime against persisted jobs and repeat with isolated unavailable Redis, preserving run/attempt history. Generate only ephemeral test credentials, redact them, clean up owned listener/runtime/test rows, never shared services."
+    },
+    {
+      "id": "ci_discovery",
+      "argv": [
+        "sh",
+        "scripts/ci_unit_tests.sh"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "whitespace",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ]
+    }
+  ],
+  "coverage": {
+    "FR-001": [
+      "integration"
+    ],
+    "FR-002": [
+      "unit",
+      "integration"
+    ],
+    "FR-003": [
+      "integration",
+      "runtime_http"
+    ],
+    "FR-004": [
+      "integration",
+      "runtime_http"
+    ],
+    "FR-005": [
+      "unit",
+      "integration"
+    ],
+    "FR-006": [
+      "unit",
+      "integration"
+    ],
+    "FR-007": [
+      "unit",
+      "integration"
+    ],
+    "FR-008": [
+      "integration"
+    ],
+    "FR-009": [
+      "integration"
+    ],
+    "FR-010": [
+      "unit",
+      "integration"
+    ],
+    "FR-011": [
+      "unit",
+      "integration"
+    ],
+    "FR-012": [
+      "unit",
+      "integration"
+    ],
+    "FR-013": [
+      "integration",
+      "runtime_http"
+    ],
+    "FR-014": [
+      "unit",
+      "integration",
+      "runtime_http"
+    ],
+    "FR-015": [
+      "integration",
+      "runtime_http"
+    ],
+    "FR-016": [
+      "unit",
+      "integration",
+      "runtime_http",
+      "ci_discovery"
+    ],
+    "SC-001": [
+      "integration"
+    ],
+    "SC-002": [
+      "unit",
+      "integration"
+    ],
+    "SC-003": [
+      "integration"
+    ],
+    "SC-004": [
+      "unit",
+      "integration"
+    ],
+    "SC-005": [
+      "integration"
+    ],
+    "SC-006": [
+      "integration"
+    ],
+    "SC-007": [
+      "integration",
+      "runtime_http"
+    ]
+  },
+  "task_stages": {
+    "T037": "qa",
+    "T038": "review"
+  }
+}

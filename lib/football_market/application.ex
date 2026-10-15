@@ -9,6 +9,8 @@ defmodule FootballMarket.Application do
   def start(_type, _args) do
     children = [
       FootballMarket.Repo,
+      {Oban, Application.fetch_env!(:football_market, Oban)},
+      FootballMarket.Synchronization.Dispatcher,
       FootballMarketWeb.Telemetry,
       {DNSCluster, query: Application.get_env(:football_market, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: FootballMarket.PubSub},

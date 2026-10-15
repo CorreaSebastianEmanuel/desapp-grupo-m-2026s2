@@ -102,7 +102,8 @@ defmodule FootballMarket.Providers.ScopeTest do
              &(&1 in (@production ++
                         @scraping_production ++
                         ingestion_paths ++
-                        valuation_paths(active_feature) ++ market_paths(active_feature)) or
+                        valuation_paths(active_feature) ++
+                        market_paths(active_feature) ++ synchronization_paths(active_feature)) or
                  &1 == "mix.exs")
            )
 
@@ -136,7 +137,7 @@ defmodule FootballMarket.Providers.ScopeTest do
     end
   end
 
-  test "Mix changes only exact fixture/bootstrap ignore filters; all actual tests remain discoverable" do
+  test "Mix changes preserve discovery and permit only the committed synchronization dependency" do
     expected = [
       "test/provider_contract_offline.exs",
       "test/scraping_adapter_offline.exs",
@@ -147,16 +148,25 @@ defmodule FootballMarket.Providers.ScopeTest do
       "test/fixtures/providers/cases.exs",
       "test/fixtures/providers/expected.exs",
       "test/fixtures/providers/source_a.exs",
-      "test/fixtures/providers/source_b.exs"
+      "test/fixtures/providers/source_b.exs",
+      "test/fixtures/synchronization/expected.exs"
     ]
 
     assert Enum.sort(Mix.Project.config()[:test_ignore_filters] || []) == Enum.sort(expected)
     {original, 0} = System.cmd("git", ["show", "HEAD:mix.exs"])
 
+    # The accepted dependency remains valid in CI and in later feature sessions.
+    # Local session metadata is ignored by Git and cannot authorize a dependency.
+    plan = File.read!("specs/063-scheduled-synchronization-jobs/plan.md")
+    assert plan =~ "introduce open-source Oban `~> 2.24.2`"
+
     strip = fn text ->
       text
       |> Code.string_to_quoted!()
       |> Macro.prewalk(fn
+        {:defp, meta, [{:deps, call_meta, args}, [do: deps]]} when is_list(deps) ->
+          {:defp, meta, [{:deps, call_meta, args}, [do: List.delete(deps, {:oban, "~> 2.24.2"})]]}
+
         list when is_list(list) ->
           if Keyword.keyword?(list), do: Keyword.delete(list, :test_ignore_filters), else: list
 
@@ -166,7 +176,23 @@ defmodule FootballMarket.Providers.ScopeTest do
       |> Macro.to_string()
     end
 
-    assert strip.(File.read!("mix.exs")) == strip.(original)
+    current = File.read!("mix.exs")
+    assert strip.(current) == strip.(original)
+
+    assert {:oban, "~> 2.24.2"} in Mix.Project.config()[:deps]
+
+    for changed <- [
+          String.replace(current, "{:oban, \"~> 2.24.2\"}", "{:oban, \"~> 2.25\"}"),
+          String.replace(
+            current,
+            "{:oban, \"~> 2.24.2\"}",
+            "{:oban, \"~> 2.24.2\"}, {:oban, \"~> 2.24.2\"}"
+          ),
+          String.replace(current, "{:ecto_sql, \"~> 3.13\"}", "{:ecto_sql, \"~> 3.14\"}")
+        ] do
+      refute changed == current
+      refute strip.(changed) == strip.(original)
+    end
 
     assert Enum.all?(
              Path.wildcard("test/football_market/providers/*_test.exs"),
@@ -313,6 +339,63 @@ defmodule FootballMarket.Providers.ScopeTest do
         "test/football_market/market/concurrency_test.exs",
         "test/football_market/market/rollback_test.exs",
         "test/football_market/market/rejection_test.exs",
+        "test/football_market/market/scope_test.exs"
+      ]
+    else
+      []
+    end
+  end
+
+  def synchronization_paths(feature) do
+    if feature == "specs/063-scheduled-synchronization-jobs" do
+      [
+        "lib/football_market/synchronization.ex",
+        "lib/football_market/synchronization/input.ex",
+        "lib/football_market/synchronization/policy.ex",
+        "lib/football_market/synchronization/clock.ex",
+        "lib/football_market/synchronization/run.ex",
+        "lib/football_market/synchronization/attempt.ex",
+        "lib/football_market/synchronization/trigger.ex",
+        "lib/football_market/synchronization/schedule.ex",
+        "lib/football_market/synchronization/occurrence.ex",
+        "lib/football_market/synchronization/store.ex",
+        "lib/football_market/synchronization/execution_guard.ex",
+        "lib/football_market/synchronization/scheduler.ex",
+        "lib/football_market/synchronization/recovery.ex",
+        "lib/football_market/synchronization/dispatcher.ex",
+        "lib/football_market/workers/catalog_sync.ex",
+        "lib/football_market/catalog/ingestion/delivery_receipt.ex",
+        "config/synchronization.exs",
+        "priv/repo/migrations/20261015000000_add_oban.exs",
+        "priv/repo/migrations/20261015000100_create_synchronization_ledgers.exs",
+        "priv/repo/migrations/20261015000200_create_catalog_delivery_receipts.exs",
+        "test/support/synchronization/case.ex",
+        "test/support/synchronization/clock.ex",
+        "test/support/synchronization/fixtures.ex",
+        "test/support/synchronization/runtime_probe.ex",
+        "test/fixtures/synchronization/expected.exs",
+        "test/football_market/synchronization/input_test.exs",
+        "test/football_market/synchronization/policy_test.exs",
+        "test/football_market/synchronization/migration_test.exs",
+        "test/football_market/synchronization/request_test.exs",
+        "test/football_market/synchronization/inspection_test.exs",
+        "test/football_market/synchronization/scheduler_test.exs",
+        "test/football_market/synchronization/concurrency_test.exs",
+        "test/football_market/synchronization/retry_test.exs",
+        "test/football_market/synchronization/recovery_test.exs",
+        "test/football_market/synchronization/integrity_test.exs",
+        "test/football_market/synchronization/scope_test.exs",
+        "test/football_market/catalog/ingestion/delivery_receipt_test.exs",
+        "test/football_market/catalog/query_test.exs",
+        "mix.exs",
+        "mix.lock",
+        "lib/football_market/application.ex",
+        "config/runtime.exs",
+        "config/test.exs",
+        "lib/football_market/catalog/ingestion.ex",
+        "lib/football_market/catalog/ingestion/publisher.ex",
+        "test/football_market/providers/scope_test.exs",
+        "test/football_market/statistics/scope_test.exs",
         "test/football_market/market/scope_test.exs"
       ]
     else

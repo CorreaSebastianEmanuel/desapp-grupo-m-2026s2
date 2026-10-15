@@ -1,0 +1,111 @@
+[
+  {
+    "id": "toolchain",
+    "argv": [
+      "sh",
+      "scripts/check_toolchain.sh"
+    ],
+    "exit_code": 0,
+    "seconds": 1.169
+  },
+  {
+    "id": "browser_preflight",
+    "argv": [
+      "node",
+      "--input-type=module",
+      "-e",
+      "import assert from 'node:assert/strict'; import {createRequire} from 'node:module'; const require=createRequire(process.cwd()+'/tools/openapi/package.json'); const {chromium}=require('playwright-core'); assert.equal(Number(process.versions.node.split('.')[0]),24); const browser=await chromium.launch({headless:true}); const page=await browser.newPage(); await page.setContent('<p>ready</p>'); assert.equal(await page.locator('p').textContent(),'ready'); await browser.close(); console.log('Node 24 and Chromium ready');"
+    ],
+    "exit_code": 1,
+    "seconds": 0.5
+  },
+  {
+    "id": "browser_preflight",
+    "argv": [
+      "node",
+      "--input-type=module",
+      "-e",
+      "import assert from 'node:assert/strict'; import {createRequire} from 'node:module'; const require=createRequire(process.cwd()+'/tools/openapi/package.json'); const {chromium}=require('playwright-core'); assert.equal(Number(process.versions.node.split('.')[0]),24); const browser=await chromium.launch({headless:true}); const page=await browser.newPage(); await page.setContent('<p>ready</p>'); assert.equal(await page.locator('p').textContent(),'ready'); await browser.close(); console.log('Node 24 and Chromium ready');"
+    ],
+    "exit_code": 0,
+    "seconds": 0.785
+  },
+  {
+    "id": "services",
+    "argv": [
+      "sh",
+      "scripts/local_services.sh",
+      "ready"
+    ],
+    "exit_code": 0,
+    "seconds": 0.385
+  },
+  {
+    "id": "service_clients",
+    "argv": [
+      "mix",
+      "infrastructure.verify"
+    ],
+    "exit_code": 0,
+    "seconds": 0.748
+  },
+  {
+    "id": "format",
+    "argv": [
+      "mix",
+      "format",
+      "--check-formatted"
+    ],
+    "exit_code": 0,
+    "seconds": 0.864
+  },
+  {
+    "id": "compile",
+    "argv": [
+      "mix",
+      "compile",
+      "--warnings-as-errors"
+    ],
+    "exit_code": 0,
+    "seconds": 0.522
+  },
+  {
+    "id": "unit",
+    "argv": [
+      "mix",
+      "test.unit"
+    ],
+    "exit_code": 0,
+    "seconds": 30.758
+  },
+  {
+    "id": "integration",
+    "argv": [
+      "mix",
+      "test.integration"
+    ],
+    "exit_code": 0,
+    "seconds": 239.375
+  },
+  {
+    "id": "runtime_http",
+    "argv": [
+      "mix",
+      "run",
+      "-e",
+      "FootballMarket.Synchronization.RuntimeProbe.run!()"
+    ],
+    "exit_code": 0,
+    "seconds": 6.049
+  },
+  {
+    "id": "whitespace",
+    "argv": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit_code": 0,
+    "seconds": 0.03
+  }
+]

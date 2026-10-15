@@ -24,7 +24,7 @@ defmodule FootballMarket.Catalog.Ingestion do
     if not Keyword.keyword?(options) or
          Enum.any?(
            Keyword.keys(options),
-           &(&1 not in [:provider, :runtime, :mappings, :new_players])
+           &(&1 not in [:provider, :runtime, :mappings, :new_players, :delivery_context])
          ) do
       Outcome.failure(:reconciliation_conflict, request.scope, :invalid_instructions)
     else

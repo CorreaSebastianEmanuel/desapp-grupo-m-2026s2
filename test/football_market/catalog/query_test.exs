@@ -220,7 +220,8 @@ defmodule FootballMarket.CatalogQueryTest do
         Ecto.UUID.dump!(target_league_other_season.id),
         Ecto.UUID.dump!(other_team.id),
         Ecto.UUID.dump!(other_season.id)
-      ]
+      ],
+      timeout: 60_000
     )
 
     Ecto.Adapters.SQL.query!(FootballMarket.Repo, "ANALYZE players", [])

@@ -4,9 +4,9 @@ title: Scheduled synchronization jobs
 type: task
 checkpoint: CP2
 priority: high
-status: todo
+status: review
 depends_on: TASK-002, TASK-018
-active_run: none
+active_run: 2ad84f2b
 ---
 
 ## Outcome

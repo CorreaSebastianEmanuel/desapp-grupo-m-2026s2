@@ -1,5 +1,13 @@
 import Config
 
+for {app, values} <-
+      Config.Reader.read!(Path.join(__DIR__, "synchronization.exs"),
+        env: config_env(),
+        target: config_target()
+      ) do
+  config app, values
+end
+
 # config/runtime.exs is executed for all environments, including
 # during releases. It is executed after compilation and before the
 # system starts, so it is typically used to load production configuration

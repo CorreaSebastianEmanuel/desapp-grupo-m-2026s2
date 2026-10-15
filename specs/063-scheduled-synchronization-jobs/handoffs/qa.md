@@ -1,11 +1,9 @@
-# QA handoff — TASK-019
+# QA handoff — TASK-019 CI repair
 
-Verdict: PASS
+Fresh QA independently passed all ten verification.json checks through agentflow_check.py --stage qa without receipt reuse. Current receipts and zero-failure attempt histories are in handoffs/check-*.json and handoffs/check-attempts-qa-*.json; qa-report.md records exact fingerprints and timings.
 
-Blockers: none. B1 is independently closed; fresh report and evidence are in qa-report.md and qa-evidence/independent-20261015-b1/. Earlier independent evidence remains preserved.
+Missing and stale ignored metadata each independently produced one passing provider dependency test; original metadata restored byte-for-byte. Exact dependency mutation/discovery assertions remain. Catalog fixture timeout is isolated to its 99,999-row seed INSERT and all index assertions remain; the three scope guards add only its authorized exact path.
 
-Reviewer guidance: development receipts were not reused or overwritten. Checks ran directly from verification.json, so current QA command evidence is in the new results.json rather than handoffs/check-*.json. Profile audit counts measure files, not assertions. The extra mixed-trigger race uses the actual scheduler path, and adversarial.log records sanitized HTTP headers/body excerpts.
-
-No implementation changes or task completion/publication actions were made. Final review remains pending.
+Environment needed for reproduction: pinned Elixir1.20.3 PATH, PostgreSQL17.6 at POSTGRES_PORT=55432, MIX_TEST_PARTITION=task019_20261015, ERL_FLAGS='+S 4:4'. Host port5432 is PostgreSQL18 and must not be mistaken for the pinned test server. No production edits or unresolved blockers. Reviewer should inspect the focused repair and fresh QA receipts; final review remains separate.
 
 Verdict: PASS

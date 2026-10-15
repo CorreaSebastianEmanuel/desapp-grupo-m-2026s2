@@ -137,7 +137,7 @@ defmodule FootballMarket.Providers.ScopeTest do
     end
   end
 
-  test "Mix changes preserve discovery and permit only the active plan dependency" do
+  test "Mix changes preserve discovery and permit only the committed synchronization dependency" do
     expected = [
       "test/provider_contract_offline.exs",
       "test/scraping_adapter_offline.exs",
@@ -154,20 +154,17 @@ defmodule FootballMarket.Providers.ScopeTest do
     assert Enum.sort(Mix.Project.config()[:test_ignore_filters] || []) == Enum.sort(expected)
     {original, 0} = System.cmd("git", ["show", "HEAD:mix.exs"])
 
-    active_feature = Jason.decode!(File.read!(".specify/feature.json"))["feature_directory"]
-    allow_oban = active_feature == "specs/063-scheduled-synchronization-jobs"
+    # The accepted dependency remains valid in CI and in later feature sessions.
+    # Local session metadata is ignored by Git and cannot authorize a dependency.
+    plan = File.read!("specs/063-scheduled-synchronization-jobs/plan.md")
+    assert plan =~ "introduce open-source Oban `~> 2.24.2`"
 
     strip = fn text ->
       text
       |> Code.string_to_quoted!()
       |> Macro.prewalk(fn
-        {:defp, meta, [{:deps, call_meta, args}, [do: deps]]} = node when is_list(deps) ->
-          if allow_oban do
-            {:defp, meta,
-             [{:deps, call_meta, args}, [do: List.delete(deps, {:oban, "~> 2.24.2"})]]}
-          else
-            node
-          end
+        {:defp, meta, [{:deps, call_meta, args}, [do: deps]]} when is_list(deps) ->
+          {:defp, meta, [{:deps, call_meta, args}, [do: List.delete(deps, {:oban, "~> 2.24.2"})]]}
 
         list when is_list(list) ->
           if Keyword.keyword?(list), do: Keyword.delete(list, :test_ignore_filters), else: list
@@ -181,21 +178,19 @@ defmodule FootballMarket.Providers.ScopeTest do
     current = File.read!("mix.exs")
     assert strip.(current) == strip.(original)
 
-    if allow_oban do
-      assert {:oban, "~> 2.24.2"} in Mix.Project.config()[:deps]
+    assert {:oban, "~> 2.24.2"} in Mix.Project.config()[:deps]
 
-      for changed <- [
-            String.replace(current, "{:oban, \"~> 2.24.2\"}", "{:oban, \"~> 2.25\"}"),
-            String.replace(
-              current,
-              "{:oban, \"~> 2.24.2\"}",
-              "{:oban, \"~> 2.24.2\"}, {:oban, \"~> 2.24.2\"}"
-            ),
-            String.replace(current, "{:ecto_sql, \"~> 3.13\"}", "{:ecto_sql, \"~> 3.14\"}")
-          ] do
-        refute changed == current
-        refute strip.(changed) == strip.(original)
-      end
+    for changed <- [
+          String.replace(current, "{:oban, \"~> 2.24.2\"}", "{:oban, \"~> 2.25\"}"),
+          String.replace(
+            current,
+            "{:oban, \"~> 2.24.2\"}",
+            "{:oban, \"~> 2.24.2\"}, {:oban, \"~> 2.24.2\"}"
+          ),
+          String.replace(current, "{:ecto_sql, \"~> 3.13\"}", "{:ecto_sql, \"~> 3.14\"}")
+        ] do
+      refute changed == current
+      refute strip.(changed) == strip.(original)
     end
 
     assert Enum.all?(
@@ -390,6 +385,7 @@ defmodule FootballMarket.Providers.ScopeTest do
         "test/football_market/synchronization/integrity_test.exs",
         "test/football_market/synchronization/scope_test.exs",
         "test/football_market/catalog/ingestion/delivery_receipt_test.exs",
+        "test/football_market/catalog/query_test.exs",
         "mix.exs",
         "mix.lock",
         "lib/football_market/application.ex",

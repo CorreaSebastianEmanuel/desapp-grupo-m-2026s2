@@ -1,11 +1,11 @@
 {
   "exit_code": 0,
   "check_identity": "84c5efffb1e8753fb9399ce673dc4399ba05c3f7a4d45ac3a2b7ffd7d569e279",
-  "source_before": "d7cea92f40aaf84d85a32b408e0850fe4ac0f7810be63d93ee33df20f8aa5a7c",
-  "source_after": "d7cea92f40aaf84d85a32b408e0850fe4ac0f7810be63d93ee33df20f8aa5a7c",
-  "inputs": "29424a653b2c31ad9a5dfa7008d9c038725903945a46d967ae107caa2dd8e4f2",
-  "evidence": ".agentflow/runs/checks/4bf9e1414e374c8a9190cf8d705c1b2d.log",
+  "source_before": "9fa66bd05011b9ae71558afa42c02ebff446a7fd227ddd7dafdf850eec81c24e",
+  "source_after": "9fa66bd05011b9ae71558afa42c02ebff446a7fd227ddd7dafdf850eec81c24e",
+  "inputs": "edc4541948aef4b68bbec930b39d485a5547b35ea4262813d499f1854c9318d3",
+  "evidence": ".agentflow/runs/checks/cfd7397715774f69881652d76a5a512d.log",
   "evidence_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-  "stage": "develop",
-  "elapsed_seconds": 0.526
+  "stage": "qa",
+  "elapsed_seconds": 0.384
 }

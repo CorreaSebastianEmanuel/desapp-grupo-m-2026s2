@@ -213,6 +213,7 @@ defmodule FootballMarket.Market.ScopeTest do
         "test/football_market/synchronization/integrity_test.exs",
         "test/football_market/synchronization/scope_test.exs",
         "test/football_market/catalog/ingestion/delivery_receipt_test.exs",
+        "test/football_market/catalog/query_test.exs",
         "mix.exs",
         "mix.lock",
         "lib/football_market/application.ex",

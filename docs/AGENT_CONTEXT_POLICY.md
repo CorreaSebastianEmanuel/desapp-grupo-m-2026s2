@@ -12,3 +12,6 @@ Apply this policy in addition to the active stage instructions and repository ru
 - On feedback, preserve unaffected artifacts. Rewind to the earliest affected stage; fix the cited discrepancy and run its regressions plus required checks without reopening settled product or architecture decisions unless evidence requires it.
 
 Word limits govern handoffs and reports, not the completeness of specifications.
+
+- Supporting-document applicability is plan-owned and validated by scripts/agentflow_artifacts.py across direct skills, hooks and resumes. Preserve canonical completeness; omit only justified inapplicable supporting documents.
+- New attempt evidence is ignored locally. Version only the bounded post-review summary; never delete historical evidence. Keep configured/resolved assignment and observed identity distinct. See docs/AGENTFLOW_MODELS.md and docs/AGENTFLOW_PILOT.md.

@@ -1,0 +1,13 @@
+# Develop handoff — Feedback 3 repair
+
+Fixed B1 in `scripts/agentflow_artifacts.py`: absent applicability is legacy only with committed pre-policy plan provenance, no committed adoption and complete Git history. Untracked/new-policy plans and whole-block deletion fail closed. Genuine historical plans retain compatibility; historical files and saved runs are untouched.
+
+Fixed B2 in `scripts/agentflow_verification.py`: shared development-artifact validation now runs inside readiness itself, covering resume and finalization. Regressions in `test/scripts/agentflow_artifacts_test.py` and `test/scripts/agentflow_evidence_test.py` exercise plan/tasks gates, direct shell consumers, real successful receipts, actual resume consumers with current/legacy saved snapshots and finalization refusal. Legacy probe fixtures now establish real Git provenance. `verification.json` maps both repairs and affected requirements.
+
+Initial helper runs reproduced both bypasses. A subsequent focused failure exposed a Git-relative-path defect and an invalid fixture; both were corrected before final execution. No unchanged-input two-failure limit was reached. Prior evidence remains intact.
+
+All 16 final manifest checks executed through `python3 scripts/agentflow_check.py CHECK_ID --reuse` and passed with fresh receipts: 152 workflow tests, 11 applicability tests, 11 evidence tests; isolated candidate collection 527 passed, 4 excluded. Final check execution time: 358.116 seconds; session total including repair/red-green checks: 373.170 seconds. Pinned preflight asserted Elixir 1.20.3 / OTP 29.0.6, Node 24.21.0, Chromium, PostgreSQL 17.6 and Redis 8.2.1. Evidence: `.agentflow/runs/checks/690733e0322742a58e830fe6fcccf5d9/064-proportional-agentflow-delivery/develop/CHECK_ID/receipt.json` and referenced output; no second evidence handoff.
+
+QA: independently run every manifest check with `--stage qa` and no reuse. Prefix PATH after the login shell with `/private/tmp/task019-elixir-1.20.3/bin:/Users/ezequielgonzalez/.nvm/versions/node/v24.21.0/bin:/usr/local/opt/erlang@29/bin`; use host Docker/browser/TCP access. Challenge complete-block deletion and missing research with fresh real receipts through resume/finalization, including legacy snapshots. Missing/shallow history intentionally cannot prove legacy status. Recheck plan/tasks/develop readiness and named task artifacts. No HTTP endpoint changed; runtime HTTP assertions remain inapplicable.
+
+T043/T044 remain independent obligations. Existing QA FAIL is not superseded by development checks. Final summary requires genuine independent PASS reports and QA receipts. Frozen-run assignment is unchanged; no live model/default execution claim or publication occurred.

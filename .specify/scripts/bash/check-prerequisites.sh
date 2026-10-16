@@ -162,6 +162,11 @@ if $REQUIRE_TASKS && [[ ! -f "$TASKS" ]]; then
     exit 1
 fi
 
+# Shared policy; validate supporting inputs before downstream consumption.
+artifact_stage=plan
+$REQUIRE_TASKS && artifact_stage=develop
+python3 "$REPO_ROOT/scripts/agentflow_artifacts.py" "$FEATURE_DIR" --stage "$artifact_stage" >/dev/null
+
 # Build list of available documents
 docs=()
 

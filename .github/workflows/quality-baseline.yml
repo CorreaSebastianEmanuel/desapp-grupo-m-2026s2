@@ -43,6 +43,8 @@ jobs:
     steps:
       - name: Check out triggering revision
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Install exact BEAM toolchain
         uses: erlef/setup-beam@v1
@@ -95,6 +97,11 @@ jobs:
         run: |
           npm test --prefix tools/openapi
           node tools/openapi/validate.mjs priv/static/openapi.json
+
+      - name: Workflow behavior tests
+        run: |
+          python3 -c "import unittest,sys; s=unittest.defaultTestLoader.discover('test/scripts',pattern='*_test.py',top_level_dir='.'); assert s.countTestCases()>0; r=unittest.TextTestRunner().run(s); assert not r.skipped; sys.exit(not r.wasSuccessful())"
+          sh test/scripts/ci_unit_tests_test.sh
 
       - name: Unit tests
         run: scripts/ci_unit_tests.sh

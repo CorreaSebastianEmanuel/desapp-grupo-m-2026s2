@@ -34,6 +34,11 @@ class ProbeFixture(unittest.TestCase):
             path.write_text("present\n", encoding="utf-8")
 
         (self.feature/'spec.md').write_text('**Feature Branch**: `003-example`\n')
+        # These fixtures represent genuine pre-policy plans, not untracked plans
+        # claiming compatibility merely by omitting the applicability block.
+        subprocess.run(['git','add','.'],cwd=self.root,check=True)
+        subprocess.run(['git','-c','user.name=Test','-c','user.email=test@example.test',
+                        'commit','-qm','legacy fixture'],cwd=self.root,check=True)
 
     def tearDown(self):
         self.temp.cleanup()
@@ -134,9 +139,14 @@ class AuthoritativeReceiptSelectionTest(ProbeFixture):
             'checks':[{'id':'association','argv':['python3','-c',
                 'from pathlib import Path; p=Path("specs/055-example/spec.md"); assert p.read_text().splitlines() == ["**Feature Branch**: `003-example`", "FR-001"]; print("Validated owned fixture specification")']}],
             'coverage':{'FR-001':['association']},'task_stages':{}}))
+        subprocess.run(['git','add','.'],cwd=self.root,check=True)
+        subprocess.run(['git','-c','user.name=Test','-c','user.email=test@example.test',
+                        'commit','-qm','legacy feature move'],cwd=self.root,check=True)
         self.assertEqual(PROBE.active_feature(self.root),self.feature)
         self.assertEqual(run_check(self.root,PROBE.active_feature(self.root),'association'),0)
-        self.assertTrue((self.feature/'handoffs/check-association.json').is_file())
+        from scripts.agentflow_verification import receipt_path
+        local_receipt=receipt_path(self.root,self.feature,{'id':'association'})
+        self.assertTrue(local_receipt.is_file())
         self.assertTrue(PROBE.probe(self.root,'develop',True)['valid'])
         # Unchecking an implementation task must still close the readiness gate.
         self.feature.joinpath('tasks.md').write_text('- [ ] T001 Create implementation\n')
@@ -144,7 +154,7 @@ class AuthoritativeReceiptSelectionTest(ProbeFixture):
             PROBE.probe(self.root,'develop',True)
         self.feature.joinpath('tasks.md').write_text('- [X] T001 Create implementation\n')
         # A passing receipt remains bound to actual output and source bytes.
-        receipt=json.loads((self.feature/'handoffs/check-association.json').read_text())
+        receipt=json.loads(local_receipt.read_text())
         evidence=self.root/receipt['evidence'];evidence.write_text('altered output\n')
         with self.assertRaisesRegex(RuntimeError,'changed check output'):
             PROBE.probe(self.root,'develop',True)

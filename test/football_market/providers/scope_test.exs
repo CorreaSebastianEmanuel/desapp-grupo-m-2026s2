@@ -70,11 +70,7 @@ defmodule FootballMarket.Providers.ScopeTest do
           path in ["mix.exs", "mix.lock"]
       end)
 
-    active_feature =
-      case File.read(".specify/feature.json") do
-        {:ok, json} -> Jason.decode!(json)["feature_directory"]
-        {:error, _} -> nil
-      end
+    active_feature = FootballMarket.WorkflowScope.active_feature()
 
     # This feature consumes Providers without modifying provider production.
     # Its independently planned catalog paths must not look like provider leaks.

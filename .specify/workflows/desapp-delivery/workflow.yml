@@ -176,3 +176,8 @@ steps:
       under 600 words and handoffs/review.md under 250 words, without duplicating either
       QA or the report. End exactly with `Verdict: PASS` only when ready for human merge;
       otherwise end exactly with `Verdict: FAIL` and list blockers.
+
+  - id: evidence_ready
+    type: shell
+    run: "python3 scripts/agentflow_evidence.py finalize $AGENTFLOW_TASK_ID"
+    output_format: json

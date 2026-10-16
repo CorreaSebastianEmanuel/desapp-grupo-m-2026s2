@@ -33,3 +33,6 @@ Thumbs.db
 .env
 .env.*
 !.env.example
+
+# New verification attempt evidence is local; tracked historical files stay intact.
+/specs/*/handoffs/check-*.json

@@ -7,6 +7,11 @@ metadata:
   source: "templates/commands/converge.md"
 ---
 
+## Proportional supporting artifacts
+
+Canonical spec.md, plan.md, tasks.md, verification.json and downstream QA/review reports remain mandatory at their owning stages. Record all four supporting decisions in one schema-1 `json artifact-applicability` block in plan.md. Research is required for an unresolved decision, data-model for changed structures, contracts for a changed interface, and quickstart for feature-specific setup/demo. Each decision needs `required` (boolean) and a nonempty `reason`. Run `python3 scripts/agentflow_artifacts.py FEATURE_DIR` before consuming a completed plan; applicable files must be nonempty and contained. Legacy plans retain their existing requirements. Setup may use `--setup` before the plan exists. Do not generate an inapplicable document just to satisfy an old template. Keep handoffs to deltas and references, preserving required hook dispatch.
+
+
 
 ## User Input
 

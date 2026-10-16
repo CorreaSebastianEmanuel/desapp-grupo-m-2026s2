@@ -62,11 +62,7 @@ defmodule FootballMarket.Statistics.ScopeTest do
       "test/football_market/statistics/"
     ]
 
-    active_feature =
-      case File.read(".specify/feature.json") do
-        {:ok, json} -> Jason.decode!(json)["feature_directory"]
-        {:error, _} -> nil
-      end
+    active_feature = FootballMarket.WorkflowScope.active_feature()
 
     # TASK-016 adds an independent read-only provider boundary. Retain this
     # task's original allowlist and permit only that active plan's exact files.
@@ -166,6 +162,7 @@ defmodule FootballMarket.Statistics.ScopeTest do
                path in valuation_paths(active_feature) or path in market_paths(active_feature) or
                path in synchronization_paths(active_feature) or
                path in FootballMarket.BrowserSessionCase.shell_paths(active_feature) or
+               path in FootballMarket.WorkflowScope.paths(active_feature) or
                path in allowed_ci_paths or
                Enum.any?(allowed, &String.starts_with?(path, &1)),
              "outside plan: #{path}"

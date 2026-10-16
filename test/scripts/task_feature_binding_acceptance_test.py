@@ -9,6 +9,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURE = ROOT / 'test/scripts/fixtures/task_feature_binding/provider'
 COMMIT = '1aa2731f048efcb1056a589b3b2ea938b843edd4'
+DELIVERY = 'beeda2af91f68be610cbd784b1de1b4f5ec768ea'
 PINNED = {
     'backlog/TASK-017-football-data-api-adapter.md': (262, 'fa36022776fccf0228b8bff58d41cf9fd4bce39606b3fea3c57799fee52dc13c'),
     'specs/055-football-data-api-adapter/spec.md': (23308, '36d29071eaf11739503e289b9d7f842ab6f5c1f7473561e79569252f03618386'),
@@ -81,15 +82,16 @@ class WorkflowScopeTest(unittest.TestCase):
         self.assertNotIn('gh pr merge',text)
         self.assertNotIn('gh pr merge',(ROOT/'agentflow').read_text())
     def test_changed_file_allowlist_and_readme_boundary(self):
-        tracked=subprocess.check_output(['git','diff','--name-only','dbddd6f','-z'],cwd=ROOT).decode().split('\0')
-        untracked=subprocess.check_output(['git','ls-files','--others','--exclude-standard','-z'],cwd=ROOT).decode().split('\0')
+        tracked=subprocess.check_output(['git','diff','--name-only','dbddd6f',DELIVERY,'-z'],cwd=ROOT).decode().split('\0')
+        # Preserve this historical delivery's exact scope without attributing later tasks to it.
+        untracked=[]
         exact={'agentflow','scripts/agentflow_feature.py','scripts/reconcile_merged_task.py','scripts/workflow_artifact_probe.py','scripts/agentflow_check.py','README.md','docs/adr/0014-durable-agentflow-feature-ownership.md','backlog/TASK-054-agentflow-task-feature-directory-binding.md','backlog/feedback/TASK-054.md'}
         exact.update('test/scripts/'+name for name in ('agentflow_feature_test.py','agentflow_branch_test.py','agentflow_completion_test.py','reconcile_merged_task_test.py','workflow_artifact_probe_test.py','task_feature_binding_acceptance_test.py'))
         exact.update(('tests/test_agentflow.py','tests/test_agentflow_delivery.py'))
         exact.update('test/scripts/fixtures/task_feature_binding/provider/'+name for name in set(PINNED)|{'provenance.json'})
         illegal=[p for p in set(tracked+untracked)-{''} if p not in exact and not p.startswith('specs/055-task-feature-binding/')]
         self.assertEqual(illegal,[],f'Changes outside tooling/active-feature scope: {illegal}')
-        readme=(ROOT/'README.md').read_text()
+        readme=subprocess.check_output(['git','show',f'{DELIVERY}:README.md'],cwd=ROOT).decode()
         baseline=subprocess.check_output(['git','show','dbddd6f:README.md'],cwd=ROOT).decode()
         # Scope is bounded by the actual existing Agentflow section heading.
         import re

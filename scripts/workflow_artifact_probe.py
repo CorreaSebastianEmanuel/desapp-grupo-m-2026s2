@@ -21,6 +21,7 @@ STAGES = {
     "tasks": ("spec.md", "plan.md", "tasks.md", "handoffs/tasks.md"),
     "develop": ("spec.md", "plan.md", "tasks.md", "handoffs/develop.md"),
     "qa": ("qa-report.md", "handoffs/qa.md"),
+    "review": ("review-report.md", "handoffs/review.md"),
 }
 
 COMPLETED_TASK = re.compile(r"^\s*- \[[xX]\]\s+T\d+\b")
@@ -79,8 +80,21 @@ def probe(root: Path, stage: str, require_readiness=False) -> dict[str, object]:
     if stage not in STAGES:
         raise RuntimeError(f"Unknown artifact stage: {stage}")
     feature = active_feature(root)
+    try:
+        from scripts.agentflow_artifacts import validate
+    except ModuleNotFoundError:
+        from agentflow_artifacts import validate
+    policy=validate(feature,stage=stage)
+    try:
+        from scripts.agentflow_verification import feedback_guard
+    except ModuleNotFoundError:
+        from agentflow_verification import feedback_guard
+    head=subprocess.check_output(['git','branch','--show-current'],cwd=root,text=True).strip()
+    feedback_guard(root, task_id_from_head(head))
     missing = []
-    for relative in STAGES[stage]:
+    canonical=('spec.md','plan.md','verification.json') if stage=='plan' else ('spec.md','plan.md','tasks.md','verification.json')
+    required=tuple(dict.fromkeys((*STAGES[stage],*(canonical if policy is not None else ()))))
+    for relative in required:
         path = feature / relative
         try:
             if not path.is_file() or not path.read_text(encoding="utf-8").strip():
@@ -89,6 +103,12 @@ def probe(root: Path, stage: str, require_readiness=False) -> dict[str, object]:
             missing.append(relative)
     if missing:
         raise RuntimeError(f"Missing or empty {stage} artifact(s): {', '.join(missing)}")
+    if policy is not None:
+        try:
+            from scripts.agentflow_verification import manifest
+        except ModuleNotFoundError:
+            from agentflow_verification import manifest
+        manifest(feature)
     if require_readiness:
         try:
             from scripts.agentflow_verification import manifest, readiness
@@ -105,10 +125,10 @@ def probe(root: Path, stage: str, require_readiness=False) -> dict[str, object]:
                 + ", ".join(missing_outputs)
                 + ". Create them or leave the tasks incomplete before QA."
             )
-    if stage == "qa":
+    if stage in ("qa","review"):
         lines = [
             line.strip()
-            for line in (feature / "qa-report.md").read_text(encoding="utf-8").splitlines()
+            for line in (feature / ("qa-report.md" if stage=="qa" else "review-report.md")).read_text(encoding="utf-8").splitlines()
             if line.strip()
         ]
         verdict = lines[-1] if lines else ""

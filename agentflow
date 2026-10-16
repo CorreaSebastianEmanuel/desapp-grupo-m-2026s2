@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 import argparse, json, os, re, shutil, signal, subprocess, sys, threading, time
+sys.dont_write_bytecode=True
 from scripts.agentflow_runtime import Console, metrics_summary
+from scripts import agentflow_models as models
 from scripts.agentflow_feature import (expected_branch, resolve_feature, contained_file, require_reports, complete_reviewed_task, task_for_id, metadata as task_metadata, parsed_metadata)
 from datetime import datetime, timezone
 from pathlib import Path
@@ -287,8 +289,30 @@ def rewind_run(task, run, stage):
         log.write(json.dumps({"event":"feedback_rewind","stage":stage,"timestamp":state["updated_at"]})+"\n")
     return True
 
+IMPACT_STAGE={'product':'product','architecture':'architecture','verification':'architecture',
+              'implementation':'develop','qa':'qa','review':'review'}
+
+
+def feedback_stage(impacts, requested):
+    if not impacts: return None
+    if any(impact not in IMPACT_STAGE for impact in impacts):
+        raise RuntimeError('Unknown feedback impact category')
+    order=('product','architecture','develop','qa','review')
+    stage=min((IMPACT_STAGE[impact] for impact in impacts),key=order.index)
+    if requested is not None and STAGE_ALIASES[requested] != stage:
+        raise RuntimeError(f'Feedback impact requires {stage}; requested {requested} conflicts. Correct impact or stage before retrying; no state changed')
+    return stage
+
+
+def guard_feedback(task):
+    from scripts.agentflow_verification import feedback_guard
+    feedback_guard(ROOT,meta(task)['id'])
+
+
 def add_feedback(a):
-    task=find(a.task); m=meta(task); stage=STAGE_ALIASES[a.stage]
+    task=find(a.task); m=meta(task)
+    impacts=getattr(a,'impact',[]) or []
+    stage=feedback_stage(impacts,a.stage)
     message=a.message or input("Feedback: ").strip()
     if not message: raise SystemExit("Feedback text is required")
     run=m.get("active_run","none")
@@ -304,8 +328,11 @@ def add_feedback(a):
     if count>=MAX_FEEDBACK_CYCLES: raise SystemExit(f"Feedback limit reached ({MAX_FEEDBACK_CYCLES}); resolve or split the task before another cycle")
     stamp=datetime.now(timezone.utc).isoformat(timespec="seconds")
     author=os.environ.get("USER") or os.environ.get("USERNAME") or "human"
-    entry=f"## Feedback {count+1}\n\n- Time: {stamp}\n- Author: {author}\n- Restart from: {stage}\n\n{message}\n\n"
+    entry=f"## Feedback {count+1}\n\n- Time: {stamp}\n- Author: {author}\n- Restart from: {stage or "pending"}\n- Impact: {", ".join(impacts) if impacts else "pending"}\n- Required regressions: cited discrepancy plus required manifest checks\n\n{message}\n\n"
     path.write_text(existing+entry,encoding="utf-8")
+    if stage is None:
+        print(f'Recorded pending feedback in {path.relative_to(ROOT)}; classify its impact before resume. No workflow rewind performed')
+        return
     rewound=run not in ("none","unknown","") and rewind_run(task,run,stage)
     if m.get("status")!="todo": field(task,"status","wip")
     print(f"Recorded feedback #{count+1} in {path.relative_to(ROOT)}")
@@ -329,7 +356,7 @@ def history(a):
             mark=result.get("status","pending") if result else ("current" if step==state.get("current_step_id") else "pending")
             print(f"- {step}: {mark}")
 
-def monitor_process(cmd, task, run_hint=None):
+def monitor_process(cmd, task, run_hint=None, assignment=None, new_session=False):
     """Run with inherited stdin, live output, durable logs, stage updates, and heartbeat."""
     task_id=meta(task)["id"]
     RUNS.mkdir(parents=True,exist_ok=True)
@@ -346,6 +373,16 @@ def monitor_process(cmd, task, run_hint=None):
         child_env["SPECKIT_INTEGRATION_CODEX_EXECUTABLE"]=str(ROOT/"scripts"/("agentflow_codex.cmd" if os.name=="nt" else "agentflow_codex.py"))
     child_env["AGENTFLOW_TASK_ID"]=task_id
     child_env["AGENTFLOW_METRICS_FILE"]=str(RUNS/f"{task_id}.metrics.jsonl")
+    if new_session: child_env['AGENTFLOW_NEW_SESSION']='1'
+    if assignment is not None:
+        child_env['AGENTFLOW_ASSIGNMENT'] = str(assignment)
+        import hashlib
+        child_env['AGENTFLOW_ASSIGNMENT_SHA256']=hashlib.sha256(assignment.read_bytes()).hexdigest()
+        if run_hint:
+            models.bind(ROOT,assignment,run_hint)
+            child_env['AGENTFLOW_RUN_ID'] = run_hint
+        else:
+            child_env['AGENTFLOW_ASSIGNMENT_PENDING'] = '1'
     process=subprocess.Popen(cmd,cwd=ROOT,stdin=None,stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,text=True,bufsize=1,env=child_env,
         start_new_session=os.name=="posix",
@@ -380,6 +417,7 @@ def monitor_process(cmd, task, run_hint=None):
                 if created:
                     run=max(created,key=lambda ident:(SPEC_RUNS/ident).stat().st_mtime)
                     field(task,"active_run",run)
+                    if assignment is not None: models.bind(ROOT,assignment,run)
                     marker.write_text(json.dumps({"pid":process.pid,"run_id":run})+"\n",encoding="utf-8")
                     print(f"Run: {run}",flush=True)
             state=read_run_state(run)
@@ -418,6 +456,7 @@ def monitor_process(cmd, task, run_hint=None):
     marker.unlink(missing_ok=True)
     run=run or latest_run()
     if run: field(task,"active_run",run)
+    if assignment is not None and run: models.bind(ROOT,assignment,run)
     return process.returncode,run
 def publish(task, task_meta, feature):
     association=delivery_association(task,feature)
@@ -463,6 +502,9 @@ def finalize(task, task_meta, code, no_pr=False):
     try:
         if code: raise RuntimeError(f"Workflow exited {code}")
         feature=delivery_association(task).feature
+        if (feature/'verification.json').exists():
+            from scripts.agentflow_evidence import finalize as finalize_evidence
+            finalize_evidence(ROOT,task_meta['id'])
     except RuntimeError as error:
         field(task,"status","blocked")
         print(f"Verification failed: {error}",file=sys.stderr)
@@ -483,9 +525,12 @@ def finalize(task, task_meta, code, no_pr=False):
 def start(a):
     if not shutil.which("specify"): raise SystemExit("Specify CLI missing; run ./setup (macOS/Linux) or .\\setup.ps1 (Windows)")
     task=find(a.task); m=meta(task); selected=agent(a.agent)
+    guard_feedback(task)
+    selection=models.resolve(ROOT,task,a)
     blockers=dependency_blockers(task)
     if blockers: raise SystemExit("Unfinished dependencies: "+", ".join(blockers))
     print(f"{m['id']} — {m['title']}\nAgent: {selected}\nFlow: product → challenge → conditional human check → architecture/tasks synthesis → development → QA → review → PR")
+    print(json.dumps(selection,indent=2))
     if a.dry_run: print(f"Dry run passed; no agent invoked. PR creation: {'disabled' if a.no_pr else 'enabled'}"); return 0
     if git("status","--porcelain").stdout.strip(): raise SystemExit("Start requires a clean worktree; commit or stash existing changes")
     if git("branch","--show-current").stdout.strip() not in ("main","master"): raise SystemExit("Start from an up-to-date main branch so Spec Kit can create an isolated feature branch")
@@ -501,12 +546,18 @@ def start(a):
     field(task,"status","wip")
     context=task_context(task)
     cmd=["specify","workflow","run",str(WORKFLOW),"--input",f"integration={selected}","--input",f"spec={context}"]
-    code,run=monitor_process(cmd,task)
+    assignment=models.save(ROOT,selection)
+    code,run=monitor_process(cmd,task,assignment=assignment)
     if code==130: return code
     return finalize(task,m,code,a.no_pr)
 def resume(a):
     task=find(a.task); run=meta(task).get("active_run","none")
     if run in ("none","unknown",""): raise SystemExit("No resumable run; use start")
+    guard_feedback(task)
+    state=read_run_state(run)
+    selection,adopting=models.resume_selection(ROOT,task,run,a,state)
+    print(json.dumps(selection,indent=2))
+    if getattr(a,'dry_run',False): return 0
     try: branch=ensure_feature_branch(task)
     except RuntimeError as error: raise SystemExit(str(error)) from error
     print(f"Feature branch: {branch}")
@@ -519,7 +570,24 @@ def resume(a):
     if state and state.get("status")=="completed":
         print("Workflow already completed; retrying verified publication only.")
         return finalize(task,meta(task),0)
-    code,_=monitor_process(["specify","workflow","resume",run],task,run)
+    if not adopting and selection.get('assignment_id'):
+        assignment=models.directory(ROOT)/(selection['assignment_id']+'.json')
+    else:
+        index=models.directory(ROOT)/'bindings.json'
+        bound=models.load_json(index).get('runs',{}) if index.exists() else {}
+        parent=models.saved(ROOT,meta(task)['id'],run) if adopting and run in bound else None
+        assignment=models.save(ROOT,selection,parent=parent)
+    models.bind(ROOT,assignment,run)
+    if adopting and state:
+        # A resumed Codex session must not be relabeled with a new assignment.
+        stage=state.get('current_step_id')
+        if stage in models.STAGES:
+            rewind_run(task,run,stage)
+    feature=feature_for_task(task,allow_missing=True)
+    if feature and state and state.get('current_step_id') in ('qa','qa_ready','review'):
+        from scripts.agentflow_verification import readiness
+        readiness(ROOT,feature)
+    code,_=monitor_process(["specify","workflow","resume",run],task,run,assignment=assignment,new_session=adopting)
     if code==130: return code
     if code:
         field(task,"status","blocked")
@@ -573,6 +641,23 @@ def menu(parser):
         if not argv: print("Invalid option"); continue
         try: x=parser.parse_args(argv); x.func(x)
         except (SystemExit, RuntimeError) as e: print(e)
+class Once(argparse.Action):
+    def __call__(self, parser, namespace, value, option_string=None):
+        if getattr(namespace,self.dest,None) is not None:
+            parser.error(f'duplicate {option_string}')
+        setattr(namespace,self.dest,value)
+
+
+def model_flags(parser, resume=False):
+    parser.add_argument('--model',action=Once)
+    parser.add_argument('--effort',action=Once)
+    parser.add_argument('--stage-model',action='append',default=[])
+    parser.add_argument('--stage-effort',action='append',default=[])
+    if resume:
+        parser.add_argument('--adopt-models',action='store_true')
+        parser.add_argument('--dry-run',action='store_true')
+
+
 def parser():
     p=argparse.ArgumentParser(description="Local multi-agent SDD workflow"); s=p.add_subparsers()
     c=s.add_parser("create"); c.add_argument("title",nargs="?"); c.add_argument("--outcome"); c.add_argument("--checkpoint",choices=["CP1","CP2","CP3"],default="CP1"); c.add_argument("--priority",choices=["low","medium","high","critical"],default="medium"); c.set_defaults(func=create)
@@ -581,11 +666,12 @@ def parser():
     q=s.add_parser("status"); q.add_argument("task"); q.set_defaults(func=status)
     for name,fn in (("start",start),("verify",verify)):
         q=s.add_parser(name); q.add_argument("task"); q.add_argument("--agent",choices=["auto","codex"],default="auto"); q.add_argument("--dry-run",action="store_true")
+        if name=="start": model_flags(q)
         if name=="start": q.add_argument("--no-pr",action="store_true",help="leave verified changes local without commit, push, or PR")
         q.set_defaults(func=fn)
-    q=s.add_parser("resume"); q.add_argument("task"); q.set_defaults(func=resume)
+    q=s.add_parser("resume"); q.add_argument("task"); model_flags(q,resume=True); q.set_defaults(func=resume)
     q=s.add_parser("complete"); q.add_argument("task"); q.set_defaults(func=complete)
-    q=s.add_parser("feedback"); q.add_argument("task"); q.add_argument("message",nargs="?"); q.add_argument("--stage",choices=sorted(STAGE_ALIASES),default="development"); q.set_defaults(func=add_feedback)
+    q=s.add_parser("feedback"); q.add_argument("task"); q.add_argument("message",nargs="?"); q.add_argument("--stage",choices=sorted(STAGE_ALIASES)); q.add_argument("--impact",choices=sorted(IMPACT_STAGE),action="append",default=[]); q.set_defaults(func=add_feedback)
     q=s.add_parser("history"); q.add_argument("task"); q.set_defaults(func=history)
     q=s.add_parser("metrics",help="summarize structured usage without prompts or private session IDs")
     q.add_argument("task")

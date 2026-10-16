@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "stages": {
+    "product": {"model": "gpt-6-luna", "effort": "high"},
+    "product_challenge": {"model": "gpt-6-luna", "effort": "high"},
+    "architecture": {"model": "gpt-6.1-sol", "effort": "medium"},
+    "develop": {"model": "gpt-6-luna", "effort": "high"},
+    "qa": {"model": "gpt-6.1-sol", "effort": "low"},
+    "review": {"model": "gpt-6.1-sol", "effort": "medium"}
+  }
+}

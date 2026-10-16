@@ -1,0 +1,914 @@
+{
+  "schema_version": 1,
+  "runtime_required": false,
+  "runtime_rationale": "Workflow CLI/JSON and policy changes only; no affected HTTP endpoint. Existing application API/OpenAPI regression commands remain required. Service preflight is an independent executable obligation.",
+  "checks": [
+    {
+      "id": "preflight",
+      "argv": [
+        "python3",
+        "scripts/agentflow_ci_check.py",
+        "preflight"
+      ],
+      "reuse": false,
+      "expectation": "Assert exact BEAM/Node and pinned required service versions, PostgreSQL/Redis readiness, locked dependencies/browser availability and current CI applicability; failure blocks QA. No model calls.",
+      "retry_inputs": [
+        ".github/workflows/*.yml",
+        "compose.yaml",
+        "mix.lock",
+        "tools/openapi/package-lock.json",
+        "scripts/agentflow_ci_check.py",
+        "scripts/check_toolchain.sh",
+        "scripts/local_services.sh"
+      ]
+    },
+    {
+      "id": "script-syntax",
+      "argv": [
+        "python3",
+        "-c",
+        "import pathlib,subprocess; files=[pathlib.Path('agentflow'),*pathlib.Path('scripts').glob('*.py'),*pathlib.Path('test/scripts').rglob('*.py')]; assert files; [compile(p.read_bytes(),str(p),'exec') for p in files]; shells=[*pathlib.Path('.specify/scripts/bash').glob('*.sh'),pathlib.Path('scripts/ci_unit_tests.sh'),pathlib.Path('test/scripts/ci_unit_tests_test.sh')]; [subprocess.run(['bash','-n',str(p)],check=True) for p in shells]; print('Python and shell syntax checked:',len(files)+len(shells))"
+      ],
+      "expectation": "Compile every delivery Python source and behavior test; parse each affected shell script individually, propagating syntax errors.",
+      "retry_inputs": [
+        "agentflow",
+        "scripts/*.py",
+        "test/scripts/**/*.py",
+        ".specify/scripts/bash/*.sh",
+        "scripts/ci_unit_tests.sh",
+        "test/scripts/ci_unit_tests_test.sh"
+      ]
+    },
+    {
+      "id": "workflow-tests",
+      "argv": [
+        "python3",
+        "-c",
+        "import pathlib,sys,unittest; required=['agentflow_policy_test.py', 'agentflow_ci_check_test.py', 'agentflow_clean_checkout_test.py', 'agentflow_artifacts_test.py', 'agentflow_evidence_test.py', 'agentflow_feedback_test.py', 'agentflow_models_test.py', 'agentflow_metrics_test.py']; assert all((pathlib.Path('test/scripts')/p).is_file() for p in required),'Missing required acceptance module'; assert all(unittest.defaultTestLoader.loadTestsFromName('test.scripts.'+p[:-3]).countTestCases()>0 for p in required),'Required acceptance module is empty'; suite=unittest.defaultTestLoader.discover('test/scripts',pattern='*_test.py',top_level_dir='.'); count=suite.countTestCases(); assert count>0,'Required workflow collection is empty'; result=unittest.TextTestRunner(verbosity=1).run(suite); assert not result.skipped,'Required workflow checks were skipped'; print('workflow discovery count:',count); sys.exit(0 if result.wasSuccessful() else 1)"
+      ],
+      "expectation": "Execute all existing and new *_test.py behavior suites; nonzero discovery and no skipped required cases; cover every numbered story scenario through the modules listed in acceptance_tests. Include deterministic actual launch-argument capture for all stage defaults, explicit overrides/precedence, unsupported and unavailable selections, saved/legacy/frozen resumes, provenance and independent gates; no live model calls.",
+      "retry_inputs": [
+        "agentflow",
+        "scripts/*.py",
+        "test/scripts/**",
+        ".agents/skills/**",
+        ".agentflow/workflow.yml",
+        ".specify/workflows/*/workflow.yml",
+        ".specify/scripts/bash/**",
+        ".specify/templates/**",
+        "docs/AGENT*.md",
+        "docs/PRODUCT.md",
+        "docs/CHECKPOINTS.md",
+        "docs/ARCHITECTURE.md",
+        "docs/adr/0026-proportional-delivery-and-local-evidence.md",
+        ".github/workflows/**",
+        ".gitignore",
+        ".agentflow/models.json",
+        "docs/AGENTFLOW_MODELS.md",
+        "docs/adr/0027-stable-stage-model-assignments.md"
+      ]
+    },
+    {
+      "id": "shell-discovery",
+      "argv": [
+        "sh",
+        "test/scripts/ci_unit_tests_test.sh"
+      ],
+      "expectation": "Assert exact CI command, nonzero discovered tests, sentinel enforcement and child failures using deterministic fake toolchain fixtures.",
+      "retry_inputs": [
+        "scripts/ci_unit_tests.sh",
+        "test/scripts/ci_unit_tests_test.sh"
+      ]
+    },
+    {
+      "id": "format",
+      "argv": [
+        "mix",
+        "format",
+        "--check-formatted"
+      ],
+      "retry_inputs": [
+        ".formatter.exs",
+        "mix.exs",
+        "mix.lock",
+        "config/**",
+        "lib/**",
+        "test/**/*.ex",
+        "test/**/*.exs",
+        "priv/**/*.exs"
+      ]
+    },
+    {
+      "id": "compile",
+      "argv": [
+        "mix",
+        "compile",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "retry_inputs": [
+        "mix.exs",
+        "mix.lock",
+        "config/**",
+        "lib/**",
+        "test/support/**"
+      ]
+    },
+    {
+      "id": "openapi-tests",
+      "argv": [
+        "npm",
+        "test",
+        "--prefix",
+        "tools/openapi"
+      ],
+      "retry_inputs": [
+        "tools/openapi/**",
+        "priv/static/openapi.json"
+      ]
+    },
+    {
+      "id": "openapi-contract",
+      "argv": [
+        "node",
+        "tools/openapi/validate.mjs",
+        "priv/static/openapi.json"
+      ],
+      "retry_inputs": [
+        "tools/openapi/**",
+        "priv/static/openapi.json"
+      ]
+    },
+    {
+      "id": "clean-ci-tests",
+      "argv": [
+        "python3",
+        "scripts/agentflow_ci_check.py",
+        "clean-tests"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "expectation": "Execute scripts/ci_unit_tests.sh once on the actual candidate in an isolated clean Git checkout without .specify/feature.json; require nonzero full default ExUnit discovery and sentinel. Includes existing architecture/product scope/CI contracts; no additional full profiles.",
+      "retry_inputs": [
+        "mix.exs",
+        "mix.lock",
+        "config/**",
+        "lib/**",
+        "test/**",
+        "priv/**",
+        "scripts/ci_unit_tests.sh",
+        "scripts/agentflow_ci_check.py",
+        ".github/workflows/**",
+        "docs/PRODUCT.md",
+        "docs/ARCHITECTURE.md",
+        "docs/CHECKPOINTS.md"
+      ]
+    },
+    {
+      "id": "us1-tests",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "test.scripts.agentflow_ci_check_test",
+        "test.scripts.agentflow_clean_checkout_test"
+      ],
+      "retry_inputs": [
+        "scripts/agentflow_ci_check.py",
+        "test/scripts/agentflow_ci_check_test.py",
+        "test/scripts/agentflow_clean_checkout_test.py",
+        "test/scripts/support/agentflow_delivery_fixtures.py"
+      ]
+    },
+    {
+      "id": "artifact-tests",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "test.scripts.agentflow_artifacts_test"
+      ],
+      "retry_inputs": [
+        "scripts/agentflow_artifacts.py",
+        "scripts/workflow_artifact_probe.py",
+        "test/scripts/agentflow_artifacts_test.py"
+      ]
+    },
+    {
+      "id": "evidence-tests",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "test.scripts.agentflow_evidence_test"
+      ],
+      "retry_inputs": [
+        "scripts/agentflow_check.py",
+        "scripts/agentflow_verification.py",
+        "scripts/agentflow_evidence.py",
+        "test/scripts/agentflow_evidence_test.py",
+        "scripts/agentflow_artifacts.py",
+        "agentflow"
+      ]
+    },
+    {
+      "id": "model-tests",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "test.scripts.agentflow_models_test"
+      ],
+      "retry_inputs": [
+        "scripts/agentflow_models.py",
+        "scripts/agentflow_codex.py",
+        "agentflow",
+        ".agentflow/models.json",
+        "test/scripts/agentflow_models_test.py"
+      ]
+    },
+    {
+      "id": "feedback-tests",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "test.scripts.agentflow_feedback_test"
+      ],
+      "retry_inputs": [
+        "agentflow",
+        "scripts/workflow_artifact_probe.py",
+        "test/scripts/agentflow_feedback_test.py"
+      ]
+    },
+    {
+      "id": "metrics-tests",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "test.scripts.agentflow_metrics_test"
+      ],
+      "retry_inputs": [
+        "scripts/agentflow_runtime.py",
+        "scripts/agentflow_codex.py",
+        "test/scripts/agentflow_metrics_test.py"
+      ]
+    },
+    {
+      "id": "policy-tests",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "test.scripts.agentflow_policy_test"
+      ],
+      "retry_inputs": [
+        "scripts/agentflow_verification.py",
+        "scripts/workflow_artifact_probe.py",
+        "scripts/agentflow_evidence.py",
+        "test/scripts/agentflow_policy_test.py"
+      ]
+    }
+  ],
+  "coverage": {
+    "FR-001": [
+      "workflow-tests",
+      "clean-ci-tests"
+    ],
+    "FR-002": [
+      "preflight",
+      "workflow-tests",
+      "clean-ci-tests",
+      "us1-tests"
+    ],
+    "FR-003": [
+      "preflight",
+      "workflow-tests",
+      "shell-discovery",
+      "clean-ci-tests",
+      "us1-tests"
+    ],
+    "FR-004": [
+      "preflight",
+      "script-syntax",
+      "workflow-tests",
+      "format",
+      "compile",
+      "openapi-tests",
+      "openapi-contract",
+      "clean-ci-tests"
+    ],
+    "FR-005": [
+      "workflow-tests",
+      "artifact-tests",
+      "evidence-tests"
+    ],
+    "FR-006": [
+      "workflow-tests",
+      "artifact-tests",
+      "evidence-tests"
+    ],
+    "FR-007": [
+      "workflow-tests",
+      "evidence-tests"
+    ],
+    "FR-008": [
+      "workflow-tests",
+      "evidence-tests"
+    ],
+    "FR-009": [
+      "workflow-tests",
+      "evidence-tests"
+    ],
+    "FR-010": [
+      "workflow-tests",
+      "evidence-tests"
+    ],
+    "FR-011": [
+      "workflow-tests",
+      "feedback-tests"
+    ],
+    "FR-012": [
+      "workflow-tests",
+      "shell-discovery",
+      "clean-ci-tests",
+      "policy-tests"
+    ],
+    "FR-013": [
+      "workflow-tests",
+      "evidence-tests"
+    ],
+    "FR-014": [
+      "workflow-tests",
+      "metrics-tests"
+    ],
+    "FR-015": [
+      "workflow-tests",
+      "metrics-tests"
+    ],
+    "FR-016": [
+      "workflow-tests",
+      "metrics-tests"
+    ],
+    "FR-017": [
+      "workflow-tests",
+      "model-tests"
+    ],
+    "SC-001": [
+      "preflight",
+      "workflow-tests",
+      "shell-discovery",
+      "clean-ci-tests"
+    ],
+    "SC-002": [
+      "workflow-tests"
+    ],
+    "SC-003": [
+      "workflow-tests"
+    ],
+    "SC-004": [
+      "workflow-tests"
+    ],
+    "SC-005": [
+      "workflow-tests"
+    ],
+    "SC-006": [
+      "workflow-tests"
+    ],
+    "SC-007": [
+      "workflow-tests"
+    ],
+    "SC-008": [
+      "workflow-tests",
+      "clean-ci-tests",
+      "evidence-tests"
+    ],
+    "FR-018": [
+      "workflow-tests",
+      "model-tests"
+    ],
+    "FR-019": [
+      "workflow-tests",
+      "model-tests"
+    ],
+    "FR-020": [
+      "workflow-tests",
+      "model-tests"
+    ],
+    "FR-021": [
+      "workflow-tests",
+      "model-tests"
+    ],
+    "FR-022": [
+      "workflow-tests",
+      "policy-tests"
+    ],
+    "SC-009": [
+      "workflow-tests"
+    ],
+    "SC-010": [
+      "workflow-tests"
+    ]
+  },
+  "task_stages": {
+    "T043": "qa",
+    "T044": "review"
+  },
+  "ci_obligations": [
+    {
+      "id": "beam",
+      "workflow": ".github/workflows/quality-baseline.yml",
+      "step": "Install exact BEAM toolchain / Verify exact toolchain",
+      "disposition": "local-equivalent",
+      "reason": "Run exact existing commands on current candidate; preflight/setup prerequisites are not test passes.",
+      "checks": [
+        "preflight"
+      ]
+    },
+    {
+      "id": "services",
+      "workflow": ".github/workflows/quality-baseline.yml",
+      "step": "services.postgres / services.redis",
+      "disposition": "local-equivalent",
+      "reason": "Run exact existing commands on current candidate; preflight/setup prerequisites are not test passes.",
+      "checks": [
+        "preflight",
+        "clean-ci-tests"
+      ]
+    },
+    {
+      "id": "dependencies",
+      "workflow": ".github/workflows/quality-baseline.yml",
+      "step": "Install package managers / Fetch locked dependencies / Compile dependencies",
+      "disposition": "local-equivalent",
+      "reason": "Run exact existing commands on current candidate; preflight/setup prerequisites are not test passes.",
+      "checks": [
+        "preflight",
+        "compile",
+        "clean-ci-tests"
+      ]
+    },
+    {
+      "id": "format",
+      "workflow": ".github/workflows/quality-baseline.yml",
+      "step": "Formatting",
+      "disposition": "local-equivalent",
+      "reason": "Run exact existing commands on current candidate; preflight/setup prerequisites are not test passes.",
+      "checks": [
+        "format"
+      ]
+    },
+    {
+      "id": "compile",
+      "workflow": ".github/workflows/quality-baseline.yml",
+      "step": "Warnings-as-errors",
+      "disposition": "local-equivalent",
+      "reason": "Run exact existing commands on current candidate; preflight/setup prerequisites are not test passes.",
+      "checks": [
+        "compile"
+      ]
+    },
+    {
+      "id": "node-browser",
+      "workflow": ".github/workflows/quality-baseline.yml",
+      "step": "Install Node test toolchain / Install OpenAPI test dependencies / Install headless Chromium",
+      "disposition": "local-equivalent",
+      "reason": "Run exact existing commands on current candidate; preflight/setup prerequisites are not test passes.",
+      "checks": [
+        "preflight"
+      ]
+    },
+    {
+      "id": "openapi",
+      "workflow": ".github/workflows/quality-baseline.yml",
+      "step": "Validate OpenAPI contract",
+      "disposition": "local-equivalent",
+      "reason": "Run exact existing commands on current candidate; preflight/setup prerequisites are not test passes.",
+      "checks": [
+        "openapi-tests",
+        "openapi-contract"
+      ]
+    },
+    {
+      "id": "exunit",
+      "workflow": ".github/workflows/quality-baseline.yml",
+      "step": "Unit tests",
+      "disposition": "local-equivalent",
+      "reason": "Run exact existing commands on current candidate; preflight/setup prerequisites are not test passes.",
+      "checks": [
+        "clean-ci-tests"
+      ]
+    },
+    {
+      "id": "checkout-cache",
+      "workflow": ".github/workflows/quality-baseline.yml",
+      "step": "Check out triggering revision / Restore locked dependency cache",
+      "disposition": "local-equivalent",
+      "reason": "Candidate digest and isolated checkout replace runner checkout; cache is optional acceleration, never an obligation waiver.",
+      "checks": [
+        "preflight",
+        "clean-ci-tests"
+      ]
+    },
+    {
+      "id": "python-discovery",
+      "workflow": ".github/workflows/quality-baseline.yml",
+      "step": "Workflow behavior tests",
+      "disposition": "local-equivalent",
+      "reason": "Existing quality-baseline now discovers nonempty Python *_test.py suites and shell fixtures; workflow-tests and shell-discovery execute the same obligations locally.",
+      "checks": [
+        "workflow-tests",
+        "shell-discovery"
+      ]
+    },
+    {
+      "id": "sonar-native",
+      "workflow": ".github/workflows/sonarcloud.yml",
+      "step": "Publish exact-revision analysis and await native gate",
+      "disposition": "not-applicable",
+      "reason": "No change to sonar production scope (lib/assets), configuration or remote scanner; preserve CI. Local execution does not claim remote PASS. Replan if scope changes.",
+      "checks": []
+    },
+    {
+      "id": "sonar-threshold",
+      "workflow": ".github/workflows/sonarcloud.yml",
+      "step": "Evaluate whole-project CP1 threshold",
+      "disposition": "not-applicable",
+      "reason": "Live remote project count is an unchanged CI obligation, not a new local TASK-064 gate. Existing Sonar adapter fixtures/contract tests verify tooling regression only; they do not certify the live count. Preserve remote CI, replan for changed analysis/configuration obligations.",
+      "checks": []
+    },
+    {
+      "id": "postmerge",
+      "workflow": ".github/workflows/agentflow-finalize.yml",
+      "step": "Reconcile merged task / Commit finalized backlog state",
+      "disposition": "not-applicable",
+      "reason": "Post-merge mutation is not a pre-QA action; existing reconciliation/completion behavior fixtures run locally and remote automation remains intact.",
+      "checks": []
+    }
+  ],
+  "acceptance_tests": {
+    "US1.1-US1.4": [
+      "test/scripts/agentflow_ci_check_test.py",
+      "test/scripts/agentflow_clean_checkout_test.py",
+      "test/scripts/ci_unit_tests_test.sh",
+      "test/ci/workflow_scope_test.exs"
+    ],
+    "US2.1-US2.4": [
+      "test/scripts/agentflow_artifacts_test.py",
+      "test/scripts/workflow_artifact_probe_test.py"
+    ],
+    "US3.1-US3.5": [
+      "test/scripts/agentflow_evidence_test.py",
+      "test/scripts/agentflow_completion_test.py"
+    ],
+    "US4.1-US4.4": [
+      "test/scripts/agentflow_feedback_test.py"
+    ],
+    "US5.1-US5.4": [
+      "test/scripts/agentflow_metrics_test.py",
+      "test/scripts/agentflow_policy_test.py"
+    ],
+    "US6.1-US6.7": [
+      "test/scripts/agentflow_models_test.py",
+      "test/scripts/agentflow_metrics_test.py",
+      "test/scripts/agentflow_completion_test.py"
+    ]
+  },
+  "environment": {
+    "beam": "Elixir 1.20.3 / OTP 29.0.6 / ERTS 17.0.6",
+    "node": "24.x",
+    "services": [
+      "PostgreSQL 17.6 pinned Compose image",
+      "Redis 8.2.1 pinned Compose image"
+    ],
+    "other_tools": [
+      "Python 3",
+      "Ruby with YAML",
+      "Git",
+      "Docker Compose",
+      "locked Mix/npm dependencies",
+      "Chromium"
+    ],
+    "preparation": "See quickstart.md; unavailable required tools/services fail, never skip."
+  },
+  "gate_note": "FR-013/SC-008 gate semantics are executable fixture assertions in workflow-tests. Actual independent reports with terminal PASS remain mandatory T043/T044; finalizer validates their provenance after review. All 32 FR/SC IDs map to checks. New helpers/modules are prospective tasks, not executed architecture evidence. Implementation executes the manifest before QA; QA independently reruns without reuse. No affected HTTP endpoint exists; no runtime HTTP assertion is applicable.",
+  "acceptance_scenarios": {
+    "US1.1": {
+      "checks": [
+        "workflow-tests",
+        "us1-tests"
+      ],
+      "test_files": [
+        "test/scripts/agentflow_ci_check_test.py",
+        "test/scripts/agentflow_clean_checkout_test.py",
+        "test/scripts/ci_unit_tests_test.sh",
+        "test/ci/workflow_scope_test.exs"
+      ]
+    },
+    "US1.2": {
+      "checks": [
+        "workflow-tests",
+        "us1-tests"
+      ],
+      "test_files": [
+        "test/scripts/agentflow_ci_check_test.py",
+        "test/scripts/agentflow_clean_checkout_test.py",
+        "test/scripts/ci_unit_tests_test.sh",
+        "test/ci/workflow_scope_test.exs"
+      ]
+    },
+    "US1.3": {
+      "checks": [
+        "workflow-tests",
+        "us1-tests"
+      ],
+      "test_files": [
+        "test/scripts/agentflow_ci_check_test.py",
+        "test/scripts/agentflow_clean_checkout_test.py",
+        "test/scripts/ci_unit_tests_test.sh",
+        "test/ci/workflow_scope_test.exs"
+      ]
+    },
+    "US1.4": {
+      "checks": [
+        "workflow-tests",
+        "us1-tests"
+      ],
+      "test_files": [
+        "test/scripts/agentflow_ci_check_test.py",
+        "test/scripts/agentflow_clean_checkout_test.py",
+        "test/scripts/ci_unit_tests_test.sh",
+        "test/ci/workflow_scope_test.exs"
+      ]
+    },
+    "US2.1": {
+      "checks": [
+        "workflow-tests",
+        "artifact-tests"
+      ],
+      "test_files": [
+        "test/scripts/agentflow_artifacts_test.py",
+        "test/scripts/workflow_artifact_probe_test.py"
+      ]
+    },
+    "US2.2": {
+      "checks": [
+        "workflow-tests",
+        "artifact-tests"
+      ],
+      "test_files": [
+        "test/scripts/agentflow_artifacts_test.py",
+        "test/scripts/workflow_artifact_probe_test.py"
+      ]
+    },
+    "US2.3": {
+      "checks": [
+        "workflow-tests",
+        "artifact-tests"
+      ],
+      "test_files": [
+        "test/scripts/agentflow_artifacts_test.py",
+        "test/scripts/workflow_artifact_probe_test.py"
+      ]
+    },
+    "US2.4": {
+      "checks": [
+        "workflow-tests",
+        "artifact-tests"
+      ],
+      "test_files": [
+        "test/scripts/agentflow_artifacts_test.py",
+        "test/scripts/workflow_artifact_probe_test.py"
+      ]
+    },
+    "US3.1": {
+      "checks": [
+        "workflow-tests",
+        "evidence-tests"
+      ],
+      "test_files": [
+        "test/scripts/agentflow_evidence_test.py",
+        "test/scripts/agentflow_completion_test.py"
+      ]
+    },
+    "US3.2": {
+      "checks": [
+        "workflow-tests",
+        "evidence-tests"
+      ],
+      "test_files": [
+        "test/scripts/agentflow_evidence_test.py",
+        "test/scripts/agentflow_completion_test.py"
+      ]
+    },
+    "US3.3": {
+      "checks": [
+        "workflow-tests",
+        "evidence-tests"
+      ],
+      "test_files": [
+        "test/scripts/agentflow_evidence_test.py",
+        "test/scripts/agentflow_completion_test.py"
+      ]
+    },
+    "US3.4": {
+      "checks": [
+        "workflow-tests",
+        "evidence-tests"
+      ],
+      "test_files": [
+        "test/scripts/agentflow_evidence_test.py",
+        "test/scripts/agentflow_completion_test.py"
+      ]
+    },
+    "US3.5": {
+      "checks": [
+        "workflow-tests",
+        "evidence-tests"
+      ],
+      "test_files": [
+        "test/scripts/agentflow_evidence_test.py",
+        "test/scripts/agentflow_completion_test.py"
+      ]
+    },
+    "US4.1": {
+      "checks": [
+        "workflow-tests",
+        "feedback-tests"
+      ],
+      "test_files": [
+        "test/scripts/agentflow_feedback_test.py"
+      ]
+    },
+    "US4.2": {
+      "checks": [
+        "workflow-tests",
+        "feedback-tests"
+      ],
+      "test_files": [
+        "test/scripts/agentflow_feedback_test.py"
+      ]
+    },
+    "US4.3": {
+      "checks": [
+        "workflow-tests",
+        "feedback-tests"
+      ],
+      "test_files": [
+        "test/scripts/agentflow_feedback_test.py"
+      ]
+    },
+    "US4.4": {
+      "checks": [
+        "workflow-tests",
+        "feedback-tests"
+      ],
+      "test_files": [
+        "test/scripts/agentflow_feedback_test.py"
+      ]
+    },
+    "US5.1": {
+      "checks": [
+        "workflow-tests",
+        "metrics-tests"
+      ],
+      "test_files": [
+        "test/scripts/agentflow_metrics_test.py",
+        "test/scripts/agentflow_policy_test.py"
+      ]
+    },
+    "US5.2": {
+      "checks": [
+        "workflow-tests",
+        "metrics-tests"
+      ],
+      "test_files": [
+        "test/scripts/agentflow_metrics_test.py",
+        "test/scripts/agentflow_policy_test.py"
+      ]
+    },
+    "US5.3": {
+      "checks": [
+        "workflow-tests",
+        "metrics-tests"
+      ],
+      "test_files": [
+        "test/scripts/agentflow_metrics_test.py",
+        "test/scripts/agentflow_policy_test.py"
+      ]
+    },
+    "US5.4": {
+      "checks": [
+        "workflow-tests",
+        "metrics-tests"
+      ],
+      "test_files": [
+        "test/scripts/agentflow_metrics_test.py",
+        "test/scripts/agentflow_policy_test.py"
+      ]
+    },
+    "US6.1": {
+      "checks": [
+        "workflow-tests",
+        "model-tests"
+      ],
+      "test_files": [
+        "test/scripts/agentflow_models_test.py",
+        "test/scripts/agentflow_metrics_test.py",
+        "test/scripts/agentflow_completion_test.py"
+      ]
+    },
+    "US6.2": {
+      "checks": [
+        "workflow-tests",
+        "model-tests"
+      ],
+      "test_files": [
+        "test/scripts/agentflow_models_test.py",
+        "test/scripts/agentflow_metrics_test.py",
+        "test/scripts/agentflow_completion_test.py"
+      ]
+    },
+    "US6.3": {
+      "checks": [
+        "workflow-tests",
+        "model-tests"
+      ],
+      "test_files": [
+        "test/scripts/agentflow_models_test.py",
+        "test/scripts/agentflow_metrics_test.py",
+        "test/scripts/agentflow_completion_test.py"
+      ]
+    },
+    "US6.4": {
+      "checks": [
+        "workflow-tests",
+        "model-tests"
+      ],
+      "test_files": [
+        "test/scripts/agentflow_models_test.py",
+        "test/scripts/agentflow_metrics_test.py",
+        "test/scripts/agentflow_completion_test.py"
+      ]
+    },
+    "US6.5": {
+      "checks": [
+        "workflow-tests",
+        "model-tests"
+      ],
+      "test_files": [
+        "test/scripts/agentflow_models_test.py",
+        "test/scripts/agentflow_metrics_test.py",
+        "test/scripts/agentflow_completion_test.py"
+      ]
+    },
+    "US6.6": {
+      "checks": [
+        "workflow-tests",
+        "model-tests"
+      ],
+      "test_files": [
+        "test/scripts/agentflow_models_test.py",
+        "test/scripts/agentflow_metrics_test.py",
+        "test/scripts/agentflow_completion_test.py"
+      ]
+    },
+    "US6.7": {
+      "checks": [
+        "workflow-tests",
+        "model-tests"
+      ],
+      "test_files": [
+        "test/scripts/agentflow_models_test.py",
+        "test/scripts/agentflow_metrics_test.py",
+        "test/scripts/agentflow_completion_test.py"
+      ]
+    }
+  },
+  "ci_workflow_digests": {
+    ".github/workflows/quality-baseline.yml": "2dff9ff4513700469085396cdf9f91661333e7e363ba087c43432eda8a98a87d",
+    ".github/workflows/sonarcloud.yml": "9d0e2c7ca7042747890d3f2fd817d42c8ada01658dc4a98558f9f8e578e08aaa",
+    ".github/workflows/agentflow-finalize.yml": "a486b1dae20298826b65c4755f37f8943a44d7665d2dd2d01144c245c05c3797"
+  },
+  "repair_regressions": {
+    "Feedback 3 B1": {
+      "check": "artifact-tests",
+      "tests": [
+        "test_whole_policy_deletion_cannot_pass_plan_or_tasks_gates",
+        "test_new_plan_cannot_claim_legacy_in_policy_aware_repository",
+        "test_direct_consumers_reject_whole_block_deletion",
+        "test_legacy_plan_keeps_existing_policy"
+      ]
+    },
+    "Feedback 3 B2": {
+      "check": "evidence-tests",
+      "tests": [
+        "test_required_artifacts_block_real_receipt_resume_and_finalization"
+      ]
+    }
+  }
+}

@@ -40,6 +40,9 @@ if [[ ! -f "$FEATURE_SPEC" ]]; then
     exit 1
 fi
 
+# Shared policy; validate supporting inputs before downstream consumption.
+python3 "$REPO_ROOT/scripts/agentflow_artifacts.py" "$FEATURE_DIR" >/dev/null
+
 # Build available docs list
 docs=()
 [[ -f "$RESEARCH" ]] && docs+=("research.md")

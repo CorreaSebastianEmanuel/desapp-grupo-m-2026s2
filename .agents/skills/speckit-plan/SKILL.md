@@ -7,6 +7,11 @@ metadata:
   source: "templates/commands/plan.md"
 ---
 
+## Proportional supporting artifacts
+
+Canonical spec.md, plan.md, tasks.md, verification.json and downstream QA/review reports remain mandatory at their owning stages. Record all four supporting decisions in one schema-1 `json artifact-applicability` block in plan.md. Research is required for an unresolved decision, data-model for changed structures, contracts for a changed interface, and quickstart for feature-specific setup/demo. Each decision needs `required` (boolean) and a nonempty `reason`. Run `python3 scripts/agentflow_artifacts.py FEATURE_DIR` before consuming a completed plan; applicable files must be nonempty and contained. Legacy plans retain their existing requirements. Setup may use `--setup` before the plan exists. Do not generate an inapplicable document just to satisfy an old template. Keep handoffs to deltas and references, preserving required hook dispatch.
+
+
 
 ## User Input
 
@@ -62,8 +67,8 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Fill Technical Context (mark unknowns as "NEEDS CLARIFICATION")
    - Fill Constitution Check section from constitution
    - Evaluate gates (ERROR if violations unjustified)
-   - Phase 0: Generate research.md (resolve all NEEDS CLARIFICATION)
-   - Phase 1: Generate data-model.md, contracts/, quickstart.md
+   - Phase 0: Generate applicable research.md (resolve all NEEDS CLARIFICATION)
+   - Phase 1: Generate applicable data-model.md, contracts/ and quickstart.md; record all decisions in plan.md
    - Re-evaluate Constitution Check post-design
 
 ## Mandatory Post-Execution Hooks
@@ -123,11 +128,11 @@ Report branch, IMPL_PLAN path, and generated artifacts briefly. When the active 
    - Rationale: [why chosen]
    - Alternatives considered: [what else evaluated]
 
-**Output**: research.md with all NEEDS CLARIFICATION resolved
+**Output**: applicable research.md with all NEEDS CLARIFICATION resolved
 
 ### Phase 1: Design & Contracts
 
-**Prerequisites:** `research.md` complete
+**Prerequisites:** applicable research complete, or justified omission in plan.md
 
 1. **Extract entities from feature spec** → `data-model.md`:
    - Entity name, fields, relationships
@@ -147,7 +152,7 @@ Report branch, IMPL_PLAN path, and generated artifacts briefly. When the active 
    - Do not include full implementation code, model/service/controller bodies, migrations, or complete test suites
    - Keep this artifact as a validation/run guide; implementation details belong in `tasks.md` and the implementation phase
 
-**Output**: data-model.md, /contracts/*, quickstart.md
+**Output**: applicable supporting artifacts and complete plan.md/verification.json
 
 ## Key rules
 

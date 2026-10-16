@@ -75,8 +75,7 @@ from test runtime; use Agentflow metrics for recorded model usage.
 The helper captures complete output under ignored `.agentflow/runs/checks/` and
 prints only the check ID, exit code, freshness status and evidence path. Inspect
 bounded failure excerpts when needed. It invalidates the previous receipt before
-starting, so failure or interruption cannot reuse an older passing result. Canonical
-receipts live at `handoffs/check-CHECK_ID.json`; full outputs remain local.
+starting, so failure or interruption cannot reuse an older passing result. New schema-2 receipts and journals live under ignored `.agentflow/runs/checks/WORKSPACE/FEATURE/STAGE/CHECK_ID/`. Historical tracked receipts remain intact and cannot substitute for current workspace proof.
 
 Readiness validates source fingerprints before and after execution, the current
 spec/plan/tasks/manifest, command identity, exit status and output hashes. Source
@@ -98,3 +97,5 @@ still require their own terminal PASS verdicts.
 Receipts are local to a workspace: another checkout has to run its checks, since
 full output files are intentionally not published. Do not manufacture receipts,
 replace checks with trivial successes or weaken the manifest to bypass a blocker.
+
+Retry budgets bind check/stage/command, canonical/current feedback inputs and declared retry_inputs; unrelated edits cannot reset a stopped obligation. Reuse binds the complete current source. Interrupted running receipts recover as failures once. After both independent PASS reports Agentflow finalizes the bounded schema-1 evidence-summary.json. This portable review record cannot authorize local execution reuse.

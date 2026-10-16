@@ -49,10 +49,10 @@
 ```text
 specs/[###-feature]/
 ├── plan.md              # This file ($speckit-plan command output)
-├── research.md          # Phase 0 output ($speckit-plan command)
-├── data-model.md        # Phase 1 output ($speckit-plan command)
-├── quickstart.md        # Phase 1 output ($speckit-plan command)
-├── contracts/           # Phase 1 output ($speckit-plan command)
+├── research.md          # Conditional: unresolved research
+├── data-model.md        # Conditional: applicability in plan.md
+├── quickstart.md        # Conditional: applicability in plan.md
+├── contracts/           # Conditional: applicability in plan.md
 └── tasks.md             # Phase 2 output ($speckit-tasks command - NOT created by $speckit-plan)
 ```
 
@@ -111,3 +111,8 @@ directories captured above]
 |-----------|------------|-------------------------------------|
 | [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
 | [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+
+
+## Proportional supporting artifacts
+
+Canonical spec.md, plan.md, tasks.md, verification.json and downstream QA/review reports remain mandatory at their owning stages. Record all four supporting decisions in one schema-1 `json artifact-applicability` block in plan.md. Research is required for an unresolved decision, data-model for changed structures, contracts for a changed interface, and quickstart for feature-specific setup/demo. Each decision needs `required` (boolean) and a nonempty `reason`. Run `python3 scripts/agentflow_artifacts.py FEATURE_DIR` before consuming a completed plan; applicable files must be nonempty and contained. Legacy plans retain their existing requirements. Setup may use `--setup` before the plan exists. Do not generate an inapplicable document just to satisfy an old template. Keep handoffs to deltas and references, preserving required hook dispatch.

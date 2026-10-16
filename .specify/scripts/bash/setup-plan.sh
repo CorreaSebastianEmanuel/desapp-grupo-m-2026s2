@@ -32,6 +32,9 @@ _paths_output=$(get_feature_paths) || { echo "ERROR: Failed to resolve feature p
 eval "$_paths_output"
 unset _paths_output
 
+# Setup can create the plan; it validates existing decision syntax only.
+python3 "$REPO_ROOT/scripts/agentflow_artifacts.py" "$FEATURE_DIR" --setup >/dev/null
+
 # Ensure the feature directory exists
 mkdir -p "$FEATURE_DIR"
 

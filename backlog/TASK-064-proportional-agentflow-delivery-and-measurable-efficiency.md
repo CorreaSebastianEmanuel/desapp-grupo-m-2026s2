@@ -4,9 +4,9 @@ title: Proportional Agentflow delivery and measurable efficiency
 type: task
 checkpoint: CP2
 priority: high
-status: todo
+status: review
 depends_on: none
-active_run: none
+active_run: 72789de8
 ---
 
 ## Outcome

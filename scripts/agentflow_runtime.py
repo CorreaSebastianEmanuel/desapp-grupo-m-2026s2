@@ -111,18 +111,61 @@ def read_metrics(path: Path) -> list[dict]:
 
 def metrics_summary(path: Path) -> dict:
     rows = {}
+    unique = {}
+    legacy = []
+    conflicts = set()
     for value in read_metrics(path):
+        ident = value.get('event_id')
+        if not isinstance(ident,str):
+            legacy.append(value)
+        elif ident in unique and unique[ident] != value:
+            conflicts.add(ident)
+        else:
+            unique[ident]=value
+    values=[]
+    for ident,value in unique.items():
+        if ident in conflicts:
+            value={**value,'incremental_usage':{key:None for key in DIMENSIONS}}
+        values.append(value)
+    # Identity-less replay cannot be attributed safely. Keep ambiguity explicit.
+    legacy_counts={}
+    for value in legacy:
+        key=json.dumps(value,sort_keys=True)
+        legacy_counts[key]=legacy_counts.get(key,0)+1
+    seen_legacy=set()
+    for value in legacy:
+        key=json.dumps(value,sort_keys=True)
+        if key in seen_legacy: continue
+        seen_legacy.add(key)
+        if legacy_counts[key]>1 and value.get('event')=='usage':
+            value={**value,'incremental_usage':{key:None for key in DIMENSIONS}}
+        values.append(value)
+    attempts=set()
+    ended=set()
+    measured_attempts=set()
+    partial_attempts=set()
+    for value in values:
         if value.get("event") not in ("usage", "agent_started", "agent_ended"):
             continue
         stage = value.get("stage") if value.get("stage") in STAGES else "unknown"
         row = rows.setdefault(stage, {"stage": stage, "usage_events": 0, "unknown_events": 0,
                                       "attempts": 0, "completed_attempts": 0, "failed_attempts": 0,
                                       "elapsed_seconds": None,
-                                      "measured": {key: None for key in DIMENSIONS}, "measured_input_plus_output": None})
+                                      "measured": {key: None for key in DIMENSIONS}, "measured_input_plus_output": None,
+                                      "dimension_coverage": {key:{'known':0,'unknown':0} for key in DIMENSIONS},
+                                      "identities": []})
+        identity={key:value.get(key) for key in ('attempt','assignment_id','configured','resolved','selection_sources','observed_model','observed_effort','observed_source')}
+        if identity not in row['identities']: row['identities'].append(identity)
         if value["event"] == "agent_started":
-            row["attempts"] += 1
+            key=(stage,value.get('attempt'))
+            if key not in attempts:
+                row["attempts"] += 1
+                attempts.add(key)
             continue
         if value["event"] == "agent_ended":
+            key=(stage,value.get('attempt'))
+            if key in ended: continue
+            ended.add(key)
             row["completed_attempts"] += 1
             row["failed_attempts"] += type(value.get("exit_code")) is int and value["exit_code"] != 0
             elapsed = value.get("elapsed_seconds")
@@ -130,12 +173,18 @@ def metrics_summary(path: Path) -> dict:
                 row["elapsed_seconds"] = round((row["elapsed_seconds"] or 0) + elapsed, 3)
             continue
         usage = numeric_usage(value.get("incremental_usage"))
+        key=(stage,value.get('attempt'))
+        if key[1] is None or any(count is None for count in usage.values()):
+            partial_attempts.add(key)
+        else:
+            measured_attempts.add(key)
         row["usage_events"] += 1
         if any(usage[key] is None for key in ("input_tokens", "output_tokens")):
             row["unknown_events"] += 1
         else:
             row["measured_input_plus_output"] = (row["measured_input_plus_output"] or 0) + usage["input_tokens"] + usage["output_tokens"]
         for key, count in usage.items():
+            row['dimension_coverage'][key]['unknown' if count is None else 'known'] += 1
             if count is not None:
                 row["measured"][key] = (row["measured"][key] or 0) + count
     measured = [r["measured_input_plus_output"] for r in rows.values() if r["measured_input_plus_output"] is not None]
@@ -144,4 +193,8 @@ def metrics_summary(path: Path) -> dict:
         count = row["measured_input_plus_output"]
         row["measured_percent"] = round(count * 100 / total, 2) if total and count is not None else None
     # Private session hashes, arbitrary metadata, prompts and commands stay local.
-    return {"measured_input_plus_output": total, "stages": list(rows.values())}
+    complete=bool(attempts) and attempts == ended == measured_attempts and not partial_attempts and not conflicts and all(
+        row['attempts'] == row['completed_attempts'] and row['usage_events']>0 and
+        all(value['unknown']==0 for value in row['dimension_coverage'].values()) for row in rows.values())
+    return {"measured_input_plus_output": total, "complete": complete,
+            "conflicting_events": len(conflicts), "stages": list(rows.values())}

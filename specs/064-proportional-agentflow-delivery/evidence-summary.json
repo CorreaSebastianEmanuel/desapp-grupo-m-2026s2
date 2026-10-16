@@ -1,0 +1,807 @@
+{
+  "schema_version": 1,
+  "task": "TASK-064",
+  "feature": "064-proportional-agentflow-delivery",
+  "base_revision": "9f9611465bf1afef4c5018a64d1410b3f946c14d",
+  "verified_source": "f77731bd63d292bf09e8ce71812a25f232dd89c31f75beab25f80be2d87d37d5",
+  "canonical_inputs": "c59350bd8639114662c23ec9e90f8a10311150e6e031a244580496fbafb2adc6",
+  "manifest_sha256": "22b5d70c548f9d81b9c606330dc05b54f07c02c9c9e69261a64b73b0ccec94db",
+  "ci": {
+    ".github/workflows/quality-baseline.yml": "2dff9ff4513700469085396cdf9f91661333e7e363ba087c43432eda8a98a87d",
+    ".github/workflows/sonarcloud.yml": "9d0e2c7ca7042747890d3f2fd817d42c8ada01658dc4a98558f9f8e578e08aaa",
+    ".github/workflows/agentflow-finalize.yml": "a486b1dae20298826b65c4755f37f8943a44d7665d2dd2d01144c245c05c3797"
+  },
+  "checks": [
+    {
+      "id": "preflight",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "9327286d3164cc95f436c6e48356da7cc857ed35473314cb33f41fb586090699",
+      "elapsed_seconds": 4.467,
+      "output_sha256": "eb06135f6fd8fc3ccc063e12cb7ae5d73d99759abe2d8ecaaecb1e981d90bf33",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/690733e0322742a58e830fe6fcccf5d9/064-proportional-agentflow-delivery/develop/preflight/507b358c3e6b488bb20d9651392a118c.log"
+      },
+      "environment": {},
+      "coverage": [
+        "FR-002",
+        "FR-003",
+        "FR-004",
+        "SC-001"
+      ]
+    },
+    {
+      "id": "script-syntax",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "84bdb357c56f8e5ccbf479bb586c052e2600852c18462fe48bca8ffa61fedcd9",
+      "elapsed_seconds": 0.201,
+      "output_sha256": "a1ebc802139b94295bb53a4aefe1fced6e30c917291f8bddab63d4e0b47f1b46",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/690733e0322742a58e830fe6fcccf5d9/064-proportional-agentflow-delivery/develop/script-syntax/1a2ddc564fe74d28807727e8358ab034.log"
+      },
+      "environment": {},
+      "coverage": [
+        "FR-004"
+      ]
+    },
+    {
+      "id": "workflow-tests",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "ec98b9673713b86c3ab0b65dad0287a302051136134c030ac2b18b2ae34fc575",
+      "elapsed_seconds": 59.693,
+      "output_sha256": "c66a08f0badd039fbaaa8254bcec9e2c7f3ac8569877840ec3cb79632e16d494",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/690733e0322742a58e830fe6fcccf5d9/064-proportional-agentflow-delivery/develop/workflow-tests/08e4c6ad61904264a5927245c3749957.log"
+      },
+      "environment": {},
+      "coverage": [
+        "FR-001",
+        "FR-002",
+        "FR-003",
+        "FR-004",
+        "FR-005",
+        "FR-006",
+        "FR-007",
+        "FR-008",
+        "FR-009",
+        "FR-010",
+        "FR-011",
+        "FR-012",
+        "FR-013",
+        "FR-014",
+        "FR-015",
+        "FR-016",
+        "FR-017",
+        "FR-018",
+        "FR-019",
+        "FR-020",
+        "FR-021",
+        "FR-022",
+        "SC-001",
+        "SC-002",
+        "SC-003",
+        "SC-004",
+        "SC-005",
+        "SC-006",
+        "SC-007",
+        "SC-008",
+        "SC-009",
+        "SC-010"
+      ]
+    },
+    {
+      "id": "shell-discovery",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "1e45bc6f422750b2b15834d5f5a642a62d21bbbc854efe0c86e56bdb385cd6b0",
+      "elapsed_seconds": 12.125,
+      "output_sha256": "876b49547b652d8831c50fa97eae2748f667fd6be9a479668ca8b6c06c03a63e",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/690733e0322742a58e830fe6fcccf5d9/064-proportional-agentflow-delivery/develop/shell-discovery/a51c48c531544c9b99d21018a81afccf.log"
+      },
+      "environment": {},
+      "coverage": [
+        "FR-003",
+        "FR-012",
+        "SC-001"
+      ]
+    },
+    {
+      "id": "format",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "20c2ab4342ef38ad8cca55773830bec43847cb2ea28f4e67b79655c4ba5321d3",
+      "elapsed_seconds": 1.053,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/690733e0322742a58e830fe6fcccf5d9/064-proportional-agentflow-delivery/develop/format/592ec9dae4ce43a29a63c8218316b7a9.log"
+      },
+      "environment": {},
+      "coverage": [
+        "FR-004"
+      ]
+    },
+    {
+      "id": "compile",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "84c5efffb1e8753fb9399ce673dc4399ba05c3f7a4d45ac3a2b7ffd7d569e279",
+      "elapsed_seconds": 0.696,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/690733e0322742a58e830fe6fcccf5d9/064-proportional-agentflow-delivery/develop/compile/647ceb6633f24712a6e94b396507f8c5.log"
+      },
+      "environment": {
+        "MIX_ENV": "test"
+      },
+      "coverage": [
+        "FR-004"
+      ]
+    },
+    {
+      "id": "openapi-tests",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "fc5a0be6b56674a30aeae687fe6d7c5375c861f639570878aa9649057e826a9f",
+      "elapsed_seconds": 0.751,
+      "output_sha256": "f656e784d1370177574f1cff7325f5ea4ded0f61a34fe83fffc6276c5c033ea1",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/690733e0322742a58e830fe6fcccf5d9/064-proportional-agentflow-delivery/develop/openapi-tests/b2945588153d439c84ecd99cd99ee83f.log"
+      },
+      "environment": {},
+      "coverage": [
+        "FR-004"
+      ]
+    },
+    {
+      "id": "openapi-contract",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "1618a44fd056a191be9aa268317704c1641367f7105f4223b6aea4d3ca44bb87",
+      "elapsed_seconds": 0.3,
+      "output_sha256": "8475d9724f69fde9c55e3d695e7623dce342858772e647629a513b89f86a8ccb",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/690733e0322742a58e830fe6fcccf5d9/064-proportional-agentflow-delivery/develop/openapi-contract/7425f982a64a41c69c29e321d9292df3.log"
+      },
+      "environment": {},
+      "coverage": [
+        "FR-004"
+      ]
+    },
+    {
+      "id": "clean-ci-tests",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "0306718541e4af56e5f7f6b33bd9d91b235e8c175d2ecad4451889d6ed8f5481",
+      "elapsed_seconds": 260.025,
+      "output_sha256": "6947fd6ed6addbd48fe03b93e81a4f87c724b7584ed3751c242e5a8365f0ca2f",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/690733e0322742a58e830fe6fcccf5d9/064-proportional-agentflow-delivery/develop/clean-ci-tests/fc0d1751b7994d948704f6d7010e2800.log"
+      },
+      "environment": {
+        "MIX_ENV": "test"
+      },
+      "coverage": [
+        "FR-001",
+        "FR-002",
+        "FR-003",
+        "FR-004",
+        "FR-012",
+        "SC-001",
+        "SC-008"
+      ]
+    },
+    {
+      "id": "us1-tests",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "4de4cf4a40b457adf2327e53fe5a73753890050a5a2d97b0ac774a29531a97cf",
+      "elapsed_seconds": 1.768,
+      "output_sha256": "f693ea01791238b56e8561e362dc5cc972dae218c5ca868e467a5c9de46facb7",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/690733e0322742a58e830fe6fcccf5d9/064-proportional-agentflow-delivery/develop/us1-tests/07ba55be0c5f4be9904618349ae3f400.log"
+      },
+      "environment": {},
+      "coverage": [
+        "FR-002",
+        "FR-003"
+      ]
+    },
+    {
+      "id": "artifact-tests",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "7ec48fa21a7b3b2df45b6756b6e3e25bb0440a402070e7c40263f6e0ca8b5339",
+      "elapsed_seconds": 2.423,
+      "output_sha256": "bd5af64fd8c42ca80bc38c984838522ec0c3eaab7a594b473504f88356db905f",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/690733e0322742a58e830fe6fcccf5d9/064-proportional-agentflow-delivery/develop/artifact-tests/22b02cd8d2a74c8a8fa63a1cabd255a8.log"
+      },
+      "environment": {},
+      "coverage": [
+        "FR-005",
+        "FR-006"
+      ]
+    },
+    {
+      "id": "evidence-tests",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "2eb7530f40e505de3ae5816331df31aaf06db82133ed11973a42d5d17de770d2",
+      "elapsed_seconds": 5.163,
+      "output_sha256": "3beffcf65e1eca88249ba7aced606736420ca8473760e795b5fce63f4a56df95",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/690733e0322742a58e830fe6fcccf5d9/064-proportional-agentflow-delivery/develop/evidence-tests/45e72385bb4345a6bf400c24f7f65c2a.log"
+      },
+      "environment": {},
+      "coverage": [
+        "FR-005",
+        "FR-006",
+        "FR-007",
+        "FR-008",
+        "FR-009",
+        "FR-010",
+        "FR-013",
+        "SC-008"
+      ]
+    },
+    {
+      "id": "model-tests",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "4a314d301c8c28188166a563b96676384779f8ade0243dd6a1fec5a55db9c1a0",
+      "elapsed_seconds": 6.869,
+      "output_sha256": "319c0acc7d1494ade6df9e4243dece8aae6e0bed37e9cda5130eeec185a64db3",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/690733e0322742a58e830fe6fcccf5d9/064-proportional-agentflow-delivery/develop/model-tests/68b331d57bf646fe9d4b51522fe8cef6.log"
+      },
+      "environment": {},
+      "coverage": [
+        "FR-017",
+        "FR-018",
+        "FR-019",
+        "FR-020",
+        "FR-021"
+      ]
+    },
+    {
+      "id": "feedback-tests",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "0e7cde0cfe4bdcc1e4f0f9f0a3edb3286ec053f31cb555beb3b0692ba3523b3a",
+      "elapsed_seconds": 0.489,
+      "output_sha256": "cc02cdf4637a9f5292b8e6d8e7e7dfbf3c84ab1be0204195e67edd81204f166f",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/690733e0322742a58e830fe6fcccf5d9/064-proportional-agentflow-delivery/develop/feedback-tests/1ff826d00068454ab7efbfbc98e254b7.log"
+      },
+      "environment": {},
+      "coverage": [
+        "FR-011"
+      ]
+    },
+    {
+      "id": "metrics-tests",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "90c3d644200c28887c58c3a95963bc92f13559dedda1a09f14c1ba5838f54599",
+      "elapsed_seconds": 1.355,
+      "output_sha256": "dfec2badef32582bd3eb548d474e706b1d0c3a52dd6ad9ab3bcb85c5db6082b2",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/690733e0322742a58e830fe6fcccf5d9/064-proportional-agentflow-delivery/develop/metrics-tests/633ebaf0566744dea5d8b8cecd3866d2.log"
+      },
+      "environment": {},
+      "coverage": [
+        "FR-014",
+        "FR-015",
+        "FR-016"
+      ]
+    },
+    {
+      "id": "policy-tests",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "0d2a990a836f330de97f13dcb2e260519600c4220eb810e8c9d789a245781b9f",
+      "elapsed_seconds": 0.738,
+      "output_sha256": "c8023a8faf0574abf5511118ef94a7cfc70419f0ea8257ccc412e8fa5263b131",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/690733e0322742a58e830fe6fcccf5d9/064-proportional-agentflow-delivery/develop/policy-tests/dd49b08460b1454f8fc8219b1c6f3273.log"
+      },
+      "environment": {},
+      "coverage": [
+        "FR-012",
+        "FR-022"
+      ]
+    },
+    {
+      "id": "preflight",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "9327286d3164cc95f436c6e48356da7cc857ed35473314cb33f41fb586090699",
+      "elapsed_seconds": 4.376,
+      "output_sha256": "eb06135f6fd8fc3ccc063e12cb7ae5d73d99759abe2d8ecaaecb1e981d90bf33",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/690733e0322742a58e830fe6fcccf5d9/064-proportional-agentflow-delivery/qa/preflight/288fc94cbfc141e8a806f0cd980bccdc.log"
+      },
+      "environment": {},
+      "coverage": [
+        "FR-002",
+        "FR-003",
+        "FR-004",
+        "SC-001"
+      ]
+    },
+    {
+      "id": "script-syntax",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "84bdb357c56f8e5ccbf479bb586c052e2600852c18462fe48bca8ffa61fedcd9",
+      "elapsed_seconds": 0.193,
+      "output_sha256": "a1ebc802139b94295bb53a4aefe1fced6e30c917291f8bddab63d4e0b47f1b46",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/690733e0322742a58e830fe6fcccf5d9/064-proportional-agentflow-delivery/qa/script-syntax/47812beeb1a543eca09c53c40ab11b26.log"
+      },
+      "environment": {},
+      "coverage": [
+        "FR-004"
+      ]
+    },
+    {
+      "id": "workflow-tests",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "ec98b9673713b86c3ab0b65dad0287a302051136134c030ac2b18b2ae34fc575",
+      "elapsed_seconds": 54.153,
+      "output_sha256": "02da3f7caceb7a05d30a74d13f812e9471cfc49c63038c52b62f4355a4bd7195",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/690733e0322742a58e830fe6fcccf5d9/064-proportional-agentflow-delivery/qa/workflow-tests/83003c31a4e24206a8a58d1e0301b099.log"
+      },
+      "environment": {},
+      "coverage": [
+        "FR-001",
+        "FR-002",
+        "FR-003",
+        "FR-004",
+        "FR-005",
+        "FR-006",
+        "FR-007",
+        "FR-008",
+        "FR-009",
+        "FR-010",
+        "FR-011",
+        "FR-012",
+        "FR-013",
+        "FR-014",
+        "FR-015",
+        "FR-016",
+        "FR-017",
+        "FR-018",
+        "FR-019",
+        "FR-020",
+        "FR-021",
+        "FR-022",
+        "SC-001",
+        "SC-002",
+        "SC-003",
+        "SC-004",
+        "SC-005",
+        "SC-006",
+        "SC-007",
+        "SC-008",
+        "SC-009",
+        "SC-010"
+      ]
+    },
+    {
+      "id": "shell-discovery",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "1e45bc6f422750b2b15834d5f5a642a62d21bbbc854efe0c86e56bdb385cd6b0",
+      "elapsed_seconds": 11.981,
+      "output_sha256": "876b49547b652d8831c50fa97eae2748f667fd6be9a479668ca8b6c06c03a63e",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/690733e0322742a58e830fe6fcccf5d9/064-proportional-agentflow-delivery/qa/shell-discovery/765a58693a4c4cbda77aad2ae9078e04.log"
+      },
+      "environment": {},
+      "coverage": [
+        "FR-003",
+        "FR-012",
+        "SC-001"
+      ]
+    },
+    {
+      "id": "format",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "20c2ab4342ef38ad8cca55773830bec43847cb2ea28f4e67b79655c4ba5321d3",
+      "elapsed_seconds": 0.986,
+      "output_sha256": "30199ad9c58d1fac4c5cb86f906bb9d3fb9f64d18a0819f5e5b8e9b198cbd708",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/690733e0322742a58e830fe6fcccf5d9/064-proportional-agentflow-delivery/qa/format/a218e9d4fb2247e0bd31859c5f7e08ad.log"
+      },
+      "environment": {},
+      "coverage": [
+        "FR-004"
+      ]
+    },
+    {
+      "id": "compile",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "84c5efffb1e8753fb9399ce673dc4399ba05c3f7a4d45ac3a2b7ffd7d569e279",
+      "elapsed_seconds": 0.623,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/690733e0322742a58e830fe6fcccf5d9/064-proportional-agentflow-delivery/qa/compile/94142e6367e644debc6140083bf65438.log"
+      },
+      "environment": {
+        "MIX_ENV": "test"
+      },
+      "coverage": [
+        "FR-004"
+      ]
+    },
+    {
+      "id": "openapi-tests",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "fc5a0be6b56674a30aeae687fe6d7c5375c861f639570878aa9649057e826a9f",
+      "elapsed_seconds": 0.689,
+      "output_sha256": "47bd648b0be99e73e5ff5fdb7ff3bb11a0b34723095ee7081e2bda79b5e73e40",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/690733e0322742a58e830fe6fcccf5d9/064-proportional-agentflow-delivery/qa/openapi-tests/c1efb36834a34170bc7b3455dd4a550e.log"
+      },
+      "environment": {},
+      "coverage": [
+        "FR-004"
+      ]
+    },
+    {
+      "id": "openapi-contract",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "1618a44fd056a191be9aa268317704c1641367f7105f4223b6aea4d3ca44bb87",
+      "elapsed_seconds": 0.283,
+      "output_sha256": "8475d9724f69fde9c55e3d695e7623dce342858772e647629a513b89f86a8ccb",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/690733e0322742a58e830fe6fcccf5d9/064-proportional-agentflow-delivery/qa/openapi-contract/5e5a654629bf47db8608e8aad3cbcc19.log"
+      },
+      "environment": {},
+      "coverage": [
+        "FR-004"
+      ]
+    },
+    {
+      "id": "clean-ci-tests",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "0306718541e4af56e5f7f6b33bd9d91b235e8c175d2ecad4451889d6ed8f5481",
+      "elapsed_seconds": 252.564,
+      "output_sha256": "3ba6d27027b89dc71535d673a388d05b425d140fabb719364fe53e32b7a77e86",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/690733e0322742a58e830fe6fcccf5d9/064-proportional-agentflow-delivery/qa/clean-ci-tests/199ac50d1ee14586a47480cd99ebf89e.log"
+      },
+      "environment": {
+        "MIX_ENV": "test"
+      },
+      "coverage": [
+        "FR-001",
+        "FR-002",
+        "FR-003",
+        "FR-004",
+        "FR-012",
+        "SC-001",
+        "SC-008"
+      ]
+    },
+    {
+      "id": "us1-tests",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "4de4cf4a40b457adf2327e53fe5a73753890050a5a2d97b0ac774a29531a97cf",
+      "elapsed_seconds": 1.667,
+      "output_sha256": "efa9875e946443f66f060db59ae796ddff1b71311dddd6e786756c23f00115e5",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/690733e0322742a58e830fe6fcccf5d9/064-proportional-agentflow-delivery/qa/us1-tests/763f321244254a1e9780f4bc6864c0e4.log"
+      },
+      "environment": {},
+      "coverage": [
+        "FR-002",
+        "FR-003"
+      ]
+    },
+    {
+      "id": "artifact-tests",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "7ec48fa21a7b3b2df45b6756b6e3e25bb0440a402070e7c40263f6e0ca8b5339",
+      "elapsed_seconds": 2.187,
+      "output_sha256": "6fdf5541c5885f5f52869303778fbd95d80df65c78b5527e370fd55b8692623b",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/690733e0322742a58e830fe6fcccf5d9/064-proportional-agentflow-delivery/qa/artifact-tests/7860a0c9a430438489cb5f083b8e0a8f.log"
+      },
+      "environment": {},
+      "coverage": [
+        "FR-005",
+        "FR-006"
+      ]
+    },
+    {
+      "id": "evidence-tests",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "2eb7530f40e505de3ae5816331df31aaf06db82133ed11973a42d5d17de770d2",
+      "elapsed_seconds": 5.141,
+      "output_sha256": "f4b5518e1e4deb070a1a3915895fc99db7349c4c265e42b08e244a2abc710fcc",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/690733e0322742a58e830fe6fcccf5d9/064-proportional-agentflow-delivery/qa/evidence-tests/4f48c98c5f7c45f2a8f8ed48f6ce0d60.log"
+      },
+      "environment": {},
+      "coverage": [
+        "FR-005",
+        "FR-006",
+        "FR-007",
+        "FR-008",
+        "FR-009",
+        "FR-010",
+        "FR-013",
+        "SC-008"
+      ]
+    },
+    {
+      "id": "model-tests",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "4a314d301c8c28188166a563b96676384779f8ade0243dd6a1fec5a55db9c1a0",
+      "elapsed_seconds": 6.217,
+      "output_sha256": "935d25bd072765cad543a10ce5976658515b881074c4e1182ad76caffa0e6fb4",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/690733e0322742a58e830fe6fcccf5d9/064-proportional-agentflow-delivery/qa/model-tests/a62aeb19150443b288e0b8bd41b021f5.log"
+      },
+      "environment": {},
+      "coverage": [
+        "FR-017",
+        "FR-018",
+        "FR-019",
+        "FR-020",
+        "FR-021"
+      ]
+    },
+    {
+      "id": "feedback-tests",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "0e7cde0cfe4bdcc1e4f0f9f0a3edb3286ec053f31cb555beb3b0692ba3523b3a",
+      "elapsed_seconds": 0.369,
+      "output_sha256": "c47b09bc10a1851dbe16b5c8099f3caa0393af8faba1acb6068059d36e2607ac",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/690733e0322742a58e830fe6fcccf5d9/064-proportional-agentflow-delivery/qa/feedback-tests/d0de6280b82b407ca5a82d7dd3edbd96.log"
+      },
+      "environment": {},
+      "coverage": [
+        "FR-011"
+      ]
+    },
+    {
+      "id": "metrics-tests",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "90c3d644200c28887c58c3a95963bc92f13559dedda1a09f14c1ba5838f54599",
+      "elapsed_seconds": 1.222,
+      "output_sha256": "eef10ab8a0abe367a5f9da3b6fc8c6b9c6ab65529039cc280ae5033fd5e18fd0",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/690733e0322742a58e830fe6fcccf5d9/064-proportional-agentflow-delivery/qa/metrics-tests/15277035ec8a457a91866a57beec07b6.log"
+      },
+      "environment": {},
+      "coverage": [
+        "FR-014",
+        "FR-015",
+        "FR-016"
+      ]
+    },
+    {
+      "id": "policy-tests",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "0d2a990a836f330de97f13dcb2e260519600c4220eb810e8c9d789a245781b9f",
+      "elapsed_seconds": 0.803,
+      "output_sha256": "0f280d8fd4982f4c1b95b0723beefe5a49eb5ed104b8077327a8d5464f4ef675",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/690733e0322742a58e830fe6fcccf5d9/064-proportional-agentflow-delivery/qa/policy-tests/da1f0855aef948868ec24c818caca83c.log"
+      },
+      "environment": {},
+      "coverage": [
+        "FR-012",
+        "FR-022"
+      ]
+    }
+  ],
+  "coverage": {
+    "FR-001": [
+      "workflow-tests",
+      "clean-ci-tests"
+    ],
+    "FR-002": [
+      "preflight",
+      "workflow-tests",
+      "clean-ci-tests",
+      "us1-tests"
+    ],
+    "FR-003": [
+      "preflight",
+      "workflow-tests",
+      "shell-discovery",
+      "clean-ci-tests",
+      "us1-tests"
+    ],
+    "FR-004": [
+      "preflight",
+      "script-syntax",
+      "workflow-tests",
+      "format",
+      "compile",
+      "openapi-tests",
+      "openapi-contract",
+      "clean-ci-tests"
+    ],
+    "FR-005": [
+      "workflow-tests",
+      "artifact-tests",
+      "evidence-tests"
+    ],
+    "FR-006": [
+      "workflow-tests",
+      "artifact-tests",
+      "evidence-tests"
+    ],
+    "FR-007": [
+      "workflow-tests",
+      "evidence-tests"
+    ],
+    "FR-008": [
+      "workflow-tests",
+      "evidence-tests"
+    ],
+    "FR-009": [
+      "workflow-tests",
+      "evidence-tests"
+    ],
+    "FR-010": [
+      "workflow-tests",
+      "evidence-tests"
+    ],
+    "FR-011": [
+      "workflow-tests",
+      "feedback-tests"
+    ],
+    "FR-012": [
+      "workflow-tests",
+      "shell-discovery",
+      "clean-ci-tests",
+      "policy-tests"
+    ],
+    "FR-013": [
+      "workflow-tests",
+      "evidence-tests"
+    ],
+    "FR-014": [
+      "workflow-tests",
+      "metrics-tests"
+    ],
+    "FR-015": [
+      "workflow-tests",
+      "metrics-tests"
+    ],
+    "FR-016": [
+      "workflow-tests",
+      "metrics-tests"
+    ],
+    "FR-017": [
+      "workflow-tests",
+      "model-tests"
+    ],
+    "SC-001": [
+      "preflight",
+      "workflow-tests",
+      "shell-discovery",
+      "clean-ci-tests"
+    ],
+    "SC-002": [
+      "workflow-tests"
+    ],
+    "SC-003": [
+      "workflow-tests"
+    ],
+    "SC-004": [
+      "workflow-tests"
+    ],
+    "SC-005": [
+      "workflow-tests"
+    ],
+    "SC-006": [
+      "workflow-tests"
+    ],
+    "SC-007": [
+      "workflow-tests"
+    ],
+    "SC-008": [
+      "workflow-tests",
+      "clean-ci-tests",
+      "evidence-tests"
+    ],
+    "FR-018": [
+      "workflow-tests",
+      "model-tests"
+    ],
+    "FR-019": [
+      "workflow-tests",
+      "model-tests"
+    ],
+    "FR-020": [
+      "workflow-tests",
+      "model-tests"
+    ],
+    "FR-021": [
+      "workflow-tests",
+      "model-tests"
+    ],
+    "FR-022": [
+      "workflow-tests",
+      "policy-tests"
+    ],
+    "SC-009": [
+      "workflow-tests"
+    ],
+    "SC-010": [
+      "workflow-tests"
+    ]
+  },
+  "independent_reports": {
+    "qa-report.md": {
+      "verdict": "PASS",
+      "sha256": "e67fd2bddfc28ac86ccda7465719c5f575a2b24676af0b706b0a5ed856f9af45"
+    },
+    "review-report.md": {
+      "verdict": "PASS",
+      "sha256": "392bd57d221ed641459b377efd92ea0221508fdb2ef86c66c3a5da80ecb65f7d"
+    }
+  },
+  "complete": true,
+  "limitations": [
+    "Portable summary does not authorize workspace reuse; run local checks."
+  ],
+  "finalized_at": "2026-10-16T12:51:50.562121+00:00"
+}

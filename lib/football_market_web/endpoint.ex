@@ -1,13 +1,15 @@
 defmodule FootballMarketWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :football_market
 
-  # The session will be stored in the cookie and signed,
-  # this means its contents can be read but not tampered with.
-  # Set :encryption_salt if you would also like to encrypt it.
+  # Opaque browser authority is encrypted and script-inaccessible.
   @session_options [
     store: :cookie,
     key: "_football_market_key",
     signing_salt: "StBRTN8C",
+    encryption_salt: "browser-session-v1",
+    http_only: true,
+    max_age: 900,
+    secure: Application.compile_env(:football_market, :browser_cookie_secure, false),
     same_site: "Lax"
   ]
 
@@ -46,6 +48,7 @@ defmodule FootballMarketWeb.Endpoint do
 
   plug Plug.MethodOverride
   plug Plug.Head
+  plug FootballMarketWeb.Plugs.BrowserCookie
   plug Plug.Session, @session_options
   plug FootballMarketWeb.Router
 end

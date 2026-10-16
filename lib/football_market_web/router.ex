@@ -6,6 +6,7 @@ defmodule FootballMarketWeb.Router do
     plug :fetch_session
     plug :fetch_live_flash
     plug :put_root_layout, html: {FootballMarketWeb.Layouts, :root}
+    plug FootballMarketWeb.Plugs.BrowserOrigin
     plug :protect_from_forgery
     plug :put_secure_browser_headers
   end
@@ -24,6 +25,28 @@ defmodule FootballMarketWeb.Router do
 
     get "/", PageController, :home
     get "/docs", ApiDocsController, :index
+  end
+
+  scope "/", FootballMarketWeb do
+    pipe_through :browser
+    get "/sign-in", SessionController, :new
+    post "/sign-in", SessionController, :create
+    post "/sign-out", SessionController, :delete
+  end
+
+  pipeline :workspace do
+    plug FootballMarketWeb.Plugs.BrowserAuth
+  end
+
+  scope "/", FootballMarketWeb do
+    pipe_through [:browser, :workspace]
+
+    live_session :workspace,
+      session: {FootballMarketWeb.Plugs.BrowserAuth, :live_session, []},
+      on_mount: [{FootballMarketWeb.Live.BrowserAuth, :workspace}] do
+      live "/portfolio", WorkspaceLive, :portfolio
+      live "/conditional-orders", WorkspaceLive, :conditional_orders
+    end
   end
 
   scope "/api", FootballMarketWeb do

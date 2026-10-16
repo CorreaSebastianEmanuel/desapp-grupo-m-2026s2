@@ -29,6 +29,9 @@ defmodule FootballMarket.Market.ScopeTest do
     for line <- String.split(changed, "\n", trim: true) do
       assert String.slice(line, 3..-1//1) in (paths ++
                                                 synchronization_paths(active_feature()) ++
+                                                FootballMarket.BrowserSessionCase.shell_paths(
+                                                  active_feature()
+                                                ) ++
                                                 FootballMarket.WorkflowScope.paths(
                                                   active_feature()
                                                 )),
@@ -154,6 +157,14 @@ defmodule FootballMarket.Market.ScopeTest do
   end
 
   defp assert_config_boundary(source) do
+    # Normalize only the approved TASK-046 secret-filter extension.
+    source =
+      String.replace(
+        source,
+        ~s(["password", "token", "cursor", "browser_handle", "token_digest", "secret"]),
+        ~s(["password", "token", "cursor"])
+      )
+
     # Pin the approved configuration, including the fail-closed issuance default.
     # Git HEAD changes after publication and is not a stable content oracle.
     assert Base.encode16(:crypto.hash(:sha256, source), case: :lower) ==

@@ -161,6 +161,7 @@ defmodule FootballMarket.Statistics.ScopeTest do
       assert path in provider_paths or path in scraper_paths or path in ingestion_paths or
                path in valuation_paths(active_feature) or path in market_paths(active_feature) or
                path in synchronization_paths(active_feature) or
+               path in FootballMarket.BrowserSessionCase.shell_paths(active_feature) or
                path in FootballMarket.WorkflowScope.paths(active_feature) or
                path in allowed_ci_paths or
                Enum.any?(allowed, &String.starts_with?(path, &1)),

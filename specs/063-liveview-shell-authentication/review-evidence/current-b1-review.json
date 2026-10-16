@@ -1,0 +1,15 @@
+{
+  "qa_receipts_validated_before_review": 8,
+  "qa_snapshot": "qa-evidence/b1-independent-20261016/manifest-results.json",
+  "review_receipt": {
+    "exit_code": 0,
+    "check_identity": "8d2d4f0476ff14dec3cdc775a2ba18ae7e0ea9328d3e6de1fb335811a3c09d0f",
+    "source_before": "275243a46c3502b2dfd3e6fd67e34278e5d709f2ed2afc71951b110043f3018f",
+    "source_after": "275243a46c3502b2dfd3e6fd67e34278e5d709f2ed2afc71951b110043f3018f",
+    "inputs": "9159ab6fb1941471646d0ea10dfc8af0c4e018829598ad604f1b8353dedf0ac1",
+    "evidence": ".agentflow/runs/checks/5a429e1044c2438ab206dd4de40ea617.log",
+    "evidence_sha256": "349c87d800688503e53aba4bb37d186d9a560db25377e174b8868f38d19f0be9",
+    "stage": "review",
+    "elapsed_seconds": 11.117
+  }
+}

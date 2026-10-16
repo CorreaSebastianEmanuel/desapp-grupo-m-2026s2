@@ -99,7 +99,9 @@ defmodule FootballMarket.Providers.ScopeTest do
                         @scraping_production ++
                         ingestion_paths ++
                         valuation_paths(active_feature) ++
-                        market_paths(active_feature) ++ synchronization_paths(active_feature)) or
+                        market_paths(active_feature) ++
+                        synchronization_paths(active_feature) ++
+                        FootballMarket.BrowserSessionCase.shell_paths(active_feature)) or
                  &1 == "mix.exs")
            )
 

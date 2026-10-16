@@ -20,7 +20,6 @@ jobs:
     name: SonarCloud analysis and CP1 gate
     runs-on: ubuntu-24.04
     env:
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       EXPECTED_REVISION: ${{ github.event.pull_request.head.sha || github.sha }}
       ANALYSIS_MODE: ${{ github.event_name == 'pull_request' && 'pr' || 'main' }}
       SONAR_PROJECT_KEY: CorreaSebastianEmanuel_desapp-grupo-m-2026s2
@@ -31,7 +30,17 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
 
+      - name: Install pinned Node test toolchain
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+
+      - name: Test workspace JavaScript and generate LCOV
+        run: node tools/openapi/workspace_coverage.mjs
+
       - name: Publish exact-revision analysis and await native gate
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602
         with:
           args: >-
@@ -39,6 +48,8 @@ jobs:
             -Dsonar.qualitygate.timeout=300
 
       - name: Evaluate whole-project CP1 threshold
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         shell: bash
         run: |
           set -o pipefail

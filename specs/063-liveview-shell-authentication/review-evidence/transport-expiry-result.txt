@@ -1,0 +1,12 @@
+2026-10-16 independent final review
+Command: MIX_ENV=test mix test /tmp/task046_review_expiry_test.exs
+Exit: 2
+ExUnit seed: 211945
+Result: 0/1 passed; 1 failed; 0.1 seconds
+Control passed: expired retained authority redirects with notice=ended.
+Failure: after browser transport removal, expected redirect containing notice=ended;
+actual redirect: /sign-in?return_to=%2Fportfolio
+Scope: deterministic HTTP boundary reproduction with controlled server time and
+absent expired cookie; this is not a fifteen-minute real-browser expiration run.
+Reproduce from repository root:
+MIX_ENV=test mix test specs/063-liveview-shell-authentication/review-evidence/transport_expiry_test.exs

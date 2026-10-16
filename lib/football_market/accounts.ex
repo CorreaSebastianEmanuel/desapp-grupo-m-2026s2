@@ -59,30 +59,42 @@ defmodule FootballMarket.Accounts do
     timed_authentication(:validation, fn -> Authentication.validate(token) end)
   end
 
-  defp authenticate(credentials) when is_map(credentials) do
+  @doc "Verifies existing credentials without issuing API authority."
+  def verify_browser_credentials(credentials) when is_map(credentials) do
+    if Application.get_env(:football_market, :browser_failure) == :all, do: raise("unavailable")
     email = Map.get(credentials, :email, Map.get(credentials, "email"))
     password = Map.get(credentials, :password, Map.get(credentials, "password"))
 
     with true <- is_binary(email) and is_binary(password),
-         normalized_email <- email |> String.trim() |> String.downcase(),
-         {user_id, password_hash} when is_binary(password_hash) <-
-           credential_for(normalized_email),
-         true <- PasswordCredential.verify_password(password, password_hash),
-         {:ok, token} <- Authentication.issue(user_id) do
-      {:ok, %{access_token: token}}
+         normalized <- email |> String.trim() |> String.downcase(),
+         {id, hash} when is_binary(hash) <- credential_for(normalized),
+         true <- PasswordCredential.verify_password(password, hash),
+         user when not is_nil(user) <- Repo.get(User, id) do
+      {:ok, User.public_projection(user)}
     else
       nil ->
         Argon2.no_user_verify()
-        {:error, :authentication_failed}
+        {:error, :invalid}
 
       _ ->
-        {:error, :authentication_failed}
+        {:error, :invalid}
     end
   rescue
-    _ -> {:error, :authentication_failed}
+    _ -> {:error, :unavailable}
+  catch
+    :exit, _ -> {:error, :unavailable}
   end
 
-  defp authenticate(_credentials), do: {:error, :authentication_failed}
+  def verify_browser_credentials(_), do: {:error, :invalid}
+
+  defp authenticate(credentials) do
+    with {:ok, user} <- verify_browser_credentials(credentials),
+         {:ok, token} <- Authentication.issue(user.id) do
+      {:ok, %{access_token: token}}
+    else
+      _ -> {:error, :authentication_failed}
+    end
+  end
 
   defp credential_for(normalized_email) do
     Repo.one(

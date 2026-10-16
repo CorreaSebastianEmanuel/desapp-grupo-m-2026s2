@@ -1,0 +1,15 @@
+database already exists
+
+01:53:47.373 [info] Migrations already up
+migrations current
+Running ExUnit with seed: 551220, max_cases: 32
+Excluding tags: [performance: true]
+
+QA signout_ms=60
+QA expiry_ms=269
+WORKSPACE_RECEIPT mode=browser status=complete
+.QA api_browser_separation_and_secret_sentinels=PASS
+.
+Finished in 4.1 seconds (0.00s async, 4.1s sync)
+
+Result: 2 passed

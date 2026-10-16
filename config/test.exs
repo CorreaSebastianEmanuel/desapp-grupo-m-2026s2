@@ -44,6 +44,7 @@ config :football_market, FootballMarket.Repo,
 config :football_market, FootballMarketWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4002],
   secret_key_base: "FwrkOJ1dwzn3DL7e7e/3OACyrATL7OMcLbB3Nzrnl599wrXOjN8Ju9ny1tyG66AW",
+  check_origin: ["//127.0.0.1", "//localhost"],
   server: false
 
 # Print only warnings and errors during test

@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "runtime_required": true,
+  "checks": [
+    {
+      "id": "preflight",
+      "argv": [
+        "sh",
+        "-c",
+        "scripts/check_toolchain.sh && scripts/local_services.sh ready && MIX_ENV=test mix test.prepare && node --version"
+      ],
+      "reuse": false
+    },
+    {
+      "id": "format",
+      "argv": [
+        "mix",
+        "format",
+        "--check-formatted"
+      ]
+    },
+    {
+      "id": "compile",
+      "argv": [
+        "mix",
+        "compile",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "openapi",
+      "argv": [
+        "sh",
+        "-c",
+        "npm test --prefix tools/openapi && node tools/openapi/validate.mjs priv/static/openapi.json"
+      ]
+    },
+    {
+      "id": "unit",
+      "argv": [
+        "sh",
+        "scripts/test_profile.sh",
+        "unit"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "integration",
+      "argv": [
+        "sh",
+        "scripts/test_profile.sh",
+        "integration"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "runtime": true,
+      "reuse": false,
+      "expectation": "Profile executes workspace_http_runtime_test.exs real-listener readiness/status/header/body/cookie assertions for GET/POST /sign-in, POST /sign-out, GET /portfolio and /conditional-orders, 403 CSRF/Origin, 422 generic invalid credentials, 503 unavailable auth/revoke, 303 safe redirects, no-store and HttpOnly/SameSite/Secure deployment config. GET sign-out never mutates, safe 404/denial recovery, public pages/API 401/credential precedence retain behavior. workspace_browser_test.exs launches actual Chromium with workspace_browser.mjs for every story, exact expiry and separate <=2-second two-tab removal, stale forms, history/account switch, disconnect/reconnect/no replay, keyboard/accessibility at 1280x800 and secret non-disclosure. Harness asserts listener and services ready itself, fails unavailable prerequisites, no skips. Supplemental sequence asserts missing-CSRF 403 then cross-origin 403 on fresh HTTP connections without retries; test-only owned-resource denial asserts 403, recovery and no foreign data; forged cross-origin websocket upgrade asserts 403. Real wall-clock fractional cookie retention regression preserves the exclusive database deadline. Expired-transport recovery removes the actual Chromium session cookie while offline, asserts its absence before navigation, requires visible session-ended feedback without private content, and successfully signs in again; HTTP regression covers both protected destinations and notice-free direct public sign-in."
+    },
+    {
+      "id": "foundation",
+      "argv": [
+        "mix",
+        "test",
+        "test/football_market/accounts/browser_sessions_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "feature",
+      "argv": [
+        "mix",
+        "test",
+        "test/football_market/accounts/browser_sessions_test.exs",
+        "test/football_market/accounts/browser_credentials_test.exs",
+        "test/football_market_web/browser_return_test.exs",
+        "test/football_market_web/controllers/session_controller_test.exs",
+        "test/football_market_web/live",
+        "test/football_market_web/workspace_browser_test.exs",
+        "test/football_market_web/workspace_http_runtime_test.exs",
+        "test/football_market_web/browser_feedback_test.exs",
+        "test/football_market/market/scope_test.exs",
+        "test/football_market/providers/scope_test.exs",
+        "test/football_market/statistics/scope_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "runtime": true,
+      "expectation": "Real listener HTTP status, CSRF, cookie, redirects, API isolation and real Chromium navigation, two-tab private-content removal, expiry and keyboard assertions. Supplemental sequence asserts missing-CSRF 403 then cross-origin 403 on fresh HTTP connections without retries; test-only owned-resource denial asserts 403, recovery and no foreign data; forged cross-origin websocket upgrade asserts 403. Real wall-clock fractional cookie retention regression preserves the exclusive database deadline. Expired-transport recovery removes the actual Chromium session cookie while offline, asserts its absence before navigation, requires visible session-ended feedback without private content, and successfully signs in again; HTTP regression covers both protected destinations and notice-free direct public sign-in."
+    },
+    {
+      "id": "javascript",
+      "argv": [
+        "node",
+        "tools/openapi/workspace_coverage.mjs"
+      ]
+    },
+    {
+      "id": "ci",
+      "argv": [
+        "sh",
+        "scripts/ci_unit_tests.sh"
+      ]
+    }
+  ],
+  "coverage": {
+    "FR-001": [
+      "integration"
+    ],
+    "FR-002": [
+      "unit",
+      "integration",
+      "foundation",
+      "feature"
+    ],
+    "FR-003": [
+      "unit",
+      "integration",
+      "foundation",
+      "feature"
+    ],
+    "FR-004": [
+      "unit",
+      "integration",
+      "foundation",
+      "feature"
+    ],
+    "FR-005": [
+      "unit",
+      "integration"
+    ],
+    "FR-006": [
+      "unit",
+      "integration",
+      "feature"
+    ],
+    "FR-007": [
+      "integration"
+    ],
+    "FR-008": [
+      "integration"
+    ],
+    "FR-009": [
+      "integration",
+      "feature"
+    ],
+    "FR-010": [
+      "integration"
+    ],
+    "FR-011": [
+      "integration"
+    ],
+    "FR-012": [
+      "integration",
+      "javascript"
+    ],
+    "FR-013": [
+      "integration"
+    ],
+    "FR-014": [
+      "integration"
+    ],
+    "FR-015": [
+      "integration",
+      "javascript",
+      "ci"
+    ],
+    "SC-001": [
+      "integration"
+    ],
+    "SC-002": [
+      "integration",
+      "foundation",
+      "feature"
+    ],
+    "SC-003": [
+      "integration"
+    ],
+    "SC-004": [
+      "integration",
+      "feature",
+      "javascript"
+    ],
+    "SC-005": [
+      "integration"
+    ],
+    "SC-006": [
+      "integration"
+    ]
+  },
+  "task_stages": {
+    "T028": "qa",
+    "T029": "review"
+  }
+}

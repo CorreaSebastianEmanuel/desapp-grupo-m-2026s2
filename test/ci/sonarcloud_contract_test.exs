@@ -68,10 +68,30 @@ defmodule FootballMarket.SonarCloudContractTest do
     assert workflow =~ "sonar.qualitygate.wait=true"
     assert workflow =~ "sonar.qualitygate.timeout=300"
     refute workflow =~ "sonar.verbose=true"
-    refute workflow =~ ~r/run:.*\$\{\{\s*secrets\.SONAR_TOKEN/s
+
+    {json, 0} =
+      System.cmd("ruby", [
+        "-ryaml",
+        "-rjson",
+        "-e",
+        "puts JSON.generate(YAML.safe_load(File.read(ARGV[0]), aliases: true))",
+        @workflow
+      ])
+
+    document = Jason.decode!(json)
+    job = document["jobs"]["sonarcloud"]
+    refute Map.has_key?(job["env"], "SONAR_TOKEN")
+
+    for step <- job["steps"] do
+      refute (step["run"] || "") =~ ~r/\$\{\{\s*secrets\.SONAR_TOKEN/
+
+      if step["name"] == "Test workspace JavaScript and generate LCOV" do
+        refute Map.has_key?(step["env"] || %{}, "SONAR_TOKEN")
+      end
+    end
   end
 
-  test "configuration has exact owned scope and no coverage setting" do
+  test "configuration imports measured JavaScript coverage without excluding new code" do
     properties = File.read!(@properties)
     assert properties =~ "sonar.sources=lib,assets/js"
     assert properties =~ "sonar.tests=test"
@@ -82,8 +102,18 @@ defmodule FootballMarket.SonarCloudContractTest do
     assert properties =~
              "sonar.exclusions=_build/**,deps/**,assets/vendor/**,priv/static/assets/**,priv/static/**/*-*.js,priv/static/**/*.map"
 
-    refute properties =~ ~r/coverage/i
+    assert properties =~ "sonar.javascript.lcov.reportPaths=cover/workspace/lcov.info"
+    refute properties =~ "sonar.coverage.exclusions"
     refute properties =~ ~r/(token|password|secret)=/i
+  end
+
+  test "JavaScript tests generate coverage before the unchanged scanner quality gate" do
+    workflow = File.read!(@workflow)
+    {node, _} = :binary.match(workflow, "node-version: '24'")
+    {coverage, _} = :binary.match(workflow, "run: node tools/openapi/workspace_coverage.mjs")
+    {scanner, _} = :binary.match(workflow, "uses: SonarSource/sonarqube-scan-action@")
+    assert node < coverage and coverage < scanner
+    assert workflow =~ "sonar.qualitygate.wait=true"
   end
 
   test "gate separates PR and main freshness and exposes distinct summaries" do

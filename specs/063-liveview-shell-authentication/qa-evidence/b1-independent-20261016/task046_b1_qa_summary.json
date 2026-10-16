@@ -1,0 +1,14 @@
+{
+  "command": "MIX_ENV=test mix test /tmp/task046_b1_qa_test.exs",
+  "exit_code": 0,
+  "elapsed_seconds": 3.239,
+  "source_before": "275243a46c3502b2dfd3e6fd67e34278e5d709f2ed2afc71951b110043f3018f",
+  "source_after": "275243a46c3502b2dfd3e6fd67e34278e5d709f2ed2afc71951b110043f3018f",
+  "inputs": "9159ab6fb1941471646d0ea10dfc8af0c4e018829598ad604f1b8353dedf0ac1",
+  "inputs_after": "9159ab6fb1941471646d0ea10dfc8af0c4e018829598ad604f1b8353dedf0ac1",
+  "output_sha256": "81bb6d1cd5b5d526228d8a3944d0876989232ec4bf00619e12d5015bf0624ec9",
+  "probe_sha256": {
+    "/tmp/task046_b1_qa.mjs": "d38cdfe52728faf59beb94fc79ec79ba82f39156ba1e60574413b755234f6c82",
+    "/tmp/task046_b1_qa_test.exs": "7a46966977a54db0b32c960c48f0ce73b811ec7f2ee96e14689be298e21cbc7e"
+  }
+}

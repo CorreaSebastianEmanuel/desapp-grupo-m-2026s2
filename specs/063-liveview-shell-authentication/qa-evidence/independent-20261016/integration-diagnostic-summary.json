@@ -1,0 +1,11 @@
+{
+  "exit_code": 0,
+  "audit_count": 105,
+  "scope": "second and final integration attempt; direct equivalent diagnostic only",
+  "test_summary": [
+    "Finished in 163.3 seconds (2.0s async, 161.2s sync)",
+    "Result: 396 passed"
+  ],
+  "output": "specs/063-liveview-shell-authentication/qa-evidence/independent-20261016/football-market-cp1-integration.0jVNyh",
+  "failures": 0
+}

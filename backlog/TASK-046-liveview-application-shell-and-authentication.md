@@ -4,9 +4,9 @@ title: LiveView application shell and authentication
 type: task
 checkpoint: CP2
 priority: high
-status: review
+status: done
 depends_on: TASK-010
-active_run: c71ec697
+active_run: none
 ---
 
 ## Outcome

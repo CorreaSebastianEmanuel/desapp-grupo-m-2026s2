@@ -67,7 +67,7 @@ config :logger, :default_formatter,
 # before controller parameter logging can expose them.
 config :phoenix,
   json_library: Jason,
-  filter_parameters: ["password", "token", "cursor"]
+  filter_parameters: ["password", "token", "cursor", "browser_handle", "token_digest", "secret"]
 
 # Import a checked-in environment config when one exists. Unknown environments
 # retain the fail-closed defaults above so command-level capability checks can

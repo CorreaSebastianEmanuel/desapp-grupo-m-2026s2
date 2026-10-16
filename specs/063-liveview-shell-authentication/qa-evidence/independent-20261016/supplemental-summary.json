@@ -1,0 +1,13 @@
+{
+  "exit_code": 0,
+  "elapsed_seconds": 5.369,
+  "safe_lines": [
+    "Running ExUnit with seed: 551220, max_cases: 32",
+    "QA signout_ms=60",
+    "QA expiry_ms=269",
+    "WORKSPACE_RECEIPT mode=browser status=complete",
+    "Finished in 4.1 seconds (0.00s async, 4.1s sync)",
+    "QA api_browser_separation_and_secret_sentinels=PASS",
+    "Result: 2 passed"
+  ]
+}

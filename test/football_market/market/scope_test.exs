@@ -26,8 +26,13 @@ defmodule FootballMarket.Market.ScopeTest do
         ".github/workflows"
       ])
 
+    feature = Jason.decode!(File.read!(".specify/feature.json"))["feature_directory"]
+    shell_paths = FootballMarket.BrowserSessionCase.shell_paths(feature)
+
     for line <- String.split(changed, "\n", trim: true) do
-      assert String.slice(line, 3..-1//1) in (paths ++ synchronization_paths(active_feature())),
+      assert String.slice(line, 3..-1//1) in (paths ++
+                                                synchronization_paths(active_feature()) ++
+                                                shell_paths),
              "outside initial issuance plan: #{line}"
     end
 
@@ -150,6 +155,14 @@ defmodule FootballMarket.Market.ScopeTest do
   end
 
   defp assert_config_boundary(source) do
+    # Normalize only the approved TASK-046 secret-filter extension.
+    source =
+      String.replace(
+        source,
+        ~s(["password", "token", "cursor", "browser_handle", "token_digest", "secret"]),
+        ~s(["password", "token", "cursor"])
+      )
+
     # Pin the approved configuration, including the fail-closed issuance default.
     # Git HEAD changes after publication and is not a stable content oracle.
     assert Base.encode16(:crypto.hash(:sha256, source), case: :lower) ==

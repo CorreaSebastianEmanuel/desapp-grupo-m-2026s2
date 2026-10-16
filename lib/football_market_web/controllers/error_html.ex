@@ -18,7 +18,25 @@ defmodule FootballMarketWeb.ErrorHTML do
   # The default is to render a plain text page based on
   # the template name. For example, "404.html" becomes
   # "Not Found".
-  def render(template, _assigns) do
-    Phoenix.Controller.status_message_from_template(template)
+  def render("403.html", assigns) do
+    assigns = Map.new(assigns)
+
+    ~H"""
+    <main>
+      <h1>Access denied</h1><p role="alert">This request could not be accepted.</p><a href="/portfolio">Return to workspace</a><a href="/sign-in">Sign in</a>
+    </main>
+    """
   end
+
+  def render("404.html", assigns) do
+    assigns = Map.new(assigns)
+
+    ~H"""
+    <main>
+      <h1>Not Found</h1><p role="alert">This destination is unavailable.</p><a href="/portfolio">Return to workspace</a><a href="/sign-in">Sign in</a>
+    </main>
+    """
+  end
+
+  def render(template, _assigns), do: Phoenix.Controller.status_message_from_template(template)
 end

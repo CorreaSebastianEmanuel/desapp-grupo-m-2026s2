@@ -1,0 +1,994 @@
+database already exists
+
+01:50:17.008 [info] Migrations already up
+migrations current
+Running ExUnit with seed: 191772, max_cases: 32
+Excluding tags: [:test]
+Including tags: [:integration, :performance]
+
+...........................    warning: redefining module FootballMarket.Repo.Migrations.CreateInfrastructureProbe (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateInfrastructureProbe do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260913000000_create_infrastructure_probe.exs:1: FootballMarket.Repo.Migrations.CreateInfrastructureProbe (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateCatalogTables (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateCatalogTables do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260917090000_create_catalog_tables.exs:1: FootballMarket.Repo.Migrations.CreateCatalogTables (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateUsersAndPasswordCredentials (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateUsersAndPasswordCredentials do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260922000000_create_users_and_password_credentials.exs:1: FootballMarket.Repo.Migrations.CreateUsersAndPasswordCredentials (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateApiKeys (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateApiKeys do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260923000000_create_api_keys.exs:1: FootballMarket.Repo.Migrations.CreateApiKeys (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AddPlayerCatalogOrderIndex (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AddPlayerCatalogOrderIndex do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260927000000_add_player_catalog_order_index.exs:1: FootballMarket.Repo.Migrations.AddPlayerCatalogOrderIndex (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateMatchStatistics (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateMatchStatistics do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261003000000_create_match_statistics.exs:1: FootballMarket.Repo.Migrations.CreateMatchStatistics (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AlignStatisticsIdentityWhitespace (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AlignStatisticsIdentityWhitespace do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261004000000_align_statistics_identity_whitespace.exs:1: FootballMarket.Repo.Migrations.AlignStatisticsIdentityWhitespace (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateCatalogIngestionTables (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateCatalogIngestionTables do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261008000000_create_catalog_ingestion_tables.exs:1: FootballMarket.Repo.Migrations.CreateCatalogIngestionTables (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.MakeTeamBusinessKeysDeferrable (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.MakeTeamBusinessKeysDeferrable do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261008000100_make_team_business_keys_deferrable.exs:1: FootballMarket.Repo.Migrations.MakeTeamBusinessKeysDeferrable (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateValuationConfigurations (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateValuationConfigurations do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261013000000_create_valuation_configurations.exs:1: FootballMarket.Repo.Migrations.CreateValuationConfigurations (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateInitialPlayerIssuance (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateInitialPlayerIssuance do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261014000000_create_initial_player_issuance.exs:1: FootballMarket.Repo.Migrations.CreateInitialPlayerIssuance (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AddOban (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AddOban do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015000000_add_oban.exs:1: FootballMarket.Repo.Migrations.AddOban (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateSynchronizationLedgers (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateSynchronizationLedgers do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015000100_create_synchronization_ledgers.exs:1: FootballMarket.Repo.Migrations.CreateSynchronizationLedgers (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateCatalogDeliveryReceipts (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateCatalogDeliveryReceipts do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015000200_create_catalog_delivery_receipts.exs:1: FootballMarket.Repo.Migrations.CreateCatalogDeliveryReceipts (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateBrowserSessions (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateBrowserSessions do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015235000_create_browser_sessions.exs:1: FootballMarket.Repo.Migrations.CreateBrowserSessions (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AlignBrowserSessionContract (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AlignBrowserSessionContract do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015235100_align_browser_session_contract.exs:1: FootballMarket.Repo.Migrations.AlignBrowserSessionContract (module)
+
+.    warning: redefining module FootballMarket.Repo.Migrations.CreateInfrastructureProbe (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateInfrastructureProbe do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260913000000_create_infrastructure_probe.exs:1: FootballMarket.Repo.Migrations.CreateInfrastructureProbe (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateCatalogTables (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateCatalogTables do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260917090000_create_catalog_tables.exs:1: FootballMarket.Repo.Migrations.CreateCatalogTables (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateUsersAndPasswordCredentials (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateUsersAndPasswordCredentials do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260922000000_create_users_and_password_credentials.exs:1: FootballMarket.Repo.Migrations.CreateUsersAndPasswordCredentials (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateApiKeys (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateApiKeys do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260923000000_create_api_keys.exs:1: FootballMarket.Repo.Migrations.CreateApiKeys (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AddPlayerCatalogOrderIndex (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AddPlayerCatalogOrderIndex do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260927000000_add_player_catalog_order_index.exs:1: FootballMarket.Repo.Migrations.AddPlayerCatalogOrderIndex (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateMatchStatistics (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateMatchStatistics do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261003000000_create_match_statistics.exs:1: FootballMarket.Repo.Migrations.CreateMatchStatistics (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AlignStatisticsIdentityWhitespace (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AlignStatisticsIdentityWhitespace do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261004000000_align_statistics_identity_whitespace.exs:1: FootballMarket.Repo.Migrations.AlignStatisticsIdentityWhitespace (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateCatalogIngestionTables (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateCatalogIngestionTables do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261008000000_create_catalog_ingestion_tables.exs:1: FootballMarket.Repo.Migrations.CreateCatalogIngestionTables (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.MakeTeamBusinessKeysDeferrable (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.MakeTeamBusinessKeysDeferrable do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261008000100_make_team_business_keys_deferrable.exs:1: FootballMarket.Repo.Migrations.MakeTeamBusinessKeysDeferrable (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateValuationConfigurations (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateValuationConfigurations do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261013000000_create_valuation_configurations.exs:1: FootballMarket.Repo.Migrations.CreateValuationConfigurations (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateInitialPlayerIssuance (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateInitialPlayerIssuance do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261014000000_create_initial_player_issuance.exs:1: FootballMarket.Repo.Migrations.CreateInitialPlayerIssuance (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AddOban (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AddOban do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015000000_add_oban.exs:1: FootballMarket.Repo.Migrations.AddOban (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateSynchronizationLedgers (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateSynchronizationLedgers do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015000100_create_synchronization_ledgers.exs:1: FootballMarket.Repo.Migrations.CreateSynchronizationLedgers (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateCatalogDeliveryReceipts (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateCatalogDeliveryReceipts do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015000200_create_catalog_delivery_receipts.exs:1: FootballMarket.Repo.Migrations.CreateCatalogDeliveryReceipts (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateBrowserSessions (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateBrowserSessions do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015235000_create_browser_sessions.exs:1: FootballMarket.Repo.Migrations.CreateBrowserSessions (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AlignBrowserSessionContract (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AlignBrowserSessionContract do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015235100_align_browser_session_contract.exs:1: FootballMarket.Repo.Migrations.AlignBrowserSessionContract (module)
+
+....    warning: redefining module FootballMarket.Repo.Migrations.CreateInfrastructureProbe (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateInfrastructureProbe do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260913000000_create_infrastructure_probe.exs:1: FootballMarket.Repo.Migrations.CreateInfrastructureProbe (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateCatalogTables (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateCatalogTables do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260917090000_create_catalog_tables.exs:1: FootballMarket.Repo.Migrations.CreateCatalogTables (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateUsersAndPasswordCredentials (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateUsersAndPasswordCredentials do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260922000000_create_users_and_password_credentials.exs:1: FootballMarket.Repo.Migrations.CreateUsersAndPasswordCredentials (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateApiKeys (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateApiKeys do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260923000000_create_api_keys.exs:1: FootballMarket.Repo.Migrations.CreateApiKeys (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AddPlayerCatalogOrderIndex (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AddPlayerCatalogOrderIndex do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260927000000_add_player_catalog_order_index.exs:1: FootballMarket.Repo.Migrations.AddPlayerCatalogOrderIndex (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateMatchStatistics (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateMatchStatistics do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261003000000_create_match_statistics.exs:1: FootballMarket.Repo.Migrations.CreateMatchStatistics (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AlignStatisticsIdentityWhitespace (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AlignStatisticsIdentityWhitespace do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261004000000_align_statistics_identity_whitespace.exs:1: FootballMarket.Repo.Migrations.AlignStatisticsIdentityWhitespace (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateCatalogIngestionTables (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateCatalogIngestionTables do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261008000000_create_catalog_ingestion_tables.exs:1: FootballMarket.Repo.Migrations.CreateCatalogIngestionTables (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.MakeTeamBusinessKeysDeferrable (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.MakeTeamBusinessKeysDeferrable do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261008000100_make_team_business_keys_deferrable.exs:1: FootballMarket.Repo.Migrations.MakeTeamBusinessKeysDeferrable (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateValuationConfigurations (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateValuationConfigurations do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261013000000_create_valuation_configurations.exs:1: FootballMarket.Repo.Migrations.CreateValuationConfigurations (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateInitialPlayerIssuance (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateInitialPlayerIssuance do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261014000000_create_initial_player_issuance.exs:1: FootballMarket.Repo.Migrations.CreateInitialPlayerIssuance (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AddOban (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AddOban do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015000000_add_oban.exs:1: FootballMarket.Repo.Migrations.AddOban (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateSynchronizationLedgers (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateSynchronizationLedgers do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015000100_create_synchronization_ledgers.exs:1: FootballMarket.Repo.Migrations.CreateSynchronizationLedgers (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateCatalogDeliveryReceipts (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateCatalogDeliveryReceipts do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015000200_create_catalog_delivery_receipts.exs:1: FootballMarket.Repo.Migrations.CreateCatalogDeliveryReceipts (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateBrowserSessions (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateBrowserSessions do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015235000_create_browser_sessions.exs:1: FootballMarket.Repo.Migrations.CreateBrowserSessions (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AlignBrowserSessionContract (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AlignBrowserSessionContract do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015235100_align_browser_session_contract.exs:1: FootballMarket.Repo.Migrations.AlignBrowserSessionContract (module)
+
+.......................    warning: redefining module FootballMarket.Repo.Migrations.AddOban (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AddOban do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015000000_add_oban.exs:1: FootballMarket.Repo.Migrations.AddOban (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateSynchronizationLedgers (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateSynchronizationLedgers do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015000100_create_synchronization_ledgers.exs:1: FootballMarket.Repo.Migrations.CreateSynchronizationLedgers (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateCatalogDeliveryReceipts (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateCatalogDeliveryReceipts do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015000200_create_catalog_delivery_receipts.exs:1: FootballMarket.Repo.Migrations.CreateCatalogDeliveryReceipts (module)
+
+........01:50:39.875 [error] Could not check origin for Phoenix.Socket transport.
+
+Origin of the request: https://hostile.invalid
+
+This happens when you are attempting a socket connection to
+a different host than the one configured in your config/
+files. For example, in development the host is configured
+to "localhost" but you may be trying to access it from
+"127.0.0.1". To fix this issue, you may either:
+
+  1. update [url: [host: ...]] to your actual host in the
+     config file for your current environment (recommended)
+
+  2. pass the :check_origin option when configuring your
+     endpoint or when configuring the transport in your
+     UserSocket module, explicitly outlining which origins
+     are allowed:
+
+        check_origin: ["https://example.com",
+                       "//another.com:888", "//other.com"]
+
+
+.............................01:50:57.687 [error] Postgrex.Protocol (#PID<0.7678.0> ({Postgrex.Protocol, "football_market_test"})) disconnected: ** (Postgrex.Error) ERROR 23514 (check_violation) supply not conserved
+
+    constraint: market_supply_conserved
+01:50:57.720 [error] Postgrex.Protocol (#PID<0.7677.0> ({Postgrex.Protocol, "football_market_test"})) disconnected: ** (Postgrex.Error) ERROR 23514 (check_violation) supply not conserved
+
+    constraint: market_supply_conserved
+.01:50:59.362 [error] Postgrex.Protocol (#PID<0.7930.0> ({Postgrex.Protocol, "football_market_test"})) disconnected: ** (Postgrex.Error) ERROR 23514 (check_violation) incorrect initial owner
+
+    constraint: market_initial_owner
+01:51:02.186 [error] Postgrex.Protocol (#PID<0.8052.0> ({Postgrex.Protocol, "football_market_test"})) disconnected: ** (Postgrex.Error) ERROR 23514 (check_violation) supply not conserved
+
+    constraint: market_supply_conserved
+01:51:03.003 [error] Postgrex.Protocol (#PID<0.8178.0> ({Postgrex.Protocol, "football_market_test"})) disconnected: ** (Postgrex.Error) ERROR 23514 (check_violation) invalid original quote
+
+    constraint: market_issuance_quote_consistent
+01:51:03.834 [error] Postgrex.Protocol (#PID<0.8300.0> ({Postgrex.Protocol, "football_market_test"})) disconnected: ** (Postgrex.Error) ERROR 23514 (check_violation) invalid original quote
+
+    constraint: market_issuance_quote_consistent
+01:51:04.675 [error] Postgrex.Protocol (#PID<0.8426.0> ({Postgrex.Protocol, "football_market_test"})) disconnected: ** (Postgrex.Error) ERROR 23514 (check_violation) market recipient mismatch
+
+    constraint: market_recipient_consistent
+.    warning: redefining module FootballMarket.Repo.Migrations.CreateInfrastructureProbe (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateInfrastructureProbe do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260913000000_create_infrastructure_probe.exs:1: FootballMarket.Repo.Migrations.CreateInfrastructureProbe (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateCatalogTables (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateCatalogTables do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260917090000_create_catalog_tables.exs:1: FootballMarket.Repo.Migrations.CreateCatalogTables (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateUsersAndPasswordCredentials (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateUsersAndPasswordCredentials do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260922000000_create_users_and_password_credentials.exs:1: FootballMarket.Repo.Migrations.CreateUsersAndPasswordCredentials (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateApiKeys (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateApiKeys do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260923000000_create_api_keys.exs:1: FootballMarket.Repo.Migrations.CreateApiKeys (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AddPlayerCatalogOrderIndex (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AddPlayerCatalogOrderIndex do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260927000000_add_player_catalog_order_index.exs:1: FootballMarket.Repo.Migrations.AddPlayerCatalogOrderIndex (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateMatchStatistics (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateMatchStatistics do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261003000000_create_match_statistics.exs:1: FootballMarket.Repo.Migrations.CreateMatchStatistics (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AlignStatisticsIdentityWhitespace (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AlignStatisticsIdentityWhitespace do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261004000000_align_statistics_identity_whitespace.exs:1: FootballMarket.Repo.Migrations.AlignStatisticsIdentityWhitespace (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateCatalogIngestionTables (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateCatalogIngestionTables do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261008000000_create_catalog_ingestion_tables.exs:1: FootballMarket.Repo.Migrations.CreateCatalogIngestionTables (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.MakeTeamBusinessKeysDeferrable (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.MakeTeamBusinessKeysDeferrable do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261008000100_make_team_business_keys_deferrable.exs:1: FootballMarket.Repo.Migrations.MakeTeamBusinessKeysDeferrable (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateValuationConfigurations (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateValuationConfigurations do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261013000000_create_valuation_configurations.exs:1: FootballMarket.Repo.Migrations.CreateValuationConfigurations (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateInitialPlayerIssuance (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateInitialPlayerIssuance do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261014000000_create_initial_player_issuance.exs:1: FootballMarket.Repo.Migrations.CreateInitialPlayerIssuance (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AddOban (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AddOban do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015000000_add_oban.exs:1: FootballMarket.Repo.Migrations.AddOban (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateSynchronizationLedgers (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateSynchronizationLedgers do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015000100_create_synchronization_ledgers.exs:1: FootballMarket.Repo.Migrations.CreateSynchronizationLedgers (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateCatalogDeliveryReceipts (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateCatalogDeliveryReceipts do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015000200_create_catalog_delivery_receipts.exs:1: FootballMarket.Repo.Migrations.CreateCatalogDeliveryReceipts (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateBrowserSessions (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateBrowserSessions do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015235000_create_browser_sessions.exs:1: FootballMarket.Repo.Migrations.CreateBrowserSessions (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AlignBrowserSessionContract (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AlignBrowserSessionContract do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015235100_align_browser_session_contract.exs:1: FootballMarket.Repo.Migrations.AlignBrowserSessionContract (module)
+
+.    warning: redefining module FootballMarket.Repo.Migrations.CreateInfrastructureProbe (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateInfrastructureProbe do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260913000000_create_infrastructure_probe.exs:1: FootballMarket.Repo.Migrations.CreateInfrastructureProbe (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateCatalogTables (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateCatalogTables do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260917090000_create_catalog_tables.exs:1: FootballMarket.Repo.Migrations.CreateCatalogTables (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateUsersAndPasswordCredentials (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateUsersAndPasswordCredentials do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260922000000_create_users_and_password_credentials.exs:1: FootballMarket.Repo.Migrations.CreateUsersAndPasswordCredentials (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateApiKeys (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateApiKeys do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260923000000_create_api_keys.exs:1: FootballMarket.Repo.Migrations.CreateApiKeys (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AddPlayerCatalogOrderIndex (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AddPlayerCatalogOrderIndex do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260927000000_add_player_catalog_order_index.exs:1: FootballMarket.Repo.Migrations.AddPlayerCatalogOrderIndex (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateMatchStatistics (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateMatchStatistics do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261003000000_create_match_statistics.exs:1: FootballMarket.Repo.Migrations.CreateMatchStatistics (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AlignStatisticsIdentityWhitespace (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AlignStatisticsIdentityWhitespace do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261004000000_align_statistics_identity_whitespace.exs:1: FootballMarket.Repo.Migrations.AlignStatisticsIdentityWhitespace (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateCatalogIngestionTables (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateCatalogIngestionTables do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261008000000_create_catalog_ingestion_tables.exs:1: FootballMarket.Repo.Migrations.CreateCatalogIngestionTables (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.MakeTeamBusinessKeysDeferrable (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.MakeTeamBusinessKeysDeferrable do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261008000100_make_team_business_keys_deferrable.exs:1: FootballMarket.Repo.Migrations.MakeTeamBusinessKeysDeferrable (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateValuationConfigurations (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateValuationConfigurations do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261013000000_create_valuation_configurations.exs:1: FootballMarket.Repo.Migrations.CreateValuationConfigurations (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateInitialPlayerIssuance (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateInitialPlayerIssuance do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261014000000_create_initial_player_issuance.exs:1: FootballMarket.Repo.Migrations.CreateInitialPlayerIssuance (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AddOban (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AddOban do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015000000_add_oban.exs:1: FootballMarket.Repo.Migrations.AddOban (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateSynchronizationLedgers (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateSynchronizationLedgers do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015000100_create_synchronization_ledgers.exs:1: FootballMarket.Repo.Migrations.CreateSynchronizationLedgers (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateCatalogDeliveryReceipts (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateCatalogDeliveryReceipts do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015000200_create_catalog_delivery_receipts.exs:1: FootballMarket.Repo.Migrations.CreateCatalogDeliveryReceipts (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateBrowserSessions (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateBrowserSessions do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015235000_create_browser_sessions.exs:1: FootballMarket.Repo.Migrations.CreateBrowserSessions (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AlignBrowserSessionContract (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AlignBrowserSessionContract do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015235100_align_browser_session_contract.exs:1: FootballMarket.Repo.Migrations.AlignBrowserSessionContract (module)
+
+.    warning: redefining module FootballMarket.Repo.Migrations.CreateInfrastructureProbe (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateInfrastructureProbe do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260913000000_create_infrastructure_probe.exs:1: FootballMarket.Repo.Migrations.CreateInfrastructureProbe (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateCatalogTables (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateCatalogTables do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260917090000_create_catalog_tables.exs:1: FootballMarket.Repo.Migrations.CreateCatalogTables (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateUsersAndPasswordCredentials (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateUsersAndPasswordCredentials do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260922000000_create_users_and_password_credentials.exs:1: FootballMarket.Repo.Migrations.CreateUsersAndPasswordCredentials (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateApiKeys (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateApiKeys do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260923000000_create_api_keys.exs:1: FootballMarket.Repo.Migrations.CreateApiKeys (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AddPlayerCatalogOrderIndex (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AddPlayerCatalogOrderIndex do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260927000000_add_player_catalog_order_index.exs:1: FootballMarket.Repo.Migrations.AddPlayerCatalogOrderIndex (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateMatchStatistics (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateMatchStatistics do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261003000000_create_match_statistics.exs:1: FootballMarket.Repo.Migrations.CreateMatchStatistics (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AlignStatisticsIdentityWhitespace (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AlignStatisticsIdentityWhitespace do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261004000000_align_statistics_identity_whitespace.exs:1: FootballMarket.Repo.Migrations.AlignStatisticsIdentityWhitespace (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateCatalogIngestionTables (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateCatalogIngestionTables do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261008000000_create_catalog_ingestion_tables.exs:1: FootballMarket.Repo.Migrations.CreateCatalogIngestionTables (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.MakeTeamBusinessKeysDeferrable (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.MakeTeamBusinessKeysDeferrable do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261008000100_make_team_business_keys_deferrable.exs:1: FootballMarket.Repo.Migrations.MakeTeamBusinessKeysDeferrable (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateValuationConfigurations (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateValuationConfigurations do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261013000000_create_valuation_configurations.exs:1: FootballMarket.Repo.Migrations.CreateValuationConfigurations (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateInitialPlayerIssuance (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateInitialPlayerIssuance do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261014000000_create_initial_player_issuance.exs:1: FootballMarket.Repo.Migrations.CreateInitialPlayerIssuance (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AddOban (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AddOban do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015000000_add_oban.exs:1: FootballMarket.Repo.Migrations.AddOban (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateSynchronizationLedgers (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateSynchronizationLedgers do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015000100_create_synchronization_ledgers.exs:1: FootballMarket.Repo.Migrations.CreateSynchronizationLedgers (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateCatalogDeliveryReceipts (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateCatalogDeliveryReceipts do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015000200_create_catalog_delivery_receipts.exs:1: FootballMarket.Repo.Migrations.CreateCatalogDeliveryReceipts (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateBrowserSessions (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateBrowserSessions do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015235000_create_browser_sessions.exs:1: FootballMarket.Repo.Migrations.CreateBrowserSessions (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AlignBrowserSessionContract (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AlignBrowserSessionContract do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015235100_align_browser_session_contract.exs:1: FootballMarket.Repo.Migrations.AlignBrowserSessionContract (module)
+
+...................................................API key timing: issue 40/40, identify 40/40 under 1s
+....................................................................................................................jwt: 40/40 below 1s, p95=30us
+api_key: 40/40 below 1s, p95=354us
+......................    warning: redefining module FootballMarket.Repo.Migrations.CreateInfrastructureProbe (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateInfrastructureProbe do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260913000000_create_infrastructure_probe.exs:1: FootballMarket.Repo.Migrations.CreateInfrastructureProbe (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateCatalogTables (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateCatalogTables do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260917090000_create_catalog_tables.exs:1: FootballMarket.Repo.Migrations.CreateCatalogTables (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateUsersAndPasswordCredentials (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateUsersAndPasswordCredentials do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260922000000_create_users_and_password_credentials.exs:1: FootballMarket.Repo.Migrations.CreateUsersAndPasswordCredentials (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateApiKeys (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateApiKeys do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260923000000_create_api_keys.exs:1: FootballMarket.Repo.Migrations.CreateApiKeys (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AddPlayerCatalogOrderIndex (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AddPlayerCatalogOrderIndex do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260927000000_add_player_catalog_order_index.exs:1: FootballMarket.Repo.Migrations.AddPlayerCatalogOrderIndex (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateMatchStatistics (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateMatchStatistics do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261003000000_create_match_statistics.exs:1: FootballMarket.Repo.Migrations.CreateMatchStatistics (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AlignStatisticsIdentityWhitespace (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AlignStatisticsIdentityWhitespace do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261004000000_align_statistics_identity_whitespace.exs:1: FootballMarket.Repo.Migrations.AlignStatisticsIdentityWhitespace (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateCatalogIngestionTables (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateCatalogIngestionTables do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261008000000_create_catalog_ingestion_tables.exs:1: FootballMarket.Repo.Migrations.CreateCatalogIngestionTables (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.MakeTeamBusinessKeysDeferrable (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.MakeTeamBusinessKeysDeferrable do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261008000100_make_team_business_keys_deferrable.exs:1: FootballMarket.Repo.Migrations.MakeTeamBusinessKeysDeferrable (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateValuationConfigurations (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateValuationConfigurations do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261013000000_create_valuation_configurations.exs:1: FootballMarket.Repo.Migrations.CreateValuationConfigurations (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateInitialPlayerIssuance (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateInitialPlayerIssuance do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261014000000_create_initial_player_issuance.exs:1: FootballMarket.Repo.Migrations.CreateInitialPlayerIssuance (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AddOban (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AddOban do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015000000_add_oban.exs:1: FootballMarket.Repo.Migrations.AddOban (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateSynchronizationLedgers (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateSynchronizationLedgers do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015000100_create_synchronization_ledgers.exs:1: FootballMarket.Repo.Migrations.CreateSynchronizationLedgers (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateCatalogDeliveryReceipts (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateCatalogDeliveryReceipts do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015000200_create_catalog_delivery_receipts.exs:1: FootballMarket.Repo.Migrations.CreateCatalogDeliveryReceipts (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateBrowserSessions (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateBrowserSessions do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015235000_create_browser_sessions.exs:1: FootballMarket.Repo.Migrations.CreateBrowserSessions (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AlignBrowserSessionContract (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AlignBrowserSessionContract do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015235100_align_browser_session_contract.exs:1: FootballMarket.Repo.Migrations.AlignBrowserSessionContract (module)
+
+.    warning: redefining module FootballMarket.Repo.Migrations.CreateInfrastructureProbe (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateInfrastructureProbe do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260913000000_create_infrastructure_probe.exs:1: FootballMarket.Repo.Migrations.CreateInfrastructureProbe (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateCatalogTables (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateCatalogTables do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260917090000_create_catalog_tables.exs:1: FootballMarket.Repo.Migrations.CreateCatalogTables (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateUsersAndPasswordCredentials (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateUsersAndPasswordCredentials do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260922000000_create_users_and_password_credentials.exs:1: FootballMarket.Repo.Migrations.CreateUsersAndPasswordCredentials (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateApiKeys (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateApiKeys do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260923000000_create_api_keys.exs:1: FootballMarket.Repo.Migrations.CreateApiKeys (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AddPlayerCatalogOrderIndex (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AddPlayerCatalogOrderIndex do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260927000000_add_player_catalog_order_index.exs:1: FootballMarket.Repo.Migrations.AddPlayerCatalogOrderIndex (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateMatchStatistics (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateMatchStatistics do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261003000000_create_match_statistics.exs:1: FootballMarket.Repo.Migrations.CreateMatchStatistics (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AlignStatisticsIdentityWhitespace (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AlignStatisticsIdentityWhitespace do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261004000000_align_statistics_identity_whitespace.exs:1: FootballMarket.Repo.Migrations.AlignStatisticsIdentityWhitespace (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateCatalogIngestionTables (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateCatalogIngestionTables do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261008000000_create_catalog_ingestion_tables.exs:1: FootballMarket.Repo.Migrations.CreateCatalogIngestionTables (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.MakeTeamBusinessKeysDeferrable (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.MakeTeamBusinessKeysDeferrable do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261008000100_make_team_business_keys_deferrable.exs:1: FootballMarket.Repo.Migrations.MakeTeamBusinessKeysDeferrable (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateValuationConfigurations (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateValuationConfigurations do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261013000000_create_valuation_configurations.exs:1: FootballMarket.Repo.Migrations.CreateValuationConfigurations (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateInitialPlayerIssuance (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateInitialPlayerIssuance do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261014000000_create_initial_player_issuance.exs:1: FootballMarket.Repo.Migrations.CreateInitialPlayerIssuance (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AddOban (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AddOban do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015000000_add_oban.exs:1: FootballMarket.Repo.Migrations.AddOban (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateSynchronizationLedgers (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateSynchronizationLedgers do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015000100_create_synchronization_ledgers.exs:1: FootballMarket.Repo.Migrations.CreateSynchronizationLedgers (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateCatalogDeliveryReceipts (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateCatalogDeliveryReceipts do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015000200_create_catalog_delivery_receipts.exs:1: FootballMarket.Repo.Migrations.CreateCatalogDeliveryReceipts (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateBrowserSessions (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateBrowserSessions do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015235000_create_browser_sessions.exs:1: FootballMarket.Repo.Migrations.CreateBrowserSessions (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AlignBrowserSessionContract (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AlignBrowserSessionContract do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015235100_align_browser_session_contract.exs:1: FootballMarket.Repo.Migrations.AlignBrowserSessionContract (module)
+
+.....01:52:13.541 [error] Postgrex.Protocol (#PID<0.17264.0> ({Postgrex.Protocol, "football_market_test"})) disconnected: ** (Postgrex.Error) ERROR 23514 (check_violation) injected precommit failure
+
+    constraint: test_fault
+..........PLAYER_CATALOG_FIXTURE seed=12012 leagues=5 seasons=10 teams=100 positions=4 players=100000
+PLAYER_CATALOG_P95 league_first=27.382ms matches=20000
+PLAYER_CATALOG_P95 league_continuation=34.216ms matches=20000
+PLAYER_CATALOG_P95 position_first=42.586ms matches=25000
+PLAYER_CATALOG_P95 position_continuation=50.13ms matches=25000
+PLAYER_CATALOG_P95 team_first=7.915ms matches=1000
+PLAYER_CATALOG_P95 team_continuation=8.724ms matches=1000
+PLAYER_CATALOG_P95 league_position_first=12.201ms matches=5000
+PLAYER_CATALOG_P95 league_position_continuation=24.99ms matches=5000
+PLAYER_CATALOG_P95 team_position_first=6.728ms matches=250
+PLAYER_CATALOG_P95 team_position_continuation=7.843ms matches=250
+PLAYER_CATALOG_P95 league_team_position_first=8.104ms matches=250
+PLAYER_CATALOG_P95 league_team_position_continuation=8.446ms matches=250
+...............................POSITION_ORACLE count=78 contexts=3 checksum=4e25989bbe1c04cbb42c6c5899c692b485fc231402ab8c75b7a7a8a0d127ae6b
+....JWT benchmark: login_p95_us=962 validation_p95_us=31 os={:unix, :linux} otp=29 schedulers=16 argon2=t1,m8,p1 samples=100/1000 warmups=10
+.........................................................POSITION_PERMUTATIONS count=24
+...
+Finished in 163.3 seconds (2.0s async, 161.2s sync)
+
+Result: 396 passed

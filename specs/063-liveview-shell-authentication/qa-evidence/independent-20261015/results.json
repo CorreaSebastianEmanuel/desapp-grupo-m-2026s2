@@ -1,0 +1,42 @@
+[
+  {
+    "check": "preflight",
+    "exit": 0,
+    "seconds": 1.561
+  },
+  {
+    "check": "format",
+    "exit": 0,
+    "seconds": 1.048
+  },
+  {
+    "check": "compile",
+    "exit": 0,
+    "seconds": 0.893
+  },
+  {
+    "check": "openapi",
+    "exit": 0,
+    "seconds": 0.833
+  },
+  {
+    "check": "unit",
+    "exit": 0,
+    "seconds": 26.261
+  },
+  {
+    "check": "integration",
+    "exit": 0,
+    "seconds": 208.0
+  },
+  {
+    "check": "foundation",
+    "exit": 0,
+    "seconds": 1.852
+  },
+  {
+    "check": "feature",
+    "exit": 0,
+    "seconds": 9.443
+  }
+]

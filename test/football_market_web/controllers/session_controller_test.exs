@@ -1,0 +1,134 @@
+defmodule FootballMarketWeb.SessionControllerTest do
+  use FootballMarket.BrowserSessionCase
+  @moduletag :integration
+  import Phoenix.ConnTest
+  import Plug.Conn
+  @endpoint FootballMarketWeb.Endpoint
+  defp anonymous do
+    get(build_conn(), "/sign-in")
+  end
+
+  defp submit(conn, attrs \\ %{}) do
+    conn
+    |> recycle()
+    |> post(
+      "/sign-in",
+      Map.merge(%{"email" => "browser@example.com", "password" => "correct-password-123"}, attrs)
+    )
+  end
+
+  test "expired transport still offers session-ended recovery without private content" do
+    controlled_clock!()
+    user = account()
+    signed = anonymous() |> submit()
+    handle = get_session(signed, :browser_handle)
+
+    :persistent_term.put(
+      {FootballMarket.BrowserTestClock, :now},
+      DateTime.add(BrowserSessions.now(), 901, :second)
+    )
+
+    assert {:error, :expired} = BrowserSessions.validate(handle)
+
+    for path <- ["/portfolio", "/conditional-orders"] do
+      # A new connection models a browser that already removed expired transport.
+      denied = get(build_conn(), path)
+      location = redirected_to(denied, 303)
+      assert location =~ "notice=ended"
+      assert location =~ URI.encode_www_form(path)
+      assert get_resp_header(denied, "cache-control") == ["no-store"]
+      refute response(denied, 303) =~ user.email
+
+      recovery = denied |> recycle() |> get(location) |> html_response(200)
+      assert recovery =~ "Your session ended. Please sign in again."
+      refute recovery =~ user.email
+      refute recovery =~ handle
+    end
+
+    refute anonymous() |> html_response(200) =~ "Your session ended"
+  end
+
+  test "real wall clock cookie retention does not truncate the remaining lifetime" do
+    user = account()
+    now = DateTime.utc_now()
+    {:ok, anonymous} = BrowserSessions.create_anonymous(now)
+    {:ok, handle} = BrowserSessions.authenticate(anonymous, user.id, now)
+    # Place the deadline between integral seconds while retaining the real clock.
+    {:ok, actor} = BrowserSessions.validate(handle)
+    deadline = DateTime.add(DateTime.utc_now(), 60_800_000, :microsecond)
+    session = Repo.get!(FootballMarket.Accounts.BrowserSession, actor.session_id)
+
+    session
+    |> Ecto.Changeset.change(
+      expires_at: deadline,
+      started_at: DateTime.add(deadline, -900, :second)
+    )
+    |> Repo.update!()
+
+    before_send = DateTime.utc_now()
+    conn = build_conn() |> Plug.Test.init_test_session(%{browser_handle: handle})
+    conn = FootballMarketWeb.Plugs.BrowserCookie.call(conn, [])
+    conn = conn |> put_resp_cookie("_football_market_key", "encrypted") |> send_resp(200, "ok")
+    age = conn.resp_cookies["_football_market_key"].max_age
+    assert age == 61
+    assert DateTime.compare(DateTime.add(before_send, age, :second), deadline) != :lt
+    assert {:error, :expired} = BrowserSessions.validate(handle, deadline)
+  end
+
+  test "rotates encrypted cookie, ignores stale credentials and keeps APIs separate" do
+    user = account()
+    old = anonymous()
+    old_handle = get_session(old, :browser_handle)
+    signed = submit(old)
+    assert redirected_to(signed, 303) == "/portfolio"
+    handle = get_session(signed, :browser_handle)
+    refute handle == old_handle
+    assert {:error, :invalid} = BrowserSessions.validate(old_handle)
+    assert {:ok, %{account_id: id}} = BrowserSessions.validate(handle)
+    assert id == user.id
+    assert Enum.join(get_resp_header(signed, "set-cookie")) =~ "HttpOnly"
+    refute Enum.join(get_resp_header(signed, "set-cookie")) =~ handle
+    stale = submit(signed, %{"email" => "another@example.com", "password" => "wrong"})
+    assert redirected_to(stale, 303) == "/portfolio"
+    assert get_session(stale, :browser_handle) == handle
+    assert stale |> recycle() |> get("/api/players") |> response(401)
+    html = signed |> recycle() |> get("/portfolio") |> html_response(200)
+    assert html =~ user.email
+    refute html =~ handle
+    assert signed |> recycle() |> get("/sign-in") |> redirected_to(303) == "/portfolio"
+  end
+
+  test "invalid forms clear passwords and return paths are exact" do
+    account()
+    invalid = anonymous() |> submit(%{"password" => "incorrect-secret"})
+    html = html_response(invalid, 422)
+    assert html =~ "Unable to sign in"
+    refute html =~ "incorrect-secret"
+    assert html =~ "aria-describedby=\"sign-in-message\""
+
+    good =
+      anonymous()
+      |> submit(%{"return_to" => "/conditional-orders", "account_id" => Ecto.UUID.generate()})
+
+    assert redirected_to(good, 303) == "/conditional-orders"
+    assert get(build_conn(), "/portfolio") |> redirected_to(303) =~ "/sign-in"
+  end
+
+  test "revocation commits before cookie deletion and failure retains retry authority" do
+    account()
+    controlled_clock!()
+    signed = anonymous() |> submit()
+    handle = get_session(signed, :browser_handle)
+    Application.put_env(:football_market, :browser_failure, :revoke)
+    failed = signed |> recycle() |> post("/sign-out")
+    assert html_response(failed, 503) =~ "Retry sign out"
+    assert get_session(failed, :browser_handle) == handle
+    assert {:ok, _} = BrowserSessions.validate(handle)
+    Application.delete_env(:football_market, :browser_failure)
+    out = failed |> recycle() |> post("/sign-out")
+    assert redirected_to(out, 303) =~ "/sign-in"
+    assert {:error, :invalid} = BrowserSessions.validate(handle)
+    replay = build_conn() |> init_test_session(%{browser_handle: handle}) |> get("/portfolio")
+    assert redirected_to(replay, 303) =~ "/sign-in"
+  end
+end

@@ -26,7 +26,7 @@ defmodule FootballMarket.Market.ScopeTest do
         ".github/workflows"
       ])
 
-    feature = Jason.decode!(File.read!(".specify/feature.json"))["feature_directory"]
+    feature = active_feature()
     shell_paths = FootballMarket.BrowserSessionCase.shell_paths(feature)
 
     for line <- String.split(changed, "\n", trim: true) do
@@ -243,5 +243,30 @@ defmodule FootballMarket.Market.ScopeTest do
     end
   end
 
-  defp active_feature, do: Jason.decode!(File.read!(".specify/feature.json"))["feature_directory"]
+  test "local feature pointer is optional and malformed pointers grant no allowance" do
+    path =
+      Path.join(System.tmp_dir!(), "task046-feature-#{System.unique_integer([:positive])}.json")
+
+    on_exit(fn -> File.rm(path) end)
+    assert active_feature(path) == nil
+
+    for contents <- ["not json", "[]", "{}", ~s({"feature_directory":17})] do
+      File.write!(path, contents)
+      assert active_feature(path) == nil
+    end
+
+    File.write!(path, ~s({"feature_directory":"specs/063-liveview-shell-authentication"}))
+    assert active_feature(path) == "specs/063-liveview-shell-authentication"
+    assert FootballMarket.BrowserSessionCase.shell_paths(nil) == []
+  end
+
+  defp active_feature(path \\ ".specify/feature.json") do
+    with {:ok, contents} <- File.read(path),
+         {:ok, %{"feature_directory" => feature}} when is_binary(feature) <-
+           Jason.decode(contents) do
+      feature
+    else
+      _ -> nil
+    end
+  end
 end

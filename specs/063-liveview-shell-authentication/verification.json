@@ -96,6 +96,20 @@
       },
       "runtime": true,
       "expectation": "Real listener HTTP status, CSRF, cookie, redirects, API isolation and real Chromium navigation, two-tab private-content removal, expiry and keyboard assertions. Supplemental sequence asserts missing-CSRF 403 then cross-origin 403 on fresh HTTP connections without retries; test-only owned-resource denial asserts 403, recovery and no foreign data; forged cross-origin websocket upgrade asserts 403. Real wall-clock fractional cookie retention regression preserves the exclusive database deadline. Expired-transport recovery removes the actual Chromium session cookie while offline, asserts its absence before navigation, requires visible session-ended feedback without private content, and successfully signs in again; HTTP regression covers both protected destinations and notice-free direct public sign-in."
+    },
+    {
+      "id": "javascript",
+      "argv": [
+        "node",
+        "tools/openapi/workspace_coverage.mjs"
+      ]
+    },
+    {
+      "id": "ci",
+      "argv": [
+        "sh",
+        "scripts/ci_unit_tests.sh"
+      ]
     }
   ],
   "coverage": {
@@ -146,7 +160,8 @@
       "integration"
     ],
     "FR-012": [
-      "integration"
+      "integration",
+      "javascript"
     ],
     "FR-013": [
       "integration"
@@ -155,7 +170,9 @@
       "integration"
     ],
     "FR-015": [
-      "integration"
+      "integration",
+      "javascript",
+      "ci"
     ],
     "SC-001": [
       "integration"
@@ -170,7 +187,8 @@
     ],
     "SC-004": [
       "integration",
-      "feature"
+      "feature",
+      "javascript"
     ],
     "SC-005": [
       "integration"

@@ -72,4 +72,31 @@ Implementation owner executes every manifest check through agentflow_check.py be
 
 ## Complexity Tracking
 
+## PR #39 CI correction
+
+CI exposed an optional local feature-pointer read in the Market scope test. Read
+missing, malformed or unexpected local metadata fail-closed as nil; exercise that
+reader with independent temporary fixtures. Never commit or synthesize an active
+feature pointer just to satisfy CI. Preserve both features' exact scope controls.
+
+SonarCloud requires measured coverage for the new browser JavaScript. Isolate
+workspace lifecycle state behind a dependency-injected factory while retaining
+the browser export and real Chromium acceptance. Test concealment, socket
+disposal, safe-read retry, duplicate-event suppression, history and connectivity
+events with Node's built-in runner. Generate genuine native LCOV under ignored
+cover/workspace, require 100% module lines/branches/functions, and import it in
+the existing immutable-action Sonar workflow. Handle the intentionally detached,
+internally caught retry promise explicitly with void. Do not reduce Sonar gates
+or exclude production code from its analysis. Keep scanner credentials confined
+to scanner/gate steps, outside JavaScript execution.
+
+Additional owned paths: tools/openapi/workspace_session.test.mjs,
+tools/openapi/workspace_coverage.mjs, sonar-project.properties,
+.github/workflows/sonarcloud.yml and test/ci/sonarcloud_contract_test.exs. The exact
+feature-specific allowance grows from 34 to 36 only for the latter two filtered
+paths. Quality baseline workflow and its byte oracle remain intact. Add the
+JavaScript check and exact CI runner to the manifest: the latter deliberately
+repeats the profiles here because an actual CI-only failure requires independent
+verification of that entry point, not just the tagged profiles.
+
 No constitutional violation. ADR-0026 records the necessary durable browser-session addition and retirement of cookie-only authority; existing infrastructure is reused.

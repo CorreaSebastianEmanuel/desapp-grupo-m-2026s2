@@ -7,7 +7,7 @@ defmodule FootballMarketWeb.BrowserFeedbackTest do
   @endpoint FootballMarketWeb.Endpoint
   test "shell scope allowance is fixed and fails closed" do
     paths = shell_paths("specs/063-liveview-shell-authentication")
-    assert length(paths) == 34
+    assert length(paths) == 36
     assert length(paths) == length(Enum.uniq(paths))
     assert Enum.all?(paths, &File.regular?/1)
     assert shell_paths(nil) == []

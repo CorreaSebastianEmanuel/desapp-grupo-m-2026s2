@@ -1,13 +1,11 @@
-# Independent QA delta — TASK-046 B1
+# Independent QA delta — PR #39 CI correction
 
-Fresh QA on corrected frozen source passed all eight checks independently via `python3 scripts/agentflow_check.py CHECK_ID --stage qa`, no reuse and sequential DB suites. Loopback bind/connect passed first. Timings: preflight 4.621s, format 1.265s, compile 0.732s, openapi 0.835s, unit 27.507s, integration 183.295s, foundation 1.722s, feature 9.289s. Zero current failures/retries; source and canonical input fingerprints remained unchanged. Exact fingerprints, receipt hashes and evidence references are in `qa-evidence/b1-independent-20261016/manifest-results.json` and qa-report.md.
+Fresh QA passed all ten manifest checks without reuse, sequentially: preflight, format, compile, openapi, unit, integration, foundation, feature, javascript and exact ci runner. Total 379.908s; zero failed executions. Source/input fingerprints stayed fixed. See qa-report.md and canonical handoffs/check-*.json for timings and hashes; consolidated safe evidence is qa-evidence/ci-correction-independent-20261016/summary.json.
 
-B1 resolved: actual Chromium cookie removal is asserted before protected navigation, rather than merely advancing the server clock. Controller regression covers both protected destinations, no-store/private-content exclusion and notice-free direct sign-in. Supplemental independent real HTTP/Chromium probe passed in 3.239s, covering missing/tampered HTTP cookies and actual offline cookie removal on both destinations, visible recovery without private identity and successful sign-in to each safe return. Sources/summary are in the same evidence directory. No marker, retention extension or authority/API change.
+Optional pointer regression and scope guards pass without fabricating/removing the real pointer. Native production-module LCOV records 35/35 lines, 21/21 branches and 10/10 functions. Independent /tmp negative probes confirm assertions and inadequate coverage propagate exit 1. Browser export/factory behavior, real Chromium lifecycle/security/recovery, 36-path exact allowance, unchanged baseline oracle and config fingerprint were challenged. Credentials remain step-local outside JS execution; pinned scanner/native gates and source analysis remain intact.
 
-All FR/SC mappings and acceptance edges reassessed against executed coverage. Existing two-tab deadlines, retained-cookie expiry, exclusive server boundary, no replay, history/reconnect isolation, denial recovery, CSRF/origin, forged websocket, secrets and keyboard evidence remain passing. Exact allowances/config fingerprint preserved on integrated main 7f8d4ba.
+No remote CI/Sonar success claim: source remains unpushed. Deterministic persisted-pageshow tests supplement browser history; no claim of a real Chromium bfcache hit. No individual removal timings are published beyond executable <=2s assertions. Earlier historical integration nondeterminism is not claimed fixed merely because this run passed.
 
-Historical unexplained integration failure remains a reproducibility limitation; this invocation had none. Deterministic cookie removal is not a fifteen-minute browser soak; accessibility is automated desktop evidence. Future financial actions still need transactional context authorization.
-
-T028 completed; T029 remains for separate final review. Review should assess B1 against these fresh receipts, not stale historical QA/review conclusions. No implementation or workflow-state changes/publication.
+Only T028 is complete. T029 needs a separate reviewer using this fresh evidence; existing completed run/PR and feedback limit remain untouched. No implementation edits or publication occurred.
 
 Verdict: PASS

@@ -43,6 +43,8 @@ defmodule FootballMarket.BrowserSessionCase do
         "test/football_market/market/scope_test.exs",
         "test/football_market/providers/scope_test.exs",
         "test/football_market/statistics/scope_test.exs",
+        "test/ci/sonarcloud_contract_test.exs",
+        ".github/workflows/sonarcloud.yml",
         "test/football_market_web/browser_feedback_test.exs",
         "test/football_market_web/browser_return_test.exs",
         "test/football_market_web/controllers/error_html_test.exs",

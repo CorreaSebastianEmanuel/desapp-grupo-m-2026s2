@@ -1,11 +1,11 @@
-# Final-review delta — TASK-046
+# Final review delta — PR #39 CI correction
 
-B1 resolved; no new blocker. Verified actual protected-route denial logic and controller/Chromium assertions, including real cookie removal and asserted absence before navigation, visible ended feedback without identity and successful sign-in. Missing/invalid authority uses the same nonsecret notice; public direct sign-in stays notice-free. Safe returns, outage 503, exact server expiry and separate API authority remain intact. No marker or authority extension.
+Fresh independent review accepts current QA PASS for all ten manifest checks (379.908s), after comparing current source/input fingerprints, every command identity and every safe-summary evidence hash with canonical QA receipts. Raw forbidden logs were not accessed. See review-report.md for integrity limits.
 
-Accepted CURRENT independent QA PASS only after validating all eight receipts against current source/inputs/check identities and output hashes; snapshot remains `qa-evidence/b1-independent-20261016/manifest-results.json`. Executed `python3 scripts/agentflow_check.py feature --stage review`, no reuse: exit 0 in 11.117s, unchanged source/inputs, zero failures. Canonical feature receipt is now review-stage; preserved safe evidence: `review-evidence/current-b1-review.json`. See review-report.md for exact fingerprints and limits.
+Review JavaScript helper passed in 0.187s; native production LCOV remains 35/35 lines, 21/21 branches, 10/10 functions. Focused scope/Sonar/feedback suites passed 23 tests in 0.6s. No failures or denied permissions. The JavaScript canonical receipt is now review-stage; its accepted QA counterpart remains in the current safe summary.
 
-Historical unexplained integration failure remains a reproducibility limitation despite current independent success. Deterministic cookie removal is not a full-duration browser soak; accessibility is automated desktop evidence. Later financial actions still require transactional domain authorization.
+No blocker: optional metadata fails closed; page-lifetime browser hook and injected closures preserve recovery semantics; genuine coverage runs before unchanged native gates with step-local credentials. Exact scope/baseline/config safeguards and B1 absent-transport notice/browser regression remain intact. No authority/cookie extension or domain expansion.
 
-T029 completed. Known backlog impact is limited to TASK-046 acceptance; existing charts/orders/responsive/profile ownership remains unchanged. Backlog/workflow state left untouched. No implementation edits, delegation, publication or merge.
+Only T029 newly completed. Historical integration nondeterminism remains unexplained, and actual bfcache use is not claimed. No remote success claim: orchestrator must publish and observe fresh GitHub/Sonar results. No new backlog work inferred; existing downstream owners unchanged. No implementation/state edits or publication.
 
 Verdict: PASS

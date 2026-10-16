@@ -30,9 +30,19 @@ python3 scripts/agentflow_check.py unit --reuse
 python3 scripts/agentflow_check.py integration --reuse
 python3 scripts/agentflow_check.py foundation --reuse
 python3 scripts/agentflow_check.py feature --reuse
+python3 scripts/agentflow_check.py javascript --reuse
+python3 scripts/agentflow_check.py ci --reuse
 ```
 
 Integration is marked runtime and always runs. The shell runtime test checks readiness in the real listener, statuses, headers and bodies per contracts/browser.md, then exercises real Chromium. Profiles are not followed by a duplicate `mix test` or historical CP1 coverage report. Preserve existing CI/coverage implementation. After two unchanged failures stop and diagnose using helper evidence; do not bypass counters. QA repeats these independently with `--stage qa` and no `--reuse`.
+
+PR #39 correction: the manifest now also runs the existing exact CI runner because
+it exposed a missing-local-pointer failure that tagged-profile checks missed.
+This is the specific exception to avoiding duplicate full-suite execution above;
+no second CI job is introduced. `javascript` executes isolated lifecycle tests
+and emits measured LCOV under ignored `cover/workspace`, with 100% module line,
+branch and function thresholds. The Sonar workflow imports that report before
+evaluating its existing Quality Gate; do not change or bypass its thresholds.
 
 ## Expected scenarios
 

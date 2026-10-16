@@ -1,11 +1,11 @@
 {
   "exit_code": 0,
   "check_identity": "f47b9f608ba5170107b0238880832c3e2f3198b9889050374224bcae9e265423",
-  "source_before": "275243a46c3502b2dfd3e6fd67e34278e5d709f2ed2afc71951b110043f3018f",
-  "source_after": "275243a46c3502b2dfd3e6fd67e34278e5d709f2ed2afc71951b110043f3018f",
-  "inputs": "9159ab6fb1941471646d0ea10dfc8af0c4e018829598ad604f1b8353dedf0ac1",
-  "evidence": ".agentflow/runs/checks/df8b8cb6ac794196b24f006ced1631ec.log",
-  "evidence_sha256": "24413d23e7e025a2d4b3a3e75eb77f63aedecd7627b876046ae94f3475c38c97",
+  "source_before": "4029989e1ddb13f82713beee68109a1f66e8a8d043321499c24820d8488ff35c",
+  "source_after": "4029989e1ddb13f82713beee68109a1f66e8a8d043321499c24820d8488ff35c",
+  "inputs": "d8107ba6f4519bd36ccb2adc326a2c59b2d80f0d9483fa32663ccb61478a779d",
+  "evidence": ".agentflow/runs/checks/158c0d6a7ef540509198af4b16e12bb4.log",
+  "evidence_sha256": "cd43ad9d9ae6589cc1eb9fcf1b195cf135e0cf1ab503a80290084c3720c7f9fb",
   "stage": "qa",
-  "elapsed_seconds": 4.621
+  "elapsed_seconds": 2.406
 }

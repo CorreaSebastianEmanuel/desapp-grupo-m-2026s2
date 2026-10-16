@@ -27,7 +27,11 @@ defmodule FootballMarket.Market.ScopeTest do
       ])
 
     for line <- String.split(changed, "\n", trim: true) do
-      assert String.slice(line, 3..-1//1) in (paths ++ synchronization_paths(active_feature())),
+      assert String.slice(line, 3..-1//1) in (paths ++
+                                                synchronization_paths(active_feature()) ++
+                                                FootballMarket.WorkflowScope.paths(
+                                                  active_feature()
+                                                )),
              "outside initial issuance plan: #{line}"
     end
 
@@ -230,5 +234,5 @@ defmodule FootballMarket.Market.ScopeTest do
     end
   end
 
-  defp active_feature, do: Jason.decode!(File.read!(".specify/feature.json"))["feature_directory"]
+  defp active_feature, do: FootballMarket.WorkflowScope.active_feature()
 end

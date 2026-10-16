@@ -11,10 +11,10 @@ import uuid
 from pathlib import Path
 
 try:
-    from .agentflow_verification import check_identity, current_receipt, digest, input_fingerprint, load_json, manifest, source_fingerprint
+    from .agentflow_verification import check_identity, current_receipt, digest, input_fingerprint, load_json, manifest, source_fingerprint, receipt_path, workspace, atomic_json, retry_fingerprint
     from .workflow_artifact_probe import active_feature
 except ImportError:
-    from agentflow_verification import check_identity, current_receipt, digest, input_fingerprint, load_json, manifest, source_fingerprint
+    from agentflow_verification import check_identity, current_receipt, digest, input_fingerprint, load_json, manifest, source_fingerprint, receipt_path, workspace, atomic_json, retry_fingerprint
     from workflow_artifact_probe import active_feature
 
 
@@ -40,9 +40,8 @@ def run_check(root: Path, feature: Path, ident: str, *, reuse: bool = False, sta
     check = next((c for c in data["checks"] if c["id"] == ident), None)
     if check is None:
         raise RuntimeError("Unknown required check")
-    handoffs = feature / "handoffs"
-    handoffs.mkdir(exist_ok=True)
-    receipt_path = handoffs / f"check-{ident}.json"
+    local_receipt = receipt_path(root, feature, check, stage, create=True)
+    local_receipt.parent.mkdir(parents=True, exist_ok=True)
     before = source_fingerprint(root)
     inputs = input_fingerprint(feature)
     identity = check_identity(check)
@@ -55,13 +54,21 @@ def run_check(root: Path, feature: Path, ident: str, *, reuse: bool = False, sta
             print(json.dumps({"check": ident, "exit_code": 0, "reused": True,
                               "evidence": receipt["evidence"]}))
             return 0
-    history_path = handoffs / f"check-attempts-{stage}-{ident}.json"
-    scope = {"source": before, "inputs": inputs, "check_identity": identity}
+    scope = {"source": retry_fingerprint(root, feature, check), "inputs": inputs, "check_identity": identity}
+    history_path = local_receipt.parent / ('history-' + digest(json.dumps(scope, sort_keys=True).encode()) + '.json')
     history = load_json(history_path) if history_path.exists() else {}
     if not isinstance(history, dict):
         raise RuntimeError("Invalid check attempt history")
     if history.get("scope") != scope:
         history = {"scope": scope, "consecutive_failures": 0, "elapsed_seconds": 0}
+    # A killed process leaves running state. Recover it once in the same budget.
+    if local_receipt.exists():
+        previous = load_json(local_receipt)
+        if previous.get('state') == 'running' and previous.get('scope') == scope:
+            history['consecutive_failures'] += 1
+            previous['state'] = 'interrupted'
+            atomic_json(local_receipt, previous)
+            atomic_json(history_path, history)
     failures = history.get("consecutive_failures")
     elapsed = history.get("elapsed_seconds")
     if type(failures) is not int or failures < 0 or type(elapsed) not in (int, float) or elapsed < 0:
@@ -69,27 +76,31 @@ def run_check(root: Path, feature: Path, ident: str, *, reuse: bool = False, sta
     if failures >= 2:
         print(json.dumps({"check": ident, "exit_code": 2, "retry_limit_reached": True,
                           "consecutive_failures": failures, "elapsed_seconds": elapsed,
-                          "evidence": history.get("evidence"),
+                          "evidence": history.get("evidence"), "cause": history.get("cause", "interrupted or failed check"),
                           "action": "Stop and diagnose the failure; do not repeat unchanged checks."}))
         return 2
     # Invalidate prior success before spawning anything, including on cancellation.
-    receipt_path.write_text(json.dumps({"exit_code": None, "check_identity": check_identity(check)}) + "\n")
-    directory = root / ".agentflow/runs/checks"
+    atomic_json(local_receipt, {"schema_version": 2, "state": "running", "scope": scope,
+                               "exit_code": None, "check_identity": check_identity(check)})
+    directory = local_receipt.parent
     directory.mkdir(parents=True, exist_ok=True)
     evidence = directory / f"{uuid.uuid4().hex}.log"
+    evidence.touch()
     started = time.monotonic()
     code = execute_check(check, root, evidence)
     duration = round(time.monotonic() - started, 3)
     after = source_fingerprint(root)
     changed = before != after or inputs != input_fingerprint(feature)
-    receipt = {"exit_code": code, "check_identity": check_identity(check), "source_before": before,
+    receipt = {"schema_version": 2, "workspace": workspace(root), "feature": feature.name,
+               "state": "failed" if code or changed else "passed", "exit_code": code, "check_identity": check_identity(check), "source_before": before,
                "source_after": after, "inputs": inputs, "evidence": evidence.relative_to(root).as_posix(),
                "evidence_sha256": digest(evidence.read_bytes()), "stage": stage,
                "elapsed_seconds": duration}
-    receipt_path.write_text(json.dumps(receipt, indent=2) + "\n")
+    atomic_json(local_receipt, receipt)
     history.update(consecutive_failures=failures + 1 if code or changed else 0,
-                   elapsed_seconds=round(elapsed + duration, 3), evidence=receipt["evidence"])
-    history_path.write_text(json.dumps(history, indent=2) + "\n")
+                   elapsed_seconds=round(elapsed + duration, 3), evidence=receipt["evidence"],
+                   cause=f"child exit {code}" if code else "inputs changed during execution" if changed else None)
+    atomic_json(history_path, history)
     print(json.dumps({"check": ident, "exit_code": code, "source_changed": before != after,
                       "inputs_changed": changed, "reused": False, "elapsed_seconds": duration,
                       "consecutive_failures": history["consecutive_failures"],

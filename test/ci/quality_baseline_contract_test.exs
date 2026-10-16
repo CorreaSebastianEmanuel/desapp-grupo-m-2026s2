@@ -96,6 +96,12 @@ defmodule FootballMarket.QualityBaselineContractTest do
     assert workflow =~ "run: mix format --check-formatted"
     assert workflow =~ "run: MIX_ENV=test mix compile --warnings-as-errors"
     assert workflow =~ "run: scripts/ci_unit_tests.sh"
+    assert workflow =~ "name: Workflow behavior tests"
+    assert workflow =~ "pattern='*_test.py'"
+    assert workflow =~ "assert s.countTestCases()>0"
+    assert workflow =~ "assert not r.skipped"
+    assert workflow =~ "sh test/scripts/ci_unit_tests_test.sh"
+    assert workflow =~ "fetch-depth: 0"
     refute workflow =~ ~r/(secrets\.|sonar|coverage|deploy|release|e2e|architecture)/i
     refute workflow =~ ~r/mix format\s*$/m
     refute workflow =~ ~r/mix test.*(--stale|--only|--exclude|test\/)/

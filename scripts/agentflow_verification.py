@@ -6,6 +6,7 @@ import json
 import os
 import re
 import subprocess
+import uuid
 from pathlib import Path
 
 REQUIREMENT = re.compile(r"\b(?:FR|AC|SC)-\d+\b")
@@ -122,6 +123,12 @@ def input_fingerprint(feature: Path) -> str:
             # was checked. Readiness separately validates current task state.
             content = re.sub(rb"(?m)^(\s*- )\[[ xX]\]", rb"\1[?]", content)
         parts.append(name.encode() + b"\0" + content)
+    # Human feedback and explicit development overrides are canonical inputs.
+    root = feature.parents[1]
+    head=subprocess.check_output(['git','branch','--show-current'],cwd=root,text=True).strip()
+    ident='TASK-'+head[:3]
+    feedback = root / 'backlog/feedback' / f'{ident}.md'
+    parts.append(b'feedback\0' + (feedback.read_bytes() if feedback.exists() else b'<absent>'))
     return digest(b"\0".join(parts))
 
 
@@ -132,10 +139,20 @@ def source_fingerprint(root: Path) -> str:
     h = hashlib.sha256()
     for raw in sorted(set(result.stdout.split(b"\0")) - {b""}):
         name = os.fsdecode(raw)
-        if name.startswith(("specs/", "backlog/", "tmp/", ".agentflow/runs/", ".specify/workflows/runs/")) or name == ".specify/feature.json":
+        if name.startswith(("tmp/", ".agentflow/runs/", ".specify/workflows/runs/")) or name == ".specify/feature.json":
+            continue
+        if re.fullmatch(r'specs/[^/]+/(?:qa-report\.md|review-report\.md|evidence-summary\.json|handoffs/(?:develop|qa|review)\.md|handoffs/check-[a-z0-9_-]+\.json)', name):
+            continue
+        if name.startswith('backlog/') and not name.startswith('backlog/feedback/'):
+            # Lifecycle fields are outputs. Only explicit launch overrides bind source.
+            content=(root/name).read_text() if (root/name).is_file() else ''
+            overrides='\n'.join(re.findall(r'(?m)^develop_(?:model|effort):.*$',content))
+            if overrides: h.update(raw+b'\0'+overrides.encode()+b'\0')
             continue
         path = root / name
         content = os.fsencode(os.readlink(path)) if path.is_symlink() else path.read_bytes() if path.is_file() else b"<deleted>"
+        if re.fullmatch(r'specs/[^/]+/tasks\.md',name):
+            content=re.sub(rb'(?m)^(\s*- )\[[ xX]\]',rb'\1[?]',content)
         h.update(raw + b"\0" + digest(content).encode() + b"\0")
     return h.hexdigest()
 
@@ -144,24 +161,85 @@ def check_identity(check: dict) -> str:
     return digest(json.dumps({"argv": check["argv"], "env": check.get("env", {})}, sort_keys=True).encode())
 
 
-def current_receipt(root: Path, feature: Path, check: dict, source: str, inputs: str) -> dict:
-    """Validate the same evidence for readiness and explicit development reuse."""
-    receipt = load_json(feature / "handoffs" / f"check-{check['id']}.json")
-    if not isinstance(receipt, dict) or type(receipt.get("exit_code")) is not int or receipt["exit_code"] != 0:
+def atomic_json(path: Path, data):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if not path.resolve().is_relative_to(path.parents[0].resolve()):
+        raise RuntimeError('Unsafe local output path')
+    temporary = path.with_name(path.name + '.' + uuid.uuid4().hex + '.tmp')
+    temporary.write_text(json.dumps(data, indent=2) + '\n')
+    temporary.replace(path)
+
+
+def workspace(root: Path, create=False):
+    directory = root / '.agentflow/runs/checks'
+    if not directory.resolve().is_relative_to(root.resolve()):
+        raise RuntimeError('Unsafe workspace evidence directory')
+    path = directory / 'workspace.json'
+    if not path.exists() and create:
+        atomic_json(path, {'schema_version': 2, 'workspace': uuid.uuid4().hex,
+                           'root': str(root.resolve())})
+    data = load_json(path)
+    if data.get('schema_version') != 2 or data.get('root') != str(root.resolve()) or not re.fullmatch(r'[a-f0-9]{32}', data.get('workspace', '')):
+        raise RuntimeError('Evidence belongs to another workspace; run local checks')
+    return data['workspace']
+
+
+def receipt_path(root, feature, check, stage='develop', create=False):
+    if stage not in ('develop', 'qa', 'review') or not LABEL.fullmatch(check['id']):
+        raise RuntimeError('Invalid receipt namespace')
+    directory = root / '.agentflow/runs/checks' / workspace(root, create) / feature.name / stage / check['id']
+    if not directory.resolve().is_relative_to((root / '.agentflow/runs/checks').resolve()):
+        raise RuntimeError('Unsafe receipt namespace')
+    return directory / 'receipt.json'
+
+
+def retry_fingerprint(root, feature, check):
+    selectors = check.get('retry_inputs')
+    if selectors is None:
+        return source_fingerprint(root)
+    if not isinstance(selectors, list) or not selectors or any(not isinstance(p, str) or Path(p).is_absolute() or '..' in Path(p).parts for p in selectors):
+        raise RuntimeError('Invalid relevant obligation input selectors')
+    result = subprocess.run(['git', 'ls-files', '--cached', '--others', '--exclude-standard', '-z'], cwd=root, capture_output=True, check=True)
+    parts = []
+    import fnmatch
+    for raw in sorted(set(result.stdout.split(b'\0')) - {b''}):
+        name = os.fsdecode(raw)
+        if not any(fnmatch.fnmatchcase(name, pattern) for pattern in selectors):
+            continue
+        path = root / name
+        content = path.read_bytes() if path.is_file() and not path.is_symlink() else b'<deleted-or-link>'
+        parts.append(raw + b'\0' + digest(content).encode())
+    return digest(b'\0'.join(parts))
+
+
+def current_receipt(root: Path, feature: Path, check: dict, source: str, inputs: str, stage='develop') -> dict:
+    """Readiness and development reuse share this strict workspace validator."""
+    receipt = load_json(receipt_path(root, feature, check, stage))
+    if receipt.get('schema_version') != 2 or receipt.get('workspace') != workspace(root) or receipt.get('feature') != feature.name or receipt.get('stage') != stage:
+        raise RuntimeError('Wrong workspace, feature or stage evidence')
+    if receipt.get('state') != 'passed' or type(receipt.get('exit_code')) is not int or receipt['exit_code'] != 0:
         raise RuntimeError(f"Required check failed or is incomplete: {check['id']}")
-    if receipt.get("check_identity") != check_identity(check) or receipt.get("source_before") != source or receipt.get("source_after") != source or receipt.get("inputs") != inputs:
+    if receipt.get('check_identity') != check_identity(check) or receipt.get('source_before') != source or receipt.get('source_after') != source or receipt.get('inputs') != inputs:
         raise RuntimeError(f"Stale check evidence: {check['id']}")
-    relative = receipt.get("evidence")
-    if not isinstance(relative, str):
-        raise RuntimeError("Missing check evidence")
+    relative = receipt.get('evidence')
+    if not isinstance(relative, str) or Path(relative).is_absolute():
+        raise RuntimeError('Missing check evidence')
     evidence = (root / relative).resolve()
-    if not evidence.is_relative_to(root.resolve() / ".agentflow/runs/checks") or not evidence.is_file() or receipt.get("evidence_sha256") != digest(evidence.read_bytes()):
-        raise RuntimeError("Missing or changed check output")
+    directory = receipt_path(root, feature, check, stage).parent.resolve()
+    if not evidence.is_relative_to(directory) or not evidence.is_file() or receipt.get('evidence_sha256') != digest(evidence.read_bytes()):
+        raise RuntimeError('Missing or changed check output')
     return receipt
 
 
 def readiness(root: Path, feature: Path) -> dict:
+    try:
+        from .agentflow_artifacts import validate
+    except ImportError:
+        from agentflow_artifacts import validate
+    validate(feature, stage='develop')
     data = manifest(feature)
+    head=subprocess.check_output(['git','branch','--show-current'],cwd=root,text=True).strip()
+    feedback_guard(root, 'TASK-'+head[:3])
     tasks = TASK.findall((feature / "tasks.md").read_text())
     if not tasks or len({ident for _, ident, _ in tasks}) != len(tasks):
         raise RuntimeError("Implementation checklist is absent or has duplicate IDs")
@@ -179,8 +257,20 @@ def readiness(root: Path, feature: Path) -> dict:
                 raise RuntimeError(f"Only explicit independent verification tasks may be deferred: {ident}")
         if mark == " " and ident not in task_stages:
             raise RuntimeError(f"Incomplete implementation task: {ident}")
+    for checklist in (feature / 'checklists').glob('*.md'):
+        if re.search(r'^\s*- \[ \]', checklist.read_text(), re.M):
+            raise RuntimeError('Current requirements checklist has unchecked items')
     source = source_fingerprint(root)
     inputs = input_fingerprint(feature)
     for check in data["checks"]:
         current_receipt(root, feature, check, source, inputs)
     return {"checks": len(data["checks"]), "requirements": len(data["coverage"]), "ready": True}
+
+
+def feedback_guard(root, task_id):
+    path=root/'backlog/feedback'/f'{task_id}.md'
+    if not path.exists(): return
+    for entry in re.split(r'(?m)^## Feedback \d+\s*$',path.read_text())[1:]:
+        match=re.search(r'(?m)^- Impact: (.+)$',entry)
+        if not match or not set(match[1].split(', ')).issubset({'product','architecture','verification','implementation','qa','review'}):
+            raise RuntimeError('Human feedback impact is pending or unclassified; classify explicitly before continuing')

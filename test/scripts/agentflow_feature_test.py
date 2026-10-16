@@ -8,7 +8,9 @@ from scripts import agentflow_feature as policy
 class Fixture(unittest.TestCase):
     def setUp(self):
         temporary=tempfile.TemporaryDirectory();self.addCleanup(temporary.cleanup)
-        self.root=Path(temporary.name)
+        self.root=Path(temporary.name).resolve()
+        config=self.root/'.agentflow/models.json';config.parent.mkdir()
+        config.write_text((Path(__file__).resolve().parents[2]/'.agentflow/models.json').read_text())
         self.task=self.make_task()
         self.feature=self.make_feature()
     def make_task(self, ident='TASK-017', title='Football data API adapter', status='review', extra=''):

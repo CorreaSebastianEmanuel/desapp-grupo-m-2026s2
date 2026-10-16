@@ -86,7 +86,7 @@ class AgentflowBranchTest(DeliveryFixture):
             self.assertEqual(AGENTFLOW.start(args),130)
         monitor.assert_called_once();self.assertFalse((self.root/'.specify/feature.json').exists())
     def test_resume_sets_pointer_from_owned_feature(self):
-        with patch.object(AGENTFLOW,'recover_orphaned_run'),patch.object(AGENTFLOW,'read_run_state',return_value={'status':'paused'}),patch.object(AGENTFLOW,'monitor_process',return_value=(130,'run')):
+        with patch.object(AGENTFLOW,'recover_orphaned_run'),patch.object(AGENTFLOW,'read_run_state',return_value={'status':'paused','launch_settings':{stage:{'model':'gpt-6.1-sol','effort':'medium'} for stage in AGENTFLOW.models.STAGES}}),patch.object(AGENTFLOW,'monitor_process',return_value=(130,'run')):
             self.assertEqual(AGENTFLOW.resume(self.args()),130)
         self.assertEqual(json.loads((self.root/'.specify/feature.json').read_text())['feature_directory'],'specs/055-football-data-api-adapter')
     def test_publish_wrong_branch_and_foreign_feature_have_no_side_effects(self):

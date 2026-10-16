@@ -45,6 +45,21 @@ EOF
 [ -x "$wrapper" ] || fail "wrapper is missing or not executable"
 run_case failing_test 7 "assertion failed" 7
 run_case missing_marker 0 "1 test, 0 failures" 1
+run_case zero_count 0 "FOOTBALL_MARKET_CI_DISCOVERY_SENTINEL\n0 tests, 0 failures" 1
+run_case missing_count 0 "FOOTBALL_MARKET_CI_DISCOVERY_SENTINEL" 1
 run_case marked_success 0 "FOOTBALL_MARKET_CI_DISCOVERY_SENTINEL\n1 test, 0 failures" 0
+run_case pinned_result 0 "FOOTBALL_MARKET_CI_DISCOVERY_SENTINEL\nResult: 527/527 passed, 4 excluded" 0
+run_case pinned_all_passed 0 "FOOTBALL_MARKET_CI_DISCOVERY_SENTINEL\nResult: 527 passed, 4 excluded" 0
+run_case pinned_all_zero 0 "FOOTBALL_MARKET_CI_DISCOVERY_SENTINEL\nResult: 0 passed, 4 excluded" 1
+run_case pinned_all_failed_suffix 0 "FOOTBALL_MARKET_CI_DISCOVERY_SENTINEL\nResult: 527 passed, 1 failed" 1
+run_case pinned_zero 0 "FOOTBALL_MARKET_CI_DISCOVERY_SENTINEL\nResult: 0/0 passed, 4 excluded" 1
+run_case pinned_partial 0 "FOOTBALL_MARKET_CI_DISCOVERY_SENTINEL\nResult: 526/527 passed, 4 excluded" 1
+run_case pinned_failed 0 "FOOTBALL_MARKET_CI_DISCOVERY_SENTINEL\nResult: 0/527 passed, 527 failed" 1
+run_case pinned_failed_suffix 0 "FOOTBALL_MARKET_CI_DISCOVERY_SENTINEL\nResult: 527/527 passed, 1 failed" 1
+run_case pinned_overcount 0 "FOOTBALL_MARKET_CI_DISCOVERY_SENTINEL\nResult: 528/527 passed" 1
+run_case pinned_missing_marker 0 "Result: 527/527 passed, 4 excluded" 1
+run_case pinned_child_failure 7 "FOOTBALL_MARKET_CI_DISCOVERY_SENTINEL\nResult: 527/527 passed, 4 excluded" 7
+run_case legacy_failed 0 "FOOTBALL_MARKET_CI_DISCOVERY_SENTINEL\n527 tests, 1 failure" 1
+run_case final_partial 0 "FOOTBALL_MARKET_CI_DISCOVERY_SENTINEL\n1 test, 0 failures\nResult: 526/527 passed, 1 failed" 1
 
 echo "ci_unit_tests wrapper contract: PASS"

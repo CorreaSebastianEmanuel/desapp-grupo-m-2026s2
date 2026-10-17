@@ -1,13 +1,12 @@
-# Review handoff — TASK-021
+# Review handoff — TASK-021 (final review, 2026-10-17)
 
-Independent final review completed on the corrected tree. Fresh QA evidence (all five manifest checks, stage `qa`, no receipt reuse, integration run in foreground) was accepted; I did not rerun the suite, only cross-verified the three previous QA findings directly against code and migrations — all remediated (match-mapping conflict validation, typed JSONB evidence with DB-level `jsonb_typeof` guard, child basis-row insert guard against committed subjects).
+Reviewed spec/plan/tasks/verification.json, data-model, contracts, architecture/develop handoffs, Backlog fallbacks 4–7, fresh qa-report.md, the full feature diff (`64816f6..HEAD` + working tree) and implementation code. No stale review content reused.
 
-Design and security hold: insert-only immutable facts with first-acceptance provenance in one locked commit; operation-qualified Oban dispatch and fenced recovery; catalog schedules and worker behavior preserved; calculation intents published canonically and dispatched from a durable request boundary that never rolls back or relabels the import; no new HTTP surface, cache, scoring, quote, or credential exposure; local reads are provider-free.
+- QA-01/02/03 remediations confirmed directly in code: replay prevalidation re-resolves every team/player binding and validates every match mapping against retained input (`publisher.ex:50–59`, `:554–590`); typed JSONB integrity cases; migration trigger validates late basis inserts against committed unknowns.
+- Feedback 6 test-isolation fix verified: per-test owner schemas in `StatisticsIngestion.Case` (full migration chain, isolated TestOban, env/dynamic-repo restoration, `DROP SCHEMA CASCADE`); dispatcher `:repo` option confirmed process-local via Ecto `(deps/ecto/repo.ex:314)` — default catalog flow untouched.
+- FR-015 isolation re-verified statically (zero provider references in read path); FR-007/FR-012 provenance and error categories verified closed. Residual non-blocking notes recorded in review-report.md §4 (fixture path coupling to test tree, app-env mutation window, SC-005 mapping granularity).
+- Fresh QA evidence accepted as reproducible (all manifest checks exit 0, 606/606 warnings-as-errors suite, zero committed residue); no full re-run per Feedback 7.
 
-Non-blocking observation: the publisher reads and evaluates the test-fixture inventory at runtime for fixture-backed provenance. It is fixed-path and digest-pinned, acceptable for this explicitly offline feature, but should not become a pattern for live fixture sources.
-
-Guidance for merge: T031 evidence and this review satisfy both gates; human merge decision remains external — no commit, push, PR, or merge performed here.
-
-Backlog impact: TASK-026 only. When it begins planning, quote recalculation must consume the new durable `Valuation.CalculationRequests.accept/3` intent boundary (FR-013) instead of synchronous or import-time recalculation; record this expectation during its planning stage. No other backlog tasks affected.
+No backlog impact downstream. T031 closed by QA's restored report; T032 closes with this review.
 
 Verdict: PASS

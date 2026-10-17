@@ -1,50 +1,59 @@
-# QA Report — TASK-021 (specs/065-statistics-ingestion-pipeline)
+# QA Report — TASK-021 Statistics Ingestion Pipeline (independent QA, re-entry 2026-10-17)
 
-Scope: specs/065-statistics-ingestion-pipeline. QA executed all manifest checks independently via `python3 scripts/agentflow_check.py CHECK_ID --stage qa` with no `--reuse`, on the developer-remediated tree (QA-01/02/03 per backlog/feedback/TASK-021.md). No implementation code was modified. Probe artifacts were rolled back; the test database was left empty (leagues=0, performances=0, basis=0).
+**Scope**: independent re-audit of the remediated tree after Feedback 6 (CI baseline pollution fix). Prior QA-01/02/03 remediations (Feedback 4) re-verified in code. No developer receipt reuse; all manifest checks re-run fresh with `python3 scripts/agentflow_check.py CHECK_ID --stage qa` (no `--reuse`), Node 24 on PATH.
 
-## Manifest checks (fresh, stage qa)
+## 1. Manifest checks (independent execution)
 
-| Check | Result | Elapsed | Evidence |
+| Check | Exit | Elapsed | Evidence excerpt |
 |---|---|---|---|
-| preflight | PASS | 2.3s | `.agentflow/runs/checks/...065.../qa/preflight/ba556269….log`; DB prepare + infrastructure.verify OK |
-| format | PASS | 1.5s | `qa/format/e594e61e….log` |
-| compile | PASS | 0.8s | `qa/compile/ce51d9d1….log`; warnings-as-errors |
-| unit | PASS | 34.8s | `qa/unit/7fea5211….log`; `CP1_PROFILE_RECEIPT profile=unit audit_count=58 status=complete` |
-| integration | PASS | 363.8s | `qa/integration/32bb14b7….log`; `CP1_PROFILE_RECEIPT profile=integration audit_count=117 status=complete` |
+| preflight | 0 | 2.3s | `PostgreSQL: OK (postgresql://127.0.0.1:5432/football_market_test)`, `Redis: OK`; `migrations current` |
+| format | 0 | 1.4s | `mix format --check-formatted` clean |
+| compile | 0 | 0.8s | `mix compile --warnings-as-errors` clean |
+| unit | 0 | 33.5s | `CP1_PROFILE_RECEIPT profile=unit audit_count=58 status=complete` |
+| integration | 0 | 361.5s | `CP1_PROFILE_RECEIPT profile=integration audit_count=117 status=complete`; committed-fixture stages include all three rewired statistics tests |
 
-Integration attempt 1 failed in 1.5s with `category=node-runtime` (Node 24 missing from PATH — documented prerequisite in handoffs/develop.md). Input was corrected (`PATH=/Users/ezequielgonzalez/.nvm/versions/node/v24.21.0/bin:$PATH`) and the retry stayed within the two-failure budget. Windows were historical consideration only. All 14 remedied/regression checks above are fresh — zero receipt reuse.
+Evidence logs: `.agentflow/runs/checks/a51aee7448d14823adfa2fce949af473/065-statistics-ingestion-pipeline/qa/{preflight,format,compile,unit,integration}/`.
 
-## Previously cited findings (feedback 4) — re-audited independently
+## 2. CI-equality and contamination (Feedback 6 defect)
 
-| Finding | Re-audit evidence | Verdict found |
-|---|---|---|
-| QA-01: replay prevalidation omitted match mappings; retargeted mappings silently accepted and advanced the successful pointer | `lib/football_market/statistics/ingestion/publisher.ex:50-59` resolves teams/players then validates every match mapping; `:75-76` rolls back `:immutable_conflict` on changed canonical material. Regression `test/football_market/statistics/ingestion/replay_test.exs:73` retargets `match-1` to an alternate match on both replay and unchanged imports; asserts `immutable_conflict`, MatchBinding unchanged at `:124`, `last_accepted_check_id` unchanged at `:125`, check count unchanged at `:126`. | Remediated |
-| QA-02: integrity test encoded records with `Jason.encode!`, storing a JSONB string; typed maps + positive control + non-object rejection required | `test/football_market/statistics/ingestion/integrity_test.exs:94-126` passes typed Elixir maps bound as `$8::jsonb` and rejects nil participation, missing/nil policy_version; `:128-146` is a positive control accepted as JSONB object. Additional live-DB probe (transaction, rolled back): frequencies as non-object JSONB → `ERROR invalid participation evidence` (23514); encoded-string JSONB → rejected; valid typed object → accepted. Enforced by `priv/repo/migrations/20261016000100…:95` (`jsonb_typeof(frequencies) = 'object'`). | Remediated (also at DB level via probe) |
-| QA-03: migration validated evidence only on performance INSERT; a late child basis row against an already-committed subject could change explanation unvalidated | Migration adds `statistics_position_basis_insert_guard` (`…00100…:69-85`): rejects basis rows for `derived_history/unknown_history` subjects without provenance, i.e., already-committed facts. Regression `test/football_market/statistics/ingestion/positions_test.exs:235-275`: committed substitute with insufficient_history, then raw child INSERT to its basis raises `Postgrex.Error` and leaves 0 basis rows. Probe used committed state from separate transactions (import committed first, then raw INSERT on independent committed connection). | Remediated |
+- `MIX_ENV=test mix test --warnings-as-errors`: **606 passed, 4 excluded, exit 0**, 307.7s. No pollution failures (CatalogTest, DevelopmentSeedTest, RecoveryTest, RequestTest all green).
+- Shared-DB sweep after the full suite (Postgrex, `football_market_test`): `synchronization_runs=0`, `statistics_import_checks=0`, `leagues=0`, `statistics_fact_observations=0`, `oban_jobs=0`, `player_match_performances=0`, `players=0`, `matches=0`, `statistics_match_bindings=0`, `statistics_fact_provenance=0`, `statistics_calculation_intents=0`, `statistics_fixture_artifacts=0`; leftover `statistics_ingestion_store_%` schemas = 0. **Zero committed residue.**
 
-## Spec challenge (all FR/SC and 14 scenarios)
+## 3. Diff review (11 files, matches develop handoff)
 
-Spot-checked concrete evidence against each FR/SC group in verification.json; audited unit (58 modules) and integration (117 modules) profiles completed.
+- `test/support/statistics_ingestion/case.ex`: `with_statistics_store/1` creates a per-test owner schema (full migration chain, prefix-scoped isolated Oban `TestOban`, app-env override restored in `after`, `DROP SCHEMA CASCADE` teardown). Mirrors `Synchronization.Case`.
+- Committing tests rewired (`recovery_test.exs`, `concurrency_test.exs`, `synchronization/statistics_test.exs` tests 2–3); spawned probes/races opt in via `Repo.put_dynamic_repo(store_repo)`.
+- `lib/football_market/synchronization/dispatcher.ex`: additive optional `:repo` only (default unchanged); catalog flow untouched.
+- `test/support/ingestion_fixtures.ex`: barrier `pg_backend_pid` via dynamic-aware `Repo.query!`.
+- `mix.exs` + `providers/scope_test.exs`: three statistics fixture files added to `test_ignore_filters` inventory.
 
-| Spec area | Evidence (fresh integration unless noted) |
+## 4. Prior findings remain remediated (Feedback 4, re-verified in code)
+
+- **QA-01 (high)**: `publisher.ex:554` `validate_match_mapping!/4` rejects retargeted/conflicting mappings (`Repo.rollback(:immutable_conflict)`); replay prevalidation resolves every match mapping (publisher.ex:50–59). Tests: `replay_test.exs:73` "a retargeted match mapping cannot bypass binding conflicts on replay or unchanged import"; `acceptance_test.exs:342` "changed participation is an immutable conflict and does not advance accepted state".
+- **QA-02 (medium)**: `integrity_test.exs` now binds typed Elixir maps as `$8::jsonb` (no `Jason.encode!` strings), with a positive control insert and three invalid variants (nil participation, missing `policy_version`) asserted to raise `Postgrex.Error`.
+- **QA-03 (high)**: migration `20261016000100` trigger recomputes frequencies and validates basis children against committed subjects (`statistics_position_basis_validate`, `RAISE ... ERRCODE '23514'`); `positions_test.exs:235+` asserts a late basis insert against a committed unknown raises `Postgrex.Error` and replay retains the accepted evidence.
+
+## 5. Coverage challenge (spec.md vs executed tests; 23/23 identifiers bound)
+
+| Spec item | Independent evidence |
 |---|---|
-| US1.1-1.4 complete/unchanged/empty acceptance, atomicity | `ingestion/acceptance_test.exs`, `completeness_test.exs` (exact counts, provenance, intent, receipt, rollback boundaries) |
-| US2.1-2.4 replay/conflict/races/controlled failures, no mutation of accepted facts | `replay_test.exs`, `canonical_test.exs`, `concurrency_test.exs` (independent committed connections via `Sandbox.unboxed_run`), `recovery_test.exs` + `support/statistics_ingestion/runtime_probe.ex` (killed worker before/after publication, bounded retries, confirmed final attempts with no retrieval #4), `synchronization/statistics_test.exs` |
-| US3.1-3.6 lineage, unknown vs zero, direct/derived/tie/no-history positions | `provenance_test.exs` (fixture ID/SHA-256/origin/date/case/non_live marker), `metrics_test.exs:12` all nine optional metrics independent nil-vs-zero, `positions_test.exs` (unique prior-match mode, exact basis IDs/freqs, equal-kickoff exclusion, proposed batch exclusion, tie/insufficient unknown, no backfill), `integrity_test.exs` raw write guards |
-| FR-013/SC-006 calc request separate from quotes | `calculation_test.exs:11` no quote writes; `:82` unordered multi-performance identity normalization (develop regression); `:138`, `:181` (redelivery), `:313` bounded budget |
-| FR-015/SC-007 no provider calls in local reads, zero live traffic | `isolation_test.exs:32-43` transport counter == 1 on provider failure while `list_player_history/1` result is byte-equal before/after; no credentials anywhere in fixture evidence |
+| US1.1–1.4 (atomic accept, incomplete, unchanged, explicit empty) | `acceptance_test.exs` (multi-match exact totals; replay idempotent; "explicitly complete empty scope differs from missing completeness evidence"), `completeness_test.exs` (unproven/witness failures never advance check) |
+| US2.1–2.4 (replay, conflict, races, retry/interruption) | `replay_test.exs`, `canonical_test.exs`, `concurrency_test.exs` (race asserts **2 distinct committed backend PIDs**, exactly one `accepted_changes` + one `replay`), `recovery_test.exs` (kill before/after publication, final-attempt finalization) |
+| US3.1–3.6 (lineage, safe errors, nil-vs-zero, direct/derived/tie/no-history) | `provenance_test.exs` (fingerprint, non-live label), `ingestion_contract_test.exs` (unit), `metrics_test.exs` (all 9 metrics: one explicit zero among nils, persisted **and** re-read via `Statistics.get_performance`), `positions_test.exs` (unique mode with full basis, tie/insufficient unknown with reason, one-vote-per-match, shuffled-batch exclusion, direct-entrant precedence) |
+| FR-013 outbox crash semantics | `calculation_test.exs`: idempotent accept, "Oban redelivers a calculation accepted before worker interruption", stale executing dispatch cannot strand intent, failed delivery separate from import, no quote writes |
+| FR-015 isolation | `isolation_test.exs` (provider failure leaves facts intact; exactly 1 transport call); statically: zero `Providers` references in `statistics.ex`, `statistics/query.ex`, `valuation/statistics_reader.ex` — reads are structurally provider-free |
+| FR-016 / SC-007 zero live calls | Fixture-adapter transport counter; deterministic offline fixtures; no credentials in tree |
 
-## Runtime applicability
+## 6. HTTP runtime check
 
-`verification.json` declares `runtime_required=false`. Verified correct: `git status --porcelain lib/football_market_web priv/football_market` is empty; the diff touches no router, controller, or endpoint; FR-015 forbids new public APIs. No HTTP endpoint was exposed or changed, so no curl-based runtime check applies. Real PostgreSQL, Oban, and work/process runtime are exercised inside integration as required.
+No web-layer changes in the feature (empty diff for `lib/football_market_web/` and `test/football_market_web/` since 44cef90); no new route, permission, or public endpoint. `runtime_required=false` is correct; no HTTP exercise applicable. Actual Oban/process/restart assertions ran inside integration as required.
 
-## Residual risks and observations (non-blocking)
+## Residual notes (non-blocking)
 
-1. `integrity_test.exs` does not include a literal JSONB non-object `frequencies` variant; the rejection is enforced at the database trigger level (probe A/B2 above verified live with `23514 invalid participation evidence`), which is stronger than a test that would only duplicate the constraint. No behavioral gap.
-2. Probe tables were created with a supported league code inside transactions; all rolled back — verify no `qa-probe` residue (confirmed: empty counts).
+1. `verification.json` coverage_evidence for FR-008 lists only the unit-tagged contract file; integration-side nil/zero evidence rides on SC-004 (`metrics_test.exs`). Behavior is covered in both profiles; mapping granularity only.
+2. In `isolation_test.exs` the transport-counter assertion precedes the second local read; read isolation is instead proven structurally (no provider dependency in the read path). Cosmetic test-ordering note.
+3. `erl_crash.dump` (6 MB) at repo root is environment residue from an earlier crashed session; untracked, not feature code.
 
-## Word-fidelity inputs
-
-Reports were regenerated after this completed re-audit; the prior stale FAIL texts are superseded. This verdict governs `qa-report.md` and `handoffs/qa.md`.
+Verdict line restored per Feedback 7 (content unchanged; no re-audit required — evidence recorded above and in `handoffs/qa.md`).
 
 Verdict: PASS

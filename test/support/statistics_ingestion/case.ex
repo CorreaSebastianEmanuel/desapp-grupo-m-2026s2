@@ -1,5 +1,5 @@
 defmodule FootballMarket.StatisticsIngestion.Case do
-  @moduledoc false
+  @moduledoc "Owned committed statistics rows live only in short-lived per-test owner schema."
   import Ecto.Query
   alias FootballMarket.Repo
   alias FootballMarket.Catalog.Ingestion
@@ -165,5 +165,105 @@ defmodule FootballMarket.StatisticsIngestion.Case do
     })
 
     %{receipt_id: ids.receipt, fence: ids.fence, attempt_id: ids.attempt}
+  end
+
+  @doc """
+  Runs the given function against a fully migrated per-test owner schema with an
+  isolated Oban instance. Committed statistics/catalog rows never touch the
+  shared test database; the schema is dropped after the test. This mirrors the
+  Synchronization.Case owned-store pattern and adds the full statistics
+  migration chain. Spawned processes must opt into the store with
+  `Repo.put_dynamic_repo(store_repo)` before using the main repo alias.
+  """
+  def with_statistics_store(fun) when is_function(fun, 1) do
+    schema = "statistics_ingestion_store_" <> String.replace(Ecto.UUID.generate(), "-", "")
+
+    Ecto.Adapters.SQL.Sandbox.unboxed_run(Repo, fn ->
+      Repo.query!("CREATE SCHEMA " <> schema, [])
+    end)
+
+    options =
+      Repo.config()
+      |> Keyword.merge(
+        name: nil,
+        pool: Ecto.Adapters.SQL.Sandbox,
+        pool_size: 20,
+        parameters: [search_path: schema]
+      )
+
+    {:ok, repo} = Repo.start_link(options)
+    previous = Repo.get_dynamic_repo()
+
+    try do
+      Repo.put_dynamic_repo(repo)
+      migrate_statistics_store!(schema)
+
+      {:ok, oban} =
+        Oban.start_link(
+          name: FootballMarket.StatisticsIngestion.TestOban,
+          repo: Repo,
+          prefix: schema,
+          testing: :manual,
+          queues: [statistics_import: 1],
+          plugins: [],
+          get_dynamic_repo: fn -> repo end
+        )
+
+      sync_config = Application.get_env(:football_market, FootballMarket.Synchronization, [])
+
+      try do
+        Application.put_env(
+          :football_market,
+          FootballMarket.Synchronization,
+          Keyword.merge(sync_config, oban_name: FootballMarket.StatisticsIngestion.TestOban)
+        )
+
+        fun.(repo)
+      after
+        Application.put_env(:football_market, FootballMarket.Synchronization, sync_config)
+        Supervisor.stop(oban)
+      end
+    after
+      Repo.put_dynamic_repo(previous)
+      if Process.alive?(repo), do: Supervisor.stop(repo)
+
+      Ecto.Adapters.SQL.Sandbox.unboxed_run(Repo, fn ->
+        Repo.query!("DROP SCHEMA " <> schema <> " CASCADE", [])
+      end)
+    end
+  end
+
+  defp migrate_statistics_store!(schema) do
+    for {version, path} <- migrations() do
+      require_migration_once!(path)
+      Ecto.Migrator.up(Repo, version, module(path), prefix: schema, log: false)
+    end
+  end
+
+  defp require_migration_once!(path) do
+    key = {__MODULE__, :required_migrations}
+    required = MapSet.new(:persistent_term.get(key, []))
+
+    unless path in required do
+      Code.require_file("priv/repo/migrations/" <> path)
+      :persistent_term.put(key, MapSet.put(required, path))
+    end
+  end
+
+  defp migrations do
+    for path <- Path.wildcard("priv/repo/migrations/*.exs") |> Enum.sort() do
+      base = Path.basename(path)
+      [version, _underscore] = String.split(base, "_", parts: 2)
+      {String.to_integer(version), base}
+    end
+  end
+
+  defp module(path) do
+    base = path |> Path.basename(".exs")
+    [_version, underscore] = String.split(base, "_", parts: 2)
+
+    String.to_existing_atom(
+      "Elixir.FootballMarket.Repo.Migrations." <> Macro.camelize(underscore)
+    )
   end
 end

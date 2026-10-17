@@ -1,39 +1,36 @@
-# Review Report — TASK-021 (specs/065-statistics-ingestion-pipeline)
+# Review Report — TASK-021 Statistics Ingestion Pipeline (final review, 2026-10-17)
 
-Independent final review of the diff, implementation, and fresh QA evidence. Not a repetition of QA: I confirm QA evidence is fresh and reproducible and resolve remaining risks by direct code inspection.
+**Scope**: independent final review per T032 after Feedback 7. Canonical artifacts read in full (spec/plan/tasks, verification.json, data-model, contracts, handoffs/architecture, handoffs/develop, backlog/feedback/TASK-021.md Feedbacks 4–7, fresh qa-report.md), plus the feature diff (`64816f6..HEAD` + working tree) and implementation code. Stale review artifacts and product-debate handoffs excluded. Per Feedback 7, no full re-run: fresh QA evidence (all manifest checks exit 0 today, 606/606 warnings-as-errors suite, zero committed residue) treated as reproducible.
 
-## Evidence basis
+## 1. Architecture and design
 
-- Fresh QA (no `--reuse`, stage `qa`) passed all five manifest checks: preflight, format, compile, unit (58 audited modules) and integration (117 audited modules). The integration retry after the PATH correction stayed within the documented two-failure budget.
-- Human feedback items 4 and 5 are satisfied: QA-01/02/03 remediations exist in code, QA re-executed all checks waiting in the foreground, and this report rewrites the stale review texts.
-- Direct code cross-verification of each cited QA finding:
-  - QA-01: `publisher.ex` resolves every team/player/match mapping (`:52-59`) and rolls back `:immutable_conflict` on changed canonical material (`:75-76`); replay retargeting regression at `replay_test.exs:73+`.
-  - QA-02: migration `20261016000100` enforces `jsonb_typeof(frequencies) = 'object'` in the validate trigger (`:95`); typed-map integrity tests with positive control per QA evidence.
-  - QA-03: `statistics_position_basis_insert_guard` (`:69-85`) rejects child basis rows against already-provenanced subjects; committed-connection regression per QA evidence.
+- Boundary integrity holds: Providers → Synchronization/Oban → Statistics; no new HTTP route, permission, cache, Redis ledger, or quote/scoring/chart behavior. `valuation/calculation_requests.ex` accepts and deduplicates intents with conflicting-membership rollback and unique-violation replay handling; it never invents completion state (FR-013).
+- `positions.ex` implements the fixed committed-history rule exactly: same player/season, known position, strictly earlier kickoff, one vote per match, unique mode or explicit unknown (`tie`/`insufficient_history`), policy v1 basis retained. Position-ID sorting is only deterministic traversal; ties still resolve unknown (FR-011).
+- `publisher.ex` locks consistently (receipt → season advisory → scope/replay rows), reads history once after the season lock, and classifies outcomes before advancement. QA-01 remediation (lines 50–59, 554–590) re-resolves every team/player binding and validates each match mapping against existing bindings and retained input on replay, rolling back `:immutable_conflict`; conflicting mappings can no longer bypass prevalidation or advance the pointer.
+- Closed outcome/error categories with a total `status/1` mapping; unexpected reasons degrade to `persistence_failure` without leaking detail (FR-012/FR-007).
 
-## Design, architecture, and security
+## 2. Security
 
-- Boundary discipline holds: providers (DTO/completeness validation), synchronization/Oban (operation-qualified dispatch, fences, recovery), statistics/ingestion (atomic publication), valuation (durable request acceptance only). No second scheduler/provider path; catalog schedules stay catalog-only; catalog delivery-receipt table remains a compatibility wrapper.
-- Atomicity and immutability: fetch outside transaction; locks in consistent order (receipt, season advisory, scope); insert-only facts with first-acceptance provenance; constraint races re-read for equality or abort; calculation intent published canonically in the same commit; dispatch failure never rolls back or relabels imports.
-- Position policy: derived history uses only already-committed known positions for strictly earlier same-season matches; the whole proposed batch is excluded; replay reuses retained evidence instead of rederiving; DB-level trigger validation independently enforces frequencies, mode uniqueness, and unknown reasons — defense in depth beyond tests.
-- Security: no new route/controller/endpoint (FR-015); errors use closed outcome categories; no raw payloads or credentials retained; fixture artifacts are digest-pinned, contained, and marked non_live; local reads never call Providers (isolation test asserted transport == 1 while reads stay byte-equal).
+- Provenance stores only closed, source-qualified identities plus sanitized fixture references with SHA-256 of actual bytes and a mandatory `non_live` marker; no raw payload, credential, or exception fields.
+- Static check: zero `Exception.message`/`inspect`/`IO` leakage in `lib/football_market/statistics/**` and the calculation handoff; zero `Providers.` references in the local read path — FR-015 isolation is structural.
+- Fixture paths are fixed constants, not caller-supplied (no path-escape surface); all atom conversions use `to_existing_atom`.
 
-## Targeted checks and risks
+## 3. Targeted check (discrepancy resolved)
 
-No full-suite rerun needed: QA evidence is fresh on the unchanged tree. Targeted observations:
+The uncommitted `dispatcher.ex` `:repo` option raised one uncovered risk: whether it globally retargets the default Repo. Verified against Ecto (`deps/ecto/lib/ecto/repo.ex:314`): `put_dynamic_repo` is `Process.put`, process-local only; the dispatcher's `init/1` affects itself, and the default catalog flow is unchanged elsewhere. No behavioral risk; no test rerun needed.
 
-1. `publisher.ex` `fixture_artifact!/1` evaluates the `test/fixtures/statistics_ingestion/*.exs` inventory at runtime. It is fixed-path and digest-pinned, satisfying FR-006/007 traceability, but coupling the production publisher to test-fixture paths is a maintainability smell if live fixture sources ever appear. Non-blocking; acceptable within this feature's explicitly offline scope.
-2. Replay/unchanged classification is correct: same canonical material with a new retrieval instant records an `accepted_unchanged` check; materially equal replay records `replay` observations without fact duplication.
-3. `CalculationRequests.accept/3` normalizes and sorts IDs on both sides, locks intent/request rows, and treats unique-violation races as idempotent re-reads — the ordered-list defect from develop is genuinely closed.
+## 4. Maintainability observations (non-blocking)
 
-## Checkpoint and scope coverage
+1. `publisher.fixture_artifact!/1` reads `test/fixtures/...` and evaluates the inventory from lib code. This matches the approved fixture-provenance design (fixed repo-relative artifact, digest-drift rejection) and fixtures are non-live development-only, but it couples production code to test-tree paths; a future task should relocate the admitted inventory if fixtures ever leave the repo.
+2. `StatisticsIngestion.Case` mutates the global `FootballMarket.Synchronization` app env during owned-store tests; `after`-restoration plus 606/606 green is acceptable, but that race window is inherent to the sanctioned `Synchronization.Case` pattern too.
+3. `verification.json` maps SC-005 (traceability) evidence to `metrics_test.exs`; behavior is independently covered by `provenance_test.exs`, so this is mapping granularity, not a coverage gap (same class as QA residual note 1).
 
-verification.json binds all 23 FR/SC identifiers to concrete test files; both audited profiles completed. `runtime_required=false` is justified — the diff touches no web layer. No forbidden additions (cache, freshness API, scoring, quotes, trading) are present. Spec, ADR-0028, quickstart, and tasks remain coherent; all T001–T030 checked with T031/T032 gate-owned.
+## 5. Checkpoint coverage and QA evidence
 
-## Backlog impact
+All FR-001..016 and SC-001..007 are bound in `verification.json`; QA independently challenged every scenario. QA-01/02/03 were re-verifiably remediated and re-audited; the Feedback 6 CI-isolation defect was fixed without reverting them. Coverage CI preserved; no historical CP1 report added.
 
-One concrete integration point: TASK-026 now depends on a durable boundary that did not exist when it was written.
+Backlog impact: none — Remediations (replay mapping validation, typed JSONB evidence, committed-basis trigger validation, per-test owner schemas, additive dispatcher `:repo`) are self-contained within TASK-021 and change no contract consumed by TASK-056 freshness reads or the future quote-orchestration consumer of `valuation_calculation_requests`.
 
-Backlog impact: TASK-026 — quote recalculation should specify consumption of the new durable `Valuation.CalculationRequests.accept/3` / dispatch boundary (FR-013 intent), rather than re-deriving triggers or recalculating synchronously at import time. Recommendation: record this integration expectation in TASK-026's planning when it leaves `todo`; no change to its priority, scope boundary, or dependency edges. No other backlog task is affected by this review's findings.
+Ready for human merge with T031 re-checks confirmable and T032 closed by this report.
 
 Verdict: PASS

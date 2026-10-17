@@ -174,8 +174,7 @@ defmodule FootballMarket.IngestionFixtureAdapter do
 
     case candidate do
       {:barrier, parent, token, map} ->
-        %{rows: [[backend]]} =
-          Ecto.Adapters.SQL.query!(FootballMarket.Repo, "SELECT pg_backend_pid()", [])
+        %{rows: [[backend]]} = FootballMarket.Repo.query!("SELECT pg_backend_pid()", [])
 
         send(parent, {token, self(), backend})
 

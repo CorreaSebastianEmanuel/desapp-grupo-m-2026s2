@@ -21,7 +21,10 @@ defmodule FootballMarket.MixProject do
         "test/fixtures/providers/expected.exs",
         "test/fixtures/providers/source_a.exs",
         "test/fixtures/providers/source_b.exs",
-        "test/fixtures/synchronization/expected.exs"
+        "test/fixtures/synchronization/expected.exs",
+        "test/fixtures/statistics_ingestion/documents.exs",
+        "test/fixtures/statistics_ingestion/expected.exs",
+        "test/fixtures/statistics_ingestion/inventory.exs"
       ],
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,

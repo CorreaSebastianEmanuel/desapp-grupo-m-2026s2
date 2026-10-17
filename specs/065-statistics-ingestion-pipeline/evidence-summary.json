@@ -2,9 +2,9 @@
   "schema_version": 1,
   "task": "TASK-021",
   "feature": "065-statistics-ingestion-pipeline",
-  "base_revision": "d2e892f6fa08061388031c6347fef48670562eae",
-  "verified_source": "16259a08078aa460baccacd6ec725e1f22c49eeba9e15b0219c3bd279bfab9eb",
-  "canonical_inputs": "187ee999b754a3f97e2bdbae42559b518ed1104a63e51450dc00aa843bcb35f4",
+  "base_revision": "263007da0a23a3df1948b1f81ae83b78af506ac5",
+  "verified_source": "02dfa8e1b6f35aa21af446fa028d5f314f8faf1beed6a88746b4a0e7e9a54f07",
+  "canonical_inputs": "fc8c271682ae7c6244650ba2db801603b5f4d92067b73e9c21438de2403677b4",
   "manifest_sha256": "a88c6487e8e2d03956ee15b2d73c3f24d617bba48fc18cb6ba5041183fde4324",
   "ci": {},
   "checks": [
@@ -13,11 +13,11 @@
       "stage": "develop",
       "status": "passed",
       "command_identity": "8ca30b44341ef7ffb22ebf41954bc43da81e5789e70997e81792f7ed96e3ac97",
-      "elapsed_seconds": 2.313,
-      "output_sha256": "b55ebb369798796b7132532d54c0dba373a67e19b8bc21d62ea205b15615a6db",
+      "elapsed_seconds": 2.775,
+      "output_sha256": "d1984fb7adac18b5fba161fbf5cd8bc120b29e484eb246328aca5e8e9c3590e2",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/a51aee7448d14823adfa2fce949af473/065-statistics-ingestion-pipeline/develop/preflight/3dd409c07a4d43ce93721f87827ffc7f.log"
+        "reference": ".agentflow/runs/checks/a51aee7448d14823adfa2fce949af473/065-statistics-ingestion-pipeline/develop/preflight/23b5a057f8fa457c9794d1120f370a20.log"
       },
       "environment": {
         "MIX_ENV": "test",
@@ -30,11 +30,11 @@
       "stage": "develop",
       "status": "passed",
       "command_identity": "e76d5655a3edfe6178960b3d768418d5faf7e37e473ccbb9399fbe06d33a5e9f",
-      "elapsed_seconds": 1.431,
+      "elapsed_seconds": 1.321,
       "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/a51aee7448d14823adfa2fce949af473/065-statistics-ingestion-pipeline/develop/format/f58af0ce88b2422b832e9d336a36a3d2.log"
+        "reference": ".agentflow/runs/checks/a51aee7448d14823adfa2fce949af473/065-statistics-ingestion-pipeline/develop/format/076fcb6b98d64edcbed57461c558638e.log"
       },
       "environment": {
         "MIX_OS_CONCURRENCY_LOCK": "0"
@@ -46,11 +46,11 @@
       "stage": "develop",
       "status": "passed",
       "command_identity": "309288b6fb4418f794a1f86acbfb17c65dbcd24a1f299342dec16b07d09331c2",
-      "elapsed_seconds": 0.851,
+      "elapsed_seconds": 0.846,
       "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/a51aee7448d14823adfa2fce949af473/065-statistics-ingestion-pipeline/develop/compile/b9a2b4b2b0c040049bca0ea59077871f.log"
+        "reference": ".agentflow/runs/checks/a51aee7448d14823adfa2fce949af473/065-statistics-ingestion-pipeline/develop/compile/dfd4dc7b071142b8ab17fa6a3b19039d.log"
       },
       "environment": {
         "MIX_ENV": "test",
@@ -63,11 +63,11 @@
       "stage": "develop",
       "status": "passed",
       "command_identity": "8abbf53711fd6e590f05fc429c2bc0bdabc28e7fbdb55da8bf37bf593c7a5b23",
-      "elapsed_seconds": 36.863,
+      "elapsed_seconds": 35.971,
       "output_sha256": "3d03ffa31ae1ea55cf5558cf244dcb190d889cd39c9460195a2cbb9f98d53537",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/a51aee7448d14823adfa2fce949af473/065-statistics-ingestion-pipeline/develop/unit/cd63062155594f88941f8738817cc823.log"
+        "reference": ".agentflow/runs/checks/a51aee7448d14823adfa2fce949af473/065-statistics-ingestion-pipeline/develop/unit/2548ec5efe794e6a94c888ebb42f0761.log"
       },
       "environment": {
         "MIX_ENV": "test",
@@ -92,11 +92,11 @@
       "stage": "develop",
       "status": "passed",
       "command_identity": "6a61af3a17594a1bd837f925da144982b2d2a1e2788f2874fe32d55099647395",
-      "elapsed_seconds": 407.974,
+      "elapsed_seconds": 387.619,
       "output_sha256": "31b2a2b75fe48a6a719140b90ce9b65335402e3e823ece9f98e46671f3bf6fc2",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/a51aee7448d14823adfa2fce949af473/065-statistics-ingestion-pipeline/develop/integration/494c65330ac54af5a2c02dd93b5f68b4.log"
+        "reference": ".agentflow/runs/checks/a51aee7448d14823adfa2fce949af473/065-statistics-ingestion-pipeline/develop/integration/96c7c4b0308d40568a8cf81822f0c270.log"
       },
       "environment": {
         "MIX_ENV": "test",
@@ -133,11 +133,11 @@
       "stage": "qa",
       "status": "passed",
       "command_identity": "8ca30b44341ef7ffb22ebf41954bc43da81e5789e70997e81792f7ed96e3ac97",
-      "elapsed_seconds": 2.332,
-      "output_sha256": "4c503c300a64fe7e439e7afe82e7e92644115bbd11f89b97858fba4076b12144",
+      "elapsed_seconds": 2.817,
+      "output_sha256": "ea69f01e04b041cfd04df9944c4159f888f5e9802357559e896b2c0f371628fd",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/a51aee7448d14823adfa2fce949af473/065-statistics-ingestion-pipeline/qa/preflight/ba556269eca64cce8df8ca2b1891a36a.log"
+        "reference": ".agentflow/runs/checks/a51aee7448d14823adfa2fce949af473/065-statistics-ingestion-pipeline/qa/preflight/97c0564d6f0e48de8a8234bfa0d758be.log"
       },
       "environment": {
         "MIX_ENV": "test",
@@ -150,11 +150,11 @@
       "stage": "qa",
       "status": "passed",
       "command_identity": "e76d5655a3edfe6178960b3d768418d5faf7e37e473ccbb9399fbe06d33a5e9f",
-      "elapsed_seconds": 1.507,
+      "elapsed_seconds": 1.272,
       "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/a51aee7448d14823adfa2fce949af473/065-statistics-ingestion-pipeline/qa/format/e594e61ec51643558a98b11f54249167.log"
+        "reference": ".agentflow/runs/checks/a51aee7448d14823adfa2fce949af473/065-statistics-ingestion-pipeline/qa/format/433e1df100fc4b8393845f9c6fd36b5d.log"
       },
       "environment": {
         "MIX_OS_CONCURRENCY_LOCK": "0"
@@ -166,11 +166,11 @@
       "stage": "qa",
       "status": "passed",
       "command_identity": "309288b6fb4418f794a1f86acbfb17c65dbcd24a1f299342dec16b07d09331c2",
-      "elapsed_seconds": 0.795,
+      "elapsed_seconds": 0.821,
       "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/a51aee7448d14823adfa2fce949af473/065-statistics-ingestion-pipeline/qa/compile/ce51d9d1860748abac1a0847afc731d2.log"
+        "reference": ".agentflow/runs/checks/a51aee7448d14823adfa2fce949af473/065-statistics-ingestion-pipeline/qa/compile/b79aafe02b0942aab954edce13f3d80a.log"
       },
       "environment": {
         "MIX_ENV": "test",
@@ -183,11 +183,11 @@
       "stage": "qa",
       "status": "passed",
       "command_identity": "8abbf53711fd6e590f05fc429c2bc0bdabc28e7fbdb55da8bf37bf593c7a5b23",
-      "elapsed_seconds": 34.755,
+      "elapsed_seconds": 36.757,
       "output_sha256": "3d03ffa31ae1ea55cf5558cf244dcb190d889cd39c9460195a2cbb9f98d53537",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/a51aee7448d14823adfa2fce949af473/065-statistics-ingestion-pipeline/qa/unit/7fea5211983f412880ce06cfaffe2676.log"
+        "reference": ".agentflow/runs/checks/a51aee7448d14823adfa2fce949af473/065-statistics-ingestion-pipeline/qa/unit/d3d907a77c854b098cbd324c5be33091.log"
       },
       "environment": {
         "MIX_ENV": "test",
@@ -212,11 +212,11 @@
       "stage": "qa",
       "status": "passed",
       "command_identity": "6a61af3a17594a1bd837f925da144982b2d2a1e2788f2874fe32d55099647395",
-      "elapsed_seconds": 363.823,
+      "elapsed_seconds": 418.048,
       "output_sha256": "31b2a2b75fe48a6a719140b90ce9b65335402e3e823ece9f98e46671f3bf6fc2",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/a51aee7448d14823adfa2fce949af473/065-statistics-ingestion-pipeline/qa/integration/32bb14b7efae44408fde129166f80451.log"
+        "reference": ".agentflow/runs/checks/a51aee7448d14823adfa2fce949af473/065-statistics-ingestion-pipeline/qa/integration/79ce822097db4b95ac9ba4460c3711a2.log"
       },
       "environment": {
         "MIX_ENV": "test",
@@ -334,16 +334,16 @@
   "independent_reports": {
     "qa-report.md": {
       "verdict": "PASS",
-      "sha256": "220bacbc5088c8e7d53052ca2b9a859bf9b46acca54b27a01332bc6cd650631e"
+      "sha256": "9583b95cae5337ab1ce5770d1affd5b9466221e132f05aa6b33fc45e9d9597b3"
     },
     "review-report.md": {
       "verdict": "PASS",
-      "sha256": "5047404387daebec0e875cda8ec0696ca2608266409acb0ec1105a934d2a43a3"
+      "sha256": "c3159baa2c5ae2b30ee0f7066ba88782454bff153bbfcb35eebaffd0f38217f2"
     }
   },
   "complete": true,
   "limitations": [
     "Portable summary does not authorize workspace reuse; run local checks."
   ],
-  "finalized_at": "2026-10-17T19:35:37.168090+00:00"
+  "finalized_at": "2026-10-17T23:23:09.286232+00:00"
 }

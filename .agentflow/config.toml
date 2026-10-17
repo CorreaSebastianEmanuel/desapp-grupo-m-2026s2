@@ -4,4 +4,4 @@ auto_commit = true
 auto_push = true
 create_pull_request = true
 auto_merge = false
-max_feedback_cycles = 6
+max_feedback_cycles = 8

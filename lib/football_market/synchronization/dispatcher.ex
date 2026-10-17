@@ -13,6 +13,8 @@ defmodule FootballMarket.Synchronization.Dispatcher do
 
   @impl true
   def init(options) do
+    if repo = Keyword.get(options, :repo), do: FootballMarket.Repo.put_dynamic_repo(repo)
+
     config = Application.get_env(:football_market, FootballMarket.Synchronization, [])
     automatic = Keyword.get(options, :automatic, Keyword.get(config, :automatic, true))
     interval = Keyword.get(config, :tick_ms, 15_000)

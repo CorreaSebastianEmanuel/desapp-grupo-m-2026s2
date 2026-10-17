@@ -141,6 +141,16 @@ def source_fingerprint(root: Path) -> str:
         name = os.fsdecode(raw)
         if name.startswith(("tmp/", ".agentflow/runs/", ".specify/workflows/runs/")) or name == ".specify/feature.json":
             continue
+        # Agentflow tooling changes the harness itself, not the product
+        # behavior that checks measure, so editing it must never invalidate
+        # product receipts. Everything else (lib/**, config, migrations, tests,
+        # check scripts, specs, manifest files) stays bound to the fingerprint.
+        if name == "agentflow" or name in (
+                ".agentflow/config.toml", ".agentflow/workflow.yml", ".agentflow/providers.json",
+                "scripts/workflow_artifact_probe.py", "scripts/product_decision_probe.py"):
+            continue
+        if name.startswith("scripts/agentflow_") and name.endswith((".py", ".cmd")):
+            continue
         if re.fullmatch(r'specs/[^/]+/(?:qa-report\.md|review-report\.md|evidence-summary\.json|handoffs/(?:develop|qa|review)\.md|handoffs/check-[a-z0-9_-]+\.json)', name):
             continue
         if name.startswith('backlog/') and not name.startswith('backlog/feedback/'):

@@ -321,10 +321,27 @@ def guard_feedback(task):
     feedback_guard(ROOT,meta(task)['id'])
 
 
+CHECK_ID_PATTERN=re.compile(r"[A-Za-z0-9_-]+")
+def check_id(value):
+    """--checks values must be check identifiers, canonical upper-case."""
+    ident=value.strip().upper()
+    if not CHECK_ID_PATTERN.fullmatch(value.strip()):
+        raise argparse.ArgumentTypeError(f"Invalid check id {value!r}; expected [A-Za-z0-9_-]+")
+    return ident
+
+
 def add_feedback(a):
     task=find(a.task); m=meta(task)
     impacts=getattr(a,'impact',[]) or []
     stage=feedback_stage(impacts,a.stage)
+    # Repeated --checks values are upper-cased by the parser; direct callers
+    # get the same validation here, then one de-duplicated ordered list.
+    checks=[]
+    for ident in getattr(a,'checks',[]) or []:
+        if not CHECK_ID_PATTERN.fullmatch(ident.strip()):
+            raise SystemExit(f"Invalid check id {ident!r}; expected [A-Za-z0-9_-]+")
+        ident=ident.strip().upper()
+        if ident not in checks: checks.append(ident)
     message=a.message or input("Feedback: ").strip()
     if not message: raise SystemExit("Feedback text is required")
     run=m.get("active_run","none")
@@ -340,7 +357,8 @@ def add_feedback(a):
     if count>=MAX_FEEDBACK_CYCLES: raise SystemExit(f"Feedback limit reached ({MAX_FEEDBACK_CYCLES}); resolve or split the task before another cycle")
     stamp=datetime.now(timezone.utc).isoformat(timespec="seconds")
     author=os.environ.get("USER") or os.environ.get("USERNAME") or "human"
-    entry=f"## Feedback {count+1}\n\n- Time: {stamp}\n- Author: {author}\n- Restart from: {stage or "pending"}\n- Impact: {", ".join(impacts) if impacts else "pending"}\n- Required regressions: cited discrepancy plus required manifest checks\n\n{message}\n\n"
+    scope=f"\n- Checks: {", ".join(checks)}" if checks else ""
+    entry=f"## Feedback {count+1}\n\n- Time: {stamp}\n- Author: {author}\n- Restart from: {stage or "pending"}\n- Impact: {", ".join(impacts) if impacts else "pending"}\n- Required regressions: cited discrepancy plus required manifest checks{scope}\n\n{message}\n\n"
     path.write_text(existing+entry,encoding="utf-8")
     if stage is None:
         print(f'Recorded pending feedback in {path.relative_to(ROOT)}; classify its impact before resume. No workflow rewind performed')
@@ -744,7 +762,7 @@ def parser():
         q.set_defaults(func=fn)
     q=s.add_parser("resume"); q.add_argument("task"); q.add_argument('--provider',action=Once,choices=providers.PROVIDERS); model_flags(q,resume=True); q.set_defaults(func=resume)
     q=s.add_parser("complete"); q.add_argument("task"); q.set_defaults(func=complete)
-    q=s.add_parser("feedback"); q.add_argument("task"); q.add_argument("message",nargs="?"); q.add_argument("--stage",choices=sorted(STAGE_ALIASES)); q.add_argument("--impact",choices=sorted(IMPACT_STAGE),action="append",default=[]); q.set_defaults(func=add_feedback)
+    q=s.add_parser("feedback"); q.add_argument("task"); q.add_argument("message",nargs="?"); q.add_argument("--stage",choices=sorted(STAGE_ALIASES)); q.add_argument("--impact",choices=sorted(IMPACT_STAGE),action="append",default=[]); q.add_argument("--checks",action="append",default=[],type=check_id,help="manifest check id whose remediation this feedback scopes (repeatable)"); q.set_defaults(func=add_feedback)
     q=s.add_parser("history"); q.add_argument("task"); q.set_defaults(func=history)
     q=s.add_parser("metrics",help="summarize structured usage without prompts or private session IDs")
     q.add_argument("task")

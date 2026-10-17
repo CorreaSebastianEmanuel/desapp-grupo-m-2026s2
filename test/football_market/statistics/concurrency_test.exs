@@ -1,7 +1,7 @@
 defmodule FootballMarket.Statistics.ConcurrencyTest do
   use ExUnit.Case, async: false
   @moduletag :integration
-  if System.get_env("MIX_TEST_PARTITION") == "statistics_concurrency" do
+  if String.ends_with?(System.get_env("MIX_TEST_PARTITION") || "", "_statistics_concurrency") do
     alias FootballMarket.{Repo, Statistics}
     alias FootballMarket.Statistics.Match
     import FootballMarket.StatisticsCase
@@ -190,12 +190,18 @@ defmodule FootballMarket.Statistics.ConcurrencyTest do
   else
     test "default suite executes nonempty independent committed race cases" do
       env = [
-        {"MIX_TEST_PARTITION", "statistics_concurrency"},
+        {
+          "MIX_TEST_PARTITION",
+          (System.get_env("MIX_TEST_PARTITION") || "cp1") <> "_statistics_concurrency"
+        },
         {"CP1_PROFILE", nil},
         {"CP1_PROFILE_COVERAGE", nil},
         {"CP1_PROFILE_RECEIPT", nil},
         {"CP1_PROFILE_SENTINEL_PATH", nil}
       ]
+
+      {_prepare_output, prepare_status} = System.cmd("mix", ["test.prepare"], env: env)
+      assert prepare_status == 0
 
       {out, status} =
         System.cmd("mix", ["test", __ENV__.file, "--warnings-as-errors"],

@@ -1,0 +1,349 @@
+{
+  "schema_version": 1,
+  "task": "TASK-021",
+  "feature": "065-statistics-ingestion-pipeline",
+  "base_revision": "d2e892f6fa08061388031c6347fef48670562eae",
+  "verified_source": "16259a08078aa460baccacd6ec725e1f22c49eeba9e15b0219c3bd279bfab9eb",
+  "canonical_inputs": "187ee999b754a3f97e2bdbae42559b518ed1104a63e51450dc00aa843bcb35f4",
+  "manifest_sha256": "a88c6487e8e2d03956ee15b2d73c3f24d617bba48fc18cb6ba5041183fde4324",
+  "ci": {},
+  "checks": [
+    {
+      "id": "preflight",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "8ca30b44341ef7ffb22ebf41954bc43da81e5789e70997e81792f7ed96e3ac97",
+      "elapsed_seconds": 2.313,
+      "output_sha256": "b55ebb369798796b7132532d54c0dba373a67e19b8bc21d62ea205b15615a6db",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/a51aee7448d14823adfa2fce949af473/065-statistics-ingestion-pipeline/develop/preflight/3dd409c07a4d43ce93721f87827ffc7f.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "MIX_OS_CONCURRENCY_LOCK": "0"
+      },
+      "coverage": []
+    },
+    {
+      "id": "format",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "e76d5655a3edfe6178960b3d768418d5faf7e37e473ccbb9399fbe06d33a5e9f",
+      "elapsed_seconds": 1.431,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/a51aee7448d14823adfa2fce949af473/065-statistics-ingestion-pipeline/develop/format/f58af0ce88b2422b832e9d336a36a3d2.log"
+      },
+      "environment": {
+        "MIX_OS_CONCURRENCY_LOCK": "0"
+      },
+      "coverage": []
+    },
+    {
+      "id": "compile",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "309288b6fb4418f794a1f86acbfb17c65dbcd24a1f299342dec16b07d09331c2",
+      "elapsed_seconds": 0.851,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/a51aee7448d14823adfa2fce949af473/065-statistics-ingestion-pipeline/develop/compile/b9a2b4b2b0c040049bca0ea59077871f.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "MIX_OS_CONCURRENCY_LOCK": "0"
+      },
+      "coverage": []
+    },
+    {
+      "id": "unit",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "8abbf53711fd6e590f05fc429c2bc0bdabc28e7fbdb55da8bf37bf593c7a5b23",
+      "elapsed_seconds": 36.863,
+      "output_sha256": "3d03ffa31ae1ea55cf5558cf244dcb190d889cd39c9460195a2cbb9f98d53537",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/a51aee7448d14823adfa2fce949af473/065-statistics-ingestion-pipeline/develop/unit/cd63062155594f88941f8738817cc823.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "MIX_OS_CONCURRENCY_LOCK": "0"
+      },
+      "coverage": [
+        "FR-001",
+        "FR-003",
+        "FR-005",
+        "FR-007",
+        "FR-008",
+        "FR-009",
+        "FR-010",
+        "FR-011",
+        "FR-012",
+        "FR-014",
+        "FR-016"
+      ]
+    },
+    {
+      "id": "integration",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "6a61af3a17594a1bd837f925da144982b2d2a1e2788f2874fe32d55099647395",
+      "elapsed_seconds": 407.974,
+      "output_sha256": "31b2a2b75fe48a6a719140b90ce9b65335402e3e823ece9f98e46671f3bf6fc2",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/a51aee7448d14823adfa2fce949af473/065-statistics-ingestion-pipeline/develop/integration/494c65330ac54af5a2c02dd93b5f68b4.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "MIX_OS_CONCURRENCY_LOCK": "0"
+      },
+      "coverage": [
+        "FR-001",
+        "FR-002",
+        "FR-003",
+        "FR-004",
+        "FR-005",
+        "FR-006",
+        "FR-007",
+        "FR-008",
+        "FR-009",
+        "FR-010",
+        "FR-011",
+        "FR-012",
+        "FR-013",
+        "FR-014",
+        "FR-015",
+        "FR-016",
+        "SC-001",
+        "SC-002",
+        "SC-003",
+        "SC-004",
+        "SC-005",
+        "SC-006",
+        "SC-007"
+      ]
+    },
+    {
+      "id": "preflight",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "8ca30b44341ef7ffb22ebf41954bc43da81e5789e70997e81792f7ed96e3ac97",
+      "elapsed_seconds": 2.332,
+      "output_sha256": "4c503c300a64fe7e439e7afe82e7e92644115bbd11f89b97858fba4076b12144",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/a51aee7448d14823adfa2fce949af473/065-statistics-ingestion-pipeline/qa/preflight/ba556269eca64cce8df8ca2b1891a36a.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "MIX_OS_CONCURRENCY_LOCK": "0"
+      },
+      "coverage": []
+    },
+    {
+      "id": "format",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "e76d5655a3edfe6178960b3d768418d5faf7e37e473ccbb9399fbe06d33a5e9f",
+      "elapsed_seconds": 1.507,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/a51aee7448d14823adfa2fce949af473/065-statistics-ingestion-pipeline/qa/format/e594e61ec51643558a98b11f54249167.log"
+      },
+      "environment": {
+        "MIX_OS_CONCURRENCY_LOCK": "0"
+      },
+      "coverage": []
+    },
+    {
+      "id": "compile",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "309288b6fb4418f794a1f86acbfb17c65dbcd24a1f299342dec16b07d09331c2",
+      "elapsed_seconds": 0.795,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/a51aee7448d14823adfa2fce949af473/065-statistics-ingestion-pipeline/qa/compile/ce51d9d1860748abac1a0847afc731d2.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "MIX_OS_CONCURRENCY_LOCK": "0"
+      },
+      "coverage": []
+    },
+    {
+      "id": "unit",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "8abbf53711fd6e590f05fc429c2bc0bdabc28e7fbdb55da8bf37bf593c7a5b23",
+      "elapsed_seconds": 34.755,
+      "output_sha256": "3d03ffa31ae1ea55cf5558cf244dcb190d889cd39c9460195a2cbb9f98d53537",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/a51aee7448d14823adfa2fce949af473/065-statistics-ingestion-pipeline/qa/unit/7fea5211983f412880ce06cfaffe2676.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "MIX_OS_CONCURRENCY_LOCK": "0"
+      },
+      "coverage": [
+        "FR-001",
+        "FR-003",
+        "FR-005",
+        "FR-007",
+        "FR-008",
+        "FR-009",
+        "FR-010",
+        "FR-011",
+        "FR-012",
+        "FR-014",
+        "FR-016"
+      ]
+    },
+    {
+      "id": "integration",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "6a61af3a17594a1bd837f925da144982b2d2a1e2788f2874fe32d55099647395",
+      "elapsed_seconds": 363.823,
+      "output_sha256": "31b2a2b75fe48a6a719140b90ce9b65335402e3e823ece9f98e46671f3bf6fc2",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/a51aee7448d14823adfa2fce949af473/065-statistics-ingestion-pipeline/qa/integration/32bb14b7efae44408fde129166f80451.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "MIX_OS_CONCURRENCY_LOCK": "0"
+      },
+      "coverage": [
+        "FR-001",
+        "FR-002",
+        "FR-003",
+        "FR-004",
+        "FR-005",
+        "FR-006",
+        "FR-007",
+        "FR-008",
+        "FR-009",
+        "FR-010",
+        "FR-011",
+        "FR-012",
+        "FR-013",
+        "FR-014",
+        "FR-015",
+        "FR-016",
+        "SC-001",
+        "SC-002",
+        "SC-003",
+        "SC-004",
+        "SC-005",
+        "SC-006",
+        "SC-007"
+      ]
+    }
+  ],
+  "coverage": {
+    "FR-001": [
+      "unit",
+      "integration"
+    ],
+    "FR-002": [
+      "integration"
+    ],
+    "FR-003": [
+      "unit",
+      "integration"
+    ],
+    "FR-004": [
+      "integration"
+    ],
+    "FR-005": [
+      "unit",
+      "integration"
+    ],
+    "FR-006": [
+      "integration"
+    ],
+    "FR-007": [
+      "unit",
+      "integration"
+    ],
+    "FR-008": [
+      "unit",
+      "integration"
+    ],
+    "FR-009": [
+      "unit",
+      "integration"
+    ],
+    "FR-010": [
+      "unit",
+      "integration"
+    ],
+    "FR-011": [
+      "unit",
+      "integration"
+    ],
+    "FR-012": [
+      "unit",
+      "integration"
+    ],
+    "FR-013": [
+      "integration"
+    ],
+    "FR-014": [
+      "unit",
+      "integration"
+    ],
+    "FR-015": [
+      "integration"
+    ],
+    "FR-016": [
+      "unit",
+      "integration"
+    ],
+    "SC-001": [
+      "integration"
+    ],
+    "SC-002": [
+      "integration"
+    ],
+    "SC-003": [
+      "integration"
+    ],
+    "SC-004": [
+      "integration"
+    ],
+    "SC-005": [
+      "integration"
+    ],
+    "SC-006": [
+      "integration"
+    ],
+    "SC-007": [
+      "integration"
+    ]
+  },
+  "independent_reports": {
+    "qa-report.md": {
+      "verdict": "PASS",
+      "sha256": "220bacbc5088c8e7d53052ca2b9a859bf9b46acca54b27a01332bc6cd650631e"
+    },
+    "review-report.md": {
+      "verdict": "PASS",
+      "sha256": "5047404387daebec0e875cda8ec0696ca2608266409acb0ec1105a934d2a43a3"
+    }
+  },
+  "complete": true,
+  "limitations": [
+    "Portable summary does not authorize workspace reuse; run local checks."
+  ],
+  "finalized_at": "2026-10-17T19:35:37.168090+00:00"
+}

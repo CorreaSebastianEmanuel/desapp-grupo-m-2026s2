@@ -41,6 +41,7 @@ defmodule FootballMarket.Providers.Error do
     :performances,
     :provenance,
     :bindings,
+    :completeness,
     :minutes_played,
     :goals,
     :assists,

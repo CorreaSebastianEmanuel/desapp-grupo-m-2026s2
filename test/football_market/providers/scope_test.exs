@@ -102,7 +102,8 @@ defmodule FootballMarket.Providers.ScopeTest do
                         market_paths(active_feature) ++
                         synchronization_paths(active_feature) ++
                         FootballMarket.BrowserSessionCase.shell_paths(active_feature)) or
-                 &1 == "mix.exs")
+                 &1 == "mix.exs" or
+                 FootballMarket.WorkflowScope.allows_path?(active_feature, &1))
            )
 
     assert Enum.sort(

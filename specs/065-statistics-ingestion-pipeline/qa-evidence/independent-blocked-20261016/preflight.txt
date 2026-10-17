@@ -1,0 +1,8 @@
+Attempt 1: python3 scripts/agentflow_check.py preflight --stage qa
+Exit: 1; elapsed: 0.846 seconds; reused: false; source_changed: false; inputs_changed: false.
+Runner reported consecutive_failures=1.
+Attempt 2: MIX_ENV=test sh -eu -c 'mix test.prepare && mix infrastructure.verify'
+Exit: 1; tool wall time: 0.560693662 seconds.
+warning: failed to subscribe to Mix events using TCP, reason: :eperm
+** (Mix) failed to acquire filesystem lock using TCP, reason: :eperm
+No inputs changed between attempts. Stop after two failures. No workflow/live logs read.

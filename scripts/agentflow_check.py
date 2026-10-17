@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import subprocess
 import time
 import uuid
@@ -29,6 +30,28 @@ def execute_check(check: dict, root: Path, evidence: Path) -> int:
         except KeyboardInterrupt:
             output.write("Check interrupted.\n")
             return 130
+
+
+def safe_failure_diagnostics(evidence: Path) -> dict:
+    """Expose only the location summary emitted by test_profile.sh."""
+    stages = []
+    failures = []
+    locations = []
+    for line in evidence.read_text(encoding="utf-8", errors="replace").splitlines():
+        line = line.strip()
+        if re.fullmatch(r"CP1_PROFILE_STAGE (?:transactional|committed-fixture:[A-Za-z0-9_./-]+)", line):
+            stages.append(line.removeprefix("CP1_PROFILE_STAGE "))
+        elif re.fullmatch(r"CP1_PROFILE_FAILURES count=(?:[0-9]+|unknown)", line):
+            failures.append(line.removeprefix("CP1_PROFILE_FAILURES count="))
+        elif re.fullmatch(r"CP1_PROFILE_FAILURE_LOCATION (?:test/[A-Za-z0-9_./-]+\.exs:[0-9]+|unavailable)", line):
+            locations.append(line.removeprefix("CP1_PROFILE_FAILURE_LOCATION "))
+    if not (stages or failures or locations):
+        return {}
+    return {
+        "stages": stages,
+        "failure_counts": failures,
+        "locations": locations,
+    }
 
 
 def run_check(root: Path, feature: Path, ident: str, *, reuse: bool = False, stage: str = "develop") -> int:
@@ -101,11 +124,16 @@ def run_check(root: Path, feature: Path, ident: str, *, reuse: bool = False, sta
                    elapsed_seconds=round(elapsed + duration, 3), evidence=receipt["evidence"],
                    cause=f"child exit {code}" if code else "inputs changed during execution" if changed else None)
     atomic_json(history_path, history)
-    print(json.dumps({"check": ident, "exit_code": code, "source_changed": before != after,
-                      "inputs_changed": changed, "reused": False, "elapsed_seconds": duration,
-                      "consecutive_failures": history["consecutive_failures"],
-                      "retry_limit_reached": history["consecutive_failures"] >= 2,
-                      "evidence": receipt["evidence"]}))
+    result = {"check": ident, "exit_code": code, "source_changed": before != after,
+              "inputs_changed": changed, "reused": False, "elapsed_seconds": duration,
+              "consecutive_failures": history["consecutive_failures"],
+              "retry_limit_reached": history["consecutive_failures"] >= 2,
+              "evidence": receipt["evidence"]}
+    if code:
+        diagnostics = safe_failure_diagnostics(evidence)
+        if diagnostics:
+            result["failure_diagnostics"] = diagnostics
+    print(json.dumps(result))
     return code or (1 if changed else 0)
 
 

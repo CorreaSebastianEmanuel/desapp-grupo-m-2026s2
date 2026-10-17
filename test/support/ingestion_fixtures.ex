@@ -167,6 +167,11 @@ defmodule FootballMarket.IngestionFixtureAdapter do
   def provider_label, do: "synthetic-a"
 
   def read(request, _context, candidate) do
+    Process.put(
+      :statistics_ingestion_transport_calls,
+      Process.get(:statistics_ingestion_transport_calls, 0) + 1
+    )
+
     case candidate do
       {:barrier, parent, token, map} ->
         %{rows: [[backend]]} =

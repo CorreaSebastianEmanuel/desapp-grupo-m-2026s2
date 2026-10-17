@@ -135,9 +135,11 @@ defmodule FootballMarket.Providers.Scraping.Translator do
           match_ref: ref(:match, m["id"]),
           player_ref: ref(:player, p["id"]),
           team_ref: ref(:team, p["teamId"]),
-          position_ref: position!(p["positionId"], row),
+          position_ref:
+            if(is_nil(p["positionId"]), do: nil, else: position!(p["positionId"], row)),
           minutes_played: measured["minutes_played"],
-          counts: counts
+          counts: counts,
+          participation: participation(p, row)
         }
       end
 
@@ -148,6 +150,17 @@ defmodule FootballMarket.Providers.Scraping.Translator do
     position = row.positions[id]
     Source.require!(is_binary(position))
     position
+  end
+
+  defp participation(player, row) do
+    case Map.get(row, :participation) do
+      %{status: :verified, field: field, substitute_value: value}
+      when is_binary(field) and is_binary(value) ->
+        if Map.get(player, field) == value, do: :substitute_entered, else: nil
+
+      _ ->
+        nil
+    end
   end
 
   def ref(kind, id), do: Atom.to_string(kind) <> ":" <> Source.id!(id)

@@ -8,7 +8,7 @@ workflow:
 requires:
   speckit_version: ">=1.0.0"
   integrations:
-    any: ["codex"]
+    any: ["codex", "opencode"]
 inputs:
   spec: {type: string, required: true}
   integration: {type: string, default: "auto"}

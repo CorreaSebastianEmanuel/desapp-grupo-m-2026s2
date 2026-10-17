@@ -56,6 +56,25 @@ defmodule FootballMarket.TestProfileAuditTest do
              TestProfileAudit.audit!("integration", root)
   end
 
+  test "runs independently committed integration fixtures after transactional integration tests" do
+    files = TestProfileAudit.audit!("integration").files
+
+    committed = [
+      "test/football_market/catalog/ingestion/concurrency_test.exs",
+      "test/football_market/catalog/ingestion/matrix_test.exs",
+      "test/football_market/statistics/concurrency_test.exs",
+      "test/football_market/statistics/ingestion/concurrency_test.exs",
+      "test/football_market/statistics/ingestion/recovery_test.exs",
+      "test/football_market/synchronization/concurrency_test.exs",
+      "test/football_market/synchronization/statistics_test.exs",
+      "test/mix/tasks/catalog.seed_test.exs",
+      "test/football_market/catalog/development_seed_test.exs",
+      "test/football_market/catalog/constraints_test.exs"
+    ]
+
+    assert Enum.take(files, -length(committed)) == committed
+  end
+
   test "rejects an unclassified second module" do
     root =
       fixture_root(

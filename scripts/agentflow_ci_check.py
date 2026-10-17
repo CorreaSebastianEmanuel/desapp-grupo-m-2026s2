@@ -42,10 +42,12 @@ SOURCE_PATHS = {
 SOURCE_PATHS.update('scripts/'+name+'.py' for name in (
     'agentflow_artifacts','agentflow_ci_check','agentflow_verification','agentflow_check',
     'agentflow_evidence','agentflow_models','agentflow_codex','agentflow_runtime',
+    'agentflow_providers','agentflow_opencode',
     'workflow_artifact_probe','agentflow_feature'))
 SOURCE_PATHS.update('test/scripts/'+name+'_test.py' for name in (
     'agentflow_policy','agentflow_ci_check','agentflow_clean_checkout','agentflow_artifacts',
     'agentflow_evidence','agentflow_feedback','agentflow_models','agentflow_metrics',
+    'agentflow_providers',
     'workflow_artifact_probe','agentflow_completion','agentflow_branch','agentflow_feature',
     'task_feature_binding_acceptance'))
 SOURCE_PATHS.update('.specify/scripts/bash/'+name+'.sh' for name in ('setup-plan','setup-tasks','check-prerequisites'))

@@ -100,8 +100,17 @@ defmodule FootballMarket.Providers.Performances do
 
     performances =
       Catalog.rows!(
-        retained_performances,
-        [:ref, :match_ref, :player_ref, :team_ref, :position_ref, :minutes_played, :counts],
+        Enum.map(retained_performances, &Map.put_new(&1, :participation, nil)),
+        [
+          :ref,
+          :match_ref,
+          :player_ref,
+          :team_ref,
+          :position_ref,
+          :minutes_played,
+          :counts,
+          :participation
+        ],
         :performances,
         Performance,
         fn p ->
@@ -111,13 +120,20 @@ defmodule FootballMarket.Providers.Performances do
           Catalog.require!(
             player.season_ref == match.season_ref and
               p.team_ref in [match.home_team_ref, match.away_team_ref] and
-              Map.has_key?(position_index, p.position_ref),
+              (is_nil(p.position_ref) or Map.has_key?(position_index, p.position_ref)),
             :performances
           )
 
           Catalog.require!(
             is_integer(p.minutes_played) and p.minutes_played >= 0,
             :minutes_played
+          )
+
+          Catalog.require!(
+            (not is_nil(p.position_ref) and
+               p.participation in [nil, :starter, :substitute_entered]) or
+              (is_nil(p.position_ref) and p.participation == :substitute_entered),
+            :position
           )
 
           Catalog.require!(

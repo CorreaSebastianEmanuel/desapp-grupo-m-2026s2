@@ -167,10 +167,14 @@ defmodule FootballMarket.IngestionFixtureAdapter do
   def provider_label, do: "synthetic-a"
 
   def read(request, _context, candidate) do
+    Process.put(
+      :statistics_ingestion_transport_calls,
+      Process.get(:statistics_ingestion_transport_calls, 0) + 1
+    )
+
     case candidate do
       {:barrier, parent, token, map} ->
-        %{rows: [[backend]]} =
-          Ecto.Adapters.SQL.query!(FootballMarket.Repo, "SELECT pg_backend_pid()", [])
+        %{rows: [[backend]]} = FootballMarket.Repo.query!("SELECT pg_backend_pid()", [])
 
         send(parent, {token, self(), backend})
 

@@ -152,6 +152,24 @@ class LauncherTest(DeliveryFixture):
         self.assertEqual(len({e['attempt'] for e in events if e['event']=='agent_started'}),6)
         self.assertTrue(all(e['observed_model'] is None for e in events))
 
+    def test_provider_selection_maps_models_and_freezes_provider(self):
+        from scripts.agentflow_models import resolve, save, bind, saved
+        self.write('.agentflow/providers.json', (ROOT/'.agentflow/providers.json').read_text())
+        task=self.root/'backlog/TASK-003-example.md'
+        codex=resolve(self.root,task,SimpleNamespace())
+        self.assertEqual(codex['provider'], 'codex')
+        self.assertEqual(codex['stages']['develop']['model'], 'gpt-6-luna')
+        stages=resolve(self.root,task,SimpleNamespace(provider='opencode'))['stages']
+        self.assertTrue(all(row['model']=='opencode-go/glm-5.3-flash' for row in stages.values()))
+        self.assertTrue(all('provider.opencode' in row['sources']['model'] for row in stages.values()))
+        selection=resolve(self.root,task,SimpleNamespace(provider='opencode'))
+        path=save(self.root,selection)
+        bind(self.root,path,'fixture-run')
+        restored=saved(self.root,'TASK-003','fixture-run')
+        self.assertEqual(restored['provider'], 'opencode')
+        with self.assertRaisesRegex(RuntimeError, 'not available for provider opencode'):
+            resolve(self.root,task,SimpleNamespace(provider='opencode', stage_model=['develop=unavailable-model']))
+
     def test_legacy_unknown_requires_explicit_adoption_without_default_backfill(self):
         from scripts.agentflow_models import resume_selection,STAGES
         task=self.root/'backlog/TASK-003-example.md'

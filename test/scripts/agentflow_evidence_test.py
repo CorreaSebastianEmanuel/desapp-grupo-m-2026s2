@@ -2,7 +2,7 @@
 import json
 import sys
 from unittest.mock import patch
-from scripts.agentflow_check import run_check
+from scripts.agentflow_check import run_check, safe_failure_diagnostics
 from scripts import agentflow_verification as v
 from test.scripts.support.agentflow_delivery_fixtures import DeliveryFixture, applicability, verification
 
@@ -13,6 +13,21 @@ class EvidenceTest(DeliveryFixture):
         self.data = verification([sys.executable, '-c', "print('fixture check')"])
         self.json('specs/003-example/verification.json', self.data)
         self.baseline()
+
+    def test_failure_diagnostics_expose_only_allowlisted_profile_locations(self):
+        evidence = self.root/'profile.log'
+        evidence.write_text(
+            'CP1_PROFILE_STAGE committed-fixture:test/example_test.exs\n'
+            'CP1_PROFILE_FAILURES count=2\n'
+            'CP1_PROFILE_FAILURE_LOCATION test/example_test.exs:41\n'
+            'expected secret payload and exception details\n'
+        )
+
+        self.assertEqual(safe_failure_diagnostics(evidence), {
+            'stages': ['committed-fixture:test/example_test.exs'],
+            'failure_counts': ['2'],
+            'locations': ['test/example_test.exs:41'],
+        })
 
     def receipt(self, stage='develop'):
         return v.current_receipt(self.root, self.feature, self.data['checks'][0],

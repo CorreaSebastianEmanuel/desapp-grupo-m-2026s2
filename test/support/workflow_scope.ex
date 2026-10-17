@@ -49,5 +49,53 @@ defmodule FootballMarket.WorkflowScope do
     ]
   end
 
+  def paths("specs/065-statistics-ingestion-pipeline") do
+    [
+      "config/synchronization.exs",
+      "lib/football_market/catalog/ingestion/delivery_receipt.ex",
+      "lib/football_market/providers/error.ex",
+      "lib/football_market/providers/performances.ex",
+      "lib/football_market/providers/scraping/",
+      "lib/football_market/providers/types.ex",
+      "lib/football_market/providers/validator.ex",
+      "lib/football_market/statistics.ex",
+      "lib/football_market/statistics/",
+      "lib/football_market/synchronization.ex",
+      "lib/football_market/synchronization/",
+      "lib/football_market/valuation/calculation_requests.ex",
+      "lib/football_market/workers/catalog_sync.ex",
+      "lib/football_market/workers/calculation_dispatch.ex",
+      "lib/football_market/workers/statistics_import.ex",
+      "priv/repo/migrations/20261016000100_extend_statistics_position_evidence.exs",
+      "priv/repo/migrations/20261016000200_create_statistics_ingestion.exs",
+      "priv/repo/migrations/20261016000300_extend_synchronization_operations.exs",
+      "test/football_market/providers/ingestion_contract_test.exs",
+      "test/football_market/providers/scope_test.exs",
+      "test/football_market/market/scope_test.exs",
+      "test/football_market/catalog/constraints_test.exs",
+      "test/football_market/statistics/",
+      "test/football_market/valuation/scope_test.exs",
+      "test/football_market/synchronization/",
+      "test/support/synchronization/",
+      "test/fixtures/statistics_ingestion/",
+      "test/ci/test_profile_audit_test.exs",
+      "test/ci/test_profile_runner_contract_test.exs",
+      "test/support/ingestion_fixtures.ex",
+      "test/support/providers/fact_oracle.ex",
+      "test/support/statistics_ingestion/",
+      "test/support/test_profile_audit.ex",
+      "test/scripts/agentflow_evidence_test.py",
+      "test/support/workflow_scope.ex"
+    ]
+  end
+
   def paths(_), do: []
+
+  def allows_path?(feature, path) do
+    Enum.any?(paths(feature), fn planned ->
+      if String.ends_with?(planned, "/"),
+        do: String.starts_with?(path, planned),
+        else: path == planned
+    end)
+  end
 end

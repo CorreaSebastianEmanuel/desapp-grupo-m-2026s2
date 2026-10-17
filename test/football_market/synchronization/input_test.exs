@@ -64,6 +64,27 @@ defmodule FootballMarket.Synchronization.InputTest do
     end
   end
 
+  test "execution refuses fixture bytes that drifted after statistics admission" do
+    path = Path.join(System.tmp_dir!(), "statistics-fixture-#{Ecto.UUID.generate()}.exs")
+    File.write!(path, "fixture-v1")
+
+    old = Application.get_env(:football_market, FootballMarket.Synchronization)
+    source = Map.put(Fixtures.source(), :fixture_path, path)
+
+    Application.put_env(:football_market, FootballMarket.Synchronization,
+      sources: %{"fixture" => source}
+    )
+
+    on_exit(fn ->
+      Application.put_env(:football_market, FootballMarket.Synchronization, old)
+      File.rm(path)
+    end)
+
+    assert {:ok, input} = Input.normalize(Fixtures.scope(), source_ref: "fixture")
+    File.write!(path, "fixture-v2")
+    assert {:error, :input_drift} = Input.execution(input.material)
+  end
+
   test "instruction collection order is irrelevant while full input changes are distinct" do
     a =
       FootballMarket.IngestionFixtures.mapping(

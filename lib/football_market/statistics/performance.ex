@@ -9,6 +9,10 @@ defmodule FootballMarket.Statistics.Performance do
     field :player_id, :binary_id
     field :team_id, :binary_id
     field :position_id, :binary_id
+    field :position_basis, :string, default: "legacy_direct"
+    field :participation, :string
+    field :position_reason, :string
+    field :position_evidence, :map
     field :season_id, :binary_id
     field :minutes_played, Count
     for field <- Input.metrics(), do: field(field, Count)
@@ -29,6 +33,7 @@ defmodule FootballMarket.Statistics.Performance do
       |> foreign_key_constraint(:team_id, name: :performances_team_id_season_fkey)
       |> foreign_key_constraint(:position_id, name: :player_match_performances_position_id_fkey)
       |> check_constraint(:team_id, name: :performances_participation)
+      |> check_constraint(:position_id, name: :performances_position_evidence_state)
 
     Enum.reduce([:minutes_played | Input.metrics()], cs, fn f, cs ->
       check_constraint(cs, f, name: "performances_#{f}_count")

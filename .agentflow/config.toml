@@ -1,6 +1,7 @@
 default_agent = "auto"
+default_provider = "codex"
 auto_commit = true
 auto_push = true
 create_pull_request = true
 auto_merge = false
-max_feedback_cycles = 3
+max_feedback_cycles = 8

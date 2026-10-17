@@ -4,9 +4,9 @@ title: Statistics ingestion pipeline
 type: task
 checkpoint: CP2
 priority: critical
-status: review
+status: done
 depends_on: TASK-055, TASK-018, TASK-019, TASK-020
-active_run: 4913d038
+active_run: none
 ---
 
 ## Outcome

@@ -1,4 +1,5 @@
 default_agent = "auto"
+default_provider = "codex"
 auto_commit = true
 auto_push = true
 create_pull_request = true

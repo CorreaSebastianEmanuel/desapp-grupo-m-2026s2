@@ -14,10 +14,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 try:
-    from .agentflow_runtime import DIMENSIONS, MARKER, numeric_usage, read_metrics, stage_from_args, usage_delta
+    from .agentflow_runtime import DIMENSIONS, MARKER, numeric_usage, read_metrics, stage_from_args
     from . import agentflow_providers as providers
 except ImportError:
-    from agentflow_runtime import DIMENSIONS, MARKER, numeric_usage, read_metrics, stage_from_args, usage_delta
+    from agentflow_runtime import DIMENSIONS, MARKER, numeric_usage, read_metrics, stage_from_args
     import agentflow_providers as providers
 
 PROVIDER = "opencode"
@@ -138,6 +138,7 @@ def main(args: list[str]) -> int:
         return 127
     assert child.stdout is not None
     provider_failed = False
+    usage_recorded = False
     try:
         for line in child.stdout:
             print(line, end="", flush=True)
@@ -150,6 +151,23 @@ def main(args: list[str]) -> int:
             if event.get('type') == 'error':
                 provider_failed = True
                 emit("agent_failed", cause="provider rejected the request; no fallback")
+            part = event.get('part') or {}
+            finish_tokens = part.get('tokens') if part.get('type') == 'step-finish' else None
+            if isinstance(finish_tokens, dict):
+                reported = numeric_usage({'input_tokens': finish_tokens.get('input'),
+                                          'cached_input_tokens': (finish_tokens.get('cache') or {}).get('read'),
+                                          'output_tokens': finish_tokens.get('output'),
+                                          'reasoning_output_tokens': finish_tokens.get('reasoning'),
+                                          'cache_write_input_tokens': (finish_tokens.get('cache') or {}).get('write')})
+                # OpenCode step-finish records one conversation turn's counts,
+                # not cumulative counters: recording each turn keeps the
+                # per-attempt sum meaningful without inventing deltas.
+                emit("usage", session_hash=session_hash, reported_usage=reported,
+                     observed_counter_delta=None, incremental_usage=reported,
+                     baseline_known=True)
+                previous = reported
+                if not any(value is None for value in reported.values()):
+                    usage_recorded = True
             # OpenCode stamps every stream event with a session identifier.
             identifier = event.get("sessionID")
             if isinstance(identifier, str) and identifier.startswith("ses_") and not session_hash:
@@ -177,12 +195,13 @@ def main(args: list[str]) -> int:
                 child.kill()
                 child.wait()
         code = 130
-    # OpenCode's run stream carries no token accounting in this CLI version.
-    # Record the attempt as intentionally unmeasured instead of inventing
-    # numbers; metrics completeness stays false until usage is observable.
-    emit("usage", session_hash=session_hash, reported_usage=None,
-         observed_counter_delta=None, incremental_usage={key: None for key in DIMENSIONS},
-         baseline_known=False, unknown_reason='provider stream reports no token usage')
+    # When the provider stream never reports accounting (or reports only
+    # partial dimensions), record the attempt as intentionally unmeasured
+    # instead of inventing numbers; metrics completeness stays false.
+    if not usage_recorded:
+        emit("usage", session_hash=session_hash, reported_usage=None,
+             observed_counter_delta=None, incremental_usage={key: None for key in DIMENSIONS},
+             baseline_known=False, unknown_reason='provider stream reports no token usage')
     code = code or (1 if provider_failed else 0)
     if code == 0 and stage in ('qa','review'):
         try:

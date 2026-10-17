@@ -47,6 +47,30 @@ def format_json_args(args: list[str]) -> list[str]:
     return values
 
 
+def inline_command_args(args: list[str]) -> list[str]:
+    """Map Spec Kit's `--command <name>` dispatch onto the installed CLI.
+
+    Spec Kit's OpenCode integration builds `<run> ... --command <name> ... <message>`
+    for slash-command steps. Some OpenCode builds lack a --command flag and
+    instead execute custom commands when the message itself starts with
+    `/name`. Rebuild the message accordingly; unknown-version fallback keeps
+    the original argv when the CLI accepts the flag."""
+    if "--command" not in args:
+        return args
+    values = list(args)
+    index = values.index("--command")
+    if index + 1 >= len(values):
+        raise RuntimeError("Spec Kit command dispatch is missing a command name")
+    name = values.pop(index + 1)
+    values.pop(index)
+    if values and isinstance(values[-1], str) and (values[-1] == "" or not values[-1].startswith("-")):
+        message = values.pop()
+        values.append(f"/{name} {message}".rstrip())
+    else:
+        values.append(f"/{name}")
+    return values
+
+
 def main(args: list[str]) -> int:
     real = os.environ["AGENTFLOW_OPENCODE_REAL"]
     task = os.environ["AGENTFLOW_TASK_ID"]
@@ -101,6 +125,7 @@ def main(args: list[str]) -> int:
             output.write(json.dumps(value) + "\n")
         print(MARKER + json.dumps(value), flush=True)
 
+    args = inline_command_args(args)
     args = format_json_args(args)
     emit("agent_started")
     # Gates belong to Spec Kit. An agent must not consume piped gate answers.

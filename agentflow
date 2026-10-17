@@ -561,6 +561,42 @@ def start(a):
     code,run=monitor_process(cmd,task,assignment=assignment,provider=selected)
     if code==130: return code
     return finalize(task,m,code,a.no_pr)
+def bound_run_integration(run):
+    """Integration recorded when the run was last started or adopted."""
+    try:
+        data=json.loads((SPEC_RUNS/run/"inputs.json").read_text(encoding="utf-8"))
+    except (OSError,json.JSONDecodeError):
+        return None
+    value=data.get("inputs",{}).get("integration")
+    return value if isinstance(value,str) and providers.normalize(value) is not None and value in providers.PROVIDERS else value
+
+
+def bind_run_provider(run, provider, adopting):
+    """A run's saved integration follows only deliberate adoption.
+
+    Spec Kit resumes replay the integration stored in inputs.json; replaying
+    one provider's workflow through another CLI silently would mix provider
+    sessions inside a run, so adoption rewrites the saved input atomically
+    and logs the switch, while any non-adopted change is refused."""
+    stored=bound_run_integration(run)
+    if stored is None or stored==provider:
+        return
+    if not adopting:
+        raise RuntimeError(f'Run inputs record integration {stored!r}; refusing to resume with provider '
+                           f'{provider!r} without --adopt-models. Switch deliberately and start a fresh stage')
+    path=SPEC_RUNS/run/"inputs.json"
+    data=json.loads(path.read_text(encoding="utf-8"))
+    data.setdefault("inputs",{})["integration"]=provider
+    text=json.dumps(data,indent=2)+"\n"
+    stamp=datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    shutil.copy2(path,SPEC_RUNS/run/f"inputs.before-provider-{stamp}.json")
+    path.write_text(text,encoding="utf-8")
+    with (SPEC_RUNS/run/"log.jsonl").open("a",encoding="utf-8") as log:
+        log.write(json.dumps({"event":"provider_adoption","from":stored,"to":provider,
+                              "timestamp":datetime.now(timezone.utc).isoformat()})+"\n")
+    print(f"Provider adoption recorded: {stored} → {provider}")
+
+
 def resolved_resume_provider(selection, a):
     """A run stays on its starting provider unless adoption is explicit.
 
@@ -588,6 +624,7 @@ def resume(a):
     try: branch=ensure_feature_branch(task)
     except RuntimeError as error: raise SystemExit(str(error)) from error
     print(f"Feature branch: {branch}")
+    bind_run_provider(run,selected,adopting)
     state=read_run_state(run)
     session_feature(task,head_ref=branch,allow_missing=bool(state and state.get("current_step_id")=="product"))
     recover_orphaned_run(task,run)

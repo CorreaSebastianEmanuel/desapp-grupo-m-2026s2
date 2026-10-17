@@ -11,6 +11,15 @@ from test.scripts.support.agentflow_delivery_fixtures import DeliveryFixture
 ROOT = Path(__file__).resolve().parents[2]
 
 
+def mk_cleanup(directory):
+    def cleanup():
+        import shutil
+        shutil.rmtree(directory, ignore_errors=True)
+    import atexit
+    atexit.register(cleanup)
+    return cleanup
+
+
 class ProviderFixture(DeliveryFixture):
     def config(self):
         self.write('.agentflow/providers.json', (ROOT/'.agentflow/providers.json').read_text())
@@ -197,6 +206,21 @@ print(json.dumps({{"type": "text", "sessionID": session, "part": {{"type": "text
         path.write_text(json.dumps(selection))
         return path
 
+    def test_command_dispatch_maps_onto_native_slash_invocation(self):
+        result = self.run_shim('run', '--auto', '--command', 'speckit.implement',
+                               'Agentflow stage: develop\nDo the thing', assignment=self.frozen_assignment())
+        self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+        captured = json.loads((self.root/'captured.jsonl').read_text().splitlines()[-1])
+        self.assertNotIn('--command', captured)
+        self.assertTrue(captured[-1].startswith('/speckit.implement '))
+        self.assertIn('Agentflow stage: develop', captured[-1])
+        self.assertIn('--format=json', captured)
+
+    def test_command_without_name_is_refused_loudly(self):
+        result = self.run_shim('run', '--auto', 'Agentflow stage: develop', '--command', assignment=self.frozen_assignment())
+        self.assertEqual(result.returncode, 127, result.stdout+result.stderr)
+        self.assertIn('missing a command name', result.stdout+result.stderr)
+
     def test_frozen_selection_inserts_model_before_positional_message(self):
         assignment = self.frozen_assignment()
         result = self.run_shim('run', '--auto', 'Agentflow stage: develop', assignment=assignment)
@@ -260,6 +284,24 @@ class CliProviderTest(ProviderFixture):
         self.assertEqual(self.module.resolved_resume_provider(saved, SimpleNamespace(provider=None, agent=None)), 'opencode')
         legacy = {key: value for key, value in saved.items() if key != 'provider'}
         self.assertEqual(self.module.resolved_resume_provider(legacy, SimpleNamespace(provider=None, agent=None)), 'codex')
+
+    def test_resume_provider_guard_refuses_non_adopted_switch_without_spec_kit_state(self):
+        module = self.module
+        import tempfile
+        runs = Path(tempfile.mkdtemp())
+        self.addCleanup(mk_cleanup(runs))
+        module.SPEC_RUNS = runs
+        run = 'fixture-run'
+        (runs/run).mkdir()
+        (runs/run/'inputs.json').write_text(json.dumps({'inputs': {'spec': 'fixture', 'integration': 'codex'}}))
+        with self.assertRaisesRegex(RuntimeError, 'refusing to resume'):
+            module.bind_run_provider(run, 'opencode', False)
+        module.bind_run_provider(run, 'codex', True)
+        self.assertEqual(json.loads((runs/run/'inputs.json').read_text())['inputs']['integration'], 'codex')
+        module.bind_run_provider(run, 'opencode', True)
+        saved = json.loads((runs/run/'inputs.json').read_text())['inputs']['integration']
+        self.assertEqual(saved, 'opencode')
+        self.assertEqual(json.loads((runs/run/'log.jsonl').read_text().splitlines()[-1])['event'], 'provider_adoption')
 
     def test_start_passes_provider_input_and_fails_loudly_without_fake_cli(self):
         """Without a fake opencode binary the provider selection still names it."""

@@ -101,7 +101,8 @@ defmodule FootballMarket.Providers.ScopeTest do
                         valuation_paths(active_feature) ++
                         market_paths(active_feature) ++
                         synchronization_paths(active_feature) ++
-                        FootballMarket.BrowserSessionCase.shell_paths(active_feature)) or
+                        FootballMarket.BrowserSessionCase.shell_paths(active_feature) ++
+                        FootballMarket.WorkflowScope.paths(active_feature)) or
                  &1 == "mix.exs")
            )
 
@@ -166,7 +167,9 @@ defmodule FootballMarket.Providers.ScopeTest do
           {:defp, meta, [{:deps, call_meta, args}, [do: List.delete(deps, {:oban, "~> 2.24.2"})]]}
 
         list when is_list(list) ->
-          if Keyword.keyword?(list), do: Keyword.delete(list, :test_ignore_filters), else: list
+          if Keyword.keyword?(list),
+            do: list |> Keyword.delete(:test_ignore_filters) |> Keyword.delete(:"test.e2e"),
+            else: list
 
         node ->
           node

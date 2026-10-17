@@ -1,7 +1,13 @@
 #!/bin/sh
 set -eu
+# This legacy CLI contract probes development configuration. The profile supplies
+# invocation-owned Docker ports/volumes; test mode has a separate fail-fast guard.
+export MIX_ENV=dev
+PROFILE_SHELL_FILE=test/integration/infrastructure_verify_test.sh
+. "$(dirname "$0")/../scripts/support/profile_events.sh"
+profile_case_start 'independent_infrastructure_verification'
 . "$(dirname "$0")/../scripts/support/local_services_test_helpers.sh"
-docker_available || { echo "SKIP: Docker daemon unavailable"; exit 0; }
+docker_available || { echo "FAIL: Docker daemon unavailable"; exit 1; }
 root=$(CDPATH= cd -- "$(dirname "$0")/../.." && pwd)
 cd "$root"
 trap './scripts/local_services.sh stop >/dev/null 2>&1 || true' EXIT
@@ -53,3 +59,4 @@ assert_failed_probe Redis REDIS_PORT malformed-redis-port invalid_configuration 
 assert_failed_probe PostgreSQL POSTGRES_PORT 5499 unavailable_or_authentication_failure Redis
 assert_failed_probe Redis REDIS_PORT 6399 unavailable_or_authentication_failure PostgreSQL
 echo "independent verification: PASS"
+profile_case_pass 'independent_infrastructure_verification'

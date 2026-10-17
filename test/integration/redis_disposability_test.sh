@@ -1,15 +1,22 @@
 #!/bin/sh
 set -eu
+PROFILE_SHELL_FILE=test/integration/redis_disposability_test.sh
+. "$(dirname "$0")/../scripts/support/profile_events.sh"
+profile_case_start 'redis_disposability'
 . "$(dirname "$0")/../scripts/support/local_services_test_helpers.sh"
 
-docker_available || { echo "SKIP: Docker daemon unavailable"; exit 0; }
+docker_available || { echo "FAIL: Docker daemon unavailable"; exit 1; }
 root=$(CDPATH= cd -- "$(dirname "$0")/../.." && pwd)
+database=${POSTGRES_DB:-football_market_dev}
+if [ "${MIX_ENV:-dev}" = test ]; then
+  database=${TEST_DATABASE_NAME:-football_market_test${MIX_TEST_PARTITION:-}}
+fi
 compose="docker compose --project-name football_market_local"
 marker=redis-disposability-sentinel
 
 cleanup() {
   cd "$root"
-  $compose exec -T postgres psql -U "${POSTGRES_USER:-postgres}" -d "${POSTGRES_DB:-football_market_dev}" \
+  $compose exec -T postgres psql -U "${POSTGRES_USER:-postgres}" -d "$database" \
     -c "UPDATE infrastructure_probe SET marker = 'ready' WHERE key = 'migration'" >/dev/null 2>&1 || true
   ./scripts/local_services.sh stop >/dev/null 2>&1 || true
 }
@@ -20,7 +27,7 @@ cd "$root"
 ./scripts/local_services.sh ready
 mix infrastructure.database.setup
 
-$compose exec -T postgres psql -U "${POSTGRES_USER:-postgres}" -d "${POSTGRES_DB:-football_market_dev}" \
+$compose exec -T postgres psql -U "${POSTGRES_USER:-postgres}" -d "$database" \
   -c "UPDATE infrastructure_probe SET marker = '$marker' WHERE key = 'migration'" >/dev/null
 $compose exec -T redis redis-cli SET disposable-probe cached >/dev/null
 $compose exec -T redis redis-cli FLUSHALL >/dev/null
@@ -28,7 +35,8 @@ $compose exec -T redis redis-cli FLUSHALL >/dev/null
 [ "$($compose exec -T redis redis-cli EXISTS disposable-probe | tr -d '\r')" = "0" ] ||
   fail "Redis reset retained disposable data"
 postgres_marker=$($compose exec -T postgres psql -U "${POSTGRES_USER:-postgres}" \
-  -d "${POSTGRES_DB:-football_market_dev}" -Atc \
+  -d "$database" -Atc \
   "SELECT marker FROM infrastructure_probe WHERE key = 'migration'" | tr -d '\r')
 [ "$postgres_marker" = "$marker" ] || fail "Redis reset changed authoritative PostgreSQL data"
 echo "Redis disposability boundary: PASS"
+profile_case_pass 'redis_disposability'

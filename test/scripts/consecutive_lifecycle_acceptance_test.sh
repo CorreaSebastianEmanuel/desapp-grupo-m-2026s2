@@ -1,7 +1,10 @@
 #!/bin/sh
 set -eu
+PROFILE_SHELL_FILE=test/scripts/consecutive_lifecycle_acceptance_test.sh
+. "$(dirname "$0")/support/profile_events.sh"
+profile_case_start 'consecutive_lifecycle_acceptance'
 . "$(dirname "$0")/support/local_services_test_helpers.sh"
-docker_available || { echo "SKIP: Docker daemon unavailable"; exit 0; }
+docker_available || { echo "FAIL: Docker daemon unavailable"; exit 1; }
 
 root=$(CDPATH= cd -- "$(dirname "$0")/../.." && pwd)
 lock_dir="${TMPDIR:-/tmp}/football_market_local_services.lock"
@@ -27,3 +30,4 @@ mix infrastructure.verify
 ./test/scripts/task_002_acceptance_test.sh
 
 echo "consecutive lifecycle and three-cycle acceptance: PASS"
+profile_case_pass 'consecutive_lifecycle_acceptance'

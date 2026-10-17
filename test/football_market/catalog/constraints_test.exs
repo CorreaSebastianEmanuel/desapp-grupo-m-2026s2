@@ -278,6 +278,9 @@ defmodule FootballMarket.CatalogConcurrencyTest do
   else
     test "default suite executes both committed Catalog races" do
       env = [
+        {"POSTGRES_PORT",
+         System.get_env("PROFILE_CONCURRENCY_POSTGRES_PORT") ||
+           System.get_env("POSTGRES_PORT", "5432")},
         {"MIX_TEST_PARTITION", "catalog_concurrency"},
         {"CP1_PROFILE", nil},
         {"CP1_PROFILE_COVERAGE", nil},

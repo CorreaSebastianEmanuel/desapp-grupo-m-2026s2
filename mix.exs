@@ -48,6 +48,7 @@ defmodule FootballMarket.MixProject do
         precommit: :test,
         "test.unit": :test,
         "test.integration": :test,
+        "test.e2e": :test,
         "test.cp1_coverage": :test
       ]
     ]
@@ -157,6 +158,9 @@ defmodule FootballMarket.MixProject do
       ],
       "test.integration": [
         "run -e '{output, status} = System.cmd(\"sh\", [\"scripts/test_profile.sh\", \"integration\"], stderr_to_stdout: true); IO.write(output); System.halt(status)'"
+      ],
+      "test.e2e": [
+        "run -e '{output, status} = System.cmd(\"sh\", [\"scripts/test_profile.sh\", \"e2e\"], stderr_to_stdout: true); IO.write(output); System.halt(status)'"
       ],
       "test.cp1_coverage": [
         "run -e '{output, status} = System.cmd(\"sh\", [\"scripts/coverage_report.sh\"], stderr_to_stdout: true); IO.write(output); System.halt(status)'"

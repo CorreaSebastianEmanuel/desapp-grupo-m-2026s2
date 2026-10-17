@@ -1,0 +1,19 @@
+# Independent final review — TASK-063
+
+Reviewed on 2026-10-17 against AGENTS.md, the context policy, required foundations/constitution, active pointer, complete spec/plan/tasks/verification manifest, architecture/development/QA handoffs, fresh QA report and all current backlog feedback. Inspected the relevant tracked diff and new implementation/test files directly in bounded sections. No historical review, product debate, run directories, logs or attestations were inspected.
+
+No blocking findings. The implementation satisfies the settled scope and is ready for human merge.
+
+Architecture and maintainability: changes remain in test tooling, fixtures, documentation and CI. The inventory, native adapters, supervisor, formatter and isolated runtime have separate responsibilities. Explicit inventory updates remain reviewable; validation never regenerates expectations. Existing integration browser/HTTP tests retain ownership. Discovery rejects unsupported/unclassified files; exact nonce-bound started/passed identity reconciliation rejects substitutions, omissions, duplicates, skips and unexpected execution. Atomic receipts follow successful reconciliation and cleanup, with prior receipts invalidated before discovery.
+
+Security and cleanup: child output stays in private captures; published diagnostics use fixed categories and opaque IDs. Browser artifacts are disabled and credentials stay in private runtime transport. E2E requires the exact configured test database/partition and a unique schema/Oban prefix. Registration precedes schema creation; the supervisor terminates child process groups and invokes separate cleanup, validating every registry record before repository startup. Fresh QA exercised actual timeout/TERM cleanup while preserving a control schema, rejected foreign ownership, and verified cleanup failure propagation. Docker projects, explicit volumes, ports and temporary paths are invocation-owned. Supervisor SIGKILL cannot execute cleanup; this disclosed limitation does not establish success or retain a previous complete receipt.
+
+Product and checkpoint: real Chromium exercises CSRF sign-in, connected protected workspace, logout/revocation, invalid credentials and expiry. The catalog journey uses trusted admission/inspection, a release barrier, real Oban consumers and authenticated HTTP to verify durable completion, exact identities and duplicate-free replay. Invalid scope/authentication/page size preserve state; immutable financial/quote/performance snapshots remain unchanged. Product modules, migrations and dependency locks have no diff. Charts and conditional orders remain outside the claimed coverage.
+
+CI and coverage: required baseline and Sonar categories remain, native workflow/OpenAPI cases execute through reconciled components, and E2E is a mandatory separate job. CP1 denominator, provenance, native/HTML report and threshold zero remain intact; historical combined coverage is not an additional CP2 gate. Hosted Actions and branch protection were not exercised locally.
+
+Evidence: accepted fresh QA executed all eleven manifest checks with explicit `--stage qa`, no reuse and zero failures (327.118 seconds); receipt identifiers are in qa-report.md. Review did not repeat full suites. A targeted static check confirmed 782 unique identities (367/413/2), preserved prior profile declarations across 153 tracked test files, unchanged production/coverage/Sonar boundaries and matching workflow digest. Its initial text matcher included fixture strings; the corrected declaration matcher passed.
+
+Backlog impact: TASK-063 is ready for parent evidence finalization and human merge; TASK-034 and owning chart/order tasks retain their future journey obligations. No new task or scope expansion is required.
+
+Verdict: PASS

@@ -16,6 +16,7 @@ concurrency:
 jobs:
   quality-baseline:
     name: Quality baseline
+    timeout-minutes: 35
     runs-on: ubuntu-24.04
     services:
       postgres:
@@ -95,13 +96,116 @@ jobs:
 
       - name: Validate OpenAPI contract
         run: |
-          npm test --prefix tools/openapi
           node tools/openapi/validate.mjs priv/static/openapi.json
 
-      - name: Workflow behavior tests
+      - name: Docker Compose readiness
         run: |
-          python3 -c "import unittest,sys; s=unittest.defaultTestLoader.discover('test/scripts',pattern='*_test.py',top_level_dir='.'); assert s.countTestCases()>0; r=unittest.TextTestRunner().run(s); assert not r.skipped; sys.exit(not r.wasSuccessful())"
-          sh test/scripts/ci_unit_tests_test.sh
+          docker info >/dev/null
+          docker compose version
+
+      - name: Build browser assets
+        run: MIX_ENV=test mix assets.build
 
       - name: Unit tests
+        env:
+          CI_PROFILE_RECEIPTS: tmp/profile-ci
         run: scripts/ci_unit_tests.sh
+
+      - name: Workflow behavior tests
+        run: python3 scripts/test_profile_components.py verify-receipts tmp/profile-ci
+
+  end-to-end:
+    name: End-to-end profile
+    timeout-minutes: 10
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:17.6-alpine@sha256:ef257d85f76e48da1c64832459b59fcaba1a4dac97bf5d7450c77753542eee94
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: football_market_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d football_market_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:8.2.1-alpine@sha256:987c376c727652f99625c7d205a1cba3cb2c53b92b0b62aade2bd48ee1593232
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Check out triggering revision
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install exact BEAM toolchain
+        uses: erlef/setup-beam@v1
+        with:
+          elixir-version: '1.20.3'
+          otp-version: '29.0.6'
+
+      - name: Verify exact toolchain
+        run: ./scripts/check_toolchain.sh
+
+      - name: Restore locked dependency cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-otp-29.0.6-elixir-1.20.3-${{ hashFiles('mix.lock') }}
+
+      - name: Install package managers
+        run: |
+          mix local.hex --if-missing --force
+          mix local.rebar --if-missing --force
+
+      - name: Fetch locked dependencies
+        run: mix deps.get --locked
+
+      - name: Compile dependencies
+        run: MIX_ENV=test mix deps.compile
+
+      - name: Formatting
+        run: mix format --check-formatted
+
+      - name: Warnings-as-errors
+        run: MIX_ENV=test mix compile --warnings-as-errors
+
+      - name: Install Node test toolchain
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: tools/openapi/package-lock.json
+
+      - name: Install OpenAPI test dependencies
+        run: npm ci --prefix tools/openapi
+
+      - name: Install headless Chromium
+        run: tools/openapi/node_modules/.bin/playwright-core install --with-deps --only-shell chromium
+
+      - name: Validate OpenAPI contract
+        run: |
+          node tools/openapi/validate.mjs priv/static/openapi.json
+
+      - name: Build browser assets
+        run: MIX_ENV=test mix assets.build
+
+      - name: End-to-end journeys
+        run: |
+          MIX_ENV=test mix test.prepare
+          MIX_ENV=test sh scripts/test_profile.sh e2e
+
+      - name: Safe runtime outcome
+        if: always()
+        run: echo 'E2E runtime check finished; inspect the profile outcome above'

@@ -603,13 +603,15 @@ def resolved_resume_provider(selection, a):
     Agentflow stages persist per-run assignment bindings; replaying half of a
     workflow through a different CLI would mix providers inside one run, so
     mismatched --provider is refused outright and switching requires a new
-    assignment generation (--adopt-models) instead of silent drift."""
+    assignment generation (--adopt-models) instead of silent drift. CLI
+    availability is not checked here so dry-run and pure selection probes work
+    without provider binaries installed."""
     saved = providers.normalize(selection.get('provider'))
     requested = getattr(a, 'provider', None) if getattr(a, 'provider', None) is not None else getattr(a, 'agent', None)
     if requested is not None and providers.normalize(requested) != saved:
         raise RuntimeError(f'Run was started with provider {saved!r}; refusing to resume with {providers.normalize(requested)!r}. '
                            'Switch deliberately with --adopt-models and a new generation instead of mixing providers in one run')
-    return providers.require(saved)
+    return saved
 
 
 def resume(a):

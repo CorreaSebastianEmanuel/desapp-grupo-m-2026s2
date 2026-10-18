@@ -1,0 +1,3 @@
+human_check_required: false
+
+The material product behavior is sufficiently determined by TASK-021 and its current feedback. Substitute valuation position uses the unique mode of earlier matches in the same season; the valued match and later matches are excluded; ties and insufficient history remain unknown; provider `usualPosition` is not used. The spec also clearly bounds source selection, provenance, atomicity, retries, and out-of-scope work. The remaining issues are contract reconciliation and deterministic implementation details for architecture, not choices that require reopening product behavior.

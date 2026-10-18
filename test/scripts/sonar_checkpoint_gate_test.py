@@ -1,3 +1,4 @@
+import gc
 import io
 import json
 import pathlib
@@ -36,6 +37,10 @@ class FakeTransport:
 
 class GateTest(unittest.TestCase):
     def invoke(self, responses, *extra):
+        # HTTPErrors kept alive by frame/traceback cycles are finalized by a
+        # later gc sweep, which can then warn (with the token) inside another
+        # test's captured stream. Sweep cycles outside every capture window.
+        gc.collect()
         transport = FakeTransport(responses)
         stdout, stderr = io.StringIO(), io.StringIO()
         args = ["--project", "example_project", "--branch", "main", "--mode", "pr", *extra]

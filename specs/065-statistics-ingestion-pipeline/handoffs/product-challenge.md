@@ -1,0 +1,13 @@
+# Product challenge — TASK-021
+
+## Material findings for architecture
+
+1. **Position unknowns conflict with existing acceptance contracts.** TASK-021 FR-010/011 requires a substitute with tied or insufficient same-season history to be accepted with an unknown effective position. But the spec itself says TASK-016 requires recognized event-time position and TASK-020 requires a known persisted position (FR-003, FR-011, Assumptions); the product handoff confirms the mismatch. If either validator rejects missing position before derivation, or storage cannot represent unknown, the specified behavior is unreachable. **Recommendation:** define the narrowest explicit exception at both boundaries for an identified substitute entrant only; preserve the unknown reason and provenance, and do not weaken starter/other missing-position validation. Add acceptance evidence for each boundary and regression coverage for starters.
+
+2. **Historical mode during a multi-match import needs an order-independent rule.** The import is an atomic league-season scope (FR-004), while derived position uses previously accepted performances strictly before the valued match (FR-010). A season's matches may arrive together or out of chronological order. A naïve incremental derivation can omit earlier matches in the same proposed batch or let job order affect the mode. **Recommendation:** derive each substitute position from the complete proposed accepted set plus existing accepted facts, filtering by actual kickoff strictly before the subject; commit facts, provenance, and check outcome atomically. Specify a deterministic rule for equal kickoff instants if the domain permits them; otherwise reject/flag that unsupported case rather than using insertion order.
+
+3. **Completeness remains source-evidence dependent.** FR-003 requires selected-source completeness evidence, and FR-001 rejects silent source substitution, but the spec does not state what evidence qualifies for each source or how an explicitly complete empty season is attested (Story 1.4). TASK-055 owns source coverage/access. **Recommendation:** make the adapter contract expose an explicit completeness result and evidence reference; define a fixture proving complete-empty separately from absent/unretrieved data. Never infer completion from a successful HTTP response or zero returned rows.
+
+## Human decision
+
+The substitute rule itself is now determinate: same-season prior matches only, no subject/later match, ties and insufficient history remain unknown, and `usualPosition` is not a substitute. These are architecture/contract implementation gaps, not unresolved product alternatives.

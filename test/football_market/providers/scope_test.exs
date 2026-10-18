@@ -102,7 +102,8 @@ defmodule FootballMarket.Providers.ScopeTest do
                         market_paths(active_feature) ++
                         synchronization_paths(active_feature) ++
                         FootballMarket.BrowserSessionCase.shell_paths(active_feature)) or
-                 &1 == "mix.exs")
+                 &1 == "mix.exs" or
+                 FootballMarket.WorkflowScope.allows_path?(active_feature, &1))
            )
 
     assert Enum.sort(
@@ -147,7 +148,10 @@ defmodule FootballMarket.Providers.ScopeTest do
       "test/fixtures/providers/expected.exs",
       "test/fixtures/providers/source_a.exs",
       "test/fixtures/providers/source_b.exs",
-      "test/fixtures/synchronization/expected.exs"
+      "test/fixtures/synchronization/expected.exs",
+      "test/fixtures/statistics_ingestion/documents.exs",
+      "test/fixtures/statistics_ingestion/expected.exs",
+      "test/fixtures/statistics_ingestion/inventory.exs"
     ]
 
     assert Enum.sort(Mix.Project.config()[:test_ignore_filters] || []) == Enum.sort(expected)

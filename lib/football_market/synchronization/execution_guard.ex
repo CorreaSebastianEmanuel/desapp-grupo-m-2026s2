@@ -41,7 +41,7 @@ defmodule FootballMarket.Synchronization.ExecutionGuard do
     <<key::signed-64, _::binary>> =
       :crypto.hash(
         :sha256,
-        :erlang.term_to_binary({:catalog_execution_v1, value}, [:deterministic])
+        :erlang.term_to_binary({:synchronization_execution_v2, value}, [:deterministic])
       )
 
     key

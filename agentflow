@@ -4,6 +4,7 @@ import argparse, json, os, re, shutil, signal, subprocess, sys, threading, time
 sys.dont_write_bytecode=True
 from scripts.agentflow_runtime import Console, metrics_summary
 from scripts import agentflow_models as models
+from scripts import agentflow_providers as providers
 from scripts.agentflow_feature import (expected_branch, resolve_feature, contained_file, require_reports, complete_reviewed_task, task_for_id, metadata as task_metadata, parsed_metadata)
 from datetime import datetime, timezone
 from pathlib import Path
@@ -27,10 +28,13 @@ STAGE_ALIASES = {"product":"product","architecture":"architecture","development"
 CHECKPOINT_ORDER = {"CP1": 1, "CP2": 2, "CP3": 3}
 PRIORITY_ORDER = {"critical": 0, "high": 1, "medium": 2, "low": 3}
 def config_int(name, default):
-    try:
-        match=re.search(rf"(?m)^{re.escape(name)}\s*=\s*(\d+)\s*$",(ROOT/".agentflow"/"config.toml").read_text(encoding="utf-8"))
-        return int(match.group(1)) if match else default
+    try: match=re.search(rf"(?m)^{re.escape(name)}\s*=\s*(\d+)\s*$",(ROOT/".agentflow"/"config.toml").read_text(encoding="utf-8"))
     except OSError: return default
+    return int(match.group(1)) if match else default
+def config_value(name, default):
+    try: match=re.search(rf'(?m)^{re.escape(name)}\s*=\s*"([^"\n]+)"\s*$',(ROOT/".agentflow"/"config.toml").read_text(encoding="utf-8"))
+    except OSError: return default
+    return match.group(1) if match else default
 MAX_FEEDBACK_CYCLES = config_int("max_feedback_cycles",3)
 
 def files(): return sorted(BACKLOG.glob("TASK-*.md"))
@@ -120,8 +124,16 @@ def reconcile_merged_dependencies(path):
         print("Merged dependencies reconciled: "+", ".join(completed))
     return completed
 def agent(requested):
-    if not shutil.which("codex"): raise SystemExit("Install and authenticate Codex CLI")
-    return "codex"
+    """Resolve one explicit provider value to an installed CLI."""
+    return providers.require(providers.normalize(requested))
+
+
+def provider_for(a):
+    """Canonical provider for a command: --provider / legacy --agent must
+    agree when both are present; otherwise the repository default wins."""
+    if getattr(a, "provider", None) is None and getattr(a, "agent", None) is None:
+        return agent(config_value("default_provider", providers.DEFAULT_PROVIDER))
+    return agent(providers.from_args(a))
 def create(a):
     title = a.title or input("Task title: ").strip()
     if not title: raise SystemExit("Task title is required")
@@ -212,6 +224,40 @@ def read_run_state(run):
     path=SPEC_RUNS/run/"state.json"
     try: return json.loads(path.read_text(encoding="utf-8"))
     except (OSError,json.JSONDecodeError): return None
+
+def graceful_interrupt(process, reader):
+    """Stop the process group the way Ctrl+C would: SIGINT → wait → SIGTERM →
+    wait → SIGKILL. A human interrupt and the stage budget share this helper so
+    a timed-out stage receives the identical gentle escalation."""
+    if os.name=="posix": os.killpg(process.pid,signal.SIGINT)
+    else: process.send_signal(signal.CTRL_BREAK_EVENT)
+    try: process.wait(timeout=10)
+    except subprocess.TimeoutExpired:
+        if os.name=="posix": os.killpg(process.pid,signal.SIGTERM)
+        else: process.terminate()
+        try: process.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            if os.name=="posix": os.killpg(process.pid,signal.SIGKILL)
+            else: process.kill()
+            process.wait()
+    reader.join(timeout=2)
+
+def pause_stage_budget_run(run, step, elapsed_seconds, minutes):
+    """Record a stage-timeout pause against the run's own state without
+    blocking the task; resume re-dispatches the interrupted stage from its
+    existing pointer instead of repeating completed stages."""
+    state=read_run_state(run)
+    if not state: return
+    label=STEP_LABELS.get(step,step)
+    stamp=datetime.now(timezone.utc).isoformat()
+    state_path=SPEC_RUNS/run/"state.json"
+    state["status"]="paused"
+    state["error"]=f"Stage {label} exceeded stage_timeout_minutes={minutes}; interrupting safely"
+    state["updated_at"]=stamp
+    state_path.write_text(json.dumps(state,indent=2)+"\n",encoding="utf-8")
+    with (SPEC_RUNS/run/"log.jsonl").open("a",encoding="utf-8") as log:
+        log.write(json.dumps({"event":"stage_budget_exceeded","stage":step,
+                              "elapsed_seconds":elapsed_seconds,"timestamp":stamp})+"\n")
 
 def workflow_step_order(path):
     """Read top-level step IDs from either source or Spec Kit's YAML snapshot."""
@@ -309,10 +355,27 @@ def guard_feedback(task):
     feedback_guard(ROOT,meta(task)['id'])
 
 
+CHECK_ID_PATTERN=re.compile(r"[A-Za-z0-9_-]+")
+def check_id(value):
+    """--checks values must be check identifiers, canonical upper-case."""
+    ident=value.strip().upper()
+    if not CHECK_ID_PATTERN.fullmatch(value.strip()):
+        raise argparse.ArgumentTypeError(f"Invalid check id {value!r}; expected [A-Za-z0-9_-]+")
+    return ident
+
+
 def add_feedback(a):
     task=find(a.task); m=meta(task)
     impacts=getattr(a,'impact',[]) or []
     stage=feedback_stage(impacts,a.stage)
+    # Repeated --checks values are upper-cased by the parser; direct callers
+    # get the same validation here, then one de-duplicated ordered list.
+    checks=[]
+    for ident in getattr(a,'checks',[]) or []:
+        if not CHECK_ID_PATTERN.fullmatch(ident.strip()):
+            raise SystemExit(f"Invalid check id {ident!r}; expected [A-Za-z0-9_-]+")
+        ident=ident.strip().upper()
+        if ident not in checks: checks.append(ident)
     message=a.message or input("Feedback: ").strip()
     if not message: raise SystemExit("Feedback text is required")
     run=m.get("active_run","none")
@@ -328,7 +391,8 @@ def add_feedback(a):
     if count>=MAX_FEEDBACK_CYCLES: raise SystemExit(f"Feedback limit reached ({MAX_FEEDBACK_CYCLES}); resolve or split the task before another cycle")
     stamp=datetime.now(timezone.utc).isoformat(timespec="seconds")
     author=os.environ.get("USER") or os.environ.get("USERNAME") or "human"
-    entry=f"## Feedback {count+1}\n\n- Time: {stamp}\n- Author: {author}\n- Restart from: {stage or "pending"}\n- Impact: {", ".join(impacts) if impacts else "pending"}\n- Required regressions: cited discrepancy plus required manifest checks\n\n{message}\n\n"
+    scope=f"\n- Checks: {", ".join(checks)}" if checks else ""
+    entry=f"## Feedback {count+1}\n\n- Time: {stamp}\n- Author: {author}\n- Restart from: {stage or "pending"}\n- Impact: {", ".join(impacts) if impacts else "pending"}\n- Required regressions: cited discrepancy plus required manifest checks{scope}\n\n{message}\n\n"
     path.write_text(existing+entry,encoding="utf-8")
     if stage is None:
         print(f'Recorded pending feedback in {path.relative_to(ROOT)}; classify its impact before resume. No workflow rewind performed')
@@ -356,8 +420,9 @@ def history(a):
             mark=result.get("status","pending") if result else ("current" if step==state.get("current_step_id") else "pending")
             print(f"- {step}: {mark}")
 
-def monitor_process(cmd, task, run_hint=None, assignment=None, new_session=False):
+def monitor_process(cmd, task, run_hint=None, assignment=None, new_session=False, provider=providers.DEFAULT_PROVIDER):
     """Run with inherited stdin, live output, durable logs, stage updates, and heartbeat."""
+    provider=providers.normalize(provider)
     task_id=meta(task)["id"]
     RUNS.mkdir(parents=True,exist_ok=True)
     transcript=RUNS/f"{task_id}.live.log"
@@ -365,12 +430,10 @@ def monitor_process(cmd, task, run_hint=None, assignment=None, new_session=False
     started=time.monotonic(); last_heartbeat=started; shown_step=None; run=run_hint
     print(f"Live log: {transcript.relative_to(ROOT)}",flush=True)
     child_env=os.environ.copy()
-    # Spec Kit's Codex integration otherwise defaults to read-only. Current
-    # Codex CLI accepts --approve-for-me on its own and selects workspace-write.
-    child_env.setdefault("SPECKIT_INTEGRATION_CODEX_EXTRA_ARGS","--approve-for-me")
-    if not child_env.get("SPECKIT_INTEGRATION_CODEX_EXECUTABLE"):
-        child_env["AGENTFLOW_CODEX_REAL"]=shutil.which("codex") or "codex"
-        child_env["SPECKIT_INTEGRATION_CODEX_EXECUTABLE"]=str(ROOT/"scripts"/("agentflow_codex.cmd" if os.name=="nt" else "agentflow_codex.py"))
+    # Each provider interposes its own forwarding shim through Spec Kit's
+    # generic executable/extra-args overrides so workflow stages, prompts,
+    # gates and metrics stay identical across providers.
+    providers.env_overrides(child_env,provider,ROOT)
     child_env["AGENTFLOW_TASK_ID"]=task_id
     child_env["AGENTFLOW_METRICS_FILE"]=str(RUNS/f"{task_id}.metrics.jsonl")
     if new_session: child_env['AGENTFLOW_NEW_SESSION']='1'
@@ -410,6 +473,8 @@ def monitor_process(cmd, task, run_hint=None, assignment=None, new_session=False
     import codecs
     decoder=codecs.getincrementaldecoder("utf-8")(errors="replace")
     reader=threading.Thread(target=pump,daemon=True); reader.start()
+    stage_budget=config_int("stage_timeout_minutes",0)*60
+    stage_started=None
     try:
         while process.poll() is None:
             if not run:
@@ -420,14 +485,25 @@ def monitor_process(cmd, task, run_hint=None, assignment=None, new_session=False
                     if assignment is not None: models.bind(ROOT,assignment,run)
                     marker.write_text(json.dumps({"pid":process.pid,"run_id":run})+"\n",encoding="utf-8")
                     print(f"Run: {run}",flush=True)
+            now=time.monotonic()
             state=read_run_state(run)
             step=state.get("current_step_id") if state else None
             if step and step != shown_step:
                 shown_step=step
+                stage_started=now
                 index=int(state.get("current_step_index",0))+1
                 count=len(workflow_step_order(SPEC_RUNS/run/"workflow.yml"))
                 print(f"\n[{task_id}] Stage {index}/{count}: {STEP_LABELS.get(step,step)}",flush=True)
-            now=time.monotonic()
+            if stage_budget and stage_started is not None and now-stage_started >= stage_budget:
+                label=STEP_LABELS.get(shown_step,shown_step)
+                print(f"\n[{task_id}] Stage {label} exceeded stage_timeout_minutes={stage_budget//60}; interrupting safely…",flush=True)
+                pause_stage_budget_run(run,shown_step,int(now-stage_started),stage_budget//60)
+                graceful_interrupt(process,reader)
+                run=run or latest_run()
+                if run: field(task,"active_run",run)
+                marker.unlink(missing_ok=True)
+                print(f"Progress preserved. Continue with: ./agentflow resume {task_id}",flush=True)
+                return 130,run
             if now-last_heartbeat >= 20:
                 elapsed=int(now-started); label=STEP_LABELS.get(shown_step,shown_step or "starting")
                 print(f"[{task_id}] Still active — {elapsed//60:02d}:{elapsed%60:02d} — {label}",flush=True)
@@ -435,18 +511,7 @@ def monitor_process(cmd, task, run_hint=None, assignment=None, new_session=False
             time.sleep(.5)
     except KeyboardInterrupt:
         print(f"\n[{task_id}] Interrupting safely…",flush=True)
-        if os.name=="posix": os.killpg(process.pid,signal.SIGINT)
-        else: process.send_signal(signal.CTRL_BREAK_EVENT)
-        try: process.wait(timeout=10)
-        except subprocess.TimeoutExpired:
-            if os.name=="posix": os.killpg(process.pid,signal.SIGTERM)
-            else: process.terminate()
-            try: process.wait(timeout=5)
-            except subprocess.TimeoutExpired:
-                if os.name=="posix": os.killpg(process.pid,signal.SIGKILL)
-                else: process.kill()
-                process.wait()
-        reader.join(timeout=2)
+        graceful_interrupt(process,reader)
         run=run or latest_run()
         if run: field(task,"active_run",run)
         marker.unlink(missing_ok=True)
@@ -524,9 +589,9 @@ def finalize(task, task_meta, code, no_pr=False):
 
 def start(a):
     if not shutil.which("specify"): raise SystemExit("Specify CLI missing; run ./setup (macOS/Linux) or .\\setup.ps1 (Windows)")
-    task=find(a.task); m=meta(task); selected=agent(a.agent)
+    task=find(a.task); m=meta(task); selected=provider_for(a)
     guard_feedback(task)
-    selection=models.resolve(ROOT,task,a)
+    selection=models.resolve(ROOT,task,a,provider=selected)
     blockers=dependency_blockers(task)
     if blockers: raise SystemExit("Unfinished dependencies: "+", ".join(blockers))
     print(f"{m['id']} — {m['title']}\nAgent: {selected}\nFlow: product → challenge → conditional human check → architecture/tasks synthesis → development → QA → review → PR")
@@ -547,20 +612,75 @@ def start(a):
     context=task_context(task)
     cmd=["specify","workflow","run",str(WORKFLOW),"--input",f"integration={selected}","--input",f"spec={context}"]
     assignment=models.save(ROOT,selection)
-    code,run=monitor_process(cmd,task,assignment=assignment)
+    code,run=monitor_process(cmd,task,assignment=assignment,provider=selected)
     if code==130: return code
     return finalize(task,m,code,a.no_pr)
+def bound_run_integration(run):
+    """Integration recorded when the run was last started or adopted."""
+    try:
+        data=json.loads((SPEC_RUNS/run/"inputs.json").read_text(encoding="utf-8"))
+    except (OSError,json.JSONDecodeError):
+        return None
+    value=data.get("inputs",{}).get("integration")
+    return value if isinstance(value,str) and providers.normalize(value) is not None and value in providers.PROVIDERS else value
+
+
+def bind_run_provider(run, provider, adopting):
+    """A run's saved integration follows only deliberate adoption.
+
+    Spec Kit resumes replay the integration stored in inputs.json; replaying
+    one provider's workflow through another CLI silently would mix provider
+    sessions inside a run, so adoption rewrites the saved input atomically
+    and logs the switch, while any non-adopted change is refused."""
+    stored=bound_run_integration(run)
+    if stored is None or stored==provider:
+        return
+    if not adopting:
+        raise RuntimeError(f'Run inputs record integration {stored!r}; refusing to resume with provider '
+                           f'{provider!r} without --adopt-models. Switch deliberately and start a fresh stage')
+    path=SPEC_RUNS/run/"inputs.json"
+    data=json.loads(path.read_text(encoding="utf-8"))
+    data.setdefault("inputs",{})["integration"]=provider
+    text=json.dumps(data,indent=2)+"\n"
+    stamp=datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    shutil.copy2(path,SPEC_RUNS/run/f"inputs.before-provider-{stamp}.json")
+    path.write_text(text,encoding="utf-8")
+    with (SPEC_RUNS/run/"log.jsonl").open("a",encoding="utf-8") as log:
+        log.write(json.dumps({"event":"provider_adoption","from":stored,"to":provider,
+                              "timestamp":datetime.now(timezone.utc).isoformat()})+"\n")
+    print(f"Provider adoption recorded: {stored} → {provider}")
+
+
+def resolved_resume_provider(selection, a):
+    """A run stays on its starting provider unless adoption is explicit.
+
+    Agentflow stages persist per-run assignment bindings; replaying half of a
+    workflow through a different CLI would mix providers inside one run, so
+    mismatched --provider is refused outright and switching requires a new
+    assignment generation (--adopt-models) instead of silent drift. CLI
+    availability is not checked here so dry-run and pure selection probes work
+    without provider binaries installed."""
+    saved = providers.normalize(selection.get('provider'))
+    requested = getattr(a, 'provider', None) if getattr(a, 'provider', None) is not None else getattr(a, 'agent', None)
+    if requested is not None and providers.normalize(requested) != saved:
+        raise RuntimeError(f'Run was started with provider {saved!r}; refusing to resume with {providers.normalize(requested)!r}. '
+                           'Switch deliberately with --adopt-models and a new generation instead of mixing providers in one run')
+    return saved
+
+
 def resume(a):
     task=find(a.task); run=meta(task).get("active_run","none")
     if run in ("none","unknown",""): raise SystemExit("No resumable run; use start")
     guard_feedback(task)
     state=read_run_state(run)
     selection,adopting=models.resume_selection(ROOT,task,run,a,state)
+    selected=resolved_resume_provider(selection,a)
     print(json.dumps(selection,indent=2))
     if getattr(a,'dry_run',False): return 0
     try: branch=ensure_feature_branch(task)
     except RuntimeError as error: raise SystemExit(str(error)) from error
     print(f"Feature branch: {branch}")
+    bind_run_provider(run,selected,adopting)
     state=read_run_state(run)
     session_feature(task,head_ref=branch,allow_missing=bool(state and state.get("current_step_id")=="product"))
     recover_orphaned_run(task,run)
@@ -587,7 +707,7 @@ def resume(a):
     if feature and state and state.get('current_step_id') in ('qa','qa_ready','review'):
         from scripts.agentflow_verification import readiness
         readiness(ROOT,feature)
-    code,_=monitor_process(["specify","workflow","resume",run],task,run,assignment=assignment,new_session=adopting)
+    code,_=monitor_process(["specify","workflow","resume",run],task,run,assignment=assignment,new_session=adopting,provider=selected)
     if code==130: return code
     if code:
         field(task,"status","blocked")
@@ -611,17 +731,19 @@ def verification_passed(task,feature,code):
 def verify(a):
     task=find(a.task)
     feature=session_feature(task,head_ref=git("branch","--show-current").stdout.strip()).feature
-    selected=agent(a.agent)
+    selected=provider_for(a)
+    config=providers.provider_config(ROOT,selected)
+    verify_model=(config or {}).get('verify_model')
     prompt=(
         f"You are the delegated independent verifier for {a.task}. Do not invoke "
-        "`./agentflow verify`, the verify skill, or another Codex session: that would recurse. "
+        "`./agentflow verify`, the verify skill, or another agent session: that would recurse. "
         f"Inspect the canonical artifacts in {feature.relative_to(ROOT) if feature else 'specs/'}, "
         "run the applicable checks, and update only qa-report.md and review-report.md. "
         "Do not change implementation code. End each report exactly with `Verdict: PASS` only "
         "when its gate passes; otherwise end it with `Verdict: FAIL`."
     )
     if a.dry_run: print(f"Would verify {a.task} with {selected}"); return 0
-    cmd=["codex","exec","-C",str(ROOT),"--approve-for-me","--ephemeral",prompt]
+    cmd=providers.command(selected,ROOT,prompt,model=verify_model)
     code=subprocess.run(cmd,cwd=ROOT).returncode
     if verification_passed(task,feature,code):
         field(task,"status","review")
@@ -664,14 +786,19 @@ def parser():
     b=s.add_parser("backlog"); b.set_defaults(func=backlog)
     n=s.add_parser("next",help="recommend the next task whose dependencies are satisfied"); n.set_defaults(func=next_task)
     q=s.add_parser("status"); q.add_argument("task"); q.set_defaults(func=status)
+    provider_choices=[*providers.PROVIDERS, providers.AUTO]
+    agent_choices=[*providers.PROVIDERS, providers.AUTO]
     for name,fn in (("start",start),("verify",verify)):
-        q=s.add_parser(name); q.add_argument("task"); q.add_argument("--agent",choices=["auto","codex"],default="auto"); q.add_argument("--dry-run",action="store_true")
+        q=s.add_parser(name); q.add_argument("task")
+        q.add_argument("--provider",action=Once,choices=provider_choices)
+        q.add_argument("--agent",action=Once,choices=agent_choices)
+        q.add_argument("--dry-run",action="store_true")
         if name=="start": model_flags(q)
         if name=="start": q.add_argument("--no-pr",action="store_true",help="leave verified changes local without commit, push, or PR")
         q.set_defaults(func=fn)
-    q=s.add_parser("resume"); q.add_argument("task"); model_flags(q,resume=True); q.set_defaults(func=resume)
+    q=s.add_parser("resume"); q.add_argument("task"); q.add_argument('--provider',action=Once,choices=providers.PROVIDERS); model_flags(q,resume=True); q.set_defaults(func=resume)
     q=s.add_parser("complete"); q.add_argument("task"); q.set_defaults(func=complete)
-    q=s.add_parser("feedback"); q.add_argument("task"); q.add_argument("message",nargs="?"); q.add_argument("--stage",choices=sorted(STAGE_ALIASES)); q.add_argument("--impact",choices=sorted(IMPACT_STAGE),action="append",default=[]); q.set_defaults(func=add_feedback)
+    q=s.add_parser("feedback"); q.add_argument("task"); q.add_argument("message",nargs="?"); q.add_argument("--stage",choices=sorted(STAGE_ALIASES)); q.add_argument("--impact",choices=sorted(IMPACT_STAGE),action="append",default=[]); q.add_argument("--checks",action="append",default=[],type=check_id,help="manifest check id whose remediation this feedback scopes (repeatable)"); q.set_defaults(func=add_feedback)
     q=s.add_parser("history"); q.add_argument("task"); q.set_defaults(func=history)
     q=s.add_parser("metrics",help="summarize structured usage without prompts or private session IDs")
     q.add_argument("task")

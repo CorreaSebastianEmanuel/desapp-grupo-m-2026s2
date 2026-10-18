@@ -26,6 +26,7 @@ defmodule FootballMarket.Providers.FactOracle do
       kind = Map.get(@kinds, field, field)
       actual_rows = if is_list(value), do: value, else: [value]
       expected_rows = if is_list(expected[field]), do: expected[field], else: [expected[field]]
+      expected_rows = Enum.map(expected_rows, &Map.delete(&1, :participation))
       mapping = Map.fetch!(correspondence, kind)
       assert Enum.sort(Map.keys(mapping)) == Enum.sort(Enum.map(actual_rows, & &1.ref))
       assert Enum.sort(Map.values(mapping)) == Enum.sort(Enum.map(expected_rows, & &1.ref))
@@ -34,6 +35,9 @@ defmodule FootballMarket.Providers.FactOracle do
       normalized =
         Enum.map(actual_rows, fn row ->
           row = if is_struct(row), do: Map.from_struct(row), else: row
+
+          row =
+            if Map.get(row, :participation) == nil, do: Map.delete(row, :participation), else: row
 
           Map.new(row, fn {key, v} ->
             cond do

@@ -8,7 +8,7 @@ workflow:
 requires:
   speckit_version: ">=1.0.0"
   integrations:
-    any: ["codex"]
+    any: ["codex", "opencode"]
 inputs:
   spec: {type: string, required: true}
   integration: {type: string, default: "auto"}
@@ -111,6 +111,15 @@ steps:
   - id: develop_ready
     type: shell
     run: "python3 scripts/workflow_artifact_probe.py develop --readiness"
+    output_format: json
+
+  # CI parity gate inside the develop cycle: run exactly the CI unit command so
+  # workflow/CI divergence is discovered locally during develop, once per cycle
+  # (already-completed steps are not re-executed on resume).
+  - id: ci_baseline
+    type: shell
+    timeout: 1800
+    run: "MIX_ENV=test scripts/ci_unit_tests.sh"
     output_format: json
 
   - id: qa

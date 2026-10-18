@@ -1,0 +1,247 @@
+{
+  "schema_version": 1,
+  "runtime_required": false,
+  "checks": [
+    {
+      "id": "preflight",
+      "argv": [
+        "sh",
+        "-eu",
+        "-c",
+        "mix test.prepare && mix infrastructure.verify"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "MIX_OS_CONCURRENCY_LOCK": "0"
+      },
+      "reuse": false,
+      "expectation": "Guarded test database preparation/migrations succeed; application-owned PostgreSQL migration probe and Redis PING succeed; unavailable services fail."
+    },
+    {
+      "id": "format",
+      "argv": [
+        "mix",
+        "format",
+        "--check-formatted"
+      ],
+      "env": {
+        "MIX_OS_CONCURRENCY_LOCK": "0"
+      }
+    },
+    {
+      "id": "compile",
+      "argv": [
+        "mix",
+        "compile",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "MIX_OS_CONCURRENCY_LOCK": "0"
+      }
+    },
+    {
+      "id": "unit",
+      "argv": [
+        "mix",
+        "test.unit"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "MIX_OS_CONCURRENCY_LOCK": "0"
+      },
+      "expectation": "Audited unit modules execute provider role/completeness/metric contracts, canonical source equality, strict position-mode selection, safe outcomes and offline fixture adapter assertions."
+    },
+    {
+      "id": "integration",
+      "argv": [
+        "mix",
+        "test.integration"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "MIX_OS_CONCURRENCY_LOCK": "0"
+      },
+      "reuse": false,
+      "expectation": "Audited integration modules execute complete and multi-match acceptance, empty/unproven distinction, replay/conflict and retained provenance, all nine nil/zero metric values and reads, committed independent-connection races, killed-worker recovery before and after publication, bounded calculation dispatch, provider failure/local reads, database guards, and operation-specific statistics worker admission."
+    }
+  ],
+  "coverage": {
+    "FR-001": [
+      "unit",
+      "integration"
+    ],
+    "FR-002": [
+      "integration"
+    ],
+    "FR-003": [
+      "unit",
+      "integration"
+    ],
+    "FR-004": [
+      "integration"
+    ],
+    "FR-005": [
+      "unit",
+      "integration"
+    ],
+    "FR-006": [
+      "integration"
+    ],
+    "FR-007": [
+      "unit",
+      "integration"
+    ],
+    "FR-008": [
+      "unit",
+      "integration"
+    ],
+    "FR-009": [
+      "unit",
+      "integration"
+    ],
+    "FR-010": [
+      "unit",
+      "integration"
+    ],
+    "FR-011": [
+      "unit",
+      "integration"
+    ],
+    "FR-012": [
+      "unit",
+      "integration"
+    ],
+    "FR-013": [
+      "integration"
+    ],
+    "FR-014": [
+      "unit",
+      "integration"
+    ],
+    "FR-015": [
+      "integration"
+    ],
+    "FR-016": [
+      "unit",
+      "integration"
+    ],
+    "SC-001": [
+      "integration"
+    ],
+    "SC-002": [
+      "integration"
+    ],
+    "SC-003": [
+      "integration"
+    ],
+    "SC-004": [
+      "integration"
+    ],
+    "SC-005": [
+      "integration"
+    ],
+    "SC-006": [
+      "integration"
+    ],
+    "SC-007": [
+      "integration"
+    ]
+  },
+  "coverage_evidence": {
+    "FR-001": [
+      "test/football_market/statistics/ingestion/acceptance_test.exs",
+      "test/football_market/statistics/ingestion/completeness_test.exs"
+    ],
+    "FR-002": [
+      "test/football_market/synchronization/statistics_test.exs",
+      "test/football_market/statistics/ingestion/integrity_test.exs",
+      "test/football_market/statistics/ingestion/recovery_test.exs"
+    ],
+    "FR-003": [
+      "test/football_market/providers/ingestion_contract_test.exs",
+      "test/football_market/statistics/ingestion/completeness_test.exs"
+    ],
+    "FR-004": [
+      "test/football_market/statistics/ingestion/canonical_test.exs",
+      "test/football_market/statistics/ingestion/acceptance_test.exs",
+      "test/football_market/statistics/ingestion/replay_test.exs"
+    ],
+    "FR-005": [
+      "test/football_market/statistics/ingestion/canonical_test.exs",
+      "test/football_market/statistics/ingestion/acceptance_test.exs",
+      "test/football_market/statistics/ingestion/concurrency_test.exs"
+    ],
+    "FR-006": [
+      "test/football_market/statistics/ingestion/provenance_test.exs",
+      "test/football_market/statistics/ingestion/replay_test.exs"
+    ],
+    "FR-007": [
+      "test/football_market/providers/ingestion_contract_test.exs",
+      "test/football_market/statistics/ingestion/provenance_test.exs",
+      "test/football_market/synchronization/input_test.exs"
+    ],
+    "FR-008": [
+      "test/football_market/providers/ingestion_contract_test.exs"
+    ],
+    "FR-009": [
+      "test/football_market/providers/ingestion_contract_test.exs",
+      "test/football_market/statistics/ingestion/positions_test.exs"
+    ],
+    "FR-010": [
+      "test/football_market/statistics/ingestion/positions_test.exs"
+    ],
+    "FR-011": [
+      "test/football_market/statistics/ingestion/integrity_test.exs",
+      "test/football_market/providers/ingestion_contract_test.exs"
+    ],
+    "FR-012": [
+      "test/football_market/synchronization/statistics_test.exs",
+      "test/football_market/statistics/ingestion/concurrency_test.exs"
+    ],
+    "FR-013": [
+      "test/football_market/statistics/ingestion/calculation_test.exs"
+    ],
+    "FR-014": [
+      "test/football_market/statistics/ingestion/recovery_test.exs",
+      "test/football_market/synchronization/statistics_test.exs"
+    ],
+    "FR-015": [
+      "test/football_market/statistics/ingestion/isolation_test.exs",
+      "test/football_market/statistics/ingestion/calculation_test.exs"
+    ],
+    "FR-016": [
+      "test/football_market/providers/ingestion_contract_test.exs",
+      "test/football_market/statistics/ingestion/metrics_test.exs"
+    ],
+    "SC-001": [
+      "test/football_market/statistics/ingestion/acceptance_test.exs"
+    ],
+    "SC-002": [
+      "test/football_market/statistics/ingestion/replay_test.exs",
+      "test/football_market/statistics/ingestion/concurrency_test.exs"
+    ],
+    "SC-003": [
+      "test/football_market/statistics/ingestion/completeness_test.exs",
+      "test/football_market/statistics/ingestion/acceptance_test.exs"
+    ],
+    "SC-004": [
+      "test/football_market/statistics/ingestion/positions_test.exs",
+      "test/football_market/statistics/ingestion/provenance_test.exs"
+    ],
+    "SC-005": [
+      "test/football_market/statistics/ingestion/metrics_test.exs"
+    ],
+    "SC-006": [
+      "test/football_market/statistics/ingestion/calculation_test.exs"
+    ],
+    "SC-007": [
+      "test/football_market/statistics/ingestion/isolation_test.exs",
+      "test/football_market/statistics/ingestion/provenance_test.exs"
+    ]
+  },
+  "task_stages": {
+    "T031": "qa",
+    "T032": "review"
+  }
+}

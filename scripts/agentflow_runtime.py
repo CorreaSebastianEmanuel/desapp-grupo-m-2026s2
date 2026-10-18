@@ -65,13 +65,15 @@ class Console:
             return ""
         if self.agent:
             return ""
-        # Never print standalone Codex payloads even if a wrapper was interrupted.
+        # Never print standalone provider payloads even if a wrapper was
+        # interrupted: Codex emits typed event objects and OpenCode stamps
+        # every stream event with a sessionID.
         if line.lstrip().startswith("{"):
             try:
                 event = json.loads(line)
             except ValueError:
                 return ""
-            if isinstance(event, dict) and event.get("type") in {"thread.started", "turn.started", "turn.completed", "turn.failed", "error", "item.started", "item.updated", "item.completed"}:
+            if isinstance(event, dict) and (event.get("type") in {"thread.started", "turn.started", "turn.completed", "turn.failed", "error", "item.started", "item.updated", "item.completed"} or "sessionID" in event):
                 return ""
         return line
 

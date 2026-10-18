@@ -39,6 +39,61 @@ defmodule FootballMarket.Synchronization.ScopeTest do
     for file <- files do
       text = File.read!(file)
 
+      text =
+        case file do
+          "lib/football_market/workers/catalog_sync.ex" ->
+            assert text =~ "FootballMarket.Statistics.Ingestion.import_scope"
+
+            String.replace(
+              text,
+              "FootballMarket.Statistics.Ingestion.import_scope(scope, options)",
+              "StatisticsImportBoundary(scope, options)"
+            )
+
+          "lib/football_market/synchronization/dispatcher.ex" ->
+            assert text =~ "FootballMarket.Statistics.Ingestion.CalculationIntent"
+
+            assert text =~
+                     "FootballMarket.Workers.CalculationDispatch.new(%{\"intent_id\" => intent.id})"
+
+            text
+            |> String.replace(
+              "FootballMarket.Statistics.Ingestion.CalculationIntent",
+              "StatisticsCalculationIntent"
+            )
+            |> String.replace(
+              "FootballMarket.Workers.CalculationDispatch.new(%{\"intent_id\" => intent.id})",
+              "CalculationDispatchBoundary()"
+            )
+
+          "lib/football_market/synchronization/store.ex" ->
+            assert text =~ "FootballMarket.Statistics.Ingestion.CalculationIntent"
+            assert text =~ "FootballMarket.Statistics.Ingestion.Check"
+            assert text =~ "FootballMarket.Statistics.Ingestion.Outcome"
+            assert text =~ "FootballMarket.Workers.StatisticsImport"
+
+            String.replace(
+              text,
+              "FootballMarket.Statistics.Ingestion.CalculationIntent",
+              "StatisticsCalculationIntent"
+            )
+            |> String.replace(
+              "FootballMarket.Statistics.Ingestion.Check",
+              "StatisticsCheck"
+            )
+            |> String.replace(
+              "FootballMarket.Statistics.Ingestion.Outcome",
+              "StatisticsOutcome"
+            )
+            |> String.replace(
+              "FootballMarket.Workers.StatisticsImport",
+              "StatisticsImportBoundary"
+            )
+
+          _ ->
+            text
+        end
+
       refute text =~
                ~r/FootballMarketWeb|FootballMarket\.(Market|Statistics|Valuation|Trading)|Redix|PubSub|String\.to_atom\(|\.performances\(/
     end

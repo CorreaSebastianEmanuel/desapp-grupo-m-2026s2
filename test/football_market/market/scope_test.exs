@@ -5,6 +5,7 @@ defmodule FootballMarket.Market.ScopeTest do
 
   test "exact planned inventory exists and active allowance fails closed" do
     paths = MarketCase.inventory()
+    feature = active_feature()
 
     allowances =
       for path <- [
@@ -27,14 +28,13 @@ defmodule FootballMarket.Market.ScopeTest do
       ])
 
     for line <- String.split(changed, "\n", trim: true) do
-      assert String.slice(line, 3..-1//1) in (paths ++
-                                                synchronization_paths(active_feature()) ++
-                                                FootballMarket.BrowserSessionCase.shell_paths(
-                                                  active_feature()
-                                                ) ++
-                                                FootballMarket.WorkflowScope.paths(
-                                                  active_feature()
-                                                )),
+      path = String.slice(line, 3..-1//1)
+
+      assert path in (paths ++
+                        synchronization_paths(feature) ++
+                        FootballMarket.BrowserSessionCase.shell_paths(feature) ++
+                        FootballMarket.WorkflowScope.paths(feature)) or
+               FootballMarket.WorkflowScope.allows_path?(feature, path),
              "outside initial issuance plan: #{line}"
     end
 

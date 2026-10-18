@@ -9,7 +9,7 @@ defmodule FootballMarket.Providers.Validator do
       Catalog.require!(
         Enum.all?(
           Map.keys(candidate),
-          &(&1 in [:operation, :scope, :facts, :bindings, :fixture_id])
+          &(&1 in [:operation, :scope, :facts, :bindings, :fixture_id, :completeness])
         ),
         :scope
       )
@@ -51,7 +51,9 @@ defmodule FootballMarket.Providers.Validator do
          operation: request.operation,
          scope: request.scope,
          facts: facts,
-         provenance: provenance
+         provenance: provenance,
+         completeness:
+           validate_completeness(Map.get(candidate, :completeness), request, facts, bindings)
        }}
     rescue
       _ -> {:error, Error.new(:invalid_response, request.operation, request.scope)}
@@ -59,5 +61,68 @@ defmodule FootballMarket.Providers.Validator do
       {:invalid, field} ->
         {:error, Error.new(:invalid_response, request.operation, request.scope, field)}
     end
+  end
+
+  defp validate_completeness(nil, _request, _facts, _bindings), do: nil
+
+  defp validate_completeness(evidence, request, facts, bindings) do
+    fields = [
+      :version,
+      :scope,
+      :full_scope,
+      :terminal_witness,
+      :eligible_match_identities,
+      :detail_coverage,
+      :assessment_revision,
+      :assessment_reference,
+      :complete_empty
+    ]
+
+    Catalog.require!(is_map(evidence) and not is_struct(evidence), :completeness)
+    Catalog.require!(Enum.sort(Map.keys(evidence)) == Enum.sort(fields), :completeness)
+    Catalog.require!(evidence.version == 1 and evidence.scope == request.scope, :completeness)
+    Catalog.require!(evidence.full_scope == true, :completeness)
+    Catalog.require!(is_nil(request.scope.from) and is_nil(request.scope.to), :completeness)
+    Catalog.require!(Provenance.safe_text?(evidence.terminal_witness), :completeness)
+    Catalog.require!(Provenance.safe_text?(evidence.assessment_reference), :completeness)
+    Catalog.require!(Provenance.safe_text?(evidence.assessment_revision), :completeness)
+    Catalog.require!(is_list(evidence.eligible_match_identities), :completeness)
+    Catalog.require!(is_list(evidence.detail_coverage), :completeness)
+
+    match_source_ids =
+      Enum.map(Map.get(facts, :matches, []), fn match ->
+        case Enum.find(bindings, &(&1.kind == :match and &1.ref == match.ref)) do
+          %{source_id: source_id} -> source_id
+          _ -> nil
+        end
+      end)
+
+    Catalog.require!(
+      Enum.sort(evidence.eligible_match_identities) == Enum.sort(match_source_ids),
+      :completeness
+    )
+
+    Catalog.require!(
+      evidence.complete_empty == (evidence.eligible_match_identities == []),
+      :completeness
+    )
+
+    Catalog.require!(
+      length(evidence.eligible_match_identities) ==
+        length(Enum.uniq(evidence.eligible_match_identities)),
+      :completeness
+    )
+
+    Catalog.require!(
+      Enum.all?(evidence.detail_coverage, &(&1 in evidence.eligible_match_identities)),
+      :completeness
+    )
+
+    Catalog.require!(
+      Enum.sort(evidence.detail_coverage) == Enum.sort(evidence.eligible_match_identities),
+      :completeness
+    )
+
+    evidence
   end
 end

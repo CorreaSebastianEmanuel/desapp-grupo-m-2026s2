@@ -4,6 +4,8 @@ defmodule FootballMarket.Synchronization.Dispatcher do
   require Logger
   alias FootballMarket.Synchronization.{Clock, Recovery, Scheduler, Store}
 
+  @calculation_orphan_after_seconds 300
+
   def start_link(options \\ []),
     do: GenServer.start_link(__MODULE__, options, name: Keyword.get(options, :name, __MODULE__))
 
@@ -11,6 +13,8 @@ defmodule FootballMarket.Synchronization.Dispatcher do
 
   @impl true
   def init(options) do
+    if repo = Keyword.get(options, :repo), do: FootballMarket.Repo.put_dynamic_repo(repo)
+
     config = Application.get_env(:football_market, FootballMarket.Synchronization, [])
     automatic = Keyword.get(options, :automatic, Keyword.get(config, :automatic, true))
     interval = Keyword.get(config, :tick_ms, 15_000)
@@ -44,7 +48,8 @@ defmodule FootballMarket.Synchronization.Dispatcher do
     config = Application.get_env(:football_market, FootballMarket.Synchronization, [])
     schedules = Keyword.get(config, :schedules, [])
 
-    with {:ok, _} <- Recovery.reconcile(Clock.now()) do
+    with {:ok, _} <- Recovery.reconcile(Clock.now()),
+         :ok <- dispatch_calculation_intents() do
       enabled = Keyword.get(config, :enabled, false)
       if not is_boolean(enabled), do: throw(:invalid_configuration)
       disabled = if enabled, do: {:ok, 0}, else: Scheduler.disable_all(Clock.now())
@@ -91,5 +96,48 @@ defmodule FootballMarket.Synchronization.Dispatcher do
     :invalid_configuration -> {:error, :invalid_configuration}
     :invalid_schedule_configuration -> {:error, :invalid_schedule_configuration}
     :store_unavailable -> Store.unavailable()
+  end
+
+  defp dispatch_calculation_intents do
+    import Ecto.Query
+    now = Clock.now()
+    orphan_cutoff = DateTime.add(now, -@calculation_orphan_after_seconds, :second)
+
+    intents =
+      FootballMarket.Repo.all(
+        from i in FootballMarket.Statistics.Ingestion.CalculationIntent,
+          where:
+            i.state == "pending" and i.attempts < 3 and
+              (is_nil(i.next_attempt_at) or i.next_attempt_at <= ^now),
+          order_by: i.requested_at,
+          limit: 50
+      )
+
+    Enum.each(intents, fn intent ->
+      active =
+        FootballMarket.Repo.exists?(
+          from j in Oban.Job,
+            where:
+              j.worker == "FootballMarket.Workers.CalculationDispatch" and
+                (j.state in ["available", "scheduled", "retryable"] or
+                   (j.state == "executing" and j.attempted_at >= ^orphan_cutoff)) and
+                fragment("?->>'intent_id' = ?", j.args, ^intent.id)
+        )
+
+      unless active do
+        job = FootballMarket.Workers.CalculationDispatch.new(%{"intent_id" => intent.id})
+
+        oban_name =
+          :football_market
+          |> Application.get_env(FootballMarket.Synchronization, [])
+          |> Keyword.get(:oban_name, Oban)
+
+        Oban.insert(oban_name, job)
+      end
+    end)
+
+    :ok
+  rescue
+    _ -> {:error, :calculation_dispatch_unavailable}
   end
 end

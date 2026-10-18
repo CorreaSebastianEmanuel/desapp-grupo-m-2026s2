@@ -211,6 +211,7 @@ defmodule FootballMarket.Synchronization.Scheduler do
           scope = Map.new(material["scope"], fn {k, v} -> {String.to_existing_atom(k), v} end)
 
           input = %{
+            operation: :catalog,
             scope: scope,
             material: material,
             digest: Input.digest(material),

@@ -25,7 +25,9 @@ defmodule FootballMarket.Workers.CatalogSync do
         :ok
 
       run ->
-        case ExecutionGuard.acquire(Store.scope(run), timeout: run.policy["worker_timeout_ms"]) do
+        case ExecutionGuard.acquire(Store.execution_scope(run),
+               timeout: run.policy["worker_timeout_ms"]
+             ) do
           {:ok, guard} ->
             try do
               execute(run_id, delivery_id)
@@ -45,17 +47,41 @@ defmodule FootballMarket.Workers.CatalogSync do
 
   defp execute(run_id, delivery_id) do
     case Store.claim(run_id, delivery_id, Clock.now()) do
-      {:ok, {run, _attempt, context}} ->
+      {:ok, {run, attempt, context}} ->
         result =
           with {:ok, options} <- Input.execution(run.input) do
-            FootballMarket.Catalog.Ingestion.import_catalog(
-              Map.put(Store.scope(run), :timeout_ms, run.input["timeout_ms"]),
-              Keyword.put(options, :delivery_context, context)
-            )
+            delivery_context =
+              if run.operation == "statistics",
+                do: Map.put(context, :attempt_id, attempt.id),
+                else: context
+
+            options = Keyword.put(options, :delivery_context, delivery_context)
+
+            scope = Map.put(Store.scope(run), :timeout_ms, run.input["timeout_ms"])
+
+            if run.operation == "statistics" do
+              FootballMarket.Statistics.Ingestion.import_scope(scope, options)
+            else
+              FootballMarket.Catalog.Ingestion.import_catalog(scope, options)
+            end
           end
 
-        unless @test && Process.get(:synchronization_failpoint) == :after_publication do
-          Store.complete(run.id, delivery_id, result, Clock.now())
+        case if(@test, do: Process.get(:synchronization_failpoint), else: nil) do
+          {:after_publication, target_run_id} when target_run_id == run.id ->
+            :ok
+
+          :after_publication ->
+            :ok
+
+          {:pause_after_publication, owner} when is_pid(owner) ->
+            send(owner, {:statistics_published, run.id, self()})
+
+            receive do
+              :continue -> Store.complete(run.id, delivery_id, result, Clock.now())
+            end
+
+          _ ->
+            Store.complete(run.id, delivery_id, result, Clock.now())
         end
 
         :ok

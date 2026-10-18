@@ -1,5 +1,5 @@
 defmodule FootballMarket.CatalogConstraintsTest do
-  use FootballMarket.DataCase, async: true
+  use FootballMarket.DataCase, async: false
 
   @moduletag :integration
 
@@ -181,7 +181,7 @@ defmodule FootballMarket.CatalogConcurrencyTest do
   use ExUnit.Case, async: false
   @moduletag :integration
 
-  if System.get_env("MIX_TEST_PARTITION") == "catalog_concurrency" do
+  if String.ends_with?(System.get_env("MIX_TEST_PARTITION") || "", "_catalog_concurrency") do
     alias Ecto.Adapters.SQL.Sandbox
     alias FootballMarket.{Catalog, Repo}
     alias FootballMarket.Catalog.{League, Season, Team, Position, Player}
@@ -278,12 +278,18 @@ defmodule FootballMarket.CatalogConcurrencyTest do
   else
     test "default suite executes both committed Catalog races" do
       env = [
-        {"MIX_TEST_PARTITION", "catalog_concurrency"},
+        {
+          "MIX_TEST_PARTITION",
+          (System.get_env("MIX_TEST_PARTITION") || "cp1") <> "_catalog_concurrency"
+        },
         {"CP1_PROFILE", nil},
         {"CP1_PROFILE_COVERAGE", nil},
         {"CP1_PROFILE_RECEIPT", nil},
         {"CP1_PROFILE_SENTINEL_PATH", nil}
       ]
+
+      {_prepare_output, prepare_status} = System.cmd("mix", ["test.prepare"], env: env)
+      assert prepare_status == 0
 
       {out, status} =
         System.cmd("mix", ["test", __ENV__.file, "--warnings-as-errors"],

@@ -4,11 +4,24 @@ defmodule FootballMarket.Statistics do
   alias FootballMarket.Statistics.{Input, Error, Match, Performance, Query}
 
   def record_match(attrs),
-    do: transact(fn -> with {:ok, attrs} <- Input.match(attrs), do: insert_match(attrs) end)
+    do:
+      transact(fn ->
+        lock_seasons!([attribute(attrs, :season_id)])
+        with {:ok, attrs} <- Input.match(attrs), do: insert_match(attrs)
+      end)
 
   def record_performance(attrs),
     do:
       transact(fn ->
+        match_id = attribute(attrs, :match_id)
+
+        match =
+          case Ecto.UUID.cast(match_id) do
+            {:ok, id} -> Repo.get(Match, id)
+            _ -> nil
+          end
+
+        lock_seasons!([match && match.season_id])
         with {:ok, attrs} <- Input.performance(attrs), do: insert_performance(attrs)
       end)
 
@@ -100,6 +113,14 @@ defmodule FootballMarket.Statistics do
 
   def record_batch(envelopes) when is_list(envelopes) do
     transact(fn ->
+      seasons =
+        Enum.map(envelopes, fn envelope ->
+          match = if is_map(envelope), do: Map.get(envelope, :match) || Map.get(envelope, "match")
+          if is_map(match), do: attribute(match, :season_id)
+        end)
+
+      lock_seasons!(seasons)
+
       Enum.with_index(envelopes)
       |> Enum.reduce_while({:ok, []}, fn {envelope, index}, {:ok, results} ->
         case batch_envelope(envelope, index) do
@@ -163,4 +184,27 @@ defmodule FootballMarket.Statistics do
       {:ok, Repo.all(Query.history(id, bounds))}
     end
   end
+
+  defp lock_seasons!(ids) do
+    ids
+    |> Enum.reject(&is_nil/1)
+    |> Enum.filter(fn id -> match?({:ok, _}, Ecto.UUID.cast(id)) end)
+    |> Enum.map(fn id ->
+      {:ok, uuid} = Ecto.UUID.cast(id)
+      uuid
+    end)
+    |> Enum.uniq()
+    |> Enum.sort()
+    |> Enum.each(fn id ->
+      <<key::signed-64, _::binary>> =
+        :crypto.hash(:sha256, "statistics-season-v1:" <> to_string(id))
+
+      Ecto.Adapters.SQL.query!(Repo, "SELECT pg_advisory_xact_lock($1)", [key])
+    end)
+  end
+
+  defp attribute(map, key) when is_map(map),
+    do: Map.get(map, key) || Map.get(map, Atom.to_string(key))
+
+  defp attribute(_, _), do: nil
 end

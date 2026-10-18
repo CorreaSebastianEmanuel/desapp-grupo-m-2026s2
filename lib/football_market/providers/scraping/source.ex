@@ -5,22 +5,51 @@ defmodule FootballMarket.Providers.Scraping.Source do
   def read(request, context, state, revision) do
     with {:ok, _, row} <- Assessment.admit(request, state, revision) do
       try do
-        facts =
+        {facts, complete_empty} =
           case request.operation do
-            :catalog -> catalog(request, context, state, revision, row)
+            :catalog -> {catalog(request, context, state, revision, row), false}
             :performances -> performances(request, context, state, revision, row)
           end
 
+        bindings = Translator.bindings(facts, row)
+
         with {:ok, _, _} <- Assessment.admit(request, state, revision) do
           budget!(context)
+
+          completeness =
+            if request.operation == :performances and
+                 is_nil(request.scope.from) and is_nil(request.scope.to) and
+                 (Map.get(facts, :matches, []) != [] or complete_empty) do
+              matches = Map.get(facts, :matches, [])
+
+              identities =
+                for match <- matches do
+                  Enum.find_value(bindings, fn binding ->
+                    if binding.kind == :match and binding.ref == match.ref, do: binding.source_id
+                  end)
+                end
+
+              %{
+                version: 1,
+                scope: request.scope,
+                full_scope: is_nil(request.scope.from) and is_nil(request.scope.to),
+                terminal_witness: row.witness,
+                eligible_match_identities: identities,
+                detail_coverage: identities,
+                assessment_revision: to_string(revision),
+                assessment_reference: state.fixture_id || "assessment:" <> to_string(revision),
+                complete_empty: identities == [] and complete_empty
+              }
+            end
 
           {:ok,
            %{
              operation: request.operation,
              scope: request.scope,
              facts: facts,
-             bindings: Translator.bindings(facts, row),
-             fixture_id: state.fixture_id
+             bindings: bindings,
+             fixture_id: state.fixture_id,
+             completeness: completeness
            }}
         end
       rescue
@@ -58,6 +87,8 @@ defmodule FootballMarket.Providers.Scraping.Source do
     matches = list!(schedule["fixtures"]["allMatches"])
     selected = Enum.filter(matches, &Translator.eligible!(&1, request))
 
+    complete_empty = selected == [] and schedule["completeEmpty"] == true
+
     details =
       Enum.map(selected, fn match ->
         data = portion!("match:" <> id!(match["id"]), request, context, state, revision, row)
@@ -77,7 +108,8 @@ defmodule FootballMarket.Providers.Scraping.Source do
         {match, Map.values(stats)}
       end)
 
-    Translator.performances(request, context, row, list!(schedule["teams"]), details)
+    {Translator.performances(request, context, row, list!(schedule["teams"]), details),
+     complete_empty}
   end
 
   def portion!(key, request, context, state, revision, row) do

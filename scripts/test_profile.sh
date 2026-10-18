@@ -4,6 +4,16 @@
 # PATH=v24 via actions/setup-node; locally use
 # ~/.nvm/versions/node/v24.21.0). preflight_integration enforces the v24 check.
 set -eu
+# Local toolchain bootstrap for non-interactive agent shells:
+# - disable Mix's TCP filesystem lock (fails with :eperm in sandboxes)
+# - resolve Node v24 from nvm when it is not already on PATH
+export MIX_OS_CONCURRENCY_LOCK="${MIX_OS_CONCURRENCY_LOCK:-0}"
+if ! command -v node >/dev/null 2>&1 || ! node --version 2>/dev/null | grep -Eq '^v24\.'; then
+  for d in "$HOME"/.nvm/versions/node/v24*/bin; do
+    if [ -d "$d" ]; then PATH="$d:$PATH"; break; fi
+  done
+fi
+export PATH
 umask 077
 
 profile=${1:-}

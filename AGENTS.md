@@ -3,7 +3,7 @@
 This repository uses Spec-Driven Development. User instructions take precedence.
 
 1. Work on one `backlog/` task at a time.
-2. Read `docs/PRODUCT.md`, `docs/ARCHITECTURE.md`, `docs/CHECKPOINTS.md`, and the SDD constitution before decisions.
+2. Read `docs/PRODUCT.md`, `docs/ARCHITECTURE.md`, `docs/CHECKPOINTS.md`, `docs/WORKFLOW_LESSONS.md`, and the SDD constitution before decisions.
 3. Treat `spec.md` as behavioral truth and `plan.md` as the implementation boundary.
 4. Do not silently expand scope. Add tests for every behavioral change.
 5. Never claim a check passed without running it.
@@ -12,3 +12,4 @@ This repository uses Spec-Driven Development. User instructions take precedence.
 8. Completion requires independent QA and final review with `Verdict: PASS`.
 9. Continue autonomously for documented, routine, or reversible choices. Request a human product check only when an unresolved decision materially changes observable behavior, a business rule, scope, permissions, security, data integrity, or a costly and difficult-to-reverse technical choice. State the decision, impact, alternatives, and recommendation precisely.
 10. Keep context and evidence proportional. Never inspect `.agentflow/runs/` or `.specify/workflows/runs/` during normal product, planning, implementation, QA, or review work. Handoffs contain only deltas, decisions, risks, and guidance absent from canonical artifacts; reference command evidence instead of pasting full output.
+11. When a task is completed or human feedback is recorded, append at most three lines to `docs/WORKFLOW_LESSONS.md`: the repeating pattern, the actionable rule, and the task IDs where it occurred. Never duplicate or rewrite per-task `backlog/feedback/` entries there.

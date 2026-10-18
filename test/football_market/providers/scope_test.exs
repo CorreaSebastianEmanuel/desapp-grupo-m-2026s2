@@ -170,7 +170,9 @@ defmodule FootballMarket.Providers.ScopeTest do
           {:defp, meta, [{:deps, call_meta, args}, [do: List.delete(deps, {:oban, "~> 2.24.2"})]]}
 
         list when is_list(list) ->
-          if Keyword.keyword?(list), do: Keyword.delete(list, :test_ignore_filters), else: list
+          if Keyword.keyword?(list),
+            do: list |> Keyword.delete(:test_ignore_filters) |> Keyword.delete(:"test.e2e"),
+            else: list
 
         node ->
           node

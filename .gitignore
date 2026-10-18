@@ -36,3 +36,6 @@ Thumbs.db
 
 # New verification attempt evidence is local; tracked historical files stay intact.
 /specs/*/handoffs/check-*.json
+
+# Disposable profile summaries and IPC roots
+/tmp/

@@ -190,6 +190,9 @@ defmodule FootballMarket.Statistics.ConcurrencyTest do
   else
     test "default suite executes nonempty independent committed race cases" do
       env = [
+        {"POSTGRES_PORT",
+         System.get_env("PROFILE_CONCURRENCY_POSTGRES_PORT") ||
+           System.get_env("POSTGRES_PORT", "5432")},
         {
           "MIX_TEST_PARTITION",
           (System.get_env("MIX_TEST_PARTITION") || "cp1") <> "_statistics_concurrency"

@@ -46,6 +46,8 @@ def main(args: list[str]) -> int:
     extra_path = node24_path()
     if extra_path:
         os.environ["PATH"] = extra_path + os.pathsep + os.environ.get("PATH", "")
+    # Mix's TCP filesystem lock fails with :eperm inside sandboxed agents.
+    os.environ.setdefault("MIX_OS_CONCURRENCY_LOCK", "0")
     real = os.environ["AGENTFLOW_CODEX_REAL"]
     task = os.environ["AGENTFLOW_TASK_ID"]
     path = Path(os.environ["AGENTFLOW_METRICS_FILE"])

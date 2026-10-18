@@ -72,6 +72,8 @@ def inline_command_args(args: list[str]) -> list[str]:
 
 
 def main(args: list[str]) -> int:
+    # Mix's TCP filesystem lock fails with :eperm inside sandboxed agents.
+    os.environ.setdefault("MIX_OS_CONCURRENCY_LOCK", "0")
     real = os.environ["AGENTFLOW_OPENCODE_REAL"]
     task = os.environ["AGENTFLOW_TASK_ID"]
     path = Path(os.environ["AGENTFLOW_METRICS_FILE"])

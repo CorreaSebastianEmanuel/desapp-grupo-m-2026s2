@@ -2,6 +2,8 @@
 
 La metodología combina desarrollo guiado por especificaciones (SDD), deliberación entre agentes con responsabilidades distintas, evidencia ejecutable y aprobación humana final. Cada tarea del backlog recorre seis sesiones independientes y deja decisiones y resultados trazables en el repositorio.
 
+> El diagrama consolidado del flujo (incluido el ciclo del ledger de lecciones) está en [WORKFLOW_FLOW.md](WORKFLOW_FLOW.md).
+
 ```mermaid
 flowchart LR
     IN([Tarea priorizada<br/>del backlog])

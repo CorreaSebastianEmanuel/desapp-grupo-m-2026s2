@@ -420,6 +420,23 @@ def history(a):
             mark=result.get("status","pending") if result else ("current" if step==state.get("current_step_id") else "pending")
             print(f"- {step}: {mark}")
 
+def node24_path(root=None):
+    """Resolve a Node v24 install from nvm when the inherited PATH lacks one."""
+    candidates = sorted(glob.glob(str(Path.home() / ".nvm/versions/node/v24*/bin")), reverse=True)
+    hit = next((entry for entry in candidates if Path(entry, "node").is_file()), None)
+    if not hit:
+        return None
+    current = shutil.which("node")
+    if current:
+        try:
+            probe = subprocess.run([current, "--version"], capture_output=True, text=True, timeout=5)
+            if (probe.stdout or "").strip().startswith("v24"):
+                return None
+        except OSError:
+            pass
+    return hit
+
+
 def monitor_process(cmd, task, run_hint=None, assignment=None, new_session=False, provider=providers.DEFAULT_PROVIDER):
     """Run with inherited stdin, live output, durable logs, stage updates, and heartbeat."""
     provider=providers.normalize(provider)
@@ -430,6 +447,12 @@ def monitor_process(cmd, task, run_hint=None, assignment=None, new_session=False
     started=time.monotonic(); last_heartbeat=started; shown_step=None; run=run_hint
     print(f"Live log: {transcript.relative_to(ROOT)}",flush=True)
     child_env=os.environ.copy()
+    # Sandbox-safe defaults for local Mix/Node toolchains so spawned agents
+    # do not inherit a broken environment.
+    child_env.setdefault("MIX_OS_CONCURRENCY_LOCK", "0")
+    extra_path = node24_path(ROOT)
+    if extra_path:
+        child_env["PATH"] = extra_path + os.pathsep + child_env.get("PATH", "")
     # Each provider interposes its own forwarding shim through Spec Kit's
     # generic executable/extra-args overrides so workflow stages, prompts,
     # gates and metrics stay identical across providers.

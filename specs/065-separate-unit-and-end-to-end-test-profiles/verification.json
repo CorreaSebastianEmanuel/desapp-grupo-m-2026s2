@@ -1,0 +1,271 @@
+{
+  "schema_version": 1,
+  "runtime_required": true,
+  "checks": [
+    {
+      "id": "toolchain",
+      "argv": [
+        "sh",
+        "scripts/check_toolchain.sh"
+      ],
+      "env": {
+        "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
+        "ERL_FLAGS": "+S 4:4",
+        "POSTGRES_PORT": "55432",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "service-preflight",
+      "argv": [
+        "mix",
+        "infrastructure.verify"
+      ],
+      "reuse": false,
+      "env": {
+        "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
+        "ERL_FLAGS": "+S 4:4",
+        "POSTGRES_PORT": "55432",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "format",
+      "argv": [
+        "mix",
+        "format",
+        "--check-formatted"
+      ],
+      "env": {
+        "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
+        "ERL_FLAGS": "+S 4:4",
+        "POSTGRES_PORT": "55432",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "compile",
+      "argv": [
+        "mix",
+        "compile",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
+        "ERL_FLAGS": "+S 4:4",
+        "POSTGRES_PORT": "55432",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "database-prepare",
+      "argv": [
+        "mix",
+        "test.prepare"
+      ],
+      "env": {
+        "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
+        "ERL_FLAGS": "+S 4:4",
+        "POSTGRES_PORT": "55432",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
+        "MIX_ENV": "test"
+      },
+      "reuse": false
+    },
+    {
+      "id": "assets",
+      "argv": [
+        "mix",
+        "assets.build"
+      ],
+      "env": {
+        "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
+        "ERL_FLAGS": "+S 4:4",
+        "POSTGRES_PORT": "55432",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "inventory",
+      "argv": [
+        "python3",
+        "scripts/test_inventory.py",
+        "check"
+      ],
+      "env": {
+        "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
+        "ERL_FLAGS": "+S 4:4",
+        "POSTGRES_PORT": "55432",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "openapi-contract",
+      "argv": [
+        "node",
+        "tools/openapi/validate.mjs",
+        "priv/static/openapi.json"
+      ],
+      "env": {
+        "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
+        "ERL_FLAGS": "+S 4:4",
+        "POSTGRES_PORT": "55432",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "unit",
+      "argv": [
+        "sh",
+        "scripts/test_profile.sh",
+        "unit"
+      ],
+      "env": {
+        "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
+        "ERL_FLAGS": "+S 4:4",
+        "POSTGRES_PORT": "55432",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "integration",
+      "argv": [
+        "sh",
+        "scripts/test_profile.sh",
+        "integration"
+      ],
+      "env": {
+        "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
+        "ERL_FLAGS": "+S 4:4",
+        "POSTGRES_PORT": "55432",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
+        "MIX_ENV": "test"
+      },
+      "reuse": false
+    },
+    {
+      "id": "e2e",
+      "argv": [
+        "sh",
+        "scripts/test_profile.sh",
+        "e2e"
+      ],
+      "env": {
+        "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
+        "ERL_FLAGS": "+S 4:4",
+        "POSTGRES_PORT": "55432",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
+        "MIX_ENV": "test"
+      },
+      "runtime": true,
+      "reuse": false,
+      "expectation": "Fail unless SQL SELECT 1, Redis PING, actual Endpoint readiness and Chromium launch succeed within 30s; real browser verifies GET /sign-in 200/no-store, unauthenticated GET /portfolio 303 Location sign-in/no shell, valid form POST /sign-in 303 then connected /portfolio 200/no-store/account shell, invalid credentials 422 safe body, POST /sign-out 303 and denied subsequent Portfolio plus expired-session recovery. Trusted request_catalog admits before fixture retrieval; real Oban consumer persists succeeded within 30s; real authenticated GET /api/players returns 200 application/json with exact fixture identities once, replay stays duplicate-free. No auth returns 401 application/json/error.code=unauthenticated with WWW-Authenticate Bearer realm api challenge; invalid page_size returns 400 application/json/error.code=invalid_page_size; invalid scope admits no job/run; rejected requests and replay preserve catalog/immutable financial snapshots. No manual drain or mocked endpoint. E2E process ceiling 180s; every omission/skip/prerequisite/timeout is failure. Integration supervisor-timeout and TERM probes independently require owned schema cleanup after child death while preserving a control schema; forged ownership is rejected before repository startup."
+    }
+  ],
+  "coverage": {
+    "FR-001": [
+      "inventory",
+      "unit",
+      "integration",
+      "e2e"
+    ],
+    "FR-002": [
+      "inventory",
+      "unit",
+      "integration"
+    ],
+    "FR-003": [
+      "inventory",
+      "unit",
+      "integration",
+      "e2e"
+    ],
+    "FR-004": [
+      "e2e",
+      "unit"
+    ],
+    "FR-005": [
+      "e2e"
+    ],
+    "FR-006": [
+      "e2e"
+    ],
+    "FR-007": [
+      "e2e"
+    ],
+    "FR-008": [
+      "e2e"
+    ],
+    "FR-009": [
+      "unit",
+      "e2e"
+    ],
+    "FR-010": [
+      "unit",
+      "integration",
+      "e2e"
+    ],
+    "FR-011": [
+      "unit",
+      "integration",
+      "e2e"
+    ],
+    "FR-012": [
+      "unit",
+      "integration"
+    ],
+    "FR-013": [
+      "unit",
+      "integration"
+    ],
+    "FR-014": [
+      "unit",
+      "integration",
+      "e2e"
+    ],
+    "FR-015": [
+      "e2e"
+    ],
+    "SC-001": [
+      "inventory",
+      "unit",
+      "integration",
+      "e2e"
+    ],
+    "SC-002": [
+      "e2e"
+    ],
+    "SC-003": [
+      "e2e"
+    ],
+    "SC-004": [
+      "unit",
+      "integration"
+    ],
+    "SC-005": [
+      "unit",
+      "integration"
+    ],
+    "SC-006": [
+      "unit",
+      "integration"
+    ],
+    "SC-007": [
+      "unit",
+      "integration",
+      "e2e"
+    ]
+  },
+  "task_stages": {
+    "T030": "qa",
+    "T031": "review"
+  }
+}

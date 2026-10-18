@@ -19,5 +19,22 @@ defmodule FootballMarket.WorkflowScopeTest do
     refute "test/scripts/unplanned_test.py" in paths
     assert WorkflowScope.paths(nil) == []
     assert WorkflowScope.paths("specs/unknown") == []
+
+    for feature <- [
+          "specs/065-separate-unit-and-end-to-end-test-profiles",
+          "specs/065-statistics-ingestion-pipeline"
+        ] do
+      assert WorkflowScope.allows_path?(feature, "test/support/workflow_scope.ex")
+    end
+
+    assert WorkflowScope.allows_path?(
+             "specs/065-statistics-ingestion-pipeline",
+             "lib/football_market/statistics/ingestion/publisher.ex"
+           )
+
+    refute WorkflowScope.allows_path?(
+             "specs/065-separate-unit-and-end-to-end-test-profiles",
+             "lib/football_market/statistics/ingestion/publisher.ex"
+           )
   end
 end

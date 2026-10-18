@@ -28,3 +28,7 @@ list passes the checkpoint hygiene review.
   cases explicitly in the first attempt, with an assertion-based refusal oracle
   scripted and rerun unchanged after the fix, instead of discovering them via
   adversarial QA rounds — TASK-054
+- 2026-10-18 — Legacy skill mirrors (`.claude/skills/`) drifted behind
+  `.agents/skills/` and exposed an outdated feedback contract (`--stage` only,
+  no `--impact`) — after migrating an agent integration, remove the superseded
+  mirror in the same change or point it at the canonical copy — cleanup PR

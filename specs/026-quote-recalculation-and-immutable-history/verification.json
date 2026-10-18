@@ -1,0 +1,163 @@
+{
+  "schema_version": 1,
+  "runtime_required": true,
+  "checks": [
+    {
+      "id": "preflight",
+      "argv": [
+        "mix",
+        "infrastructure.verify"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "reuse": false
+    },
+    {
+      "id": "format",
+      "argv": [
+        "mix",
+        "format",
+        "--check-formatted"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "compile",
+      "argv": [
+        "mix",
+        "compile",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "unit",
+      "argv": [
+        "sh",
+        "scripts/test_profile.sh",
+        "unit"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "integration",
+      "argv": [
+        "sh",
+        "scripts/test_profile.sh",
+        "integration"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "runtime",
+      "argv": [
+        "sh",
+        "-c",
+        "mix infrastructure.verify && mix run scripts/verify_quote_runtime.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "runtime": true,
+      "reuse": false,
+      "expectation": "Fail if PostgreSQL migration probe or Redis PONG readiness fails; fresh BEAM processes assert persisted original replay, import-commit recovery, initial issuance preserved, total holdings 100, exact quote price/configuration/mapping/membership, one pending quote-keyed evaluation, lost-ack duplicate suppression, and safe independent statuses. No HTTP endpoints are affected."
+    }
+  ],
+  "coverage": {
+    "FR-001": [
+      "integration"
+    ],
+    "FR-002": [
+      "integration"
+    ],
+    "FR-003": [
+      "unit",
+      "integration"
+    ],
+    "FR-004": [
+      "unit",
+      "integration",
+      "runtime"
+    ],
+    "FR-005": [
+      "integration"
+    ],
+    "FR-006": [
+      "unit",
+      "integration"
+    ],
+    "FR-007": [
+      "integration"
+    ],
+    "FR-008": [
+      "integration",
+      "runtime"
+    ],
+    "FR-009": [
+      "integration",
+      "runtime"
+    ],
+    "FR-010": [
+      "integration"
+    ],
+    "FR-011": [
+      "integration"
+    ],
+    "FR-012": [
+      "integration",
+      "runtime"
+    ],
+    "FR-013": [
+      "integration"
+    ],
+    "FR-014": [
+      "unit",
+      "integration"
+    ],
+    "FR-015": [
+      "unit",
+      "integration",
+      "runtime"
+    ],
+    "SC-001": [
+      "unit",
+      "integration",
+      "runtime"
+    ],
+    "SC-002": [
+      "integration",
+      "runtime"
+    ],
+    "SC-003": [
+      "integration"
+    ],
+    "SC-004": [
+      "integration",
+      "runtime"
+    ],
+    "SC-005": [
+      "integration",
+      "runtime"
+    ],
+    "SC-006": [
+      "unit",
+      "integration"
+    ],
+    "SC-007": [
+      "integration"
+    ]
+  },
+  "task_stages": {
+    "T030": "qa",
+    "T031": "review"
+  }
+}

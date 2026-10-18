@@ -38,28 +38,32 @@ defmodule FootballMarket.Valuation.CalculationRequests do
       unless intent && intent.accepted_check_id == check_id && intent_ids == {:ok, ids},
         do: Repo.rollback(:calculation_request_conflict)
 
-      case Repo.one(
-             from r in CalculationRequest, where: r.intent_id == ^intent_id, lock: "FOR UPDATE"
-           ) do
-        nil ->
-          now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
+      request =
+        case Repo.one(
+               from r in CalculationRequest, where: r.intent_id == ^intent_id, lock: "FOR UPDATE"
+             ) do
+          nil ->
+            now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
 
-          Repo.insert!(%CalculationRequest{
-            id: Ecto.UUID.generate(),
-            intent_id: intent_id,
-            accepted_check_id: check_id,
-            changed_performance_ids: ids,
-            accepted_at: now,
-            state: "requested"
-          })
+            Repo.insert!(%CalculationRequest{
+              id: Ecto.UUID.generate(),
+              intent_id: intent_id,
+              accepted_check_id: check_id,
+              changed_performance_ids: ids,
+              accepted_at: now,
+              state: "requested"
+            })
 
-        request
-        when request.accepted_check_id == check_id and request.changed_performance_ids == ids ->
           request
+          when request.accepted_check_id == check_id and request.changed_performance_ids == ids ->
+            request
 
-        _ ->
-          Repo.rollback(:calculation_request_conflict)
-      end
+          _ ->
+            Repo.rollback(:calculation_request_conflict)
+        end
+
+      FootballMarket.Quotes.Membership.enqueue_import!(intent_id)
+      request
     end)
     |> case do
       {:ok, request} -> {:ok, request}

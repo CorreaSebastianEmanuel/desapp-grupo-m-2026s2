@@ -25,6 +25,22 @@ defmodule FootballMarket.Valuation.Managed do
     end
   end
 
+  @doc "Evaluate a fixed saved version against verified original facts without selecting current membership."
+  def evaluate_membership(subject, selector, facts) when is_list(facts) do
+    with {:ok, subject} <- Request.subject_week(subject),
+         {:ok, version} <- resolve(selector),
+         {:ok, definition} <- definition(version),
+         {:ok, original_facts} <- FootballMarket.Valuation.StatisticsReader.originals(facts),
+         request = Map.merge(subject, fields(version)),
+         {:ok, request} <- Request.validate(request),
+         {:ok, prepared} <- FootballMarket.Valuation.Preparation.build(request, original_facts),
+         {:ok, score} <- Valuation.score(prepared, definition) do
+      {:ok, wrap(score, version)}
+    end
+  end
+
+  def evaluate_membership(_, _, _), do: Error.new(:validation, :invalid_membership)
+
   def replay(%ManagedDescriptor{schema_version: 1} = envelope) do
     with :ok <- envelope_shape(envelope),
          {:ok, version} <- original(envelope.configuration_version_id),

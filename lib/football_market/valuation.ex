@@ -9,6 +9,9 @@ defmodule FootballMarket.Valuation do
   def evaluate_managed(subject_week, selector),
     do: FootballMarket.Valuation.Managed.evaluate(subject_week, selector)
 
+  def evaluate_managed_membership(subject_week, selector, facts),
+    do: FootballMarket.Valuation.Managed.evaluate_membership(subject_week, selector, facts)
+
   def replay_managed(envelope), do: FootballMarket.Valuation.Managed.replay(envelope)
 
   def prepare(request) do

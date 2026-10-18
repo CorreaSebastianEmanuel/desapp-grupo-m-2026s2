@@ -165,6 +165,11 @@ defmodule FootballMarket.Statistics.Ingestion.Publisher do
         })
       end
 
+    if intent do
+      changed_ids = performances |> Enum.filter(&(elem(&1, 3) == :new)) |> Enum.map(&elem(&1, 1))
+      FootballMarket.Quotes.Membership.snapshot_import!(intent.id, changed_ids)
+    end
+
     scope_row
     |> Ecto.Changeset.change(last_checked_at: now, last_accepted_check_id: check.id)
     |> then(fn cs ->

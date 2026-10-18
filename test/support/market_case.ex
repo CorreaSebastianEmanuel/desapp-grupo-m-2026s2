@@ -147,8 +147,8 @@ defmodule FootballMarket.MarketCase do
     )
   end
 
-  def later_quote(player, value \\ "2") do
-    Repo.insert!(
+  def invalid_performance_quote(player, value \\ "2") do
+    quote =
       struct!(FootballMarket.Market.Quote, %{
         player_id: player.id,
         unit_price: Decimal.new(value),
@@ -157,7 +157,8 @@ defmodule FootballMarket.MarketCase do
         rule_id: "fixture",
         rule_version: "1"
       })
-    )
+
+    assert_raise Ecto.ConstraintError, fn -> Repo.insert!(quote) end
   end
 
   def transfer(f, quantity) do

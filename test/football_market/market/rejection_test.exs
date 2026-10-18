@@ -62,7 +62,7 @@ defmodule FootballMarket.Market.RejectionTest do
       local = Map.merge(ns, fixture())
 
       if history == :quote,
-        do: later_quote(local.player),
+        do: invalid_performance_quote(local.player),
         else:
           Repo.insert!(%FootballMarket.Market.Holding{
             player_id: local.player.id,
@@ -71,9 +71,15 @@ defmodule FootballMarket.Market.RejectionTest do
           })
 
       before = snapshot()
-      assert_error(Market.initialize_player(local.player.id), :inconsistent_state)
       assert snapshot() == before
-      assert Repo.query!("SELECT count(*) FROM market_issuances").rows == [[0]]
+
+      if history == :quote do
+        assert {:ok, %{outcome: :issued}} = Market.initialize_player(local.player.id)
+        assert Repo.query!("SELECT count(*) FROM market_issuances").rows == [[1]]
+      else
+        assert_error(Market.initialize_player(local.player.id), :inconsistent_state)
+        assert Repo.query!("SELECT count(*) FROM market_issuances").rows == [[0]]
+      end
     end
 
     assert f.player.id != f.other.id

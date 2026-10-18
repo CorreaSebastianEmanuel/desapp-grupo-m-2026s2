@@ -89,6 +89,49 @@ defmodule FootballMarket.WorkflowScope do
     ]
   end
 
+  def paths("specs/026-quote-recalculation-and-immutable-history") do
+    [
+      "lib/football_market/quotes.ex",
+      "lib/football_market/quotes/",
+      "lib/football_market/market/quote.ex",
+      "lib/football_market/statistics/ingestion/publisher.ex",
+      "lib/football_market/valuation.ex",
+      "lib/football_market/valuation/managed.ex",
+      "lib/football_market/valuation/statistics_reader.ex",
+      "lib/football_market/valuation/calculation_requests.ex",
+      "lib/football_market/workers/calculation_dispatch.ex",
+      "lib/football_market/workers/quote_calculation.ex",
+      "lib/football_market/application.ex",
+      "config/runtime.exs",
+      "config/synchronization.exs",
+      "priv/repo/migrations/20261018000000_create_quote_calculations.exs",
+      "priv/repo/migrations/20261018000100_add_quote_import_snapshots.exs",
+      "priv/repo/migrations/20261018000200_add_explicit_quote_requests.exs",
+      "priv/repo/migrations/20261018000300_reconcile_quote_import_snapshot_schema.exs",
+      "priv/repo/migrations/20261018000400_reconcile_quote_import_snapshot_facts.exs",
+      "priv/repo/migrations/20261018000500_reconcile_quote_mapping_schema.exs",
+      "priv/repo/migrations/20261018000600_reconcile_quote_calculation_requests.exs",
+      "priv/repo/migrations/20261018000700_reconcile_quote_calculation_attempts.exs",
+      "scripts/verify_quote_runtime.exs",
+      "test/football_market/quotes/",
+      "test/football_market/valuation/configurations/managed_test.exs",
+      "test/football_market/statistics/ingestion/calculation_test.exs",
+      "test/support/quotes/",
+      "test/support/market_case.ex",
+      "test/football_market/market/retry_test.exs",
+      "test/football_market/market/concurrency_test.exs",
+      "test/football_market/market/storage_test.exs",
+      "test/football_market/market/rejection_test.exs",
+      "test/support/test_profile_audit.ex",
+      "test/ci/test_profile_audit_test.exs",
+      "test/support/workflow_scope.ex",
+      "test/football_market/statistics/scope_test.exs",
+      "test/football_market/providers/scope_test.exs",
+      "test/football_market/market/scope_test.exs",
+      "test/football_market/synchronization/scope_test.exs"
+    ]
+  end
+
   def paths(_), do: []
 
   def allows_path?(feature, path) do

@@ -28,6 +28,8 @@ if System.get_env("PHX_SERVER") do
   config :football_market, FootballMarketWeb.Endpoint, server: true
 end
 
+config :football_market, :quote_mapping_id, System.get_env("QUOTE_MAPPING_ID")
+
 if config_env() == :dev do
   # Reload browser tabs when matching files change.
   config :football_market, FootballMarketWeb.Endpoint,

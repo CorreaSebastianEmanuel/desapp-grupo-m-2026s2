@@ -222,6 +222,11 @@ defmodule FootballMarket.Statistics.ScopeTest do
       assert path in provider_paths or path in scraper_paths or path in ingestion_paths or
                path in valuation_paths(active_feature) or path in market_paths(active_feature) or
                path in synchronization_paths(active_feature) or
+               Enum.any?(FootballMarket.WorkflowScope.paths(active_feature), fn planned ->
+                 if String.ends_with?(planned, "/"),
+                   do: String.starts_with?(path, planned),
+                   else: path == planned
+               end) or
                path in FootballMarket.BrowserSessionCase.shell_paths(active_feature) or
                path in FootballMarket.WorkflowScope.paths(active_feature) or
                path in allowed_ci_paths or path in statistics_ingestion_paths or

@@ -225,6 +225,40 @@ def read_run_state(run):
     try: return json.loads(path.read_text(encoding="utf-8"))
     except (OSError,json.JSONDecodeError): return None
 
+def graceful_interrupt(process, reader):
+    """Stop the process group the way Ctrl+C would: SIGINT → wait → SIGTERM →
+    wait → SIGKILL. A human interrupt and the stage budget share this helper so
+    a timed-out stage receives the identical gentle escalation."""
+    if os.name=="posix": os.killpg(process.pid,signal.SIGINT)
+    else: process.send_signal(signal.CTRL_BREAK_EVENT)
+    try: process.wait(timeout=10)
+    except subprocess.TimeoutExpired:
+        if os.name=="posix": os.killpg(process.pid,signal.SIGTERM)
+        else: process.terminate()
+        try: process.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            if os.name=="posix": os.killpg(process.pid,signal.SIGKILL)
+            else: process.kill()
+            process.wait()
+    reader.join(timeout=2)
+
+def pause_stage_budget_run(run, step, elapsed_seconds, minutes):
+    """Record a stage-timeout pause against the run's own state without
+    blocking the task; resume re-dispatches the interrupted stage from its
+    existing pointer instead of repeating completed stages."""
+    state=read_run_state(run)
+    if not state: return
+    label=STEP_LABELS.get(step,step)
+    stamp=datetime.now(timezone.utc).isoformat()
+    state_path=SPEC_RUNS/run/"state.json"
+    state["status"]="paused"
+    state["error"]=f"Stage {label} exceeded stage_timeout_minutes={minutes}; interrupting safely"
+    state["updated_at"]=stamp
+    state_path.write_text(json.dumps(state,indent=2)+"\n",encoding="utf-8")
+    with (SPEC_RUNS/run/"log.jsonl").open("a",encoding="utf-8") as log:
+        log.write(json.dumps({"event":"stage_budget_exceeded","stage":step,
+                              "elapsed_seconds":elapsed_seconds,"timestamp":stamp})+"\n")
+
 def workflow_step_order(path):
     """Read top-level step IDs from either source or Spec Kit's YAML snapshot."""
     try: content=path.read_text(encoding="utf-8")
@@ -321,10 +355,27 @@ def guard_feedback(task):
     feedback_guard(ROOT,meta(task)['id'])
 
 
+CHECK_ID_PATTERN=re.compile(r"[A-Za-z0-9_-]+")
+def check_id(value):
+    """--checks values must be check identifiers, canonical upper-case."""
+    ident=value.strip().upper()
+    if not CHECK_ID_PATTERN.fullmatch(value.strip()):
+        raise argparse.ArgumentTypeError(f"Invalid check id {value!r}; expected [A-Za-z0-9_-]+")
+    return ident
+
+
 def add_feedback(a):
     task=find(a.task); m=meta(task)
     impacts=getattr(a,'impact',[]) or []
     stage=feedback_stage(impacts,a.stage)
+    # Repeated --checks values are upper-cased by the parser; direct callers
+    # get the same validation here, then one de-duplicated ordered list.
+    checks=[]
+    for ident in getattr(a,'checks',[]) or []:
+        if not CHECK_ID_PATTERN.fullmatch(ident.strip()):
+            raise SystemExit(f"Invalid check id {ident!r}; expected [A-Za-z0-9_-]+")
+        ident=ident.strip().upper()
+        if ident not in checks: checks.append(ident)
     message=a.message or input("Feedback: ").strip()
     if not message: raise SystemExit("Feedback text is required")
     run=m.get("active_run","none")
@@ -340,7 +391,8 @@ def add_feedback(a):
     if count>=MAX_FEEDBACK_CYCLES: raise SystemExit(f"Feedback limit reached ({MAX_FEEDBACK_CYCLES}); resolve or split the task before another cycle")
     stamp=datetime.now(timezone.utc).isoformat(timespec="seconds")
     author=os.environ.get("USER") or os.environ.get("USERNAME") or "human"
-    entry=f"## Feedback {count+1}\n\n- Time: {stamp}\n- Author: {author}\n- Restart from: {stage or "pending"}\n- Impact: {", ".join(impacts) if impacts else "pending"}\n- Required regressions: cited discrepancy plus required manifest checks\n\n{message}\n\n"
+    scope=f"\n- Checks: {", ".join(checks)}" if checks else ""
+    entry=f"## Feedback {count+1}\n\n- Time: {stamp}\n- Author: {author}\n- Restart from: {stage or "pending"}\n- Impact: {", ".join(impacts) if impacts else "pending"}\n- Required regressions: cited discrepancy plus required manifest checks{scope}\n\n{message}\n\n"
     path.write_text(existing+entry,encoding="utf-8")
     if stage is None:
         print(f'Recorded pending feedback in {path.relative_to(ROOT)}; classify its impact before resume. No workflow rewind performed')
@@ -421,6 +473,8 @@ def monitor_process(cmd, task, run_hint=None, assignment=None, new_session=False
     import codecs
     decoder=codecs.getincrementaldecoder("utf-8")(errors="replace")
     reader=threading.Thread(target=pump,daemon=True); reader.start()
+    stage_budget=config_int("stage_timeout_minutes",0)*60
+    stage_started=None
     try:
         while process.poll() is None:
             if not run:
@@ -431,14 +485,25 @@ def monitor_process(cmd, task, run_hint=None, assignment=None, new_session=False
                     if assignment is not None: models.bind(ROOT,assignment,run)
                     marker.write_text(json.dumps({"pid":process.pid,"run_id":run})+"\n",encoding="utf-8")
                     print(f"Run: {run}",flush=True)
+            now=time.monotonic()
             state=read_run_state(run)
             step=state.get("current_step_id") if state else None
             if step and step != shown_step:
                 shown_step=step
+                stage_started=now
                 index=int(state.get("current_step_index",0))+1
                 count=len(workflow_step_order(SPEC_RUNS/run/"workflow.yml"))
                 print(f"\n[{task_id}] Stage {index}/{count}: {STEP_LABELS.get(step,step)}",flush=True)
-            now=time.monotonic()
+            if stage_budget and stage_started is not None and now-stage_started >= stage_budget:
+                label=STEP_LABELS.get(shown_step,shown_step)
+                print(f"\n[{task_id}] Stage {label} exceeded stage_timeout_minutes={stage_budget//60}; interrupting safely…",flush=True)
+                pause_stage_budget_run(run,shown_step,int(now-stage_started),stage_budget//60)
+                graceful_interrupt(process,reader)
+                run=run or latest_run()
+                if run: field(task,"active_run",run)
+                marker.unlink(missing_ok=True)
+                print(f"Progress preserved. Continue with: ./agentflow resume {task_id}",flush=True)
+                return 130,run
             if now-last_heartbeat >= 20:
                 elapsed=int(now-started); label=STEP_LABELS.get(shown_step,shown_step or "starting")
                 print(f"[{task_id}] Still active — {elapsed//60:02d}:{elapsed%60:02d} — {label}",flush=True)
@@ -446,18 +511,7 @@ def monitor_process(cmd, task, run_hint=None, assignment=None, new_session=False
             time.sleep(.5)
     except KeyboardInterrupt:
         print(f"\n[{task_id}] Interrupting safely…",flush=True)
-        if os.name=="posix": os.killpg(process.pid,signal.SIGINT)
-        else: process.send_signal(signal.CTRL_BREAK_EVENT)
-        try: process.wait(timeout=10)
-        except subprocess.TimeoutExpired:
-            if os.name=="posix": os.killpg(process.pid,signal.SIGTERM)
-            else: process.terminate()
-            try: process.wait(timeout=5)
-            except subprocess.TimeoutExpired:
-                if os.name=="posix": os.killpg(process.pid,signal.SIGKILL)
-                else: process.kill()
-                process.wait()
-        reader.join(timeout=2)
+        graceful_interrupt(process,reader)
         run=run or latest_run()
         if run: field(task,"active_run",run)
         marker.unlink(missing_ok=True)
@@ -744,7 +798,7 @@ def parser():
         q.set_defaults(func=fn)
     q=s.add_parser("resume"); q.add_argument("task"); q.add_argument('--provider',action=Once,choices=providers.PROVIDERS); model_flags(q,resume=True); q.set_defaults(func=resume)
     q=s.add_parser("complete"); q.add_argument("task"); q.set_defaults(func=complete)
-    q=s.add_parser("feedback"); q.add_argument("task"); q.add_argument("message",nargs="?"); q.add_argument("--stage",choices=sorted(STAGE_ALIASES)); q.add_argument("--impact",choices=sorted(IMPACT_STAGE),action="append",default=[]); q.set_defaults(func=add_feedback)
+    q=s.add_parser("feedback"); q.add_argument("task"); q.add_argument("message",nargs="?"); q.add_argument("--stage",choices=sorted(STAGE_ALIASES)); q.add_argument("--impact",choices=sorted(IMPACT_STAGE),action="append",default=[]); q.add_argument("--checks",action="append",default=[],type=check_id,help="manifest check id whose remediation this feedback scopes (repeatable)"); q.set_defaults(func=add_feedback)
     q=s.add_parser("history"); q.add_argument("task"); q.set_defaults(func=history)
     q=s.add_parser("metrics",help="summarize structured usage without prompts or private session IDs")
     q.add_argument("task")

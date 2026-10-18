@@ -1,5 +1,8 @@
 #!/bin/sh
 # Child output is deliberately private: profile failures release only categories.
+# Prerequisite for the integration profile: a Node v24 runtime (CI pins
+# PATH=v24 via actions/setup-node; locally use
+# ~/.nvm/versions/node/v24.21.0). preflight_integration enforces the v24 check.
 set -eu
 umask 077
 

@@ -2,7 +2,7 @@
   "schema_version": 1,
   "task": "TASK-063",
   "feature": "065-separate-unit-and-end-to-end-test-profiles",
-  "base_revision": "64816f6311f4a17f8186a7b5bb71f637fb5f856b",
+  "base_revision": "fe57ec88d76bfae77b100a4ea17e8ce1c00e6d3d",
   "verified_source": "b2454088d77b3e4b98570155df12035f970eff0f4731ea4d2fa635b2558526c8",
   "canonical_inputs": "0c20ecc7dd40665c37150b58a50e49e1c0257ece3ded6ec74254334c598736fd",
   "manifest_sha256": "fb5bc544e5268fe97e43afe8c8d995267f6020ed17fbcbb718ca1bc41670d050",
@@ -661,5 +661,5 @@
   "limitations": [
     "Portable summary does not authorize workspace reuse; run local checks."
   ],
-  "finalized_at": "2026-10-17T22:16:09.297541+00:00"
+  "finalized_at": "2026-10-18T03:30:10.564471+00:00"
 }

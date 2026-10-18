@@ -4,6 +4,9 @@ This update follows the [stage token audit](WORKFLOW_STAGE_TOKEN_AUDIT.md). The
 measured nine-task sample put 64.30% of retained tokens in development and QA, and
 37.06% in subsequent executions of those stages. Savings are not measured yet.
 
+Speed-focused follow-ups (proportional no-behavior fast lane, shared mix
+compile cache, stage latency measurement) live in [WORKFLOW_SPEED.md](WORKFLOW_SPEED.md).
+
 ## Delivery
 
 ```mermaid

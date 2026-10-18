@@ -1,38 +1,40 @@
 # Independent QA — TASK-063
 
-Fresh assessment on 2026-10-17 against the active feature pointer, full spec/plan/tasks/manifest, required foundations, architecture/development handoffs and authoritative feedback. Implementation remained frozen. No delegation, Agentflow invocation, historical QA/review report inspection, run-directory inspection, attestation edit or run-state edit was performed.
+2026-10-18. Frozen implementation: `ffac43bcb0dcdeb7a6eb0dfdcb205fb017c83d60`; upstream: `ce926085367c2c338ed4b9fbbb97bef7b760b343`; original comparison: `fe57ec8`.
+
+Read AGENTS.md, context policy, required foundations/constitution, active pointer, entire spec/plan/tasks/manifest, architecture/development handoffs and all backlog feedback. No delegation, Agentflow invocation, run-directory/log inspection or historical QA/review evidence was used.
 
 ## Executed evidence
 
-Every check used `python3 scripts/agentflow_check.py CHECK_ID --stage qa`, without `--reuse`. All returned exit 0, reused=false, source_changed=false, inputs_changed=false and consecutive_failures=0. Receipt identifiers below are those returned by the wrapper; underlying run logs were not opened.
+Executed each check sequentially as `python3 scripts/agentflow_check.py CHECK_ID --stage qa`, without reuse, using manifest environment: pinned Elixir 1.20.3, PostgreSQL 55432, Redis 6379 and `MIX_TEST_PARTITION=task063_merge_20261018`. Every wrapper result reported exit 0, reused=false and unchanged source/inputs; zero failed attempts.
 
-| Check | Seconds | Fresh receipt identifier |
+| Check | Seconds | Result |
 | --- | ---: | --- |
-| toolchain | 0.656 | 9e99c1d7d2f7499184431be2caceecd9 |
-| service-preflight | 0.510 | bfb6d395407b4b64ba5e550969a27adb |
-| format | 0.517 | 785e6675019b4e7bbc91ff0b96f846c0 |
-| compile | 0.382 | a25d936b1a804204bdcd280669d1d18d |
-| database-prepare | 0.516 | a98858b6934e4fcd8edee340dd9fed8c |
-| assets | 0.870 | 49e438fac23245319ef079ef1f7bfe49 |
-| inventory | 12.476 | 15c891d5ae9844fbabbaf393895a79ec |
-| openapi-contract | 0.164 | 292ef54bb22249a1b5b6da8a00d955be |
-| unit | 43.557 | 596f6638bc534544baf46578653b89ed |
-| integration | 248.483 | 0ca13b8172a149d09fafa3d4c8fc89e5 |
-| e2e | 18.987 | 7e102736e90f4b27b441b5308de398f1 |
+| toolchain | 0.658 | PASS |
+| service-preflight | 0.459 | PASS |
+| format | 0.534 | PASS |
+| compile | 0.380 | PASS |
+| database-prepare | 0.484 | PASS |
+| assets | 0.704 | PASS |
+| inventory | 13.891 | PASS |
+| openapi-contract | 0.164 | PASS |
+| unit | 46.523 | PASS: 426 cases |
+| integration | 289.618 | PASS: 449 cases |
+| e2e | 20.249 | PASS: 2 cases |
 
-Accepted sequential check time totals 327.118 seconds. An initial launcher continuation overlapped inventory with subsequent checks; inventory, OpenAPI and unit were therefore repeated in strict sequence before integration/E2E. Those initial executions also passed and are not substituted for the sequential evidence above. There were zero current failed checks; historical environmental failures were not used as implementation findings.
+Wrapper-returned evidence references, without opening their files: QA check directory `.agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/qa/`; unit `unit/855f198ba73041d9b2f22eb4b4334532.log`, integration `integration/b1186d0a4f7c4327b4b3d4829e58a301.log`, E2E `e2e/efb3e5f24ea34133997ce9efc025a1db.log`. Other check references were returned by their corresponding wrapper invocations.
 
-## Acceptance challenge
+## Acceptance and merge findings
 
-- **US1; FR-001–003/010; SC-001/004:** Independently counted the committed inventory: unit 367, integration 413, E2E 2; zero duplicate native identities and no helper lacking rationale. Inspected discovery, formatter/native adapters, exact event reconciliation, supervisor and maintained negative tests. Passing profiles require exactly one started and passed event per expected identity with the invocation nonce. Controlled cases reject equal-count substitution, missing/extra/duplicate membership, skips, partial results, wrong ownership/profile, missing runners and stale receipts. Existing ExUnit assignments remain intact.
-- **US2; FR-004/005/009/015; SC-002:** Passing real Chromium journey checks unauthenticated Portfolio 303/sign-in location/no workspace; sign-in 200/no-store; invalid form credentials 422/generic message/empty password; actual CSRF login POST 303 followed by connected Portfolio 200/no-store/account identity; POST logout 303, revoked persisted session and denied later access; GET logout 404 and server-authoritative expiry recovery without workspace. No mocked response or authentication probe route supplies authority.
-- **US3; FR-006–008; SC-003:** Passing real Endpoint/HTTP/Oban journey admits trusted synchronization before fixture release, inspects nonterminal persisted work, then polls to succeeded and completed durable jobs. Authenticated API returns JSON with the exact PL/2090 fixture identity once; replay preserves its identity and count. Malformed/unsupported scopes admit no work. Unauthorized reads assert 401/Bearer challenge and invalid page size asserts 400/invalid_page_size. Catalog/run/job and immutable financial/quote/performance snapshots remain unchanged by rejected requests; replay preserves immutable snapshots. No manual worker execution/drain or live provider is used.
-- **Cleanup and ownership:** Integration executes `e2e_supervisor_cleanup_test.exs` through the actual Python supervisor. Timeout and TERM probes start a migrated runtime/Endpoint, terminate the child, query PostgreSQL to require the owned schema absent and a separate control schema present. `e2e_runtime_contract_test.exs` rejects foreign nonce/database/partition and public schema before cleanup repository startup, and challenges scenario-failure restoration and polling deadlines. Inspected registration-before-creation, nonce validation and separate post-termination cleanup implementation. Cleanup failure propagation is tested in Python.
-- **US4; FR-002/012–014; SC-005/006:** Inspected affected diff, required CI jobs, compatibility wrapper and coverage contracts. Existing browser/HTTP regression ownership remains integration. Docker tests use unique projects/volumes/ports. Baseline and Sonar categories remain required; E2E is mandatory. Product modules, migrations, locks, Sonar workflow and coverage-report script have no diff. Coverage denominator/provenance and threshold zero are preserved by passing contracts; the historical combined coverage report was not added as a CP2 gate.
-- **FR-011; SC-007:** Inspected private capture/IPC permissions, allowlisted diagnostics, opaque discrepancy IDs, raw-capture deletion and disabled browser artifacts. Passing maintained secret-sentinel tests cover failures/timeouts/formatter/CI output. No secret-bearing output was exposed in this assessment.
+- **US1.1–3; FR-001–004/009–011; SC-001/004/007:** read-only discovery and execution reconciliation require exact started/passed identities, including native Python/Node/shell events. Passing controlled regressions reject missing, duplicate, substituted, skipped, cross-profile, partial and interrupted execution, missing prerequisites and stale receipts. Private captures and opaque diagnostics suppress secret sentinels. Reviewed formatter, discovery, inventory, supervisor/adapters and their tests.
+- **US2.1–4; FR-005/009/011/015; SC-002/007:** real Chromium exercised unauthenticated protection, CSRF form sign-in, connected account workspace, POST sign-out/revocation, invalid credentials and authoritative expiry recovery. Reviewed browser driver and fixture assertions for statuses, locations, no-store and protected content.
+- **US3.1–5; FR-006–009/011/015; SC-003/007:** real Endpoint/API and Oban consumers verified admission before fixture release, persisted success, exact catalog identity, duplicate-free replay, rejected malformed/unsupported scopes, 401 challenge and invalid-page-size 400. Catalog/run and immutable financial snapshots remained protected by assertions; no manual queue drain or mocked HTTP.
+- **US4.1–3; FR-002/012–014; SC-005/006:** inventory totals 877 (unit 190 ExUnit/214 Python/8 Node/14 shell; integration 440 ExUnit/9 shell; E2E 2). Compared original inventory: zero removed or reassigned identities, 95 additions. Reviewed all six added helper rationales. Coverage compatibility regressions preserve the combined historical mode, denominator, provenance and threshold zero; historical coverage was intentionally not an extra CP2 gate. Required baseline/Sonar categories and mandatory E2E remain; Sonar workflow, coverage script and CP1 inventory have no upstream-relative changes.
 
-## Findings and limits
+Inspected all seven conflict resolutions through the merge re-diff: Python launcher and runner contract; audit ordering; Catalog/Statistics nested-race port plus partition inheritance; provider scope; both independent 065 workflow scopes. Reviewed subsequent CI env-aware command matching and excluded-start correction: excluded notifications produce no execution events while unexpected actual execution remains rejectable. Canonical committed-suite list drives nonce-bound per-suite partitions on disposable invocation-owned PostgreSQL after transactional tests; its controlled regression also preserves historical coverage behavior.
 
-No blocking acceptance discrepancy found. All manifest FR/SC mappings have fresh passing executable evidence and source/test inspection. Charts/orders remain outside this feature. Hosted Actions and branch-protection administration were not exercised locally. Supervisor SIGKILL cannot itself execute cleanup; maintained hard-kill tests establish stale-receipt invalidation, while actual timeout/TERM cleanup is verified independently above.
+Integration passed actual timeout/TERM cleanup probes: owned schema removed after child death, unrelated control schema preserved. Forged nonce/database/partition/schema records are rejected before repository startup. Reviewed runtime registry, cleanup process and probes. No product source, migrations or runtime product configuration differ from origin/main. Old contaminated partition was not selected or reset.
+
+No blocking findings. `git diff --check` passed. Only this report and QA handoff were authored; the pre-existing development-handoff edit was preserved. Final review remains a separate gate; this report does not authorize merge or claim unfinished charts/orders.
 
 Verdict: PASS

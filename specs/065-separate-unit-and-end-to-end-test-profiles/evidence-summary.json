@@ -2,28 +2,28 @@
   "schema_version": 1,
   "task": "TASK-063",
   "feature": "065-separate-unit-and-end-to-end-test-profiles",
-  "base_revision": "e96b524e962b39fe42d7e56ae534389046d670bd",
-  "verified_source": "b2454088d77b3e4b98570155df12035f970eff0f4731ea4d2fa635b2558526c8",
-  "canonical_inputs": "0c20ecc7dd40665c37150b58a50e49e1c0257ece3ded6ec74254334c598736fd",
-  "manifest_sha256": "fb5bc544e5268fe97e43afe8c8d995267f6020ed17fbcbb718ca1bc41670d050",
+  "base_revision": "ffac43bcb0dcdeb7a6eb0dfdcb205fb017c83d60",
+  "verified_source": "d6b447b2c01008d5e35c5b5cd038db9195c6067379c5484303d448ab325d5aca",
+  "canonical_inputs": "a8aa6ceec6fc9a7e4f2ab6d9134f35493226b9d0226f55040cc7fc04144ea9d2",
+  "manifest_sha256": "688644e1d429e64952ff5ee4c9f1412b0a2fc4cedd15f9cdaa9ac9d3e769bc76",
   "ci": {},
   "checks": [
     {
       "id": "toolchain",
       "stage": "develop",
       "status": "passed",
-      "command_identity": "0d66f1eb0e4198bca79c08b9556f8968c92fa95266a2c42752eee54828266ffd",
-      "elapsed_seconds": 0.652,
+      "command_identity": "566a85c1e1bc378e2dbc292c409636fd00bce7e2bba1d1cb7ebeb70d2addb155",
+      "elapsed_seconds": 0.656,
       "output_sha256": "d26f020c67adf23d872b7c3b9beda3e56501e34de2e830cf1a8ec814bd1a2e65",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/develop/toolchain/6f2665bca56b441099c4df6de5729b8c.log"
+        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/develop/toolchain/07169a3edb044dbd88a0ad0ddeaa6654.log"
       },
       "environment": {
         "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
         "ERL_FLAGS": "+S 4:4",
         "POSTGRES_PORT": "55432",
-        "MIX_TEST_PARTITION": "task063_20261016",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
         "MIX_ENV": "test"
       },
       "coverage": []
@@ -32,18 +32,18 @@
       "id": "service-preflight",
       "stage": "develop",
       "status": "passed",
-      "command_identity": "fc1eb87e1f0d887b60b4e2b52d00b91360dcbb820ab75087d899118ec6768475",
-      "elapsed_seconds": 0.703,
-      "output_sha256": "f20bf239d358ee814b59a2cf44043ef5139dc21034b3c169e046971c108e7189",
+      "command_identity": "5d6fe63e9af3086f51e1c5859f81f2a1a7ad583fc00fc04980d92b7460b8467f",
+      "elapsed_seconds": 0.456,
+      "output_sha256": "b9fcc421a92cafca8cb0ef0e9e8878b322ca6e61ee56f9649a495f44f445f7a2",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/develop/service-preflight/d33227c2ae294ca8a5fb3d751ef82d67.log"
+        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/develop/service-preflight/c348bc9e880c43069beab5ddfb723699.log"
       },
       "environment": {
         "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
         "ERL_FLAGS": "+S 4:4",
         "POSTGRES_PORT": "55432",
-        "MIX_TEST_PARTITION": "task063_20261016",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
         "MIX_ENV": "test"
       },
       "coverage": []
@@ -52,18 +52,18 @@
       "id": "format",
       "stage": "develop",
       "status": "passed",
-      "command_identity": "2065f2e137d7386c77de490aae750f0112f7d57ebc6c78ea4360ea3c08415f22",
-      "elapsed_seconds": 0.524,
+      "command_identity": "3b6a2d079889cb3bf849d1024103a2c89c39a3b9c595ee5cb0c8d1875c21ec5a",
+      "elapsed_seconds": 0.534,
       "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/develop/format/85b31cffc2994391b847d6e65fbd555b.log"
+        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/develop/format/81519f83d6c046f7b73e7eeea9f35755.log"
       },
       "environment": {
         "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
         "ERL_FLAGS": "+S 4:4",
         "POSTGRES_PORT": "55432",
-        "MIX_TEST_PARTITION": "task063_20261016",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
         "MIX_ENV": "test"
       },
       "coverage": []
@@ -72,18 +72,18 @@
       "id": "compile",
       "stage": "develop",
       "status": "passed",
-      "command_identity": "a58e99c847257fef3656a40b865f6636844f4787ee26e18d597d7dfa520604f3",
-      "elapsed_seconds": 0.385,
+      "command_identity": "d6fc98f7cda9d13e9901ed749481de0d32b030fda778285a321fe2bd181a7f61",
+      "elapsed_seconds": 0.386,
       "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/develop/compile/f241e5fa26a04d98a64a63434547a002.log"
+        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/develop/compile/4ca6c6818cde445b8a446fdb4d568c91.log"
       },
       "environment": {
         "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
         "ERL_FLAGS": "+S 4:4",
         "POSTGRES_PORT": "55432",
-        "MIX_TEST_PARTITION": "task063_20261016",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
         "MIX_ENV": "test"
       },
       "coverage": []
@@ -92,18 +92,18 @@
       "id": "database-prepare",
       "stage": "develop",
       "status": "passed",
-      "command_identity": "76db27cd380a24372aa25c248f791cf41c7858ede0fcee9f415fe9b8bffab034",
-      "elapsed_seconds": 0.544,
-      "output_sha256": "7ecde2f515ee981e78452f0d2b804c0b5503f2a6e3aa209040a3dd81ee99c763",
+      "command_identity": "3c0bb28938ff40d1236840873376d9d2a47c00908764be8e88efb3565eaf966b",
+      "elapsed_seconds": 1.107,
+      "output_sha256": "09bb848127e66df1e5e0593fef6467d47990963ecb7cda433467db0e5e833fef",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/develop/database-prepare/c99bc3d346da4088b614615e9f01f584.log"
+        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/develop/database-prepare/d17461014524453ab7ed006e7f843d60.log"
       },
       "environment": {
         "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
         "ERL_FLAGS": "+S 4:4",
         "POSTGRES_PORT": "55432",
-        "MIX_TEST_PARTITION": "task063_20261016",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
         "MIX_ENV": "test"
       },
       "coverage": []
@@ -112,18 +112,18 @@
       "id": "assets",
       "stage": "develop",
       "status": "passed",
-      "command_identity": "5ca82b1a21640952e820159b5b99d792435ac38631f4ce4f0c50ba836a465c9a",
-      "elapsed_seconds": 0.706,
+      "command_identity": "ddaec20e36b624ac9683eb3b1a156eed7fd1acf1da82e6c7f51a5e520cf20c7d",
+      "elapsed_seconds": 0.715,
       "output_sha256": "f282b6a751ff9b9785f048fd61787ba3a46415ca89fcd5041e5d45425f0a483f",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/develop/assets/2356a99f9f894beea11b991a41e51951.log"
+        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/develop/assets/6adc9a14bd504e3c8e8a7723d2335a42.log"
       },
       "environment": {
         "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
         "ERL_FLAGS": "+S 4:4",
         "POSTGRES_PORT": "55432",
-        "MIX_TEST_PARTITION": "task063_20261016",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
         "MIX_ENV": "test"
       },
       "coverage": []
@@ -132,18 +132,18 @@
       "id": "inventory",
       "stage": "develop",
       "status": "passed",
-      "command_identity": "a11ec9354f1261322a50b18a05c85bdf04f3bf78fe7d0f15257c7895f7953f06",
-      "elapsed_seconds": 13.129,
-      "output_sha256": "9b469da0f6dd302aa074d95a355937f23b473ba394334d811f1ef67e073db8df",
+      "command_identity": "081b480f62567f63b41d46a629db29916f00a55d95d5b153622e8deda92e63c3",
+      "elapsed_seconds": 14.194,
+      "output_sha256": "b1e7098098918649bc32934a6d2bc186da40b6d807645e07ad2e2be0f69db9da",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/develop/inventory/96763f210a5d487cbf00ec1035749869.log"
+        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/develop/inventory/0a0b424179754edabe7d073358bf8945.log"
       },
       "environment": {
         "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
         "ERL_FLAGS": "+S 4:4",
         "POSTGRES_PORT": "55432",
-        "MIX_TEST_PARTITION": "task063_20261016",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
         "MIX_ENV": "test"
       },
       "coverage": [
@@ -157,18 +157,18 @@
       "id": "openapi-contract",
       "stage": "develop",
       "status": "passed",
-      "command_identity": "3454f0597312eac0701a837497339b4b586d9747b38c99866d288c2483ddc462",
-      "elapsed_seconds": 0.158,
+      "command_identity": "71952d72032b8662a58a07cd8f3ace86bb62b9d57c8c13593df3e21aa7c8ed03",
+      "elapsed_seconds": 0.163,
       "output_sha256": "8475d9724f69fde9c55e3d695e7623dce342858772e647629a513b89f86a8ccb",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/develop/openapi-contract/4c98a25acc2645dca8ecab5beb90a44c.log"
+        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/develop/openapi-contract/9a539f8ff1994d2c869bec5ecec541ad.log"
       },
       "environment": {
         "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
         "ERL_FLAGS": "+S 4:4",
         "POSTGRES_PORT": "55432",
-        "MIX_TEST_PARTITION": "task063_20261016",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
         "MIX_ENV": "test"
       },
       "coverage": []
@@ -177,18 +177,18 @@
       "id": "unit",
       "stage": "develop",
       "status": "passed",
-      "command_identity": "005342f1af7aa5b8c5de5debfd2bac989189682b688ca59d7e4e819d68fe782d",
-      "elapsed_seconds": 45.117,
-      "output_sha256": "a43369fe3265e60c30a304e703a9ee83ada37ad6159d25290c93436815409e27",
+      "command_identity": "c0c3a25d2807cf8e7e8798577b2bb0e8dd6de8e329f3a9921b4eab814240f59c",
+      "elapsed_seconds": 46.616,
+      "output_sha256": "6bde57a5830f261e04ec7d69d685c40ebf11ad015568b9e05e9907ac5a5cb134",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/develop/unit/df4b0c5fe4c841ecb16ed111559d7954.log"
+        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/develop/unit/6a4353501cfb4f008bbff5d0f69d5bfd.log"
       },
       "environment": {
         "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
         "ERL_FLAGS": "+S 4:4",
         "POSTGRES_PORT": "55432",
-        "MIX_TEST_PARTITION": "task063_20261016",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
         "MIX_ENV": "test"
       },
       "coverage": [
@@ -213,18 +213,18 @@
       "id": "integration",
       "stage": "develop",
       "status": "passed",
-      "command_identity": "e0b6b00caeb4dbe6f669d93adfda74dbf33a66e4c3bd81d754590c16493fa4f6",
-      "elapsed_seconds": 293.036,
-      "output_sha256": "74efb5a583dc01560eddad2441b32dd96644c760a128df5c1f9d3f8f5acb4b9c",
+      "command_identity": "f489e8ff241897723f340e131ebbd9413ba2095e28371126a60b610c8b5e2d0c",
+      "elapsed_seconds": 317.78,
+      "output_sha256": "5babd513b9afd4bc556c25e759b873c484cd91393ee01e049e02a5e9113d0385",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/develop/integration/49738af0a62945ad9f85caa1822d45ca.log"
+        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/develop/integration/0641bd8db95b433ca03b79f9a07f81d9.log"
       },
       "environment": {
         "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
         "ERL_FLAGS": "+S 4:4",
         "POSTGRES_PORT": "55432",
-        "MIX_TEST_PARTITION": "task063_20261016",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
         "MIX_ENV": "test"
       },
       "coverage": [
@@ -247,18 +247,18 @@
       "id": "e2e",
       "stage": "develop",
       "status": "passed",
-      "command_identity": "3c46926553a71285f62df3f70478cbdf7caa0a75a4d9cb382a70203f23444d6e",
-      "elapsed_seconds": 19.08,
+      "command_identity": "483c559e19acf21bd704c7d9ce0fd6264b4b87aecc1f907df188b63fd3805440",
+      "elapsed_seconds": 20.249,
       "output_sha256": "5b96c500b870a64f95404eac816751799aca4b2b7efea68dc5a01708c6e2d068",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/develop/e2e/280234d2e43b47f7a8e14be3cc6e8ee8.log"
+        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/develop/e2e/13f6f3bbef5c48089f7122b50e50837e.log"
       },
       "environment": {
         "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
         "ERL_FLAGS": "+S 4:4",
         "POSTGRES_PORT": "55432",
-        "MIX_TEST_PARTITION": "task063_20261016",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
         "MIX_ENV": "test"
       },
       "coverage": [
@@ -284,18 +284,18 @@
       "id": "toolchain",
       "stage": "qa",
       "status": "passed",
-      "command_identity": "0d66f1eb0e4198bca79c08b9556f8968c92fa95266a2c42752eee54828266ffd",
-      "elapsed_seconds": 0.656,
+      "command_identity": "566a85c1e1bc378e2dbc292c409636fd00bce7e2bba1d1cb7ebeb70d2addb155",
+      "elapsed_seconds": 0.658,
       "output_sha256": "d26f020c67adf23d872b7c3b9beda3e56501e34de2e830cf1a8ec814bd1a2e65",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/qa/toolchain/9e99c1d7d2f7499184431be2caceecd9.log"
+        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/qa/toolchain/fe42e5e49a494b3a900be701036e2809.log"
       },
       "environment": {
         "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
         "ERL_FLAGS": "+S 4:4",
         "POSTGRES_PORT": "55432",
-        "MIX_TEST_PARTITION": "task063_20261016",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
         "MIX_ENV": "test"
       },
       "coverage": []
@@ -304,18 +304,18 @@
       "id": "service-preflight",
       "stage": "qa",
       "status": "passed",
-      "command_identity": "fc1eb87e1f0d887b60b4e2b52d00b91360dcbb820ab75087d899118ec6768475",
-      "elapsed_seconds": 0.51,
-      "output_sha256": "af3322e95212d5998392477742c27ad422e775870752704e125565b9171ca683",
+      "command_identity": "5d6fe63e9af3086f51e1c5859f81f2a1a7ad583fc00fc04980d92b7460b8467f",
+      "elapsed_seconds": 0.459,
+      "output_sha256": "21b31c44cc3b44fd34e2b5735f1b12b225155012882fe218f20a233a43b94f4e",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/qa/service-preflight/bfb6d395407b4b64ba5e550969a27adb.log"
+        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/qa/service-preflight/ecaca3909d9e4d5ebe338dca6d5b5fdc.log"
       },
       "environment": {
         "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
         "ERL_FLAGS": "+S 4:4",
         "POSTGRES_PORT": "55432",
-        "MIX_TEST_PARTITION": "task063_20261016",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
         "MIX_ENV": "test"
       },
       "coverage": []
@@ -324,18 +324,18 @@
       "id": "format",
       "stage": "qa",
       "status": "passed",
-      "command_identity": "2065f2e137d7386c77de490aae750f0112f7d57ebc6c78ea4360ea3c08415f22",
-      "elapsed_seconds": 0.517,
+      "command_identity": "3b6a2d079889cb3bf849d1024103a2c89c39a3b9c595ee5cb0c8d1875c21ec5a",
+      "elapsed_seconds": 0.534,
       "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/qa/format/785e6675019b4e7bbc91ff0b96f846c0.log"
+        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/qa/format/edc23d36af6b4ba79b2d414c6fa40bbb.log"
       },
       "environment": {
         "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
         "ERL_FLAGS": "+S 4:4",
         "POSTGRES_PORT": "55432",
-        "MIX_TEST_PARTITION": "task063_20261016",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
         "MIX_ENV": "test"
       },
       "coverage": []
@@ -344,18 +344,18 @@
       "id": "compile",
       "stage": "qa",
       "status": "passed",
-      "command_identity": "a58e99c847257fef3656a40b865f6636844f4787ee26e18d597d7dfa520604f3",
-      "elapsed_seconds": 0.382,
+      "command_identity": "d6fc98f7cda9d13e9901ed749481de0d32b030fda778285a321fe2bd181a7f61",
+      "elapsed_seconds": 0.38,
       "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/qa/compile/a25d936b1a804204bdcd280669d1d18d.log"
+        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/qa/compile/78a8c998170b43d69e1863e2c2f91ed4.log"
       },
       "environment": {
         "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
         "ERL_FLAGS": "+S 4:4",
         "POSTGRES_PORT": "55432",
-        "MIX_TEST_PARTITION": "task063_20261016",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
         "MIX_ENV": "test"
       },
       "coverage": []
@@ -364,18 +364,18 @@
       "id": "database-prepare",
       "stage": "qa",
       "status": "passed",
-      "command_identity": "76db27cd380a24372aa25c248f791cf41c7858ede0fcee9f415fe9b8bffab034",
-      "elapsed_seconds": 0.516,
-      "output_sha256": "a75e67b8ef9154aefd735db1506e05e1ecf045e686add0251eefb916aba9848e",
+      "command_identity": "3c0bb28938ff40d1236840873376d9d2a47c00908764be8e88efb3565eaf966b",
+      "elapsed_seconds": 0.484,
+      "output_sha256": "a92aa109d99fec63a65eab2c103aefa420d70d07a62f798562ee987e21afd694",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/qa/database-prepare/a98858b6934e4fcd8edee340dd9fed8c.log"
+        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/qa/database-prepare/68197f9972e14dbe8c038b36f41820e6.log"
       },
       "environment": {
         "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
         "ERL_FLAGS": "+S 4:4",
         "POSTGRES_PORT": "55432",
-        "MIX_TEST_PARTITION": "task063_20261016",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
         "MIX_ENV": "test"
       },
       "coverage": []
@@ -384,18 +384,18 @@
       "id": "assets",
       "stage": "qa",
       "status": "passed",
-      "command_identity": "5ca82b1a21640952e820159b5b99d792435ac38631f4ce4f0c50ba836a465c9a",
-      "elapsed_seconds": 0.87,
-      "output_sha256": "6ab6e6a86084f781c612306fdf88bea6b01793bd1a6dbe8de4bc1c95cd474a67",
+      "command_identity": "ddaec20e36b624ac9683eb3b1a156eed7fd1acf1da82e6c7f51a5e520cf20c7d",
+      "elapsed_seconds": 0.704,
+      "output_sha256": "33a33c57fff60954ff2c851748310c580758d4f161c323dc87d8c4246cad93c4",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/qa/assets/49e438fac23245319ef079ef1f7bfe49.log"
+        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/qa/assets/c81ec34eedc34b5e8e843c0bb4346667.log"
       },
       "environment": {
         "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
         "ERL_FLAGS": "+S 4:4",
         "POSTGRES_PORT": "55432",
-        "MIX_TEST_PARTITION": "task063_20261016",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
         "MIX_ENV": "test"
       },
       "coverage": []
@@ -404,18 +404,18 @@
       "id": "inventory",
       "stage": "qa",
       "status": "passed",
-      "command_identity": "a11ec9354f1261322a50b18a05c85bdf04f3bf78fe7d0f15257c7895f7953f06",
-      "elapsed_seconds": 12.476,
-      "output_sha256": "9b469da0f6dd302aa074d95a355937f23b473ba394334d811f1ef67e073db8df",
+      "command_identity": "081b480f62567f63b41d46a629db29916f00a55d95d5b153622e8deda92e63c3",
+      "elapsed_seconds": 13.891,
+      "output_sha256": "b1e7098098918649bc32934a6d2bc186da40b6d807645e07ad2e2be0f69db9da",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/qa/inventory/15c891d5ae9844fbabbaf393895a79ec.log"
+        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/qa/inventory/0903d581b7d14e4286f2f5c20ed3b98c.log"
       },
       "environment": {
         "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
         "ERL_FLAGS": "+S 4:4",
         "POSTGRES_PORT": "55432",
-        "MIX_TEST_PARTITION": "task063_20261016",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
         "MIX_ENV": "test"
       },
       "coverage": [
@@ -429,18 +429,18 @@
       "id": "openapi-contract",
       "stage": "qa",
       "status": "passed",
-      "command_identity": "3454f0597312eac0701a837497339b4b586d9747b38c99866d288c2483ddc462",
+      "command_identity": "71952d72032b8662a58a07cd8f3ace86bb62b9d57c8c13593df3e21aa7c8ed03",
       "elapsed_seconds": 0.164,
       "output_sha256": "8475d9724f69fde9c55e3d695e7623dce342858772e647629a513b89f86a8ccb",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/qa/openapi-contract/292ef54bb22249a1b5b6da8a00d955be.log"
+        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/qa/openapi-contract/cd75172a795347119fc8a47993e403d6.log"
       },
       "environment": {
         "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
         "ERL_FLAGS": "+S 4:4",
         "POSTGRES_PORT": "55432",
-        "MIX_TEST_PARTITION": "task063_20261016",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
         "MIX_ENV": "test"
       },
       "coverage": []
@@ -449,18 +449,18 @@
       "id": "unit",
       "stage": "qa",
       "status": "passed",
-      "command_identity": "005342f1af7aa5b8c5de5debfd2bac989189682b688ca59d7e4e819d68fe782d",
-      "elapsed_seconds": 43.557,
-      "output_sha256": "a43369fe3265e60c30a304e703a9ee83ada37ad6159d25290c93436815409e27",
+      "command_identity": "c0c3a25d2807cf8e7e8798577b2bb0e8dd6de8e329f3a9921b4eab814240f59c",
+      "elapsed_seconds": 46.523,
+      "output_sha256": "6bde57a5830f261e04ec7d69d685c40ebf11ad015568b9e05e9907ac5a5cb134",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/qa/unit/596f6638bc534544baf46578653b89ed.log"
+        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/qa/unit/855f198ba73041d9b2f22eb4b4334532.log"
       },
       "environment": {
         "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
         "ERL_FLAGS": "+S 4:4",
         "POSTGRES_PORT": "55432",
-        "MIX_TEST_PARTITION": "task063_20261016",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
         "MIX_ENV": "test"
       },
       "coverage": [
@@ -485,18 +485,18 @@
       "id": "integration",
       "stage": "qa",
       "status": "passed",
-      "command_identity": "e0b6b00caeb4dbe6f669d93adfda74dbf33a66e4c3bd81d754590c16493fa4f6",
-      "elapsed_seconds": 248.483,
-      "output_sha256": "74efb5a583dc01560eddad2441b32dd96644c760a128df5c1f9d3f8f5acb4b9c",
+      "command_identity": "f489e8ff241897723f340e131ebbd9413ba2095e28371126a60b610c8b5e2d0c",
+      "elapsed_seconds": 289.618,
+      "output_sha256": "5babd513b9afd4bc556c25e759b873c484cd91393ee01e049e02a5e9113d0385",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/qa/integration/0ca13b8172a149d09fafa3d4c8fc89e5.log"
+        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/qa/integration/b1186d0a4f7c4327b4b3d4829e58a301.log"
       },
       "environment": {
         "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
         "ERL_FLAGS": "+S 4:4",
         "POSTGRES_PORT": "55432",
-        "MIX_TEST_PARTITION": "task063_20261016",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
         "MIX_ENV": "test"
       },
       "coverage": [
@@ -519,18 +519,18 @@
       "id": "e2e",
       "stage": "qa",
       "status": "passed",
-      "command_identity": "3c46926553a71285f62df3f70478cbdf7caa0a75a4d9cb382a70203f23444d6e",
-      "elapsed_seconds": 18.987,
+      "command_identity": "483c559e19acf21bd704c7d9ce0fd6264b4b87aecc1f907df188b63fd3805440",
+      "elapsed_seconds": 20.249,
       "output_sha256": "5b96c500b870a64f95404eac816751799aca4b2b7efea68dc5a01708c6e2d068",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/qa/e2e/7e102736e90f4b27b441b5308de398f1.log"
+        "reference": ".agentflow/runs/checks/020549f529114489b374c192abebfdd0/065-separate-unit-and-end-to-end-test-profiles/qa/e2e/efb3e5f24ea34133997ce9efc025a1db.log"
       },
       "environment": {
         "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
         "ERL_FLAGS": "+S 4:4",
         "POSTGRES_PORT": "55432",
-        "MIX_TEST_PARTITION": "task063_20261016",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
         "MIX_ENV": "test"
       },
       "coverage": [
@@ -650,16 +650,16 @@
   "independent_reports": {
     "qa-report.md": {
       "verdict": "PASS",
-      "sha256": "5ef1fac724177d972a8bef2862664dee8ec6d5ee9df3f2c75bf5c01ae69acbfb"
+      "sha256": "d020e0e2b1c8d00196e8c0cdb9d69fb1652ffa5793e7b92f8a083826fb308fd0"
     },
     "review-report.md": {
       "verdict": "PASS",
-      "sha256": "0582864724a1fa9102f837fc2670d89a43a9a8f8bd523ca46f63e1bb4a1a50af"
+      "sha256": "3db8f8cd0bb99f769257dbd1d6ae38bd9df0802671c8effa1d365f681729e43b"
     }
   },
   "complete": true,
   "limitations": [
     "Portable summary does not authorize workspace reuse; run local checks."
   ],
-  "finalized_at": "2026-10-18T03:31:23.123539+00:00"
+  "finalized_at": "2026-10-18T04:33:48.344911+00:00"
 }

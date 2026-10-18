@@ -11,6 +11,7 @@ defmodule FootballMarket.TestProfileFormatter do
       when event in [:test_started, :test_finished] do
     state =
       case {event, test.state} do
+        {:test_started, {:excluded, _}} -> "excluded"
         {:test_started, _} -> "started"
         {:test_finished, nil} -> "passed"
         {:test_finished, {:excluded, _}} -> "excluded"

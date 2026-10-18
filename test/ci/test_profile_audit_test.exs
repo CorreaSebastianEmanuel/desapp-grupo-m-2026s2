@@ -206,6 +206,11 @@ defmodule FootballMarket.TestProfileFormatterTest do
 
   test "excluded cases and unrelated formatter messages do not count as execution", context do
     Formatter.handle_cast(
+      {:test_started, example({:excluded, "other profile"})},
+      context.identity
+    )
+
+    Formatter.handle_cast(
       {:test_finished, example({:excluded, "other profile"})},
       context.identity
     )

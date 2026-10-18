@@ -11,6 +11,7 @@ import sys
 import time
 import uuid
 from datetime import datetime, timezone
+from glob import glob
 from pathlib import Path
 
 try:
@@ -19,7 +20,32 @@ except ImportError:
     from agentflow_runtime import DIMENSIONS, MARKER, numeric_usage, read_metrics, stage_from_args, usage_delta
 
 
+def node24_path() -> str | None:
+    """Local integration preflight requires Node v24; CI pins it explicitly,
+    while sandboxed agents inherit a PATH that lacks the nvm install."""
+    from shutil import which
+
+    candidates = sorted(
+        glob(str(Path.home() / ".nvm/versions/node/v24*/bin")), reverse=True
+    )
+    hit = next((entry for entry in candidates if Path(entry, "node").is_file()), None)
+    if not hit:
+        return None
+    current = which("node")
+    if current:
+        try:
+            probe = subprocess.run([current, "--version"], capture_output=True, text=True, timeout=5)
+            if probe.stdout.strip().startswith("v24"):
+                return None
+        except OSError:
+            pass
+    return hit
+
+
 def main(args: list[str]) -> int:
+    extra_path = node24_path()
+    if extra_path:
+        os.environ["PATH"] = extra_path + os.pathsep + os.environ.get("PATH", "")
     real = os.environ["AGENTFLOW_CODEX_REAL"]
     task = os.environ["AGENTFLOW_TASK_ID"]
     path = Path(os.environ["AGENTFLOW_METRICS_FILE"])
@@ -74,6 +100,14 @@ def main(args: list[str]) -> int:
 
     if "--json" not in args:
         args = [*args, "--json"]
+    # Local checks (database/Redis preflight, profiles and helpers) require
+    # outbound loopback traffic, which the default workspace-write sandbox
+    # denies. Grant network access without widening filesystem permissions,
+    # unless the locked stage selection already chose an explicit sandbox.
+    if args and args[0] == "exec" and not any(
+        arg == "--sandbox" or arg.startswith(("-s", "--sandbox=")) for arg in args
+    ):
+        args = [args[0], "-c", "sandbox_workspace_write.network_access=true", *args[1:]]
     emit("agent_started")
     # Gates belong to Spec Kit. An agent must not consume piped gate answers.
     try:

@@ -120,7 +120,6 @@ steps:
     type: shell
     timeout: 1800
     run: "MIX_ENV=test scripts/ci_unit_tests.sh"
-    output_format: json
 
   - id: qa
     type: prompt

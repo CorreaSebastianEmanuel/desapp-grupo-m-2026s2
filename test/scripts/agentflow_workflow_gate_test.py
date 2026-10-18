@@ -30,7 +30,8 @@ class CiBaselineGateTest(unittest.TestCase):
         self.assertNotIn('mix test', block)
 
     def test_gate_command_matches_the_ci_unit_tests_job(self):
-        ci_match = re.search(r'- name: Unit tests\n\s*run: (\S+)\s*$', self.ci)
+        unit_step = self.ci.split('- name: Unit tests\n', 1)[1].split('\n      - name:', 1)[0]
+        ci_match = re.search(r'^\s*run: (\S+)\s*$', unit_step, re.M)
         self.assertIsNotNone(ci_match)
         gate = self.workflow.split('  - id: ci_baseline', 1)[1].split('  - id: ', 1)[0]
         run = re.search(r"run:\s*['\"]([^'\"]+)['\"]", gate)

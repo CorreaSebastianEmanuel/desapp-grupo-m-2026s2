@@ -42,8 +42,8 @@ Each Node test file runs in its own supervised Node process with `--test-isolati
 
 | Profile | ExUnit | Python | Node | Shell | Total |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| unit | 170 | 175 | 8 | 14 | 367 |
-| integration | 404 | 0 | 0 | 9 | 413 |
+| unit | 190 | 213 | 8 | 14 | 425 |
+| integration | 440 | 0 | 0 | 9 | 449 |
 | e2e | 2 | 0 | 0 | 0 | 2 |
 
 The committed cases are independent expectations. Validation compiles ExUnit declarations (including generated names), enumerates Python with unittest, validates supported explicit Node declarations, and enumerates named shell cases. Execution uses ExUnit formatter, native Python/Node events and adjacent shell case events. Equal counts with different identities fail. New unsupported/dynamic Node declarations require a reporter/discovery adapter change; they cannot silently pass. Review `python3 scripts/test_inventory.py update --profile PROFILE` diffs explicitly; normal checks do not rewrite this file. Module tags declare new ExUnit ownership. Helper exclusions are reasoned in `config/test_profiles.json`; the offline provider/scraper entry points are nested helpers owned by their existing ExUnit scenarios. The consecutive lifecycle case owns its nested three-cycle acceptance leaf, which is not launched twice.

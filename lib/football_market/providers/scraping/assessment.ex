@@ -74,6 +74,7 @@ defmodule FootballMarket.Providers.Scraping.Assessment do
          %{required: :verified, witness: w, positions: p, metrics: m} = row <-
            Map.get(a[:scopes] || %{}, key),
          true <- is_binary(w) and w != "" and is_map(p) and map_size(p) > 0,
+         true <- valid_participation?(Map.get(row, :participation)),
          true <-
            Enum.all?(Performances.count_keys(), fn k ->
              case m[k] do
@@ -96,4 +97,20 @@ defmodule FootballMarket.Providers.Scraping.Assessment do
   catch
     _, _ -> {:error, %{category: :unsupported_capability}}
   end
+
+  defp valid_participation?(nil), do: true
+  defp valid_participation?(%{status: :unverified}), do: true
+
+  defp valid_participation?(%{
+         status: :verified,
+         field: field,
+         substitute_value: value,
+         evidence: evidence
+       }) do
+    is_binary(field) and field in ["substitute", "participantRole"] and
+      is_binary(value) and value == "substitute_entered" and
+      is_binary(evidence) and String.trim(evidence) != ""
+  end
+
+  defp valid_participation?(_), do: false
 end

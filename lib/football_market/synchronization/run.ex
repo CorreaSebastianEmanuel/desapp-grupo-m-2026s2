@@ -3,6 +3,7 @@ defmodule FootballMarket.Synchronization.Run do
   use Ecto.Schema
   @primary_key {:id, :binary_id, autogenerate: true}
   schema "synchronization_runs" do
+    field :operation, :string, default: "catalog"
     field :league_code, :string
     field :start_year, :integer
     field :end_year, :integer

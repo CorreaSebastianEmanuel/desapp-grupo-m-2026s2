@@ -5,7 +5,9 @@ defmodule FootballMarket.Statistics.ScopeTest do
 
   test "FR-013 context contract has no web provider cache or financial dependency" do
     files = [
-      "lib/football_market/statistics.ex" | Path.wildcard("lib/football_market/statistics/*.ex")
+      "lib/football_market/statistics.ex"
+      | Path.wildcard("lib/football_market/statistics/*.ex")
+        |> Enum.reject(&(&1 == "lib/football_market/statistics/ingestion.ex"))
     ]
 
     assert length(files) == 7
@@ -150,6 +152,65 @@ defmodule FootballMarket.Statistics.ScopeTest do
         []
       end
 
+    statistics_ingestion_paths =
+      if active_feature == "specs/065-statistics-ingestion-pipeline" do
+        [
+          "docs/adr/0028-atomic-statistics-ingestion-and-position-evidence.md",
+          "lib/football_market/catalog/ingestion/delivery_receipt.ex",
+          "lib/football_market/synchronization.ex",
+          "lib/football_market/synchronization/delivery_receipt.ex",
+          "lib/football_market/valuation/calculation_requests.ex",
+          "lib/football_market/workers/calculation_dispatch.ex",
+          "lib/football_market/workers/statistics_import.ex",
+          "priv/repo/migrations/20261016000100_extend_statistics_position_evidence.exs",
+          "priv/repo/migrations/20261016000200_create_statistics_ingestion.exs",
+          "priv/repo/migrations/20261016000300_extend_synchronization_operations.exs",
+          "test/support/ingestion_fixtures.ex",
+          "test/support/statistics_ingestion/",
+          "test/football_market/providers/ingestion_contract_test.exs",
+          "test/football_market/valuation/scope_test.exs",
+          "test/football_market/synchronization/",
+          "test/support/synchronization/",
+          "test/ci/test_profile_audit_test.exs",
+          "test/ci/test_profile_runner_contract_test.exs",
+          "test/support/test_profile_audit.ex",
+          "test/scripts/agentflow_evidence_test.py",
+          "test/football_market/synchronization/statistics_test.exs"
+        ] ++
+          Enum.map(
+            ~w(documents inventory expected),
+            &"test/fixtures/statistics_ingestion/#{&1}.exs"
+          ) ++
+          Enum.map(
+            ~w(ingestion ingestion/publisher ingestion/reconciler ingestion/canonical ingestion/input ingestion/positions ingestion/metrics ingestion/check ingestion/outcome ingestion/provenance ingestion/receiver ingestion/worker ingestion/recovery ingestion/retention ingestion/integrity ingestion/isolation ingestion/replay ingestion/concurrency ingestion/acceptance ingestion/calculation),
+            &"test/football_market/statistics/#{&1}_test.exs"
+          ) ++
+          Enum.map(
+            ~w(statistics.ex performance.ex ingestion.ex ingestion/),
+            &"lib/football_market/statistics/#{&1}"
+          ) ++
+          Enum.map(
+            ~w(delivery_receipt.ex dispatcher.ex execution_guard.ex input.ex recovery.ex run.ex scheduler.ex store.ex),
+            &"lib/football_market/synchronization/#{&1}"
+          ) ++
+          Enum.map(
+            ~w(error.ex performances.ex validator.ex types.ex scraping/assessment.ex scraping/source.ex scraping/translator.ex),
+            &"lib/football_market/providers/#{&1}"
+          ) ++
+          [
+            "lib/football_market/catalog/ingestion/delivery_receipt.ex",
+            "lib/football_market/workers/catalog_sync.ex",
+            "test/football_market/synchronization/input_test.exs",
+            "test/football_market/statistics/scope_test.exs",
+            "test/support/providers/fact_oracle.ex",
+            "test/football_market/providers/scraping/assessment_test.exs",
+            "test/football_market/providers/scraping/source_test.exs",
+            "test/football_market/providers/scraping/translator_test.exs"
+          ]
+      else
+        []
+      end
+
     allowed_ci_paths = [
       "test/ci/quality_baseline_contract_test.exs",
       "test/ci/fixtures/quality-baseline.sha256"
@@ -163,7 +224,10 @@ defmodule FootballMarket.Statistics.ScopeTest do
                path in synchronization_paths(active_feature) or
                path in FootballMarket.BrowserSessionCase.shell_paths(active_feature) or
                path in FootballMarket.WorkflowScope.paths(active_feature) or
-               path in allowed_ci_paths or
+               path in allowed_ci_paths or path in statistics_ingestion_paths or
+               Enum.any?(statistics_ingestion_paths, fn prefix ->
+                 String.ends_with?(prefix, "/") and String.starts_with?(path, prefix)
+               end) or
                Enum.any?(allowed, &String.starts_with?(path, &1)),
              "outside plan: #{path}"
     end

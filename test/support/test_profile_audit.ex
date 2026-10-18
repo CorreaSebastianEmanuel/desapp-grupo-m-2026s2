@@ -3,6 +3,18 @@ defmodule FootballMarket.TestProfileAudit do
 
   @profiles ~w(unit integration e2e)
   @allowed_module_tags ~w(unit integration e2e performance)
+  @committed_integration_files ~w(
+    test/football_market/catalog/ingestion/concurrency_test.exs
+    test/football_market/catalog/ingestion/matrix_test.exs
+    test/football_market/statistics/concurrency_test.exs
+    test/football_market/statistics/ingestion/concurrency_test.exs
+    test/football_market/statistics/ingestion/recovery_test.exs
+    test/football_market/synchronization/concurrency_test.exs
+    test/football_market/synchronization/statistics_test.exs
+    test/mix/tasks/catalog.seed_test.exs
+    test/football_market/catalog/development_seed_test.exs
+    test/football_market/catalog/constraints_test.exs
+  )
 
   def audit!(profile, root \\ File.cwd!())
 
@@ -17,6 +29,8 @@ defmodule FootballMarket.TestProfileAudit do
 
     selected_modules = Enum.filter(modules, &(&1.profile == profile))
     ids = Enum.map(selected_modules, & &1.id)
+    files = selected_modules |> Enum.map(& &1.file) |> Enum.uniq()
+    committed_files = Enum.filter(@committed_integration_files, &(&1 in files))
 
     if ids == [] do
       raise ArgumentError, "CP1 profile audit found an empty #{profile} scope"
@@ -29,12 +43,21 @@ defmodule FootballMarket.TestProfileAudit do
     %{
       profile: profile,
       ids: ids,
-      files: selected_modules |> Enum.map(& &1.file) |> Enum.uniq(),
+      files: order_committed_integration_files(files, profile),
+      committed_files: if(profile == "integration", do: committed_files, else: []),
       count: length(ids)
     }
   end
 
   def audit!(profile, _root), do: raise(ArgumentError, "unknown CP1 profile: #{inspect(profile)}")
+
+  defp order_committed_integration_files(files, "integration") do
+    regular = Enum.reject(files, &(&1 in @committed_integration_files))
+    committed = Enum.filter(@committed_integration_files, &(&1 in files))
+    regular ++ committed
+  end
+
+  defp order_committed_integration_files(files, _profile), do: files
 
   def discovered_modules(root \\ File.cwd!()) do
     root

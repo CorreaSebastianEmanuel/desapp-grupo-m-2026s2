@@ -3,7 +3,7 @@ defmodule FootballMarket.Synchronization.Store do
   import Ecto.Query
   alias FootballMarket.Repo
   alias FootballMarket.Synchronization.{Run, Attempt, Trigger, Occurrence, Clock, Policy}
-  alias FootballMarket.Catalog.Ingestion.DeliveryReceipt
+  alias FootballMarket.Synchronization.DeliveryReceipt
   alias FootballMarket.Workers.CatalogSync
   @test Mix.env() == :test
   @active ["queued", "executing", "retry_wait"]
@@ -33,7 +33,8 @@ defmodule FootballMarket.Synchronization.Store do
         from r in Run,
           where:
             r.league_code == ^scope.league_code and r.start_year == ^scope.start_year and
-              r.end_year == ^scope.end_year and r.state in @active,
+              r.end_year == ^scope.end_year and r.operation == ^Atom.to_string(input.operation) and
+              r.state in @active,
           lock: "FOR UPDATE"
       )
 
@@ -48,6 +49,7 @@ defmodule FootballMarket.Synchronization.Store do
                 struct!(
                   Run,
                   Map.merge(scope, %{
+                    operation: Atom.to_string(input.operation),
                     source_ref: input.material["source_ref"],
                     fixture_ref: input.material["fixture_ref"],
                     input: input.material,
@@ -89,19 +91,30 @@ defmodule FootballMarket.Synchronization.Store do
       Repo.insert!(
         struct!(
           DeliveryReceipt,
-          Map.merge(scope(run), %{run_id: run.id, fence: Ecto.UUID.generate(), state: "prepared"})
+          Map.merge(scope(run), %{
+            operation: run.operation,
+            run_id: run.id,
+            fence: Ecto.UUID.generate(),
+            state: "prepared"
+          })
         )
       )
 
+    worker =
+      if run.operation == "statistics",
+        do: FootballMarket.Workers.StatisticsImport,
+        else: CatalogSync
+
     job =
       %{"run_id" => run.id, "delivery_id" => receipt.id}
-      |> CatalogSync.new(scheduled_at: eligible_at)
+      |> worker.new(scheduled_at: eligible_at)
       |> insert_job!()
 
     run |> Ecto.Changeset.change(delivery_id: receipt.id, job_id: job.id) |> Repo.update!()
   end
 
   def scope(run), do: Map.take(run, [:league_code, :start_year, :end_year])
+  def execution_scope(run), do: Map.put(scope(run), :operation, run.operation)
 
   def get_run(id) do
     with {:ok, uuid} <- Ecto.UUID.cast(id) do
@@ -120,14 +133,16 @@ defmodule FootballMarket.Synchronization.Store do
     limit = Keyword.get(options, :limit, 20)
     offset = Keyword.get(options, :offset, 0)
 
+    operation = options |> Keyword.get(:operation, :catalog) |> Atom.to_string()
+
     if is_integer(limit) and limit in 1..100 and is_integer(offset) and offset >= 0 and
-         Enum.all?(Keyword.keys(options), &(&1 in [:limit, :offset])) do
+         Enum.all?(Keyword.keys(options), &(&1 in [:limit, :offset, :operation])) do
       runs =
         Repo.all(
           from r in Run,
             where:
               r.league_code == ^scope.league_code and r.start_year == ^scope.start_year and
-                r.end_year == ^scope.end_year,
+                r.end_year == ^scope.end_year and r.operation == ^operation,
             order_by: [desc: r.requested_at, desc: r.id],
             limit: ^limit,
             offset: ^offset
@@ -158,6 +173,32 @@ defmodule FootballMarket.Synchronization.Store do
         do: max(DateTime.diff(run.next_retry_at, Clock.now(), :microsecond), 0),
         else: 0
 
+    statistics =
+      if run.operation == "statistics" do
+        check =
+          Repo.one(
+            from c in FootballMarket.Statistics.Ingestion.Check,
+              where: c.run_id == ^run.id,
+              order_by: [desc: c.accepted_at, desc: c.id],
+              limit: 1
+          )
+
+        intent =
+          if check,
+            do:
+              Repo.get_by(FootballMarket.Statistics.Ingestion.CalculationIntent,
+                accepted_check_id: check.id
+              )
+
+        %{
+          check_id: check && check.id,
+          import_outcome: check && check.outcome,
+          calculation_intent_id: intent && intent.id,
+          calculation_state: intent && intent.state,
+          calculation_attempts: intent && intent.attempts
+        }
+      end
+
     run
     |> plain()
     |> Map.merge(%{
@@ -166,6 +207,9 @@ defmodule FootballMarket.Synchronization.Store do
       remaining_wait_seconds: div(remaining + 999_999, 1_000_000),
       remaining_attempts: max(run.policy["attempt_limit"] - length(attempts), 0)
     })
+    |> then(fn inspection ->
+      if statistics, do: Map.put(inspection, :statistics, statistics), else: inspection
+    end)
   end
 
   defp plain(schema), do: schema |> Map.from_struct() |> Map.drop([:__meta__])
@@ -183,7 +227,8 @@ defmodule FootballMarket.Synchronization.Store do
         run && (is_nil(run.next_retry_at) || DateTime.compare(now, run.next_retry_at) != :lt)
 
       if run && receipt && run.delivery_id == delivery_id && run.state in ["queued", "retry_wait"] &&
-           receipt.state == "prepared" && eligible && not begun do
+           receipt.operation == run.operation && receipt.state == "prepared" && eligible &&
+           not begun do
         number = Repo.aggregate(from(a in Attempt, where: a.run_id == ^run.id), :count) + 1
         if number > run.policy["attempt_limit"], do: Repo.rollback(:exhausted)
 
@@ -315,6 +360,30 @@ defmodule FootballMarket.Synchronization.Store do
       "retryable" => if(error, do: error.retryable, else: false),
       "retry_after_ms" => if(error, do: error.retry_after_ms),
       "recovery" => to_string(outcome.recovery)
+    }
+  end
+
+  def safe_failure({:error, %FootballMarket.Statistics.Ingestion.Outcome{} = outcome}) do
+    category = outcome.provider_category || outcome.reason
+
+    safe_category =
+      if category in [
+           :rate_limited,
+           :unavailable,
+           :timeout,
+           :unsupported_capability,
+           :invalid_response,
+           :access_refused
+         ],
+         do: to_string(category)
+
+    %{
+      "status" => to_string(outcome.status),
+      "reason" => if(outcome.reason, do: to_string(outcome.reason)),
+      "category" => safe_category,
+      "retryable" => outcome.retryable == true,
+      "retry_after_ms" => outcome.retry_after_ms,
+      "recovery" => if(outcome.recovery, do: to_string(outcome.recovery), else: "inspect_run")
     }
   end
 

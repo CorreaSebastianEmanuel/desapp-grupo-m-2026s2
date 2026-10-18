@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "providers": {
+    "codex": {
+      "models": ["gpt-6-luna", "gpt-6.1-sol"],
+      "efforts": ["low", "medium", "high"]
+    },
+    "opencode": {
+      "models": ["opencode-go/glm-5.3-flash"],
+      "stage_models": {"*": "opencode-go/glm-5.3-flash"},
+      "verify_model": "opencode-go/glm-5.3-flash"
+    }
+  }
+}

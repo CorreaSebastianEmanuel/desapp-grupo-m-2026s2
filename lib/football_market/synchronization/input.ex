@@ -4,7 +4,9 @@ defmodule FootballMarket.Synchronization.Input do
   alias FootballMarket.Synchronization.Policy
   @test Mix.env() == :test
 
-  def normalize(scope, options) do
+  def normalize(scope, options), do: normalize(:catalog, scope, options)
+
+  def normalize(operation, scope, options) when operation in [:catalog, :statistics] do
     with true <- Keyword.keyword?(options),
          true <-
            Enum.all?(
@@ -15,31 +17,42 @@ defmodule FootballMarket.Synchronization.Input do
            Policy.validate_runtime(
              Application.get_env(:football_market, FootballMarket.Synchronization, [])
            ),
-         {:ok, request} <- Request.normalize(:catalog, scope),
+         {:ok, request} <-
+           Request.normalize(if(operation == :catalog, do: :catalog, else: :performances), scope),
+         true <-
+           operation == :catalog or (is_nil(request.scope.from) and is_nil(request.scope.to)),
+         scope_values <- Map.take(request.scope, [:league_code, :start_year, :end_year]),
          {:ok, policy} <- Policy.normalize(Keyword.get(options, :policy, %{})),
          true <- policy["worker_timeout_ms"] > request.timeout_ms + 1000,
+         true <- operation == :catalog or Keyword.get(options, :new_players, []) == [],
          ref when is_binary(ref) <- Keyword.get(options, :source_ref),
          true <- Provenance.safe_text?(ref),
          {:ok, source} <- resolve(ref),
          {:ok, identity} <- source_identity(source),
-         {:ok, instructions} <- instructions(request.scope, options, source),
+         {:ok, instructions} <- instructions(scope_values, options, source, operation),
          fixture <- Keyword.get(options, :fixture_ref),
          true <- is_nil(fixture) or Provenance.safe_text?(fixture),
          trigger <- Keyword.get(options, :trigger, :manual),
          true <- trigger in [:manual, :initial, :scheduled] do
       material = %{
-        "version" => 1,
+        "version" => if(operation == :catalog, do: 1, else: 2),
         "source_ref" => ref,
         "fixture_ref" => fixture,
         "source_identity" => identity,
-        "scope" => json(request.scope),
+        "scope" => json(scope_values),
         "timeout_ms" => request.timeout_ms,
         "instructions" => instructions
       }
 
+      material =
+        if operation == :statistics,
+          do: Map.put(material, "operation", "statistics"),
+          else: material
+
       {:ok,
        %{
-         scope: request.scope,
+         scope: scope_values,
+         operation: operation,
          material: material,
          digest: digest(material),
          policy: policy,
@@ -53,6 +66,8 @@ defmodule FootballMarket.Synchronization.Input do
   rescue
     _ -> {:error, :source_ref}
   end
+
+  def normalize(_, _, _), do: {:error, :request}
 
   def resolve(ref) do
     sources =
@@ -143,7 +158,7 @@ defmodule FootballMarket.Synchronization.Input do
 
   def json(value), do: value |> Jason.encode!() |> Jason.decode!()
 
-  defp instructions(scope, options, %{provider: {provider, _}}) do
+  defp instructions(scope, options, %{provider: {provider, _}}, operation) do
     label = provider.provider_label()
 
     values =
@@ -159,7 +174,11 @@ defmodule FootballMarket.Synchronization.Input do
           unless is_map(entry) and not is_struct(entry) and
                    Enum.sort(Map.keys(entry)) == Enum.sort(fields) and
                    Map.take(entry, [:league_code, :start_year, :end_year]) == scope and
-                   entry.kind in [:league, :season, :team, :player] and
+                   entry.kind in ([:league, :season, :team, :player] ++
+                                    if(operation == :statistics and key == :mappings,
+                                      do: [:match],
+                                      else: []
+                                    )) and
                    (key == :mappings or entry.kind == :player) and
                    entry.provider == label and Provenance.safe_text?(entry.provider) and
                    Provenance.safe_text?(entry.source_id) and

@@ -11,5 +11,6 @@ config :football_market, FootballMarket.Synchronization,
 
 config :football_market, Oban,
   repo: FootballMarket.Repo,
-  queues: [catalog_sync: 1],
-  plugins: []
+  queues: [catalog_sync: 1, statistics_import: 1],
+  plugins: [],
+  lifeline: [rescue_after: {5, :minutes}, interval: {1, :minute}]

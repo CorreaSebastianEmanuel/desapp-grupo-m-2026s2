@@ -15,7 +15,7 @@ defmodule FootballMarket.Synchronization.Recovery do
 
     results =
       Enum.map(runs, fn run ->
-        case ExecutionGuard.acquire(Store.scope(run)) do
+        case ExecutionGuard.acquire(Store.execution_scope(run)) do
           {:ok, guard} ->
             try do
               if run.state == "executing",
@@ -47,9 +47,14 @@ defmodule FootballMarket.Synchronization.Recovery do
            (is_nil(job) || job.state in ["completed", "discarded", "cancelled", "executing"]) do
         eligible = current.next_retry_at || now
 
+        worker =
+          if current.operation == "statistics",
+            do: FootballMarket.Workers.StatisticsImport,
+            else: CatalogSync
+
         job =
           %{"run_id" => current.id, "delivery_id" => current.delivery_id}
-          |> CatalogSync.new(scheduled_at: eligible)
+          |> worker.new(scheduled_at: eligible)
           |> Store.insert_job!()
 
         Repo.update!(Ecto.Changeset.change(current, job_id: job.id))

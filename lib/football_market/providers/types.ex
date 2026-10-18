@@ -1,6 +1,6 @@
 defmodule FootballMarket.Providers.Result do
   @moduledoc "Provider-neutral in-memory result value."
-  defstruct [:operation, :scope, :facts, :provenance]
+  defstruct [:operation, :scope, :facts, :provenance, :completeness]
 end
 
 defmodule FootballMarket.Providers.League do
@@ -35,7 +35,16 @@ end
 
 defmodule FootballMarket.Providers.Performance do
   @moduledoc "Provider-neutral in-memory performance value."
-  defstruct [:ref, :match_ref, :player_ref, :team_ref, :position_ref, :minutes_played, :counts]
+  defstruct [
+    :ref,
+    :match_ref,
+    :player_ref,
+    :team_ref,
+    :position_ref,
+    :minutes_played,
+    :counts,
+    :participation
+  ]
 end
 
 defmodule FootballMarket.Providers.Binding do

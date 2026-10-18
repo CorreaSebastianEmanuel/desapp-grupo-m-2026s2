@@ -18,6 +18,7 @@ defmodule FootballMarket.TestProfileRunnerContractTest do
     assert runner =~ "inventory_digest=digest"
     assert runner =~ "chromium.launch"
     refute runner =~ "print(output"
+    refute runner =~ "node_modules/playwright\")"
   end
 
   test "browser harness and ExUnit bridge use opaque receipts" do

@@ -28,7 +28,7 @@ defmodule FootballMarket.Valuation.ScopeTest do
              Enum.sort(
                @production ++
                  Enum.map(
-                   ~w(configurations managed managed_types),
+                   ~w(configurations managed managed_types calculation_requests),
                    &"lib/football_market/valuation/#{&1}.ex"
                  )
              )

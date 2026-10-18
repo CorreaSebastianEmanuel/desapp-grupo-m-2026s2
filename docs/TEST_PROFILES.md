@@ -42,7 +42,7 @@ Each Node test file runs in its own supervised Node process with `--test-isolati
 
 | Profile | ExUnit | Python | Node | Shell | Total |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| unit | 190 | 213 | 8 | 14 | 425 |
+| unit | 190 | 214 | 8 | 14 | 426 |
 | integration | 440 | 0 | 0 | 9 | 449 |
 | e2e | 2 | 0 | 0 | 0 | 2 |
 
@@ -59,3 +59,5 @@ Recursive shell discovery includes `test/integration/infrastructure_verify_test.
 The independent infrastructure CLI regression explicitly uses MIX_ENV=dev inside its owned Docker project: malformed configuration must exercise the independent development probes, rather than the separate test-database fail-fast guard. This does not target the contributor’s development database; the wrapper supplies private ports and volumes. Unfinished shell cases emit only their opaque ID on failure.
 
 Owned schemas are atomically registered before creation in a private per-child resource registry. After a child exits, times out or is terminated, a separate cleanup process validates the test database, partition, invocation nonce and schema prefix before dropping only registered schemas. This fallback works even when the BEAM cannot execute its cleanup block. Integration regressions kill the actual runtime through the supervisor and require an unrelated control schema to survive. Cleanup failures fail the profile with the safe resource-cleanup category.
+
+After the statistics-ingestion merge, independently committed integration suites use the audit-owned committed-file list. Outside historical coverage mode, each suite receives a fresh partition on the invocation-owned PostgreSQL service; those volumes are removed with the integration component. Regular transactional suites keep the configured safe test partition. The local merge verification manifest selects `task063_merge_20261018` to preserve earlier test-partition contents without resetting them.

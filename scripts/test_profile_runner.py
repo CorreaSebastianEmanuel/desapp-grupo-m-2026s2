@@ -73,6 +73,34 @@ def cleanup_resources(env):
             cleaner.wait()
 
 
+def execute_exunit(execute, profile, files, directory, nonce, postgres_port=None):
+    argv = ['mix', 'test', '--warnings-as-errors', '--include', 'performance', '--only', profile,
+            '--formatter', 'FootballMarket.TestProfileFormatter']
+    if os.environ.get('CP1_PROFILE_COVERAGE') == '1':
+        execute(argv + ['--cover', '--export-coverage', profile] + files)
+        return
+    if profile != 'integration':
+        execute(argv + files)
+        return
+    committed_path = Path(directory) / 'committed-files.json'
+    execute(['mix', 'run', '--no-start', '-e',
+             'File.write!(System.fetch_env!("PROFILE_COMMITTED_FILES"), '
+             'Jason.encode!(FootballMarket.TestProfileAudit.audit!("integration").committed_files))'],
+            {'PROFILE_COMMITTED_FILES': str(committed_path)})
+    committed = json.loads(committed_path.read_text())
+    if not isinstance(committed, list) or len(committed) != len(set(committed)) or not set(committed) <= set(files):
+        raise ValueError('execution-membership')
+    regular = [file for file in files if file not in committed]
+    if regular:
+        execute(argv + regular)
+    for index, file in enumerate(committed):
+        partition = {'MIX_TEST_PARTITION': 'profile' + nonce + '_c' + str(index)}
+        if postgres_port is not None:
+            partition['POSTGRES_PORT'] = postgres_port
+        execute(['mix', 'test.prepare'], partition)
+        execute(argv + [file], partition)
+
+
 def main(profile):
     if profile not in ('unit', 'integration', 'e2e'):
         raise ValueError('usage')
@@ -136,11 +164,8 @@ def main(profile):
             for file in sorted({c['file'] for c in expected if c['runner'] == 'shell'}):
                 execute(['sh', file])
         files = sorted({c['file'] for c in expected if c['runner'] == 'exunit'})
-        argv = ['mix', 'test', '--warnings-as-errors', '--include', 'performance', '--only', profile,
-                '--formatter', 'FootballMarket.TestProfileFormatter']
-        if os.environ.get('CP1_PROFILE_COVERAGE') == '1':
-            argv += ['--cover', '--export-coverage', profile]
-        execute(argv + files)
+        execute_exunit(execute, profile, files, directory, nonce,
+                       env.get('PROFILE_CONCURRENCY_POSTGRES_PORT'))
         resources.close()
         mapped = []
         for raw in events.read_text().splitlines():

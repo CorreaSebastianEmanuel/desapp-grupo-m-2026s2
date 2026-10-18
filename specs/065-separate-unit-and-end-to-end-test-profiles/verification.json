@@ -12,7 +12,7 @@
         "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
         "ERL_FLAGS": "+S 4:4",
         "POSTGRES_PORT": "55432",
-        "MIX_TEST_PARTITION": "task063_20261016",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
         "MIX_ENV": "test"
       }
     },
@@ -27,7 +27,7 @@
         "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
         "ERL_FLAGS": "+S 4:4",
         "POSTGRES_PORT": "55432",
-        "MIX_TEST_PARTITION": "task063_20261016",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
         "MIX_ENV": "test"
       }
     },
@@ -42,7 +42,7 @@
         "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
         "ERL_FLAGS": "+S 4:4",
         "POSTGRES_PORT": "55432",
-        "MIX_TEST_PARTITION": "task063_20261016",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
         "MIX_ENV": "test"
       }
     },
@@ -57,7 +57,7 @@
         "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
         "ERL_FLAGS": "+S 4:4",
         "POSTGRES_PORT": "55432",
-        "MIX_TEST_PARTITION": "task063_20261016",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
         "MIX_ENV": "test"
       }
     },
@@ -71,7 +71,7 @@
         "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
         "ERL_FLAGS": "+S 4:4",
         "POSTGRES_PORT": "55432",
-        "MIX_TEST_PARTITION": "task063_20261016",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
         "MIX_ENV": "test"
       },
       "reuse": false
@@ -86,7 +86,7 @@
         "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
         "ERL_FLAGS": "+S 4:4",
         "POSTGRES_PORT": "55432",
-        "MIX_TEST_PARTITION": "task063_20261016",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
         "MIX_ENV": "test"
       }
     },
@@ -101,7 +101,7 @@
         "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
         "ERL_FLAGS": "+S 4:4",
         "POSTGRES_PORT": "55432",
-        "MIX_TEST_PARTITION": "task063_20261016",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
         "MIX_ENV": "test"
       }
     },
@@ -116,7 +116,7 @@
         "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
         "ERL_FLAGS": "+S 4:4",
         "POSTGRES_PORT": "55432",
-        "MIX_TEST_PARTITION": "task063_20261016",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
         "MIX_ENV": "test"
       }
     },
@@ -131,7 +131,7 @@
         "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
         "ERL_FLAGS": "+S 4:4",
         "POSTGRES_PORT": "55432",
-        "MIX_TEST_PARTITION": "task063_20261016",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
         "MIX_ENV": "test"
       }
     },
@@ -146,7 +146,7 @@
         "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
         "ERL_FLAGS": "+S 4:4",
         "POSTGRES_PORT": "55432",
-        "MIX_TEST_PARTITION": "task063_20261016",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
         "MIX_ENV": "test"
       },
       "reuse": false
@@ -162,7 +162,7 @@
         "PATH": "/tmp/football-market-elixir-1.20.3-otp-29/bin:/home/mateo/.local/share/fnm/node-versions/v24.16.0/installation/bin:/usr/local/bin:/usr/bin:/bin",
         "ERL_FLAGS": "+S 4:4",
         "POSTGRES_PORT": "55432",
-        "MIX_TEST_PARTITION": "task063_20261016",
+        "MIX_TEST_PARTITION": "task063_merge_20261018",
         "MIX_ENV": "test"
       },
       "runtime": true,

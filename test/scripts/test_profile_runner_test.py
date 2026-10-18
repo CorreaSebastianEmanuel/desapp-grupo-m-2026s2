@@ -116,3 +116,29 @@ class RunnerTest(unittest.TestCase):
                 runner.main('unit')
         self.assertIn(case['id'], captured.getvalue())
         self.assertNotIn(case['case_id'], captured.getvalue())
+
+    def test_committed_suites_keep_upstream_partition_isolation_and_coverage_scope(self):
+        with tempfile.TemporaryDirectory() as directory:
+            files = ['test/regular_test.exs', 'test/committed_test.exs']
+            calls = []
+            def execute(argv, extra=None, **kwargs):
+                calls.append((argv, extra))
+                if argv[:3] == ['mix', 'run', '--no-start']:
+                    Path(directory, 'committed-files.json').write_text(json.dumps(files[1:]))
+            with patch.dict(os.environ, {'CP1_PROFILE_COVERAGE': '0'}):
+                runner.execute_exunit(execute, 'integration', files, directory, 'a' * 32, '55435')
+            tests = [(argv, env) for argv, env in calls if argv[:2] == ['mix', 'test']]
+            self.assertEqual(len(tests), 2)
+            self.assertEqual(tests[0][0][-1], files[0])
+            self.assertEqual(tests[0][1], None)
+            self.assertEqual(tests[1][0][-1], files[1])
+            self.assertRegex(tests[1][1]['MIX_TEST_PARTITION'], r'^profile[a-f0-9]{32}_c0$')
+            self.assertEqual(tests[1][1]['POSTGRES_PORT'], '55435')
+            prepare = [(argv, env) for argv, env in calls if argv == ['mix', 'test.prepare']]
+            self.assertEqual(prepare, [(['mix', 'test.prepare'], tests[1][1])])
+            calls.clear()
+            with patch.dict(os.environ, {'CP1_PROFILE_COVERAGE': '1'}):
+                runner.execute_exunit(execute, 'integration', files, directory, 'a' * 32, '55435')
+            self.assertEqual(len(calls), 1)
+            self.assertEqual(calls[0][0][-2:], files)
+            self.assertIn('--export-coverage', calls[0][0])

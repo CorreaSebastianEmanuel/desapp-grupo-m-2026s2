@@ -5378,6 +5378,13 @@
       "profile": "integration"
     },
     {
+      "id": "e25869a7bb9c4423b9bc4288",
+      "runner": "python",
+      "file": "test/scripts/test_profile_runner_test.py",
+      "case_id": "test.scripts.test_profile_runner_test.RunnerTest.test_committed_suites_keep_upstream_partition_isolation_and_coverage_scope",
+      "profile": "unit"
+    },
+    {
       "id": "e28566a80f5bcb3f2f9e1fa1",
       "runner": "exunit",
       "file": "test/football_market/synchronization/request_test.exs",

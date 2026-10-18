@@ -1,5 +1,7 @@
 #!/bin/sh
 set -eu
+PROFILE_SHELL_FILE=test/scripts/verify_foundation_test.sh
+. "$(dirname "$0")/support/profile_events.sh"
 
 repo_root=$(CDPATH= cd -- "$(dirname "$0")/../.." && pwd)
 fixture=$(mktemp -d "${TMPDIR:-/tmp}/football-market-oracle.XXXXXX")
@@ -44,12 +46,22 @@ run_failure() {
   printf 'ok - %s\n' "$name"
 }
 
+profile_case_start 'readiness-1'
 run_success 'successful readiness' success
+profile_case_pass 'readiness-1'
+profile_case_start 'readiness-2'
 run_failure 'bad HTTP status' bad_status
+profile_case_pass 'readiness-2'
+profile_case_start 'readiness-3'
 run_failure 'missing marker (including an occupied port serving another app)' missing_marker
+profile_case_pass 'readiness-3'
+profile_case_start 'readiness-4'
 run_failure 'connection failure after stop' connection_failure
+profile_case_pass 'readiness-4'
 
 # A connection that never satisfies the contract exercises the bounded timeout path.
+profile_case_start 'readiness-5'
 run_failure 'bounded readiness timeout' connection_failure
+profile_case_pass 'readiness-5'
 
 printf '5 verification tests passed\n'

@@ -17,6 +17,7 @@ defmodule FootballMarket.CoverageReportContractTest do
     assert runner =~ "non-generated-untracked-input"
     assert runner =~ "scripts/test_profile.sh unit"
     assert runner =~ "scripts/test_profile.sh integration"
+    refute runner =~ "test_profile.sh e2e"
     assert runner =~ "CP1_PROFILE_COVERAGE=1"
     assert runner =~ "CP1_PROFILE_RECEIPT"
     assert runner =~ "native_coverage=\"$staging/native\""

@@ -4,6 +4,12 @@ defmodule FootballMarket.CP1CoverageInventoryTest do
   @moduletag :unit
   @root Path.expand("../..", __DIR__)
 
+  test "E2E runtime modules never enter the historical CP1 denominator" do
+    inventory = Code.eval_file("config/cp1_coverage_inventory.exs") |> elem(0)
+    refute Enum.any?(inventory, &String.contains?(inspect(&1.module), ".E2E."))
+    assert File.read!("mix.exs") =~ "summary: [threshold: 0]"
+  end
+
   test "canonical committed inventory controls the repository-owned denominator" do
     inventory = Path.join(@root, "config/cp1_coverage_inventory.exs")
     mixfile = File.read!(Path.join(@root, "mix.exs"))

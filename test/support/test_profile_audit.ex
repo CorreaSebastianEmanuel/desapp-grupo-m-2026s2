@@ -1,8 +1,8 @@
 defmodule FootballMarket.TestProfileAudit do
   @moduledoc false
 
-  @profiles ~w(unit integration)
-  @allowed_module_tags ~w(unit integration performance)
+  @profiles ~w(unit integration e2e)
+  @allowed_module_tags ~w(unit integration e2e performance)
   @committed_integration_files ~w(
     test/football_market/catalog/ingestion/concurrency_test.exs
     test/football_market/catalog/ingestion/matrix_test.exs
@@ -66,6 +66,32 @@ defmodule FootballMarket.TestProfileAudit do
     |> Enum.sort()
     |> Enum.flat_map(&parse_modules!(&1, root))
     |> Enum.sort_by(& &1.id)
+  end
+
+  def assert_membership!(expected, discovered) do
+    identities = fn cases ->
+      Enum.map(cases, fn entry ->
+        file = entry[:file] || entry["file"]
+        name = entry[:case_id] || entry["case_id"]
+        profile = entry[:profile] || entry["profile"]
+
+        unless profile in @profiles and is_binary(file) and is_binary(name),
+          do: raise(ArgumentError, "invalid case assignment")
+
+        {file, name, profile}
+      end)
+    end
+
+    left = identities.(expected)
+    right = identities.(discovered)
+
+    for population <- [left, right] do
+      native = Enum.map(population, fn {file, name, _profile} -> {file, name} end)
+      if length(native) != length(Enum.uniq(native)), do: raise(ArgumentError, "duplicate case")
+    end
+
+    if MapSet.new(left) != MapSet.new(right), do: raise(ArgumentError, "case inventory mismatch")
+    :ok
   end
 
   defp validate_module!(module) do

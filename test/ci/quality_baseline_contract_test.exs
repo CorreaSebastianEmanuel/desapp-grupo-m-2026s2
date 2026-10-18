@@ -55,14 +55,14 @@ defmodule FootballMarket.QualityBaselineContractTest do
            ]
   end
 
-  test "workflow gates main pull requests and pushes in one least-privilege job", context do
+  test "workflow gates main pull requests and pushes in least-privilege jobs", context do
     workflow = File.read!(@workflow)
     document = context.workflow_document
 
     assert document["on"]["pull_request"]["branches"] == ["main"]
     assert document["on"]["push"]["branches"] == ["main"]
     assert document["permissions"] == %{"contents" => "read"}
-    assert map_size(document["jobs"]) == 1
+    assert map_size(document["jobs"]) == 2
     assert document["jobs"]["quality-baseline"]["runs-on"] == "ubuntu-24.04"
 
     assert Enum.count(
@@ -84,7 +84,7 @@ defmodule FootballMarket.QualityBaselineContractTest do
   end
 
   test "workflow exposes exactly three ordered quality categories with bounded commands" do
-    workflow = File.read!(@workflow)
+    workflow = File.read!(@workflow) |> String.split("  end-to-end:") |> hd()
 
     labels =
       Regex.scan(~r/^\s+- name: (Formatting|Warnings-as-errors|Unit tests)$/m, workflow,
@@ -97,12 +97,9 @@ defmodule FootballMarket.QualityBaselineContractTest do
     assert workflow =~ "run: MIX_ENV=test mix compile --warnings-as-errors"
     assert workflow =~ "run: scripts/ci_unit_tests.sh"
     assert workflow =~ "name: Workflow behavior tests"
-    assert workflow =~ "pattern='*_test.py'"
-    assert workflow =~ "assert s.countTestCases()>0"
-    assert workflow =~ "assert not r.skipped"
-    assert workflow =~ "sh test/scripts/ci_unit_tests_test.sh"
+    assert workflow =~ "verify-receipts tmp/profile-ci"
     assert workflow =~ "fetch-depth: 0"
-    refute workflow =~ ~r/(secrets\.|sonar|coverage|deploy|release|e2e|architecture)/i
+    refute workflow =~ ~r/(secrets\.|sonar|coverage|deploy|release|architecture)/i
     refute workflow =~ ~r/mix format\s*$/m
     refute workflow =~ ~r/mix test.*(--stale|--only|--exclude|test\/)/
   end
@@ -133,9 +130,9 @@ defmodule FootballMarket.QualityBaselineContractTest do
     workflow = File.read!(@workflow)
     runner = File.read!(Path.join(@root, "scripts/ci_unit_tests.sh"))
 
-    refute workflow =~ "test_profile"
+    assert workflow =~ "scripts/test_profile.sh e2e"
     refute workflow =~ "cp1_coverage"
-    refute runner =~ "test_profile"
+    assert runner =~ "scripts/test_profile.sh"
     refute runner =~ "coverage"
   end
 end

@@ -1,65 +1,57 @@
 #!/bin/sh
 set -eu
-
+PROFILE_SHELL_FILE=test/scripts/ci_unit_tests_test.sh
+. "$(dirname "$0")/support/profile_events.sh"
 repo_root=$(CDPATH= cd -- "$(dirname "$0")/../.." && pwd)
-wrapper="$repo_root/scripts/ci_unit_tests.sh"
-tmp_root=$(mktemp -d "${TMPDIR:-/tmp}/ci-unit-tests-test.XXXXXX")
-trap 'rm -rf "$tmp_root"' EXIT HUP INT TERM
-
-fail() {
-  echo "FAIL: $*" >&2
-  exit 1
-}
-
-run_case() {
-  case_name=$1
-  fake_status=$2
-  fake_output=$3
-  expected_status=$4
-  fake_bin="$tmp_root/$case_name/bin"
-  invocation="$tmp_root/$case_name/invocation"
-  mkdir -p "$fake_bin"
-  cat >"$fake_bin/mix" <<EOF
+private=$(mktemp -d "${TMPDIR:-/tmp}/ci-contract.XXXXXX")
+trap 'rm -rf "$private"' EXIT HUP INT TERM
+mkdir -p "$private/scripts" "$private/config"
+cp "$repo_root/scripts/ci_unit_tests.sh" "$repo_root/scripts/test_profile_components.py" "$private/scripts/"
+cat >"$private/scripts/test_profile.sh" <<'CHILD'
 #!/bin/sh
-printf '%s\n' "\$*" >'$invocation'
-printf '%s\n' "\${MIX_ENV:-}" >'$invocation.env'
-printf '%b\n' '$fake_output'
-exit $fake_status
-EOF
-  chmod +x "$fake_bin/mix"
-
-  set +e
-  PATH="$fake_bin:$PATH" TMPDIR="$tmp_root/$case_name" "$wrapper" >"$tmp_root/$case_name/output" 2>&1
-  actual_status=$?
-  set -e
-
-  [ "$actual_status" -eq "$expected_status" ] || fail "$case_name returned $actual_status, expected $expected_status"
-  [ "$(cat "$invocation")" = "test --warnings-as-errors" ] || fail "$case_name invoked unexpected mix arguments"
-  [ "$(cat "$invocation.env")" = "test" ] || fail "$case_name did not force MIX_ENV=test"
-  first_diagnostic=$(printf '%b\n' "$fake_output" | sed -n '1p')
-  grep -F "$first_diagnostic" "$tmp_root/$case_name/output" >/dev/null || fail "$case_name hid test diagnostics"
-  leftovers=$(find "$tmp_root/$case_name" -maxdepth 1 -name 'football-market-ci-tests.*' -print)
-  [ -z "$leftovers" ] || fail "$case_name left temporary output behind"
+printf '%s\n' 'CP1_PROFILE_SECRET_SENTINEL password token api-key'
+[ "${FAKE_CASE:-}" != child-failure ] || exit 7
+[ "${FAKE_CASE:-}" != missing ] || exit 0
+python3 - "$1" <<'PY'
+import hashlib,json,os,sys
+from pathlib import Path
+profile=sys.argv[1]
+result=dict(schema_version=1,nonce='a'*32,profile=profile,status='complete',inventory_digest=hashlib.sha256(Path('config/test_profiles.json').read_bytes()).hexdigest(),expected=1,discovered=1,executed=1,passed=1,components=dict(exunit=1,python=0,node=0,shell=0))
+mode=os.environ.get('FAKE_CASE')
+if mode=='partial': result['passed']=0
+if mode=='wrong-profile': result['profile']='e2e'
+if mode=='stale': result['inventory_digest']='old'
+if mode=='empty': result.update(expected=0,discovered=0,executed=0,passed=0)
+Path(os.environ['CP1_PROFILE_RECEIPT']).write_text(json.dumps(result))
+PY
+CHILD
+printf '%s\n' '{"entries":[{"profile":"unit","runner":"exunit"},{"profile":"integration","runner":"exunit"}]}' >"$private/config/test_profiles.json"
+run_case() {
+  name=$1
+  wanted=$2
+  if (cd "$private" && FAKE_CASE="$name" sh scripts/ci_unit_tests.sh) >"$private/output" 2>&1; then actual=0; else actual=1; fi
+  [ "$actual" -eq "$wanted" ] || { echo 'CI contract failure' >&2; exit 1; }
+  ! grep -q CP1_PROFILE_SECRET_SENTINEL "$private/output"
+  if [ "$wanted" -eq 0 ]; then grep -Fxq FOOTBALL_MARKET_CI_DISCOVERY_SENTINEL "$private/output"; else ! grep -q FOOTBALL_MARKET_CI_DISCOVERY_SENTINEL "$private/output"; fi
 }
-
-[ -x "$wrapper" ] || fail "wrapper is missing or not executable"
-run_case failing_test 7 "assertion failed" 7
-run_case missing_marker 0 "1 test, 0 failures" 1
-run_case zero_count 0 "FOOTBALL_MARKET_CI_DISCOVERY_SENTINEL\n0 tests, 0 failures" 1
-run_case missing_count 0 "FOOTBALL_MARKET_CI_DISCOVERY_SENTINEL" 1
-run_case marked_success 0 "FOOTBALL_MARKET_CI_DISCOVERY_SENTINEL\n1 test, 0 failures" 0
-run_case pinned_result 0 "FOOTBALL_MARKET_CI_DISCOVERY_SENTINEL\nResult: 527/527 passed, 4 excluded" 0
-run_case pinned_all_passed 0 "FOOTBALL_MARKET_CI_DISCOVERY_SENTINEL\nResult: 527 passed, 4 excluded" 0
-run_case pinned_all_zero 0 "FOOTBALL_MARKET_CI_DISCOVERY_SENTINEL\nResult: 0 passed, 4 excluded" 1
-run_case pinned_all_failed_suffix 0 "FOOTBALL_MARKET_CI_DISCOVERY_SENTINEL\nResult: 527 passed, 1 failed" 1
-run_case pinned_zero 0 "FOOTBALL_MARKET_CI_DISCOVERY_SENTINEL\nResult: 0/0 passed, 4 excluded" 1
-run_case pinned_partial 0 "FOOTBALL_MARKET_CI_DISCOVERY_SENTINEL\nResult: 526/527 passed, 4 excluded" 1
-run_case pinned_failed 0 "FOOTBALL_MARKET_CI_DISCOVERY_SENTINEL\nResult: 0/527 passed, 527 failed" 1
-run_case pinned_failed_suffix 0 "FOOTBALL_MARKET_CI_DISCOVERY_SENTINEL\nResult: 527/527 passed, 1 failed" 1
-run_case pinned_overcount 0 "FOOTBALL_MARKET_CI_DISCOVERY_SENTINEL\nResult: 528/527 passed" 1
-run_case pinned_missing_marker 0 "Result: 527/527 passed, 4 excluded" 1
-run_case pinned_child_failure 7 "FOOTBALL_MARKET_CI_DISCOVERY_SENTINEL\nResult: 527/527 passed, 4 excluded" 7
-run_case legacy_failed 0 "FOOTBALL_MARKET_CI_DISCOVERY_SENTINEL\n527 tests, 1 failure" 1
-run_case final_partial 0 "FOOTBALL_MARKET_CI_DISCOVERY_SENTINEL\n1 test, 0 failures\nResult: 526/527 passed, 1 failed" 1
-
-echo "ci_unit_tests wrapper contract: PASS"
+profile_case_start 'complete'
+run_case complete 0
+profile_case_pass 'complete'
+profile_case_start 'child-failure'
+run_case child-failure 1
+profile_case_pass 'child-failure'
+profile_case_start 'missing'
+run_case missing 1
+profile_case_pass 'missing'
+profile_case_start 'partial'
+run_case partial 1
+profile_case_pass 'partial'
+profile_case_start 'wrong-profile'
+run_case wrong-profile 1
+profile_case_pass 'wrong-profile'
+profile_case_start 'stale'
+run_case stale 1
+profile_case_pass 'stale'
+profile_case_start 'empty'
+run_case empty 1
+profile_case_pass 'empty'

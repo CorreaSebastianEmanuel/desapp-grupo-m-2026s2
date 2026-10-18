@@ -49,6 +49,52 @@ defmodule FootballMarket.WorkflowScope do
     ]
   end
 
+  def paths("specs/065-separate-unit-and-end-to-end-test-profiles") do
+    [
+      ".github/workflows/quality-baseline.yml",
+      "config/test_profiles.json",
+      "test/football_market/catalog/constraints_test.exs",
+      "test/football_market/statistics/concurrency_test.exs",
+      "test/ci/test_profile_audit_test.exs",
+      "test/ci/fixtures/quality-baseline.sha256",
+      "test/football_market/providers/scope_test.exs",
+      "test/ci/coverage_report_contract_test.exs",
+      "test/ci/cp1_coverage_inventory_test.exs",
+      "test/ci/e2e_runtime_contract_test.exs",
+      "test/ci/e2e_supervisor_cleanup_test.exs",
+      "test/ci/quality_baseline_contract_test.exs",
+      "test/ci/test_profile_runner_contract_test.exs",
+      "test/ci/test_profiles_quality_contract_test.exs",
+      "test/ci/test_profiles_scope_test.exs",
+      "test/integration/infrastructure_verify_test.sh",
+      "test/integration/redis_disposability_test.sh",
+      "test/e2e/browser_shell_test.exs",
+      "test/e2e/catalog_sync_test.exs",
+      "test/scripts/ci_unit_tests_test.sh",
+      "test/scripts/compose_contract_test.sh",
+      "test/scripts/consecutive_lifecycle_acceptance_test.sh",
+      "test/scripts/database_isolation_test.sh",
+      "test/scripts/local_services_failure_test.sh",
+      "test/scripts/local_services_lifecycle_test.sh",
+      "test/scripts/support/profile_events.sh",
+      "test/scripts/task_002_acceptance_test.sh",
+      "test/scripts/task_002_scope_security_test.sh",
+      "test/scripts/test_inventory_test.py",
+      "test/scripts/test_profile_components_test.py",
+      "test/scripts/test_profile_runner_test.py",
+      "test/scripts/verify_foundation_test.sh",
+      "test/support/e2e/fixture_adapter.ex",
+      "test/support/e2e/fixtures.ex",
+      "test/support/e2e/runtime.ex",
+      "test/support/e2e/interrupted_runtime.exs",
+      "test/support/e2e/supervisor_probe.py",
+      "test/support/test_profile_audit.ex",
+      "test/support/test_profile_formatter.ex",
+      "test/support/workflow_scope.ex",
+      "test/test_helper.exs"
+    ]
+  end
+
   def paths("specs/065-statistics-ingestion-pipeline") do
     [
       "config/synchronization.exs",

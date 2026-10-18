@@ -4,9 +4,9 @@ title: Separate unit and end-to-end test profiles
 type: task
 checkpoint: CP2
 priority: critical
-status: review
+status: done
 depends_on: TASK-014, TASK-046
-active_run: b7eb45ed
+active_run: none
 ---
 
 ## Outcome

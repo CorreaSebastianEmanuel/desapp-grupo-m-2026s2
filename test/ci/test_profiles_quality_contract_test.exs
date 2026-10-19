@@ -15,6 +15,19 @@ defmodule FootballMarket.TestProfilesQualityContractTest do
   end
 
   test "baseline consumes independently reconciled component receipts" do
+    workflow = File.read!(".github/workflows/quality-baseline.yml")
+    [baseline, _e2e] = String.split(workflow, "\n  end-to-end:", parts: 2)
+
+    assert [_, after_prepare] =
+             String.split(
+               baseline,
+               "- name: Prepare test database\n        run: MIX_ENV=test mix test.prepare",
+               parts: 2
+             )
+
+    assert after_prepare =~ "- name: Unit tests"
+    assert after_prepare =~ "run: scripts/ci_unit_tests.sh"
+
     script = File.read!("scripts/ci_unit_tests.sh")
     assert script =~ "scripts/test_profile.sh"
     assert script =~ "unit integration"

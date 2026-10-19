@@ -360,3 +360,15 @@ five consecutive executions in one owned Compose project; all returned exit 0 an
 each run. Owned-project cleanup exited 0. The seven JSON CI contract cases and four
 workflow gate tests also passed again. This is fixture regression evidence only;
 all 16 final manifest checks and the exact CI gate remain required on current inputs.
+
+GitHub PR #48 follow-up — 2026-10-19: remote Quality baseline failed at the unit
+wrapper in about 1.3 seconds, while E2E and Sonar passed. A clean local clone at
+HEAD passed native inventory under Python 3.12 and passed unit 439/439 with a
+prepared database. Creating a new empty football_market_testtask066ciempty database
+and running the same unit profile failed at inventory-or-service-prerequisite.
+The quality job lacked test.prepare, unlike the E2E job. Existing test.prepare
+migrated only that new test database; the exact profile recovery is being checked.
+Correction adds the existing preparation step before the unchanged CI wrapper,
+strengthens the existing quality contract and permits the exact changed paths.
+Feedback #1 rewinds Development; historical approvals do not authorize the update.
+All required checks and fresh independent gates must pass before PR publication.

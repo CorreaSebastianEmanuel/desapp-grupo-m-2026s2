@@ -115,3 +115,19 @@ state, deleting the gate or adding CI integrations. Extend the existing seven-ca
 shell contract to parse the entire success stdout as JSON and require empty stdout
 on profile/receipt failures. Preserve secret-redaction and discovery sentinel checks.
 The native test allowance and manifest permit only these exact repair paths.
+
+GitHub CI cold database correction (explicit user request, 2026-10-19): the Quality
+baseline job creates an empty database but did not run the existing test.prepare
+command before profile discovery starts the application. Local verification used
+prepared databases; the separate E2E job already prepares its database. Add one
+`MIX_ENV=test mix test.prepare` step immediately before the unchanged CI wrapper
+in quality-baseline. Extend its existing contract case to assert preparation is
+in that job and before tests. Permit only the exact workflow and contract-test paths
+in the TASK-066 finite scope. No test bypass, migration change or new CI analyzer.
+Revalidate all manifest checks, exact CI, and fresh independent QA/review before
+updating PR #48. QA must use agentflow_check.py --stage qa for every manifest ID,
+without reuse, so finalization has real schema-2 execution receipts.
+
+The `cold-database-ci` developer check independently creates a unique task-owned empty database, asserts the unit discovery prerequisite failure, runs existing test.prepare, then validates the unchanged exact CI wrapper and both complete receipts. It leaves the owned database intact and never resets a shared database. Raw diagnostic output stays under tmp/task066/cold-ci/.
+
+The workflow byte-oracle fixture is updated to the reviewed preparation-step revision; its exact SHA256 assertion remains intact. The finite native scope permits only that fixture in addition to the authorized workflow and contract test.

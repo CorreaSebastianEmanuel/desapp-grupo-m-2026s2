@@ -2,10 +2,10 @@
   "schema_version": 1,
   "task": "TASK-066",
   "feature": "066-credo-remediation",
-  "base_revision": "4b257566e18fc2b7ddc55d0c5a730b27481b6d2b",
-  "verified_source": "ae1ff830cbbf15c1bf647e558ff54d25b3c35ad4cd9809f81992ff0b314c0f7d",
-  "canonical_inputs": "578915a4441a6b2257a176b671c6c20dc6f2386d07dea64e990834e0a1d25fad",
-  "manifest_sha256": "7c5be672db0567f663511f8f331a4cce7c353122c01cb70bb5a39fb3c0a87928",
+  "base_revision": "0ed207089412cfb79b331d531b94eb19cc0eccac",
+  "verified_source": "e11ccb83706da15a8170b204f34df994da0df6367bb0bc9172729b586dfe61dc",
+  "canonical_inputs": "969fc57723c964ff88f9d9411e81b2aed56b621522a207a2d538bea83f85b9cb",
+  "manifest_sha256": "464f56caa43d77e675cf8e4cd9ebcacbc17ae1d0e5184fd5f3ef38ae40801805",
   "ci": {},
   "checks": [
     {
@@ -13,11 +13,11 @@
       "stage": "develop",
       "status": "passed",
       "command_identity": "6f4c80a229277fd238c2faa72225d965d485b474c91b98058a79b018a1fd9f8b",
-      "elapsed_seconds": 1.503,
+      "elapsed_seconds": 1.068,
       "output_sha256": "d26f020c67adf23d872b7c3b9beda3e56501e34de2e830cf1a8ec814bd1a2e65",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/develop/toolchain/9203fcd6ba8545b8ba0916645a241c30.log"
+        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/develop/toolchain/a536709ae24f46dbb941d5ec37ad30e5.log"
       },
       "environment": {},
       "coverage": []
@@ -27,11 +27,11 @@
       "stage": "develop",
       "status": "passed",
       "command_identity": "122ccd6996fcc82a6d39202799e32df9a1c323af9a3d62709a122297993852a1",
-      "elapsed_seconds": 2.812,
-      "output_sha256": "bdc27f2f7f8c4a2dcba40aa5edec93eac55f3258ff035cf4d21451b00d0981d0",
+      "elapsed_seconds": 2.403,
+      "output_sha256": "f71bdd51a19c64a5dbac4e2ea96bb8bf7e6e341edf3c10da1d35fb5f7f9f40be",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/develop/services/8630624963c34456a9720d1e20dc8dfa.log"
+        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/develop/services/6e955510ce0543d4a61b5c26b1432294.log"
       },
       "environment": {
         "MIX_ENV": "test"
@@ -43,11 +43,11 @@
       "stage": "develop",
       "status": "passed",
       "command_identity": "20c2ab4342ef38ad8cca55773830bec43847cb2ea28f4e67b79655c4ba5321d3",
-      "elapsed_seconds": 1.059,
+      "elapsed_seconds": 0.984,
       "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/develop/format/5aac4e78b877442caea3d999168bb7d0.log"
+        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/develop/format/4fb0e7d00f294fcc8d81aac2056178f3.log"
       },
       "environment": {},
       "coverage": []
@@ -57,11 +57,11 @@
       "stage": "develop",
       "status": "passed",
       "command_identity": "84c5efffb1e8753fb9399ce673dc4399ba05c3f7a4d45ac3a2b7ffd7d569e279",
-      "elapsed_seconds": 0.787,
+      "elapsed_seconds": 0.682,
       "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/develop/compile/4a1b220b1ec247f6a9930a00b5eac613.log"
+        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/develop/compile/1a947c8fcd734ef6b3202389090fbdf0.log"
       },
       "environment": {
         "MIX_ENV": "test"
@@ -73,11 +73,11 @@
       "stage": "develop",
       "status": "passed",
       "command_identity": "02657625c00d0bd0ca91dc40a442a03cb392a3c09539eab08195dc901ca00de4",
-      "elapsed_seconds": 4.093,
+      "elapsed_seconds": 4.164,
       "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/develop/credo/8ccf54dbde0f424cbe6680afc2aa3798.log"
+        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/develop/credo/46cb13fbb91947ea93345820f5340272.log"
       },
       "environment": {
         "MIX_ENV": "test"
@@ -96,11 +96,11 @@
       "stage": "develop",
       "status": "passed",
       "command_identity": "17e32f893327a82281c4254b5d1bd2cee3babb58a11ffc38c74907e6312da97c",
-      "elapsed_seconds": 79.771,
+      "elapsed_seconds": 66.344,
       "output_sha256": "a37a4d3ce6bca71e9aa43841b73753112aae8e3e4cea7b0d3a4b985ae0b76035",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/develop/unit/ec07bc8d72dc45a7917b6509b964645b.log"
+        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/develop/unit/0f1893796c8c475eab3133d004a3fe3f.log"
       },
       "environment": {
         "MIX_ENV": "test"
@@ -126,11 +126,11 @@
       "stage": "develop",
       "status": "passed",
       "command_identity": "18c99e2d371d9a27389821e6fe4421063107476f3111101c317c745c66ec6f39",
-      "elapsed_seconds": 449.433,
+      "elapsed_seconds": 364.385,
       "output_sha256": "5babd513b9afd4bc556c25e759b873c484cd91393ee01e049e02a5e9113d0385",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/develop/integration/1bd8b9cc64904588ada351f820e528e0.log"
+        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/develop/integration/937c8edf50a849f6bf4a8a3d8375abea.log"
       },
       "environment": {
         "MIX_ENV": "test"
@@ -150,11 +150,11 @@
       "stage": "develop",
       "status": "passed",
       "command_identity": "31f0c86da9696572a3b1c65ea27cc2ae2a8909ba4b125971492d42ab5ca3b287",
-      "elapsed_seconds": 33.96,
+      "elapsed_seconds": 26.031,
       "output_sha256": "5b96c500b870a64f95404eac816751799aca4b2b7efea68dc5a01708c6e2d068",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/develop/e2e/44ef31843aa14315934f6110e4511f7e.log"
+        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/develop/e2e/804b2115fd704b0ba5099e6ddaf5f397.log"
       },
       "environment": {
         "MIX_ENV": "test"
@@ -173,12 +173,12 @@
       "id": "scope",
       "stage": "develop",
       "status": "passed",
-      "command_identity": "fe8ceea84438f9a3b1344eb3eaed266272ab1f4b9822ecfea14cf41a7619c773",
-      "elapsed_seconds": 0.058,
+      "command_identity": "b8ddeebbbf4535de3a7f6dc86b221ac1c684091e93d10ea01e810c14e3fe2392",
+      "elapsed_seconds": 0.036,
       "output_sha256": "6ac897cebb1d438e9d0141f037cacfae052b8d835ddbd220c2ff31bbfec9174f",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/develop/scope/9b4365a52056480ab79a931310e6df2d.log"
+        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/develop/scope/f908be4cb5ff4b1d9669d8d9bde46f91.log"
       },
       "environment": {},
       "coverage": [
@@ -196,11 +196,11 @@
       "stage": "develop",
       "status": "passed",
       "command_identity": "2b581daa973a6f06b1783dd571abd365b768d3cf5696120ae58a127dcf3cf889",
-      "elapsed_seconds": 1.832,
-      "output_sha256": "faf77048d4915c866184ddc3cd410152bfbc7ff94d4836e1b6e9cc74dd63b5af",
+      "elapsed_seconds": 1.451,
+      "output_sha256": "ea981d014f01e33ba64187cf3865034563ed1c2964b92ae410e0dd4df4973bbc",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/develop/tooling-contract/5cb325c1d8324ff6a2ccc0d05c25cdd6.log"
+        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/develop/tooling-contract/32dc9ffd421f45b0aedbe313b2b57b00.log"
       },
       "environment": {
         "MIX_ENV": "test"
@@ -217,11 +217,11 @@
       "stage": "develop",
       "status": "passed",
       "command_identity": "b219625d0ecb468133cc4140e7dff1736a5045b9dae1d3076edd14655a1104ec",
-      "elapsed_seconds": 21.923,
-      "output_sha256": "6d3cd9950f6c6fadc1f2ed284ee9f47ee2bb2f3c5a969200979e04683838d93a",
+      "elapsed_seconds": 17.416,
+      "output_sha256": "f16893307253222af3e53179ba262fbc3804de5360d119bb04d375a4da7e1e23",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/develop/causal-application/dda90b1a60d54340bbd5d0b241d95e80.log"
+        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/develop/causal-application/f4a5b48761a240cc9bb9a3d287a485f5.log"
       },
       "environment": {
         "MIX_ENV": "test"
@@ -233,11 +233,11 @@
       "stage": "develop",
       "status": "passed",
       "command_identity": "cf5dfae0e7e37f00f827e0e77ddf1555e77bd4fb184f4b4a872a357805d464e4",
-      "elapsed_seconds": 3.627,
-      "output_sha256": "78cfaa6350572d3dde27d6057584d4d464c39457a0ea5abccbb2c85f4eaa4bb8",
+      "elapsed_seconds": 2.739,
+      "output_sha256": "f7c79198b807af459d8f665dfcc070aa3ce49f48da6160f202d647894d4214d9",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/develop/causal-safeguards/ecc81663f73b4eb3821aedf48166305c.log"
+        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/develop/causal-safeguards/f3754218df3444b6b2d3c1130335592c.log"
       },
       "environment": {
         "MIX_ENV": "test"
@@ -249,11 +249,11 @@
       "stage": "develop",
       "status": "passed",
       "command_identity": "2cc5b036653314ad83bf6cabbf62b615b1c7b7976402566d63869d36b4dc5fe2",
-      "elapsed_seconds": 4.138,
-      "output_sha256": "fc27e146a6754478d1877c008f8f1be1df53576c842716fdf071d14a1ce3bd4f",
+      "elapsed_seconds": 3.053,
+      "output_sha256": "0e456efbc20961870353c2ac78256ac9273104a056b59b14aca283b48ef5ad72",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/develop/causal-persistence/38c732fff3fb405eaed9b42521494473.log"
+        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/develop/causal-persistence/cdcb062a3af647218a73466aa9190924.log"
       },
       "environment": {
         "MIX_ENV": "test"
@@ -265,11 +265,11 @@
       "stage": "develop",
       "status": "passed",
       "command_identity": "6b98114ca7592c3fa6db272f2feecc49e050b6c64b1607fa035bfe6da2badbe0",
-      "elapsed_seconds": 38.535,
-      "output_sha256": "38f1f357d643c4fbdfc1b1972f68fd88ca5af1ac5b4b17b1bf21b23235ddc005",
+      "elapsed_seconds": 29.942,
+      "output_sha256": "9ee064bfb289bf3c39630808c240bd5974ed89ed607673fbc9482465bc64e879",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/develop/causal-remaining/fa6098d731654790a953eb7659753289.log"
+        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/develop/causal-remaining/15a89b46634e4d709a567318752ffdd5.log"
       },
       "environment": {
         "MIX_ENV": "test"
@@ -281,11 +281,11 @@
       "stage": "develop",
       "status": "passed",
       "command_identity": "93898177f9737beb7b80f56eff8df9ea55a2a1550deb9957b09937b237f5e6c2",
-      "elapsed_seconds": 22.787,
-      "output_sha256": "26b9e74ba77d042185373b0721030a05e185a7f2f689bb2addf3ee15b4396bfa",
+      "elapsed_seconds": 20.297,
+      "output_sha256": "68094eefd822bd8a24f85288dbccda9335717c623e9ec099a06f90dc5636c96f",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/develop/causal-seed/f7e3319840b64c9380832fb65800cf0f.log"
+        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/develop/causal-seed/98953c223d70474eaac579f644a9966a.log"
       },
       "environment": {
         "MIX_ENV": "test"
@@ -297,11 +297,11 @@
       "stage": "develop",
       "status": "passed",
       "command_identity": "9e9bcbf1ff64453cd81ab81f86ef144ce25c24eca177ab79df96a953d81f856a",
-      "elapsed_seconds": 4.361,
+      "elapsed_seconds": 3.035,
       "output_sha256": "a0fbcd7c911e93bc352fae7da14eda19dc08f227ed77929cc88677de24c95451",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/develop/inventory/8b5581ba834e47b3899686771a6f0247.log"
+        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/develop/inventory/c854fd6432c14310bc7dab92c2b6087c.log"
       },
       "environment": {
         "MIX_ENV": "test"
@@ -309,6 +309,25 @@
       "coverage": [
         "FR-004",
         "SC-001"
+      ]
+    },
+    {
+      "id": "cold-database-ci",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "c593e84dc60ea1a69a910897e1f3f37e8b589ec43db0806e8c021d210ecbd10f",
+      "elapsed_seconds": 399.955,
+      "output_sha256": "10fa80ae8ea40ca2b079362d781f51a685c4d713afbb791dfd96f7c3bdfb7845",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/develop/cold-database-ci/6ccd7030de5e4f38882d3132488f5185.log"
+      },
+      "environment": {
+        "MIX_ENV": "test"
+      },
+      "coverage": [
+        "FR-009",
+        "SC-003"
       ]
     },
     {
@@ -316,11 +335,11 @@
       "stage": "qa",
       "status": "passed",
       "command_identity": "6f4c80a229277fd238c2faa72225d965d485b474c91b98058a79b018a1fd9f8b",
-      "elapsed_seconds": 1.224,
+      "elapsed_seconds": 0.799,
       "output_sha256": "d26f020c67adf23d872b7c3b9beda3e56501e34de2e830cf1a8ec814bd1a2e65",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/qa/toolchain/fda5766a64af44eeb190de8f62f2df2e.log"
+        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/qa/toolchain/5a829be275f44d73a2639f69bb5645ca.log"
       },
       "environment": {},
       "coverage": []
@@ -330,11 +349,11 @@
       "stage": "qa",
       "status": "passed",
       "command_identity": "122ccd6996fcc82a6d39202799e32df9a1c323af9a3d62709a122297993852a1",
-      "elapsed_seconds": 2.425,
-      "output_sha256": "b1e28fd07b70b96354b1c01ec1fd5ca88b4cd2b1f039fb2ae979b91a03199abe",
+      "elapsed_seconds": 2.113,
+      "output_sha256": "53c9fa7b6ebd05160b16cda63459730358b3388a008c5ead528d90ebcfe69c56",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/qa/services/f5040e88b8854b42ac7fb078cc23f1f9.log"
+        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/qa/services/5a92812a7b9741cbb117539b1bb0e0b4.log"
       },
       "environment": {
         "MIX_ENV": "test"
@@ -346,11 +365,11 @@
       "stage": "qa",
       "status": "passed",
       "command_identity": "20c2ab4342ef38ad8cca55773830bec43847cb2ea28f4e67b79655c4ba5321d3",
-      "elapsed_seconds": 1.123,
+      "elapsed_seconds": 0.715,
       "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/qa/format/49ba95dbeb034b88880a2659c9a68c40.log"
+        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/qa/format/70cc9fa4d39e48fcb485a09a501946dc.log"
       },
       "environment": {},
       "coverage": []
@@ -360,11 +379,11 @@
       "stage": "qa",
       "status": "passed",
       "command_identity": "84c5efffb1e8753fb9399ce673dc4399ba05c3f7a4d45ac3a2b7ffd7d569e279",
-      "elapsed_seconds": 0.897,
+      "elapsed_seconds": 0.516,
       "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/qa/compile/d7a129b7cb9b4b949c5a78e381e06db3.log"
+        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/qa/compile/4b8e6ee9b0b940148b606931e2442253.log"
       },
       "environment": {
         "MIX_ENV": "test"
@@ -376,11 +395,11 @@
       "stage": "qa",
       "status": "passed",
       "command_identity": "02657625c00d0bd0ca91dc40a442a03cb392a3c09539eab08195dc901ca00de4",
-      "elapsed_seconds": 4.281,
+      "elapsed_seconds": 2.892,
       "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/qa/credo/e4d4dd3842b74c2d925a787a2317c026.log"
+        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/qa/credo/5273eed7acc24c5c8ad0911bbb527ec6.log"
       },
       "environment": {
         "MIX_ENV": "test"
@@ -399,11 +418,11 @@
       "stage": "qa",
       "status": "passed",
       "command_identity": "17e32f893327a82281c4254b5d1bd2cee3babb58a11ffc38c74907e6312da97c",
-      "elapsed_seconds": 76.9,
+      "elapsed_seconds": 54.712,
       "output_sha256": "a37a4d3ce6bca71e9aa43841b73753112aae8e3e4cea7b0d3a4b985ae0b76035",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/qa/unit/e2171471be3b49f4a6bf6f36fd24f0de.log"
+        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/qa/unit/d9bcb8541c8b4074a1d58a723a218773.log"
       },
       "environment": {
         "MIX_ENV": "test"
@@ -429,11 +448,11 @@
       "stage": "qa",
       "status": "passed",
       "command_identity": "18c99e2d371d9a27389821e6fe4421063107476f3111101c317c745c66ec6f39",
-      "elapsed_seconds": 450.063,
+      "elapsed_seconds": 336.498,
       "output_sha256": "5babd513b9afd4bc556c25e759b873c484cd91393ee01e049e02a5e9113d0385",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/qa/integration/079a7434963f4da69e35dc90327089ab.log"
+        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/qa/integration/7bbf032be30c4240b8954bbad5bdb95d.log"
       },
       "environment": {
         "MIX_ENV": "test"
@@ -453,11 +472,11 @@
       "stage": "qa",
       "status": "passed",
       "command_identity": "31f0c86da9696572a3b1c65ea27cc2ae2a8909ba4b125971492d42ab5ca3b287",
-      "elapsed_seconds": 33.931,
+      "elapsed_seconds": 24.853,
       "output_sha256": "5b96c500b870a64f95404eac816751799aca4b2b7efea68dc5a01708c6e2d068",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/qa/e2e/8253647bfcda493d93f8d31718f66ee2.log"
+        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/qa/e2e/96db4ffa4d6a4ea183c9fdc8edb0d6ca.log"
       },
       "environment": {
         "MIX_ENV": "test"
@@ -476,12 +495,12 @@
       "id": "scope",
       "stage": "qa",
       "status": "passed",
-      "command_identity": "fe8ceea84438f9a3b1344eb3eaed266272ab1f4b9822ecfea14cf41a7619c773",
-      "elapsed_seconds": 0.053,
+      "command_identity": "b8ddeebbbf4535de3a7f6dc86b221ac1c684091e93d10ea01e810c14e3fe2392",
+      "elapsed_seconds": 0.038,
       "output_sha256": "6ac897cebb1d438e9d0141f037cacfae052b8d835ddbd220c2ff31bbfec9174f",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/qa/scope/6d621d12ba27464a99015aa797609955.log"
+        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/qa/scope/73cac9979bad414c9c7607a4c927526d.log"
       },
       "environment": {},
       "coverage": [
@@ -499,11 +518,11 @@
       "stage": "qa",
       "status": "passed",
       "command_identity": "2b581daa973a6f06b1783dd571abd365b768d3cf5696120ae58a127dcf3cf889",
-      "elapsed_seconds": 1.842,
-      "output_sha256": "13e3ee4ed69ca42f0f549c04e0c78de1780a9ccc5218c9b899aa93b0f4848563",
+      "elapsed_seconds": 1.24,
+      "output_sha256": "afad3f4916a88b74e36e4e50117651b6ac380c6bda6e9da1e71742773c59b29d",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/qa/tooling-contract/2869d493205e47caa7d6a9962e471fc4.log"
+        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/qa/tooling-contract/ed0c59bba5c341e99350cfe421984a75.log"
       },
       "environment": {
         "MIX_ENV": "test"
@@ -520,11 +539,11 @@
       "stage": "qa",
       "status": "passed",
       "command_identity": "b219625d0ecb468133cc4140e7dff1736a5045b9dae1d3076edd14655a1104ec",
-      "elapsed_seconds": 22.048,
-      "output_sha256": "5437e6d6f8bc7c37c3032c0ba7ef22fa261a2a97489a810e22be3663f4c69289",
+      "elapsed_seconds": 17.802,
+      "output_sha256": "1e52b72559a42e483b0b4e0796282b395355f23db8136e6dab8ec7ec5e1fca73",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/qa/causal-application/2d0bc71bfd464174b4a41d3e95b0f5b3.log"
+        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/qa/causal-application/b7a9a794761e4ef7bfc93a742422f9c5.log"
       },
       "environment": {
         "MIX_ENV": "test"
@@ -536,11 +555,11 @@
       "stage": "qa",
       "status": "passed",
       "command_identity": "cf5dfae0e7e37f00f827e0e77ddf1555e77bd4fb184f4b4a872a357805d464e4",
-      "elapsed_seconds": 3.65,
-      "output_sha256": "bc82c3706ebb119aae6b701e06e8bb9f86d2038a3e84907cb7d7c440e89afde2",
+      "elapsed_seconds": 2.526,
+      "output_sha256": "eb3cc80e866ba0b9ad43bf6202bac3060a76c175c31278b7370be92602455c33",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/qa/causal-safeguards/d9a1adad0d2f403687ade86136dee2ee.log"
+        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/qa/causal-safeguards/8ed7c25dc721446ca67a13403890ad8d.log"
       },
       "environment": {
         "MIX_ENV": "test"
@@ -552,11 +571,11 @@
       "stage": "qa",
       "status": "passed",
       "command_identity": "2cc5b036653314ad83bf6cabbf62b615b1c7b7976402566d63869d36b4dc5fe2",
-      "elapsed_seconds": 4.212,
-      "output_sha256": "efd9027d04f95521a9fad4adcca8423c361fe4bd9283804227ea8ef8d963eed4",
+      "elapsed_seconds": 2.875,
+      "output_sha256": "4803e066ae1644103d50e4dcdcea3bcb254d7308bbc1a8d794e1ad49095b61b4",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/qa/causal-persistence/d22ed63a399e4fab8ce306a0418337d3.log"
+        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/qa/causal-persistence/5b69b056ee90418c9bb83a2e79e5abc2.log"
       },
       "environment": {
         "MIX_ENV": "test"
@@ -568,11 +587,11 @@
       "stage": "qa",
       "status": "passed",
       "command_identity": "6b98114ca7592c3fa6db272f2feecc49e050b6c64b1607fa035bfe6da2badbe0",
-      "elapsed_seconds": 38.145,
-      "output_sha256": "30c3a832c5bc9e18a3d23d3736336d45e71f6f931ba3aee7ed2722a0951a6bfe",
+      "elapsed_seconds": 29.417,
+      "output_sha256": "08957b7e842a2866c710ceb59071e8b4611daedc85fb080c5b76547eac43b551",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/qa/causal-remaining/e2ceae3c4cec49bca646519885f4ca76.log"
+        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/qa/causal-remaining/a587bb859a5c41268802b19b2508fc7f.log"
       },
       "environment": {
         "MIX_ENV": "test"
@@ -584,11 +603,11 @@
       "stage": "qa",
       "status": "passed",
       "command_identity": "93898177f9737beb7b80f56eff8df9ea55a2a1550deb9957b09937b237f5e6c2",
-      "elapsed_seconds": 22.898,
-      "output_sha256": "633d67aa0716b2542bcb5da96230dbd7a81398133bebdcac115823f12d06ff9b",
+      "elapsed_seconds": 20.901,
+      "output_sha256": "9a9b35c670aee2f69f1838cd0a5f9c90dafa341f0b354d4aec1b6e27d2fb8f22",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/qa/causal-seed/44d3c2b6378347d383560a49ae14b069.log"
+        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/qa/causal-seed/382aec816ff04e1ca6ac9c4a6e19ce55.log"
       },
       "environment": {
         "MIX_ENV": "test"
@@ -600,11 +619,11 @@
       "stage": "qa",
       "status": "passed",
       "command_identity": "9e9bcbf1ff64453cd81ab81f86ef144ce25c24eca177ab79df96a953d81f856a",
-      "elapsed_seconds": 4.272,
+      "elapsed_seconds": 4.5,
       "output_sha256": "a0fbcd7c911e93bc352fae7da14eda19dc08f227ed77929cc88677de24c95451",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/qa/inventory/849722c399304294bb9d09734ede9402.log"
+        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/qa/inventory/16689f4753f34ee090f929c0e2e44a5c.log"
       },
       "environment": {
         "MIX_ENV": "test"
@@ -612,6 +631,25 @@
       "coverage": [
         "FR-004",
         "SC-001"
+      ]
+    },
+    {
+      "id": "cold-database-ci",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "c593e84dc60ea1a69a910897e1f3f37e8b589ec43db0806e8c021d210ecbd10f",
+      "elapsed_seconds": 417.034,
+      "output_sha256": "ed133cca4636caecd87488efa9948517bf0e22b78bdf24a9864021196bf316cd",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/qa/cold-database-ci/d7110862d9254671a9161aed896bb751.log"
+      },
+      "environment": {
+        "MIX_ENV": "test"
+      },
+      "coverage": [
+        "FR-009",
+        "SC-003"
       ]
     }
   ],
@@ -662,7 +700,8 @@
     "FR-009": [
       "unit",
       "integration",
-      "e2e"
+      "e2e",
+      "cold-database-ci"
     ],
     "FR-010": [
       "scope"
@@ -686,7 +725,8 @@
     "SC-003": [
       "unit",
       "integration",
-      "e2e"
+      "e2e",
+      "cold-database-ci"
     ],
     "SC-004": [
       "unit",
@@ -700,16 +740,16 @@
   "independent_reports": {
     "qa-report.md": {
       "verdict": "PASS",
-      "sha256": "53c4332353e2ee5bd9f2ba8ea6da3a141ed1a6830a093ed9db4b63e7a8fe2181"
+      "sha256": "ce900ba544c87d4b5348b8094db93fd96e1b4faf4652f386d8564e9fcedbbc35"
     },
     "review-report.md": {
       "verdict": "PASS",
-      "sha256": "076666f410befb7e72204a105bb963f2e510763de8542c67805457b78f5ed4f0"
+      "sha256": "18d4051309c8dfce2db2770bdd2ac2b4419efcce8041d5823f47511cd9bf4cd4"
     }
   },
   "complete": true,
   "limitations": [
     "Portable summary does not authorize workspace reuse; run local checks."
   ],
-  "finalized_at": "2026-10-19T04:05:08.930428+00:00"
+  "finalized_at": "2026-10-19T05:20:47.094497+00:00"
 }

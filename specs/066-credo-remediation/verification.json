@@ -92,7 +92,7 @@
       "argv": [
         "python3",
         "-c",
-        "from pathlib import Path\nimport subprocess,json,re\nroot=Path.cwd(); feature=root/'specs/066-credo-remediation'\nbase='4b257566e18fc2b7ddc55d0c5a730b27481b6d2b'\nchanged=set(subprocess.check_output(['git','diff','--name-only',base],text=True).splitlines())\nchanged.update(subprocess.check_output(['git','ls-files','--others','--exclude-standard'],text=True).splitlines())\nallowed=('lib/','test/','config/','priv/','specs/066-credo-remediation/')\nexact={'scripts/ci_unit_tests.sh','mix.exs','mix.lock','.credo.exs','README.md','docs/WORKFLOW_LESSONS.md','docs/adr/0029-behavior-preserving-credo-remediation.md','backlog/TASK-065-whole-application-elixir-quality-analysis-and-coverage.md','backlog/TASK-066-remediate-existing-elixir-credo-findings-without-behavior-changes.md'}\n# Resolve the actual unique TASK-065 filename, never authorize an arbitrary backlog change.\npaths=list((root/'backlog').glob('TASK-065-*.md')); assert len(paths)==1\nexact.add(paths[0].relative_to(root).as_posix())\nassert all(p in exact or p.startswith(allowed) or (p.startswith('scripts/') and p.endswith(('.ex', '.exs'))) for p in changed), 'out-of-scope files'\ntext=paths[0].read_text(); assert re.search(r'^depends_on:.*TASK-066',text,re.M), 'TASK-065 dependency missing'\nassert not re.search(r'^status: (?:wip|done|review)$',text,re.M), 'TASK-065 must remain blocked'\nledger=feature/'handoffs/remediation.md'; assert ledger.is_file() and ledger.stat().st_size>0, 'missing hunk/finding/regression ledger'\nmanifest=json.loads((feature/'verification.json').read_text()); tasks=(feature/'tasks.md').read_text()\nassert manifest['task_stages']=={'T020':'qa','T021':'review'}\nfor ident,title,gate in [('T020','Independent QA','qa'),('T021','Final review','review')]:\n assert re.search(r'^- \\[.\\] '+ident+r' \\[gate:'+gate+r'\\] '+title,tasks,re.M), 'missing independent gate'\nprint('scope and prerequisite contract passed; semantic equivalence and actual independent verdicts require downstream review')\n"
+        "from pathlib import Path\nimport subprocess,json,re\nroot=Path.cwd(); feature=root/'specs/066-credo-remediation'\nbase='4b257566e18fc2b7ddc55d0c5a730b27481b6d2b'\nchanged=set(subprocess.check_output(['git','diff','--name-only',base],text=True).splitlines())\nchanged.update(subprocess.check_output(['git','ls-files','--others','--exclude-standard'],text=True).splitlines())\nallowed=('lib/','test/','config/','priv/','specs/066-credo-remediation/')\nexact={'backlog/feedback/TASK-066.md','.github/workflows/quality-baseline.yml','scripts/ci_unit_tests.sh','mix.exs','mix.lock','.credo.exs','README.md','docs/WORKFLOW_LESSONS.md','docs/adr/0029-behavior-preserving-credo-remediation.md','backlog/TASK-065-whole-application-elixir-quality-analysis-and-coverage.md','backlog/TASK-066-remediate-existing-elixir-credo-findings-without-behavior-changes.md'}\n# Resolve the actual unique TASK-065 filename, never authorize an arbitrary backlog change.\npaths=list((root/'backlog').glob('TASK-065-*.md')); assert len(paths)==1\nexact.add(paths[0].relative_to(root).as_posix())\nassert all(p in exact or p.startswith(allowed) or (p.startswith('scripts/') and p.endswith(('.ex', '.exs'))) for p in changed), 'out-of-scope files'\ntext=paths[0].read_text(); assert re.search(r'^depends_on:.*TASK-066',text,re.M), 'TASK-065 dependency missing'\nassert not re.search(r'^status: (?:wip|done|review)$',text,re.M), 'TASK-065 must remain blocked'\nledger=feature/'handoffs/remediation.md'; assert ledger.is_file() and ledger.stat().st_size>0, 'missing hunk/finding/regression ledger'\nmanifest=json.loads((feature/'verification.json').read_text()); tasks=(feature/'tasks.md').read_text()\nassert manifest['task_stages']=={'T020':'qa','T021':'review'}\nfor ident,title,gate in [('T020','Independent QA','qa'),('T021','Final review','review')]:\n assert re.search(r'^- \\[.\\] '+ident+r' \\[gate:'+gate+r'\\] '+title,tasks,re.M), 'missing independent gate'\nprint('scope and prerequisite contract passed; semantic equivalence and actual independent verdicts require downstream review')\n"
       ]
     },
     {
@@ -260,6 +260,17 @@
       "env": {
         "MIX_ENV": "test"
       }
+    },
+    {
+      "id": "cold-database-ci",
+      "argv": [
+        "python3",
+        "specs/066-credo-remediation/checks/cold_database.py"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "reuse": false
     }
   ],
   "coverage": {
@@ -309,7 +320,8 @@
     "FR-009": [
       "unit",
       "integration",
-      "e2e"
+      "e2e",
+      "cold-database-ci"
     ],
     "FR-010": [
       "scope"
@@ -333,7 +345,8 @@
     "SC-003": [
       "unit",
       "integration",
-      "e2e"
+      "e2e",
+      "cold-database-ci"
     ],
     "SC-004": [
       "unit",

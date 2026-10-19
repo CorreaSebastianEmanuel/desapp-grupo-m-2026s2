@@ -1,11 +1,9 @@
-# Review handoff — TASK-066
+# Review handoff — TASK-066, feedback 1
 
-Final review found no blockers. Human merge remains the next authority; this stage changed only the review report and this handoff. Gate checkboxes and backlog state were left untouched.
+Independent review is complete; see `../review-report.md` for findings and acceptance rationale.
 
-Current-source freshness was independently established against both QA hash snapshots. This permits using QA's existing passing runtime evidence without another service/profile cycle. Review-specific commands checked SHA256 equality, preservation of complete original inventory entries and diff whitespace; none altered application inputs.
+Publication guidance: preserve the reviewed preparation-step/workflow-fixture pair and all current manifest checks when updating existing PR #48. Obtain hosted checks for that published revision before human merge. Local cold-database recovery is evidence for the fix, not a claim about GitHub execution.
 
-For TASK-065 integration, consume the landed exact Credo declaration, lock and named configuration rather than reintroducing its older draft prerequisites. Its dependency must remain blocked until TASK-066 is merged and completed. Publication, completion and any later changes remain outside this review.
-
-See `../review-report.md` for the independent design/security assessment and acceptance decision. Any implementation changes after this review require reassessing the affected evidence.
+Any subsequent implementation change invalidates this review's source comparison and requires proportionate renewed verification. The review added only its two requested artifacts; it did not update task state, mark backlog work complete, or publish anything. TASK-065 remains unavailable until TASK-066 is completed through the human merge/completion process.
 
 Verdict: PASS

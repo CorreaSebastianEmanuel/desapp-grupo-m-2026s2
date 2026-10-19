@@ -1,45 +1,13 @@
-# Development handoff — TASK-066
+# Development handoff — TASK-066 feedback 1
 
-Credo 1.7.19 is pinned dev/test only, runtime false. The cleanup previously
-measured zero findings across 413 maintained inputs; all 877 original case
-identities and assignments remain. TASK-065 depends on TASK-066 and remains blocked.
+Reviewed the authorized Quality baseline correction: existing `MIX_ENV=test mix test.prepare` now precedes the unchanged CI wrapper. Existing contract assertions enforce ordering; the workflow SHA256 fixture matches the reviewed revision without weakening its exact comparison. Native scope allowances remain finite, including only the authorized workflow, contract and hash fixture. Application behavior, profile membership and existing assertions remain unchanged.
 
-See [remediation.md](remediation.md) for finding/hunk decisions, causal regressions,
-and the CI fixture diagnosis. The occupied-port fixture now reserves each port on the same Docker daemon
-as Compose, checks its publication, and retains both refusal assertions. The prior
-stopped-container workaround was insufficient alone. Each case also removes its
-stopped service containers to require a new daemon port allocation.
-Application lifecycle behavior, financial/authentication rules, ownership guards,
-and CI commands are unchanged. Native scope permits only the exact additional
-shell test and rejects unknown shell paths.
+Added `checks/cold_database.py` and manifest check `cold-database-ci`: creates a uniquely named owned empty database, requires the unit discovery prerequisite failure, prepares it, then executes `scripts/ci_unit_tests.sh`. It validates complete JSON stdout and reconciled unit/integration receipts. FR-009/SC-003 mappings include this check. No shared database reset or deletion occurs.
 
-All 16 final manifest checks passed on the repaired source. Historical results
-above do not replace these fresh receipts.
-Current repair command summaries: `tmp/task066/repair-check-results.json`.
+All 17 manifest checks passed via `python3 scripts/agentflow_check.py CHECK_ID --reuse`, on unchanged final inputs; none reused historical evidence. Final execution time: 943.985s. Unit: 66.344s; integration: 364.385s; E2E: 26.031s; cold CI: 399.955s. Evidence index: `tmp/task066/current-develop-checks.json`; logs/receipts: `.agentflow/runs/checks/84b43bbe27ab4a38907a0ccb4a534d4f/066-credo-remediation/develop/`. Effective inventory: `tmp/task066/effective-measurement.json`.
 
-Use PostgreSQL port 55432, Redis 6379 and prepared partition task066. QA must
-independently execute every manifest ID without reuse, using its own safe partition
-and locked dependencies/Node24/Chromium. Challenge transaction/error ordering,
-financial/authentication hunks, native ownership/provenance refusals, nested E2E
-subset patterns and both occupied-port cases. Developer receipts cannot replace QA.
+Earlier failures: inherited PostgreSQL port 15432 was unavailable; live mapping 55432 passed. Unit exposed the stale workflow byte oracle; corrected causally. One passing unit execution was invalidated by a concurrent scope correction and discarded. No retry limit was bypassed.
 
-T020/T021 remain independent gates. No completion, commit, push, PR or merge is
-claimed until the required verification succeeds. No model assignments changed.
+QA: use live PostgreSQL 55432, Redis 6379, an independent safe `MIX_TEST_PARTITION`, exact BEAM toolchain, Node24/Chromium and working Docker; development used `ERL_FLAGS='+S 4:4'`. Run EVERY manifest ID with `python3 scripts/agentflow_check.py CHECK_ID --stage qa`, without reuse. Cold CI intentionally repeats both profiles for feedback acceptance. Challenge schema causality, unchanged assertions, full scope and all original preservation constraints using plan/tasks and remediation ledger.
 
-The prior exact CI command completed its profiles but failed Agentflow stdout JSON
-parsing. The script now preserves diagnostics/sentinel on stderr and emits JSON
-only after both profiles and original receipt validation pass. Existing seven-case
-contract tests preserve failure exits, redaction and sentinel checks; they now
-parse all success stdout as JSON and reject any failure success-output. Red test
-against HEAD and repaired green run confirmed; four workflow gate tests also pass.
-No workflow snapshot or saved verdict changes. Final receipts are being refreshed.
-
-Confirmed environment mismatch: WSL-local sockets allowed successful Compose
-startup; Docker-published blockers produced real collision failures for both ports.
-Five consecutive isolated daemon-fixture executions passed in one project,
-including both original conflict assertions each time; owned cleanup exited 0.
-Full validation still must pass before CI and independent QA.
-
-Final verification: all 16 manifest commands passed through the canonical helper;
-check IDs, durations, exit statuses and evidence references are recorded in
-`tmp/task066/repair-check-results.json`. Readiness and CI run next before QA.
+Residual risk: local CI parity does not establish a fresh GitHub result. Independent QA/final review remain pending; TASK-065 remains blocked. No commit, push, PR update or merge performed. Extension hooks absent. Named artifacts reconciled before completion; `python3 scripts/workflow_artifact_probe.py develop --readiness` passed; evidence: `tmp/task066/current-readiness.log`.

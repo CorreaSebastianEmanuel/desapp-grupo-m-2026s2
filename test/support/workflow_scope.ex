@@ -25,7 +25,6 @@ defmodule FootballMarket.WorkflowScope do
     [
       ".github/workflows/quality-baseline.yml",
       "test/ci/quality_baseline_contract_test.exs",
-      "test/ci/fixtures/quality-baseline.sha256",
       "test/ci/workflow_scope_test.exs",
       "test/support/workflow_scope.ex",
       "test/football_market/market/scope_test.exs",
@@ -56,7 +55,6 @@ defmodule FootballMarket.WorkflowScope do
       "test/football_market/catalog/constraints_test.exs",
       "test/football_market/statistics/concurrency_test.exs",
       "test/ci/test_profile_audit_test.exs",
-      "test/ci/fixtures/quality-baseline.sha256",
       "test/football_market/providers/scope_test.exs",
       "test/ci/coverage_report_contract_test.exs",
       "test/ci/cp1_coverage_inventory_test.exs",
@@ -138,6 +136,7 @@ defmodule FootballMarket.WorkflowScope do
   def paths("specs/066-credo-remediation") do
     [
       ".credo.exs",
+      ".github/workflows/quality-baseline.yml",
       "config/test_profiles.json",
       "lib/football_market/accounts.ex",
       "lib/football_market/accounts/browser_sessions.ex",
@@ -199,6 +198,8 @@ defmodule FootballMarket.WorkflowScope do
       "mix.exs",
       "mix.lock",
       "test/ci/credo_remediation_contract_test.exs",
+      "test/ci/test_profiles_quality_contract_test.exs",
+      "test/ci/fixtures/quality-baseline.sha256",
       "test/ci/e2e_runtime_contract_test.exs",
       "test/ci/profile_integration_sentinel_test.exs",
       "test/ci/profile_unit_sentinel_test.exs",

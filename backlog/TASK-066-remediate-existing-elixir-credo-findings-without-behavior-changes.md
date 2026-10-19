@@ -4,9 +4,9 @@ title: Remediate existing Elixir Credo findings without behavior changes
 type: task
 checkpoint: CP2
 priority: high
-status: review
+status: done
 depends_on: none
-active_run: 15435314
+active_run: none
 ---
 
 ## Outcome

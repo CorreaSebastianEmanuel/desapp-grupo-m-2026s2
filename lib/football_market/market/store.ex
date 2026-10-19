@@ -19,41 +19,7 @@ defmodule FootballMarket.Market.Store do
     if Repo.in_transaction?() do
       Error.new(:invalid_input, :transaction_in_progress)
     else
-      safely(fn ->
-        Repo.transaction(fn ->
-          if Repo.query!("SHOW transaction_isolation").rows != [["read committed"]],
-            do: rollback(:invalid_input, :unsupported_isolation)
-
-          if is_nil(Repo.one(from l in InitializationLock, where: l.id == 1, lock: "FOR UPDATE")),
-            do: rollback(:storage_failure, :missing_initialization_lock)
-
-          if is_nil(Repo.one(from p in Player, where: p.id == ^player, lock: "FOR UPDATE")),
-            do: rollback(:player_not_found, :player_not_found)
-
-          if is_nil(Repo.one(from u in User, where: u.id == ^recipient, lock: "FOR KEY SHARE")),
-            do: rollback(:invalid_designation, :nonexistent_recipient)
-
-          state = snapshot(player, recipient)
-
-          if (state.fixed_recipient != nil and state.fixed_recipient != recipient) or
-               Enum.any?(state.issuance_recipients, &(&1 != recipient)),
-             do: rollback(:recipient_conflict, :market_recipient_conflict)
-
-          case Consistency.validate(state) do
-            {:ok, :unissued} ->
-              issue(player, recipient, state.fixed_recipient)
-
-            {:ok, :issued} ->
-              %{
-                outcome: :already_completed,
-                issuance: evidence(state.issuance, original_quote(state))
-              }
-
-            {:error, error} ->
-              Repo.rollback(error)
-          end
-        end)
-      end)
+      safely(fn -> initialize_transaction(player, recipient) end)
     end
   end
 
@@ -157,4 +123,45 @@ defmodule FootballMarket.Market.Store do
     ] ->
       Error.new(:storage_failure, :storage_rejected)
   end
+
+  defp initialize_locked(player, recipient) do
+    validate_initialization!(player, recipient)
+
+    state = snapshot(player, recipient)
+
+    if (state.fixed_recipient != nil and state.fixed_recipient != recipient) or
+         Enum.any?(state.issuance_recipients, &(&1 != recipient)),
+       do: rollback(:recipient_conflict, :market_recipient_conflict)
+
+    case Consistency.validate(state) do
+      {:ok, :unissued} ->
+        issue(player, recipient, state.fixed_recipient)
+
+      {:ok, :issued} ->
+        %{
+          outcome: :already_completed,
+          issuance: evidence(state.issuance, original_quote(state))
+        }
+
+      {:error, error} ->
+        Repo.rollback(error)
+    end
+  end
+
+  defp validate_initialization!(player, recipient) do
+    if Repo.query!("SHOW transaction_isolation").rows != [["read committed"]],
+      do: rollback(:invalid_input, :unsupported_isolation)
+
+    if is_nil(Repo.one(from l in InitializationLock, where: l.id == 1, lock: "FOR UPDATE")),
+      do: rollback(:storage_failure, :missing_initialization_lock)
+
+    if is_nil(Repo.one(from p in Player, where: p.id == ^player, lock: "FOR UPDATE")),
+      do: rollback(:player_not_found, :player_not_found)
+
+    if is_nil(Repo.one(from u in User, where: u.id == ^recipient, lock: "FOR KEY SHARE")),
+      do: rollback(:invalid_designation, :nonexistent_recipient)
+  end
+
+  defp initialize_transaction(player, recipient),
+    do: Repo.transaction(fn -> initialize_locked(player, recipient) end)
 end

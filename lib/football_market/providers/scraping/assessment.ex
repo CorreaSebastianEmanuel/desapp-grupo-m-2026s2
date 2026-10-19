@@ -61,33 +61,21 @@ defmodule FootballMarket.Providers.Scraping.Assessment do
     with true <- is_map(a),
          true <- state[:mode] == :fixture and a[:mode] == :fixture,
          true <-
-           a[:permission] == :granted and a[:withdrawn] == false and a[:conditions] == :satisfied,
+           permitted?(a),
          true <- is_binary(a[:evidence]) and a.evidence != "",
          %DateTime{} <- a[:reviewed_at],
          %DateTime{} <- a[:expires_at],
-         true <- DateTime.compare(now, a.expires_at) == :lt,
-         true <- DateTime.compare(a.reviewed_at, now) != :gt,
-         true <- not is_nil(a[:revision]) and (is_nil(revision) or revision == a.revision),
+         true <- current_dates?(a, now),
+         true <- compatible_revision?(a, revision),
          %{concurrency: n, volume: v, cadence_ms: c} <- a[:limits],
-         true <- is_integer(n) and n > 0 and is_integer(v) and v > 0 and is_integer(c) and c >= 0,
+         true <- valid_limits?(n, v, c),
          true <- "fixture" in Map.get(a, :destinations, []),
          %{required: :verified, witness: w, positions: p, metrics: m} = row <-
            Map.get(a[:scopes] || %{}, key),
          true <- is_binary(w) and w != "" and is_map(p) and map_size(p) > 0,
          true <- valid_participation?(Map.get(row, :participation)),
          true <-
-           Enum.all?(Performances.count_keys(), fn k ->
-             case m[k] do
-               %{status: :verified, evidence: e, meaning: meaning} ->
-                 is_binary(e) and e != "" and is_binary(meaning) and meaning != ""
-
-               %{status: status} when status in [:unavailable, :unverified] ->
-                 true
-
-               _ ->
-                 false
-             end
-           end) do
+           valid_metrics?(m) do
       {:ok, a.revision, row}
     else
       _ -> {:error, %{category: :unsupported_capability}}
@@ -113,4 +101,30 @@ defmodule FootballMarket.Providers.Scraping.Assessment do
   end
 
   defp valid_participation?(_), do: false
+
+  defp permitted?(assessment),
+    do:
+      assessment[:permission] == :granted and assessment[:withdrawn] == false and
+        assessment[:conditions] == :satisfied
+
+  defp valid_limits?(n, v, c),
+    do: is_integer(n) and n > 0 and is_integer(v) and v > 0 and is_integer(c) and c >= 0
+
+  defp valid_metrics?(metrics),
+    do: Enum.all?(Performances.count_keys(), &valid_metric?(metrics[&1]))
+
+  defp valid_metric?(%{status: :verified, evidence: evidence, meaning: meaning}),
+    do: is_binary(evidence) and evidence != "" and is_binary(meaning) and meaning != ""
+
+  defp valid_metric?(%{status: status}) when status in [:unavailable, :unverified], do: true
+  defp valid_metric?(_), do: false
+
+  defp current_dates?(assessment, now),
+    do:
+      DateTime.compare(now, assessment.expires_at) == :lt and
+        DateTime.compare(assessment.reviewed_at, now) != :gt
+
+  defp compatible_revision?(assessment, revision) do
+    not is_nil(assessment[:revision]) and (is_nil(revision) or revision == assessment.revision)
+  end
 end

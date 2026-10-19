@@ -164,4 +164,24 @@ defmodule FootballMarket.Market.ConsistencyTest do
     assert {:error, %{kind: :inconsistent_state}} =
              Consistency.validate(%{unissued | fixed_recipient: nil})
   end
+
+  test "recipient conflicts short circuit malformed retained history before coherence" do
+    s = valid()
+
+    assert {:error, %{kind: :recipient_conflict, reason: :market_recipient_conflict}} =
+             Consistency.validate(%{
+               s
+               | fixed_recipient: List.last(s.user_ids),
+                 holdings: :malformed,
+                 quotes: :malformed
+             })
+
+    assert {:error, %{kind: :inconsistent_state, reason: :partial_recipient_fixation}} =
+             Consistency.validate(%{
+               s
+               | fixed_recipient: nil,
+                 holdings: :malformed,
+                 quotes: :malformed
+             })
+  end
 end

@@ -177,7 +177,7 @@ defmodule FootballMarket.Valuation.PositionAware.ScopeTest do
       assert_receive :trace_flushed
       refute_receive {:effect_call, _}
       queries = queries([])
-      assert length(queries) > 0
+      assert queries != []
 
       for query <- queries do
         refute query =~ ~r/\b(INSERT|UPDATE|DELETE|MERGE|CREATE|ALTER|DROP|TRUNCATE)\b/i

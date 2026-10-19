@@ -1,4 +1,5 @@
 defmodule FootballMarket.Valuation.Evidence do
+  @moduledoc false
   alias FootballMarket.Valuation.{Descriptor, DecimalMath}
 
   def attach(prepared) do

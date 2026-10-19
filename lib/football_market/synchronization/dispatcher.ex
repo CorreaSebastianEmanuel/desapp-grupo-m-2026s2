@@ -50,45 +50,7 @@ defmodule FootballMarket.Synchronization.Dispatcher do
 
     with {:ok, _} <- Recovery.reconcile(Clock.now()),
          :ok <- dispatch_calculation_intents() do
-      enabled = Keyword.get(config, :enabled, false)
-      if not is_boolean(enabled), do: throw(:invalid_configuration)
-      disabled = if enabled, do: {:ok, 0}, else: Scheduler.disable_all(Clock.now())
-      if match?({:error, _}, disabled), do: throw(:store_unavailable)
-
-      valid_schedules =
-        is_list(schedules) and
-          Enum.all?(schedules, fn
-            {key, definition} -> is_binary(key) and is_map(definition)
-            _ -> false
-          end)
-
-      unless valid_schedules, do: throw(:invalid_schedule_configuration)
-
-      if enabled do
-        case Scheduler.disable_unconfigured(Enum.map(schedules, &elem(&1, 0)), Clock.now()) do
-          {:ok, _} -> :ok
-          _ -> throw(:store_unavailable)
-        end
-      end
-
-      configured =
-        for {key, definition} <- schedules do
-          Scheduler.configure(
-            key,
-            Map.put(definition, :enabled, enabled && Map.get(definition, :enabled, true))
-          )
-        end
-
-      cond do
-        Enum.any?(configured, &match?({:error, _}, &1)) ->
-          {:error, :invalid_schedule_configuration}
-
-        not enabled ->
-          {:ok, []}
-
-        true ->
-          Scheduler.tick(Clock.now())
-      end
+      dispatch_schedules(Keyword.get(config, :enabled, false), schedules)
     end
   rescue
     _ -> Store.unavailable()
@@ -96,6 +58,58 @@ defmodule FootballMarket.Synchronization.Dispatcher do
     :invalid_configuration -> {:error, :invalid_configuration}
     :invalid_schedule_configuration -> {:error, :invalid_schedule_configuration}
     :store_unavailable -> Store.unavailable()
+  end
+
+  defp dispatch_schedules(enabled, schedules) do
+    if not is_boolean(enabled), do: throw(:invalid_configuration)
+    disable_existing_schedules(enabled)
+    validate_schedules!(schedules)
+    disable_unconfigured_schedules(enabled, schedules)
+    configured = configure_schedules(schedules, enabled)
+    schedule_result(configured, enabled)
+  end
+
+  defp disable_existing_schedules(true), do: :ok
+
+  defp disable_existing_schedules(false) do
+    case Scheduler.disable_all(Clock.now()) do
+      {:error, _} -> throw(:store_unavailable)
+      _ -> :ok
+    end
+  end
+
+  defp validate_schedules!(schedules) do
+    valid = is_list(schedules) and Enum.all?(schedules, &valid_schedule?/1)
+    unless valid, do: throw(:invalid_schedule_configuration)
+  end
+
+  defp valid_schedule?({key, definition}), do: is_binary(key) and is_map(definition)
+  defp valid_schedule?(_), do: false
+
+  defp disable_unconfigured_schedules(false, _schedules), do: :ok
+
+  defp disable_unconfigured_schedules(true, schedules) do
+    case Scheduler.disable_unconfigured(Enum.map(schedules, &elem(&1, 0)), Clock.now()) do
+      {:ok, _} -> :ok
+      _ -> throw(:store_unavailable)
+    end
+  end
+
+  defp configure_schedules(schedules, enabled) do
+    for {key, definition} <- schedules do
+      Scheduler.configure(
+        key,
+        Map.put(definition, :enabled, enabled && Map.get(definition, :enabled, true))
+      )
+    end
+  end
+
+  defp schedule_result(configured, enabled) do
+    cond do
+      Enum.any?(configured, &match?({:error, _}, &1)) -> {:error, :invalid_schedule_configuration}
+      not enabled -> {:ok, []}
+      true -> Scheduler.tick(Clock.now())
+    end
   end
 
   defp dispatch_calculation_intents do

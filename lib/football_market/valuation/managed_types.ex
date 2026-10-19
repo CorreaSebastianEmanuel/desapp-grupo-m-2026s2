@@ -4,6 +4,7 @@ defmodule FootballMarket.Valuation.ManagedDescriptor do
 end
 
 defmodule FootballMarket.Valuation.ManagedResult do
+  @moduledoc false
   defstruct [
     :configuration_version_id,
     :strategy_id,

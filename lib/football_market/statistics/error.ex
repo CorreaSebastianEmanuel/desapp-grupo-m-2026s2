@@ -1,4 +1,5 @@
 defmodule FootballMarket.Statistics.Error do
+  @moduledoc false
   def validation(field, reason),
     do: {:error, %{kind: :validation, field: field, reason: reason, record: nil}}
 

@@ -1,4 +1,5 @@
 defmodule FootballMarketWeb.Plugs.BrowserAuth do
+  @moduledoc false
   import Plug.Conn
   import Phoenix.Controller
   alias FootballMarket.Accounts.BrowserSessions

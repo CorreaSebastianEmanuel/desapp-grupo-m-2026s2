@@ -65,32 +65,37 @@ defmodule FootballMarket.Statistics.Ingestion.Canonical do
 
   defp rows(value, kind, references, identity) when is_list(value) do
     value
-    |> Enum.map(fn row ->
-      row =
-        if kind,
-          do:
-            row |> Map.put("source_identity", identity[{kind, row["ref"]}]) |> Map.delete("ref"),
-          else: Map.delete(row, "ref")
-
-      Enum.reduce(references, row, fn field, acc ->
-        case Map.fetch(acc, field) do
-          {:ok, ref} ->
-            Map.put(
-              acc,
-              String.replace_suffix(field, "_ref", "_identity"),
-              identity[{reference_kind(field), ref}] || ref
-            )
-            |> Map.delete(field)
-
-          :error ->
-            acc
-        end
-      end)
-    end)
+    |> Enum.map(&canonical_row(&1, kind, references, identity))
     |> Enum.sort_by(&Jason.encode!/1)
   end
 
   defp rows(value, _kind, _references, _identity), do: value
+
+  defp canonical_row(row, kind, references, identity) do
+    row = canonical_source_identity(row, kind, identity)
+    Enum.reduce(references, row, &canonical_reference(&1, &2, identity))
+  end
+
+  defp canonical_source_identity(row, kind, identity) do
+    if kind,
+      do: row |> Map.put("source_identity", identity[{kind, row["ref"]}]) |> Map.delete("ref"),
+      else: Map.delete(row, "ref")
+  end
+
+  defp canonical_reference(field, acc, identity) do
+    case Map.fetch(acc, field) do
+      {:ok, ref} ->
+        Map.put(
+          acc,
+          String.replace_suffix(field, "_ref", "_identity"),
+          identity[{reference_kind(field), ref}] || ref
+        )
+        |> Map.delete(field)
+
+      :error ->
+        acc
+    end
+  end
 
   defp single(value, kind, identity) when is_map(value),
     do: value |> Map.put("source_identity", identity[{kind, value["ref"]}]) |> Map.delete("ref")

@@ -1157,6 +1157,13 @@
       "profile": "unit"
     },
     {
+      "id": "2fed287491e97c176fb21597",
+      "runner": "exunit",
+      "file": "test/ci/credo_remediation_contract_test.exs",
+      "case_id": "FootballMarket.CredoRemediationContractTest:test analyzer is exactly pinned and never loaded at runtime",
+      "profile": "unit"
+    },
+    {
       "id": "2ff1f911728d26187c5d7bc3",
       "runner": "exunit",
       "file": "test/ci/test_profile_audit_test.exs",
@@ -1210,6 +1217,13 @@
       "runner": "python",
       "file": "test/scripts/agentflow_workflow_gate_test.py",
       "case_id": "test.scripts.agentflow_workflow_gate_test.CiBaselineGateTest.test_gate_shape",
+      "profile": "unit"
+    },
+    {
+      "id": "318422ec91261bdccc00994b",
+      "runner": "exunit",
+      "file": "test/football_market/market/consistency_test.exs",
+      "case_id": "FootballMarket.Market.ConsistencyTest:test recipient conflicts short circuit malformed retained history before coherence",
       "profile": "unit"
     },
     {
@@ -1336,6 +1350,13 @@
       "runner": "python",
       "file": "test/scripts/agentflow_branch_test.py",
       "case_id": "test.scripts.agentflow_branch_test.ConsumerRejectionTest.test_task054_pr_carries_actual_merge_order_and_separate_branch",
+      "profile": "unit"
+    },
+    {
+      "id": "375942263d5ff152df6f7ee1",
+      "runner": "python",
+      "file": "test/scripts/fast_lane_check_test.py",
+      "case_id": "test.scripts.fast_lane_check_test.FastLaneCheckTest.test_application_paths_are_denied",
       "profile": "unit"
     },
     {
@@ -2676,6 +2697,13 @@
       "profile": "integration"
     },
     {
+      "id": "750c414f3d89f117416353a9",
+      "runner": "exunit",
+      "file": "test/ci/credo_remediation_contract_test.exs",
+      "case_id": "FootballMarket.CredoRemediationContractTest:test effective named configuration covers every maintained source with stock checks",
+      "profile": "unit"
+    },
+    {
       "id": "7575b71a5f09b91c6126a833",
       "runner": "exunit",
       "file": "test/football_market/statistics/scope_test.exs",
@@ -2935,6 +2963,13 @@
       "profile": "unit"
     },
     {
+      "id": "80af47eb8c910d8c1887937f",
+      "runner": "python",
+      "file": "test/scripts/fast_lane_check_test.py",
+      "case_id": "test.scripts.fast_lane_check_test.FastLaneCheckTest.test_untracked_application_file_is_denied_without_commit",
+      "profile": "unit"
+    },
+    {
       "id": "810597b713ce925d6b38d0ac",
       "runner": "python",
       "file": "test/scripts/test_profile_runner_test.py",
@@ -2960,6 +2995,13 @@
       "runner": "exunit",
       "file": "test/football_market_web/controllers/error_json_test.exs",
       "case_id": "FootballMarketWeb.ErrorJSONTest:test renders 500",
+      "profile": "unit"
+    },
+    {
+      "id": "81d3e0a37fa4e832f19cdce4",
+      "runner": "exunit",
+      "file": "test/ci/credo_remediation_contract_test.exs",
+      "case_id": "FootballMarket.CredoRemediationContractTest:test standard invocation documents default priority without suppression",
       "profile": "unit"
     },
     {
@@ -3143,6 +3185,13 @@
       "file": "test/football_market/catalog/ingestion/identity_test.exs",
       "case_id": "FootballMarket.Catalog.Ingestion.IdentityTest:test same-name players remain distinct and a transfer retains both identities",
       "profile": "integration"
+    },
+    {
+      "id": "88b33a86c3246e82093a87d0",
+      "runner": "exunit",
+      "file": "test/football_market/statistics/input_test.exs",
+      "case_id": "FootballMarket.Statistics.InputTest:test validation retains first-field precedence across simultaneous failures",
+      "profile": "unit"
     },
     {
       "id": "88f855bbf8485e05dc3deb07",
@@ -3677,6 +3726,13 @@
       "profile": "unit"
     },
     {
+      "id": "9f3a5d88bca9c88e0a619139",
+      "runner": "exunit",
+      "file": "test/ci/workflow_scope_test.exs",
+      "case_id": "FootballMarket.WorkflowScopeTest:test Credo cleanup allowance is finite and rejects unknown production and CI paths",
+      "profile": "unit"
+    },
+    {
       "id": "9fad0d55c14b9ccdd502fe5d",
       "runner": "exunit",
       "file": "test/football_market/statistics/ingestion/acceptance_test.exs",
@@ -3969,6 +4025,13 @@
       "file": "test/mix/tasks/catalog.seed_test.exs",
       "case_id": "Mix.Tasks.Catalog.SeedTest:test runs explicitly and prints stable automation-oriented totals",
       "profile": "integration"
+    },
+    {
+      "id": "a9318991993167022b986140",
+      "runner": "exunit",
+      "file": "test/ci/credo_remediation_contract_test.exs",
+      "case_id": "FootballMarket.CredoRemediationContractTest:test contract rejects omitted inputs, hidden exclusions and modified rules",
+      "profile": "unit"
     },
     {
       "id": "a97ee8f4829fd2bf2c773b13",
@@ -4454,6 +4517,13 @@
       "profile": "integration"
     },
     {
+      "id": "bef1ed5924b684efb28a161a",
+      "runner": "python",
+      "file": "test/scripts/fast_lane_check_test.py",
+      "case_id": "test.scripts.fast_lane_check_test.FastLaneCheckTest.test_clean_tree_reports_nothing",
+      "profile": "unit"
+    },
+    {
       "id": "bf1cbbb38310209bf3a7adf2",
       "runner": "exunit",
       "file": "test/football_market/accounts/api_key_persistence_test.exs",
@@ -4580,6 +4650,13 @@
       "profile": "integration"
     },
     {
+      "id": "c4374996334ef0ea47fcf8a1",
+      "runner": "python",
+      "file": "test/scripts/fast_lane_check_test.py",
+      "case_id": "test.scripts.fast_lane_check_test.FastLaneCheckTest.test_untracked_no_behavior_files_are_checked_without_commit",
+      "profile": "unit"
+    },
+    {
       "id": "c4e8909094f0fe973f352afe",
       "runner": "exunit",
       "file": "test/football_market/valuation/balanced/scope_test.exs",
@@ -4606,6 +4683,13 @@
       "file": "test/football_market_web/controllers/session_controller_test.exs",
       "case_id": "FootballMarketWeb.SessionControllerTest:test rotates encrypted cookie, ignores stale credentials and keeps APIs separate",
       "profile": "integration"
+    },
+    {
+      "id": "c67e628c5d991ac21b4b1e44",
+      "runner": "python",
+      "file": "test/scripts/fast_lane_check_test.py",
+      "case_id": "test.scripts.fast_lane_check_test.FastLaneCheckTest.test_root_level_application_files_are_denied",
+      "profile": "unit"
     },
     {
       "id": "c6bfa59123c02703fc11f8be",
@@ -5060,6 +5144,13 @@
       "runner": "exunit",
       "file": "test/football_market/valuation/normalization_test.exs",
       "case_id": "FootballMarket.Valuation.NormalizationTest:test exact ratios, saturation and half-away rounding independent of Decimal context",
+      "profile": "unit"
+    },
+    {
+      "id": "d6fd3a614a8ae0c6f154e62d",
+      "runner": "python",
+      "file": "test/scripts/fast_lane_check_test.py",
+      "case_id": "test.scripts.fast_lane_check_test.FastLaneCheckTest.test_all_no_behavior_paths_are_allowed",
       "profile": "unit"
     },
     {

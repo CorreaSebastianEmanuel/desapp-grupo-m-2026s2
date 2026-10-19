@@ -1,4 +1,5 @@
 defmodule FootballMarket.ValuationScorers.Common do
+  @moduledoc false
   defmacro __using__(_) do
     quote do
       @behaviour FootballMarket.Valuation.Scorer
@@ -47,10 +48,12 @@ defmodule FootballMarket.ValuationScorers.Common do
 end
 
 defmodule FootballMarket.ValuationScorers.Weighted do
+  @moduledoc false
   use FootballMarket.ValuationScorers.Common
 end
 
 defmodule FootballMarket.ValuationScorers.Restricted do
+  @moduledoc false
   use FootballMarket.ValuationScorers.Common
 
   def score(view, config) do
@@ -68,51 +71,61 @@ defmodule FootballMarket.ValuationScorers.Restricted do
 end
 
 defmodule FootballMarket.ValuationScorers.Version2 do
+  @moduledoc false
   use FootballMarket.ValuationScorers.Common
   def identity, do: {"illustrative", "2"}
 end
 
 defmodule FootballMarket.ValuationScorers.Failure do
+  @moduledoc false
   use FootballMarket.ValuationScorers.Common
   def score(_, _), do: {:error, :illustrative_failure}
 end
 
 defmodule FootballMarket.ValuationScorers.Exception do
+  @moduledoc false
   use FootballMarket.ValuationScorers.Common
   def score(_, _), do: raise("private callback detail")
 end
 
 defmodule FootballMarket.ValuationScorers.IntegerResult do
+  @moduledoc false
   use FootballMarket.ValuationScorers.Common
   def score(_, _), do: {:ok, 1}
 end
 
 defmodule FootballMarket.ValuationScorers.FloatResult do
+  @moduledoc false
   use FootballMarket.ValuationScorers.Common
   def score(_, _), do: {:ok, 1.0}
 end
 
 defmodule FootballMarket.ValuationScorers.Nonfinite do
+  @moduledoc false
   use FootballMarket.ValuationScorers.Common
   def score(_, _), do: {:ok, Decimal.new("NaN")}
 end
 
 defmodule FootballMarket.ValuationScorers.Malformed do
+  @moduledoc false
   use FootballMarket.ValuationScorers.Common
   def score(_, _), do: :wrong_return
 end
 
 defmodule FootballMarket.ValuationScorers.MustNotScore do
+  @moduledoc false
   use FootballMarket.ValuationScorers.Common
   def score(_, _), do: raise("requirements must be checked before invoking scorer")
 end
 
 defmodule FootballMarket.ValuationScorers.MalformedDecimal do
+  @moduledoc false
   use FootballMarket.ValuationScorers.Common
   def score(_, _), do: {:ok, %Decimal{sign: 0, coef: 1, exp: 0}}
 end
 
 defmodule FootballMarket.ValuationScorers.Infinity do
+  @moduledoc false
   use FootballMarket.ValuationScorers.Common
   def score(_, _), do: {:ok, Decimal.new("Infinity")}
 end

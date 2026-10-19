@@ -15,19 +15,23 @@ defmodule FootballMarketWeb.SessionController do
         form(conn, params, 503, "Authentication temporarily unavailable. Please retry.")
 
       _ ->
-        case BrowserSessions.create_anonymous() do
-          {:ok, handle} ->
-            conn
-            |> put_session(:browser_handle, handle)
-            |> form(
-              params,
-              200,
-              if(params["notice"] == "ended", do: "Your session ended. Please sign in again.")
-            )
+        new_anonymous(conn, params)
+    end
+  end
 
-          _ ->
-            form(conn, params, 503, "Authentication temporarily unavailable. Please retry.")
-        end
+  defp new_anonymous(conn, params) do
+    case BrowserSessions.create_anonymous() do
+      {:ok, handle} ->
+        conn
+        |> put_session(:browser_handle, handle)
+        |> form(
+          params,
+          200,
+          if(params["notice"] == "ended", do: "Your session ended. Please sign in again.")
+        )
+
+      _ ->
+        form(conn, params, 503, "Authentication temporarily unavailable. Please retry.")
     end
   end
 

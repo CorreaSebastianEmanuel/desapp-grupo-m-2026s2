@@ -29,10 +29,21 @@ printf '%s\n' '{"entries":[{"profile":"unit","runner":"exunit"},{"profile":"inte
 run_case() {
   name=$1
   wanted=$2
-  if (cd "$private" && FAKE_CASE="$name" sh scripts/ci_unit_tests.sh) >"$private/output" 2>&1; then actual=0; else actual=1; fi
+  if (cd "$private" && FAKE_CASE="$name" sh scripts/ci_unit_tests.sh) >"$private/stdout" 2>"$private/stderr"; then actual=0; else actual=1; fi
+  cat "$private/stdout" "$private/stderr" >"$private/output"
   [ "$actual" -eq "$wanted" ] || { echo 'CI contract failure' >&2; exit 1; }
   ! grep -q CP1_PROFILE_SECRET_SENTINEL "$private/output"
   if [ "$wanted" -eq 0 ]; then grep -Fxq FOOTBALL_MARKET_CI_DISCOVERY_SENTINEL "$private/output"; else ! grep -q FOOTBALL_MARKET_CI_DISCOVERY_SENTINEL "$private/output"; fi
+  if [ "$wanted" -eq 0 ]; then
+    python3 - "$private/stdout" <<'PY'
+import json,sys
+from pathlib import Path
+assert json.loads(Path(sys.argv[1]).read_text()) == {
+    'schema_version': 1, 'status': 'complete', 'profiles': ['unit', 'integration']}
+PY
+  else
+    [ ! -s "$private/stdout" ] || { echo 'failed CI emitted success output' >&2; exit 1; }
+  fi
 }
 profile_case_start 'complete'
 run_case complete 0

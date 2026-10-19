@@ -80,7 +80,7 @@ defmodule FootballMarket.Catalog.Ingestion.ConcurrencyTest do
 
     assert length(Enum.uniq(backends)) == 2
     for t <- tasks, do: send(t.pid, {token, :go})
-    outcomes = Enum.map(tasks, &Task.await(&1, 10000))
+    outcomes = Enum.map(tasks, &Task.await(&1, 10_000))
     assert Enum.all?(outcomes, &match?({:ok, _}, &1))
 
     assert Enum.sort(Enum.map(outcomes, fn {:ok, o} -> o.status end)) == [
@@ -98,12 +98,7 @@ defmodule FootballMarket.Catalog.Ingestion.ConcurrencyTest do
     tasks =
       for c <- candidates do
         Task.async(fn ->
-          Sandbox.unboxed_run(Repo, fn ->
-            Ingestion.import_catalog(
-              request("PL", year),
-              options({:barrier, parent, token, c}, instant)
-            )
-          end)
+          import_contender(year, parent, token, c, instant)
         end)
       end
 
@@ -116,7 +111,7 @@ defmodule FootballMarket.Catalog.Ingestion.ConcurrencyTest do
 
     assert length(Enum.uniq(backends)) == 2
     for t <- tasks, do: send(t.pid, {token, :go})
-    Enum.map(tasks, &Task.await(&1, 10000))
+    Enum.map(tasks, &Task.await(&1, 10_000))
   end
 
   test "differing deliveries at revision zero and n yield exactly one publication", %{year: year} do
@@ -188,7 +183,7 @@ defmodule FootballMarket.Catalog.Ingestion.ConcurrencyTest do
 
     assert read.() == []
     send(pid, :commit)
-    assert {:ok, _} = Task.await(task, 10000)
+    assert {:ok, _} = Task.await(task, 10_000)
     assert read.() == [{"Alex", "ALP", "Alpha"}]
   end
 
@@ -214,7 +209,7 @@ defmodule FootballMarket.Catalog.Ingestion.ConcurrencyTest do
     end
 
     for t <- tasks, do: send(t.pid, {token, :go})
-    results = Enum.map(tasks, &Task.await(&1, 10000))
+    results = Enum.map(tasks, &Task.await(&1, 10_000))
     assert Enum.all?(results, &match?({:ok, _}, &1))
 
     Sandbox.unboxed_run(Repo, fn ->
@@ -262,8 +257,17 @@ defmodule FootballMarket.Catalog.Ingestion.ConcurrencyTest do
 
     assert read.() == {0, 0}
     send(pid, :fail)
-    assert {:error, outcome} = Task.await(task, 10000)
+    assert {:error, outcome} = Task.await(task, 10_000)
     assert outcome.status == :persistence_failure
     assert read.() == {0, 0}
+  end
+
+  defp import_contender(year, parent, token, candidate, instant) do
+    Sandbox.unboxed_run(Repo, fn ->
+      Ingestion.import_catalog(
+        request("PL", year),
+        options({:barrier, parent, token, candidate}, instant)
+      )
+    end)
   end
 end

@@ -32,18 +32,21 @@ defmodule Mix.Tasks.Infrastructure.Database do
 end
 
 defmodule Mix.Tasks.Infrastructure.Database.Create do
+  @moduledoc false
   use Mix.Task
   @requirements ["app.config"]
   def run(_), do: Mix.Tasks.Infrastructure.Database.create()
 end
 
 defmodule Mix.Tasks.Infrastructure.Database.Migrate do
+  @moduledoc false
   use Mix.Task
   @requirements ["app.config"]
   def run(_), do: Mix.Tasks.Infrastructure.Database.migrate()
 end
 
 defmodule Mix.Tasks.Infrastructure.Database.Setup do
+  @moduledoc false
   use Mix.Task
   @requirements ["app.config"]
   def run(_) do
@@ -53,6 +56,7 @@ defmodule Mix.Tasks.Infrastructure.Database.Setup do
 end
 
 defmodule Mix.Tasks.Infrastructure.Database.TestPrepare do
+  @moduledoc false
   use Mix.Task
   @requirements ["app.config"]
   def run(_) do

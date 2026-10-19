@@ -1,4 +1,5 @@
 defmodule FootballMarket.Statistics.Input do
+  @moduledoc false
   alias FootballMarket.Statistics.Error
 
   @metrics [
@@ -48,15 +49,13 @@ defmodule FootballMarket.Statistics.Input do
   def identifier(_, field), do: Error.validation(field, :invalid_identifier)
 
   def instant(value, field) when is_binary(value) do
-    cond do
-      Regex.match?(~r/\.\d{7,}/, value) ->
-        Error.validation(field, :unsupported_precision)
-
-      true ->
-        case DateTime.from_iso8601(value) do
-          {:ok, dt, _} -> canonical(dt, field)
-          _ -> Error.validation(field, :invalid_instant)
-        end
+    if Regex.match?(~r/\.\d{7,}/, value) do
+      Error.validation(field, :unsupported_precision)
+    else
+      case DateTime.from_iso8601(value) do
+        {:ok, dt, _} -> canonical(dt, field)
+        _ -> Error.validation(field, :invalid_instant)
+      end
     end
   end
 
@@ -65,33 +64,38 @@ defmodule FootballMarket.Statistics.Input do
 
   defp canonical(value, field) do
     try do
-      {micro, precision} = value.microsecond
-
-      valid =
-        precision in 0..6 and micro in 0..999_999 and value.calendar == Calendar.ISO and
-          is_binary(value.time_zone) and is_integer(value.utc_offset) and
-          is_integer(value.std_offset) and value.year in 1..9999
-
-      if valid do
-        value = %{value | microsecond: {micro, 6}}
-
-        value
-        |> DateTime.to_iso8601()
-        |> DateTime.from_iso8601()
-        |> case do
-          {:ok, dt, _} ->
-            if DateTime.to_unix(dt, :microsecond) == DateTime.to_unix(value, :microsecond),
-              do: {:ok, dt},
-              else: Error.validation(field, :invalid_instant)
-
-          _ ->
-            Error.validation(field, :invalid_instant)
-        end
-      else
-        Error.validation(field, :invalid_instant)
-      end
+      canonical_datetime(value, field)
     rescue
       _ -> Error.validation(field, :invalid_instant)
+    end
+  end
+
+  defp canonical_datetime(value, field) do
+    {micro, precision} = value.microsecond
+
+    if valid_datetime?(value, micro, precision) do
+      normalized = %{value | microsecond: {micro, 6}}
+      roundtrip_datetime(normalized, field)
+    else
+      Error.validation(field, :invalid_instant)
+    end
+  end
+
+  defp valid_datetime?(value, micro, precision) do
+    precision in 0..6 and micro in 0..999_999 and value.calendar == Calendar.ISO and
+      is_binary(value.time_zone) and is_integer(value.utc_offset) and
+      is_integer(value.std_offset) and value.year in 1..9999
+  end
+
+  defp roundtrip_datetime(value, field) do
+    case value |> DateTime.to_iso8601() |> DateTime.from_iso8601() do
+      {:ok, dt, _} ->
+        if DateTime.to_unix(dt, :microsecond) == DateTime.to_unix(value, :microsecond),
+          do: {:ok, dt},
+          else: Error.validation(field, :invalid_instant)
+
+      _ ->
+        Error.validation(field, :invalid_instant)
     end
   end
 
@@ -131,34 +135,34 @@ defmodule FootballMarket.Statistics.Input do
 
   defp validate(attrs, allowed, required) do
     with {:ok, attrs} <- keys(attrs, allowed) do
-      Enum.reduce_while(allowed, {:ok, %{}}, fn field, {:ok, acc} ->
-        value = attrs[field]
-
-        result =
-          cond do
-            is_nil(value) and field in required ->
-              Error.validation(field, :required)
-
-            field in @metrics or field == :minutes_played ->
-              if is_nil(value) or (is_integer(value) and value >= 0),
-                do: {:ok, value},
-                else: Error.validation(field, :invalid_count)
-
-            field == :kickoff_at ->
-              instant(value, field)
-
-            field == :match_identity ->
-              identity(value)
-
-            true ->
-              identifier(value, field)
-          end
-
-        case result do
-          {:ok, v} -> {:cont, {:ok, Map.put(acc, field, v)}}
-          error -> {:halt, error}
-        end
+      Enum.reduce_while(allowed, {:ok, %{}}, fn field, state ->
+        validate_attribute(field, attrs[field], required, state)
       end)
     end
   end
+
+  defp validate_attribute(field, value, required, {:ok, acc}) do
+    case validate_value(field, value, required) do
+      {:ok, normalized} -> {:cont, {:ok, Map.put(acc, field, normalized)}}
+      error -> {:halt, error}
+    end
+  end
+
+  defp validate_value(field, value, required) do
+    case {value, field in required} do
+      {nil, true} -> Error.validation(field, :required)
+      _ -> validate_nonrequired_value(field, value)
+    end
+  end
+
+  defp validate_nonrequired_value(field, value)
+       when field in @metrics or field == :minutes_played do
+    if is_nil(value) or (is_integer(value) and value >= 0),
+      do: {:ok, value},
+      else: Error.validation(field, :invalid_count)
+  end
+
+  defp validate_nonrequired_value(:kickoff_at, value), do: instant(value, :kickoff_at)
+  defp validate_nonrequired_value(:match_identity, value), do: identity(value)
+  defp validate_nonrequired_value(field, value), do: identifier(value, field)
 end

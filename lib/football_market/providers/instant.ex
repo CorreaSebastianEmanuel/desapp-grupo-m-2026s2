@@ -4,12 +4,7 @@ defmodule FootballMarket.Providers.Instant do
     try do
       {micro, precision} = value.microsecond
 
-      valid =
-        precision in 0..6 and micro in 0..999_999 and value.calendar == Calendar.ISO and
-          is_binary(value.time_zone) and is_integer(value.utc_offset) and
-          is_integer(value.std_offset) and value.year in 1..9999
-
-      if valid do
+      if valid_datetime?(value, micro, precision) do
         value = %{value | microsecond: {micro, 6}}
 
         case DateTime.from_iso8601(DateTime.to_iso8601(value)) do
@@ -42,4 +37,10 @@ defmodule FootballMarket.Providers.Instant do
   end
 
   def normalize(_), do: :error
+
+  defp valid_datetime?(value, micro, precision) do
+    precision in 0..6 and micro in 0..999_999 and value.calendar == Calendar.ISO and
+      is_binary(value.time_zone) and is_integer(value.utc_offset) and
+      is_integer(value.std_offset) and value.year in 1..9999
+  end
 end

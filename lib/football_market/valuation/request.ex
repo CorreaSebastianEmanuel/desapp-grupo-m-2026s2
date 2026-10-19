@@ -1,4 +1,5 @@
 defmodule FootballMarket.Valuation.Request do
+  @moduledoc false
   alias FootballMarket.Valuation.{Error, Week, DecimalMath, Evidence}
 
   @metrics [
@@ -28,29 +29,27 @@ defmodule FootballMarket.Valuation.Request do
   def validate(%__MODULE__{} = request), do: validate(Map.from_struct(request))
 
   def validate(request) when is_map(request) and not is_struct(request) do
-    cond do
-      Enum.sort(Map.keys(request)) != Enum.sort(@keys) ->
-        Error.new(:validation, :invalid_request_keys, [:request])
-
-      true ->
-        with {:ok, player} <- identifier(request.player_id, :player_id),
-             {:ok, season} <- identifier(request.season_id, :season_id),
-             {:ok, {a, b}} <- Week.validate(request.week_start, request.week_end),
-             {:ok, requirements} <- requirements(request.requirements),
-             :ok <- references(request.references, requirements),
-             {:ok, mapping} <- mapping(request.position_mapping) do
-          {:ok,
-           struct!(__MODULE__, %{
-             request
-             | player_id: player,
-               season_id: season,
-               week_start: a,
-               week_end: b,
-               requirements: requirements,
-               references: FootballMarket.Valuation.Evidence.normalize_config(request.references),
-               position_mapping: mapping
-           })}
-        end
+    if Enum.sort(Map.keys(request)) != Enum.sort(@keys) do
+      Error.new(:validation, :invalid_request_keys, [:request])
+    else
+      with {:ok, player} <- identifier(request.player_id, :player_id),
+           {:ok, season} <- identifier(request.season_id, :season_id),
+           {:ok, {a, b}} <- Week.validate(request.week_start, request.week_end),
+           {:ok, requirements} <- requirements(request.requirements),
+           :ok <- references(request.references, requirements),
+           {:ok, mapping} <- mapping(request.position_mapping) do
+        {:ok,
+         struct!(__MODULE__, %{
+           request
+           | player_id: player,
+             season_id: season,
+             week_start: a,
+             week_end: b,
+             requirements: requirements,
+             references: FootballMarket.Valuation.Evidence.normalize_config(request.references),
+             position_mapping: mapping
+         })}
+      end
     end
   end
 
@@ -125,22 +124,27 @@ defmodule FootballMarket.Valuation.Request do
   defp mapping(_), do: Error.new(:validation, :invalid_mapping, [:position_mapping])
 
   defp mapping_pairs(pairs) do
-    Enum.reduce_while(pairs, {:ok, []}, fn
-      {id, group}, {:ok, acc} ->
-        with {:ok, id} <- identifier(id, :position_mapping) do
-          if group in tl(@scopes) and not Enum.any?(acc, fn {key, _} -> key == id end),
-            do: {:cont, {:ok, [{id, group} | acc]}},
-            else: {:halt, Error.new(:validation, :invalid_mapping, [:position_mapping])}
-        else
-          error -> {:halt, error}
-        end
-
-      _, _ ->
-        {:halt, Error.new(:validation, :invalid_mapping, [:position_mapping])}
-    end)
+    Enum.reduce_while(pairs, {:ok, []}, &mapping_pair/2)
     |> case do
       {:ok, pairs} -> {:ok, Enum.sort(pairs)}
       error -> error
     end
   end
+
+  defp mapping_pair({id, group}, {:ok, acc}) do
+    case identifier(id, :position_mapping) do
+      {:ok, id} ->
+        if group in tl(@scopes) and not mapping_id_present?(acc, id),
+          do: {:cont, {:ok, [{id, group} | acc]}},
+          else: {:halt, Error.new(:validation, :invalid_mapping, [:position_mapping])}
+
+      error ->
+        {:halt, error}
+    end
+  end
+
+  defp mapping_pair(_, _),
+    do: {:halt, Error.new(:validation, :invalid_mapping, [:position_mapping])}
+
+  defp mapping_id_present?(pairs, id), do: Enum.any?(pairs, fn {key, _} -> key == id end)
 end

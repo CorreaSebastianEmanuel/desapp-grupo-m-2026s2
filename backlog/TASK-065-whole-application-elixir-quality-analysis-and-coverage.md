@@ -5,7 +5,7 @@ type: task
 checkpoint: CP2
 priority: high
 status: todo
-depends_on: none
+depends_on: TASK-066
 active_run: none
 ---
 

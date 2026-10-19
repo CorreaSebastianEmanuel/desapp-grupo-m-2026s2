@@ -15,22 +15,7 @@ defmodule FootballMarket.Synchronization.Recovery do
 
     results =
       Enum.map(runs, fn run ->
-        case ExecutionGuard.acquire(Store.execution_scope(run)) do
-          {:ok, guard} ->
-            try do
-              if run.state == "executing",
-                do: Store.complete(run.id, run.delivery_id, {:error, :interrupted}, now),
-                else: repair(run, now)
-            after
-              if Process.alive?(guard), do: GenServer.stop(guard)
-            end
-
-          {:error, :busy} ->
-            :busy
-
-          _ ->
-            Store.unavailable()
-        end
+        reconcile_run(run, now)
       end)
 
     if Enum.any?(results, &match?({:error, _}, &1)), do: Store.unavailable(), else: {:ok, results}
@@ -40,25 +25,52 @@ defmodule FootballMarket.Synchronization.Recovery do
 
   defp repair(run, now) do
     Repo.transaction(fn ->
-      current = Repo.one!(from r in Run, where: r.id == ^run.id, lock: "FOR UPDATE")
-      job = Repo.get(Oban.Job, current.job_id)
-
-      if current.state in ["queued", "retry_wait"] &&
-           (is_nil(job) || job.state in ["completed", "discarded", "cancelled", "executing"]) do
-        eligible = current.next_retry_at || now
-
-        worker =
-          if current.operation == "statistics",
-            do: FootballMarket.Workers.StatisticsImport,
-            else: CatalogSync
-
-        job =
-          %{"run_id" => current.id, "delivery_id" => current.delivery_id}
-          |> worker.new(scheduled_at: eligible)
-          |> Store.insert_job!()
-
-        Repo.update!(Ecto.Changeset.change(current, job_id: job.id))
-      end
+      repair_locked(run, now)
     end)
+  end
+
+  defp reconcile_run(run, now) do
+    case ExecutionGuard.acquire(Store.execution_scope(run)) do
+      {:ok, guard} ->
+        try do
+          reconcile_guarded(run, now)
+        after
+          if Process.alive?(guard), do: GenServer.stop(guard)
+        end
+
+      {:error, :busy} ->
+        :busy
+
+      _ ->
+        Store.unavailable()
+    end
+  end
+
+  defp reconcile_guarded(run, now) do
+    if run.state == "executing",
+      do: Store.complete(run.id, run.delivery_id, {:error, :interrupted}, now),
+      else: repair(run, now)
+  end
+
+  defp repair_locked(run, now) do
+    current = Repo.one!(from r in Run, where: r.id == ^run.id, lock: "FOR UPDATE")
+    job = Repo.get(Oban.Job, current.job_id)
+
+    if current.state in ["queued", "retry_wait"] &&
+         (is_nil(job) || job.state in ["completed", "discarded", "cancelled", "executing"]) do
+      eligible = current.next_retry_at || now
+
+      worker =
+        if current.operation == "statistics",
+          do: FootballMarket.Workers.StatisticsImport,
+          else: CatalogSync
+
+      job =
+        %{"run_id" => current.id, "delivery_id" => current.delivery_id}
+        |> worker.new(scheduled_at: eligible)
+        |> Store.insert_job!()
+
+      Repo.update!(Ecto.Changeset.change(current, job_id: job.id))
+    end
   end
 end

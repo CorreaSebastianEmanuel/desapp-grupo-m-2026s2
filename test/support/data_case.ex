@@ -1,4 +1,5 @@
 defmodule FootballMarket.DataCase do
+  @moduledoc false
   use ExUnit.CaseTemplate
 
   using do

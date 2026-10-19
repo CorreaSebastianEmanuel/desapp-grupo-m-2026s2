@@ -38,43 +38,53 @@ defmodule FootballMarket.Providers.Runner do
   defp work(request, adapter, state, context) do
     try do
       label = adapter.provider_label()
-
-      if FootballMarket.Providers.Provenance.safe_text?(label) do
-        guard =
-          if function_exported?(adapter, :publication_guard, 3),
-            do: adapter.publication_guard(request, context, state),
-            else: fn -> :ok end
-
-        case adapter.read(request, Map.put(context, :provider_label, label), state) do
-          {:ok, candidate} ->
-            case Validator.validate(candidate, request, context, label) do
-              {:ok, _} = result ->
-                case guard.() do
-                  :ok -> result
-                  {:error, failure} -> {:error, Error.failure(failure, request)}
-                  _ -> {:error, Error.new(:invalid_response, request.operation, request.scope)}
-                end
-
-              failure ->
-                failure
-            end
-
-          {:error, failure} ->
-            error = Error.failure(failure, request)
-            {runtime, runtime_state} = context.runtime
-            runtime.utc_now(runtime_state)
-            {:error, error}
-
-          _ ->
-            {:error, Error.new(:invalid_response, request.operation, request.scope)}
-        end
-      else
-        {:error, Error.new(:invalid_response, request.operation, request.scope, :provenance)}
-      end
+      read_provider(request, adapter, state, context, label)
     rescue
       _ -> {:error, Error.new(:unavailable, request.operation, request.scope)}
     catch
       _, _ -> {:error, Error.new(:unavailable, request.operation, request.scope)}
     end
+  end
+
+  defp read_provider(request, adapter, state, context, label) do
+    if FootballMarket.Providers.Provenance.safe_text?(label) do
+      guard = publication_guard(adapter, request, context, state)
+
+      case adapter.read(request, Map.put(context, :provider_label, label), state) do
+        {:ok, candidate} -> validate_candidate(candidate, request, context, label, guard)
+        {:error, failure} -> provider_error(failure, request, context)
+        _ -> {:error, Error.new(:invalid_response, request.operation, request.scope)}
+      end
+    else
+      {:error, Error.new(:invalid_response, request.operation, request.scope, :provenance)}
+    end
+  end
+
+  defp validate_candidate(candidate, request, context, label, guard) do
+    case Validator.validate(candidate, request, context, label) do
+      {:ok, _} = result -> validate_publication(guard, request, result)
+      failure -> failure
+    end
+  end
+
+  defp validate_publication(guard, request, result) do
+    case guard.() do
+      :ok -> result
+      {:error, failure} -> {:error, Error.failure(failure, request)}
+      _ -> {:error, Error.new(:invalid_response, request.operation, request.scope)}
+    end
+  end
+
+  defp provider_error(failure, request, context) do
+    error = Error.failure(failure, request)
+    {runtime, runtime_state} = context.runtime
+    runtime.utc_now(runtime_state)
+    {:error, error}
+  end
+
+  defp publication_guard(adapter, request, context, state) do
+    if function_exported?(adapter, :publication_guard, 3),
+      do: adapter.publication_guard(request, context, state),
+      else: fn -> :ok end
   end
 end

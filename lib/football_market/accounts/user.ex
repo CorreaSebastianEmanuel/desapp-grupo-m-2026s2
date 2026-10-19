@@ -37,17 +37,19 @@ defmodule FootballMarket.Accounts.User do
   end
 
   defp validate_domain(changeset) do
-    validate_change(changeset, :email, fn :email, email ->
-      case String.split(email, "@") do
-        [local, domain] ->
-          if valid_local?(local) and valid_domain?(domain),
-            do: [],
-            else: [email: "has invalid format"]
+    validate_change(changeset, :email, &validate_email_parts/2)
+  end
 
-        _ ->
-          []
-      end
-    end)
+  defp validate_email_parts(:email, email) do
+    case String.split(email, "@") do
+      [local, domain] ->
+        if valid_local?(local) and valid_domain?(domain),
+          do: [],
+          else: [email: "has invalid format"]
+
+      _ ->
+        []
+    end
   end
 
   defp valid_domain?(domain) do

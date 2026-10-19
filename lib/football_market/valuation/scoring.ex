@@ -13,23 +13,38 @@ defmodule FootballMarket.Valuation.Scoring do
   def definition(%Definition{} = d), do: definition(Map.from_struct(d))
 
   def definition(d) when is_map(d) and not is_struct(d) do
+    case definition_problem(d) do
+      :ok -> bind(d)
+      error -> error
+    end
+  end
+
+  def definition(_), do: Error.new(:validation, :invalid_definition, [:definition])
+
+  defp definition_problem(d) do
     cond do
-      Enum.sort(Map.keys(d)) != Enum.sort([:module, :strategy_id, :version, :config]) ->
+      not exact_definition_fields?(d) ->
         Error.new(:validation, :invalid_definition, [:definition])
 
-      not is_binary(d.strategy_id) or d.strategy_id == "" or not is_binary(d.version) or
-        d.version == "" or not is_map(d.config) or not Evidence.valid_config?(d.config) ->
+      not valid_definition_metadata?(d) ->
         Error.new(:validation, :invalid_definition, [:definition])
 
       not available?(d.module) ->
         Error.new(:unsupported_strategy, :unavailable_module)
 
       true ->
-        bind(d)
+        :ok
     end
   end
 
-  def definition(_), do: Error.new(:validation, :invalid_definition, [:definition])
+  defp exact_definition_fields?(definition),
+    do: Enum.sort(Map.keys(definition)) == Enum.sort([:module, :strategy_id, :version, :config])
+
+  defp valid_definition_metadata?(definition) do
+    is_binary(definition.strategy_id) and definition.strategy_id != "" and
+      is_binary(definition.version) and definition.version != "" and
+      is_map(definition.config) and Evidence.valid_config?(definition.config)
+  end
 
   defp available?(module) when is_atom(module) do
     Code.ensure_loaded?(module) and
@@ -77,17 +92,12 @@ defmodule FootballMarket.Valuation.Scoring do
     else
       features =
         Map.new(
-          Enum.filter(prepared.scopes, fn {_, inputs} -> map_size(inputs.features) > 0 end),
-          fn {scope, inputs} ->
-            {scope,
-             Map.new(inputs.features, fn {metric, value} -> {metric, Decimal.new(value)} end)}
-          end
+          Enum.filter(prepared.scopes, &nonempty_scope?/1),
+          &scope_features/1
         )
 
       with {:ok, result} <-
-             callback(fn ->
-               definition.module.score(%FeatureView{features: features}, definition.config)
-             end),
+             score_callback(definition, features),
            {:ok, decimal} <- result(result) do
         score = DecimalMath.round(decimal)
         descriptor = %{prepared.descriptor | strategy: strategy(definition), score: score}
@@ -104,6 +114,8 @@ defmodule FootballMarket.Valuation.Scoring do
       requirements: d.requirements
     }
 
+  defp decimal_feature({metric, value}), do: {metric, Decimal.new(value)}
+
   defp result({:ok, %Decimal{} = decimal}) do
     if DecimalMath.finite?(decimal),
       do: {:ok, decimal},
@@ -119,5 +131,17 @@ defmodule FootballMarket.Valuation.Scoring do
     _ -> Error.new(:strategy_failure, :callback_exception)
   catch
     _, _ -> Error.new(:strategy_failure, :callback_exception)
+  end
+
+  defp scope_features({scope, inputs}), do: {scope, Map.new(inputs.features, &decimal_feature/1)}
+
+  defp nonempty_scope?({_, inputs}) do
+    map_size(inputs.features) > 0
+  end
+
+  defp score_callback(definition, features) do
+    callback(fn ->
+      definition.module.score(%FeatureView{features: features}, definition.config)
+    end)
   end
 end

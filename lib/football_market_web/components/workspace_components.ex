@@ -1,4 +1,5 @@
 defmodule FootballMarketWeb.WorkspaceComponents do
+  @moduledoc false
   use FootballMarketWeb, :html
   attr :actor, :map, required: true
   attr :destination, :string, required: true

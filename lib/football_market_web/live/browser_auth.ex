@@ -1,53 +1,53 @@
 defmodule FootballMarketWeb.Live.BrowserAuth do
+  @moduledoc false
   import Phoenix.LiveView
   import Phoenix.Component
   alias FootballMarket.Accounts.BrowserSessions
 
   def on_mount(:workspace, _params, session, socket) do
-    result =
-      if connected?(socket) do
-        cookie = get_connect_info(socket, :session) || %{}
-        BrowserSessions.validate(cookie["browser_handle"])
-      else
-        case session["actor"] do
-          %{session_id: id} -> BrowserSessions.revalidate(id)
-          _ -> {:error, :invalid}
-        end
-      end
-
-    case result do
-      {:ok, actor} ->
-        if connected?(socket),
-          do:
-            Phoenix.PubSub.subscribe(
-              FootballMarket.PubSub,
-              BrowserSessions.topic(actor.session_id)
-            )
-
-        case BrowserSessions.revalidate(actor.session_id) do
-          {:ok, fresh} ->
-            if connected?(socket) do
-              Process.send_after(self(), :browser_validate, 250)
-              schedule_deadline(fresh)
-            end
-
-            socket =
-              socket
-              |> assign(:actor, fresh)
-              |> attach_hook(:browser_params, :handle_params, fn _, _, s -> guard(s) end)
-              |> attach_hook(:browser_events, :handle_event, fn _, _, s -> guard(s) end)
-              |> attach_hook(:browser_info, :handle_info, &info/2)
-              |> attach_hook(:browser_async, :handle_async, fn _, _, s -> guard(s) end)
-
-            {:cont, socket}
-
-          _ ->
-            {:halt, ended(socket)}
-        end
-
-      _ ->
-        {:halt, ended(socket)}
+    case initial_result(socket, session) do
+      {:ok, actor} -> mount_actor(actor, socket)
+      _ -> {:halt, ended(socket)}
     end
+  end
+
+  defp initial_result(socket, session) do
+    if connected?(socket) do
+      cookie = get_connect_info(socket, :session) || %{}
+      BrowserSessions.validate(cookie["browser_handle"])
+    else
+      case session["actor"] do
+        %{session_id: id} -> BrowserSessions.revalidate(id)
+        _ -> {:error, :invalid}
+      end
+    end
+  end
+
+  defp mount_actor(actor, socket) do
+    if connected?(socket),
+      do: Phoenix.PubSub.subscribe(FootballMarket.PubSub, BrowserSessions.topic(actor.session_id))
+
+    case BrowserSessions.revalidate(actor.session_id) do
+      {:ok, fresh} -> mount_fresh(fresh, socket)
+      _ -> {:halt, ended(socket)}
+    end
+  end
+
+  defp mount_fresh(fresh, socket) do
+    if connected?(socket) do
+      Process.send_after(self(), :browser_validate, 250)
+      schedule_deadline(fresh)
+    end
+
+    socket =
+      socket
+      |> assign(:actor, fresh)
+      |> attach_hook(:browser_params, :handle_params, fn _, _, s -> guard(s) end)
+      |> attach_hook(:browser_events, :handle_event, fn _, _, s -> guard(s) end)
+      |> attach_hook(:browser_info, :handle_info, &info/2)
+      |> attach_hook(:browser_async, :handle_async, fn _, _, s -> guard(s) end)
+
+    {:cont, socket}
   end
 
   def guard(socket) do

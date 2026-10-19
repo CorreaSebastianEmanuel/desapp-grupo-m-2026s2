@@ -45,25 +45,7 @@ defmodule FootballMarket.Catalog.Ingestion.Publisher do
         current = scope_row(result.scope)
         instructions = Reconciler.instructions(result, current, options)
 
-        replay =
-          if current,
-            do: Repo.get_by(Observation, scope_id: current.id, delivery_digest: encoded.digest)
-
-        outcome =
-          cond do
-            replay && replay.canonical_delivery != encoded.material ->
-              Reconciler.conflict(:delivery_digest_collision)
-
-            replay ->
-              outcome(replay, result.scope, :replay)
-
-            if(current, do: current.revision, else: 0) != captured_revision ->
-              Repo.rollback({:concurrent_change, :scope_revision_changed})
-
-            true ->
-              order!(current, result)
-              accept(result, current, encoded, instructions)
-          end
+        outcome = classify_delivery(result, current, encoded, captured_revision, instructions)
 
         FootballMarket.Catalog.Ingestion.DeliveryReceipt.confirm!(receipt, outcome)
       end)
@@ -162,25 +144,7 @@ defmodule FootballMarket.Catalog.Ingestion.Publisher do
     )
 
     for {row, attrs, operation} <- candidate.operations do
-      if operation != :unchanged do
-        cs =
-          case row do
-            %Team{} ->
-              Team.changeset(row, attrs)
-
-            %Player{} ->
-              if operation == :insert,
-                do:
-                  Player.create_changeset(
-                    row,
-                    Map.put(attrs, :catalog_identity, row.catalog_identity),
-                    season.id
-                  ),
-                else: Player.update_changeset(row, attrs, season.id)
-          end
-
-        if operation == :insert, do: Repo.insert!(cs), else: Repo.update!(cs)
-      end
+      persist_operation(row, attrs, operation, season)
     end
 
     hook(:after_catalog)
@@ -365,6 +329,53 @@ defmodule FootballMarket.Catalog.Ingestion.Publisher do
         fun when is_function(fun, 1) -> fun.(point)
         _ -> :ok
       end
+    end
+  end
+
+  defp player_changeset(row, attrs, operation, season) do
+    if operation == :insert,
+      do:
+        Player.create_changeset(
+          row,
+          Map.put(attrs, :catalog_identity, row.catalog_identity),
+          season.id
+        ),
+      else: Player.update_changeset(row, attrs, season.id)
+  end
+
+  defp classify_delivery(result, current, encoded, captured_revision, instructions) do
+    replay =
+      if current,
+        do: Repo.get_by(Observation, scope_id: current.id, delivery_digest: encoded.digest)
+
+    cond do
+      replay && replay.canonical_delivery != encoded.material ->
+        Reconciler.conflict(:delivery_digest_collision)
+
+      replay ->
+        outcome(replay, result.scope, :replay)
+
+      if(current, do: current.revision, else: 0) != captured_revision ->
+        Repo.rollback({:concurrent_change, :scope_revision_changed})
+
+      true ->
+        order!(current, result)
+        accept(result, current, encoded, instructions)
+    end
+  end
+
+  defp persist_operation(row, attrs, operation, season) do
+    if operation != :unchanged do
+      cs =
+        case row do
+          %Team{} ->
+            Team.changeset(row, attrs)
+
+          %Player{} ->
+            player_changeset(row, attrs, operation, season)
+        end
+
+      if operation == :insert, do: Repo.insert!(cs), else: Repo.update!(cs)
     end
   end
 end

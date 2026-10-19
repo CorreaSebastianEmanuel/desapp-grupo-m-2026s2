@@ -69,14 +69,7 @@ defmodule FootballMarketWeb.PlayerController do
           {:ok, nil}
 
         value ->
-          if Regex.match?(~r/\A[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}\z/, value) do
-            case Ecto.UUID.cast(value) do
-              {:ok, uuid} -> {:ok, uuid}
-              :error -> {:error, error}
-            end
-          else
-            {:error, error}
-          end
+          cast_filter(value, error)
       end
     end
   end
@@ -99,4 +92,15 @@ defmodule FootballMarketWeb.PlayerController do
   defp validate_cursor_presence(_cursor), do: :ok
 
   defp error(conn, status, code), do: conn |> put_status(status) |> json(%{error: %{code: code}})
+
+  defp cast_filter(value, error) do
+    if Regex.match?(~r/\A[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}\z/, value) do
+      case Ecto.UUID.cast(value) do
+        {:ok, uuid} -> {:ok, uuid}
+        :error -> {:error, error}
+      end
+    else
+      {:error, error}
+    end
+  end
 end

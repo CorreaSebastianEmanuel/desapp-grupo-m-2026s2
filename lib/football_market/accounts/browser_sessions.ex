@@ -14,30 +14,27 @@ defmodule FootballMarket.Accounts.BrowserSessions do
   def create_anonymous(time \\ now()), do: safely(fn -> insert(nil, "anonymous", time) end)
 
   def authenticate(handle, user_id, time \\ now()) do
-    safely(fn ->
-      result =
-        Repo.transaction(fn ->
-          row =
-            Repo.one(
-              from(s in BrowserSession,
-                where: s.token_digest == ^digest(handle),
-                lock: "FOR UPDATE"
-              ),
-              log: false
-            )
+    safely(fn -> Repo.transaction(fn -> authenticate_locked(handle, user_id, time) end) end)
+  end
 
-          if row == nil or row.state != "anonymous" or
-               DateTime.compare(time, row.expires_at) != :lt or Repo.get(User, user_id) == nil do
-            Repo.rollback(:invalid)
-          end
+  defp authenticate_locked(handle, user_id, time) do
+    row =
+      Repo.one(
+        from(s in BrowserSession,
+          where: s.token_digest == ^digest(handle),
+          lock: "FOR UPDATE"
+        ),
+        log: false
+      )
 
-          Repo.update!(Ecto.Changeset.change(row, state: "revoked", revoked_at: time), log: false)
-          {:ok, fresh} = insert(user_id, "authenticated", time)
-          fresh
-        end)
+    if row == nil or row.state != "anonymous" or
+         DateTime.compare(time, row.expires_at) != :lt or Repo.get(User, user_id) == nil do
+      Repo.rollback(:invalid)
+    end
 
-      result
-    end)
+    Repo.update!(Ecto.Changeset.change(row, state: "revoked", revoked_at: time), log: false)
+    {:ok, fresh} = insert(user_id, "authenticated", time)
+    fresh
   end
 
   def validate(handle, time \\ now()) do
@@ -60,18 +57,7 @@ defmodule FootballMarket.Accounts.BrowserSessions do
         if Application.get_env(:football_market, :browser_failure) == :revoke,
           do: raise("unavailable")
 
-        Repo.transaction(fn ->
-          hash = digest(handle)
-          row = if hash, do: Repo.get_by(BrowserSession, [token_digest: hash], log: false)
-
-          if row do
-            Repo.update!(Ecto.Changeset.change(row, state: "revoked", revoked_at: time),
-              log: false
-            )
-
-            row.id
-          end
-        end)
+        Repo.transaction(fn -> revoke_locked(handle, time) end)
       end)
 
     case result do
@@ -86,27 +72,35 @@ defmodule FootballMarket.Accounts.BrowserSessions do
     end
   end
 
+  defp revoke_locked(handle, time) do
+    hash = digest(handle)
+    row = if hash, do: Repo.get_by(BrowserSession, [token_digest: hash], log: false)
+
+    if row do
+      Repo.update!(Ecto.Changeset.change(row, state: "revoked", revoked_at: time), log: false)
+      row.id
+    end
+  end
+
   def topic(id), do: "browser_session:" <> id
 
   defp actor(%BrowserSession{state: "authenticated"} = row, time) do
-    cond do
-      DateTime.compare(time, row.expires_at) != :lt ->
-        {:error, :expired}
+    if DateTime.compare(time, row.expires_at) != :lt do
+      {:error, :expired}
+    else
+      case Repo.get(User, row.user_id, log: false) do
+        nil ->
+          {:error, :invalid}
 
-      true ->
-        case Repo.get(User, row.user_id, log: false) do
-          nil ->
-            {:error, :invalid}
-
-          user ->
-            {:ok,
-             %{
-               session_id: row.id,
-               account_id: user.id,
-               email: user.email,
-               expires_at: row.expires_at
-             }}
-        end
+        user ->
+          {:ok,
+           %{
+             session_id: row.id,
+             account_id: user.id,
+             email: user.email,
+             expires_at: row.expires_at
+           }}
+      end
     end
   end
 

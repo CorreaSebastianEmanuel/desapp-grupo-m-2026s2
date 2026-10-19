@@ -30,36 +30,7 @@ defmodule FootballMarket.Valuation.CalculationRequests do
 
   defp do_accept(intent_id, check_id, ids) do
     Repo.transaction(fn ->
-      intent =
-        Repo.one(from i in CalculationIntent, where: i.id == ^intent_id, lock: "FOR UPDATE")
-
-      intent_ids = if intent, do: normalize_ids(intent.changed_performance_ids), else: nil
-
-      unless intent && intent.accepted_check_id == check_id && intent_ids == {:ok, ids},
-        do: Repo.rollback(:calculation_request_conflict)
-
-      case Repo.one(
-             from r in CalculationRequest, where: r.intent_id == ^intent_id, lock: "FOR UPDATE"
-           ) do
-        nil ->
-          now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
-
-          Repo.insert!(%CalculationRequest{
-            id: Ecto.UUID.generate(),
-            intent_id: intent_id,
-            accepted_check_id: check_id,
-            changed_performance_ids: ids,
-            accepted_at: now,
-            state: "requested"
-          })
-
-        request
-        when request.accepted_check_id == check_id and request.changed_performance_ids == ids ->
-          request
-
-        _ ->
-          Repo.rollback(:calculation_request_conflict)
-      end
+      accept_locked(intent_id, check_id, ids)
     end)
     |> case do
       {:ok, request} -> {:ok, request}
@@ -77,7 +48,7 @@ defmodule FootballMarket.Valuation.CalculationRequests do
   end
 
   defp normalize_ids(ids) do
-    with true <- Enum.all?(ids, &match?({:ok, _}, Ecto.UUID.cast(&1))) do
+    if Enum.all?(ids, &match?({:ok, _}, Ecto.UUID.cast(&1))) do
       normalized =
         Enum.map(ids, fn id ->
           {:ok, uuid} = Ecto.UUID.cast(id)
@@ -90,7 +61,7 @@ defmodule FootballMarket.Valuation.CalculationRequests do
         do: {:ok, normalized},
         else: {:error, :invalid_request}
     else
-      _ -> {:error, :invalid_request}
+      {:error, :invalid_request}
     end
   end
 
@@ -102,5 +73,45 @@ defmodule FootballMarket.Valuation.CalculationRequests do
       else: {:error, :calculation_request_conflict}
   rescue
     _ -> {:error, :temporarily_unavailable}
+  end
+
+  defp insert_request(intent_id, check_id, ids) do
+    now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
+
+    Repo.insert!(%CalculationRequest{
+      id: Ecto.UUID.generate(),
+      intent_id: intent_id,
+      accepted_check_id: check_id,
+      changed_performance_ids: ids,
+      accepted_at: now,
+      state: "requested"
+    })
+  end
+
+  defp matching_intent?(intent, check_id, intent_ids, ids),
+    do: intent && intent.accepted_check_id == check_id && intent_ids == {:ok, ids}
+
+  defp accept_locked(intent_id, check_id, ids) do
+    intent =
+      Repo.one(from i in CalculationIntent, where: i.id == ^intent_id, lock: "FOR UPDATE")
+
+    intent_ids = if intent, do: normalize_ids(intent.changed_performance_ids), else: nil
+
+    unless matching_intent?(intent, check_id, intent_ids, ids),
+      do: Repo.rollback(:calculation_request_conflict)
+
+    case Repo.one(
+           from r in CalculationRequest, where: r.intent_id == ^intent_id, lock: "FOR UPDATE"
+         ) do
+      nil ->
+        insert_request(intent_id, check_id, ids)
+
+      request
+      when request.accepted_check_id == check_id and request.changed_performance_ids == ids ->
+        request
+
+      _ ->
+        Repo.rollback(:calculation_request_conflict)
+    end
   end
 end

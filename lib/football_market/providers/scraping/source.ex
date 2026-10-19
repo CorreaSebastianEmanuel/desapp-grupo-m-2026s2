@@ -12,52 +12,55 @@ defmodule FootballMarket.Providers.Scraping.Source do
           end
 
         bindings = Translator.bindings(facts, row)
-
-        with {:ok, _, _} <- Assessment.admit(request, state, revision) do
-          budget!(context)
-
-          completeness =
-            if request.operation == :performances and
-                 is_nil(request.scope.from) and is_nil(request.scope.to) and
-                 (Map.get(facts, :matches, []) != [] or complete_empty) do
-              matches = Map.get(facts, :matches, [])
-
-              identities =
-                for match <- matches do
-                  Enum.find_value(bindings, fn binding ->
-                    if binding.kind == :match and binding.ref == match.ref, do: binding.source_id
-                  end)
-                end
-
-              %{
-                version: 1,
-                scope: request.scope,
-                full_scope: is_nil(request.scope.from) and is_nil(request.scope.to),
-                terminal_witness: row.witness,
-                eligible_match_identities: identities,
-                detail_coverage: identities,
-                assessment_revision: to_string(revision),
-                assessment_reference: state.fixture_id || "assessment:" <> to_string(revision),
-                complete_empty: identities == [] and complete_empty
-              }
-            end
-
-          {:ok,
-           %{
-             operation: request.operation,
-             scope: request.scope,
-             facts: facts,
-             bindings: bindings,
-             fixture_id: state.fixture_id,
-             completeness: completeness
-           }}
-        end
+        publish_result(request, context, state, revision, row, facts, bindings, complete_empty)
       rescue
         _ -> {:error, %{category: :invalid_response}}
       catch
         {:source_failure, failure} -> {:error, failure}
         {:invalid, _} -> {:error, %{category: :invalid_response}}
       end
+    end
+  end
+
+  defp publish_result(request, context, state, revision, row, facts, bindings, complete_empty) do
+    with {:ok, _, _} <- Assessment.admit(request, state, revision) do
+      budget!(context)
+      completeness = completeness(request, state, revision, row, facts, bindings, complete_empty)
+
+      {:ok,
+       %{
+         operation: request.operation,
+         scope: request.scope,
+         facts: facts,
+         bindings: bindings,
+         fixture_id: state.fixture_id,
+         completeness: completeness
+       }}
+    end
+  end
+
+  defp completeness(request, state, revision, row, facts, bindings, complete_empty) do
+    if request.operation == :performances and is_nil(request.scope.from) and
+         is_nil(request.scope.to) and (Map.get(facts, :matches, []) != [] or complete_empty) do
+      identities = eligible_match_identities(facts, bindings)
+
+      %{
+        version: 1,
+        scope: request.scope,
+        full_scope: true,
+        terminal_witness: row.witness,
+        eligible_match_identities: identities,
+        detail_coverage: identities,
+        assessment_revision: to_string(revision),
+        assessment_reference: state.fixture_id || "assessment:" <> to_string(revision),
+        complete_empty: identities == [] and complete_empty
+      }
+    end
+  end
+
+  defp eligible_match_identities(facts, bindings) do
+    for match <- Map.get(facts, :matches, []) do
+      match_identity(bindings, match)
     end
   end
 
@@ -115,10 +118,7 @@ defmodule FootballMarket.Providers.Scraping.Source do
   def portion!(key, request, context, state, revision, row) do
     budget!(context)
 
-    case Assessment.admit(request, state, revision) do
-      {:ok, _, _} -> :ok
-      {:error, failure} -> throw({:source_failure, failure})
-    end
+    admit!(request, state, revision)
 
     require!(state[:repeat] != true)
     # Fixtures are the sole enabled transport in this delivery.
@@ -131,10 +131,7 @@ defmodule FootballMarket.Providers.Scraping.Source do
       {:ok, %{body: body, observation: o}} ->
         budget!(context)
 
-        case Assessment.admit(request, state, revision) do
-          {:ok, _, _} -> :ok
-          {:error, failure} -> throw({:source_failure, failure})
-        end
+        admit!(request, state, revision)
 
         a = Assessment.current(state)
 
@@ -202,5 +199,18 @@ defmodule FootballMarket.Providers.Scraping.Source do
   def id!(v) do
     require!(FootballMarket.Providers.Provenance.safe_text?(v))
     v
+  end
+
+  defp admit!(request, state, revision) do
+    case Assessment.admit(request, state, revision) do
+      {:ok, _, _} -> :ok
+      {:error, failure} -> throw({:source_failure, failure})
+    end
+  end
+
+  defp match_identity(bindings, match) do
+    Enum.find_value(bindings, fn binding ->
+      if binding.kind == :match and binding.ref == match.ref, do: binding.source_id
+    end)
   end
 end

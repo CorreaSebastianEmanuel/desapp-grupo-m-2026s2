@@ -113,49 +113,59 @@ defmodule FootballMarket.Providers.Performances do
         ],
         :performances,
         Performance,
-        fn p ->
-          match = Map.fetch!(match_index, p.match_ref)
-          player = Map.fetch!(player_index, p.player_ref)
-
-          Catalog.require!(
-            player.season_ref == match.season_ref and
-              p.team_ref in [match.home_team_ref, match.away_team_ref] and
-              (is_nil(p.position_ref) or Map.has_key?(position_index, p.position_ref)),
-            :performances
-          )
-
-          Catalog.require!(
-            is_integer(p.minutes_played) and p.minutes_played >= 0,
-            :minutes_played
-          )
-
-          Catalog.require!(
-            (not is_nil(p.position_ref) and
-               p.participation in [nil, :starter, :substitute_entered]) or
-              (is_nil(p.position_ref) and p.participation == :substitute_entered),
-            :position
-          )
-
-          Catalog.require!(
-            is_map(p.counts) and not is_struct(p.counts) and
-              Enum.all?(Map.keys(p.counts), &(&1 in @counts)),
-            :performances
-          )
-
-          counts =
-            Map.new(@counts, fn key ->
-              value = Map.get(p.counts, key)
-              Catalog.require!(is_nil(value) or (is_integer(value) and value >= 0), key)
-              {key, value}
-            end)
-
-          %{p | counts: counts}
-        end
+        &normalize_performance(&1, match_index, player_index, position_index)
       )
 
     Catalog.unique!(performances, &{&1.player_ref, &1.match_ref}, :performances)
     final = Map.merge(directory, %{matches: matches, performances: performances})
     {final, retained_bindings(bindings, facts, final)}
+  end
+
+  defp normalize_performance(p, match_index, player_index, position_index) do
+    match = Map.fetch!(match_index, p.match_ref)
+    player = Map.fetch!(player_index, p.player_ref)
+
+    require_performance_relationships!(p, player, match, position_index)
+    require_performance_participation!(p)
+    counts = normalize_counts(p.counts)
+    %{p | counts: counts}
+  end
+
+  defp require_performance_relationships!(performance, player, match, positions) do
+    Catalog.require!(
+      player.season_ref == match.season_ref and
+        performance.team_ref in [match.home_team_ref, match.away_team_ref] and
+        (is_nil(performance.position_ref) or Map.has_key?(positions, performance.position_ref)),
+      :performances
+    )
+
+    Catalog.require!(
+      is_integer(performance.minutes_played) and performance.minutes_played >= 0,
+      :minutes_played
+    )
+  end
+
+  defp require_performance_participation!(performance) do
+    Catalog.require!(
+      (not is_nil(performance.position_ref) and
+         performance.participation in [nil, :starter, :substitute_entered]) or
+        (is_nil(performance.position_ref) and performance.participation == :substitute_entered),
+      :position
+    )
+
+    Catalog.require!(
+      is_map(performance.counts) and not is_struct(performance.counts) and
+        Enum.all?(Map.keys(performance.counts), &(&1 in @counts)),
+      :performances
+    )
+  end
+
+  defp normalize_counts(values) do
+    Map.new(@counts, fn key ->
+      value = Map.get(values, key)
+      Catalog.require!(is_nil(value) or (is_integer(value) and value >= 0), key)
+      {key, value}
+    end)
   end
 
   defp eligible?(m, request) do

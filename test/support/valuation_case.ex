@@ -1,4 +1,5 @@
 defmodule FootballMarket.ValuationCase do
+  @moduledoc false
   alias FootballMarket.{Statistics, StatisticsCase}
 
   def fixture(code \\ "PL", year \\ 2025), do: StatisticsCase.fixture(code, year)

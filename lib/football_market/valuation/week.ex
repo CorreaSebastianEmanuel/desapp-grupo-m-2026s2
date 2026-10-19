@@ -1,4 +1,5 @@
 defmodule FootballMarket.Valuation.Week do
+  @moduledoc false
   alias FootballMarket.Statistics.Input
   alias FootballMarket.Valuation.Error
 

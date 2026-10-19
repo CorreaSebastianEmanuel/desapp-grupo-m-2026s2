@@ -1,4 +1,5 @@
 defmodule FootballMarket.Statistics.Query do
+  @moduledoc false
   import Ecto.Query
   alias FootballMarket.{Repo, Statistics.Match, Statistics.Performance}
 

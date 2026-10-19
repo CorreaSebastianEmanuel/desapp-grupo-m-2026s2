@@ -56,18 +56,22 @@ defmodule FootballMarket.Catalog.Ingestion.Observation do
         else: [canonical_delivery: "must be versioned resolved facts"]
     end)
     |> validate_change(:counts, fn :counts, value ->
-      valid =
-        Enum.sort(Map.keys(value)) == ~w(league player season team) and
-          Enum.all?(value, fn {_, counts} ->
-            is_map(counts) and Enum.sort(Map.keys(counts)) == ~w(created unchanged updated) and
-              Enum.all?(Map.values(counts), &(is_integer(&1) and &1 >= 0))
-          end)
-
-      if valid, do: [], else: [counts: "must have nonnegative per-kind counts"]
+      validate_counts(value)
     end)
     |> immutable(row)
   end
 
   defp immutable(cs, %{__meta__: %{state: :built}}), do: cs
   defp immutable(cs, _), do: add_error(cs, :id, "accepted observations are immutable")
+
+  defp validate_counts(value) do
+    valid =
+      Enum.sort(Map.keys(value)) == ~w(league player season team) and
+        Enum.all?(value, fn {_, counts} ->
+          is_map(counts) and Enum.sort(Map.keys(counts)) == ~w(created unchanged updated) and
+            Enum.all?(Map.values(counts), &(is_integer(&1) and &1 >= 0))
+        end)
+
+    if valid, do: [], else: [counts: "must have nonnegative per-kind counts"]
+  end
 end

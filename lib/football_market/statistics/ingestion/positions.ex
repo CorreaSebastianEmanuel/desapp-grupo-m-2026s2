@@ -27,7 +27,7 @@ defmodule FootballMarket.Statistics.Ingestion.Positions do
          }}
 
       [{position, count} | rest] ->
-        if Enum.any?(rest, fn {_other, other_count} -> other_count == count end) do
+        if tied?(rest, count) do
           {:ok,
            %{
              basis: basis,
@@ -50,4 +50,7 @@ defmodule FootballMarket.Statistics.Ingestion.Positions do
   end
 
   def derive(_, _), do: {:error, :invalid_input}
+
+  defp tied?(rest, count),
+    do: Enum.any?(rest, fn {_other, other_count} -> other_count == count end)
 end

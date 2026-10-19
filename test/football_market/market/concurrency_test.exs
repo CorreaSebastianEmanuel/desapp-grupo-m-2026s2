@@ -11,12 +11,14 @@ defmodule FootballMarket.Market.ConcurrencyTest do
   end
 
   defp contender(schema, owner, ref, fun) do
-    Task.async(fn ->
-      in_client(schema, fn ->
-        Repo.checkout(fn ->
-          barrier(owner, ref, backend())
-          fun.()
-        end)
+    Task.async(fn -> run_contender(schema, owner, ref, fun) end)
+  end
+
+  defp run_contender(schema, owner, ref, fun) do
+    in_client(schema, fn ->
+      Repo.checkout(fn ->
+        barrier(owner, ref, backend())
+        fun.()
       end)
     end)
   end

@@ -81,21 +81,7 @@ defmodule FootballMarket.Providers.FixtureSourceA do
         else: {:ok, candidate}
 
     outcome =
-      Enum.reduce_while(portions, outcome, fn portion, {:ok, accumulated} ->
-        FootballMarket.Providers.FixtureRuntime.advance(portion.delay_us)
-
-        if Map.has_key?(portion, :failure) do
-          {:halt, {:error, portion.failure}}
-        else
-          facts =
-            Enum.reduce(Map.get(portion, :facts, %{}), accumulated.facts, fn {kind, rows},
-                                                                             facts ->
-              Map.update!(facts, kind, &(&1 ++ rows))
-            end)
-
-          {:cont, {:ok, %{accumulated | facts: facts}}}
-        end
-      end)
+      Enum.reduce_while(portions, outcome, &apply_portion/2)
 
     _ = context.deadline_us
 
@@ -103,6 +89,24 @@ defmodule FootballMarket.Providers.FixtureSourceA do
       {:ok, response} -> {:ok, Map.put(response, :scope, request.scope)}
       {:error, error} -> {:error, error}
     end
+  end
+
+  defp apply_portion(portion, {:ok, accumulated}) do
+    FootballMarket.Providers.FixtureRuntime.advance(portion.delay_us)
+
+    case Map.fetch(portion, :failure) do
+      {:ok, failure} -> {:halt, {:error, failure}}
+      :error -> {:cont, {:ok, merge_facts(accumulated, Map.get(portion, :facts, %{}))}}
+    end
+  end
+
+  defp merge_facts(accumulated, facts) do
+    merged =
+      Enum.reduce(facts, accumulated.facts, fn {kind, rows}, current ->
+        Map.update!(current, kind, &(&1 ++ rows))
+      end)
+
+    %{accumulated | facts: merged}
   end
 
   defp decode(value) when is_map(value),

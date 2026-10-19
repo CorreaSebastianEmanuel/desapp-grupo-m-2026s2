@@ -1,4 +1,5 @@
 defmodule FootballMarket.StatisticsCase do
+  @moduledoc false
   alias FootballMarket.{Catalog, Repo}
   alias FootballMarket.Catalog.{League, Position}
   import FootballMarket.CatalogCase
@@ -31,7 +32,7 @@ defmodule FootballMarket.StatisticsCase do
 
   def unique_fixture do
     # The dedicated partition retains immutable fixtures across VM restarts.
-    year = Repo.one(from s in FootballMarket.Catalog.Season, select: max(s.end_year)) || 10000
+    year = Repo.one(from s in FootballMarket.Catalog.Season, select: max(s.end_year)) || 10_000
     fixture("PL", year + 1)
   end
 

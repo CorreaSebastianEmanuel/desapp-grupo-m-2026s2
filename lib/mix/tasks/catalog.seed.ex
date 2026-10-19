@@ -1,4 +1,5 @@
 defmodule Mix.Tasks.Catalog.Seed do
+  @moduledoc false
   use Mix.Task
 
   alias FootballMarket.Catalog.DevelopmentSeed

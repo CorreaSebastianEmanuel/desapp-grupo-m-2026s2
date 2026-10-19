@@ -82,7 +82,7 @@ defmodule FootballMarket.Statistics.InputTest do
                  | hour: 9,
                    time_zone: "Offset/MinusThree",
                    zone_abbr: "-03",
-                   utc_offset: -10800
+                   utc_offset: -10_800
                },
                :kickoff_at
              )
@@ -103,5 +103,15 @@ defmodule FootballMarket.Statistics.InputTest do
         do: assert(match?({:error, _}, Input.instant(value, :kickoff_at)))
 
     assert {:error, _} = Input.instant(%{utc | microsecond: {1_234_567, 7}}, :kickoff_at)
+  end
+
+  test "validation retains first-field precedence across simultaneous failures" do
+    assert {:error, %{field: :match_id, reason: :required}} = Input.performance(%{goals: -1})
+
+    assert {:error, %{field: :match_identity, reason: :required}} =
+             Input.match(%{kickoff_at: "bad"})
+
+    assert {:error, %{field: :kickoff_at, reason: :unsupported_precision}} =
+             Input.match(%{match_identity: "event", kickoff_at: "bad.1234567"})
   end
 end

@@ -127,18 +127,19 @@ defmodule FootballMarket.Accounts do
 
   @doc "Issues a new API key for a trusted account ID, disclosing its secret once."
   def issue_api_key(user_id) do
-    with {:ok, owner_id} <- Ecto.UUID.cast(user_id) do
-      secret = 32 |> :crypto.strong_rand_bytes() |> Base.url_encode64(padding: false)
-      digest = :crypto.hash(:sha256, secret)
+    case Ecto.UUID.cast(user_id) do
+      {:ok, owner_id} ->
+        secret = 32 |> :crypto.strong_rand_bytes() |> Base.url_encode64(padding: false)
+        digest = :crypto.hash(:sha256, secret)
+        changeset = ApiKey.changeset(%ApiKey{}, %{user_id: owner_id, secret_hash: digest})
 
-      changeset = ApiKey.changeset(%ApiKey{}, %{user_id: owner_id, secret_hash: digest})
+        case insert_api_key(changeset) do
+          {:ok, key} -> {:ok, %{id: key.id, secret: secret}}
+          {:error, _reason} -> {:error, :issuance_failed}
+        end
 
-      case insert_api_key(changeset) do
-        {:ok, key} -> {:ok, %{id: key.id, secret: secret}}
-        {:error, _reason} -> {:error, :issuance_failed}
-      end
-    else
-      :error -> {:error, :issuance_failed}
+      :error ->
+        {:error, :issuance_failed}
     end
   end
 
@@ -190,12 +191,15 @@ defmodule FootballMarket.Accounts do
           :ok
 
         {0, _} ->
-          if Repo.exists?(owned, log: false), do: :ok, else: {:error, :not_found}
+          revoked_key_result(owned)
       end
     else
       :error -> {:error, :not_found}
     end
   end
+
+  defp revoked_key_result(owned),
+    do: if(Repo.exists?(owned, log: false), do: :ok, else: {:error, :not_found})
 
   defp valid_email(%Ecto.Changeset{valid?: true}), do: :ok
   defp valid_email(_changeset), do: {:error, :email}

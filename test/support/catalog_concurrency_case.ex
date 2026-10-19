@@ -32,24 +32,7 @@ defmodule FootballMarket.CatalogConcurrencyCase do
     tasks =
       for _ <- 1..2 do
         Task.Supervisor.async_nolink(context.supervisor, fn ->
-          Sandbox.unboxed_run(Repo, fn ->
-            %{rows: [[backend]]} = Ecto.Adapters.SQL.query!(Repo, "SELECT pg_backend_pid()", [])
-            send(parent, {barrier, self(), backend})
-
-            receive do
-              {^barrier, :go} ->
-                result = fun.()
-
-                case result do
-                  {:ok, row} -> own(context, row)
-                  _ -> :ok
-                end
-
-                result
-            after
-              5000 -> raise "Catalog worker readiness barrier timed out"
-            end
-          end)
+          race_worker(context, parent, barrier, fun)
         end)
       end
 
@@ -67,5 +50,27 @@ defmodule FootballMarket.CatalogConcurrencyCase do
     assert Enum.count(results, &match?({:ok, _}, &1)) == 1
     assert Enum.count(results, &match?({:error, %Ecto.Changeset{}}, &1)) == 1
     results
+  end
+
+  defp race_worker(context, parent, barrier, fun) do
+    Sandbox.unboxed_run(Repo, fn ->
+      %{rows: [[backend]]} = Ecto.Adapters.SQL.query!(Repo, "SELECT pg_backend_pid()", [])
+      send(parent, {barrier, self(), backend})
+
+      receive do
+        {^barrier, :go} -> persist_race_result(context, fun.())
+      after
+        5000 -> raise "Catalog worker readiness barrier timed out"
+      end
+    end)
+  end
+
+  defp persist_race_result(context, result) do
+    case result do
+      {:ok, row} -> own(context, row)
+      _ -> :ok
+    end
+
+    result
   end
 end

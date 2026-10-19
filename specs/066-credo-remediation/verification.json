@@ -1,0 +1,364 @@
+{
+  "schema_version": 1,
+  "runtime_required": true,
+  "checks": [
+    {
+      "id": "toolchain",
+      "argv": [
+        "sh",
+        "scripts/check_toolchain.sh"
+      ]
+    },
+    {
+      "id": "services",
+      "argv": [
+        "bash",
+        "-eu",
+        "-c",
+        "mix test.prepare && mix infrastructure.verify"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "reuse": false
+    },
+    {
+      "id": "format",
+      "argv": [
+        "mix",
+        "format",
+        "--check-formatted"
+      ]
+    },
+    {
+      "id": "compile",
+      "argv": [
+        "mix",
+        "compile",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "credo",
+      "argv": [
+        "mix",
+        "credo",
+        "--format",
+        "flycheck"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "unit",
+      "argv": [
+        "mix",
+        "test.unit"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "integration",
+      "argv": [
+        "mix",
+        "test.integration"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "runtime": true,
+      "expectation": "Runner requires Chromium launch and owned Docker service readiness; real workspace HTTP test starts its listener, asserts sign-in 200/no-store/secure cookie and HTML marker, rejected CSRF 403, invalid login 422, successful login/signout 303, authenticated pages 200, API isolation 401 and ownership denial 403. No unavailable service or skipped case is accepted."
+    },
+    {
+      "id": "e2e",
+      "argv": [
+        "mix",
+        "test.e2e"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "runtime": true,
+      "expectation": "Existing E2E runtime awaits real listener readiness with deadline and fails if unavailable. Chromium executes sign-in/connected shell/logout/expired-session journey. Oban catalog journey asserts API 200 plus application/json and nested subset data, 401 plus Bearer challenge/error body and 400 invalid-page-size body; rejected input/replay preserves database snapshots and identity."
+    },
+    {
+      "id": "scope",
+      "argv": [
+        "python3",
+        "-c",
+        "from pathlib import Path\nimport subprocess,json,re\nroot=Path.cwd(); feature=root/'specs/066-credo-remediation'\nbase='4b257566e18fc2b7ddc55d0c5a730b27481b6d2b'\nchanged=set(subprocess.check_output(['git','diff','--name-only',base],text=True).splitlines())\nchanged.update(subprocess.check_output(['git','ls-files','--others','--exclude-standard'],text=True).splitlines())\nallowed=('lib/','test/','config/','priv/','specs/066-credo-remediation/')\nexact={'backlog/feedback/TASK-066.md','.github/workflows/quality-baseline.yml','scripts/ci_unit_tests.sh','mix.exs','mix.lock','.credo.exs','README.md','docs/WORKFLOW_LESSONS.md','docs/adr/0029-behavior-preserving-credo-remediation.md','backlog/TASK-065-whole-application-elixir-quality-analysis-and-coverage.md','backlog/TASK-066-remediate-existing-elixir-credo-findings-without-behavior-changes.md'}\n# Resolve the actual unique TASK-065 filename, never authorize an arbitrary backlog change.\npaths=list((root/'backlog').glob('TASK-065-*.md')); assert len(paths)==1\nexact.add(paths[0].relative_to(root).as_posix())\nassert all(p in exact or p.startswith(allowed) or (p.startswith('scripts/') and p.endswith(('.ex', '.exs'))) for p in changed), 'out-of-scope files'\ntext=paths[0].read_text(); assert re.search(r'^depends_on:.*TASK-066',text,re.M), 'TASK-065 dependency missing'\nassert not re.search(r'^status: (?:wip|done|review)$',text,re.M), 'TASK-065 must remain blocked'\nledger=feature/'handoffs/remediation.md'; assert ledger.is_file() and ledger.stat().st_size>0, 'missing hunk/finding/regression ledger'\nmanifest=json.loads((feature/'verification.json').read_text()); tasks=(feature/'tasks.md').read_text()\nassert manifest['task_stages']=={'T020':'qa','T021':'review'}\nfor ident,title,gate in [('T020','Independent QA','qa'),('T021','Final review','review')]:\n assert re.search(r'^- \\[.\\] '+ident+r' \\[gate:'+gate+r'\\] '+title,tasks,re.M), 'missing independent gate'\nprint('scope and prerequisite contract passed; semantic equivalence and actual independent verdicts require downstream review')\n"
+      ]
+    },
+    {
+      "id": "tooling-contract",
+      "argv": [
+        "mix",
+        "test",
+        "test/ci/credo_remediation_contract_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "causal-application",
+      "argv": [
+        "mix",
+        "test",
+        "test/football_market/accounts",
+        "test/football_market/market/consistency_test.exs",
+        "test/football_market/statistics/input_test.exs",
+        "test/football_market/providers/error_safety_test.exs",
+        "test/football_market/providers/scraping",
+        "test/football_market/valuation/balanced",
+        "test/football_market/valuation/position_aware",
+        "test/football_market/synchronization/policy_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "causal-safeguards",
+      "argv": [
+        "mix",
+        "test",
+        "test/ci/test_profile_audit_test.exs",
+        "test/ci/e2e_runtime_contract_test.exs",
+        "test/ci/workflow_scope_test.exs",
+        "test/football_market/statistics/scope_test.exs",
+        "test/football_market/providers/scope_test.exs",
+        "test/football_market/market/scope_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "causal-persistence",
+      "argv": [
+        "mix",
+        "test",
+        "test/football_market/statistics/ingestion/canonical_test.exs",
+        "test/football_market/statistics/ingestion/acceptance_test.exs",
+        "test/football_market/valuation/replay_test.exs",
+        "test/football_market/synchronization/request_test.exs",
+        "test/football_market/synchronization/recovery_test.exs",
+        "test/football_market/infrastructure/verification_test.exs",
+        "test/football_market_web/controllers/session_controller_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "causal-remaining",
+      "argv": [
+        "mix",
+        "test",
+        "test/football_market/catalog/ingestion/canonical_test.exs",
+        "test/football_market/catalog/ingestion/delivery_receipt_test.exs",
+        "test/football_market/catalog/ingestion/identity_test.exs",
+        "test/football_market/catalog/ingestion/isolation_test.exs",
+        "test/football_market/catalog/ingestion/outcome_test.exs",
+        "test/football_market/catalog/ingestion/publication_test.exs",
+        "test/football_market/catalog/ingestion/reconciliation_test.exs",
+        "test/football_market/catalog/ingestion/replay_test.exs",
+        "test/football_market/catalog/ingestion/retention_test.exs",
+        "test/football_market/infrastructure/configuration_test.exs",
+        "test/football_market/infrastructure/database_workflow_test.exs",
+        "test/football_market/infrastructure/redis_test.exs",
+        "test/football_market/infrastructure/verification_test.exs",
+        "test/football_market/statistics/count_test.exs",
+        "test/football_market/statistics/history_test.exs",
+        "test/football_market/statistics/ingestion/acceptance_test.exs",
+        "test/football_market/statistics/ingestion/calculation_test.exs",
+        "test/football_market/statistics/ingestion/canonical_test.exs",
+        "test/football_market/statistics/ingestion/completeness_test.exs",
+        "test/football_market/statistics/ingestion/fixtures_test.exs",
+        "test/football_market/statistics/ingestion/integrity_test.exs",
+        "test/football_market/statistics/ingestion/isolation_test.exs",
+        "test/football_market/statistics/ingestion/metrics_test.exs",
+        "test/football_market/statistics/ingestion/outcome_test.exs",
+        "test/football_market/statistics/ingestion/positions_test.exs",
+        "test/football_market/statistics/ingestion/provenance_test.exs",
+        "test/football_market/statistics/ingestion/replay_test.exs",
+        "test/football_market/statistics/input_test.exs",
+        "test/football_market/statistics/integrity_test.exs",
+        "test/football_market/statistics/storage_test.exs",
+        "test/football_market/synchronization/input_test.exs",
+        "test/football_market/synchronization/inspection_test.exs",
+        "test/football_market/synchronization/integrity_test.exs",
+        "test/football_market/synchronization/migration_test.exs",
+        "test/football_market/synchronization/policy_test.exs",
+        "test/football_market/synchronization/request_test.exs",
+        "test/football_market/synchronization/retry_test.exs",
+        "test/football_market/synchronization/scheduler_test.exs",
+        "test/football_market/synchronization/statistics_test.exs",
+        "test/football_market/valuation/configurations/activation_test.exs",
+        "test/football_market/valuation/configurations/canonical_test.exs",
+        "test/football_market/valuation/configurations/codec_test.exs",
+        "test/football_market/valuation/configurations/immutability_test.exs",
+        "test/football_market/valuation/configurations/managed_test.exs",
+        "test/football_market/valuation/configurations/outcomes_test.exs",
+        "test/football_market/valuation/configurations/replay_test.exs",
+        "test/football_market/valuation/configurations/rules_test.exs",
+        "test/football_market/valuation/configurations/storage_test.exs",
+        "test/football_market_web/api_authentication_performance_test.exs",
+        "test/football_market_web/api_authentication_security_test.exs",
+        "test/football_market_web/api_authentication_test.exs",
+        "test/football_market_web/browser_feedback_test.exs",
+        "test/football_market_web/browser_return_test.exs",
+        "test/football_market_web/controllers/error_html_test.exs",
+        "test/football_market_web/controllers/error_json_test.exs",
+        "test/football_market_web/controllers/page_controller_test.exs",
+        "test/football_market_web/controllers/player_catalog_auth_precedence_test.exs",
+        "test/football_market_web/controllers/player_catalog_performance_test.exs",
+        "test/football_market_web/controllers/player_catalog_security_test.exs",
+        "test/football_market_web/controllers/player_controller_test.exs",
+        "test/football_market_web/controllers/player_detail_controller_test.exs",
+        "test/football_market_web/controllers/session_controller_test.exs",
+        "test/football_market_web/live/browser_session_lifecycle_test.exs",
+        "test/football_market_web/live/workspace_navigation_test.exs",
+        "test/football_market_web/openapi_browser_test.exs",
+        "test/football_market_web/openapi_contract_test.exs",
+        "test/football_market_web/router_authentication_policy_test.exs",
+        "test/football_market_web/workspace_browser_test.exs",
+        "test/football_market_web/workspace_http_runtime_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "causal-seed",
+      "argv": [
+        "mix",
+        "test",
+        "test/football_market/catalog/development_seed_test.exs",
+        "test/mix/tasks/catalog.seed_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "inventory",
+      "argv": [
+        "mix",
+        "run",
+        "--no-start",
+        "-e",
+        "{:ok, _} = Application.ensure_all_started(:credo)\nexec = Credo.run([\"--format\", \"flycheck\"])\nfalse = exec.strict\n0 = exec.min_priority\nsources = Credo.Execution.get_source_files(exec)\ntrue = Enum.all?(sources, &(&1.status == :valid))\ninputs = sources |> Enum.map(& &1.filename) |> Enum.sort()\n{listed, 0} = System.cmd(\"git\", [\"ls-files\", \"--cached\", \"--others\", \"--exclude-standard\", \"-z\"])\nmaintained = listed |> String.split(<<0>>, trim: true) |> Enum.uniq() |> Enum.filter(fn path ->\n  (String.starts_with?(path, [\"lib/\", \"test/\", \"priv/\", \"config/\", \"scripts/\"]) or Path.dirname(path) == \".\") and Path.extname(path) in [\".ex\", \".exs\"] and File.regular?(path)\nend) |> Enum.sort()\n[] = maintained -- inputs\nissues = Credo.Execution.get_issues(exec) |> Enum.filter(&(&1.priority >= 0))\nrows = Enum.map(issues, fn issue -> %{check: inspect(issue.check), path: issue.filename, line: issue.line_no, column: issue.column, category: issue.category, message: issue.message} end)\nhashes = Map.new(inputs, fn path -> {path, Base.encode16(:crypto.hash(:sha256, File.read!(path)), case: :lower)} end)\nFile.mkdir_p!(\"tmp/task066\")\nFile.write!(\"tmp/task066/effective-measurement.json\", Jason.encode!(%{version: Credo.version(), command: \"MIX_ENV=test mix credo --format flycheck\", inputs: inputs, maintained: maintained, source_hashes: hashes, findings: rows}, pretty: true))\n[] = rows\nIO.puts(\"Credo #{Credo.version()}: #{length(maintained)} maintained inputs reconciled against #{length(inputs)} effective inputs; zero default-priority findings\")\n"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "cold-database-ci",
+      "argv": [
+        "python3",
+        "specs/066-credo-remediation/checks/cold_database.py"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "reuse": false
+    }
+  ],
+  "coverage": {
+    "FR-001": [
+      "unit",
+      "tooling-contract"
+    ],
+    "FR-002": [
+      "unit",
+      "credo",
+      "tooling-contract"
+    ],
+    "FR-003": [
+      "unit",
+      "credo",
+      "scope",
+      "tooling-contract"
+    ],
+    "FR-004": [
+      "unit",
+      "credo",
+      "inventory"
+    ],
+    "FR-005": [
+      "unit",
+      "integration",
+      "e2e"
+    ],
+    "FR-006": [
+      "unit",
+      "integration",
+      "e2e"
+    ],
+    "FR-007": [
+      "scope",
+      "credo",
+      "unit",
+      "integration",
+      "e2e"
+    ],
+    "FR-008": [
+      "unit",
+      "integration",
+      "e2e",
+      "scope"
+    ],
+    "FR-009": [
+      "unit",
+      "integration",
+      "e2e",
+      "cold-database-ci"
+    ],
+    "FR-010": [
+      "scope"
+    ],
+    "FR-011": [
+      "scope"
+    ],
+    "FR-012": [
+      "scope"
+    ],
+    "SC-001": [
+      "unit",
+      "credo",
+      "inventory"
+    ],
+    "SC-002": [
+      "unit",
+      "credo",
+      "tooling-contract"
+    ],
+    "SC-003": [
+      "unit",
+      "integration",
+      "e2e",
+      "cold-database-ci"
+    ],
+    "SC-004": [
+      "unit",
+      "integration",
+      "e2e"
+    ],
+    "SC-005": [
+      "scope"
+    ]
+  },
+  "task_stages": {
+    "T020": "qa",
+    "T021": "review"
+  }
+}

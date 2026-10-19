@@ -23,35 +23,43 @@ defmodule FootballMarket.Providers.FactOracle do
     assert Map.keys(actual) |> Enum.sort() == Map.keys(expected) |> Enum.sort()
 
     for {field, value} <- actual do
-      kind = Map.get(@kinds, field, field)
-      actual_rows = if is_list(value), do: value, else: [value]
-      expected_rows = if is_list(expected[field]), do: expected[field], else: [expected[field]]
-      expected_rows = Enum.map(expected_rows, &Map.delete(&1, :participation))
-      mapping = Map.fetch!(correspondence, kind)
-      assert Enum.sort(Map.keys(mapping)) == Enum.sort(Enum.map(actual_rows, & &1.ref))
-      assert Enum.sort(Map.values(mapping)) == Enum.sort(Enum.map(expected_rows, & &1.ref))
-      assert length(Enum.uniq(Map.values(mapping))) == map_size(mapping)
-
-      normalized =
-        Enum.map(actual_rows, fn row ->
-          row = if is_struct(row), do: Map.from_struct(row), else: row
-
-          row =
-            if Map.get(row, :participation) == nil, do: Map.delete(row, :participation), else: row
-
-          Map.new(row, fn {key, v} ->
-            cond do
-              key == :ref -> {key, Map.fetch!(mapping, v)}
-              Map.has_key?(@edges, key) -> {key, Map.fetch!(correspondence[@edges[key]], v)}
-              match?(%DateTime{}, v) -> {key, DateTime.to_iso8601(v)}
-              true -> {key, v}
-            end
-          end)
-        end)
-
-      assert Enum.sort(normalized) == Enum.sort(expected_rows)
+      assert_kind!(field, value, expected, correspondence)
     end
 
     :ok
+  end
+
+  defp assert_kind!(field, value, expected, correspondence) do
+    kind = Map.get(@kinds, field, field)
+    actual_rows = if is_list(value), do: value, else: [value]
+    expected_rows = if is_list(expected[field]), do: expected[field], else: [expected[field]]
+    expected_rows = Enum.map(expected_rows, &Map.delete(&1, :participation))
+    mapping = Map.fetch!(correspondence, kind)
+    assert Enum.sort(Map.keys(mapping)) == Enum.sort(Enum.map(actual_rows, & &1.ref))
+    assert Enum.sort(Map.values(mapping)) == Enum.sort(Enum.map(expected_rows, & &1.ref))
+    assert length(Enum.uniq(Map.values(mapping))) == map_size(mapping)
+
+    normalized =
+      Enum.map(actual_rows, fn row ->
+        normalize_row(row, mapping, correspondence)
+      end)
+
+    assert Enum.sort(normalized) == Enum.sort(expected_rows)
+  end
+
+  defp normalize_row(row, mapping, correspondence) do
+    row = if is_struct(row), do: Map.from_struct(row), else: row
+
+    row =
+      if Map.get(row, :participation) == nil, do: Map.delete(row, :participation), else: row
+
+    Map.new(row, fn {key, v} ->
+      cond do
+        key == :ref -> {key, Map.fetch!(mapping, v)}
+        Map.has_key?(@edges, key) -> {key, Map.fetch!(correspondence[@edges[key]], v)}
+        match?(%DateTime{}, v) -> {key, DateTime.to_iso8601(v)}
+        true -> {key, v}
+      end
+    end)
   end
 end

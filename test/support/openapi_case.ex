@@ -1,4 +1,5 @@
 defmodule FootballMarket.OpenAPICase do
+  @moduledoc false
   import FootballMarket.AccountsCase
   import FootballMarket.CatalogCase
 

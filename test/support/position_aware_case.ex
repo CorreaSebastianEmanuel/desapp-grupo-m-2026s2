@@ -104,18 +104,7 @@ defmodule FootballMarket.PositionAwareCase do
 
     ties =
       for sign <- [-1, 1], mode <- [:within, :single, :cross, :residual, :cancel] do
-        w = %Decimal{sign: sign, coef: 1, exp: -6}
-
-        weights =
-          case mode do
-            :within -> [%{goals: w, assists: w}, %{goals: 0}]
-            :single -> [%{goals: w}, %{goals: 0}]
-            :cross -> [%{goals: w}, %{goals: w}]
-            :residual -> [%{goals: %{w | coef: 2}}, %{goals: %{w | sign: -sign}}]
-            :cancel -> [%{goals: w}, %{goals: %{w | sign: -sign}}]
-          end
-
-        {weights, if(mode == :within, do: %{goals: 2, assists: 2}, else: %{goals: 2})}
+        tie_vector(sign, mode)
       end
 
     exponents =
@@ -151,6 +140,21 @@ defmodule FootballMarket.PositionAwareCase do
     end)
   end
 
+  defp tie_vector(sign, mode) do
+    w = %Decimal{sign: sign, coef: 1, exp: -6}
+
+    weights =
+      case mode do
+        :within -> [%{goals: w, assists: w}, %{goals: 0}]
+        :single -> [%{goals: w}, %{goals: 0}]
+        :cross -> [%{goals: w}, %{goals: w}]
+        :residual -> [%{goals: %{w | coef: 2}}, %{goals: %{w | sign: -sign}}]
+        :cancel -> [%{goals: w}, %{goals: %{w | sign: -sign}}]
+      end
+
+    {weights, if(mode == :within, do: %{goals: 2, assists: 2}, else: %{goals: 2})}
+  end
+
   def permutations([]), do: [[]]
   def permutations(xs), do: for(x <- xs, rest <- permutations(xs -- [x]), do: [x | rest])
 
@@ -166,6 +170,7 @@ defmodule FootballMarket.PositionAwareCase do
 end
 
 defmodule FootballMarket.Valuation.PositionAware.ReplayTest.CallbackProbe do
+  @moduledoc false
   alias FootballMarket.Valuation.PositionAware
   defdelegate identity(), to: PositionAware
   defdelegate validate_config(config), to: PositionAware

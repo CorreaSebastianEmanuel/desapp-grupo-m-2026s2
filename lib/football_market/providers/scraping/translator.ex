@@ -125,18 +125,14 @@ defmodule FootballMarket.Providers.Scraping.Translator do
         measured = Map.new(stats, &{&1["key"], &1["stat"]["value"]})
 
         counts =
-          Map.new(@metric_keys, fn {key, external} ->
-            value = if row.metrics[key].status == :verified, do: measured[external], else: nil
-            {key, value}
-          end)
+          Map.new(@metric_keys, &metric_value(&1, measured, row))
 
         %{
           ref: "performance:" <> Source.id!(m["id"]) <> ":" <> Source.id!(p["id"]),
           match_ref: ref(:match, m["id"]),
           player_ref: ref(:player, p["id"]),
           team_ref: ref(:team, p["teamId"]),
-          position_ref:
-            if(is_nil(p["positionId"]), do: nil, else: position!(p["positionId"], row)),
+          position_ref: position_ref(p, row),
           minutes_played: measured["minutes_played"],
           counts: counts,
           participation: participation(p, row)
@@ -144,6 +140,15 @@ defmodule FootballMarket.Providers.Scraping.Translator do
       end
 
     Map.merge(%{facts | players: players}, %{matches: matches, performances: performances})
+  end
+
+  defp metric_value({key, external}, measured, row) do
+    value = if row.metrics[key].status == :verified, do: measured[external], else: nil
+    {key, value}
+  end
+
+  defp position_ref(player, row) do
+    if is_nil(player["positionId"]), do: nil, else: position!(player["positionId"], row)
   end
 
   def position!(id, row) do

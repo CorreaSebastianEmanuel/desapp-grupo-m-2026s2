@@ -106,6 +106,9 @@ jobs:
       - name: Build browser assets
         run: MIX_ENV=test mix assets.build
 
+      - name: Prepare test database
+        run: MIX_ENV=test mix test.prepare
+
       - name: Unit tests
         env:
           CI_PROFILE_RECEIPTS: tmp/profile-ci

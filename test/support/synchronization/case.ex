@@ -19,20 +19,7 @@ defmodule FootballMarket.Synchronization.Case do
     tasks =
       for index <- 1..count do
         Task.Supervisor.async_nolink(supervisor, fn ->
-          if repo, do: FootballMarket.Repo.put_dynamic_repo(repo)
-
-          runner = fn ->
-            %{rows: [[backend]]} = FootballMarket.Repo.query!("SELECT pg_backend_pid()", [])
-            send(parent, {ref, self(), backend})
-
-            receive do
-              {^ref, :go} -> if is_function(fun, 1), do: fun.(index), else: fun.()
-            after
-              5000 -> raise "synchronization race barrier timed out"
-            end
-          end
-
-          Ecto.Adapters.SQL.Sandbox.unboxed_run(FootballMarket.Repo, runner)
+          run_worker(index, parent, ref, fun, repo)
         end)
       end
 
@@ -48,6 +35,26 @@ defmodule FootballMarket.Synchronization.Case do
     if length(Enum.uniq(backends)) != count, do: raise("distinct backends required")
     for task <- tasks, do: send(task.pid, {ref, :go})
     Enum.map(tasks, &Task.await(&1, 15_000))
+  end
+
+  defp run_worker(index, parent, ref, fun, repo) do
+    if repo, do: FootballMarket.Repo.put_dynamic_repo(repo)
+
+    runner = fn ->
+      %{rows: [[backend]]} = FootballMarket.Repo.query!("SELECT pg_backend_pid()", [])
+      send(parent, {ref, self(), backend})
+      await_race(ref, fun, index)
+    end
+
+    Ecto.Adapters.SQL.Sandbox.unboxed_run(FootballMarket.Repo, runner)
+  end
+
+  defp await_race(ref, fun, index) do
+    receive do
+      {^ref, :go} -> if is_function(fun, 1), do: fun.(index), else: fun.()
+    after
+      5000 -> raise "synchronization race barrier timed out"
+    end
   end
 
   def disposable_beam!(expression) do

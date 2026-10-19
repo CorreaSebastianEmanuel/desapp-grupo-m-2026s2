@@ -1,4 +1,5 @@
 defmodule FootballMarket.AccountsCase do
+  @moduledoc false
   use ExUnit.CaseTemplate
 
   alias FootballMarket.Accounts.{PasswordCredential, User}

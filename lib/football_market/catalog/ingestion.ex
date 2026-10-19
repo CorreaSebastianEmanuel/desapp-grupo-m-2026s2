@@ -58,14 +58,7 @@ defmodule FootballMarket.Catalog.Ingestion do
 
       is_list(entries) and
         Enum.all?(entries, fn entry ->
-          is_map(entry) and not is_struct(entry) and
-            Enum.sort(Map.keys(entry)) == Enum.sort(fields) and
-            Map.take(entry, [:league_code, :start_year, :end_year]) == scope and
-            entry.kind in [:league, :season, :team, :player] and
-            (mapping or entry.kind == :player) and
-            FootballMarket.Providers.Provenance.safe_text?(entry.provider) and
-            FootballMarket.Providers.Provenance.safe_text?(entry.source_id) and
-            (not mapping or match?({:ok, _}, Ecto.UUID.cast(entry.target_id)))
+          valid_instruction?(entry, fields, scope, mapping)
         end)
     end)
   end
@@ -79,4 +72,19 @@ defmodule FootballMarket.Catalog.Ingestion do
          provider_error: error,
          recovery: :provider_guidance
        }}
+
+  defp valid_instruction?(entry, fields, scope, mapping) do
+    is_map(entry) and not is_struct(entry) and
+      Enum.sort(Map.keys(entry)) == Enum.sort(fields) and
+      Map.take(entry, [:league_code, :start_year, :end_year]) == scope and
+      entry.kind in [:league, :season, :team, :player] and
+      (mapping or entry.kind == :player) and
+      valid_instruction_source?(entry, mapping)
+  end
+
+  defp valid_instruction_source?(entry, mapping) do
+    FootballMarket.Providers.Provenance.safe_text?(entry.provider) and
+      FootballMarket.Providers.Provenance.safe_text?(entry.source_id) and
+      (not mapping or match?({:ok, _}, Ecto.UUID.cast(entry.target_id)))
+  end
 end

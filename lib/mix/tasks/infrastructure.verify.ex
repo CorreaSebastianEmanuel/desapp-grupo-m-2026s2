@@ -1,4 +1,5 @@
 defmodule Mix.Tasks.Infrastructure.Verify do
+  @moduledoc false
   use Mix.Task
   @requirements []
 

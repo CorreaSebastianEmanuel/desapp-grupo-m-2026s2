@@ -37,4 +37,30 @@ defmodule FootballMarket.WorkflowScopeTest do
              "lib/football_market/statistics/ingestion/publisher.ex"
            )
   end
+
+  test "Credo cleanup allowance is finite and rejects unknown production and CI paths" do
+    feature = "specs/066-credo-remediation"
+    paths = WorkflowScope.paths(feature)
+    assert paths != []
+    assert length(paths) == length(Enum.uniq(paths))
+    assert WorkflowScope.allows_path?(feature, "test/ci/credo_remediation_contract_test.exs")
+    assert WorkflowScope.allows_path?(feature, "config/test_profiles.json")
+    assert WorkflowScope.allows_path?(feature, "test/scripts/local_services_failure_test.sh")
+    assert WorkflowScope.allows_path?(feature, "test/scripts/ci_unit_tests_test.sh")
+    assert WorkflowScope.allows_path?(feature, ".github/workflows/quality-baseline.yml")
+    assert WorkflowScope.allows_path?(feature, "test/ci/test_profiles_quality_contract_test.exs")
+    assert WorkflowScope.allows_path?(feature, "test/ci/fixtures/quality-baseline.sha256")
+    assert WorkflowScope.allows_path?(feature, "test/football_market/market/consistency_test.exs")
+
+    for path <- [
+          "lib/football_market/unplanned.ex",
+          "test/scripts/unplanned_test.sh",
+          ".github/workflows/unplanned.yml",
+          "priv/repo/migrations/unplanned.exs"
+        ] do
+      refute WorkflowScope.allows_path?(feature, path)
+    end
+
+    assert WorkflowScope.paths("specs/unknown") == []
+  end
 end

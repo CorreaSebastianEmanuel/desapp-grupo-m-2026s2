@@ -241,3 +241,16 @@ Set-ExecutionPolicy -Scope Process Bypass
 ```
 
 Git Bash is required because the checked-in Spec Kit integration uses its portable shell scripts. The backlog, specs, workflow, and agent sessions are otherwise identical on macOS, Linux, and Windows.
+
+### Elixir static analysis
+
+Credo is pinned to 1.7.19 for development/test only and is excluded from runtime loading.
+Run the default-priority standard at the repository root:
+
+```bash
+MIX_ENV=test mix credo --format flycheck
+```
+
+The named default configuration includes all maintained Elixir in lib/, config/, priv/,
+scripts/, test/ and root Elixir files. Stock rules and default priorities are inherited;
+no suppressions, baseline, disabled rules or increased thresholds are allowed.

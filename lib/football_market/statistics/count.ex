@@ -1,4 +1,5 @@
 defmodule FootballMarket.Statistics.Count do
+  @moduledoc false
   use Ecto.Type
   def type, do: :decimal
   def cast(nil), do: {:ok, nil}

@@ -19,19 +19,22 @@ defmodule FootballMarket.Synchronization.ExecutionGuard do
       |> Keyword.take([:username, :password, :hostname, :port, :database, :ssl, :socket_options])
       |> Keyword.put(:show_sensitive_data_on_connection_error, false)
 
-    with {:ok, connection} <- Postgrex.start_link(connection_options) do
-      scope_key = key({:scope, scope})
+    case Postgrex.start_link(connection_options) do
+      {:ok, connection} ->
+        scope_key = key({:scope, scope})
 
-      if lock(connection, scope_key) and Enum.any?(1..slots, &lock(connection, key({:slot, &1}))) do
-        monitor = Process.monitor(owner)
-        timer = Process.send_after(self(), :timeout, timeout)
-        {:ok, %{connection: connection, owner: owner, monitor: monitor, timer: timer}}
-      else
-        GenServer.stop(connection)
-        {:stop, :busy}
-      end
-    else
-      _ -> {:stop, :store_unavailable}
+        if lock(connection, scope_key) and
+             Enum.any?(1..slots, &lock(connection, key({:slot, &1}))) do
+          monitor = Process.monitor(owner)
+          timer = Process.send_after(self(), :timeout, timeout)
+          {:ok, %{connection: connection, owner: owner, monitor: monitor, timer: timer}}
+        else
+          GenServer.stop(connection)
+          {:stop, :busy}
+        end
+
+      _ ->
+        {:stop, :store_unavailable}
     end
   end
 

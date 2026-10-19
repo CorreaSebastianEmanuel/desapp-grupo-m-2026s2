@@ -32,3 +32,8 @@ list passes the checkpoint hygiene review.
   `.agents/skills/` and exposed an outdated feedback contract (`--stage` only,
   no `--impact`) — after migrating an agent integration, remove the superseded
   mirror in the same change or point it at the canonical copy — cleanup PR
+- 2026-10-18 — Quality tooling depends on local services and hosted credentials — validate live prerequisites before final checks; report unavailable access separately from unsupported capabilities — TASK-065
+- 2026-10-18 — Child-agent socket restrictions masked real compiler diagnostics — distinguish sandbox permission failures from service failures and verify child execution access before resuming — TASK-065
+- 2026-10-18 — A new required linter exposes accumulated repository findings — assess the full finding set early and budget behavior-preserving remediation before the final verification run — TASK-065
+- 2026-10-18 — Repository-wide lint adoption grew into domain refactors — isolate existing-code remediation as an explicit prerequisite and keep integration gates unchanged — TASK-065, TASK-066
+- 2026-10-19 — Local prepared databases masked CI cold-start failure — run test.prepare before profile discovery in every CI job and verify once against an initially empty database — TASK-066

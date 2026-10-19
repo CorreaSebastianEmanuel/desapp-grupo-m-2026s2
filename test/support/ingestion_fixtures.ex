@@ -163,6 +163,7 @@ defmodule FootballMarket.IngestionFixtures do
 end
 
 defmodule FootballMarket.IngestionFixtureAdapter do
+  @moduledoc false
   @behaviour FootballMarket.Providers.Adapter
   def provider_label, do: "synthetic-a"
 
@@ -198,6 +199,7 @@ defmodule FootballMarket.IngestionFixtureAdapter do
 end
 
 defmodule FootballMarket.IngestionFixtureRuntime do
+  @moduledoc false
   def now_us(_), do: 0
   def utc_now(state), do: state.instant
   def launch(fun, _deadline, _state), do: fun.()
@@ -207,6 +209,7 @@ defmodule FootballMarket.IngestionFixtureRuntime do
 end
 
 defmodule FootballMarket.IngestionReplacementAdapter do
+  @moduledoc false
   @behaviour FootballMarket.Providers.Adapter
   def provider_label, do: "synthetic-b"
 
@@ -215,6 +218,7 @@ defmodule FootballMarket.IngestionReplacementAdapter do
 end
 
 defmodule FootballMarket.IngestionLateRuntime do
+  @moduledoc false
   def now_us(_), do: 0
   def utc_now(_), do: ~U[2026-10-06 12:00:00.000000Z]
   def launch(fun, _deadline, _state), do: fun.()

@@ -1,4 +1,5 @@
 defmodule FootballMarket.BrowserSessionCase do
+  @moduledoc false
   use ExUnit.CaseTemplate
 
   using do
@@ -112,12 +113,14 @@ defmodule FootballMarket.BrowserSessionCase do
 end
 
 defmodule FootballMarket.BrowserTestClock do
+  @moduledoc false
   def now do
     :persistent_term.get({__MODULE__, :now}, DateTime.utc_now())
   end
 end
 
 defmodule FootballMarket.BrowserRuntimePlug do
+  @moduledoc false
   require Phoenix.LiveViewTest
   import Plug.Conn
   def init(opts), do: opts

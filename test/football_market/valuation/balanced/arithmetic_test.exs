@@ -106,7 +106,7 @@ defmodule FootballMarket.Valuation.Balanced.ArithmeticTest do
   end
 
   test "zero factors never scale and accepted large counts have only feature saturation" do
-    for exponent <- [-10000, 10000], sign <- [-1, 1] do
+    for exponent <- [-10_000, 10_000], sign <- [-1, 1] do
       wide = %Decimal{sign: sign, coef: 1, exp: exponent}
       zero = %Decimal{sign: sign, coef: 0, exp: exponent}
 

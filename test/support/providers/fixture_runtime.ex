@@ -29,6 +29,7 @@ defmodule FootballMarket.Providers.FixtureRuntime do
 end
 
 defmodule FootballMarket.Providers.BlockingLabelAdapter do
+  @moduledoc false
   def provider_label do
     receive do
       :never -> "blocked"

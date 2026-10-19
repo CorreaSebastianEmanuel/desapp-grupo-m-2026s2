@@ -39,15 +39,7 @@ defmodule FootballMarket.Valuation.Replay do
   defp scored(descriptor, prepared, definition) do
     case Scoring.definition(definition) do
       {:ok, d} ->
-        if descriptor.strategy == Scoring.strategy(d) do
-          with {:ok, result} <- Scoring.calculate(prepared, d) do
-            if Evidence.canonical(result.descriptor) == Evidence.canonical(descriptor),
-              do: {:ok, result},
-              else: Error.new(:inconsistent_replay, :altered_derived_values)
-          end
-        else
-          Error.new(:inconsistent_replay, :rules_mismatch)
-        end
+        replay_with_strategy(descriptor, prepared, d)
 
       {:error, %{kind: :unsupported_strategy}} ->
         Error.new(:unavailable_replay, :original_rules_unavailable)
@@ -55,6 +47,26 @@ defmodule FootballMarket.Valuation.Replay do
       _ ->
         Error.new(:inconsistent_replay, :rules_mismatch)
     end
+  end
+
+  defp replay_with_strategy(descriptor, prepared, definition) do
+    if descriptor.strategy == Scoring.strategy(definition) do
+      replay_result(descriptor, prepared, definition)
+    else
+      Error.new(:inconsistent_replay, :rules_mismatch)
+    end
+  end
+
+  defp replay_result(descriptor, prepared, definition) do
+    with {:ok, result} <- Scoring.calculate(prepared, definition) do
+      validate_result_descriptor(result, descriptor)
+    end
+  end
+
+  defp validate_result_descriptor(result, descriptor) do
+    if Evidence.canonical(result.descriptor) == Evidence.canonical(descriptor),
+      do: {:ok, result},
+      else: Error.new(:inconsistent_replay, :altered_derived_values)
   end
 
   defp restore(%Descriptor{} = descriptor) do
@@ -134,11 +146,19 @@ defmodule FootballMarket.Valuation.Replay do
       fact.away_team_id
     ]
 
-    Enum.all?(ids, &match?({:ok, _}, Ecto.UUID.cast(&1))) and
-      is_binary(fact.match_identity) and is_integer(fact.minutes) and fact.minutes >= 0 and
+    valid_fact_ids?(ids) and valid_fact_metadata?(fact) and valid_fact_metrics?(fact.metrics)
+  end
+
+  defp valid_fact_ids?(ids), do: Enum.all?(ids, &match?({:ok, _}, Ecto.UUID.cast(&1)))
+
+  defp valid_fact_metadata?(fact) do
+    is_binary(fact.match_identity) and is_integer(fact.minutes) and fact.minutes >= 0 and
       match?({:ok, _}, FootballMarket.Statistics.Input.instant(fact.kickoff, :kickoff)) and
-      fact.group in [nil | tl(Request.scopes())] and is_map(fact.metrics) and
-      Enum.sort(Map.keys(fact.metrics)) == Enum.sort(Request.metrics()) and
-      Enum.all?(Map.values(fact.metrics), &(is_nil(&1) or (is_integer(&1) and &1 >= 0)))
+      fact.group in [nil | tl(Request.scopes())]
+  end
+
+  defp valid_fact_metrics?(metrics) do
+    is_map(metrics) and Enum.sort(Map.keys(metrics)) == Enum.sort(Request.metrics()) and
+      Enum.all?(Map.values(metrics), &(is_nil(&1) or (is_integer(&1) and &1 >= 0)))
   end
 end

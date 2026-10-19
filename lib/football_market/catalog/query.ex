@@ -1,4 +1,5 @@
 defmodule FootballMarket.Catalog.Query do
+  @moduledoc false
   import Ecto.Query
 
   alias FootballMarket.Catalog.{League, Player, Position, Season, Team}

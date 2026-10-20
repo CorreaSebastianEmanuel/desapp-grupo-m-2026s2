@@ -4,9 +4,9 @@ title: Elixir source inventory and required Credo CI
 type: task
 checkpoint: CP2
 priority: high
-status: todo
+status: review
 depends_on: TASK-066
-active_run: none
+active_run: 7ae83510
 ---
 
 ## Outcome

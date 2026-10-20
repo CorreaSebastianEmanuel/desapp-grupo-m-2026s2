@@ -1,0 +1,387 @@
+{
+  "schema_version": 1,
+  "task": "TASK-065",
+  "feature": "065-elixir-source-inventory-and-required-credo-ci",
+  "base_revision": "ea471ade6783a85dbb24442888da62790d2f506d",
+  "verified_source": "8ce98208cf962c5c5ff796e74fb3c21cdef44c4b2a15a3283e38b2c940643f4e",
+  "canonical_inputs": "b78b5e2fc54281c1a307e46a3c5a34982c1a5868edd389fbc27d7d0c3ce62f65",
+  "manifest_sha256": "0b955e070b0b377008f8f8022755368dc44ea55dde1dc4497a18f75f60665f84",
+  "ci": {},
+  "checks": [
+    {
+      "id": "preflight",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "ac5b76746a68868c0e0cd8c92caf83a2dfb281b61142f55af79bd7b14d622274",
+      "elapsed_seconds": 5.882,
+      "output_sha256": "58007febc65248d1c1dd1fb4e7f59072550b35755379a2ac89cc75a64e8f55f2",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/065-elixir-source-inventory-and-required-credo-ci/develop/preflight/0f5e229b9e68455da0d45e78b4a59f68.log"
+      },
+      "environment": {
+        "MIX_ENV": "test"
+      },
+      "coverage": []
+    },
+    {
+      "id": "format",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "26bad5d12963be4d985fb1d8bfe38e8380cb6488d98260893b35f4d07c7de968",
+      "elapsed_seconds": 1.833,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/065-elixir-source-inventory-and-required-credo-ci/develop/format/561ac38f909a4709b1ec92325b9b4c92.log"
+      },
+      "environment": {},
+      "coverage": []
+    },
+    {
+      "id": "compile",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "84c5efffb1e8753fb9399ce673dc4399ba05c3f7a4d45ac3a2b7ffd7d569e279",
+      "elapsed_seconds": 1.065,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/065-elixir-source-inventory-and-required-credo-ci/develop/compile/27244d069d36454a8e77d81b3e221a23.log"
+      },
+      "environment": {
+        "MIX_ENV": "test"
+      },
+      "coverage": []
+    },
+    {
+      "id": "inventory",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "3ef182010a36fbb88ab1b72ccee515210d386774b2ad9014aa51b67fd923c6d3",
+      "elapsed_seconds": 19.928,
+      "output_sha256": "b12e7a291e7ccb89b89031798fca2e4b2ecadbdb19840c84dddc1af2273552db",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/065-elixir-source-inventory-and-required-credo-ci/develop/inventory/0edd5612e2864487997238d3c30b6a77.log"
+      },
+      "environment": {},
+      "coverage": []
+    },
+    {
+      "id": "credo",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "4059ff1f43c47e81afc25b67b27751678f1565a69b41e5bbb95f9bfb8f46895a",
+      "elapsed_seconds": 8.273,
+      "output_sha256": "b1914815d89f16c30586e33e29064a2405976af26d12b6d353586916e2b5c920",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/065-elixir-source-inventory-and-required-credo-ci/develop/credo/830fb4de4bd942f4a364472b6f93e6ad.log"
+      },
+      "environment": {
+        "MIX_ENV": "test"
+      },
+      "coverage": [
+        "FR-001",
+        "FR-002",
+        "FR-003",
+        "FR-004",
+        "FR-005",
+        "FR-006",
+        "FR-007",
+        "FR-008",
+        "FR-009",
+        "FR-010",
+        "SC-001",
+        "SC-002",
+        "SC-003",
+        "SC-004"
+      ]
+    },
+    {
+      "id": "regression",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "a76dc122ee898cb85010efabd0e873c652286a56eff8ae69f012ece56bb10f8c",
+      "elapsed_seconds": 603.951,
+      "output_sha256": "46905950d961eae1c051933b1acafbfe497f7a0ab8b4ede0d721ce48a366b7da",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/065-elixir-source-inventory-and-required-credo-ci/develop/regression/ffa75793a1d14cb59200856a3a7aaeee.log"
+      },
+      "environment": {
+        "MIX_ENV": "test"
+      },
+      "coverage": [
+        "FR-001",
+        "FR-002",
+        "FR-003",
+        "FR-004",
+        "FR-005",
+        "FR-006",
+        "FR-007",
+        "FR-008",
+        "FR-009",
+        "FR-010",
+        "FR-011",
+        "FR-012",
+        "SC-001",
+        "SC-002",
+        "SC-003",
+        "SC-004",
+        "SC-005"
+      ]
+    },
+    {
+      "id": "e2e",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "8a028005a826731d6e749adcdc48bda687ccd596ac69acfefa41e7e906a7251a",
+      "elapsed_seconds": 32.473,
+      "output_sha256": "5b96c500b870a64f95404eac816751799aca4b2b7efea68dc5a01708c6e2d068",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/065-elixir-source-inventory-and-required-credo-ci/develop/e2e/dce1ab252ac14883af18f3d5f20fe661.log"
+      },
+      "environment": {
+        "MIX_ENV": "test"
+      },
+      "coverage": [
+        "FR-011",
+        "FR-012",
+        "SC-005"
+      ]
+    },
+    {
+      "id": "preflight",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "ac5b76746a68868c0e0cd8c92caf83a2dfb281b61142f55af79bd7b14d622274",
+      "elapsed_seconds": 6.53,
+      "output_sha256": "ae206c178b2c2df63b3f71f3cb5f6534b863e62af2cce40d69885e79cc8df415",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/065-elixir-source-inventory-and-required-credo-ci/qa/preflight/70a6baa4ed5b4948be67584e8a3103e7.log"
+      },
+      "environment": {
+        "MIX_ENV": "test"
+      },
+      "coverage": []
+    },
+    {
+      "id": "format",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "26bad5d12963be4d985fb1d8bfe38e8380cb6488d98260893b35f4d07c7de968",
+      "elapsed_seconds": 2.328,
+      "output_sha256": "65e24d7cb9459763603cac107173fd6d48b49c87215dcaefc60b2929c5350bbc",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/065-elixir-source-inventory-and-required-credo-ci/qa/format/b718f1b94e1e4195b9f09f857d7d084c.log"
+      },
+      "environment": {},
+      "coverage": []
+    },
+    {
+      "id": "compile",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "84c5efffb1e8753fb9399ce673dc4399ba05c3f7a4d45ac3a2b7ffd7d569e279",
+      "elapsed_seconds": 0.798,
+      "output_sha256": "30199ad9c58d1fac4c5cb86f906bb9d3fb9f64d18a0819f5e5b8e9b198cbd708",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/065-elixir-source-inventory-and-required-credo-ci/qa/compile/58e73d05526c400ba029a4091b1b62cf.log"
+      },
+      "environment": {
+        "MIX_ENV": "test"
+      },
+      "coverage": []
+    },
+    {
+      "id": "inventory",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "3ef182010a36fbb88ab1b72ccee515210d386774b2ad9014aa51b67fd923c6d3",
+      "elapsed_seconds": 26.889,
+      "output_sha256": "b12e7a291e7ccb89b89031798fca2e4b2ecadbdb19840c84dddc1af2273552db",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/065-elixir-source-inventory-and-required-credo-ci/qa/inventory/a543c38391fc4efa93d2b7b141560f1f.log"
+      },
+      "environment": {},
+      "coverage": []
+    },
+    {
+      "id": "credo",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "4059ff1f43c47e81afc25b67b27751678f1565a69b41e5bbb95f9bfb8f46895a",
+      "elapsed_seconds": 10.264,
+      "output_sha256": "b1914815d89f16c30586e33e29064a2405976af26d12b6d353586916e2b5c920",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/065-elixir-source-inventory-and-required-credo-ci/qa/credo/f76dfdea5fe9442687c3e81e95890d57.log"
+      },
+      "environment": {
+        "MIX_ENV": "test"
+      },
+      "coverage": [
+        "FR-001",
+        "FR-002",
+        "FR-003",
+        "FR-004",
+        "FR-005",
+        "FR-006",
+        "FR-007",
+        "FR-008",
+        "FR-009",
+        "FR-010",
+        "SC-001",
+        "SC-002",
+        "SC-003",
+        "SC-004"
+      ]
+    },
+    {
+      "id": "regression",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "a76dc122ee898cb85010efabd0e873c652286a56eff8ae69f012ece56bb10f8c",
+      "elapsed_seconds": 548.499,
+      "output_sha256": "46905950d961eae1c051933b1acafbfe497f7a0ab8b4ede0d721ce48a366b7da",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/065-elixir-source-inventory-and-required-credo-ci/qa/regression/777b5f20391747ea82cedfc8db18712f.log"
+      },
+      "environment": {
+        "MIX_ENV": "test"
+      },
+      "coverage": [
+        "FR-001",
+        "FR-002",
+        "FR-003",
+        "FR-004",
+        "FR-005",
+        "FR-006",
+        "FR-007",
+        "FR-008",
+        "FR-009",
+        "FR-010",
+        "FR-011",
+        "FR-012",
+        "SC-001",
+        "SC-002",
+        "SC-003",
+        "SC-004",
+        "SC-005"
+      ]
+    },
+    {
+      "id": "e2e",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "8a028005a826731d6e749adcdc48bda687ccd596ac69acfefa41e7e906a7251a",
+      "elapsed_seconds": 31.394,
+      "output_sha256": "5b96c500b870a64f95404eac816751799aca4b2b7efea68dc5a01708c6e2d068",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/065-elixir-source-inventory-and-required-credo-ci/qa/e2e/05cd1c02eb3345269b685163bbf0fdef.log"
+      },
+      "environment": {
+        "MIX_ENV": "test"
+      },
+      "coverage": [
+        "FR-011",
+        "FR-012",
+        "SC-005"
+      ]
+    }
+  ],
+  "coverage": {
+    "FR-001": [
+      "regression",
+      "credo"
+    ],
+    "FR-002": [
+      "regression",
+      "credo"
+    ],
+    "FR-003": [
+      "regression",
+      "credo"
+    ],
+    "FR-004": [
+      "regression",
+      "credo"
+    ],
+    "FR-005": [
+      "regression",
+      "credo"
+    ],
+    "FR-006": [
+      "regression",
+      "credo"
+    ],
+    "FR-007": [
+      "regression",
+      "credo"
+    ],
+    "FR-008": [
+      "regression",
+      "credo"
+    ],
+    "FR-009": [
+      "regression",
+      "credo"
+    ],
+    "FR-010": [
+      "regression",
+      "credo"
+    ],
+    "FR-011": [
+      "regression",
+      "e2e"
+    ],
+    "FR-012": [
+      "regression",
+      "e2e"
+    ],
+    "SC-001": [
+      "regression",
+      "credo"
+    ],
+    "SC-002": [
+      "regression",
+      "credo"
+    ],
+    "SC-003": [
+      "regression",
+      "credo"
+    ],
+    "SC-004": [
+      "regression",
+      "credo"
+    ],
+    "SC-005": [
+      "regression",
+      "e2e"
+    ]
+  },
+  "independent_reports": {
+    "qa-report.md": {
+      "verdict": "PASS",
+      "sha256": "9dab29f2bb7c90436c50a13ff010aae02b43d9e05c16b856fbce6a9f3be27a6a"
+    },
+    "review-report.md": {
+      "verdict": "PASS",
+      "sha256": "4603ea197209ff9f3870d76c680ffa3ecdc93718994aea40fa9701fe4815987e"
+    }
+  },
+  "complete": true,
+  "limitations": [
+    "Portable summary does not authorize workspace reuse; run local checks."
+  ],
+  "finalized_at": "2026-10-20T14:37:57.301609+00:00"
+}

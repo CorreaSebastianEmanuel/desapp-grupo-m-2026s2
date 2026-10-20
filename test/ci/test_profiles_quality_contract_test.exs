@@ -27,6 +27,11 @@ defmodule FootballMarket.TestProfilesQualityContractTest do
 
     assert after_prepare =~ "- name: Unit tests"
     assert after_prepare =~ "run: scripts/ci_unit_tests.sh"
+    [credo_step, _] = String.split(baseline, "- name: Credo and source inventory", parts: 2)
+    refute credo_step =~ "name: Unit tests"
+    assert after_prepare =~ "- name: Upload Credo evidence"
+    assert after_prepare =~ "if: always()"
+    assert after_prepare =~ "if-no-files-found: error"
 
     script = File.read!("scripts/ci_unit_tests.sh")
     assert script =~ "scripts/test_profile.sh"

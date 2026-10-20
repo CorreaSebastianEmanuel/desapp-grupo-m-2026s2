@@ -63,4 +63,39 @@ defmodule FootballMarket.WorkflowScopeTest do
 
     assert WorkflowScope.paths("specs/unknown") == []
   end
+
+  test "Credo inventory enforcement allowance is limited to the implementation plan" do
+    feature = "specs/065-elixir-source-inventory-and-required-credo-ci"
+    paths = WorkflowScope.paths(feature)
+
+    assert paths != []
+    assert length(paths) == length(Enum.uniq(paths))
+
+    for path <- [
+          ".github/workflows/quality-baseline.yml",
+          "README.md",
+          "config/credo_inventory.json",
+          "config/test_profiles.json",
+          "scripts/credo_ci.sh",
+          "scripts/credo_inventory.exs",
+          "test/ci/credo_inventory_test.exs",
+          "test/ci/credo_ci_contract_test.exs",
+          "test/ci/quality_baseline_contract_test.exs",
+          "test/ci/test_profiles_quality_contract_test.exs",
+          "test/ci/fixtures/quality-baseline.sha256",
+          "test/support/workflow_scope.ex"
+        ] do
+      assert WorkflowScope.allows_path?(feature, path), "expected planned path #{path}"
+    end
+
+    for path <- [
+          "lib/football_market/unplanned.ex",
+          "priv/repo/migrations/unplanned.exs",
+          ".github/workflows/unplanned.yml",
+          "scripts/unplanned.sh",
+          "test/ci/unplanned_test.exs"
+        ] do
+      refute WorkflowScope.allows_path?(feature, path), "unexpected path allowance #{path}"
+    end
+  end
 end

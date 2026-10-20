@@ -37,6 +37,13 @@
       "profile": "unit"
     },
     {
+      "id": "026c1d726558ee60a1899b44",
+      "runner": "exunit",
+      "file": "test/ci/credo_ci_contract_test.exs",
+      "case_id": "FootballMarket.CredoCiContractTest:test workflow adds a mandatory independent step and complete always-upload artifact",
+      "profile": "unit"
+    },
+    {
       "id": "02c4672d4184dc2ada1ed6ca",
       "runner": "exunit",
       "file": "test/football_market/catalog/ingestion/delivery_receipt_test.exs",
@@ -317,6 +324,13 @@
       "profile": "unit"
     },
     {
+      "id": "0e6293c09558d7402f615d14",
+      "runner": "exunit",
+      "file": "test/ci/credo_inventory_test.exs",
+      "case_id": "FootballMarket.CredoInventoryTest:test invalid exclusion category, duplicate entries, and maintained-root suppression fail",
+      "profile": "unit"
+    },
+    {
       "id": "0e70329a62f516befb4a8d9c",
       "runner": "exunit",
       "file": "test/football_market/accounts/persistence_test.exs",
@@ -482,6 +496,13 @@
       "runner": "python",
       "file": "test/scripts/reconcile_merged_task_test.py",
       "case_id": "test.scripts.reconcile_merged_task_test.ReconcileMergedTaskTest.test_unequal_examples_command_and_function",
+      "profile": "unit"
+    },
+    {
+      "id": "14c31f5d1b68fd4fbe36c4d2",
+      "runner": "exunit",
+      "file": "test/ci/credo_inventory_test.exs",
+      "case_id": "FootballMarket.CredoInventoryTest:test missing and stale inventory membership fail",
       "profile": "unit"
     },
     {
@@ -1120,6 +1141,13 @@
       "file": "test/football_market/accounts/browser_sessions_test.exs",
       "case_id": "FootballMarket.Accounts.BrowserSessionsTest:test anonymous retirement rotates authority and expiry is exclusive",
       "profile": "integration"
+    },
+    {
+      "id": "2e4c905487cbfa74c173b566",
+      "runner": "exunit",
+      "file": "test/ci/credo_ci_contract_test.exs",
+      "case_id": "FootballMarket.CredoCiContractTest:test wrapper preserves complete lists and both revisions and removes stale output",
+      "profile": "unit"
     },
     {
       "id": "2ef5ff1a2fa084c475e3e92c",
@@ -2193,6 +2221,13 @@
       "profile": "unit"
     },
     {
+      "id": "5c38cf79a6b8f53b087185ea",
+      "runner": "exunit",
+      "file": "test/ci/credo_inventory_test.exs",
+      "case_id": "FootballMarket.CredoInventoryTest:test invalid source and Credo findings cannot be published as complete",
+      "profile": "unit"
+    },
+    {
       "id": "5c62a32e5a83dd710294d34b",
       "runner": "exunit",
       "file": "test/football_market/catalog/ingestion/outcome_test.exs",
@@ -2485,6 +2520,20 @@
       "file": "test/football_market/valuation/configurations/replay_test.exs",
       "case_id": "FootballMarket.Valuation.Configurations.ReplayTest:test missing/unsupported originals, mismatched rules and malformed/tampered evidence yield no scores",
       "profile": "integration"
+    },
+    {
+      "id": "69bf62739d4456331acc3a22",
+      "runner": "exunit",
+      "file": "test/ci/credo_inventory_test.exs",
+      "case_id": "FootballMarket.CredoInventoryTest:test tracked maintained roots and root dotfiles reconcile with Credo's valid source inputs",
+      "profile": "unit"
+    },
+    {
+      "id": "69f1df564fa5c12cd71d4e07",
+      "runner": "exunit",
+      "file": "test/ci/credo_ci_contract_test.exs",
+      "case_id": "FootballMarket.CredoCiContractTest:test README and evidence state commands, scope, retention, and interpretation limits",
+      "profile": "unit"
     },
     {
       "id": "6a08cd2672243fcef7aa5783",
@@ -2813,6 +2862,20 @@
       "runner": "python",
       "file": "test/scripts/agentflow_completion_test.py",
       "case_id": "test.scripts.agentflow_completion_test.AgentflowCompletionTest.test_explicit_complete_both_reports_required",
+      "profile": "unit"
+    },
+    {
+      "id": "79b140f482f92168ba55ebc9",
+      "runner": "exunit",
+      "file": "test/ci/credo_inventory_test.exs",
+      "case_id": "FootballMarket.CredoInventoryTest:test renamed tracked source is stale until inventory is deliberately refreshed",
+      "profile": "unit"
+    },
+    {
+      "id": "79bf84a7ef2d20cba95e10b1",
+      "runner": "exunit",
+      "file": "test/ci/credo_inventory_test.exs",
+      "case_id": "FootballMarket.CredoInventoryTest:test a Credo input outside the tracked inventory fails effective-input equality",
       "profile": "unit"
     },
     {
@@ -3194,6 +3257,13 @@
       "profile": "unit"
     },
     {
+      "id": "88d15c778e078275636a2047",
+      "runner": "exunit",
+      "file": "test/ci/credo_ci_contract_test.exs",
+      "case_id": "FootballMarket.CredoCiContractTest:test wrapper rejects output traversal before removing existing files",
+      "profile": "unit"
+    },
+    {
       "id": "88f855bbf8485e05dc3deb07",
       "runner": "exunit",
       "file": "test/football_market/synchronization/statistics_test.exs",
@@ -3313,6 +3383,13 @@
       "profile": "unit"
     },
     {
+      "id": "8c448d6fc9a9299acbf12937",
+      "runner": "exunit",
+      "file": "test/ci/credo_inventory_test.exs",
+      "case_id": "FootballMarket.CredoInventoryTest:test unknown tracked files outside maintained scope fail closed",
+      "profile": "unit"
+    },
+    {
       "id": "8ce0cec81fc79cf41fb1b7d4",
       "runner": "python",
       "file": "test/scripts/agentflow_feedback_test.py",
@@ -3387,6 +3464,13 @@
       "runner": "shell",
       "file": "test/scripts/ci_unit_tests_test.sh",
       "case_id": "empty",
+      "profile": "unit"
+    },
+    {
+      "id": "8ff8ab4bcf1d00e38f00372b",
+      "runner": "exunit",
+      "file": "test/ci/workflow_scope_test.exs",
+      "case_id": "FootballMarket.WorkflowScopeTest:test Credo inventory enforcement allowance is limited to the implementation plan",
       "profile": "unit"
     },
     {
@@ -3670,6 +3754,13 @@
       "profile": "unit"
     },
     {
+      "id": "9cd5acca9b8868e98e549afc",
+      "runner": "exunit",
+      "file": "test/ci/credo_inventory_test.exs",
+      "case_id": "FootballMarket.CredoInventoryTest:test write mode discovers added files and preserves exact reviewed exclusions",
+      "profile": "unit"
+    },
+    {
       "id": "9d564fda63d0e19580c758b5",
       "runner": "exunit",
       "file": "test/football_market/catalog/ingestion/canonical_test.exs",
@@ -3702,6 +3793,13 @@
       "runner": "exunit",
       "file": "test/football_market/providers/scraping/assessment_test.exs",
       "case_id": "FootballMarket.Providers.ScrapingAssessmentTest:test unapproved destination, incomplete conditions and limits cannot admit",
+      "profile": "unit"
+    },
+    {
+      "id": "9e9702f730251491d1209e95",
+      "runner": "exunit",
+      "file": "test/ci/credo_inventory_test.exs",
+      "case_id": "FootballMarket.CredoInventoryTest:test a completed Credo analysis with default-priority findings remains complete and fails",
       "profile": "unit"
     },
     {
@@ -4860,6 +4958,13 @@
       "profile": "unit"
     },
     {
+      "id": "cd3bdfc3d17a5a084fa524b0",
+      "runner": "exunit",
+      "file": "test/ci/credo_ci_contract_test.exs",
+      "case_id": "FootballMarket.CredoCiContractTest:test wrapper rejects a symlink output directory before replacing it",
+      "profile": "unit"
+    },
+    {
       "id": "cdebcd3e2a8191e2af77ec56",
       "runner": "exunit",
       "file": "test/football_market/statistics/integrity_test.exs",
@@ -5357,6 +5462,13 @@
       "profile": "integration"
     },
     {
+      "id": "dce75c760b8920e55b49d430",
+      "runner": "exunit",
+      "file": "test/ci/credo_ci_contract_test.exs",
+      "case_id": "FootballMarket.CredoCiContractTest:test incomplete oracle and changed snapshots fail and retain diagnostics",
+      "profile": "unit"
+    },
+    {
       "id": "dcfbce2c1bc0d8fb765df31f",
       "runner": "shell",
       "file": "test/scripts/ci_unit_tests_test.sh",
@@ -5383,6 +5495,13 @@
       "file": "test/football_market/market/rollback_test.exs",
       "case_id": "FootballMarket.Market.RollbackTest:test US2 pre-commit failures at every write boundary leave no effects and retry once",
       "profile": "integration"
+    },
+    {
+      "id": "de9862b121f4f8b6115ebffa",
+      "runner": "exunit",
+      "file": "test/ci/quality_baseline_contract_test.exs",
+      "case_id": "FootballMarket.QualityBaselineContractTest:test Credo reconciliation is mandatory and retains full evidence independently",
+      "profile": "unit"
     },
     {
       "id": "df5de5b1d3adcab03557c3e8",
@@ -5826,6 +5945,13 @@
       "profile": "integration"
     },
     {
+      "id": "efbc9d584e8d38796a07f2be",
+      "runner": "exunit",
+      "file": "test/ci/credo_inventory_test.exs",
+      "case_id": "FootballMarket.CredoInventoryTest:test snapshot digest binds tracked source, inventory, config, and lock",
+      "profile": "unit"
+    },
+    {
       "id": "efccae77d0d2250b4d7a5373",
       "runner": "exunit",
       "file": "test/football_market_web/browser_feedback_test.exs",
@@ -5901,6 +6027,13 @@
       "file": "test/mix/tasks/catalog.seed_test.exs",
       "case_id": "Mix.Tasks.Catalog.SeedTest:test nil and false capabilities deny unknown and production-like environments before querying",
       "profile": "integration"
+    },
+    {
+      "id": "f496593da30ab8562fe7f015",
+      "runner": "exunit",
+      "file": "test/ci/credo_ci_contract_test.exs",
+      "case_id": "FootballMarket.CredoCiContractTest:test CLI and inventory failures independently fail the wrapper",
+      "profile": "unit"
     },
     {
       "id": "f4d53685a9eb2a1f09c36cb0",

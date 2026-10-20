@@ -242,6 +242,24 @@ defmodule FootballMarket.WorkflowScope do
     ]
   end
 
+  def paths("specs/065-elixir-source-inventory-and-required-credo-ci") do
+    [
+      ".github/workflows/quality-baseline.yml",
+      "README.md",
+      "config/credo_inventory.json",
+      "config/test_profiles.json",
+      "scripts/credo_ci.sh",
+      "scripts/credo_inventory.exs",
+      "test/ci/credo_inventory_test.exs",
+      "test/ci/credo_ci_contract_test.exs",
+      "test/ci/quality_baseline_contract_test.exs",
+      "test/ci/workflow_scope_test.exs",
+      "test/ci/test_profiles_quality_contract_test.exs",
+      "test/ci/fixtures/quality-baseline.sha256",
+      "test/support/workflow_scope.ex"
+    ]
+  end
+
   def paths(_), do: []
 
   def allows_path?(feature, path) do

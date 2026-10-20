@@ -96,7 +96,7 @@ Only the preparation commands (`local.hex`, `local.rebar`, `deps.get`, and first
 
 ### Continuous integration quality baseline
 
-GitHub Actions runs the stable `Quality baseline` job for pull requests targeting `main` and pushes to `main`. It uses only locked, non-secret build dependencies and an ephemeral PostgreSQL test database and Redis service using the pinned local images. TASK-003 intentionally enforces exactly three categories: formatting, warnings-as-errors compilation, and the complete unit test suite. It does not enforce coverage, SonarCloud, end-to-end or architecture checks, releases, or deployments.
+GitHub Actions runs the stable `Quality baseline` job for pull requests targeting `main` and pushes to `main`. It uses only locked, non-secret build dependencies and an ephemeral PostgreSQL test database and Redis service using the pinned local images. The job retains formatting, warnings-as-errors compilation, and the complete unit test suite, and independently requires Credo source-inventory reconciliation. SonarCloud remains a separate workflow. The baseline does not enforce coverage, releases, or deployments.
 
 To reproduce the job locally, use Elixir 1.20.3 with Erlang/OTP 29.0.6, make PostgreSQL and Redis available with the test defaults documented above (ports 5432 and 6379), prepare the locked dependencies, and run:
 
@@ -104,6 +104,7 @@ To reproduce the job locally, use Elixir 1.20.3 with Erlang/OTP 29.0.6, make Pos
 ./scripts/check_toolchain.sh
 mix deps.get --locked
 MIX_ENV=test mix deps.compile
+MIX_ENV=test sh scripts/credo_ci.sh
 mix format --check-formatted
 MIX_ENV=test mix compile --warnings-as-errors
 scripts/ci_unit_tests.sh
@@ -254,3 +255,28 @@ MIX_ENV=test mix credo --format flycheck
 The named default configuration includes all maintained Elixir in lib/, config/, priv/,
 scripts/, test/ and root Elixir files. Stock rules and default priorities are inherited;
 no suppressions, baseline, disabled rules or increased thresholds are allowed.
+
+The committed [`config/credo_inventory.json`](config/credo_inventory.json) records every
+maintained tracked `.ex` and `.exs` path plus each exact archived-probe exclusion and its
+reason. New maintained source must be staged before refreshing that inventory. Review the
+diff, then reconcile the Git inventory against Credo's actual valid analysis inputs:
+
+```bash
+git add path/to/new_source.ex
+MIX_ENV=test mix run --no-start scripts/credo_inventory.exs --write-inventory
+git diff -- config/credo_inventory.json
+MIX_ENV=test mix run --no-start scripts/credo_inventory.exs
+MIX_ENV=test sh scripts/credo_ci.sh
+```
+
+The standard CLI remains `MIX_ENV=test mix credo --format flycheck`; it uses default-priority
+rules. The wrapper runs that command and the effective-input oracle, preserving both exit
+statuses and full path lists in `tmp/credo-ci/evidence.json` and `credo.log`. CI uploads
+these files from the required Quality baseline job for 14 days under an artifact name bound
+to the triggering revision and run attempt. Evidence reports checked-out `revision`
+separately from `trigger_revision`; local dirty content is labelled and included in the
+source digest. The exclusion paths and individual reasons are listed in the committed
+inventory so reviewers can audit the complete boundary.
+
+Zero Credo findings do not establish absence of bugs and do not establish equivalence to
+SonarCloud's native Java analysis.

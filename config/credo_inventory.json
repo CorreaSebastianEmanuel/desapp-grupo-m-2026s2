@@ -1,7 +1,15 @@
 {
   "excluded": [
-    {"category": "archived-verification-evidence", "path": "specs/026-quote-recalculation-and-immutable-history/qa-evidence/20261021-independent/conflict_test.exs", "reason": "Archived standalone verification probe; retained as historical QA or review evidence, not maintained test source."},
-    {"category": "archived-verification-evidence", "path": "specs/026-quote-recalculation-and-immutable-history/qa-evidence/independent-20261021-current/admission-probe.exs", "reason": "Archived standalone verification probe; retained as historical QA or review evidence, not maintained test source."},
+    {
+      "category": "archived-verification-evidence",
+      "path": "specs/026-quote-recalculation-and-immutable-history/qa-evidence/20261021-independent/conflict_test.exs",
+      "reason": "Archived standalone verification probe; retained as historical QA or review evidence, not maintained test source."
+    },
+    {
+      "category": "archived-verification-evidence",
+      "path": "specs/026-quote-recalculation-and-immutable-history/qa-evidence/independent-20261021-current/admission-probe.exs",
+      "reason": "Archived standalone verification probe; retained as historical QA or review evidence, not maintained test source."
+    },
     {
       "category": "archived-verification-evidence",
       "path": "specs/054-player-match-statistics/qa-evidence/adversarial_test.exs",
@@ -327,6 +335,8 @@
     "priv/repo/migrations/20261018000500_reconcile_quote_mapping_schema.exs",
     "priv/repo/migrations/20261018000600_reconcile_quote_calculation_requests.exs",
     "priv/repo/migrations/20261018000700_reconcile_quote_calculation_attempts.exs",
+    "priv/repo/migrations/20261018000800_reconcile_quote_request_requested_mapping.exs",
+    "priv/repo/migrations/20261018000900_reconcile_legacy_quote_admission.exs",
     "scripts/application_coverage_native.exs",
     "scripts/credo_inventory.exs",
     "scripts/test_profile_discovery.exs",

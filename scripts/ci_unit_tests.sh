@@ -34,6 +34,10 @@ for profile in unit integration; do
   fi
   rm -f "$receipts/$profile.json"
   if ! CP1_PROFILE_RECEIPT="$receipts/$profile.json" sh scripts/test_profile.sh "$profile" >"$private/output" 2>&1; then
+    # Durable, opt-in capture so workflow-runner failures keep their profile evidence.
+    if [ -n "${CI_PROFILE_LOG_DIR:-}" ]; then
+      mkdir -p "$CI_PROFILE_LOG_DIR" && cp "$private/output" "$CI_PROFILE_LOG_DIR/$profile.log"
+    fi
     printf '%s\n' 'CI_PROFILE status=failed category=profile' >&2
     exit 1
   fi

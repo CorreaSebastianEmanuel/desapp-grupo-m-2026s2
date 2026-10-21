@@ -4,7 +4,7 @@ title: Quote recalculation and immutable history
 type: task
 checkpoint: CP2
 priority: critical
-status: blocked
+status: wip
 depends_on: TASK-021, TASK-025
 active_run: b02d5a01
 ---

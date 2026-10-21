@@ -164,6 +164,7 @@ defmodule FootballMarket.Providers.ScopeTest do
 
     strip = fn text ->
       text
+      |> strip_approved_application_coverage()
       |> Code.string_to_quoted!()
       |> Macro.prewalk(fn
         {:defp, meta, [{:deps, call_meta, args}, [do: deps]]} when is_list(deps) ->
@@ -187,6 +188,12 @@ defmodule FootballMarket.Providers.ScopeTest do
     assert {:credo, "1.7.19", only: [:dev, :test], runtime: false} in Mix.Project.config()[:deps]
 
     for changed <- [
+          String.replace(
+            current,
+            "application-coverage-conflicts-with-cp1",
+            "missing-conflict-guard"
+          ),
+          String.replace(current, "summary: [threshold: 0]", "summary: [threshold: 99]"),
           String.replace(current, "\"1.7.19\"", "\"~> 1.7.19\""),
           String.replace(current, "runtime: false", "runtime: true"),
           String.replace(
@@ -210,6 +217,27 @@ defmodule FootballMarket.Providers.ScopeTest do
              Path.wildcard("test/football_market/providers/*_test.exs"),
              &(&1 not in expected)
            )
+  end
+
+  # Accept only the complete, exact TASK-067 output override and conflict guard.
+  # All other Mix AST, including filters, threshold and dependencies, remains compared.
+  defp strip_approved_application_coverage(text) do
+    block =
+      "    application_output = System.get_env(\"APPLICATION_COVERAGE_DIR\")\n\n    if application_output &&\n         (System.get_env(\"CP1_PROFILE_COVERAGE\") == \"1\" ||\n            System.get_env(\"CP1_COVERAGE_OUTPUT\")) do\n      raise \"application-coverage-conflicts-with-cp1\"\n    end\n\n"
+
+    output =
+      "      output: application_output || System.get_env(\"CP1_COVERAGE_OUTPUT\", \"cover/cp1/staging\"),"
+
+    if length(:binary.matches(text, block)) == 1 and length(:binary.matches(text, output)) == 1 do
+      text
+      |> String.replace(block, "")
+      |> String.replace(
+        output,
+        "      output: System.get_env(\"CP1_COVERAGE_OUTPUT\", \"cover/cp1/staging\"),"
+      )
+    else
+      text
+    end
   end
 
   defp strip_approved_dependencies(deps) do

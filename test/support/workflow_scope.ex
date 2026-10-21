@@ -21,6 +21,25 @@ defmodule FootballMarket.WorkflowScope do
     end
   end
 
+  def paths("specs/067-whole-application-elixir-coverage-and-report-reconciliation") do
+    [
+      "mix.exs",
+      "config/application_coverage_inventory.json",
+      "config/credo_inventory.json",
+      "config/test_profiles.json",
+      "scripts/application_coverage.py",
+      "scripts/application_coverage_native.exs",
+      "scripts/test_profile_runner.py",
+      "test/scripts/application_coverage_test.py",
+      "test/ci/application_coverage_native_test.exs",
+      "test/ci/application_coverage_contract_test.exs",
+      "test/football_market/providers/scope_test.exs",
+      "test/test_helper.exs",
+      "test/support/workflow_scope.ex",
+      "test/ci/workflow_scope_test.exs"
+    ]
+  end
+
   def paths("specs/064-proportional-agentflow-delivery") do
     [
       ".github/workflows/quality-baseline.yml",

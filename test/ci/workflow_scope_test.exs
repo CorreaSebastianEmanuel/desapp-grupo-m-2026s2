@@ -98,4 +98,15 @@ defmodule FootballMarket.WorkflowScopeTest do
       refute WorkflowScope.allows_path?(feature, path), "unexpected path allowance #{path}"
     end
   end
+
+  test "application coverage scope is finite and excludes production and hosted workflow edits" do
+    feature = "specs/067-whole-application-elixir-coverage-and-report-reconciliation"
+    assert WorkflowScope.allows_path?(feature, "scripts/application_coverage.py")
+    assert WorkflowScope.allows_path?(feature, "test/test_helper.exs")
+    refute WorkflowScope.allows_path?(feature, "lib/football_market.ex")
+    refute WorkflowScope.allows_path?(feature, ".github/workflows/quality-baseline.yml")
+    refute WorkflowScope.allows_path?(feature, "test/ci/unplanned_test.exs")
+    paths = WorkflowScope.paths(feature)
+    assert length(paths) == length(Enum.uniq(paths))
+  end
 end

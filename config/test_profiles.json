@@ -177,6 +177,13 @@
       "profile": "integration"
     },
     {
+      "id": "073929c5669dc3c588ab8658",
+      "runner": "exunit",
+      "file": "test/ci/application_coverage_contract_test.exs",
+      "case_id": "FootballMarket.ApplicationCoverageContractTest:test application output is opt-in and conflicts with historical CP1 output",
+      "profile": "unit"
+    },
+    {
       "id": "074d5ecb0b2162000b0d001e",
       "runner": "exunit",
       "file": "test/football_market/valuation/position_aware/outcomes_test.exs",
@@ -259,6 +266,13 @@
       "file": "test/football_market/synchronization/scheduler_test.exs",
       "case_id": "FootballMarket.Synchronization.SchedulerTest:test definition replacement preserves prior generation recurrence for compressed occurrence audit",
       "profile": "integration"
+    },
+    {
+      "id": "0b2e35edd1ff7e1f1388b63e",
+      "runner": "python",
+      "file": "test/scripts/application_coverage_test.py",
+      "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_duplicate_json_keys_and_unsafe_report_paths_are_rejected",
+      "profile": "unit"
     },
     {
       "id": "0b2f5fee80740d6774e7d1f8",
@@ -384,6 +398,13 @@
       "runner": "node",
       "file": "tools/openapi/workspace_session.test.mjs",
       "case_id": "recovery tolerates pages without an active socket or connection notice",
+      "profile": "unit"
+    },
+    {
+      "id": "104de124339d6d80c8bbfd86",
+      "runner": "python",
+      "file": "test/scripts/application_coverage_test.py",
+      "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_union_counts_each_source_line_once_and_or_combines_profile_hits",
       "profile": "unit"
     },
     {
@@ -541,6 +562,13 @@
       "profile": "integration"
     },
     {
+      "id": "174db52dd6f2c2aea49988ba",
+      "runner": "python",
+      "file": "test/scripts/application_coverage_test.py",
+      "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_exact_inventory_rejects_missing_files_wrong_roles_and_duplicate_paths",
+      "profile": "unit"
+    },
+    {
       "id": "176cb96ce53d545b5e00c94f",
       "runner": "python",
       "file": "test/scripts/agentflow_providers_test.py",
@@ -574,6 +602,13 @@
       "file": "test/football_market/catalog/ingestion/delivery_receipt_test.exs",
       "case_id": "FootballMarket.Catalog.Ingestion.DeliveryReceiptTest:test scope mismatch and malformed contexts reject without publishing",
       "profile": "integration"
+    },
+    {
+      "id": "18fc23ca4e124aafc5b6aeda",
+      "runner": "exunit",
+      "file": "test/ci/application_coverage_native_test.exs",
+      "case_id": "FootballMarket.ApplicationCoverageNativeTest:test native fixture preserves covered and never-called lines and rejects lost modules",
+      "profile": "unit"
     },
     {
       "id": "192bf5ae32b414994d270548",
@@ -842,6 +877,13 @@
       "profile": "unit"
     },
     {
+      "id": "21ad3107d116c9751c9fe6e2",
+      "runner": "python",
+      "file": "test/scripts/application_coverage_test.py",
+      "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_malformed_control_versions_are_rejected_before_any_native_execution",
+      "profile": "unit"
+    },
+    {
       "id": "21bfd5ea0547e7c6e4cf1bca",
       "runner": "exunit",
       "file": "test/football_market/statistics/ingestion/provenance_test.exs",
@@ -1078,6 +1120,13 @@
       "file": "test/football_market/valuation/configurations/storage_test.exs",
       "case_id": "FootballMarket.Valuation.Configurations.StorageTest:test storage read failure is visible rather than empty/not-found/no-active",
       "profile": "integration"
+    },
+    {
+      "id": "2be3802d56167b1f97a846b6",
+      "runner": "python",
+      "file": "test/scripts/application_coverage_test.py",
+      "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_profile_runner_predeclares_and_executes_exact_normal_partitions",
+      "profile": "unit"
     },
     {
       "id": "2bf3a2061fa07a81fc4c3106",
@@ -1717,6 +1766,13 @@
       "profile": "unit"
     },
     {
+      "id": "448ff7849b6db52395b40e77",
+      "runner": "python",
+      "file": "test/scripts/application_coverage_test.py",
+      "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_duplicate_and_malformed_line_identities_fail_closed",
+      "profile": "unit"
+    },
+    {
       "id": "44d68e69125c02df06c930e5",
       "runner": "python",
       "file": "test/scripts/agentflow_feedback_test.py",
@@ -1780,6 +1836,13 @@
       "profile": "integration"
     },
     {
+      "id": "4774d93a60fd02715d1131da",
+      "runner": "python",
+      "file": "test/scripts/application_coverage_test.py",
+      "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_missing_and_duplicate_partitions_are_rejected",
+      "profile": "unit"
+    },
+    {
       "id": "479a39f2ca21d392aee1a7a4",
       "runner": "exunit",
       "file": "test/football_market/catalog/ingestion/publication_test.exs",
@@ -1791,6 +1854,13 @@
       "runner": "exunit",
       "file": "test/football_market/valuation/position_aware/config_test.exs",
       "case_id": "FootballMarket.Valuation.PositionAware.ConfigTest:test direct feature views reject unknown scopes, missing metrics and malformed values without exceptions",
+      "profile": "unit"
+    },
+    {
+      "id": "485e72b65e5f63134fed23b8",
+      "runner": "python",
+      "file": "test/scripts/application_coverage_test.py",
+      "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_failed_current_attempt_does_not_rewrite_historical_success",
       "profile": "unit"
     },
     {
@@ -2022,6 +2092,13 @@
       "runner": "exunit",
       "file": "test/ci/test_profile_audit_test.exs",
       "case_id": "FootballMarket.TestProfileFormatterTest:test case events retain invocation identity when the environment changes",
+      "profile": "unit"
+    },
+    {
+      "id": "533d80dca663a9c280b14ac8",
+      "runner": "python",
+      "file": "test/scripts/application_coverage_test.py",
+      "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_test_or_support_line_is_rejected_even_if_native_export_contains_it",
       "profile": "unit"
     },
     {
@@ -2683,6 +2760,13 @@
       "profile": "integration"
     },
     {
+      "id": "71eeff3b5977fbb22562c983",
+      "runner": "exunit",
+      "file": "test/ci/application_coverage_contract_test.exs",
+      "case_id": "FootballMarket.ApplicationCoverageContractTest:test test processes clear application collection options before recursive children",
+      "profile": "unit"
+    },
+    {
       "id": "72a4e0930be17cc4011db750",
       "runner": "exunit",
       "file": "test/football_market/synchronization/recovery_test.exs",
@@ -3264,6 +3348,13 @@
       "profile": "unit"
     },
     {
+      "id": "88d23d9e8659ea36b4c86cdf",
+      "runner": "python",
+      "file": "test/scripts/application_coverage_test.py",
+      "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_source_mutation_during_a_profile_never_publishes_complete_coverage",
+      "profile": "unit"
+    },
+    {
       "id": "88f855bbf8485e05dc3deb07",
       "runner": "exunit",
       "file": "test/football_market/synchronization/statistics_test.exs",
@@ -3331,6 +3422,13 @@
       "runner": "python",
       "file": "test/scripts/agentflow_feature_test.py",
       "case_id": "test.scripts.agentflow_feature_test.StrictMetadataTest.test_competing_alternate_id_claim_is_not_discarded",
+      "profile": "unit"
+    },
+    {
+      "id": "8b13361e8a7ecd823db9c29c",
+      "runner": "python",
+      "file": "test/scripts/application_coverage_test.py",
+      "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_preflight_refuses_a_node_major_outside_the_existing_ci_toolchain",
       "profile": "unit"
     },
     {
@@ -3464,6 +3562,13 @@
       "runner": "shell",
       "file": "test/scripts/ci_unit_tests_test.sh",
       "case_id": "empty",
+      "profile": "unit"
+    },
+    {
+      "id": "8fefa24225de7801aac012a9",
+      "runner": "python",
+      "file": "test/scripts/application_coverage_test.py",
+      "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_native_missing_or_conflicting_populations_fail",
       "profile": "unit"
     },
     {
@@ -3831,6 +3936,13 @@
       "profile": "unit"
     },
     {
+      "id": "9f80d7989dd9e1ac9c7974cc",
+      "runner": "python",
+      "file": "test/scripts/application_coverage_test.py",
+      "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_validate_refuses_missing_running_failed_and_malformed_current_report",
+      "profile": "unit"
+    },
+    {
       "id": "9fad0d55c14b9ccdd502fe5d",
       "runner": "exunit",
       "file": "test/football_market/statistics/ingestion/acceptance_test.exs",
@@ -4004,6 +4116,13 @@
       "file": "test/football_market/statistics/ingestion/replay_test.exs",
       "case_id": "FootballMarket.Statistics.Ingestion.ReplayTest:test a retargeted match mapping cannot bypass binding conflicts on replay or unchanged import",
       "profile": "integration"
+    },
+    {
+      "id": "a4dd2be39b67ae5ed8a4e7b0",
+      "runner": "python",
+      "file": "test/scripts/application_coverage_test.py",
+      "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_report_count_validation_rejects_boolean_and_non_integer_counts",
+      "profile": "unit"
     },
     {
       "id": "a4f33ce5c81620a9827f30d2",
@@ -4223,6 +4342,13 @@
       "profile": "unit"
     },
     {
+      "id": "ac3e8d572019e9bde86abe37",
+      "runner": "python",
+      "file": "test/scripts/application_coverage_test.py",
+      "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_cli_selects_test_environment_before_service_preflight",
+      "profile": "unit"
+    },
+    {
       "id": "ac6d2f656fcb1ad696a96683",
       "runner": "exunit",
       "file": "test/football_market/catalog/ingestion/identity_test.exs",
@@ -4409,6 +4535,13 @@
       "runner": "python",
       "file": "test/scripts/agentflow_stage_budget_test.py",
       "case_id": "test.scripts.agentflow_stage_budget_test.StageBudgetTest.test_zero_budget_never_interrupts",
+      "profile": "unit"
+    },
+    {
+      "id": "b420cf339701f49c4a68eea8",
+      "runner": "python",
+      "file": "test/scripts/application_coverage_test.py",
+      "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_unsafe_paths_and_incomplete_partitions_are_rejected",
       "profile": "unit"
     },
     {
@@ -4657,6 +4790,13 @@
       "profile": "unit"
     },
     {
+      "id": "c06e9497646da892c8d00e07",
+      "runner": "python",
+      "file": "test/scripts/application_coverage_test.py",
+      "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_zero_executable_file_is_retained_but_whole_report_requires_denominator",
+      "profile": "unit"
+    },
+    {
       "id": "c079df9136b3b31cb718bf97",
       "runner": "exunit",
       "file": "test/football_market/market/issuance_test.exs",
@@ -4773,6 +4913,13 @@
       "runner": "exunit",
       "file": "test/football_market/catalog/player_cursor_test.exs",
       "case_id": "FootballMarket.Catalog.PlayerCursorTest:test filtered v2 round trips and binds normalized filters",
+      "profile": "unit"
+    },
+    {
+      "id": "c57e663fba9a7b2496f64d9e",
+      "runner": "exunit",
+      "file": "test/ci/application_coverage_native_test.exs",
+      "case_id": "FootballMarket.ApplicationCoverageNativeTest:test native reader rejects missing, truncated, or foreign exports without output",
       "profile": "unit"
     },
     {
@@ -5082,6 +5229,13 @@
       "file": "test/football_market/catalog/development_seed_test.exs",
       "case_id": "FootballMarket.Catalog.DevelopmentSeedTest:test manifest rejects malformed top-level collections without raising",
       "profile": "integration"
+    },
+    {
+      "id": "d17b6414046f9d310408c23e",
+      "runner": "python",
+      "file": "test/scripts/application_coverage_test.py",
+      "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_hash_coherent_report_rejects_coercible_receipt_component_counts",
+      "profile": "unit"
     },
     {
       "id": "d1938405b9758e6cda6ffd9e",
@@ -5490,6 +5644,13 @@
       "profile": "integration"
     },
     {
+      "id": "ddf061200909503101eb127b",
+      "runner": "python",
+      "file": "test/scripts/application_coverage_test.py",
+      "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_hash_coherent_report_rejects_uncovered_false_before_comparison_or_tooling",
+      "profile": "unit"
+    },
+    {
       "id": "de9615300a9264416043a329",
       "runner": "exunit",
       "file": "test/football_market/market/rollback_test.exs",
@@ -5551,6 +5712,13 @@
       "file": "test/football_market/valuation/position_aware/replay_test.exs",
       "case_id": "FootballMarket.Valuation.PositionAware.ReplayTest:test US4.4 US4.5 descriptor binds full original rules and survives fresh changes and late arrivals",
       "profile": "integration"
+    },
+    {
+      "id": "e0fa343b85dc7b02ba00964f",
+      "runner": "python",
+      "file": "test/scripts/application_coverage_test.py",
+      "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_same_source_line_in_multiple_modules_counts_once_and_zero_is_valid",
+      "profile": "unit"
     },
     {
       "id": "e105672b182c6987730c98a7",
@@ -5798,6 +5966,13 @@
       "profile": "integration"
     },
     {
+      "id": "ea531b8ce24787d09a697d3d",
+      "runner": "python",
+      "file": "test/scripts/application_coverage_test.py",
+      "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_complete_validator_rejects_coercible_receipt_and_linked_numeric_fields",
+      "profile": "unit"
+    },
+    {
       "id": "eaa4de6bd30f8558fc756848",
       "runner": "exunit",
       "file": "test/football_market/providers/catalog_contract_test.exs",
@@ -5824,6 +5999,13 @@
       "file": "test/football_market/accounts/api_keys_performance_test.exs",
       "case_id": "FootballMarket.Accounts.ApiKeysPerformanceTest:test 40 issuance and identification calls meet the local one-second sample",
       "profile": "integration"
+    },
+    {
+      "id": "eb0b2d456aeb5f78e894dac4",
+      "runner": "python",
+      "file": "test/scripts/application_coverage_test.py",
+      "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_snapshot_detects_configuration_scripts_and_untracked_inputs",
+      "profile": "unit"
     },
     {
       "id": "eb133e21b15861d86e2abce8",
@@ -5980,6 +6162,13 @@
       "profile": "unit"
     },
     {
+      "id": "f13ceb889c0692f2d9f716da",
+      "runner": "python",
+      "file": "test/scripts/application_coverage_test.py",
+      "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_snapshot_normalizes_task_checkboxes_tracks_deletions_and_omits_output",
+      "profile": "unit"
+    },
+    {
       "id": "f1558f78dd3fa1dbe4674937",
       "runner": "exunit",
       "file": "test/football_market/catalog/development_seed_test.exs",
@@ -5999,6 +6188,20 @@
       "file": "test/ci/e2e_supervisor_cleanup_test.exs",
       "case_id": "FootballMarket.E2E.SupervisorCleanupTest:test supervisor termination removes owned schema and preserves unrelated persistence",
       "profile": "integration"
+    },
+    {
+      "id": "f2868b347b84eba731588f58",
+      "runner": "exunit",
+      "file": "test/ci/workflow_scope_test.exs",
+      "case_id": "FootballMarket.WorkflowScopeTest:test application coverage scope is finite and excludes production and hosted workflow edits",
+      "profile": "unit"
+    },
+    {
+      "id": "f287dba787dc41f6715400f7",
+      "runner": "exunit",
+      "file": "test/ci/application_coverage_native_test.exs",
+      "case_id": "FootballMarket.ApplicationCoverageNativeTest:test collector inventory records explicit first-party scope and excludes tests and support",
+      "profile": "unit"
     },
     {
       "id": "f2dc11e5e0d90f9ed0afda47",
@@ -6190,6 +6393,13 @@
       "profile": "integration"
     },
     {
+      "id": "f98564ccc1383ee549511eb7",
+      "runner": "python",
+      "file": "test/scripts/application_coverage_test.py",
+      "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_receipt_component_counts_accept_exact_nonnegative_integers",
+      "profile": "unit"
+    },
+    {
       "id": "f98c0984caa459bb7ab6601a",
       "runner": "python",
       "file": "test/scripts/agentflow_branch_test.py",
@@ -6306,6 +6516,13 @@
       "runner": "exunit",
       "file": "test/football_market/providers/scraping/assessment_test.exs",
       "case_id": "FootballMarket.Providers.ScrapingAssessmentTest:test aggregate fixture volume and cadence cannot be exceeded across callers",
+      "profile": "unit"
+    },
+    {
+      "id": "fdad02417087e7e5b904fe42",
+      "runner": "python",
+      "file": "test/scripts/application_coverage_test.py",
+      "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_real_profile_failure_preserves_nonzero_and_failed_status",
       "profile": "unit"
     },
     {

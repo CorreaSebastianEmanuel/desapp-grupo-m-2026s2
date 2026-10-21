@@ -79,8 +79,36 @@ def execute_exunit(execute, profile, files, directory, nonce, postgres_port=None
     if os.environ.get('CP1_PROFILE_COVERAGE') == '1':
         execute(argv + ['--cover', '--export-coverage', profile] + files)
         return
+    application_dir = os.environ.get('APPLICATION_COVERAGE_DIR')
+    observed = []
+    expected_partitions = []
+
+    def invoke(partition_id, selected, extra=None):
+        if not selected:
+            return
+        command = argv + selected
+        if application_dir:
+            name = 'app_' + profile + '_' + os.environ.get('APPLICATION_COVERAGE_RUN_ID', nonce).replace('-', '') + '_' + partition_id
+            coverage_env = {
+                'APPLICATION_COVERAGE_DIR': application_dir,
+                'APPLICATION_COVERAGE_RUN_ID': os.environ.get('APPLICATION_COVERAGE_RUN_ID', ''),
+                'APPLICATION_COVERAGE_SNAPSHOT': os.environ.get('APPLICATION_COVERAGE_SNAPSHOT', '')
+            }
+            execute(argv + ['--cover', '--export-coverage', name] + selected,
+                    {**(extra or {}), **coverage_env})
+            observed.append(dict(id=partition_id, profile=profile, selected_files=selected,
+                                 selected_sha256=hashlib.sha256(json.dumps(selected, separators=(',', ':')).encode()).hexdigest(),
+                                 export=name + '.coverdata'))
+        else:
+            execute(command, extra)
+
     if profile != 'integration':
-        execute(argv + files)
+        expected_partitions = [dict(id='main', selected_files=files)] if files else []
+        if application_dir:
+            Path(application_dir, profile + '-expected.json').write_text(json.dumps(expected_partitions) + '\n')
+        invoke('main', files)
+        if application_dir:
+            Path(application_dir, profile + '-observed.json').write_text(json.dumps(observed) + '\n')
         return
     committed_path = Path(directory) / 'committed-files.json'
     execute(['mix', 'run', '--no-start', '-e',
@@ -91,14 +119,20 @@ def execute_exunit(execute, profile, files, directory, nonce, postgres_port=None
     if not isinstance(committed, list) or len(committed) != len(set(committed)) or not set(committed) <= set(files):
         raise ValueError('execution-membership')
     regular = [file for file in files if file not in committed]
+    expected_partitions = ([dict(id='regular', selected_files=regular)] if regular else []) + [
+        dict(id='committed_' + str(index), selected_files=[file]) for index, file in enumerate(committed)]
+    if application_dir:
+        Path(application_dir, profile + '-expected.json').write_text(json.dumps(expected_partitions) + '\n')
     if regular:
-        execute(argv + regular)
+        invoke('regular', regular)
     for index, file in enumerate(committed):
         partition = {'MIX_TEST_PARTITION': 'profile' + nonce + '_c' + str(index)}
         if postgres_port is not None:
             partition['POSTGRES_PORT'] = postgres_port
         execute(['mix', 'test.prepare'], partition)
-        execute(argv + [file], partition)
+        invoke('committed_' + str(index), [file], partition)
+    if application_dir:
+        Path(application_dir, profile + '-observed.json').write_text(json.dumps(observed) + '\n')
 
 
 def main(profile):
@@ -119,8 +153,14 @@ def main(profile):
         events.touch(mode=0o600)
         env = {**os.environ, 'MIX_ENV': 'test', 'CP1_PROFILE': profile, 'PROFILE_EVENTS': str(events),
                'PROFILE_NONCE': nonce}
+        for key in ('APPLICATION_COVERAGE_DIR', 'APPLICATION_COVERAGE_RUN_ID', 'APPLICATION_COVERAGE_SNAPSHOT'):
+            env.pop(key, None)
         for key in ('DEBUG', 'NODE_DEBUG', 'PWDEBUG', 'BASH_ENV', 'ENV'):
             env.pop(key, None)
+        if profile == 'e2e':
+            env.pop('APPLICATION_COVERAGE_DIR', None)
+            env.pop('APPLICATION_COVERAGE_RUN_ID', None)
+            env.pop('APPLICATION_COVERAGE_SNAPSHOT', None)
         def execute(argv, extra=None, timeout=ceiling):
             remaining = ceiling - (time.monotonic() - started)
             if remaining <= 0:
@@ -193,6 +233,25 @@ def main(profile):
             temporary.write_text(json.dumps(result) + '\n')
             temporary.chmod(0o600)
             temporary.replace(target)
+        if os.environ.get('APPLICATION_COVERAGE_DIR') and profile in ('unit', 'integration'):
+            observed_path = Path(os.environ['APPLICATION_COVERAGE_DIR']) / (profile + '-observed.json')
+            expected_path = Path(os.environ['APPLICATION_COVERAGE_DIR']) / (profile + '-expected.json')
+            if not observed_path.exists() or not expected_path.exists():
+                raise ValueError('execution-membership')
+            observed = json.loads(observed_path.read_text())
+            expected = json.loads(expected_path.read_text())
+            if not observed or [(p['id'], p['selected_files']) for p in observed] != [(p['id'], p['selected_files']) for p in expected] or any(not (Path(os.environ['APPLICATION_COVERAGE_DIR']) / part['export']).is_file() for part in observed):
+                raise ValueError('execution-membership')
+            sealed = dict(schema_version=1, profile=profile, receipt_nonce=nonce,
+                          receipt_sha256=hashlib.sha256((Path(receipt).read_bytes() if receipt else b'')).hexdigest(),
+                          run_id=os.environ.get('APPLICATION_COVERAGE_RUN_ID'),
+                          snapshot_digest=os.environ.get('APPLICATION_COVERAGE_SNAPSHOT'),
+                          expected=expected, partitions=observed)
+            for partition in observed:
+                partition['export_sha256'] = hashlib.sha256(
+                    (Path(os.environ['APPLICATION_COVERAGE_DIR']) / partition['export']).read_bytes()).hexdigest()
+            sidecar = Path(os.environ['APPLICATION_COVERAGE_DIR']) / (profile + '-coverage.json')
+            sidecar.write_text(json.dumps(sealed) + '\n')
         print(f'CP1_PROFILE_RECEIPT profile={profile} audit_count={len(files)} expected={count} discovered={count} executed={count} passed={count} status=complete')
 
 

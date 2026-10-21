@@ -97,4 +97,31 @@ defmodule FootballMarket.Quotes.ImmutabilityTest do
              Ecto.UUID.dump!(event.id)
            ]).rows == [["leased"]]
   end
+
+  test "precommit follow-up failure rolls back calculation and quote without changing holdings",
+       f do
+    assert {:ok, _} = Configurations.activate(f.configuration.id, nil)
+    request_id = Ecto.UUID.generate()
+
+    before = QuotesCase.protected_snapshot()
+
+    Repo.query!(
+      "CREATE FUNCTION event_insert_guard() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'event precommit injection'; END; $$",
+      []
+    )
+
+    Repo.query!(
+      "CREATE TRIGGER event_insert_guard BEFORE INSERT ON quote_evaluation_requests FOR EACH ROW EXECUTE FUNCTION event_insert_guard()",
+      []
+    )
+
+    assert {:error, :temporarily_unavailable} =
+             Quotes.request(f.subject, :active, f.mapping.id, request_id)
+
+    Repo.query!("DROP TRIGGER event_insert_guard ON quote_evaluation_requests", [])
+    Repo.query!("DROP FUNCTION event_insert_guard()", [])
+
+    assert QuotesCase.protected_snapshot() == before
+    assert {:ok, %{state: "pending"}} = Quotes.get_request(request_id)
+  end
 end

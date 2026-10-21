@@ -11,7 +11,7 @@ defmodule FootballMarket.Quotes.RecoveryTest do
   setup do
     old = Application.get_env(:football_market, FootballMarket.Synchronization)
 
-    %{schema: schema, repo: client} = ValuationConfigurationCase.private_schema()
+    %{schema: schema, repo: client} = namespace = ValuationConfigurationCase.private_schema()
 
     start_supervised(
       {Oban,
@@ -36,7 +36,7 @@ defmodule FootballMarket.Quotes.RecoveryTest do
       Application.put_env(:football_market, FootballMarket.Synchronization, old)
     end)
 
-    {:ok, QuotesCase.fixture()}
+    {:ok, Map.put(QuotesCase.fixture(), :namespace, namespace)}
   end
 
   defp dt!(value) when is_binary(value) do
@@ -120,6 +120,7 @@ defmodule FootballMarket.Quotes.RecoveryTest do
   end
 
   test "a request with three reserved attempts exhausts without financial writes", f do
+    before = QuotesCase.protected_snapshot()
     now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
 
     request =
@@ -148,6 +149,7 @@ defmodule FootballMarket.Quotes.RecoveryTest do
            ]).rows == [[1]]
 
     assert Repo.query!("SELECT count(*) FROM quote_evaluation_requests").rows == [[0]]
+    assert QuotesCase.protected_snapshot() == before
   end
 
   test "expired delivery lease is recovered with a higher fence and stale acknowledgement fails",
@@ -193,7 +195,10 @@ defmodule FootballMarket.Quotes.RecoveryTest do
       []
     )
 
-    Repo.query!("CREATE TRIGGER b2_guard BEFORE INSERT ON quote_calculations FOR EACH ROW EXECUTE FUNCTION schema_b2_guard()", [])
+    Repo.query!(
+      "CREATE TRIGGER b2_guard BEFORE INSERT ON quote_calculations FOR EACH ROW EXECUTE FUNCTION schema_b2_guard()",
+      []
+    )
 
     assert {:error, _} = Quotes.request(f.subject, :active, f.mapping.id, request_id)
 
@@ -209,7 +214,10 @@ defmodule FootballMarket.Quotes.RecoveryTest do
 
     # The scheduled worker path recovers the explicit request from its own
     # retained fact material without any import snapshot.
-    assert :ok = Quotes.process_import_request(request_id)
+    assert :ok =
+             FootballMarket.Workers.QuoteCalculation.perform(%Oban.Job{
+               args: %{"request_id" => request_id}
+             })
 
     assert {:ok, recovered} = Quotes.get_request(request_id)
     assert recovered.state == "successful"
@@ -229,5 +237,189 @@ defmodule FootballMarket.Quotes.RecoveryTest do
              "SELECT count(*) FROM quote_evaluation_requests WHERE calculation_id=$1",
              [Ecto.UUID.dump!(recovered.calculation_id)]
            ).rows == [[1]]
+  end
+
+  test "temporary persistence failures follow the 60 and 300 second schedule then recover", f do
+    assert {:ok, _} = Configurations.activate(f.configuration.id, nil)
+    request_id = Ecto.UUID.generate()
+
+    Repo.query!(
+      "CREATE FUNCTION retry_guard() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'retry schedule injection'; END; $$",
+      []
+    )
+
+    Repo.query!(
+      "CREATE TRIGGER retry_guard BEFORE INSERT ON quote_calculations FOR EACH ROW EXECUTE FUNCTION retry_guard()",
+      []
+    )
+
+    assert {:error, :temporarily_unavailable} =
+             Quotes.request(f.subject, :active, f.mapping.id, request_id)
+
+    # The explicit request and its immutable fact material are durable even
+    # though confirmation rolled back.
+    assert {:ok, %{state: "pending", explicit_membership: [performance_id]}} =
+             Quotes.get_request(request_id)
+
+    assert performance_id == f.performance.id
+    assert :ok = Quotes.process_import_request(request_id)
+
+    first = Repo.get!(CalculationRequest, request_id)
+    assert first.state == "retrying"
+    assert first.attempt_count == 1
+    assert DateTime.diff(first.next_attempt_at, DateTime.utc_now()) in 55..60
+    assert :ok = Quotes.process_import_request(request_id)
+    assert Repo.get!(CalculationRequest, request_id).attempt_count == 1
+
+    Repo.query!("UPDATE quote_calculation_requests SET next_attempt_at=now() WHERE id=$1", [
+      Ecto.UUID.dump!(request_id)
+    ])
+
+    assert :ok = Quotes.process_import_request(request_id)
+
+    second = Repo.get!(CalculationRequest, request_id)
+    assert second.state == "retrying"
+    assert second.attempt_count == 2
+    assert DateTime.diff(second.next_attempt_at, DateTime.utc_now()) in 295..300
+    assert :ok = Quotes.process_import_request(request_id)
+    assert Repo.get!(CalculationRequest, request_id).attempt_count == 2
+
+    Repo.query!("UPDATE quote_calculation_requests SET next_attempt_at=now() WHERE id=$1", [
+      Ecto.UUID.dump!(request_id)
+    ])
+
+    Repo.query!("DROP TRIGGER retry_guard ON quote_calculations", [])
+    Repo.query!("DROP FUNCTION retry_guard()", [])
+
+    assert :ok = Quotes.process_import_request(request_id)
+    assert Repo.get!(CalculationRequest, request_id).state == "successful"
+
+    assert Repo.query!("SELECT count(*) FROM quote_calculation_attempts WHERE request_id=$1", [
+             Ecto.UUID.dump!(request_id)
+           ]).rows == [[3]]
+  end
+
+  test "three interrupted workers retain the binding and exhaust without financial effects", f do
+    assert {:ok, _} = Configurations.activate(f.configuration.id, nil)
+    request_id = Ecto.UUID.generate()
+
+    Repo.query!(
+      "CREATE FUNCTION interrupt_guard() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'interruption fixture'; END; $$"
+    )
+
+    Repo.query!(
+      "CREATE TRIGGER interrupt_guard BEFORE INSERT ON quote_calculations FOR EACH ROW EXECUTE FUNCTION interrupt_guard()"
+    )
+
+    assert {:error, :temporarily_unavailable} =
+             Quotes.request(f.subject, :active, f.mapping.id, request_id)
+
+    Repo.query!("DROP TRIGGER interrupt_guard ON quote_calculations")
+    Repo.query!("DROP FUNCTION interrupt_guard()")
+
+    {:ok, replacement} =
+      Configurations.create(
+        ValuationConfigurationCase.rules(f.base.position.id, "balanced", %{goals: 4})
+      )
+
+    assert {:ok, _} = Configurations.activate(replacement.id, f.configuration.id)
+    before = QuotesCase.protected_snapshot()
+
+    for attempt <- 1..3 do
+      interrupt_claimed_worker(f, request_id, attempt)
+      assert {:ok, request} = Quotes.get_request(request_id)
+      assert request.state == "running"
+      assert request.attempt_count == attempt
+      assert request.configuration_version_id == f.configuration.id
+      assert request.mapping_id == f.mapping.id
+
+      Repo.query!(
+        "UPDATE quote_calculation_requests SET lease_until=now()-interval '1 second' WHERE id=$1",
+        [Ecto.UUID.dump!(request_id)]
+      )
+    end
+
+    assert {:ok, 1} = Recovery.recover_pending()
+
+    assert %{success: 1} =
+             Oban.drain_queue(FootballMarket.Quotes.TestOban, queue: :quote_calculation)
+
+    assert {:ok, %{state: "exhausted", attempt_count: 3, reason: "retry_exhausted"}} =
+             Quotes.get_request(request_id)
+
+    assert Repo.query!(
+             "SELECT attempt_number, status FROM quote_calculation_attempts WHERE request_id=$1 ORDER BY attempt_number",
+             [Ecto.UUID.dump!(request_id)]
+           ).rows == [[1, "interrupted"], [2, "interrupted"], [3, "interrupted"]]
+
+    assert QuotesCase.protected_snapshot() == before
+  end
+
+  defp interrupt_claimed_worker(f, request_id, attempt) do
+    parent = self()
+    ref = make_ref()
+
+    locker =
+      Task.async(fn ->
+        ValuationConfigurationCase.in_client(f.namespace.schema, fn ->
+          Repo.transaction(fn ->
+            Repo.query!("SELECT id FROM players WHERE id=$1 FOR UPDATE", [
+              Ecto.UUID.dump!(f.player.id)
+            ])
+
+            send(parent, {ref, :locked})
+
+            receive do
+              {^ref, :release} -> :ok
+            after
+              10_000 -> raise "player lock release timed out"
+            end
+          end)
+        end)
+      end)
+
+    assert_receive {^ref, :locked}, 5_000
+
+    {:ok, worker_client} = ValuationConfigurationCase.client(f.namespace.schema)
+
+    worker =
+      Task.async(fn ->
+        Repo.put_dynamic_repo(worker_client)
+
+        Repo.checkout(fn ->
+          [[backend]] = Repo.query!("SELECT pg_backend_pid()").rows
+          send(parent, {ref, :worker, backend})
+
+          FootballMarket.Workers.QuoteCalculation.perform(%Oban.Job{
+            args: %{"request_id" => request_id}
+          })
+        end)
+      end)
+
+    try do
+      assert_receive {^ref, :worker, backend}, 5_000
+      await_blocked(backend, 500)
+      assert Repo.get!(CalculationRequest, request_id).attempt_count == attempt
+      assert Task.shutdown(worker, :brutal_kill) == nil
+      refute Process.alive?(worker.pid)
+    after
+      if Process.alive?(worker.pid), do: Task.shutdown(worker, :brutal_kill)
+      Supervisor.stop(worker_client)
+      send(locker.pid, {ref, :release})
+      Task.await(locker, 5_000)
+    end
+  end
+
+  defp await_blocked(_backend, 0), do: flunk("worker did not reach confirmation lock")
+
+  defp await_blocked(backend, attempts) do
+    case Repo.query!("SELECT cardinality(pg_blocking_pids($1)) > 0", [backend]).rows do
+      [[true]] ->
+        :ok
+
+      _ ->
+        Process.sleep(10)
+        await_blocked(backend, attempts - 1)
+    end
   end
 end

@@ -36,6 +36,24 @@
       }
     },
     {
+      "id": "quote-regressions",
+      "argv": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "test/football_market/quotes/admission_test.exs",
+        "test/football_market/quotes/import_test.exs",
+        "test/football_market/quotes/recovery_test.exs",
+        "test/football_market/quotes/followup_test.exs",
+        "test/football_market/quotes/immutability_test.exs",
+        "test/football_market/quotes/outcomes_test.exs",
+        "test/football_market/quotes/replay_test.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
       "id": "unit",
       "argv": [
         "sh",
@@ -86,7 +104,8 @@
     "FR-004": [
       "unit",
       "integration",
-      "runtime"
+      "runtime",
+      "quote-regressions"
     ],
     "FR-005": [
       "integration"
@@ -96,21 +115,26 @@
       "integration"
     ],
     "FR-007": [
-      "integration"
+      "integration",
+      "quote-regressions"
     ],
     "FR-008": [
       "integration",
-      "runtime"
+      "runtime",
+      "quote-regressions"
     ],
     "FR-009": [
       "integration",
-      "runtime"
+      "runtime",
+      "quote-regressions"
     ],
     "FR-010": [
-      "integration"
+      "integration",
+      "quote-regressions"
     ],
     "FR-011": [
-      "integration"
+      "integration",
+      "quote-regressions"
     ],
     "FR-012": [
       "integration",
@@ -126,7 +150,8 @@
     "FR-015": [
       "unit",
       "integration",
-      "runtime"
+      "runtime",
+      "quote-regressions"
     ],
     "SC-001": [
       "unit",
@@ -135,25 +160,30 @@
     ],
     "SC-002": [
       "integration",
-      "runtime"
+      "runtime",
+      "quote-regressions"
     ],
     "SC-003": [
-      "integration"
+      "integration",
+      "quote-regressions"
     ],
     "SC-004": [
       "integration",
-      "runtime"
+      "runtime",
+      "quote-regressions"
     ],
     "SC-005": [
       "integration",
-      "runtime"
+      "runtime",
+      "quote-regressions"
     ],
     "SC-006": [
       "unit",
       "integration"
     ],
     "SC-007": [
-      "integration"
+      "integration",
+      "quote-regressions"
     ]
   },
   "task_stages": {

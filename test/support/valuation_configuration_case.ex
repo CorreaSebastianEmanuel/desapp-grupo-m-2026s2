@@ -109,7 +109,13 @@ defmodule FootballMarket.ValuationConfigurationCase do
 
     {:ok, pid} = client(schema)
     previous = Repo.put_dynamic_repo(pid)
-    Ecto.Migrator.run(Repo, "priv/repo/migrations", :up, all: true, prefix: schema, log: false)
+    old_compiler = Code.compiler_options(ignore_module_conflict: true)
+
+    try do
+      Ecto.Migrator.run(Repo, "priv/repo/migrations", :up, all: true, prefix: schema, log: false)
+    after
+      Code.compiler_options(old_compiler)
+    end
 
     ExUnit.Callbacks.on_exit(fn ->
       Repo.put_dynamic_repo(previous)

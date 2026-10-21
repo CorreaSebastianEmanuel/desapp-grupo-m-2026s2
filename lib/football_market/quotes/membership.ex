@@ -78,17 +78,23 @@ defmodule FootballMarket.Quotes.Membership do
         _ -> nil
       end
 
-    Repo.query!(
-      """
-      INSERT INTO quote_calculation_requests
-        (id, snapshot_id, intent_id, player_id, season_id, week_start, week_end, selector, mapping_id, state, inserted_at)
-      SELECT gen_random_uuid(), s.id, s.intent_id, s.player_id, s.season_id, s.week_start, s.week_end,
-        'active', $2, 'pending', now()
-      FROM quote_import_scope_snapshots s WHERE s.intent_id=$1
-      ON CONFLICT (snapshot_id) WHERE snapshot_id IS NOT NULL DO NOTHING
-      """,
-      [Ecto.UUID.dump!(id), mapping]
-    )
+    {:ok, snapshots} = snapshots(id)
+
+    if snapshots == [] do
+      record_legacy_requests!(id)
+    else
+      Repo.query!(
+        """
+        INSERT INTO quote_calculation_requests
+          (id, snapshot_id, intent_id, player_id, season_id, week_start, week_end, selector, mapping_id, state, inserted_at)
+        SELECT gen_random_uuid(), s.id, s.intent_id, s.player_id, s.season_id, s.week_start, s.week_end,
+          'active', $2, 'pending', now()
+        FROM quote_import_scope_snapshots s WHERE s.intent_id=$1
+        ON CONFLICT (snapshot_id) WHERE snapshot_id IS NOT NULL DO NOTHING
+        """,
+        [Ecto.UUID.dump!(id), mapping]
+      )
+    end
 
     import Ecto.Query
     alias FootballMarket.Quotes.CalculationRequest
@@ -102,6 +108,33 @@ defmodule FootballMarket.Quotes.Membership do
     end
 
     :ok
+  end
+
+  # Changed facts prove affected scopes, never the original complete membership.
+  # Retain a terminal request per known scope rather than silently using today's
+  # accepted facts for an intent that predates membership snapshots.
+  defp record_legacy_requests!(intent_id) do
+    Repo.query!(
+      """
+      INSERT INTO quote_calculation_requests
+        (id, source, intent_id, player_id, season_id, week_start, week_end,
+         selector, state, reason, inserted_at)
+      SELECT gen_random_uuid(), 'import', scopes.intent_id, scopes.player_id, scopes.season_id,
+        scopes.week_start, scopes.week_start + interval '7 days',
+        'active', 'unreproducible', 'original_unavailable', now()
+      FROM (
+        SELECT DISTINCT i.id AS intent_id, p.player_id, p.season_id,
+          date_trunc('week', m.kickoff_at) AS week_start
+        FROM statistics_calculation_intents i
+        JOIN player_match_performances p ON p.id = ANY(i.changed_performance_ids)
+        JOIN matches m ON m.id = p.match_id
+        WHERE i.id = $1
+      ) scopes
+      ON CONFLICT (intent_id, player_id, season_id, week_start)
+        WHERE snapshot_id IS NULL AND source = 'import' DO NOTHING
+      """,
+      [Ecto.UUID.dump!(intent_id)]
+    )
   end
 
   def facts(materials) when is_list(materials) do

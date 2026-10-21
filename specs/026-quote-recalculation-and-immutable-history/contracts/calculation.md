@@ -9,6 +9,7 @@ Source of truth: `specs/026-quote-recalculation-and-immutable-history/plan.md` (
 - Multiple import/explicit request IDs may link to one calculation. Effective time is excluded from identity; an exact retry returns the original outcome even after active selection changes.
 - Imported requests resolve the active strategy exactly once at their first calculation start, before loading valuation fact values; the binding and mapping are persisted before evaluating and never re-resolved on retry.
 - Legacy pending intents without snapshots must reconstruct original complete membership only from demonstrable retained acceptance evidence; otherwise record `unreproducible` and require a distinct explicit fresh request. Latest membership is never substituted.
+- An unavailable mapping's supplied UUID remains inspectable as immutable `requested_mapping_id`, separate from the nullable authoritative FK. An identical retry retains its failure; any different mapping UUID conflicts. Unprovable legacy imports retain terminal per-scope requests derived only from original changed fact references, without a snapshot or fabricated configuration/mapping binding.
 
 ## Exact safe outcome mapping
 

@@ -9,7 +9,7 @@ defmodule FootballMarket.Quotes.AdmissionTest do
     {:ok, QuotesCase.fixture()}
   end
 
-  test "a missing mapping is durably recorded and an identical retry returns it", fixture do
+  test "reused request id with different mapping identity returns request_conflict", fixture do
     request_id = Ecto.UUID.generate()
     missing_mapping_id = Ecto.UUID.generate()
 
@@ -44,5 +44,12 @@ defmodule FootballMarket.Quotes.AdmissionTest do
     assert {:ok, preserved} = Quotes.get_request(request_id)
     assert preserved.requested_mapping_id == missing_mapping_id
     assert Repo.aggregate(FootballMarket.Quotes.CalculationRequest, :count, :id) == 1
+
+    assert_raise Postgrex.Error, fn ->
+      Repo.query!("UPDATE quote_calculation_requests SET requested_mapping_id=$1 WHERE id=$2", [
+        Ecto.UUID.dump!(other_missing_mapping_id),
+        Ecto.UUID.dump!(request_id)
+      ])
+    end
   end
 end

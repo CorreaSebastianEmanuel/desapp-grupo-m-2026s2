@@ -9,6 +9,7 @@ MIX_ENV=test mix test.prepare
 python3 scripts/agentflow_check.py preflight --reuse
 python3 scripts/agentflow_check.py format --reuse
 python3 scripts/agentflow_check.py compile --reuse
+python3 scripts/agentflow_check.py quote-regressions --reuse
 python3 scripts/agentflow_check.py unit --reuse
 python3 scripts/agentflow_check.py integration --reuse
 python3 scripts/agentflow_check.py runtime

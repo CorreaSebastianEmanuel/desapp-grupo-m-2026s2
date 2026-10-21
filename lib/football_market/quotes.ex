@@ -335,7 +335,10 @@ defmodule FootballMarket.Quotes do
   # The persisted unavailable-mapping identity must equal the retried one.
   # Identity-unknown rows (legacy or malformed input) conflict conservatively
   # instead of silently retaining an unrelated mapping's terminal error.
-  defp explicit_mapping_identity?(%FootballMarket.Quotes.CalculationRequest{mapping_id: nil} = request, mapping_id) do
+  defp explicit_mapping_identity?(
+         %FootballMarket.Quotes.CalculationRequest{mapping_id: nil} = request,
+         mapping_id
+       ) do
     case Ecto.UUID.cast(mapping_id) do
       {:ok, identity} -> request.requested_mapping_id == identity
       _ -> false

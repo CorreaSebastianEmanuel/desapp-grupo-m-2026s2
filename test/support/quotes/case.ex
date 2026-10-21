@@ -48,6 +48,23 @@ defmodule FootballMarket.QuotesCase do
 
   def mapping_scale, do: Decimal.new("1.25")
 
+  # Compare all persisted financial/history fields and protected inputs. Hash
+  # rows so assertion output cannot disclose account credential material.
+  def protected_snapshot do
+    Map.new(
+      ~w(market_initial_recipients market_quotes market_holdings market_issuances
+         users password_credentials api_keys matches player_match_performances
+         valuation_configuration_versions valuation_selection_changes
+         quote_conversion_mappings quote_evaluation_requests),
+      fn table ->
+        rows =
+          Repo.query!("SELECT row_to_json(t)::text FROM #{table} t ORDER BY row_to_json(t)::text").rows
+
+        {table, Enum.map(rows, fn [row] -> :crypto.hash(:sha256, row) end)}
+      end
+    )
+  end
+
   def rules(%{position: position}),
     do: FootballMarket.ValuationConfigurationCase.rules(position.id)
 end

@@ -2,8 +2,8 @@
 
 Verdict: FAIL
 
-Final review is blocked by the acceptance matrix and blockers in `../qa-report.md`. Do not treat passing unit checks or the developer handoff as proof of integration acceptance.
+Blockers are documented in qa-report.md: reproduced conflicting terminal request identity, Chromium prerequisite denial preventing integration/runtime evidence, acceptance coverage gaps, and developer-readiness/task inconsistency.
 
-Reviewer guidance: distinguish an immutable calculation result from the mutable request projection. A request fence checked after quote confirmation does not fence confirmation itself. Challenge a stale worker whose lease expires during scoring, and a transient failure whose Oban job returns success while its durable request becomes retrying. Current tests focus on evaluation-delivery fences rather than calculation-worker fences.
+Reviewer guidance: the standalone adversarial ExUnit source is retained beside its failure output under qa-evidence/20261021-independent/. It deliberately uses the existing private-schema fixture and tests changed parameters after a durable missing-mapping result. Preserve identical retry behavior while rejecting conflicting UUID reuse.
 
-No implementation was modified. Integration stopped after two unchanged Node-runtime prerequisite failures; runtime was not executed. Resume through development feedback, then fresh independent QA with the documented Node 24 environment and all required checks.
+Two unchanged Chromium launch failures ended execution; no additional retries, runtime execution, implementation edits, Agentflow invocation or delegation occurred. Development must resolve the blockers through feedback before another independent acceptance pass. This handoff does not authorize merge.

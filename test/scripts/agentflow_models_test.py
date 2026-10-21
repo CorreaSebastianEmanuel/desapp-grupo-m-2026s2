@@ -38,7 +38,7 @@ class ModelTest(DeliveryFixture):
         self.assertEqual(stages['develop']['model'], 'gpt-6.1-sol')
         self.assertEqual(stages['develop']['sources']['model'], 'task.develop_model')
         self.assertEqual(stages['product']['model'], 'gpt-6-luna')
-        self.assertEqual(stages['qa']['effort'], 'low')
+        self.assertEqual(stages['qa']['effort'], 'medium')
         args.model='gpt-6.1-sol'; args.effort='low'; args.stage_effort=['develop=medium']
         stages=resolve(self.root,task,args)['stages']
         self.assertEqual(stages['develop']['effort'],'medium')

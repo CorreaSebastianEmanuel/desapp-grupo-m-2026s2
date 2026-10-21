@@ -17,20 +17,7 @@ defmodule FootballMarket.Valuation.Configurations.Store do
   def create(input) do
     with {:ok, r} <- Rules.validate(input) do
       Repo.transaction(fn ->
-        ids = Enum.map(r.position_mapping, &elem(&1, 0))
-
-        found =
-          Repo.all(from p in Position, where: p.id in ^ids, select: p.id, lock: "FOR KEY SHARE")
-
-        if Enum.sort(found) != Enum.sort(ids), do: rollback(:validation, :unknown_position)
-
-        %Version{
-          strategy_id: r.strategy_id,
-          formula_version: r.formula_version,
-          rules: Codec.encode(r)
-        }
-        |> Repo.insert!()
-        |> decode()
+        create_locked(r)
       end)
     end
   end
@@ -93,31 +80,7 @@ defmodule FootballMarket.Valuation.Configurations.Store do
   def activate(target, expected) do
     with {:ok, target} <- identifier(target), {:ok, expected} <- expectation(expected) do
       Repo.transaction(fn ->
-        Repo.one!(from l in SelectionLock, where: l.id == 1, lock: "FOR UPDATE")
-        current = Repo.one(from c in SelectionChange, order_by: [desc: c.change_order], limit: 1)
-        current_id = current && current.new_version_id
-        if expected != current_id, do: rollback(:conflict, :stale_selection)
-
-        version =
-          case get(target) do
-            {:ok, %{version: v}} -> v
-            {:error, error} -> Repo.rollback(error)
-          end
-
-        case Registry.resolve(version.strategy_id, version.formula_version) do
-          {:ok, _} -> :ok
-          {:error, error} -> Repo.rollback(error)
-        end
-
-        change =
-          if target != current_id do
-            Repo.insert!(%SelectionChange{
-              previous_version_id: current_id,
-              new_version_id: target
-            })
-          end
-
-        %{active_version_id: target, change: change}
+        activate_locked(target, expected)
       end)
     end
   end
@@ -148,5 +111,50 @@ defmodule FootballMarket.Valuation.Configurations.Store do
   defp rollback(kind, reason) do
     {:error, error} = Error.new(kind, reason)
     Repo.rollback(error)
+  end
+
+  defp create_locked(r) do
+    ids = Enum.map(r.position_mapping, &elem(&1, 0))
+
+    found =
+      Repo.all(from p in Position, where: p.id in ^ids, select: p.id, lock: "FOR KEY SHARE")
+
+    if Enum.sort(found) != Enum.sort(ids), do: rollback(:validation, :unknown_position)
+
+    %Version{
+      strategy_id: r.strategy_id,
+      formula_version: r.formula_version,
+      rules: Codec.encode(r)
+    }
+    |> Repo.insert!()
+    |> decode()
+  end
+
+  defp activate_locked(target, expected) do
+    Repo.one!(from l in SelectionLock, where: l.id == 1, lock: "FOR UPDATE")
+    current = Repo.one(from c in SelectionChange, order_by: [desc: c.change_order], limit: 1)
+    current_id = current && current.new_version_id
+    if expected != current_id, do: rollback(:conflict, :stale_selection)
+
+    version =
+      case get(target) do
+        {:ok, %{version: v}} -> v
+        {:error, error} -> Repo.rollback(error)
+      end
+
+    case Registry.resolve(version.strategy_id, version.formula_version) do
+      {:ok, _} -> :ok
+      {:error, error} -> Repo.rollback(error)
+    end
+
+    change =
+      if target != current_id do
+        Repo.insert!(%SelectionChange{
+          previous_version_id: current_id,
+          new_version_id: target
+        })
+      end
+
+    %{active_version_id: target, change: change}
   end
 end

@@ -32,27 +32,13 @@ defmodule FootballMarket.Providers.ScrapingFixtureData do
   def assessment(c) do
     metrics =
       Map.new(Enum.with_index(@counts), fn {key, i} ->
-        status =
-          if c["unverified"] == i or (c["event_unverified"] && key in [:tackles, :goals_conceded]),
-            do: :unverified,
-            else: if(c["unavailable"] == i, do: :unavailable, else: :verified)
+        status = metric_status(c, key, i)
 
         {key,
          %{
            status: status,
            evidence: "synthetic-direct-#{key}",
-           meaning:
-             %{
-               goals: "ordinary player goals excluding own goals",
-               assists: "player-match assists",
-               shots_on_target: "ordinary player attempts on target",
-               tackles: "successful tackles",
-               interceptions: "opposition passes intercepted",
-               saves: "goalkeeper saves",
-               goals_conceded: "opposition goals while player on field",
-               yellow_cards: "player-match yellow cards",
-               red_cards: "player-match red cards"
-             }[key]
+           meaning: metric_meaning(key)
          }}
       end)
 
@@ -89,6 +75,31 @@ defmodule FootballMarket.Providers.ScrapingFixtureData do
       "scope" -> %{assessment | scopes: %{}}
       _ -> assessment
     end
+  end
+
+  defp metric_status(c, key, index) do
+    unverified =
+      c["unverified"] == index || (c["event_unverified"] && key in [:tackles, :goals_conceded])
+
+    cond do
+      unverified -> :unverified
+      c["unavailable"] == index -> :unavailable
+      true -> :verified
+    end
+  end
+
+  defp metric_meaning(key) do
+    %{
+      goals: "ordinary player goals excluding own goals",
+      assists: "player-match assists",
+      shots_on_target: "ordinary player attempts on target",
+      tackles: "successful tackles",
+      interceptions: "opposition passes intercepted",
+      saves: "goalkeeper saves",
+      goals_conceded: "opposition goals while player on field",
+      yellow_cards: "player-match yellow cards",
+      red_cards: "player-match red cards"
+    }[key]
   end
 
   def operation(c), do: if(c["operation"] == "catalog", do: :catalog, else: :performances)
@@ -133,19 +144,7 @@ defmodule FootballMarket.Providers.ScrapingFixtureData do
         do: Map.put(portions, "roster:b", %{failure: %{category: :authentication_failed}}),
         else: portions
 
-    overrides =
-      if c["revoke_at"] do
-        reader = fn ->
-          n = Process.get(:scraping_assessment_reads, 0) + 1
-          Process.put(:scraping_assessment_reads, n)
-          a = assessment(c)
-          if n >= c["revoke_at"], do: %{a | withdrawn: true}, else: a
-        end
-
-        Map.put(overrides, :assessment_reader, reader)
-      else
-        overrides
-      end
+    overrides = maybe_revoke_assessment(overrides, c)
 
     portions =
       if c["detail_failure"],
@@ -169,6 +168,19 @@ defmodule FootballMarket.Providers.ScrapingFixtureData do
     )
   end
 
+  defp maybe_revoke_assessment(overrides, c) do
+    if c["revoke_at"],
+      do: Map.put(overrides, :assessment_reader, fn -> assessment_read(c) end),
+      else: overrides
+  end
+
+  defp assessment_read(c) do
+    n = Process.get(:scraping_assessment_reads, 0) + 1
+    Process.put(:scraping_assessment_reads, n)
+    current = assessment(c)
+    if n >= c["revoke_at"], do: %{current | withdrawn: true}, else: current
+  end
+
   defp fixed_category(name),
     do: Enum.find(Providers.Error.categories(), &(Atom.to_string(&1) == name))
 
@@ -187,51 +199,63 @@ defmodule FootballMarket.Providers.ScrapingFixtureData do
     expected = Map.fetch!(@expected, c["id"])
 
     if expected["category"] do
-      assert {:error, error} = outcome, c["id"] <> ": " <> inspect(outcome)
-      assert Atom.to_string(error.category) == expected["category"], c["id"]
-      assert error.retry_after_ms == expected["delay"]
-      assert error.retryable == error.category in [:rate_limited, :unavailable, :timeout]
-      refute inspect(error) =~ "FAKE_SENTINEL"
+      assert_error_case(c, outcome, expected)
     else
-      assert {:ok, result} = outcome, c["id"] <> ": " <> inspect(outcome)
-      facts = expected_facts(c, expected)
-      FactOracle.assert_facts!(result.facts, facts, correspondence(facts))
-      assert result.provenance.provider == "fotmob-shaped-offline"
-      assert result.provenance.fixture_id == c["id"]
-      assert result.provenance.retrieved_at == ~U[2026-10-06 12:00:00.000000Z]
-
-      targets =
-        [{:league, "league"}, {:season, "season"}] ++
-          for(
-            {kind, field} <- [{:team, :teams}, {:player, :players}, {:match, :matches}],
-            row <- Map.get(facts, field, []),
-            do: {kind, row.ref}
-          )
-
-      assert Enum.sort(Enum.map(result.provenance.bindings, &{&1.kind, &1.ref, &1.source_id})) ==
-               Enum.sort(
-                 Enum.map(targets, fn {kind, ref} ->
-                   {kind, ref,
-                    if(ref == "league",
-                      do: c["league"],
-                      else:
-                        if(ref == "season",
-                          do: "#{c["year"]}/#{c["year"] + 1}",
-                          else: String.replace_prefix(ref, Atom.to_string(kind) <> ":", "")
-                        )
-                    )}
-                 end)
-               )
-
-      for b <- result.provenance.bindings do
-        assert b.provider == "fotmob-shaped-offline"
-
-        assert {b.league_code, b.start_year, b.end_year} ==
-                 {c["league"], c["year"], c["year"] + 1}
-      end
+      assert_success_case(c, outcome, expected)
     end
 
     outcome
+  end
+
+  defp assert_error_case(c, outcome, expected) do
+    assert {:error, error} = outcome, c["id"] <> ": " <> inspect(outcome)
+    assert Atom.to_string(error.category) == expected["category"], c["id"]
+    assert error.retry_after_ms == expected["delay"]
+    assert error.retryable == error.category in [:rate_limited, :unavailable, :timeout]
+    refute inspect(error) =~ "FAKE_SENTINEL"
+  end
+
+  defp assert_success_case(c, outcome, expected) do
+    assert {:ok, result} = outcome, c["id"] <> ": " <> inspect(outcome)
+    facts = expected_facts(c, expected)
+    FactOracle.assert_facts!(result.facts, facts, correspondence(facts))
+    assert result.provenance.provider == "fotmob-shaped-offline"
+    assert result.provenance.fixture_id == c["id"]
+    assert result.provenance.retrieved_at == ~U[2026-10-06 12:00:00.000000Z]
+
+    assert Enum.sort(Enum.map(result.provenance.bindings, &{&1.kind, &1.ref, &1.source_id})) ==
+             expected_bindings(c, facts)
+
+    assert_valid_bindings(result.provenance.bindings, c)
+  end
+
+  defp expected_bindings(c, facts) do
+    targets =
+      [{:league, "league"}, {:season, "season"}] ++
+        for {kind, field} <- [{:team, :teams}, {:player, :players}, {:match, :matches}],
+            row <- Map.get(facts, field, []),
+            do: {kind, row.ref}
+
+    targets
+    |> Enum.map(fn {kind, ref} -> {kind, ref, source_identity(c, kind, ref)} end)
+    |> Enum.sort()
+  end
+
+  defp source_identity(c, kind, ref) do
+    case ref do
+      "league" -> c["league"]
+      "season" -> "#{c["year"]}/#{c["year"] + 1}"
+      _ -> String.replace_prefix(ref, Atom.to_string(kind) <> ":", "")
+    end
+  end
+
+  defp assert_valid_bindings(bindings, c) do
+    Enum.each(bindings, fn binding ->
+      assert binding.provider == "fotmob-shaped-offline"
+
+      assert {binding.league_code, binding.start_year, binding.end_year} ==
+               {c["league"], c["year"], c["year"] + 1}
+    end)
   end
 
   # Literal football model independent from parsing and production Validator.

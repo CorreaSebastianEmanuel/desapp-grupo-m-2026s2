@@ -28,23 +28,30 @@ defmodule FootballMarket.Valuation.StatisticsReader do
   end
 
   def originals(facts) do
-    Enum.reduce_while(facts, {:ok, []}, fn fact, {:ok, acc} ->
-      with {:ok, row} <- read(fn -> Statistics.get_performance(fact.player_id, fact.match_id) end),
-           {:ok, match} <- Statistics.get_match(fact.match_id) do
-        authoritative = snapshot(row, match)
-
-        if authoritative == %{fact | group: nil},
-          do: {:cont, {:ok, [authoritative | acc]}},
-          else: {:halt, Error.new(:inconsistent_replay, :altered_fact, [fact.performance_id])}
-      else
-        _ ->
-          {:halt,
-           Error.new(:unavailable_replay, :original_fact_unavailable, [fact.performance_id])}
-      end
-    end)
+    Enum.reduce_while(facts, {:ok, []}, &append_original/2)
     |> case do
       {:ok, rows} -> {:ok, Enum.reverse(rows)}
       error -> error
+    end
+  end
+
+  defp append_original(fact, {:ok, acc}) do
+    case original(fact) do
+      {:ok, row} -> {:cont, {:ok, [row | acc]}}
+      error -> {:halt, error}
+    end
+  end
+
+  defp original(fact) do
+    with {:ok, row} <- read(fn -> Statistics.get_performance(fact.player_id, fact.match_id) end),
+         {:ok, match} <- Statistics.get_match(fact.match_id) do
+      authoritative = snapshot(row, match)
+
+      if authoritative == %{fact | group: nil},
+        do: {:ok, authoritative},
+        else: Error.new(:inconsistent_replay, :altered_fact, [fact.performance_id])
+    else
+      _ -> Error.new(:unavailable_replay, :original_fact_unavailable, [fact.performance_id])
     end
   end
 

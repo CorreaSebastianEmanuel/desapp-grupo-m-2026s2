@@ -1,0 +1,3 @@
+human_check_required: false
+
+The specification and current human feedback determine the product boundary: only first-party application implementation files in the TASK-065 inventory contribute to the metric; tests, support, and other non-application entries are excluded with reasons. No threshold, SonarCloud import, profile redesign, or behavior change is in scope. The remaining snapshot identity and stale-report handling are evidence and implementation contracts for architecture; they can be resolved conservatively by failing closed and labeling reports, without changing observable product behavior or a business rule.

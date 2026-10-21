@@ -74,9 +74,7 @@ defmodule FootballMarket.Valuation.Managed do
         {:ok, request} ->
           # Scoring already canonicalizes config into typed tuples; compare them
           # directly. Mapping pairs likewise retain UUID/group identity directly.
-          if e.strategy == Scoring.strategy(bound) and fields(request) == fields(version),
-            do: :ok,
-            else: Error.new(:inconsistent_replay, :rules_mismatch)
+          validate_bound_rules(e, request, version, bound)
 
         _ ->
           Error.new(:inconsistent_replay, :rules_mismatch)
@@ -87,6 +85,12 @@ defmodule FootballMarket.Valuation.Managed do
   end
 
   defp binding(_, _, _), do: Error.new(:inconsistent_replay, :invalid_descriptor)
+
+  defp validate_bound_rules(e, request, version, bound) do
+    if e.strategy == Scoring.strategy(bound) and fields(request) == fields(version),
+      do: :ok,
+      else: Error.new(:inconsistent_replay, :rules_mismatch)
+  end
 
   defp resolve(:active), do: Configurations.active()
 

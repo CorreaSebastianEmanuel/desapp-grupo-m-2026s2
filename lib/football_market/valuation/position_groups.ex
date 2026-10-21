@@ -1,4 +1,5 @@
 defmodule FootballMarket.Valuation.PositionGroups do
+  @moduledoc false
   alias FootballMarket.Valuation.Error
 
   def assign(rows, mapping) do

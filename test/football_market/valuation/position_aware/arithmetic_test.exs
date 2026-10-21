@@ -83,7 +83,7 @@ defmodule FootballMarket.Valuation.PositionAware.ArithmeticTest do
     f = fixture()
     record(f, "zero", %{goals: 0})
 
-    for exp <- [-10000, 10000], sign <- [-1, 1] do
+    for exp <- [-10_000, 10_000], sign <- [-1, 1] do
       r =
         calculate(f, definition(rules(%{goals: %Decimal{sign: sign, coef: 1, exp: exp}})), %{
           goals: Decimal.new("0.125")

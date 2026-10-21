@@ -42,20 +42,26 @@ defmodule FootballMarket.Valuation.PositionAware do
       when map_size(view) == 2 and is_map(features) and not is_struct(features) and
              map_size(features) > 0 do
     with {:ok, required} <- requirements(config) do
-      if Enum.all?(features, fn {g, values} -> valid_features?(values, Map.get(required, g)) end) do
-        terms =
-          for {g, values} <- features,
-              metric <- required[g],
-              do: {Map.fetch!(values, metric), Map.fetch!(config.weights[g], metric)}
-
-        {:ok, DecimalMath.weighted(terms)}
-      else
-        {:error, :missing_or_invalid_feature}
-      end
+      score_features(features, required, config)
     end
   end
 
   def score(_, _), do: {:error, :invalid_features}
+
+  defp score_features(features, required, config) do
+    if Enum.all?(features, fn {group, values} ->
+         valid_features?(values, Map.get(required, group))
+       end) do
+      terms =
+        for {group, values} <- features,
+            metric <- required[group],
+            do: {Map.fetch!(values, metric), Map.fetch!(config.weights[group], metric)}
+
+      {:ok, DecimalMath.weighted(terms)}
+    else
+      {:error, :missing_or_invalid_feature}
+    end
+  end
 
   defp valid_features?(features, metrics)
        when is_map(features) and not is_struct(features) and is_list(metrics) do

@@ -3,7 +3,14 @@ defmodule FootballMarket.Quotes do
   import Ecto.Query
   alias FootballMarket.{Repo, Market.Quote, Valuation}
   alias FootballMarket.Catalog.Player
-  alias FootballMarket.Quotes.{Calculation, Evaluation, Mappings, Conversion, Store}
+
+  alias FootballMarket.Quotes.{
+    Calculation,
+    Evaluation,
+    Mappings,
+    Conversion,
+    Store
+  }
 
   defdelegate save_mapping(name, version, scale), to: Mappings, as: :save
   defdelegate get_mapping(id), to: Mappings, as: :get
@@ -12,28 +19,10 @@ defmodule FootballMarket.Quotes do
     with false <- Repo.in_transaction?(),
          {:ok, subject} <- Valuation.Request.subject_week(subject_week),
          {:ok, request_id} <- Ecto.UUID.cast(request_id),
-         {:ok, mapping} <- Mappings.get(mapping_id),
          {:ok, player} <- initialized_player(subject.player_id, subject.season_id),
-         {:ok, request, facts} <- admit_explicit(subject, selector, mapping, request_id),
-         {:ok, persisted} <-
-           evaluate_and_persist(
-             subject,
-             player,
-             {:version, request.configuration_version_id},
-             mapping,
-             request_id,
-             facts
-           ) do
-      completed =
-        request
-        |> Ecto.Changeset.change(
-          state: persisted.calculation.status,
-          reason: persisted.calculation.reason,
-          calculation_id: persisted.calculation.id
-        )
-        |> Repo.update!()
-
-      {:ok, Map.put(persisted, :request, completed)}
+         {:ok, selector_name} <- selector_name(selector) do
+      existing = Repo.get(FootballMarket.Quotes.CalculationRequest, request_id)
+      resolve_request(existing, subject, selector, selector_name, mapping_id, request_id, player)
     else
       true -> {:error, :caller_transaction_not_allowed}
       error -> error
@@ -42,32 +31,219 @@ defmodule FootballMarket.Quotes do
     _ -> {:error, :temporarily_unavailable}
   end
 
-  defp admit_explicit(subject, selector, mapping, request_id) do
-    with {:ok, selector_name} <- selector_name(selector) do
-      Repo.transaction(fn ->
-        Repo.query!("SELECT pg_advisory_xact_lock(hashtextextended($1,0))", [request_id])
+  defp resolve_request(nil, subject, selector, _selector_name, mapping_id, request_id, player),
+    do: continue_request(subject, selector, mapping_id, request_id, player)
 
-        result =
-          case Repo.get(FootballMarket.Quotes.CalculationRequest, request_id) do
-            %FootballMarket.Quotes.CalculationRequest{} = existing ->
-              if explicit_request_matches?(existing, subject, selector_name, mapping.id),
-                do: load_explicit_facts(existing),
-                else: {:error, :request_conflict}
+  defp resolve_request(
+         %FootballMarket.Quotes.CalculationRequest{} = request,
+         subject,
+         selector,
+         selector_name,
+         mapping_id,
+         request_id,
+         player
+       ) do
+    resolve_existing_request(
+      request,
+      subject,
+      selector,
+      selector_name,
+      Mappings.get(mapping_id),
+      mapping_id,
+      request_id,
+      player
+    )
+  end
 
-            nil ->
-              admit_new_explicit(subject, selector, selector_name, mapping, request_id)
-          end
+  defp resolve_request(
+         _request,
+         _subject,
+         _selector,
+         _selector_name,
+         mapping_id,
+         _request_id,
+         _player
+       ),
+       do: Mappings.get(mapping_id)
 
-        case result do
-          {:ok, request, facts} -> {:ok, request, facts}
-          {:error, reason} -> Repo.rollback(reason)
-        end
-      end)
-      |> case do
-        {:ok, {:ok, request, facts}} -> {:ok, request, facts}
-        {:error, reason} -> {:error, reason}
+  defp resolve_existing_request(
+         request,
+         subject,
+         selector,
+         selector_name,
+         {:ok, mapping},
+         mapping_id,
+         request_id,
+         player
+       ) do
+    if explicit_request_matches?(request, subject, selector_name, mapping.id) do
+      retained_explicit(request) ||
+        continue_request(subject, selector, mapping_id, request_id, player)
+    else
+      {:error, :request_conflict}
+    end
+  end
+
+  defp resolve_existing_request(
+         request,
+         subject,
+         _selector,
+         selector_name,
+         {:error, :mapping_unavailable},
+         _mapping_id,
+         _request_id,
+         _player
+       ) do
+    # The FK is intentionally NULL for an unavailable mapping. Preserve
+    # retries of that terminal admission, but do not let a now-resolvable
+    # mapping identity inherit its retained error.
+    if request.reason == "mapping_unavailable" and request.mapping_id == nil and
+         explicit_request_scope_matches?(request, subject, selector_name) do
+      retained_explicit(request)
+    else
+      {:error, :request_conflict}
+    end
+  end
+
+  defp resolve_existing_request(
+         _request,
+         _subject,
+         _selector,
+         _name,
+         error,
+         _mapping_id,
+         _request_id,
+         _player
+       ),
+       do: error
+
+  defp continue_request(subject, selector, mapping_id, request_id, player) do
+    request_terminal_failure = fn reason ->
+      case selector_name(selector) do
+        {:ok, name} ->
+          record_admission_failure!(subject, name, mapping_id, request_id, Atom.to_string(reason))
+          {:error, reason}
+
+        {:error, invalid} ->
+          {:error, invalid}
       end
     end
+
+    case Mappings.get(mapping_id) do
+      {:ok, mapping} ->
+        with {:ok, request, facts} <- admit_explicit(subject, selector, mapping, request_id),
+             {:ok, persisted} <-
+               evaluate_and_persist(
+                 subject,
+                 player,
+                 {:version, request.configuration_version_id},
+                 mapping,
+                 request_id,
+                 facts
+               ) do
+          completed =
+            request
+            |> Ecto.Changeset.change(
+              state: persisted.calculation.status,
+              reason: persisted.calculation.reason,
+              calculation_id: persisted.calculation.id
+            )
+            |> Repo.update!()
+
+          {:ok, Map.put(persisted, :request, completed)}
+        else
+          {:error, :configuration_unavailable} -> {:error, :configuration_unavailable}
+          error -> error
+        end
+
+      {:error, :mapping_unavailable} ->
+        request_terminal_failure.(:mapping_unavailable)
+
+      error ->
+        error
+    end
+  end
+
+  defp admit_explicit(subject, selector, mapping, request_id) do
+    case selector_name(selector) do
+      {:ok, name} ->
+        Repo.transaction(fn ->
+          Repo.query!("SELECT pg_advisory_xact_lock(hashtextextended($1,0))", [request_id])
+
+          result = explicit_admission(subject, selector, name, mapping, request_id)
+          commit_admission_result(result, subject, name, mapping, request_id)
+        end)
+        |> normalize_admission_result()
+
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
+  defp explicit_admission(subject, selector, name, mapping, request_id) do
+    case Repo.get(FootballMarket.Quotes.CalculationRequest, request_id) do
+      %FootballMarket.Quotes.CalculationRequest{} = existing ->
+        if explicit_request_matches?(existing, subject, name, mapping.id),
+          do: retained_explicit(existing) || load_explicit_facts(existing),
+          else: {:error, :request_conflict}
+
+      nil ->
+        admit_new_explicit(subject, selector, name, mapping, request_id)
+    end
+  end
+
+  defp commit_admission_result({:ok, request, facts}, _subject, _name, _mapping, _request_id),
+    do: {:ok, request, facts}
+
+  # A missing/unsupported selection is a durable terminal admission outcome
+  # (FR-007/contracts/calculation.md): commit its row instead of rolling the
+  # whole admission back into invisible non-existence.
+  defp commit_admission_result(
+         {:error, :configuration_unavailable} = failure,
+         subject,
+         name,
+         mapping,
+         request_id
+       ) do
+    record_admission_failure!(subject, name, mapping.id, request_id, "configuration_unavailable")
+    failure
+  end
+
+  defp commit_admission_result({:error, reason}, _subject, _name, _mapping, _request_id),
+    do: Repo.rollback(reason)
+
+  defp normalize_admission_result(result) do
+    case result do
+      {:ok, {:ok, request, facts}} -> {:ok, request, facts}
+      {:ok, {:error, :configuration_unavailable}} -> {:error, :configuration_unavailable}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  # Persists the contract-whitelisted terminal admission failure so the request
+  # identity remains observable after the caller returns.
+  defp record_admission_failure!(subject, selector_name, mapping_id, request_id, reason) do
+    persisted_mapping =
+      if is_binary(mapping_id) and
+           Repo.exists?(from m in FootballMarket.Quotes.Mapping, where: m.id == ^mapping_id) do
+        mapping_id
+      else
+        nil
+      end
+
+    Repo.insert!(%FootballMarket.Quotes.CalculationRequest{
+      id: request_id,
+      source: "explicit",
+      player_id: subject.player_id,
+      season_id: subject.season_id,
+      week_start: subject.week_start,
+      week_end: subject.week_end,
+      selector: selector_name,
+      mapping_id: persisted_mapping,
+      state: "validation_failed",
+      reason: reason,
+      inserted_at: Store.database_now!()
+    })
   end
 
   defp admit_new_explicit(subject, selector, selector_name, mapping, request_id) do
@@ -132,10 +308,14 @@ defmodule FootballMarket.Quotes do
   defp resolve_selector(_), do: {:error, :invalid_selector}
 
   defp explicit_request_matches?(request, subject, selector, mapping_id) do
+    explicit_request_scope_matches?(request, subject, selector) and
+      request.mapping_id == mapping_id
+  end
+
+  defp explicit_request_scope_matches?(request, subject, selector) do
     request.source == "explicit" and request.player_id == subject.player_id and
       request.season_id == subject.season_id and request.week_start == subject.week_start and
-      request.week_end == subject.week_end and request.selector == selector and
-      request.mapping_id == mapping_id
+      request.week_end == subject.week_end and request.selector == selector
   end
 
   defp load_explicit_facts(%{explicit_fact_material: %{"facts" => facts}} = request) do
@@ -151,6 +331,17 @@ defmodule FootballMarket.Quotes do
   end
 
   defp load_explicit_facts(_), do: {:error, :unreproducible}
+
+  # FR-010: repeating identical inputs is a retry of the retained logical
+  # calculation. A retained TERMINAL admission outcome re-returns itself
+  # unchanged instead of claiming `unreproducible` for missing history.
+  defp retained_explicit(%FootballMarket.Quotes.CalculationRequest{state: state, reason: reason})
+       when state in ~w(successful no_quote validation_failed unsupported_strategy exhausted) and
+              reason in ~w(configuration_unavailable mapping_unavailable unsupported_strategy) do
+    {:error, String.to_atom(reason)}
+  end
+
+  defp retained_explicit(_), do: nil
 
   def request_membership(subject_week, selector, mapping_id, facts, request_id, lease \\ nil) do
     with {:ok, subject} <- Valuation.Request.subject_week(subject_week),
@@ -270,66 +461,82 @@ defmodule FootballMarket.Quotes do
         )
 
       now = Store.database_now!()
-
-      cond do
-        is_nil(req) ->
-          Repo.rollback(:not_found)
-
-        req.state in [
-          "successful",
-          "no_quote",
-          "validation_failed",
-          "unsupported_strategy",
-          "unreproducible",
-          "exhausted"
-        ] ->
-          :not_due
-
-        req.state == "running" and not is_nil(req.lease_until) and
-            DateTime.compare(req.lease_until, now) == :gt ->
-          :not_due
-
-        req.state == "retrying" and not is_nil(req.next_attempt_at) and
-            DateTime.compare(req.next_attempt_at, now) == :gt ->
-          :not_due
-
-        req.attempt_count >= 3 ->
-          if req.state == "running" and is_nil(req.lease_until) == false,
-            do: record_attempt!(req, "interrupted", "worker_interrupted", now)
-
-          Repo.update!(
-            Ecto.Changeset.change(req,
-              state: "exhausted",
-              reason: "retry_exhausted",
-              lease_until: nil
-            )
-          )
-
-          :not_due
-
-        true ->
-          if req.state == "running" and req.attempt_count > 0,
-            do: record_attempt!(req, "interrupted", "worker_interrupted", now)
-
-          next =
-            req
-            |> Ecto.Changeset.change(
-              state: "running",
-              attempt_count: req.attempt_count + 1,
-              lease_fence: req.lease_fence + 1,
-              lease_until: DateTime.add(now, 300, :second),
-              next_attempt_at: nil
-            )
-            |> Repo.update!()
-
-          {:claimed, next, next.lease_fence}
-      end
+      claim_import_locked(req, now)
     end)
     |> case do
       {:ok, {:claimed, req, fence}} -> {:ok, req, fence}
       {:ok, :not_due} -> :not_due
       {:error, reason} -> {:error, reason}
     end
+  end
+
+  defp claim_import_locked(nil, _now), do: Repo.rollback(:not_found)
+
+  defp claim_import_locked(%{state: state}, _now)
+       when state in [
+              "successful",
+              "no_quote",
+              "validation_failed",
+              "unsupported_strategy",
+              "unreproducible",
+              "exhausted"
+            ],
+       do: :not_due
+
+  defp claim_import_locked(req, now) do
+    cond do
+      import_request_not_due?(req, now) ->
+        :not_due
+
+      req.attempt_count >= 3 ->
+        exhaust_import_request(req, now)
+
+      true ->
+        reserve_import_attempt(req, now)
+    end
+  end
+
+  defp import_request_not_due?(%{state: "running", lease_until: until_time}, now)
+       when not is_nil(until_time),
+       do: DateTime.compare(until_time, now) == :gt
+
+  defp import_request_not_due?(%{state: "retrying", next_attempt_at: next_time}, now)
+       when not is_nil(next_time),
+       do: DateTime.compare(next_time, now) == :gt
+
+  defp import_request_not_due?(_req, _now), do: false
+
+  defp exhaust_import_request(req, now) do
+    if req.state == "running" and not is_nil(req.lease_until),
+      do: record_attempt!(req, "interrupted", "worker_interrupted", now)
+
+    Repo.update!(
+      Ecto.Changeset.change(req,
+        state: "exhausted",
+        reason: "retry_exhausted",
+        lease_until: nil
+      )
+    )
+
+    :not_due
+  end
+
+  defp reserve_import_attempt(req, now) do
+    if req.state == "running" and req.attempt_count > 0,
+      do: record_attempt!(req, "interrupted", "worker_interrupted", now)
+
+    next =
+      req
+      |> Ecto.Changeset.change(
+        state: "running",
+        attempt_count: req.attempt_count + 1,
+        lease_fence: req.lease_fence + 1,
+        lease_until: DateTime.add(now, 300, :second),
+        next_attempt_at: nil
+      )
+      |> Repo.update!()
+
+    {:claimed, next, next.lease_fence}
   end
 
   defp finish_request(req, status, reason, calculation_id, fence) do
@@ -372,34 +579,40 @@ defmodule FootballMarket.Quotes do
             lock: "FOR UPDATE"
         )
 
-      if current && current.state == "running" && current.lease_fence == fence do
-        now = Store.database_now!()
-        exhausted = current.attempt_count >= 3
-        wait = Enum.at([60, 300], current.attempt_count - 1, 300)
-
-        record_attempt!(
-          current,
-          if(exhausted, do: "exhausted", else: "retryable"),
-          if(exhausted, do: "retry_exhausted", else: "temporarily_unavailable"),
-          now
-        )
-
-        Repo.update!(
-          Ecto.Changeset.change(current,
-            state: if(exhausted, do: "exhausted", else: "retrying"),
-            reason: if(exhausted, do: "retry_exhausted", else: "temporarily_unavailable"),
-            next_attempt_at: if(exhausted, do: nil, else: DateTime.add(now, wait, :second)),
-            lease_until: nil
-          )
-        )
-      else
-        Repo.rollback(:stale_fence)
-      end
+      retry_locked_request(current, fence)
     end)
     |> case do
       {:ok, _} -> :ok
       _ -> {:error, :stale_worker}
     end
+  end
+
+  defp retry_locked_request(%{state: "running", lease_fence: fence} = request, fence),
+    do: persist_retry_transition(request)
+
+  defp retry_locked_request(_request, _fence), do: Repo.rollback(:stale_fence)
+
+  defp persist_retry_transition(request) do
+    now = Store.database_now!()
+    {state, status, reason, next_attempt_at} = retry_transition(request, now)
+    record_attempt!(request, status, reason, now)
+
+    Repo.update!(
+      Ecto.Changeset.change(request,
+        state: state,
+        reason: reason,
+        next_attempt_at: next_attempt_at,
+        lease_until: nil
+      )
+    )
+  end
+
+  defp retry_transition(%{attempt_count: attempts}, _now) when attempts >= 3,
+    do: {"exhausted", "exhausted", "retry_exhausted", nil}
+
+  defp retry_transition(%{attempt_count: attempts}, now) do
+    wait = Enum.at([60, 300], attempts - 1, 300)
+    {"retrying", "retryable", "temporarily_unavailable", DateTime.add(now, wait, :second)}
   end
 
   defp record_attempt!(req, status, reason, now) do
@@ -442,19 +655,21 @@ defmodule FootballMarket.Quotes do
   end
 
   def list_history(player_id) do
-    with {:ok, player_id} <- Ecto.UUID.cast(player_id) do
-      {:ok,
-       Repo.all(
-         from q in Quote,
-           where: q.player_id == ^player_id,
-           order_by: [
-             asc: fragment("COALESCE(?, 0)", q.performance_sequence),
-             asc: q.inserted_at,
-             asc: q.id
-           ]
-       )}
-    else
-      _ -> {:error, :invalid_player}
+    case Ecto.UUID.cast(player_id) do
+      {:ok, id} ->
+        {:ok,
+         Repo.all(
+           from q in Quote,
+             where: q.player_id == ^id,
+             order_by: [
+               asc: fragment("COALESCE(?, 0)", q.performance_sequence),
+               asc: q.inserted_at,
+               asc: q.id
+             ]
+         )}
+
+      _ ->
+        {:error, :invalid_player}
     end
   rescue
     _ -> {:error, :temporarily_unavailable}
@@ -500,51 +715,68 @@ defmodule FootballMarket.Quotes do
     do: FootballMarket.Quotes.Recovery.acknowledge_evaluation(event_id, fence, consumer_receipt)
 
   def replay(calculation_id) do
-    with {:ok, calculation} <- get_calculation(calculation_id),
-         {:ok, facts} <-
-           FootballMarket.Quotes.EvidenceCodec.decode_facts(calculation.evidence["facts"]),
-         {:ok, mapping} <- Mappings.get(calculation.mapping_id),
-         :ok <- evidence_mapping(calculation, mapping),
-         subject = %{
-           player_id: calculation.player_id,
-           season_id: calculation.season_id,
-           week_start: calculation.week_start,
-           week_end: calculation.week_end
-         } do
-      case Valuation.evaluate_managed_membership(
-             subject,
-             {:version, calculation.configuration_version_id},
-             facts
-           ) do
-        {:ok, managed} ->
-          with {:ok, result} <- outcome(managed.score, mapping.scale),
-               :ok <- same_result(calculation, result.score, result) do
-            {:ok, %{calculation: calculation, score: result.score, outcome: result}}
-          end
-
-        {:error, %Valuation.Error{} = error} ->
-          with {:ok, status, reason} <- safe_failure(error),
-               true <-
-                 calculation.status == status and calculation.reason == reason and
-                   is_nil(calculation.score) do
-            {:ok,
-             %{
-               calculation: calculation,
-               score: nil,
-               outcome: %{status: status, reason: reason, price: nil}
-             }}
-          else
-            _ -> {:error, :unreproducible}
-          end
-
-        _ ->
-          {:error, :unreproducible}
-      end
-    else
-      {:error, _} -> {:error, :unreproducible}
+    case get_calculation(calculation_id) do
+      {:ok, calculation} -> replay_calculation(calculation)
+      _ -> {:error, :unreproducible}
     end
   rescue
     _ -> {:error, :unreproducible}
+  end
+
+  defp replay_calculation(calculation) do
+    subject = %{
+      player_id: calculation.player_id,
+      season_id: calculation.season_id,
+      week_start: calculation.week_start,
+      week_end: calculation.week_end
+    }
+
+    with {:ok, facts} <-
+           FootballMarket.Quotes.EvidenceCodec.decode_facts(calculation.evidence["facts"]),
+         {:ok, mapping} <- Mappings.get(calculation.mapping_id),
+         :ok <- evidence_mapping(calculation, mapping) do
+      replay_evidence(calculation, subject, facts, mapping)
+    else
+      _ -> {:error, :unreproducible}
+    end
+  end
+
+  defp replay_evidence(calculation, subject, facts, mapping) do
+    case Valuation.evaluate_managed_membership(
+           subject,
+           {:version, calculation.configuration_version_id},
+           facts
+         ) do
+      {:ok, managed} -> replay_success(calculation, managed, mapping)
+      {:error, %Valuation.Error{} = error} -> replay_failure(calculation, error)
+      _ -> {:error, :unreproducible}
+    end
+  end
+
+  defp replay_success(calculation, managed, mapping) do
+    with {:ok, result} <- outcome(managed.score, mapping.scale),
+         :ok <- same_result(calculation, result.score, result) do
+      {:ok, %{calculation: calculation, score: result.score, outcome: result}}
+    else
+      _ -> {:error, :unreproducible}
+    end
+  end
+
+  defp replay_failure(calculation, error) do
+    case safe_failure(error) do
+      {:ok, status, reason}
+      when calculation.status == status and calculation.reason == reason and
+             is_nil(calculation.score) ->
+        {:ok,
+         %{
+           calculation: calculation,
+           score: nil,
+           outcome: %{status: status, reason: reason, price: nil}
+         }}
+
+      _ ->
+        {:error, :unreproducible}
+    end
   end
 
   defp evidence_mapping(calculation, mapping) do
@@ -606,19 +838,17 @@ defmodule FootballMarket.Quotes do
 
       {:error, %Valuation.Error{} = error} ->
         with {:ok, configuration_id} <- configuration_id(selector),
-             {:ok, status, reason} <- safe_failure(error),
-             do:
-               persist_no_score(
-                 subject,
-                 player,
-                 configuration_id,
-                 mapping,
-                 request_id,
-                 facts,
-                 status,
-                 reason,
-                 lease
-               )
+             {:ok, status, reason} <- safe_failure(error) do
+          persist_no_score(subject, player, %{
+            configuration_id: configuration_id,
+            mapping: mapping,
+            request_id: request_id,
+            facts: facts,
+            status: status,
+            reason: reason,
+            lease: lease
+          })
+        end
 
       _ ->
         {:error, :calculation_unavailable}
@@ -666,49 +896,78 @@ defmodule FootballMarket.Quotes do
 
     reject_nested_confirmation!()
 
-    Repo.transaction(fn ->
-      Store.lock_player!(player.id)
-      ensure_confirmation_lease!(lease)
+    context = %{
+      identity: identity,
+      subject: subject,
+      player: player,
+      managed: managed,
+      mapping: mapping,
+      request_id: request_id,
+      outcome: outcome,
+      lease: lease,
+      version_id: version_id,
+      ids: ids
+    }
 
-      case Repo.one(from c in Calculation, where: c.canonical_identity == ^identity) do
-        %Calculation{} = existing ->
-          existing
+    Repo.transaction(fn -> persist_calculation(context) end)
+    |> persist_result(request_id)
+  end
 
-        nil ->
-          now = Store.database_now!()
+  defp persist_calculation(context) do
+    Store.lock_player!(context.player.id)
+    ensure_confirmation_lease!(context.lease)
 
-          calc = %Calculation{
-            id: Ecto.UUID.generate(),
-            player_id: player.id,
-            season_id: subject.season_id,
-            week_start: subject.week_start,
-            week_end: subject.week_end,
-            configuration_version_id: version_id,
-            mapping_id: mapping.id,
-            membership: ids,
-            status: outcome.status,
-            reason: outcome.reason,
-            score: outcome.score,
-            unit_price: outcome.price,
-            effective_at: if(outcome.status == "successful", do: now),
-            canonical_identity: identity,
-            evidence: evidence(managed, mapping, outcome.score),
-            inserted_at: now
-          }
-
-          Repo.insert!(calc)
-
-          if outcome.status == "successful",
-            do: Store.confirm!(calc, player, managed, mapping, outcome.price, now)
-
-          calc
-      end
-    end)
-    |> case do
-      {:ok, calc} -> {:ok, %{request_id: request_id, calculation: calc}}
-      {:error, error} -> {:error, error}
+    case Repo.one(from c in Calculation, where: c.canonical_identity == ^context.identity) do
+      %Calculation{} = existing -> existing
+      nil -> insert_calculation(context)
     end
   end
+
+  defp insert_calculation(context) do
+    now = Store.database_now!()
+    outcome = context.outcome
+
+    calculation = %Calculation{
+      id: Ecto.UUID.generate(),
+      player_id: context.player.id,
+      season_id: context.subject.season_id,
+      week_start: context.subject.week_start,
+      week_end: context.subject.week_end,
+      configuration_version_id: context.version_id,
+      mapping_id: context.mapping.id,
+      membership: context.ids,
+      status: outcome.status,
+      reason: outcome.reason,
+      score: outcome.score,
+      unit_price: outcome.price,
+      effective_at: if(outcome.status == "successful", do: now),
+      canonical_identity: context.identity,
+      evidence: evidence(context.managed, context.mapping, outcome.score),
+      inserted_at: now
+    }
+
+    Repo.insert!(calculation)
+    confirm_successful_calculation(calculation, context, now)
+    calculation
+  end
+
+  defp confirm_successful_calculation(%{status: "successful"} = calculation, context, now) do
+    Store.confirm!(
+      calculation,
+      context.player,
+      context.managed,
+      context.mapping,
+      context.outcome.price,
+      now
+    )
+  end
+
+  defp confirm_successful_calculation(_calculation, _context, _now), do: :ok
+
+  defp persist_result({:ok, calculation}, request_id),
+    do: {:ok, %{request_id: request_id, calculation: calculation}}
+
+  defp persist_result({:error, error}, _request_id), do: {:error, error}
 
   defp reject_nested_confirmation! do
     if Repo.in_transaction?(), do: raise(ArgumentError, "caller transaction not allowed")
@@ -734,85 +993,97 @@ defmodule FootballMarket.Quotes do
     end
   end
 
-  defp persist_no_score(
-         subject,
-         player,
-         configuration_id,
-         mapping,
-         request_id,
-         facts,
-         status,
-         reason,
-         lease
-       ) do
+  defp persist_no_score(subject, player, attributes) do
     reject_nested_confirmation!()
 
-    with {:ok, %{version: version}} <- Valuation.Configurations.get(configuration_id) do
-      membership = Enum.map(facts, & &1.performance_id)
+    case Valuation.Configurations.get(attributes.configuration_id) do
+      {:ok, %{version: version}} ->
+        persist_no_score_version(subject, player, attributes, version)
 
-      identity = %{
-        "player_id" => player.id,
-        "season_id" => subject.season_id,
-        "week_start" => DateTime.to_iso8601(subject.week_start),
-        "week_end" => DateTime.to_iso8601(subject.week_end),
-        "membership" => membership,
-        "configuration_version_id" => version.id,
-        "mapping_id" => mapping.id
-      }
-
-      Repo.transaction(fn ->
-        Store.lock_player!(player.id)
-        ensure_confirmation_lease!(lease)
-
-        case Repo.one(from c in Calculation, where: c.canonical_identity == ^identity) do
-          %Calculation{} = existing ->
-            existing
-
-          nil ->
-            now = Store.database_now!()
-
-            calculation = %Calculation{
-              id: Ecto.UUID.generate(),
-              player_id: player.id,
-              season_id: subject.season_id,
-              week_start: subject.week_start,
-              week_end: subject.week_end,
-              configuration_version_id: version.id,
-              mapping_id: mapping.id,
-              membership: membership,
-              canonical_identity: identity,
-              status: status,
-              reason: reason,
-              score: nil,
-              unit_price: nil,
-              effective_at: now,
-              evidence: %{
-                "schema_version" => 1,
-                "configuration_version_id" => version.id,
-                "strategy_id" => version.strategy_id,
-                "formula_version" => version.formula_version,
-                "mapping_id" => mapping.id,
-                "mapping_name" => mapping.name,
-                "mapping_version" => mapping.version,
-                "scale" => Decimal.to_string(mapping.scale),
-                "rounding_rule" => mapping.rounding_rule,
-                "facts" => FootballMarket.Quotes.EvidenceCodec.encode_facts(facts)
-              },
-              inserted_at: now
-            }
-
-            Repo.insert!(calculation)
-        end
-      end)
-      |> case do
-        {:ok, calculation} -> {:ok, %{request_id: request_id, calculation: calculation}}
-        {:error, error} -> {:error, error}
-      end
-    else
-      _ -> {:error, :configuration_unavailable}
+      _ ->
+        {:error, :configuration_unavailable}
     end
   rescue
     _ -> {:error, :temporarily_unavailable}
+  end
+
+  defp persist_no_score_version(subject, player, attributes, version) do
+    membership = Enum.map(attributes.facts, & &1.performance_id)
+
+    identity = %{
+      "player_id" => player.id,
+      "season_id" => subject.season_id,
+      "week_start" => DateTime.to_iso8601(subject.week_start),
+      "week_end" => DateTime.to_iso8601(subject.week_end),
+      "membership" => membership,
+      "configuration_version_id" => version.id,
+      "mapping_id" => attributes.mapping.id
+    }
+
+    context = %{
+      identity: identity,
+      subject: subject,
+      player: player,
+      attributes: attributes,
+      version: version,
+      membership: membership
+    }
+
+    Repo.transaction(fn -> persist_no_score_calculation(context) end)
+    |> persist_result(attributes.request_id)
+  end
+
+  defp persist_no_score_calculation(context) do
+    Store.lock_player!(context.player.id)
+    ensure_confirmation_lease!(context.attributes.lease)
+
+    case Repo.one(from c in Calculation, where: c.canonical_identity == ^context.identity) do
+      %Calculation{} = existing -> existing
+      nil -> insert_no_score_calculation(context)
+    end
+  end
+
+  defp insert_no_score_calculation(context) do
+    now = Store.database_now!()
+    attributes = context.attributes
+    mapping = attributes.mapping
+    version = context.version
+
+    calculation = %Calculation{
+      id: Ecto.UUID.generate(),
+      player_id: context.player.id,
+      season_id: context.subject.season_id,
+      week_start: context.subject.week_start,
+      week_end: context.subject.week_end,
+      configuration_version_id: version.id,
+      mapping_id: mapping.id,
+      membership: context.membership,
+      canonical_identity: context.identity,
+      status: attributes.status,
+      reason: attributes.reason,
+      score: nil,
+      unit_price: nil,
+      effective_at: now,
+      evidence: no_score_evidence(attributes.facts, version, mapping),
+      inserted_at: now
+    }
+
+    Repo.insert!(calculation)
+  end
+
+  defp no_score_evidence(facts, version, mapping) do
+    %{
+      "schema_version" => 1,
+      "configuration_version_id" => version.id,
+      "strategy_id" => version.strategy_id,
+      "formula_version" => version.formula_version,
+      "mapping_id" => mapping.id,
+      "mapping_name" => mapping.name,
+      "mapping_version" => mapping.version,
+      "scale" => Decimal.to_string(mapping.scale),
+      "rounding_rule" => mapping.rounding_rule,
+      "facts" => FootballMarket.Quotes.EvidenceCodec.encode_facts(facts)
+    }
   end
 
   defp evidence(managed, mapping, score) do

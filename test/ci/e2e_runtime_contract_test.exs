@@ -55,7 +55,7 @@ defmodule FootballMarket.E2E.RuntimeContractTest do
 
   test "runtime configuration uses real consumers and isolated normal SQL pool" do
     schema = Runtime.schema()
-    config = Runtime.configuration(schema, 43210)
+    config = Runtime.configuration(schema, 43_210)
     assert config.repo[:pool] == DBConnection.ConnectionPool
     assert config.repo[:parameters] == [search_path: schema]
     assert config.oban[:prefix] == schema

@@ -42,16 +42,14 @@ defmodule FootballMarket.Quotes.Conversion do
     n = coef * sign
     cent_exp = exp + 2
 
-    cond do
-      cent_exp >= 0 ->
-        n * Integer.pow(10, cent_exp)
-
-      true ->
-        divisor = Integer.pow(10, -cent_exp)
-        whole = div(abs(n), divisor)
-        remainder = rem(abs(n), divisor)
-        rounded = if remainder * 2 >= divisor, do: whole + 1, else: whole
-        if n < 0, do: -rounded, else: rounded
+    if cent_exp >= 0 do
+      n * Integer.pow(10, cent_exp)
+    else
+      divisor = Integer.pow(10, -cent_exp)
+      whole = div(abs(n), divisor)
+      remainder = rem(abs(n), divisor)
+      rounded = if remainder * 2 >= divisor, do: whole + 1, else: whole
+      if n < 0, do: -rounded, else: rounded
     end
   end
 end

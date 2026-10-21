@@ -18,32 +18,7 @@ defmodule FootballMarket.Catalog.Ingestion.Reconciler do
 
     validated =
       Enum.map(entries, fn {entry, type} ->
-        fields =
-          [:provider, :league_code, :start_year, :end_year, :kind, :source_id] ++
-            if(type == :mapping, do: [:target_id], else: [])
-
-        if not is_map(entry) or is_struct(entry) or
-             Enum.sort(Map.keys(entry)) != Enum.sort(fields),
-           do: conflict(:invalid_instructions)
-
-        if entry.kind not in @kinds or (type == :new and entry.kind != :player) or
-             entry.provider != result.provenance.provider or
-             Map.take(entry, [:league_code, :start_year, :end_year]) != result.scope,
-           do: conflict(:invalid_instructions)
-
-        k = {entry.kind, entry.source_id}
-        if not Map.has_key?(incoming, k), do: conflict(:invalid_instructions)
-        bound = Map.get(existing, {entry.provider, entry.kind, entry.source_id})
-
-        target =
-          if type == :mapping,
-            do: instruction_target(entry, scope || legacy_scope(result.scope)),
-            else: :new
-
-        if bound && (type == :new or target.id != target_id(bound)),
-          do: conflict(:contradictory_binding)
-
-        {k, {type, target}}
+        validate_instruction(entry, type, result, scope, incoming, existing)
       end)
 
     if length(validated) != length(Enum.uniq_by(validated, &elem(&1, 0))),
@@ -87,13 +62,7 @@ defmodule FootballMarket.Catalog.Ingestion.Reconciler do
 
     target = Repo.get(module, entry.target_id)
 
-    valid =
-      target &&
-        case entry.kind do
-          :league -> target.id == scope.league_id
-          :season -> target.id == scope.season_id
-          _ -> target.season_id == scope.season_id
-        end
+    valid = target && target_in_scope?(entry.kind, target, scope)
 
     if not valid, do: conflict(:invalid_target)
     target
@@ -137,19 +106,15 @@ defmodule FootballMarket.Catalog.Ingestion.Reconciler do
 
     {team_targets, team_ops, counts} =
       Enum.reduce(result.facts.teams, {%{}, [], counts}, fn fact, {targets, ops, counts} ->
-        binding = Map.fetch!(binding_refs, {:team, fact.ref})
-
-        target =
-          resolve_bound(binding, existing, teams) ||
-            fresh_instruction(instructions, binding, teams)
-
-        target = target || adopt_team(teams, fact)
-        row = target || %Team{id: Ecto.UUID.generate(), season_id: season.id}
-        attrs = %{season_id: season.id, code: fact.code, name: fact.name}
-        {operation, state} = operation(row, attrs, Team.changeset(row, attrs))
-
-        {Map.put(targets, fact.ref, row.id), [{row, attrs, operation} | ops],
-         increment(counts, "team", state)}
+        reconcile_team(
+          fact,
+          {targets, ops, counts},
+          binding_refs,
+          existing,
+          teams,
+          instructions,
+          season
+        )
       end)
 
     final_teams = replace_final(teams, team_ops)
@@ -158,57 +123,12 @@ defmodule FootballMarket.Catalog.Ingestion.Reconciler do
 
     {player_targets, player_ops, counts} =
       Enum.reduce(result.facts.players, {%{}, [], counts}, fn fact, {targets, ops, counts} ->
-        binding = Map.fetch!(binding_refs, {:player, fact.ref})
-
-        target =
-          resolve_bound(binding, existing, players) ||
-            fresh_instruction(instructions, binding, players)
-
-        declaration = Map.get(instructions, {:player, binding.source_id}) == {:new, :new}
-
-        if is_nil(target) and replacements and not declaration,
-          do: conflict(:source_replacement_requires_mapping)
-
-        if is_nil(target) and
-             Enum.any?(
-               players,
-               &(normalize(&1.display_name) == normalize(fact.display_name) and
-                   &1.id not in bound_player_ids)
-             ),
-           do: conflict(:unbound_player_identity)
-
-        row =
-          target ||
-            %Player{
-              id: Ecto.UUID.generate(),
-              catalog_identity: Ecto.UUID.generate(),
-              season_id: season.id
-            }
-
-        code = Map.fetch!(roles, fact.position_ref)
-        position = Map.get(positions, code)
-        if is_nil(position), do: conflict(:invalid_position)
-
-        attrs = %{
-          team_id: Map.fetch!(team_targets, fact.team_ref),
-          position_id: position.id,
-          display_name: fact.display_name
-        }
-
-        cs =
-          if row.__meta__.state == :built,
-            do:
-              Player.create_changeset(
-                row,
-                Map.put(attrs, :catalog_identity, row.catalog_identity),
-                season.id
-              ),
-            else: Player.update_changeset(row, attrs, season.id)
-
-        {operation, state} = operation(row, attrs, cs)
-
-        {Map.put(targets, fact.ref, row.id), [{row, attrs, operation} | ops],
-         increment(counts, "player", state)}
+        reconcile_player(
+          fact,
+          {targets, ops, counts},
+          {binding_refs, existing, players, instructions, replacements, bound_player_ids, season,
+           roles, positions, team_targets}
+        )
       end)
 
     targets = %{
@@ -226,16 +146,7 @@ defmodule FootballMarket.Catalog.Ingestion.Reconciler do
 
     incoming =
       Enum.map(result.provenance.bindings, fn b ->
-        id = Map.fetch!(targets, {b.kind, b.ref})
-        bound = Map.get(existing, {b.provider, b.kind, b.source_id})
-        if bound && target_id(bound) != id, do: conflict(:contradictory_binding)
-
-        if Enum.any?(existing, fn {{p, k, s}, old} ->
-             p == b.provider and k == b.kind and s != b.source_id and target_id(old) == id
-           end),
-           do: conflict(:collapsing_bindings)
-
-        {b, id, bound}
+        reconcile_binding(b, targets, existing)
       end)
 
     unique!(incoming, fn {b, id, _} -> {b.provider, b.kind, id} end)
@@ -326,4 +237,161 @@ defmodule FootballMarket.Catalog.Ingestion.Reconciler do
       )
 
   def failure(status, scope, reason), do: Outcome.failure(status, scope, reason)
+
+  defp validate_instruction(entry, type, result, scope, incoming, existing) do
+    validate_instruction_shape!(entry, type, result)
+
+    k = {entry.kind, entry.source_id}
+    if not Map.has_key?(incoming, k), do: conflict(:invalid_instructions)
+    bound = Map.get(existing, {entry.provider, entry.kind, entry.source_id})
+
+    target =
+      if type == :mapping,
+        do: instruction_target(entry, scope || legacy_scope(result.scope)),
+        else: :new
+
+    if bound && (type == :new or target.id != target_id(bound)),
+      do: conflict(:contradictory_binding)
+
+    {k, {type, target}}
+  end
+
+  defp validate_instruction_shape!(entry, type, result) do
+    fields =
+      [:provider, :league_code, :start_year, :end_year, :kind, :source_id] ++
+        if(type == :mapping, do: [:target_id], else: [])
+
+    if not is_map(entry) or is_struct(entry) or
+         Enum.sort(Map.keys(entry)) != Enum.sort(fields),
+       do: conflict(:invalid_instructions)
+
+    validate_instruction_identity!(entry, type, result)
+  end
+
+  defp validate_instruction_identity!(entry, type, result) do
+    if entry.kind not in @kinds or (type == :new and entry.kind != :player) or
+         entry.provider != result.provenance.provider or
+         Map.take(entry, [:league_code, :start_year, :end_year]) != result.scope,
+       do: conflict(:invalid_instructions)
+  end
+
+  defp reconcile_team(
+         fact,
+         {targets, ops, counts},
+         binding_refs,
+         existing,
+         teams,
+         instructions,
+         season
+       ) do
+    binding = Map.fetch!(binding_refs, {:team, fact.ref})
+
+    target =
+      resolve_bound(binding, existing, teams) ||
+        fresh_instruction(instructions, binding, teams)
+
+    target = target || adopt_team(teams, fact)
+    row = target || %Team{id: Ecto.UUID.generate(), season_id: season.id}
+    attrs = %{season_id: season.id, code: fact.code, name: fact.name}
+    {operation, state} = operation(row, attrs, Team.changeset(row, attrs))
+
+    {Map.put(targets, fact.ref, row.id), [{row, attrs, operation} | ops],
+     increment(counts, "team", state)}
+  end
+
+  defp reconcile_player(
+         fact,
+         {targets, ops, counts},
+         {binding_refs, existing, players, instructions, replacements, bound_player_ids, season,
+          roles, positions, team_targets}
+       ) do
+    binding = Map.fetch!(binding_refs, {:player, fact.ref})
+
+    target =
+      resolve_bound(binding, existing, players) ||
+        fresh_instruction(instructions, binding, players)
+
+    validate_player_identity!(
+      target,
+      replacements,
+      instructions,
+      binding,
+      players,
+      fact,
+      bound_player_ids
+    )
+
+    row =
+      target ||
+        %Player{
+          id: Ecto.UUID.generate(),
+          catalog_identity: Ecto.UUID.generate(),
+          season_id: season.id
+        }
+
+    code = Map.fetch!(roles, fact.position_ref)
+    position = Map.get(positions, code)
+    if is_nil(position), do: conflict(:invalid_position)
+
+    attrs = %{
+      team_id: Map.fetch!(team_targets, fact.team_ref),
+      position_id: position.id,
+      display_name: fact.display_name
+    }
+
+    cs =
+      if row.__meta__.state == :built,
+        do:
+          Player.create_changeset(
+            row,
+            Map.put(attrs, :catalog_identity, row.catalog_identity),
+            season.id
+          ),
+        else: Player.update_changeset(row, attrs, season.id)
+
+    {operation, state} = operation(row, attrs, cs)
+
+    {Map.put(targets, fact.ref, row.id), [{row, attrs, operation} | ops],
+     increment(counts, "player", state)}
+  end
+
+  defp validate_player_identity!(
+         target,
+         replacements,
+         instructions,
+         binding,
+         players,
+         fact,
+         bound_player_ids
+       ) do
+    declaration = Map.get(instructions, {:player, binding.source_id}) == {:new, :new}
+
+    if is_nil(target) and replacements and not declaration,
+      do: conflict(:source_replacement_requires_mapping)
+
+    if is_nil(target) and
+         Enum.any?(
+           players,
+           &(normalize(&1.display_name) == normalize(fact.display_name) and
+               &1.id not in bound_player_ids)
+         ),
+       do: conflict(:unbound_player_identity)
+  end
+
+  defp reconcile_binding(b, targets, existing) do
+    id = Map.fetch!(targets, {b.kind, b.ref})
+    bound = Map.get(existing, {b.provider, b.kind, b.source_id})
+    if bound && target_id(bound) != id, do: conflict(:contradictory_binding)
+
+    if Enum.any?(existing, fn {{p, k, s}, old} ->
+         p == b.provider and k == b.kind and s != b.source_id and target_id(old) == id
+       end),
+       do: conflict(:collapsing_bindings)
+
+    {b, id, bound}
+  end
+
+  defp target_in_scope?(:league, target, scope), do: target.id == scope.league_id
+  defp target_in_scope?(:season, target, scope), do: target.id == scope.season_id
+  defp target_in_scope?(_, target, scope), do: target.season_id == scope.season_id
 end

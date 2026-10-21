@@ -5,8 +5,7 @@ defmodule FootballMarket.Infrastructure.Verification do
     do: if(Enum.count(results) == 2 and Enum.all?(results, &(&1.status == :ok)), do: 0, else: 1)
 
   def render(results) do
-    results
-    |> Enum.map(fn result ->
+    Enum.map_join(results, "\n", fn result ->
       label = if result.dependency == :postgresql, do: "PostgreSQL", else: "Redis"
 
       status =
@@ -17,6 +16,5 @@ defmodule FootballMarket.Infrastructure.Verification do
 
       "#{label}: #{status} (#{result.target})"
     end)
-    |> Enum.join("\n")
   end
 end

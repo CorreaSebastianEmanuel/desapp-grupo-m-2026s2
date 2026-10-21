@@ -113,6 +113,43 @@ defmodule FootballMarket.QualityBaselineContractTest do
     refute workflow =~ "git commit"
   end
 
+  test "Credo reconciliation is mandatory and retains full evidence independently", context do
+    workflow = File.read!(@workflow)
+    [baseline, _e2e] = String.split(workflow, "\n  end-to-end:", parts: 2)
+    credo = index(baseline, "name: Credo and source inventory")
+    tests = index(baseline, "name: Unit tests")
+    upload = index(baseline, "name: Upload Credo evidence")
+
+    assert credo != nil and tests != nil and upload != nil
+    assert credo < tests
+    assert upload > tests
+    assert baseline =~ "run: sh scripts/credo_ci.sh"
+    assert baseline =~ "if: always()"
+    assert baseline =~ "actions/upload-artifact@v4"
+    assert baseline =~ "if-no-files-found: error"
+    assert baseline =~ "retention-days: 14"
+    assert baseline =~ "github.run_attempt"
+    refute baseline =~ "continue-on-error"
+    refute baseline =~ "needs: sonar"
+
+    steps = context.workflow_document["jobs"]["quality-baseline"]["steps"]
+    credo_step = Enum.find(steps, &(&1["name"] == "Credo and source inventory"))
+    upload_step = Enum.find(steps, &(&1["name"] == "Upload Credo evidence"))
+    assert credo_step["run"] == "sh scripts/credo_ci.sh"
+    assert upload_step["if"] == "always()"
+    assert upload_step["uses"] == "actions/upload-artifact@v4"
+    assert upload_step["with"]["path"] == "tmp/credo-ci/"
+    assert upload_step["with"]["retention-days"] == 14
+    assert upload_step["with"]["if-no-files-found"] == "error"
+    assert upload_step["with"]["name"] =~ "github.sha"
+    assert upload_step["with"]["name"] =~ "github.run_attempt"
+  end
+
+  defp index(contents, needle) do
+    {offset, _length} = :binary.match(contents, needle)
+    offset
+  end
+
   test "README documents prerequisites and the three locally equivalent commands" do
     readme = File.read!(@readme)
 

@@ -14,26 +14,18 @@ defmodule FootballMarket.Market.ScopeTest do
           ],
           do: allowance(path)
 
-    {changed, 0} =
-      System.cmd("git", [
-        "status",
-        "--porcelain",
-        "--untracked-files=all",
-        "--",
-        "lib",
-        "config",
-        "priv",
-        "test",
-        ".github/workflows"
-      ])
+    changed =
+      product_change_lines(["lib", "config", "priv", "test", ".github/workflows"])
 
-    for line <- String.split(changed, "\n", trim: true) do
+    quality_paths = ["config/credo_inventory.json"]
+
+    for line <- changed do
       path = String.slice(line, 3..-1//1)
 
       assert path in (paths ++
                         synchronization_paths(feature) ++
                         FootballMarket.BrowserSessionCase.shell_paths(feature) ++
-                        FootballMarket.WorkflowScope.paths(feature)) or
+                        FootballMarket.WorkflowScope.paths(feature) ++ quality_paths) or
                FootballMarket.WorkflowScope.allows_path?(feature, path),
              "outside initial issuance plan: #{line}"
     end
@@ -242,6 +234,25 @@ defmodule FootballMarket.Market.ScopeTest do
       ]
     else
       []
+    end
+  end
+
+  defp product_change_lines(paths) do
+    case System.cmd("git", ["rev-parse", "--verify", "MERGE_HEAD"]) do
+      {_merge_head, 0} ->
+        {changed, 0} = System.cmd("git", ["diff", "--name-only", "MERGE_HEAD", "--" | paths])
+
+        {untracked, 0} =
+          System.cmd("git", ["ls-files", "--others", "--exclude-standard", "--" | paths])
+
+        Enum.map(String.split(changed, "\n", trim: true), &(" M " <> &1)) ++
+          Enum.map(String.split(untracked, "\n", trim: true), &("?? " <> &1))
+
+      _ ->
+        {out, 0} =
+          System.cmd("git", ["status", "--porcelain", "--untracked-files=all", "--" | paths])
+
+        String.split(out, "\n", trim: true)
     end
   end
 

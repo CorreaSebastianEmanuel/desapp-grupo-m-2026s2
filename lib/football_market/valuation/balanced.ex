@@ -30,7 +30,7 @@ defmodule FootballMarket.Valuation.Balanced do
   def score(%FeatureView{features: %{overall: features}}, config)
       when is_map(features) and not is_struct(features) do
     with {:ok, %{overall: metrics}} <- requirements(config) do
-      if Enum.all?(metrics, fn metric -> DecimalMath.finite?(Map.get(features, metric)) end) do
+      if valid_features?(metrics, features) do
         {:ok,
          DecimalMath.weighted(
            Enum.map(metrics, &{Map.fetch!(features, &1), Map.fetch!(config.weights, &1)})
@@ -42,4 +42,7 @@ defmodule FootballMarket.Valuation.Balanced do
   end
 
   def score(_, _), do: {:error, :invalid_features}
+
+  defp valid_features?(metrics, features),
+    do: Enum.all?(metrics, fn metric -> DecimalMath.finite?(Map.get(features, metric)) end)
 end

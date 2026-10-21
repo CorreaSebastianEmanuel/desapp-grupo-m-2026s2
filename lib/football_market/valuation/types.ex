@@ -18,14 +18,17 @@ defmodule FootballMarket.Valuation.Fact do
 end
 
 defmodule FootballMarket.Valuation.ScopeInputs do
+  @moduledoc false
   defstruct [:membership, :row_count, :total_minutes, totals: %{}, features: %{}]
 end
 
 defmodule FootballMarket.Valuation.Prepared do
+  @moduledoc false
   defstruct [:request, :facts, :scopes, :descriptor]
 end
 
 defmodule FootballMarket.Valuation.Definition do
+  @moduledoc false
   defstruct [:module, :strategy_id, :version, :config]
 end
 
@@ -35,10 +38,12 @@ defmodule FootballMarket.Valuation.FeatureView do
 end
 
 defmodule FootballMarket.Valuation.ScoreResult do
+  @moduledoc false
   defstruct [:score, :prepared, :descriptor]
 end
 
 defmodule FootballMarket.Valuation.Descriptor do
+  @moduledoc false
   defstruct [
     :request,
     :facts,

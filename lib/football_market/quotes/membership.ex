@@ -117,7 +117,7 @@ defmodule FootballMarket.Quotes.Membership do
           "home_team_id" => material["home_team_id"],
           "away_team_id" => material["away_team_id"],
           "match_identity" => material["match_identity"],
-          "kickoff" => material["kickoff_at"],
+          "kickoff" => persisted_kickoff(material["kickoff_at"]),
           "minutes" => material["minutes_played"],
           "metrics" =>
             Map.new(FootballMarket.Valuation.Request.metrics(), fn metric ->
@@ -130,6 +130,36 @@ defmodule FootballMarket.Quotes.Membership do
   end
 
   def facts(_), do: {:error, :invalid_evidence}
+
+  # Snapshot materials are persisted through Postgres jsonb, which serializes
+  # the utc_datetime_usec kickoff without its UTC designator or microsecond
+  # precision; restore both so the durable replay equals the live evidence
+  # shape (live facts carry six-digit microsecond precision).
+  defp persisted_kickoff(value) when is_binary(value) do
+    base = String.replace_suffix(value, "Z", "")
+
+    zone =
+      case Regex.run(~r/([+-][0-9][0-9]:?[0-9][0-9])$/, base) do
+        [captured] -> captured
+        _ -> nil
+      end
+
+    without_zone = if zone, do: String.replace_suffix(base, zone, ""), else: base
+
+    time =
+      if String.contains?(without_zone, "."), do: without_zone, else: without_zone <> ".000000"
+
+    if from_iso8601_shape?(time),
+      do: String.replace(time, " ", "T") <> (zone || "Z"),
+      else: base
+  end
+
+  # Only normalizes the persisted shape ("date time" without zone) when it
+  # looks like an ISO ext representation; otherwise the value is returned
+  # untouched for the codec to classify.
+  defp from_iso8601_shape?(value) do
+    Regex.match?(~r/^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}(\.\d+)?$/, value)
+  end
 
   defp rows_by_ids(ids) do
     query = """

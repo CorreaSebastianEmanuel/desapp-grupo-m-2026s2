@@ -75,6 +75,9 @@ jobs:
       - name: Compile dependencies
         run: MIX_ENV=test mix deps.compile
 
+      - name: Credo and source inventory
+        run: sh scripts/credo_ci.sh
+
       - name: Formatting
         run: mix format --check-formatted
 
@@ -106,6 +109,9 @@ jobs:
       - name: Build browser assets
         run: MIX_ENV=test mix assets.build
 
+      - name: Prepare test database
+        run: MIX_ENV=test mix test.prepare
+
       - name: Unit tests
         env:
           CI_PROFILE_RECEIPTS: tmp/profile-ci
@@ -113,6 +119,15 @@ jobs:
 
       - name: Workflow behavior tests
         run: python3 scripts/test_profile_components.py verify-receipts tmp/profile-ci
+
+      - name: Upload Credo evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: credo-${{ github.sha }}-attempt-${{ github.run_attempt }}
+          path: tmp/credo-ci/
+          retention-days: 14
+          if-no-files-found: error
 
   end-to-end:
     name: End-to-end profile

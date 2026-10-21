@@ -134,12 +134,7 @@ defmodule FootballMarket.Synchronization.Input do
       instructions =
         for key <- ["mappings", "new_players"] do
           values =
-            Enum.map(material["instructions"][key], fn entry ->
-              Map.new(entry, fn {k, v} ->
-                {String.to_existing_atom(k),
-                 if(k == "kind", do: String.to_existing_atom(v), else: v)}
-              end)
-            end)
+            Enum.map(material["instructions"][key], &execution_entry/1)
 
           {String.to_existing_atom(key), values}
         end
@@ -163,40 +158,7 @@ defmodule FootballMarket.Synchronization.Input do
 
     values =
       for key <- [:mappings, :new_players], into: %{} do
-        entries = Keyword.get(options, key, [])
-        unless is_list(entries), do: throw(:invalid_instructions)
-
-        for entry <- entries do
-          fields =
-            [:provider, :league_code, :start_year, :end_year, :kind, :source_id] ++
-              if(key == :mappings, do: [:target_id], else: [])
-
-          unless is_map(entry) and not is_struct(entry) and
-                   Enum.sort(Map.keys(entry)) == Enum.sort(fields) and
-                   Map.take(entry, [:league_code, :start_year, :end_year]) == scope and
-                   entry.kind in ([:league, :season, :team, :player] ++
-                                    if(operation == :statistics and key == :mappings,
-                                      do: [:match],
-                                      else: []
-                                    )) and
-                   (key == :mappings or entry.kind == :player) and
-                   entry.provider == label and Provenance.safe_text?(entry.provider) and
-                   Provenance.safe_text?(entry.source_id) and
-                   (key != :mappings or match?({:ok, _}, Ecto.UUID.cast(entry.target_id))),
-                 do: throw(:invalid_instructions)
-        end
-
-        entries =
-          Enum.map(entries, fn entry ->
-            if key == :mappings do
-              {:ok, target} = Ecto.UUID.cast(entry.target_id)
-              Map.put(entry, :target_id, String.downcase(target))
-            else
-              entry
-            end
-          end)
-
-        {Atom.to_string(key), entries |> Enum.map(&json/1) |> Enum.sort()}
+        instruction_values(key, scope, options, operation, label)
       end
 
     entries = values["mappings"] ++ values["new_players"]
@@ -209,5 +171,60 @@ defmodule FootballMarket.Synchronization.Input do
     {:ok, values}
   catch
     :invalid_instructions -> {:error, :instructions}
+  end
+
+  defp execution_entry(entry), do: Map.new(entry, &execution_field/1)
+
+  defp execution_field({key, value}) do
+    {String.to_existing_atom(key),
+     if(key == "kind", do: String.to_existing_atom(value), else: value)}
+  end
+
+  defp instruction_values(key, scope, options, operation, label) do
+    entries = Keyword.get(options, key, [])
+    unless is_list(entries), do: throw(:invalid_instructions)
+
+    for entry <- entries do
+      fields =
+        [:provider, :league_code, :start_year, :end_year, :kind, :source_id] ++
+          if(key == :mappings, do: [:target_id], else: [])
+
+      validate_instruction!(entry, fields, scope, key, operation, label)
+    end
+
+    entries =
+      Enum.map(entries, fn entry ->
+        if key == :mappings do
+          {:ok, target} = Ecto.UUID.cast(entry.target_id)
+          Map.put(entry, :target_id, String.downcase(target))
+        else
+          entry
+        end
+      end)
+
+    {Atom.to_string(key), entries |> Enum.map(&json/1) |> Enum.sort()}
+  end
+
+  defp validate_instruction!(entry, fields, scope, key, operation, label) do
+    unless instruction_shape?(entry, fields, scope) and instruction_kind?(entry, key, operation) and
+             instruction_identity?(entry, key, label),
+           do: throw(:invalid_instructions)
+  end
+
+  defp instruction_shape?(entry, fields, scope) do
+    is_map(entry) and not is_struct(entry) and Enum.sort(Map.keys(entry)) == Enum.sort(fields) and
+      Map.take(entry, [:league_code, :start_year, :end_year]) == scope
+  end
+
+  defp instruction_kind?(entry, key, operation) do
+    entry.kind in ([:league, :season, :team, :player] ++
+                     if(operation == :statistics and key == :mappings, do: [:match], else: [])) and
+      (key == :mappings or entry.kind == :player)
+  end
+
+  defp instruction_identity?(entry, key, label) do
+    entry.provider == label and Provenance.safe_text?(entry.provider) and
+      Provenance.safe_text?(entry.source_id) and
+      (key != :mappings or match?({:ok, _}, Ecto.UUID.cast(entry.target_id)))
   end
 end

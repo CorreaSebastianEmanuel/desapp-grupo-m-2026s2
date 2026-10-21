@@ -115,19 +115,13 @@ defmodule FootballMarket.Statistics do
     transact(fn ->
       seasons =
         Enum.map(envelopes, fn envelope ->
-          match = if is_map(envelope), do: Map.get(envelope, :match) || Map.get(envelope, "match")
-          if is_map(match), do: attribute(match, :season_id)
+          envelope_season(envelope)
         end)
 
       lock_seasons!(seasons)
 
       Enum.with_index(envelopes)
-      |> Enum.reduce_while({:ok, []}, fn {envelope, index}, {:ok, results} ->
-        case batch_envelope(envelope, index) do
-          {:ok, result} -> {:cont, {:ok, [result | results]}}
-          error -> {:halt, error}
-        end
-      end)
+      |> Enum.reduce_while({:ok, []}, &record_indexed_envelope/2)
       |> case do
         {:ok, results} -> {:ok, Enum.reverse(results)}
         error -> error
@@ -137,31 +131,44 @@ defmodule FootballMarket.Statistics do
 
   def record_batch(_), do: Error.validation(:batch, :invalid_shape)
 
+  defp record_indexed_envelope({envelope, index}, {:ok, results}) do
+    case batch_envelope(envelope, index) do
+      {:ok, result} -> {:cont, {:ok, [result | results]}}
+      error -> {:halt, error}
+    end
+  end
+
   defp batch_envelope(envelope, index) do
     with {:ok, envelope} <- Input.keys(envelope, [:match, :performances]),
          :ok <- batch_shape(envelope),
          {:ok, attrs} <- Input.match(envelope.match),
          {:ok, match} <- insert_match(attrs) do
       Enum.with_index(envelope.performances)
-      |> Enum.reduce_while({:ok, []}, fn {performance, pi}, {:ok, rows} ->
-        with {:ok, attrs} <-
-               Input.keys(
-                 performance,
-                 [:player_id, :team_id, :position_id, :minutes_played] ++ Input.metrics()
-               ),
-             {:ok, attrs} <- Input.performance(Map.put(attrs, :match_id, match.id)),
-             {:ok, row} <- insert_performance(attrs) do
-          {:cont, {:ok, [row | rows]}}
-        else
-          error -> {:halt, Error.at(error, index, pi)}
-        end
-      end)
+      |> Enum.reduce_while({:ok, []}, &insert_indexed_performance(&1, &2, match, index))
       |> case do
         {:ok, rows} -> {:ok, %{match: match, performances: Enum.reverse(rows)}}
         error -> error
       end
     else
       error -> Error.at(error, index, nil)
+    end
+  end
+
+  defp insert_indexed_performance({performance, pi}, {:ok, rows}, match, index) do
+    case insert_batch_performance(performance, match) do
+      {:ok, row} -> {:cont, {:ok, [row | rows]}}
+      error -> {:halt, Error.at(error, index, pi)}
+    end
+  end
+
+  defp insert_batch_performance(performance, match) do
+    with {:ok, attrs} <-
+           Input.keys(
+             performance,
+             [:player_id, :team_id, :position_id, :minutes_played] ++ Input.metrics()
+           ),
+         {:ok, attrs} <- Input.performance(Map.put(attrs, :match_id, match.id)) do
+      insert_performance(attrs)
     end
   end
 
@@ -207,4 +214,9 @@ defmodule FootballMarket.Statistics do
     do: Map.get(map, key) || Map.get(map, Atom.to_string(key))
 
   defp attribute(_, _), do: nil
+
+  defp envelope_season(envelope) do
+    match = if is_map(envelope), do: Map.get(envelope, :match) || Map.get(envelope, "match")
+    if is_map(match), do: attribute(match, :season_id)
+  end
 end

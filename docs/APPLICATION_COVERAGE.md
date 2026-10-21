@@ -1,0 +1,15 @@
+# Application coverage reconciliation
+
+Run `python3 scripts/application_coverage.py preflight` before collection. Use the pinned BEAM and Node versions, configured PostgreSQL and Redis test services, Docker/Compose, Chromium and browser assets. Preflight builds assets, prepares the test database and reconciles the test case inventory before any profile starts.
+
+Run `python3 scripts/application_coverage.py run` to collect exactly one audited unit profile and one audited integration profile, validate their native ExUnit exports and publish a complete report under `cover/application/runs/`. Run `python3 scripts/application_coverage.py validate` to re-read the current status, source snapshot, inventory, partitions and arithmetic. A failed or interrupted attempt has no current complete report; older run directories remain historical.
+
+The denominator includes maintained first-party implementation files under `lib/`, reconciled exactly against `config/credo_inventory.json` and the role-based `config/application_coverage_inventory.json`. Tests, fixtures, test support, configuration, migrations, scripts, root tooling and archived evidence are listed as exclusions with reasons and do not affect either covered or executable lines. The aggregate counts each `(source path, line)` once and combines observations with covered status ORed across unit and integration partitions.
+
+Each successful report contains included and excluded paths, per-file and aggregate executable, covered and uncovered counts, and a two-decimal measured percentage. The run also writes `report.html` and `measurements.md`; the validator checks these against `report.json`. No minimum percentage is a gate. Coverage describes exercised native executable lines and does not establish correctness; it excludes nested BEAM execution, E2E and JavaScript.
+
+The collector does not invoke CP1 publication, change the CP1 inventory or threshold, or replace existing JavaScript coverage and quality gates. An unavailable prerequisite, incomplete profile, missing partition, invalid export, source drift or publication error fails closed with a safe category.
+
+The snapshot covers tracked and nonignored untracked execution inputs, including deletions; task checkbox and workflow status bookkeeping are normalized. Post-execution QA/review/handoff evidence is excluded. The report records the original HEAD; content identity, rather than an unchanged commit ID, determines freshness after a commit. Native line-zero compiler markers are excluded. Validation independently re-instruments the bound compiled modules and reimports each export instead of trusting normalized totals.
+
+The CLI selects `MIX_ENV=test` before checking services or building assets and requires the same Node 24 major as CI. Native validation independently recreates the compiled module baseline once, then checks every export in fresh coverage state against that baseline; it does not repeat baseline instrumentation for each partition. Use the same configured BEAM runtime flags when collecting and validating, since toolchain identity is recorded.

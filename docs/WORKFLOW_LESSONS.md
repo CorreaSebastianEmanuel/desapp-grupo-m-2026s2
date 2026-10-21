@@ -32,3 +32,18 @@ list passes the checkpoint hygiene review.
   `.agents/skills/` and exposed an outdated feedback contract (`--stage` only,
   no `--impact`) — after migrating an agent integration, remove the superseded
   mirror in the same change or point it at the canonical copy — cleanup PR
+- 2026-10-18 — Quality tooling depends on local services and hosted credentials — validate live prerequisites before final checks; report unavailable access separately from unsupported capabilities — TASK-065
+- 2026-10-18 — Child-agent socket restrictions masked real compiler diagnostics — distinguish sandbox permission failures from service failures and verify child execution access before resuming — TASK-065
+- 2026-10-18 — A new required linter exposes accumulated repository findings — assess the full finding set early and budget behavior-preserving remediation before the final verification run — TASK-065
+- 2026-10-18 — Repository-wide lint adoption grew into domain refactors — isolate existing-code remediation as an explicit prerequisite and keep integration gates unchanged — TASK-065, TASK-066
+- 2026-10-19 — Local prepared databases masked CI cold-start failure — run test.prepare before profile discovery in every CI job and verify once against an initially empty database — TASK-066
+- 2026-10-20 — A quality task combined independently deliverable analysis, coverage and external-service work while operational updates consumed feedback cycles — separate deliverables before implementation and keep routine progress in status/handoffs — TASK-065, TASK-066
+- 2026-10-20 — Lint inventories include tests and support while application coverage measures runtime code — define the metric denominator explicitly and reconcile excluded categories before implementation — TASK-065, TASK-067
+- 2026-10-20 — Manual recovery left Agentflow blocked while implementation advanced — route implementation recovery through classified feedback and resume, preserving explicit handoff deltas and independent gates — TASK-067
+- 2026-10-20 — Line-level coverage can hide a missing executed clause counter — compare complete native counter identities against fresh instrumentation, even for clauses sharing a source line — TASK-067
+- 2026-10-20 — JSON booleans compare equal to integer zero in Python — validate exact numeric types before comparing, recomputing or rendering counts — TASK-067
+- 2026-10-20 — Receipt adapters can contain nested coercible component counts — validate every linked receipt component as an exact nonnegative integer before equality or evidence use — TASK-067
+- 2026-10-20 — Partial receipt validation left audit counts and schema versions coercible — validate the complete numeric contract at the coverage boundary, derive audit counts from runner file membership, and test coherent linked evidence with real native controls — TASK-067
+- 2026-10-21 — Producer and consumer validation drifted while incomplete positive fixtures passed — reconstruct shared evidence identities from owner oracles and bracket coherent mutation matrices with genuine nonempty native controls — TASK-067
+- 2026-10-21 — Human feedback changes verification fingerprints and invalidates older receipts — finish canonical edits before the authorized round, regenerate development evidence, and stop at a concrete blocker without launching another full cycle — TASK-067
+- 2026-10-21 — A formatter failure location may refer to a dependency stack frame — preserve the case identity and distinguish observed failure from an unproven assertion or performance cause before changing code — TASK-067

@@ -1,0 +1,163 @@
+{
+  "schema_version": 1,
+  "runtime_required": false,
+  "checks": [
+    {
+      "id": "preflight",
+      "argv": [
+        "python3",
+        "scripts/application_coverage.py",
+        "preflight"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "reuse": false
+    },
+    {
+      "id": "format",
+      "argv": [
+        "mix",
+        "format",
+        "--check-formatted"
+      ]
+    },
+    {
+      "id": "compile",
+      "argv": [
+        "mix",
+        "compile",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "credo",
+      "argv": [
+        "bash",
+        "scripts/credo_ci.sh"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "openapi",
+      "argv": [
+        "node",
+        "tools/openapi/validate.mjs",
+        "priv/static/openapi.json"
+      ]
+    },
+    {
+      "id": "application-report",
+      "argv": [
+        "python3",
+        "scripts/application_coverage.py",
+        "run"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "reuse": false,
+      "expectation": "Preflight must assert pinned toolchains, Docker/Compose, configured PostgreSQL/Redis and Chromium readiness, prepare database before discovery, and build browser assets. Exactly one audited unit and integration execution must pass every registered case (including new accounting/native/failure/compatibility tests), with preserved profile receipts. Assert exact source reconciliation, explicit exclusions, every expected partition and native export, matching snapshot/receipt bindings, unique executable-line union, arithmetic and complete atomic current report/HTML/measurements agreement. Fail closed on unavailable services or any invalid evidence."
+    },
+    {
+      "id": "e2e",
+      "argv": [
+        "sh",
+        "-c",
+        "mix test.prepare && mix test.e2e"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "reuse": false,
+      "expectation": "Existing independent E2E profile must assert service/browser readiness and real browser, HTTP and worker journeys; retain existing ownership and receipts with application collection disabled."
+    }
+  ],
+  "coverage": {
+    "FR-001": [
+      "application-report"
+    ],
+    "FR-002": [
+      "application-report"
+    ],
+    "FR-003": [
+      "application-report"
+    ],
+    "FR-004": [
+      "application-report"
+    ],
+    "FR-005": [
+      "application-report"
+    ],
+    "FR-006": [
+      "application-report"
+    ],
+    "FR-007": [
+      "application-report"
+    ],
+    "FR-008": [
+      "application-report"
+    ],
+    "FR-009": [
+      "application-report"
+    ],
+    "FR-010": [
+      "application-report"
+    ],
+    "FR-011": [
+      "application-report",
+      "e2e",
+      "credo",
+      "openapi",
+      "preflight"
+    ],
+    "FR-012": [
+      "application-report",
+      "e2e",
+      "credo",
+      "openapi",
+      "preflight"
+    ],
+    "SC-001": [
+      "application-report"
+    ],
+    "SC-002": [
+      "application-report"
+    ],
+    "SC-003": [
+      "application-report"
+    ],
+    "SC-004": [
+      "application-report"
+    ],
+    "SC-005": [
+      "application-report"
+    ],
+    "SC-006": [
+      "application-report"
+    ],
+    "SC-007": [
+      "application-report",
+      "e2e",
+      "credo",
+      "openapi",
+      "preflight"
+    ],
+    "SC-008": [
+      "application-report",
+      "e2e",
+      "credo",
+      "openapi",
+      "preflight"
+    ]
+  },
+  "task_stages": {
+    "T022": "qa",
+    "T023": "review"
+  }
+}

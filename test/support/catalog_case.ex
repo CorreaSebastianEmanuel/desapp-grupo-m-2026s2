@@ -1,4 +1,5 @@
 defmodule FootballMarket.CatalogCase do
+  @moduledoc false
   def unique_code(prefix), do: "#{prefix}#{System.unique_integer([:positive])}"
 
   def league_attrs(overrides \\ %{}),

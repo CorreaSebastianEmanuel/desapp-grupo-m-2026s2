@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "runtime_required": false,
+  "checks": [
+    {
+      "id": "preflight",
+      "argv": [
+        "sh",
+        "-ec",
+        "./scripts/check_toolchain.sh\ndocker info >/dev/null\ndocker compose version >/dev/null\nnode -e 'if (Number(process.versions.node.split(\".\")[0]) !== 24) process.exit(1); const {chromium}=require(\"./tools/openapi/node_modules/playwright-core\"); chromium.launch({headless:true,args:[\"--no-sandbox\"],timeout:10000}).then(b=>b.close()).catch(()=>process.exit(1))'\nmix test.prepare\nmix infrastructure.verify\nmix assets.build\nnode tools/openapi/validate.mjs priv/static/openapi.json"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "reuse": false
+    },
+    {
+      "id": "format",
+      "argv": [
+        "sh",
+        "-ec",
+        "mix format --check-formatted\nmix format --check-formatted scripts/credo_inventory.exs"
+      ]
+    },
+    {
+      "id": "compile",
+      "argv": [
+        "mix",
+        "compile",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "inventory",
+      "argv": [
+        "python3",
+        "scripts/test_inventory.py",
+        "check"
+      ]
+    },
+    {
+      "id": "credo",
+      "argv": [
+        "sh",
+        "scripts/credo_ci.sh"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "reuse": false
+    },
+    {
+      "id": "regression",
+      "argv": [
+        "sh",
+        "scripts/ci_unit_tests.sh"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "e2e",
+      "argv": [
+        "sh",
+        "scripts/test_profile.sh",
+        "e2e"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "reuse": false
+    }
+  ],
+  "coverage": {
+    "FR-001": [
+      "regression",
+      "credo"
+    ],
+    "FR-002": [
+      "regression",
+      "credo"
+    ],
+    "FR-003": [
+      "regression",
+      "credo"
+    ],
+    "FR-004": [
+      "regression",
+      "credo"
+    ],
+    "FR-005": [
+      "regression",
+      "credo"
+    ],
+    "FR-006": [
+      "regression",
+      "credo"
+    ],
+    "FR-007": [
+      "regression",
+      "credo"
+    ],
+    "FR-008": [
+      "regression",
+      "credo"
+    ],
+    "FR-009": [
+      "regression",
+      "credo"
+    ],
+    "FR-010": [
+      "regression",
+      "credo"
+    ],
+    "FR-011": [
+      "regression",
+      "e2e"
+    ],
+    "FR-012": [
+      "regression",
+      "e2e"
+    ],
+    "SC-001": [
+      "regression",
+      "credo"
+    ],
+    "SC-002": [
+      "regression",
+      "credo"
+    ],
+    "SC-003": [
+      "regression",
+      "credo"
+    ],
+    "SC-004": [
+      "regression",
+      "credo"
+    ],
+    "SC-005": [
+      "regression",
+      "e2e"
+    ]
+  },
+  "task_stages": {
+    "T017": "qa",
+    "T018": "review"
+  }
+}

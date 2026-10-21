@@ -87,13 +87,7 @@ defmodule FootballMarket.Catalog.DevelopmentSeed do
   defp add_leagues(multi, leagues) do
     Enum.reduce(leagues, multi, fn league, acc ->
       Multi.run(acc, step(:league, league.code), fn _repo, _changes ->
-        reconcile_dual(
-          Catalog.get_league_by_code(league.code),
-          Catalog.get_league_by_name(league.name),
-          :league,
-          league.code,
-          fn -> Catalog.create_league(%{code: league.code, name: league.name}) end
-        )
+        seed_league(league)
       end)
     end)
   end
@@ -104,21 +98,7 @@ defmodule FootballMarket.Catalog.DevelopmentSeed do
       identity = season_identity(league, season)
 
       Multi.run(acc, step(:season, identity), fn _repo, changes ->
-        league_record = record!(changes, step(:league, league.code))
-
-        case Catalog.get_season(league_record.id, season.start_year, season.end_year) do
-          {:ok, record} ->
-            reused(record)
-
-          {:error, :not_found} ->
-            created(:season, identity, fn ->
-              Catalog.create_season(%{
-                league_id: league_record.id,
-                start_year: season.start_year,
-                end_year: season.end_year
-              })
-            end)
-        end
+        seed_season(season, league, identity, changes)
       end)
     end)
   end
@@ -129,23 +109,7 @@ defmodule FootballMarket.Catalog.DevelopmentSeed do
       league = fetch!(leagues, season.league)
 
       Multi.run(acc, step(:team, team_identity(team, league, season)), fn _repo, changes ->
-        season_record = record!(changes, step(:season, season_identity(league, season)))
-        identity = team_identity(team, league, season)
-
-        reconcile_team(
-          Catalog.get_team_by_code(season_record.id, team.code),
-          Catalog.get_team_by_name(season_record.id, team.name),
-          season_record.id,
-          team,
-          identity,
-          fn ->
-            Catalog.create_team(%{
-              season_id: season_record.id,
-              code: team.code,
-              name: team.name
-            })
-          end
-        )
+        seed_team(team, league, season, changes)
       end)
     end)
   end
@@ -153,13 +117,7 @@ defmodule FootballMarket.Catalog.DevelopmentSeed do
   defp add_positions(multi, positions) do
     Enum.reduce(positions, multi, fn position, acc ->
       Multi.run(acc, step(:position, position.code), fn _repo, _changes ->
-        reconcile_dual(
-          Catalog.get_position_by_code(position.code),
-          Catalog.get_position_by_name(position.name),
-          :position,
-          position.code,
-          fn -> Catalog.create_position(%{code: position.code, name: position.name}) end
-        )
+        seed_position(position)
       end)
     end)
   end
@@ -171,33 +129,7 @@ defmodule FootballMarket.Catalog.DevelopmentSeed do
       league = fetch!(leagues, season.league)
 
       Multi.run(acc, step(:player, player.catalog_identity), fn _repo, changes ->
-        team_record = record!(changes, step(:team, team_identity(team, league, season)))
-        position_record = record!(changes, step(:position, position_code(player.position)))
-
-        case Catalog.get_player(team_record.season_id, player.catalog_identity) do
-          {:ok, existing} ->
-            cond do
-              existing.display_name != player.display_name ->
-                {:error, error(:conflict, :player, player.catalog_identity, :attribute_mismatch)}
-
-              existing.team_id != team_record.id or existing.position_id != position_record.id ->
-                {:error,
-                 error(:conflict, :player, player.catalog_identity, :relationship_mismatch)}
-
-              true ->
-                reused(existing)
-            end
-
-          {:error, :not_found} ->
-            created(:player, player.catalog_identity, fn ->
-              Catalog.create_player(%{
-                team_id: team_record.id,
-                position_id: position_record.id,
-                catalog_identity: player.catalog_identity,
-                display_name: player.display_name
-              })
-            end)
-        end
+        seed_player(player, team, season, league, changes)
       end)
     end)
   end
@@ -367,4 +299,91 @@ defmodule FootballMarket.Catalog.DevelopmentSeed do
 
   defp maybe_put(map, _key, nil), do: map
   defp maybe_put(map, key, value), do: Map.put(map, key, value)
+
+  defp seed_league(league) do
+    reconcile_dual(
+      Catalog.get_league_by_code(league.code),
+      Catalog.get_league_by_name(league.name),
+      :league,
+      league.code,
+      fn -> Catalog.create_league(%{code: league.code, name: league.name}) end
+    )
+  end
+
+  defp seed_season(season, league, identity, changes) do
+    league_record = record!(changes, step(:league, league.code))
+
+    case Catalog.get_season(league_record.id, season.start_year, season.end_year) do
+      {:ok, record} ->
+        reused(record)
+
+      {:error, :not_found} ->
+        created(:season, identity, fn ->
+          Catalog.create_season(%{
+            league_id: league_record.id,
+            start_year: season.start_year,
+            end_year: season.end_year
+          })
+        end)
+    end
+  end
+
+  defp seed_team(team, league, season, changes) do
+    season_record = record!(changes, step(:season, season_identity(league, season)))
+    identity = team_identity(team, league, season)
+
+    reconcile_team(
+      Catalog.get_team_by_code(season_record.id, team.code),
+      Catalog.get_team_by_name(season_record.id, team.name),
+      season_record.id,
+      team,
+      identity,
+      fn ->
+        Catalog.create_team(%{
+          season_id: season_record.id,
+          code: team.code,
+          name: team.name
+        })
+      end
+    )
+  end
+
+  defp seed_position(position) do
+    reconcile_dual(
+      Catalog.get_position_by_code(position.code),
+      Catalog.get_position_by_name(position.name),
+      :position,
+      position.code,
+      fn -> Catalog.create_position(%{code: position.code, name: position.name}) end
+    )
+  end
+
+  defp seed_player(player, team, season, league, changes) do
+    team_record = record!(changes, step(:team, team_identity(team, league, season)))
+    position_record = record!(changes, step(:position, position_code(player.position)))
+
+    case Catalog.get_player(team_record.season_id, player.catalog_identity) do
+      {:ok, existing} ->
+        cond do
+          existing.display_name != player.display_name ->
+            {:error, error(:conflict, :player, player.catalog_identity, :attribute_mismatch)}
+
+          existing.team_id != team_record.id or existing.position_id != position_record.id ->
+            {:error, error(:conflict, :player, player.catalog_identity, :relationship_mismatch)}
+
+          true ->
+            reused(existing)
+        end
+
+      {:error, :not_found} ->
+        created(:player, player.catalog_identity, fn ->
+          Catalog.create_player(%{
+            team_id: team_record.id,
+            position_id: position_record.id,
+            catalog_identity: player.catalog_identity,
+            display_name: player.display_name
+          })
+        end)
+    end
+  end
 end

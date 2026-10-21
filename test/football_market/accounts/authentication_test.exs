@@ -95,9 +95,11 @@ defmodule FootballMarket.Accounts.AuthenticationTest do
     claims = valid_claims(now)
 
     unsigned =
-      [Jason.encode!(%{"alg" => "none", "typ" => "JWT"}), Jason.encode!(claims), ""]
-      |> Enum.map(&Base.url_encode64(&1, padding: false))
-      |> Enum.join(".")
+      Enum.map_join(
+        [Jason.encode!(%{"alg" => "none", "typ" => "JWT"}), Jason.encode!(claims), ""],
+        ".",
+        &Base.url_encode64(&1, padding: false)
+      )
 
     assert {:error, :invalid_token} = Authentication.validate(unsigned)
 

@@ -23,5 +23,6 @@ for profile in unit integration; do
     exit 1
   fi
 done
-python3 scripts/test_profile_components.py verify-receipts "$receipts"
-printf '%s\n' FOOTBALL_MARKET_CI_DISCOVERY_SENTINEL
+python3 scripts/test_profile_components.py verify-receipts "$receipts" >&2
+printf '%s\n' FOOTBALL_MARKET_CI_DISCOVERY_SENTINEL >&2
+printf '%s\n' '{"schema_version":1,"status":"complete","profiles":["unit","integration"]}'

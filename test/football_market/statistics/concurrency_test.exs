@@ -35,7 +35,7 @@ defmodule FootballMarket.Statistics.ConcurrencyTest do
 
       for _ <- tasks, do: assert_receive({:ready, _}, 5000)
       for task <- tasks, do: send(task.pid, :go)
-      Enum.map(tasks, &Task.await(&1, 10000))
+      Enum.map(tasks, &Task.await(&1, 10_000))
     end
 
     defp fixture!, do: Sandbox.unboxed_run(Repo, &unique_fixture/0)
@@ -131,7 +131,7 @@ defmodule FootballMarket.Statistics.ConcurrencyTest do
       end)
 
       send(pid, :commit)
-      {Task.await(t1, 10000), Task.await(t2, 10000)}
+      {Task.await(t1, 10_000), Task.await(t2, 10_000)}
     end
 
     defp wait_for_lock(deadline, backend) do

@@ -22,7 +22,7 @@ steps:
   - id: product_challenge
     type: prompt
     integration: "{{ inputs.integration }}"
-    timeout: 1200
+    timeout: 2400
     prompt: |
       Agentflow stage: product_challenge
       Follow docs/AGENT_CONTEXT_POLICY.md.
@@ -118,13 +118,13 @@ steps:
   # (already-completed steps are not re-executed on resume).
   - id: ci_baseline
     type: shell
-    timeout: 1800
+    timeout: 3600
     run: "MIX_ENV=test scripts/ci_unit_tests.sh"
 
   - id: qa
     type: prompt
     integration: "{{ inputs.integration }}"
-    timeout: 1200
+    timeout: 2400
     prompt: |
       Agentflow stage: qa
       Follow docs/AGENT_CONTEXT_POLICY.md.
@@ -159,7 +159,7 @@ steps:
   - id: review
     type: prompt
     integration: "{{ inputs.integration }}"
-    timeout: 1200
+    timeout: 2400
     prompt: |
       Agentflow stage: review
       Follow docs/AGENT_CONTEXT_POLICY.md.

@@ -9,18 +9,32 @@ defmodule FootballMarket.Quotes.RecoveryTest do
   alias FootballMarket.Valuation.Configurations
 
   setup do
-    %{schema: schema} = ValuationConfigurationCase.private_schema()
+    old = Application.get_env(:football_market, FootballMarket.Synchronization)
+
+    %{schema: schema, repo: client} = ValuationConfigurationCase.private_schema()
 
     start_supervised(
       {Oban,
-       name: Oban,
+       name: FootballMarket.Quotes.TestOban,
        repo: Repo,
        prefix: schema,
        testing: :manual,
        queues: [],
        plugins: [],
-       get_dynamic_repo: fn -> Repo.get_dynamic_repo() end}
+       get_dynamic_repo: fn -> client end}
     )
+
+    # Route production inserts through the isolated Oban instance so job rows
+    # stay inside the private schema instead of the shared public oban_jobs.
+    Application.put_env(
+      :football_market,
+      FootballMarket.Synchronization,
+      Keyword.merge(old || [], oban_name: FootballMarket.Quotes.TestOban)
+    )
+
+    on_exit(fn ->
+      Application.put_env(:football_market, FootballMarket.Synchronization, old)
+    end)
 
     {:ok, QuotesCase.fixture()}
   end
@@ -96,7 +110,8 @@ defmodule FootballMarket.Quotes.RecoveryTest do
 
     assert {:ok, 1} = Recovery.recover_pending()
 
-    assert %{success: 1} = Oban.drain_queue(queue: :quote_calculation)
+    assert %{success: 1} =
+             Oban.drain_queue(FootballMarket.Quotes.TestOban, queue: :quote_calculation)
 
     assert Repo.get!(CalculationRequest, due.id).state == "validation_failed"
     assert %{reason: "configuration_unavailable"} = Repo.get!(CalculationRequest, due.id)

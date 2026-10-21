@@ -355,28 +355,29 @@ defmodule FootballMarket.Quotes.RecoveryTest do
     assert QuotesCase.protected_snapshot() == before
   end
 
+  defp lock_player(f, ref, parent) do
+    ValuationConfigurationCase.in_client(f.namespace.schema, fn ->
+      Repo.transaction(fn ->
+        Repo.query!("SELECT id FROM players WHERE id=$1 FOR UPDATE", [
+          Ecto.UUID.dump!(f.player.id)
+        ])
+
+        send(parent, {ref, :locked})
+
+        receive do
+          {^ref, :release} -> :ok
+        after
+          10_000 -> raise "player lock release timed out"
+        end
+      end)
+    end)
+  end
+
   defp interrupt_claimed_worker(f, request_id, attempt) do
     parent = self()
     ref = make_ref()
 
-    locker =
-      Task.async(fn ->
-        ValuationConfigurationCase.in_client(f.namespace.schema, fn ->
-          Repo.transaction(fn ->
-            Repo.query!("SELECT id FROM players WHERE id=$1 FOR UPDATE", [
-              Ecto.UUID.dump!(f.player.id)
-            ])
-
-            send(parent, {ref, :locked})
-
-            receive do
-              {^ref, :release} -> :ok
-            after
-              10_000 -> raise "player lock release timed out"
-            end
-          end)
-        end)
-      end)
+    locker = Task.async(fn -> lock_player(f, ref, parent) end)
 
     assert_receive {^ref, :locked}, 5_000
 

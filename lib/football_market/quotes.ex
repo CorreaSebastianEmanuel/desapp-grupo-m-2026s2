@@ -428,14 +428,14 @@ defmodule FootballMarket.Quotes do
   end
 
   defp request_recovery_facts(req) do
-    with {:ok, rows} <- FootballMarket.Quotes.Membership.snapshots(req.intent_id) do
-      case Enum.find(rows, fn [sid | _] -> Ecto.UUID.load!(sid) == req.snapshot_id end) do
-        [_sid, _player, _season, _start, _end, _ids, fact_material, _digest] ->
-          FootballMarket.Quotes.Membership.facts(fact_material)
-
-        _ ->
-          {:error, :original_unavailable}
-      end
+    with {:ok, rows} <- FootballMarket.Quotes.Membership.snapshots(req.intent_id),
+         row when not is_nil(row) <-
+           Enum.find(rows, fn [sid | _] -> Ecto.UUID.load!(sid) == req.snapshot_id end) do
+      [_sid, _player, _season, _start, _end, _ids, fact_material, _digest] = row
+      FootballMarket.Quotes.Membership.facts(fact_material)
+    else
+      nil -> {:error, :original_unavailable}
+      {:error, _} = error -> error
     end
   end
 

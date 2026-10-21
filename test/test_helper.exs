@@ -1,3 +1,13 @@
+# Mix has already captured its output option. Recursive test subprocesses must
+# never inherit this invocation's private application-coverage staging directory.
+for key <- [
+      "APPLICATION_COVERAGE_DIR",
+      "APPLICATION_COVERAGE_RUN_ID",
+      "APPLICATION_COVERAGE_SNAPSHOT"
+    ] do
+  System.delete_env(key)
+end
+
 ExUnit.start()
 ExUnit.configure(exclude: [performance: true, e2e: true])
 

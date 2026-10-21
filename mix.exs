@@ -79,8 +79,16 @@ defmodule FootballMarket.MixProject do
       |> Enum.reject(&MapSet.member?(included, &1))
       |> Enum.concat(generated_modules)
 
+    application_output = System.get_env("APPLICATION_COVERAGE_DIR")
+
+    if application_output &&
+         (System.get_env("CP1_PROFILE_COVERAGE") == "1" ||
+            System.get_env("CP1_COVERAGE_OUTPUT")) do
+      raise "application-coverage-conflicts-with-cp1"
+    end
+
     [
-      output: System.get_env("CP1_COVERAGE_OUTPUT", "cover/cp1/staging"),
+      output: application_output || System.get_env("CP1_COVERAGE_OUTPUT", "cover/cp1/staging"),
       summary: [threshold: 0],
       ignore_modules: ignored_modules
     ]

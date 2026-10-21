@@ -1,0 +1,403 @@
+{
+  "schema_version": 1,
+  "task": "TASK-067",
+  "feature": "067-whole-application-elixir-coverage-and-report-reconciliation",
+  "base_revision": "a85fd749918238b74607f4fae37d94cd124d8638",
+  "verified_source": "463997edb7988fc9c42d99ddb5f5e4e0d8b9e9397ebad4827958ebc4c64eb8be",
+  "canonical_inputs": "c3ad1cb2e068197ca669584975358628c7d5e74bf0cd91102ce817d0d8eeca04",
+  "manifest_sha256": "782fee26e2136440d5da01c70f2f7e9ec0a7271be6ebd917cbb9eadfabdcd4f1",
+  "ci": {},
+  "checks": [
+    {
+      "id": "preflight",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "8c7196916e187c4b2c33f9dce65666eaa9b4db7d97cc43a8855cb03b4dcd68d4",
+      "elapsed_seconds": 29.467,
+      "output_sha256": "59309e1d7247803dbda01bbe4ab3b3e471a58869db5f68257b019a73a07dbda4",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/067-whole-application-elixir-coverage-and-report-reconciliation/develop/preflight/78584c31669f4132928f110f622f82cf.log"
+      },
+      "environment": {
+        "MIX_ENV": "test"
+      },
+      "coverage": [
+        "FR-011",
+        "FR-012",
+        "SC-007",
+        "SC-008"
+      ]
+    },
+    {
+      "id": "format",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "20c2ab4342ef38ad8cca55773830bec43847cb2ea28f4e67b79655c4ba5321d3",
+      "elapsed_seconds": 0.933,
+      "output_sha256": "30199ad9c58d1fac4c5cb86f906bb9d3fb9f64d18a0819f5e5b8e9b198cbd708",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/067-whole-application-elixir-coverage-and-report-reconciliation/develop/format/ab98e43cff3f4ef2bef8f0b24458094e.log"
+      },
+      "environment": {},
+      "coverage": []
+    },
+    {
+      "id": "compile",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "84c5efffb1e8753fb9399ce673dc4399ba05c3f7a4d45ac3a2b7ffd7d569e279",
+      "elapsed_seconds": 0.7,
+      "output_sha256": "30199ad9c58d1fac4c5cb86f906bb9d3fb9f64d18a0819f5e5b8e9b198cbd708",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/067-whole-application-elixir-coverage-and-report-reconciliation/develop/compile/7b3f70e8a875490e86f971e7395c41d3.log"
+      },
+      "environment": {
+        "MIX_ENV": "test"
+      },
+      "coverage": []
+    },
+    {
+      "id": "credo",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "16001f58287c6a5855c619f8044e1a264432cdc54ccfa1fed7d9f24b81e201a0",
+      "elapsed_seconds": 10.102,
+      "output_sha256": "cd721a42112f2dc5043d9e71e055660d815cea3ff5e2fcb99f4b14abe2e78a07",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/067-whole-application-elixir-coverage-and-report-reconciliation/develop/credo/29565c46c00b4639b5e7aab94b6b8f7a.log"
+      },
+      "environment": {
+        "MIX_ENV": "test"
+      },
+      "coverage": [
+        "FR-011",
+        "FR-012",
+        "SC-007",
+        "SC-008"
+      ]
+    },
+    {
+      "id": "openapi",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "1618a44fd056a191be9aa268317704c1641367f7105f4223b6aea4d3ca44bb87",
+      "elapsed_seconds": 0.397,
+      "output_sha256": "8475d9724f69fde9c55e3d695e7623dce342858772e647629a513b89f86a8ccb",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/067-whole-application-elixir-coverage-and-report-reconciliation/develop/openapi/00e254b7263e4435b71f033431e705c0.log"
+      },
+      "environment": {},
+      "coverage": [
+        "FR-011",
+        "FR-012",
+        "SC-007",
+        "SC-008"
+      ]
+    },
+    {
+      "id": "application-report",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "cd9e7cfa67f8058c98f53d287f11d0122493fc7dd0565f5cbdadbcc068be1309",
+      "elapsed_seconds": 1076.787,
+      "output_sha256": "07df8a0ca49a3a865ad4ca956edf8eb35db141b0f9e32cb4e5e8c7c68e03052e",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/067-whole-application-elixir-coverage-and-report-reconciliation/develop/application-report/5cdd7c4538f54705a32987ef985ce1ca.log"
+      },
+      "environment": {
+        "MIX_ENV": "test"
+      },
+      "coverage": [
+        "FR-001",
+        "FR-002",
+        "FR-003",
+        "FR-004",
+        "FR-005",
+        "FR-006",
+        "FR-007",
+        "FR-008",
+        "FR-009",
+        "FR-010",
+        "FR-011",
+        "FR-012",
+        "SC-001",
+        "SC-002",
+        "SC-003",
+        "SC-004",
+        "SC-005",
+        "SC-006",
+        "SC-007",
+        "SC-008"
+      ]
+    },
+    {
+      "id": "e2e",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "ec09324dba002984dc32ea52433a67d8bdd58571a8f295007380df88a76c7875",
+      "elapsed_seconds": 35.888,
+      "output_sha256": "717fc91deb3b1c044afffd3a7659ae1a71814ae902416647e968649b3f1507a6",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/067-whole-application-elixir-coverage-and-report-reconciliation/develop/e2e/50b742c6c684428ca9667c240fa458f0.log"
+      },
+      "environment": {
+        "MIX_ENV": "test"
+      },
+      "coverage": [
+        "FR-011",
+        "FR-012",
+        "SC-007",
+        "SC-008"
+      ]
+    },
+    {
+      "id": "preflight",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "8c7196916e187c4b2c33f9dce65666eaa9b4db7d97cc43a8855cb03b4dcd68d4",
+      "elapsed_seconds": 25.384,
+      "output_sha256": "59309e1d7247803dbda01bbe4ab3b3e471a58869db5f68257b019a73a07dbda4",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/067-whole-application-elixir-coverage-and-report-reconciliation/qa/preflight/d5809fa1633141b4b7c3da8272632ea1.log"
+      },
+      "environment": {
+        "MIX_ENV": "test"
+      },
+      "coverage": [
+        "FR-011",
+        "FR-012",
+        "SC-007",
+        "SC-008"
+      ]
+    },
+    {
+      "id": "format",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "20c2ab4342ef38ad8cca55773830bec43847cb2ea28f4e67b79655c4ba5321d3",
+      "elapsed_seconds": 0.848,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/067-whole-application-elixir-coverage-and-report-reconciliation/qa/format/dc5ed7eb34a2454caf22509e9b11d653.log"
+      },
+      "environment": {},
+      "coverage": []
+    },
+    {
+      "id": "compile",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "84c5efffb1e8753fb9399ce673dc4399ba05c3f7a4d45ac3a2b7ffd7d569e279",
+      "elapsed_seconds": 0.614,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/067-whole-application-elixir-coverage-and-report-reconciliation/qa/compile/0ff7f04e38e0451d8ef060de7e7c81f7.log"
+      },
+      "environment": {
+        "MIX_ENV": "test"
+      },
+      "coverage": []
+    },
+    {
+      "id": "credo",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "16001f58287c6a5855c619f8044e1a264432cdc54ccfa1fed7d9f24b81e201a0",
+      "elapsed_seconds": 9.249,
+      "output_sha256": "cd721a42112f2dc5043d9e71e055660d815cea3ff5e2fcb99f4b14abe2e78a07",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/067-whole-application-elixir-coverage-and-report-reconciliation/qa/credo/8768dc60c635443b8e64f7a1ccccab5f.log"
+      },
+      "environment": {
+        "MIX_ENV": "test"
+      },
+      "coverage": [
+        "FR-011",
+        "FR-012",
+        "SC-007",
+        "SC-008"
+      ]
+    },
+    {
+      "id": "openapi",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "1618a44fd056a191be9aa268317704c1641367f7105f4223b6aea4d3ca44bb87",
+      "elapsed_seconds": 0.231,
+      "output_sha256": "8475d9724f69fde9c55e3d695e7623dce342858772e647629a513b89f86a8ccb",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/067-whole-application-elixir-coverage-and-report-reconciliation/qa/openapi/474e0a740c66400ea2f4b41d4e560b2c.log"
+      },
+      "environment": {},
+      "coverage": [
+        "FR-011",
+        "FR-012",
+        "SC-007",
+        "SC-008"
+      ]
+    },
+    {
+      "id": "application-report",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "cd9e7cfa67f8058c98f53d287f11d0122493fc7dd0565f5cbdadbcc068be1309",
+      "elapsed_seconds": 992.571,
+      "output_sha256": "0e6f0aa76f73e396886a0fcd5a548d200003d4f29b95b0755bd094ca50a3aba6",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/067-whole-application-elixir-coverage-and-report-reconciliation/qa/application-report/16cc62600b4e4355a6393f1feb846620.log"
+      },
+      "environment": {
+        "MIX_ENV": "test"
+      },
+      "coverage": [
+        "FR-001",
+        "FR-002",
+        "FR-003",
+        "FR-004",
+        "FR-005",
+        "FR-006",
+        "FR-007",
+        "FR-008",
+        "FR-009",
+        "FR-010",
+        "FR-011",
+        "FR-012",
+        "SC-001",
+        "SC-002",
+        "SC-003",
+        "SC-004",
+        "SC-005",
+        "SC-006",
+        "SC-007",
+        "SC-008"
+      ]
+    },
+    {
+      "id": "e2e",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "ec09324dba002984dc32ea52433a67d8bdd58571a8f295007380df88a76c7875",
+      "elapsed_seconds": 31.996,
+      "output_sha256": "a99a1996128bbafa63012a4b250c2e4649428b9054b97d9554a15108f6d19105",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/067-whole-application-elixir-coverage-and-report-reconciliation/qa/e2e/dee25d4aed6a4c57a892bcda7bcb9180.log"
+      },
+      "environment": {
+        "MIX_ENV": "test"
+      },
+      "coverage": [
+        "FR-011",
+        "FR-012",
+        "SC-007",
+        "SC-008"
+      ]
+    }
+  ],
+  "coverage": {
+    "FR-001": [
+      "application-report"
+    ],
+    "FR-002": [
+      "application-report"
+    ],
+    "FR-003": [
+      "application-report"
+    ],
+    "FR-004": [
+      "application-report"
+    ],
+    "FR-005": [
+      "application-report"
+    ],
+    "FR-006": [
+      "application-report"
+    ],
+    "FR-007": [
+      "application-report"
+    ],
+    "FR-008": [
+      "application-report"
+    ],
+    "FR-009": [
+      "application-report"
+    ],
+    "FR-010": [
+      "application-report"
+    ],
+    "FR-011": [
+      "application-report",
+      "e2e",
+      "credo",
+      "openapi",
+      "preflight"
+    ],
+    "FR-012": [
+      "application-report",
+      "e2e",
+      "credo",
+      "openapi",
+      "preflight"
+    ],
+    "SC-001": [
+      "application-report"
+    ],
+    "SC-002": [
+      "application-report"
+    ],
+    "SC-003": [
+      "application-report"
+    ],
+    "SC-004": [
+      "application-report"
+    ],
+    "SC-005": [
+      "application-report"
+    ],
+    "SC-006": [
+      "application-report"
+    ],
+    "SC-007": [
+      "application-report",
+      "e2e",
+      "credo",
+      "openapi",
+      "preflight"
+    ],
+    "SC-008": [
+      "application-report",
+      "e2e",
+      "credo",
+      "openapi",
+      "preflight"
+    ]
+  },
+  "independent_reports": {
+    "qa-report.md": {
+      "verdict": "PASS",
+      "sha256": "d32c36680d51c729a20a59b46f12718c0e3b83eb57b9e12ac2bd497182768adf"
+    },
+    "review-report.md": {
+      "verdict": "PASS",
+      "sha256": "8f67468b126f408a12573f736604503fb95a50b68e9d5ac47d199d54fdd295ae"
+    }
+  },
+  "complete": true,
+  "limitations": [
+    "Portable summary does not authorize workspace reuse; run local checks."
+  ],
+  "finalized_at": "2026-10-21T04:51:00.012769+00:00"
+}

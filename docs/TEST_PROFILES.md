@@ -31,6 +31,7 @@ The native runner audit and case counts are recorded by the committed inventory 
 - `python3 scripts/test_inventory.py update --profile PROFILE` explicitly adds newly discovered cases to a chosen profile; review the resulting diff before committing it.
 - `scripts/ci_unit_tests.sh` remains the unit/integration compatibility entry point and emits `FOOTBALL_MARKET_CI_DISCOVERY_SENTINEL` only after both profiles complete.
 - `mix test.cp1_coverage` retains the existing CP1 report scope, native report, HTML, provenance and zero threshold. It is not an extra CP2 local gate.
+- `python3 scripts/application_coverage.py run` produces the informational application-only report from one existing unit/integration profile pair; `validate` checks the current published evidence without rerunning profiles. See [APPLICATION_COVERAGE.md](APPLICATION_COVERAGE.md) for prerequisites, exact exclusions, measured artifacts, and limitations. This report adds no threshold and does not replace CP1 or JavaScript coverage.
 
 Each profile reports expected, discovered, executed and passed totals and fails closed on assignment, skip, prerequisite, child, timeout or interruption errors. Output and retained summaries contain only safe categories and opaque inventory IDs. Integration's Docker lifecycle tests use invocation-owned resources; they never target the shared `football_market_local` project. E2E uses deterministic fixtures and real browser, HTTP and Oban processing. It does not cover unfinished charts or conditional orders.
 

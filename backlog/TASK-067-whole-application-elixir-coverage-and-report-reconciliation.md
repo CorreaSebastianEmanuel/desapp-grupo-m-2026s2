@@ -4,9 +4,9 @@ title: Whole-application Elixir coverage and report reconciliation
 type: task
 checkpoint: CP2
 priority: medium
-status: review
+status: done
 depends_on: TASK-065
-active_run: 2c30ee8d
+active_run: none
 ---
 
 ## Outcome

@@ -49,6 +49,10 @@ def execute_check(check: dict, root: Path, evidence: Path) -> int:
         "MIX_OS_CONCURRENCY_LOCK": os.environ.get("MIX_OS_CONCURRENCY_LOCK", "0"),
         **check.get("env", {}),
     }
+    # Native coverage helpers (TASK-067) require a flat, non-symlinked TMPDIR.
+    flat_tmp = root / 'tmp'
+    flat_tmp.mkdir(exist_ok=True)
+    env['TMPDIR'] = str(flat_tmp)
     node_path = node24_path()
     if node_path:
         env["PATH"] = node_path + os.pathsep + env.get("PATH", "")

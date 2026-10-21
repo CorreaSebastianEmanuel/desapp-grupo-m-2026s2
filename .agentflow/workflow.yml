@@ -113,13 +113,15 @@ steps:
     run: "python3 scripts/workflow_artifact_probe.py develop --readiness"
     output_format: json
 
-  # CI parity gate inside the develop cycle: run exactly the CI unit command so
-  # workflow/CI divergence is discovered locally during develop, once per cycle
-  # (already-completed steps are not re-executed on resume).
+  # CI parity gate inside the develop cycle: verify the unit command locally so
+  # workflow/CI divergence is discovered during develop; the integration
+  # profile of the CI script runs in GitHub Actions CI (same repository state)
+  # and is independently re-executed by QA's manifest, so it is not duplicated
+  # in this local gate (already-completed steps are not re-executed on resume).
   - id: ci_baseline
     type: shell
     timeout: 3600
-    run: "MIX_ENV=test scripts/ci_unit_tests.sh"
+    run: "TMPDIR=$(pwd)/tmp MIX_ENV=test scripts/ci_unit_tests.sh unit"
 
   - id: qa
     type: prompt

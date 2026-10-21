@@ -181,4 +181,53 @@ defmodule FootballMarket.Quotes.RecoveryTest do
              ]
            ).rows == [[1]]
   end
+
+  test "explicit recovery recovers a pre-commit persistence failure through the worker", f do
+    assert {:ok, _} = Configurations.activate(f.configuration.id, nil)
+    request_id = Ecto.UUID.generate()
+
+    # Inject a durable pre-commit failure that aborts only the quote
+    # calculation persistence inside this isolated schema.
+    Repo.query!(
+      "CREATE FUNCTION schema_b2_guard() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'b2 injected persisted-failure'; END; $$",
+      []
+    )
+
+    Repo.query!("CREATE TRIGGER b2_guard BEFORE INSERT ON quote_calculations FOR EACH ROW EXECUTE FUNCTION schema_b2_guard()", [])
+
+    assert {:error, _} = Quotes.request(f.subject, :active, f.mapping.id, request_id)
+
+    # The admitted explicit request survives durably with its retained facts.
+    assert {:ok, pending} = Quotes.get_request(request_id)
+    assert pending.state == "pending"
+    assert pending.mapping_id == f.mapping.id
+    assert pending.explicit_membership == [f.performance.id]
+    assert Map.has_key?(pending.explicit_fact_material, "facts")
+
+    Repo.query!("DROP TRIGGER b2_guard ON quote_calculations", [])
+    Repo.query!("DROP FUNCTION schema_b2_guard()", [])
+
+    # The scheduled worker path recovers the explicit request from its own
+    # retained fact material without any import snapshot.
+    assert :ok = Quotes.process_import_request(request_id)
+
+    assert {:ok, recovered} = Quotes.get_request(request_id)
+    assert recovered.state == "successful"
+    assert recovered.calculation_id != nil
+
+    assert Repo.query!(
+             "SELECT count(*) FROM quote_calculations WHERE id=$1 AND status='successful'",
+             [Ecto.UUID.dump!(recovered.calculation_id)]
+           ).rows == [[1]]
+
+    # The immutable quote and follow-up remain present once, financially intact.
+    assert Repo.query!("SELECT count(*) FROM market_quotes WHERE calculation_id=$1", [
+             Ecto.UUID.dump!(recovered.calculation_id)
+           ]).rows == [[1]]
+
+    assert Repo.query!(
+             "SELECT count(*) FROM quote_evaluation_requests WHERE calculation_id=$1",
+             [Ecto.UUID.dump!(recovered.calculation_id)]
+           ).rows == [[1]]
+  end
 end

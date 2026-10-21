@@ -55,6 +55,7 @@ defmodule FootballMarket.Quotes.CalculationRequest do
     field :week_end, :utc_datetime_usec
     field :selector, :string
     field :mapping_id, :binary_id
+    field :requested_mapping_id, :binary_id
     field :configuration_version_id, :binary_id
     field :calculation_id, :binary_id
     field :explicit_membership, {:array, :binary_id}

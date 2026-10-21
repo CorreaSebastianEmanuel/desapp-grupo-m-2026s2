@@ -90,14 +90,17 @@ defmodule FootballMarket.Quotes do
          _selector,
          selector_name,
          {:error, :mapping_unavailable},
-         _mapping_id,
+         mapping_id,
          _request_id,
          _player
        ) do
     # The FK is intentionally NULL for an unavailable mapping. Preserve
-    # retries of that terminal admission, but do not let a now-resolvable
-    # mapping identity inherit its retained error.
-    if request.reason == "mapping_unavailable" and request.mapping_id == nil and
+    # retries of that terminal admission only while the retried mapping
+    # identity equals the supplied identity recorded on the persisted
+    # request; a different identity conflicts instead of inheriting the
+    # retained error.
+    if request.reason == "mapping_unavailable" and
+         explicit_mapping_identity?(request, mapping_id) and
          explicit_request_scope_matches?(request, subject, selector_name) do
       retained_explicit(request)
     else
@@ -231,6 +234,16 @@ defmodule FootballMarket.Quotes do
         nil
       end
 
+    # The authoritative FK stays NULL for an unavailable mapping; keep the
+    # requested identity inspectable when it is a well-formed UUID.
+    requested_mapping =
+      if persisted_mapping == nil and is_binary(mapping_id) do
+        case Ecto.UUID.cast(mapping_id) do
+          {:ok, identity} -> identity
+          _ -> nil
+        end
+      end
+
     Repo.insert!(%FootballMarket.Quotes.CalculationRequest{
       id: request_id,
       source: "explicit",
@@ -240,6 +253,7 @@ defmodule FootballMarket.Quotes do
       week_end: subject.week_end,
       selector: selector_name,
       mapping_id: persisted_mapping,
+      requested_mapping_id: requested_mapping,
       state: "validation_failed",
       reason: reason,
       inserted_at: Store.database_now!()
@@ -318,6 +332,18 @@ defmodule FootballMarket.Quotes do
       request.week_end == subject.week_end and request.selector == selector
   end
 
+  # The persisted unavailable-mapping identity must equal the retried one.
+  # Identity-unknown rows (legacy or malformed input) conflict conservatively
+  # instead of silently retaining an unrelated mapping's terminal error.
+  defp explicit_mapping_identity?(%FootballMarket.Quotes.CalculationRequest{mapping_id: nil} = request, mapping_id) do
+    case Ecto.UUID.cast(mapping_id) do
+      {:ok, identity} -> request.requested_mapping_id == identity
+      _ -> false
+    end
+  end
+
+  defp explicit_mapping_identity?(_, _), do: false
+
   defp load_explicit_facts(%{explicit_fact_material: %{"facts" => facts}} = request) do
     case FootballMarket.Quotes.EvidenceCodec.decode_facts(facts) do
       {:ok, decoded} ->
@@ -361,9 +387,12 @@ defmodule FootballMarket.Quotes do
 
       {:ok, req, fence} ->
         with {:ok, req, selector} <- fix_request_binding(req),
-             {:ok, rows} <- FootballMarket.Quotes.Membership.snapshots(req.intent_id) do
-          process_bound_import_request(req, selector, rows, fence)
+             {:ok, facts} <- request_recovery_facts(req) do
+          process_recovered_request(req, selector, facts, fence)
         else
+          {:error, :original_unavailable} ->
+            finish_request(req, "unreproducible", "original_unavailable", nil, fence)
+
           {:error, :unsupported_strategy} ->
             finish_request(req, "unsupported_strategy", "configuration_unavailable", nil, fence)
 
@@ -384,36 +413,51 @@ defmodule FootballMarket.Quotes do
     _ -> {:error, :calculation_unavailable}
   end
 
-  defp process_bound_import_request(req, selector, rows, fence) do
-    case Enum.find(rows, fn [sid | _] -> Ecto.UUID.load!(sid) == req.snapshot_id end) do
-      [_sid, _player, _season, _start, _end, _ids, fact_material, _digest] ->
-        result =
-          with {:ok, facts} <- FootballMarket.Quotes.Membership.facts(fact_material) do
-            request_membership(
-              %{
-                player_id: req.player_id,
-                season_id: req.season_id,
-                week_start: req.week_start,
-                week_end: req.week_end
-              },
-              selector,
-              req.mapping_id,
-              facts,
-              req.id,
-              {req.id, fence}
-            )
-          end
+  # Recovers the calculation's original accepted facts. Explicit requests
+  # retain their own durable fact material (their import intent is nil);
+  # import requests still resolve their snapshot row. A missing original row
+  # stays a terminal unreproducible outcome while decode failures retry.
+  defp request_recovery_facts(%{source: "explicit"} = req) do
+    case load_explicit_facts(req) do
+      {:ok, _request, facts} -> {:ok, facts}
+      error -> error
+    end
+  end
 
-        case result do
-          {:ok, %{calculation: calc}} ->
-            finish_request(req, calc.status, calc.reason, calc.id, fence)
+  defp request_recovery_facts(req) do
+    with {:ok, rows} <- FootballMarket.Quotes.Membership.snapshots(req.intent_id) do
+      case Enum.find(rows, fn [sid | _] -> Ecto.UUID.load!(sid) == req.snapshot_id end) do
+        [_sid, _player, _season, _start, _end, _ids, fact_material, _digest] ->
+          FootballMarket.Quotes.Membership.facts(fact_material)
 
-          {:error, _} ->
-            retry_request(req, fence)
-        end
+        _ ->
+          {:error, :original_unavailable}
+      end
+    end
+  end
 
-      _ ->
-        finish_request(req, "unreproducible", "original_unavailable", nil, fence)
+  defp process_recovered_request(req, selector, facts, fence) do
+    result =
+      request_membership(
+        %{
+          player_id: req.player_id,
+          season_id: req.season_id,
+          week_start: req.week_start,
+          week_end: req.week_end
+        },
+        selector,
+        req.mapping_id,
+        facts,
+        req.id,
+        {req.id, fence}
+      )
+
+    case result do
+      {:ok, %{calculation: calc}} ->
+        finish_request(req, calc.status, calc.reason, calc.id, fence)
+
+      {:error, _} ->
+        retry_request(req, fence)
     end
   end
 

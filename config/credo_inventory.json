@@ -7,6 +7,11 @@
     },
     {
       "category": "archived-verification-evidence",
+      "path": "specs/026-quote-recalculation-and-immutable-history/qa-evidence/20261023-ack-expiry/ack_expiry_test.exs",
+      "reason": "Standalone adversarial QA probe retained as task evidence, not maintained application or test source."
+    },
+    {
+      "category": "archived-verification-evidence",
       "path": "specs/026-quote-recalculation-and-immutable-history/qa-evidence/independent-20261021-current/admission-probe.exs",
       "reason": "Archived standalone verification probe; retained as historical QA or review evidence, not maintained test source."
     },

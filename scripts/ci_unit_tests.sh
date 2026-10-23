@@ -34,6 +34,18 @@ for profile in unit integration; do
   fi
   rm -f "$receipts/$profile.json"
   if ! CP1_PROFILE_RECEIPT="$receipts/$profile.json" sh scripts/test_profile.sh "$profile" >"$private/output" 2>&1; then
+    # Surface only fail-closed profile metadata; never print raw child output.
+    python3 - "$private/output" <<'PY'
+import pathlib
+import re
+import sys
+
+for line in pathlib.Path(sys.argv[1]).read_text(errors="replace").splitlines():
+    if re.fullmatch(r"PROFILE_DISCREPANCY id=[0-9a-f]{24}(?: line=[0-9]+)?", line):
+        print(line, file=sys.stderr)
+    elif re.fullmatch(r"CP1_PROFILE_OUTCOME status=failed category=[a-z-]+", line):
+        print(line, file=sys.stderr)
+PY
     # Durable, opt-in capture so workflow-runner failures keep their profile evidence.
     if [ -n "${CI_PROFILE_LOG_DIR:-}" ]; then
       mkdir -p "$CI_PROFILE_LOG_DIR" && cp "$private/output" "$CI_PROFILE_LOG_DIR/$profile.log"

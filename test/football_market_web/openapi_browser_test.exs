@@ -37,6 +37,19 @@ defmodule FootballMarketWeb.OpenAPIBrowserTest do
           stderr_to_stdout: true
         )
 
+      if status != 0 do
+        stage =
+          case Regex.run(
+                 ~r/CP1_BROWSER_OUTCOME status=failed category=browser-regression stage=([a-z-]+)/,
+                 output
+               ) do
+            [_, value] -> value
+            _ -> "unknown"
+          end
+
+        IO.puts("PROFILE_SAFE_DIAGNOSTIC category=openapi-browser stage=#{stage}")
+      end
+
       assert status == 0
       assert output == "CP1_BROWSER_RECEIPT status=complete behavior=published-contract\n"
     after

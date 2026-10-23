@@ -3894,6 +3894,13 @@
       "profile": "unit"
     },
     {
+      "id": "97f2a72a319eda65c69b2b75",
+      "runner": "exunit",
+      "file": "test/ci/test_profile_runner_contract_test.exs",
+      "case_id": "FootballMarket.TestProfileRunnerContractTest:test controlled browser failure forwards only its allowlisted stage",
+      "profile": "unit"
+    },
+    {
       "id": "97fb16f30dee84d858006987",
       "runner": "python",
       "file": "test/scripts/agentflow_stage_budget_test.py",
@@ -4172,6 +4179,13 @@
       "file": "test/football_market/catalog/player_pagination_test.exs",
       "case_id": "FootballMarket.Catalog.PlayerPaginationTest:test reports exact boundaries and supports a cursor positioned after the final row",
       "profile": "integration"
+    },
+    {
+      "id": "a138e29bf0217b631f2723ab",
+      "runner": "exunit",
+      "file": "test/ci/test_profile_runner_contract_test.exs",
+      "case_id": "FootballMarket.TestProfileRunnerContractTest:test CI failure reporting forwards only allowlisted profile diagnostics",
+      "profile": "unit"
     },
     {
       "id": "a178a2ea66033a8298e5f35d",
@@ -4717,6 +4731,13 @@
       "runner": "exunit",
       "file": "test/football_market/statistics/ingestion/canonical_test.exs",
       "case_id": "FootballMarket.Statistics.Ingestion.CanonicalTest:test match, position, count, and source-binding material each affect replay identity",
+      "profile": "unit"
+    },
+    {
+      "id": "b3d09088cc7592b70e273d74",
+      "runner": "exunit",
+      "file": "test/ci/workflow_scope_test.exs",
+      "case_id": "FootballMarket.WorkflowScopeTest:test pull request head ref resolves task scope from a detached checkout",
       "profile": "unit"
     },
     {

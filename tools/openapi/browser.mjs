@@ -11,6 +11,7 @@ const expectedDetail = process.env.OPENAPI_EXPECTED_DETAIL;
 if (!base || !jwt || !key || !playerId || !expectedList || !expectedDetail) throw new Error('Missing isolated browser-test input');
 
 let browser;
+let stage = 'launch';
 const assert = (condition, message) => { if (!condition) throw new Error(message); };
 
 try {
@@ -30,8 +31,11 @@ try {
     }
   });
   const started = Date.now();
+  stage = 'docs-load';
   await page.goto(`${base}/docs`);
+  stage = 'docs-ready';
   await page.waitForFunction(() => document.documentElement.dataset.docsReady === 'true');
+  stage = 'docs-content';
   assert(await page.locator('#docs-error').isHidden(), 'Documentation load error');
   assert(await page.locator('.opblock').count() === 2, 'Catalog operation discovery failed');
   const list = page.locator('.opblock').nth(0);
@@ -55,6 +59,7 @@ try {
   assert(discoveryMs < 180000, 'Discovery exceeded three minutes');
 
   async function execute(block, expectedStatus, expectedHeader) {
+    stage = 'api-execute';
     await block.locator('.try-out__btn').click();
     const responsePromise = page.waitForResponse(response => {
       const path = new URL(response.url()).pathname;
@@ -104,15 +109,17 @@ try {
   assert(!requests.some(item => item.foreign), 'Off-origin browser request');
 
   await page.route('**/openapi.json', route => route.abort());
+  stage = 'contract-error';
   await page.reload();
   assert(await page.locator('#docs-error').isVisible(), 'Broken contract load was not visible');
   await page.unroute('**/openapi.json');
   await page.route('**/api-docs/swagger-ui-bundle.js', route => route.abort());
+  stage = 'asset-error';
   await page.reload();
   assert(await page.locator('#docs-error').isVisible(), 'Broken UI asset load was not visible');
   process.stdout.write('CP1_BROWSER_RECEIPT status=complete behavior=published-contract\n');
 } catch (_error) {
-  process.stderr.write('CP1_BROWSER_OUTCOME status=failed category=browser-regression\n');
+  process.stderr.write(`CP1_BROWSER_OUTCOME status=failed category=browser-regression stage=${stage}\n`);
   process.exitCode = 1;
 } finally {
   await browser?.close();

@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import signal
 import subprocess
 import sys
@@ -43,6 +44,11 @@ def run(argv, env, timeout):
         try:
             status = child.wait(timeout=timeout)
             if status:
+                output.seek(0)
+                for raw in output:
+                    line = raw.decode(errors='replace').rstrip('\r\n')
+                    if re.fullmatch(r'PROFILE_SAFE_DIAGNOSTIC category=openapi-browser stage=[a-z-]+', line):
+                        print(line, file=sys.stderr)
                 raise ValueError('child-failure')
         except subprocess.TimeoutExpired:
             raise ValueError('timeout') from None

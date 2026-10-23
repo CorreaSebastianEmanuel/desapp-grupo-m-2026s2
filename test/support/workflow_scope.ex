@@ -3,13 +3,16 @@ defmodule FootballMarket.WorkflowScope do
 
   def active_feature(root \\ File.cwd!()) do
     python = """
+    import os
     import subprocess
     from pathlib import Path
-    from scripts.workflow_artifact_probe import active_feature
+    from scripts.agentflow_feature import task_id_from_head, task_for_id, resolve_feature
     root=Path.cwd().resolve()
     branch=subprocess.check_output(['git','branch','--show-current'],text=True).strip()
-    if branch not in ('main','master',''):
-        print(active_feature(root).relative_to(root).as_posix())
+    head=os.environ.get('GITHUB_HEAD_REF','').strip() or branch
+    if head not in ('main','master',''):
+        task=task_for_id(root,task_id_from_head(head))
+        print(resolve_feature(root,task,head_ref=head).feature.relative_to(root).as_posix())
     """
 
     case System.cmd("python3", ["-c", python], cd: root, stderr_to_stdout: true) do

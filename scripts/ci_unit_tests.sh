@@ -43,6 +43,8 @@ import sys
 for line in pathlib.Path(sys.argv[1]).read_text(errors="replace").splitlines():
     if re.fullmatch(r"PROFILE_DISCREPANCY id=[0-9a-f]{24}(?: line=[0-9]+)?", line):
         print(line, file=sys.stderr)
+    elif re.fullmatch(r"PROFILE_SAFE_DIAGNOSTIC category=openapi-browser stage=[a-z-]+", line):
+        print(line, file=sys.stderr)
     elif re.fullmatch(r"CP1_PROFILE_OUTCOME status=failed category=[a-z-]+", line):
         print(line, file=sys.stderr)
 PY

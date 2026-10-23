@@ -178,6 +178,8 @@ defmodule FootballMarket.WorkflowScope do
       "priv/repo/migrations/20261018000700_reconcile_quote_calculation_attempts.exs",
       "priv/repo/migrations/20261018000800_reconcile_quote_request_requested_mapping.exs",
       "priv/repo/migrations/20261018000900_reconcile_legacy_quote_admission.exs",
+      "priv/repo/migrations/20261018001000_protect_quote_evaluation_deletion.exs",
+      "priv/repo/migrations/20261018001100_require_successful_quote_confirmation.exs",
       "scripts/verify_quote_runtime.exs",
       "test/football_market/quotes/",
       "test/football_market/valuation/configurations/managed_test.exs",

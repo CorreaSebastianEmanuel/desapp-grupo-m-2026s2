@@ -1,0 +1,11 @@
+Independent QA, 2026-10-23 UTC. All product commands used MIX_OS_CONCURRENCY_LOCK=0 MIX_ENV=test. No developer receipts reused.
+preflight: mix infrastructure.verify -> exit 0; PostgreSQL migration marker OK; Redis OK.
+format: mix format --check-formatted -> exit 0, no output.
+compile: mix compile --warnings-as-errors -> exit 0, no output.
+quote-regressions: exact argv from verification.json -> exit 0; 24 passed; 81.3s ExUnit time.
+unit: TMPDIR="$PWD/tmp" sh scripts/test_profile.sh unit -> exit 0; expected/discovered/executed/passed 495, audit_count 68.
+runtime: sh -c 'mix infrastructure.verify && mix run scripts/verify_quote_runtime.exs' -> exit 0; QUOTE_RUNTIME_ASSERTIONS_PASS.
+strategy barrier: mix test --no-compile /private/tmp/task026-qa-20261023/strategy_barrier_test.exs -> initial fixture failed before strategy fixation (FOR UPDATE also blocks FK admission). Corrected fixture uses FOR NO KEY UPDATE; exit 0; 1 passed, 4.1s. No product edits.
+orphan result, twice unchanged: mix test --no-compile /private/tmp/task026-qa-20261023/orphan_result_test.exs -> exit 2 both times; successful INSERT num_rows 1 committed; rejection assertion failed. ExUnit times 3.2s and 2.9s, excluding startup.
+After the second unchanged orphan-result failure QA stopped. Integration was not launched. No implementation was changed.
+Source probes are archived as .exs.txt to preserve the maintained source inventory. Copy to /private/tmp/task026-qa-20261023/<original .exs filename> before executing the commands above.

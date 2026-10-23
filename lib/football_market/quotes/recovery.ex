@@ -119,7 +119,9 @@ defmodule FootballMarket.Quotes.Recovery do
   defp acknowledge_by_id(event_id, fence, receipt) do
     Repo.transaction(fn ->
       event = Repo.one(from e in Evaluation, where: e.id == ^event_id, lock: "FOR UPDATE")
-      now = Store.database_now!()
+      # The row lock may outlast the lease. Validate against the current DB
+      # clock after acquiring it, rather than the transaction's start time.
+      now = Store.database_clock_now!()
       acknowledge_locked(event, fence, receipt, now)
     end)
     |> case do

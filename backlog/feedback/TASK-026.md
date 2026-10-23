@@ -129,3 +129,47 @@ QA 00:14 FAIL — remedar los 4 blockers EN ESTE ciclo (presupuesto final). B1 (
 
 Ciclo final extendido (presupuesto ampliado a 16): implementar los 3 blockers del QA independiente (qa-report.md 2026-10-21) en develop y cerrar la deuda de evidencia FR-015. (B1) quotes.ex:87 compara scope/selector sin la identidad del mapping suministrado: mismo request_id con DISTINTO UUID de mapping no-disponible debe dar request_conflict y la identidad faltante debe quedar inspectable en la request persistida; regresión committed en test/football_market/quotes/admission_test.exs. (B2) process_import_request/1 llama siempre Membership.snapshots(req.intent_id) aunque las explicit requests tienen nil intent_id con facts retenidos propios: inyección de INSERT-trigger fallando en schema fixture aislada, request explicit pending duradera, remover inyección y ejecutar el worker path debe terminar successful; regresión committed de rollback precommit + recuperación worker-path. (B3) cerrar los gaps FR-015 citados en la matriz del QA: multi-player/semana, dos imports antes del primer dispatch, transiciones reales de retry 60/300s con repeated interrupted attempts y recovery-to-success, rollback quote/event por inyección precommit, fake-consumer effective-work deduplication, snapshot financiero intacto por clase de fallo y missing-original replay failure a nivel quotes. Mantener decisiones product/architecture asentadas; si se toca lib/test/specs re-correr TODA la cadena sin --reuse (preflight, format, compile, unit, integration, runtime) + workflow_artifact_probe develop --readiness exit 0 con receipts frescos; actualizar handoffs/develop.md y marks de tasks.md con evidencia real; NO reinventar lo ya verificado (runtime driver late-fact/strategy-switch pasó hoy). Ambiental bajo runner: ci_unit_tests.sh ya fuerza TMPDIR plano; evidencia restante queda en .agentflow/runs/ci_profile_logs_0303fail (no repetir).
 
+## Feedback 14
+
+- Time: 2026-10-22T22:04:43+00:00
+- Author: ezequielgonzalez
+- Restart from: qa
+- Impact: qa
+- Required regressions: cited discrepancy plus required manifest checks
+- Checks: QUOTE-REGRESSIONS
+
+La QA independiente se detuvo tras dos fallos idénticos del perfil quote-regressions: PostgreSQL entró en recuperación por fsync de datos (healthcheck unhealthy, recovery mode) y la cadena no continuó. El contenedor completó la recuperación, el checkpoint de fin de recuperación terminó y el healthcheck quedó healthy. Repetir QA independiente completa con servicios ya estables; no cambiar código ni aceptar el reporte anterior como PASS.
+
+## Feedback 15
+
+- Time: 2026-10-22T22:45:31+00:00
+- Author: ezequielgonzalez
+- Restart from: develop
+- Impact: implementation
+- Required regressions: cited discrepancy plus required manifest checks
+- Checks: QUOTE-REGRESSIONS, INTEGRATION
+
+QA independiente del 2026-10-22 detectó dos defectos reproducibles. B1: el DELETE directo de una fila pending de quote_evaluation_requests tiene éxito; proteger también DELETE con trigger/constraint append-only y agregar regresión SQL en test/football_market/quotes/followup_test.exs, preservando las reglas existentes de ACK. B2: un worker con lease que expira mientras espera el player lock confirma successful porque Store.database_now! usa SELECT now() (hora de inicio de transacción); validar el vencimiento con reloj real de base de datos al punto de confirmación (clock_timestamp o equivalente), con regresión committed y determinista en test/football_market/quotes/recovery_test.exs que pruebe bloqueo, expiración antes de adquirir lock y rechazo stale_fence. Mantener plan/data-model; después ejecutar todos los checks de desarrollo frescos, readiness y QA/review independientes.
+
+## Feedback 16
+
+- Time: 2026-10-23T00:32:00+00:00
+- Author: ezequielgonzalez
+- Restart from: develop
+- Impact: implementation
+- Required regressions: cited discrepancy plus required manifest checks
+- Checks: QUOTE-REGRESSIONS, INTEGRATION
+
+Independent QA B1: acknowledge_evaluation reads lease time via Store.database_now! (transaction-start timestamp) after FOR UPDATE may wait past expiry, accepting an expired ACK. Switch post-lock lease validation to database_clock_now! and add the adversarial expiry-while-blocked ACK regression from qa-evidence/20261023-ack-expiry/ack_expiry_test.exs.
+
+## Feedback 17
+
+- Time: 2026-10-23T01:39:17+00:00
+- Author: ezequielgonzalez
+- Restart from: develop
+- Impact: implementation
+- Required regressions: cited discrepancy plus required manifest checks
+- Checks: QUOTE-REGRESSIONS, INTEGRATION
+
+Independent QA B1: successful quote_calculations can be inserted and committed directly without a matching market_quotes row or quote_evaluation_requests event. Existing deferred triggers run only for quote/event inserts. Add a forward-only deferred constraint trigger on successful calculation insertion validating exactly one matching performance quote and exactly one evaluation event at commit; add committed direct-insert regression based on qa-evidence/20261023-independent-result-linkage/orphan-result.exs.txt.
+

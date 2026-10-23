@@ -13,6 +13,60 @@ defmodule FootballMarket.Quotes.ImmutabilityTest do
     {:ok, QuotesCase.fixture()}
   end
 
+  test "successful calculation inserted directly cannot commit without its quote and evaluation",
+       f do
+    assert {:ok, _} = Configurations.activate(f.configuration.id, nil)
+    assert {:ok, %{calculation: original}} = Quotes.request(f.subject, :active, f.mapping.id)
+    assert {:ok, original} = Quotes.get_calculation(original.id)
+    assert {:ok, mapping} = Quotes.save_mapping("orphan-result", "1", Decimal.new("1.25"))
+    orphan_id = Ecto.UUID.generate()
+    before = QuotesCase.protected_snapshot()
+
+    error =
+      assert_raise Postgrex.Error, fn ->
+        Repo.transaction(fn ->
+          assert %{num_rows: 1} =
+                   Repo.query!(
+                     """
+                     INSERT INTO quote_calculations
+                       (id, player_id, season_id, week_start, week_end, configuration_version_id,
+                        mapping_id, membership, canonical_identity, status, reason, score,
+                        unit_price, effective_at, evidence, inserted_at)
+                     SELECT $1, player_id, season_id, week_start, week_end, configuration_version_id,
+                       $2, membership, jsonb_set(canonical_identity, '{mapping_id}', to_jsonb($3::text)),
+                       status, reason, score, unit_price, effective_at,
+                       evidence || jsonb_build_object('mapping_id', $3::text,
+                         'mapping_name', 'orphan-result', 'mapping_version', '1'), inserted_at
+                     FROM quote_calculations WHERE id=$4
+                     """,
+                     [
+                       Ecto.UUID.dump!(orphan_id),
+                       Ecto.UUID.dump!(mapping.id),
+                       mapping.id,
+                       Ecto.UUID.dump!(original.id)
+                     ]
+                   )
+
+          # The check must run at commit, allowing normal result/quote/event
+          # insertion in one transaction while rejecting an orphan result.
+          assert Repo.query!("SELECT count(*) FROM quote_calculations WHERE id=$1", [
+                   Ecto.UUID.dump!(orphan_id)
+                 ]).rows == [[1]]
+        end)
+      end
+
+    assert error.postgres.code == :check_violation
+    assert error.postgres.constraint == "quote_calculation_confirmation_required"
+
+    assert Repo.query!("SELECT count(*) FROM quote_calculations WHERE id=$1", [
+             Ecto.UUID.dump!(orphan_id)
+           ]).rows == [[0]]
+
+    assert QuotesCase.protected_snapshot() == before
+    assert {:ok, retained} = Quotes.get_calculation(original.id)
+    assert retained == original
+  end
+
   defp dt!(value) when is_binary(value) do
     {:ok, dt, _} = DateTime.from_iso8601(value)
     usec6(dt)

@@ -1,0 +1,63 @@
+defmodule Task026IndependentBarrierTest do
+  use FootballMarket.DataCase, async: false
+  alias FootballMarket.{Quotes, Repo, QuotesCase, ValuationConfigurationCase}
+  alias FootballMarket.Valuation.Configurations
+  setup do
+    namespace = ValuationConfigurationCase.private_schema()
+    {:ok, Map.put(QuotesCase.fixture(), :namespace, namespace)}
+  end
+  test "active strategy switches while original calculation is blocked at confirmation", f do
+    assert {:ok, _} = Configurations.activate(f.configuration.id, nil)
+    {:ok, replacement} = Configurations.create(ValuationConfigurationCase.rules(f.base.position.id, "balanced", %{goals: 4}))
+    parent = self()
+    request_id = Ecto.UUID.generate()
+    locker = Task.async(fn ->
+      ValuationConfigurationCase.in_client(f.namespace.schema, fn ->
+        Repo.transaction(fn ->
+          Repo.query!("SELECT id FROM players WHERE id=$1 FOR NO KEY UPDATE", [Ecto.UUID.dump!(f.player.id)])
+          send(parent, :locked)
+          receive do :release -> :ok after 10_000 -> raise "lock timeout" end
+        end)
+      end)
+    end)
+    assert_receive :locked, 5000
+    worker = Task.async(fn ->
+      ValuationConfigurationCase.in_client(f.namespace.schema, fn ->
+        Repo.checkout(fn ->
+          [[backend]] = Repo.query!("SELECT pg_backend_pid()").rows
+          send(parent, {:backend, backend})
+          Quotes.request(f.subject, :active, f.mapping.id, request_id)
+        end)
+      end)
+    end)
+    try do
+      assert_receive {:backend, backend}, 5000
+      wait_blocked(backend, 500)
+      assert {:ok, admitted} = Quotes.get_request(request_id)
+      assert admitted.configuration_version_id == f.configuration.id
+      assert {:ok, _} = Configurations.activate(replacement.id, f.configuration.id)
+      send(locker.pid, :release)
+      assert {:ok, :ok} = Task.await(locker, 5000)
+      assert {:ok, original} = Task.await(worker, 5000)
+      assert original.calculation.configuration_version_id == f.configuration.id
+      assert Decimal.equal?(original.calculation.unit_price, Decimal.new("1.25"))
+      assert {:ok, later} = Quotes.request(f.subject, :active, f.mapping.id)
+      assert later.calculation.configuration_version_id == replacement.id
+      refute later.calculation.id == original.calculation.id
+      assert {:ok, replay} = Quotes.replay(original.calculation.id)
+      assert Decimal.equal?(replay.outcome.price, Decimal.new("1.25"))
+    after
+      if Process.alive?(worker.pid), do: Task.shutdown(worker, :brutal_kill)
+      if Process.alive?(locker.pid), do: send(locker.pid, :release)
+    end
+  end
+  defp wait_blocked(_, 0), do: flunk("calculation did not block")
+  defp wait_blocked(pid, remaining) do
+    if Repo.query!("SELECT cardinality(pg_blocking_pids($1)) > 0", [pid]).rows == [[true]] do
+      :ok
+    else
+      Process.sleep(10)
+      wait_blocked(pid, remaining - 1)
+    end
+  end
+end

@@ -184,6 +184,95 @@ defmodule FootballMarket.Quotes.RecoveryTest do
            ).rows == [[1]]
   end
 
+  test "calculation lease expiry while waiting on player lock rejects confirmation", f do
+    before = QuotesCase.protected_snapshot()
+    [[now]] = Repo.query!("SELECT clock_timestamp()").rows
+
+    request =
+      Repo.insert!(%CalculationRequest{
+        id: Ecto.UUID.generate(),
+        source: "explicit",
+        player_id: f.player.id,
+        season_id: f.subject.season_id,
+        week_start: dt!(f.subject.week_start),
+        week_end: dt!(f.subject.week_end),
+        selector: "version:" <> f.configuration.id,
+        mapping_id: f.mapping.id,
+        state: "running",
+        attempt_count: 1,
+        lease_fence: 1,
+        lease_until: DateTime.add(now, 3, :second),
+        inserted_at: now
+      })
+
+    parent = self()
+    ref = make_ref()
+    locker = Task.async(fn -> lock_player(f, ref, parent) end)
+    assert_receive {^ref, :locked}, 5_000
+
+    {:ok, worker_client} = ValuationConfigurationCase.client(f.namespace.schema)
+
+    worker =
+      Task.async(fn ->
+        Repo.put_dynamic_repo(worker_client)
+
+        Repo.checkout(fn ->
+          [[backend]] = Repo.query!("SELECT pg_backend_pid()").rows
+          send(parent, {ref, :worker, backend})
+
+          Quotes.request_membership(
+            f.subject,
+            {:version, f.configuration.id},
+            f.mapping.id,
+            [FootballMarket.Valuation.StatisticsReader.snapshot(f.performance, f.match)],
+            request.id,
+            {request.id, 1}
+          )
+        end)
+      end)
+
+    try do
+      assert_receive {^ref, :worker, backend}, 5_000
+      await_blocked(backend, 500)
+
+      # Establish the counterexample to transaction-start `now()`: the worker
+      # began before expiry and remains blocked until the real DB clock passes it.
+      assert Repo.query!(
+               "SELECT xact_start < $2 FROM pg_stat_activity WHERE pid=$1",
+               [backend, request.lease_until]
+             ).rows == [[true]]
+
+      Repo.query!(
+        "SELECT pg_sleep(GREATEST(0, EXTRACT(EPOCH FROM ($1::timestamptz - clock_timestamp()))) + 0.05)",
+        [request.lease_until]
+      )
+
+      assert Repo.query!("SELECT clock_timestamp() > $1", [request.lease_until]).rows == [[true]]
+
+      assert Repo.query!("SELECT cardinality(pg_blocking_pids($1)) > 0", [backend]).rows == [
+               [true]
+             ]
+
+      send(locker.pid, {ref, :release})
+      assert {:ok, :ok} = Task.await(locker, 5_000)
+      assert {:error, :stale_fence} = Task.await(worker, 5_000)
+
+      assert Repo.query!("SELECT count(*) FROM market_quotes WHERE calculation_id IS NOT NULL").rows ==
+               [[0]]
+
+      assert Repo.query!("SELECT count(*) FROM quote_calculations").rows == [[0]]
+      assert QuotesCase.protected_snapshot() == before
+    after
+      if Process.alive?(worker.pid), do: Task.shutdown(worker, :brutal_kill)
+      Supervisor.stop(worker_client)
+
+      if Process.alive?(locker.pid) do
+        send(locker.pid, {ref, :release})
+        Task.await(locker, 5_000)
+      end
+    end
+  end
+
   test "explicit recovery recovers a pre-commit persistence failure through the worker", f do
     assert {:ok, _} = Configurations.activate(f.configuration.id, nil)
     request_id = Ecto.UUID.generate()

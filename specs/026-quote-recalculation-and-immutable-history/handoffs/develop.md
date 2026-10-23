@@ -1,25 +1,27 @@
-Develop is incomplete: integration reached the two-failure limit with unchanged inputs. T027/T029 remain unchecked; readiness and independent QA are blocked.
+# Develop delta — TASK-026
 
-Implemented/verified deltas: unavailable mapping UUID remains inspectable and immutable; conflicting reuse is rejected. Explicit pending requests recover through the worker from retained facts after precommit rollback. Legacy imports now retain terminal unreproducible scope requests without inventing membership. Migration 009 enforces these boundaries; plan/data-model/contracts and exact scope allowances are aligned. Existing runtime driver remains unchanged.
+Implementation and all seven developer checks are complete; readiness passed. Only independent QA/review remain downstream.
 
-Regression evidence covers two-player/two-week imports before dispatch, complete pinned membership, 60/300-second retries, three actually interrupted workers, rollback of quote/event confirmation, consumer receipt/effective-work deduplication, protected financial/input snapshots across failure classes, and missing-original replay failure. Inventory is 495 unit / 478 integration / 2 e2e cases.
+Feedback 17: added forward-only `priv/repo/migrations/20261018001100_require_successful_quote_confirmation.exs`. Its initially deferred INSERT constraint requires exactly one matching performance quote/evaluation for a successful calculation. Existing unique indexes enforce cardinality; player, configuration, mapping, price and effective time must match. No scoring or interface changes. Kept the existing deletion guard and post-lock database-clock lease fixes from feedback 15–16.
 
-Commands used `python3 scripts/agentflow_check.py CHECK_ID --reuse`; all successful final receipts executed freshly and retained unchanged source fingerprints. Evidence base:
-`.agentflow/runs/checks/a51aee7448d14823adfa2fce949af473/026-quote-recalculation-and-immutable-history/develop/`
+`test/football_market/quotes/immutability_test.exs` now commits the adversarial direct INSERT: rejection must occur at commit, roll back the orphan, preserve the original persisted calculation and leave financial state unchanged. Updated exact scope allowances, test inventory, plan migration inventory and task scenario mapping.
 
-| Check | Exit | Seconds | Evidence under base |
+All checks use `python3 scripts/agentflow_check.py CHECK_ID --reuse`; these final receipts executed freshly. Evidence root: `.agentflow/runs/checks/a51aee7448d14823adfa2fce949af473/026-quote-recalculation-and-immutable-history/develop/`. Each entry is `CHECK_ID/UUID.log`.
+
+| Check | Exit | Seconds | UUID |
 |---|---:|---:|---|
-| preflight | 0 | 2.173 | preflight/1653c5cdc7224e49b1e712fac494cfd3.log |
-| format | 0 | 1.203 | format/b9e4529962b24d779fe280bf4cd9a6c7.log |
-| compile | 0 | 1.225 | compile/5f76a4b157d043d894879c72919c7cfd.log |
-| quote-regressions | 0 | 58.594 | quote-regressions/f9a0f82b378541c2ae37abbb441aa76d.log |
-| unit | 0 | 293.932 | unit/7cd377c44f5c4e4bb4f1112a39eab373.log |
-| runtime | 0 | 32.710 | runtime/61176cf64c364c65a999656f61d14d48.log |
-| integration, sandbox | 1 | 42.835 | integration/f07027a1dce9426aa4d24e2ff395782c.log |
-| integration, automatically approved escalation | 1 | 774.670 | integration/f84a1643ec26493cbfc51c93843a1718.log |
+| preflight | 0 | 1.525 | 26cca8f424db4c23a8f540732f5a5669 |
+| format | 0 | 1.343 | 4284e91b008f4b8a920e437e66e526bc |
+| compile | 0 | 0.913 | 87d9ca55a5f54623bf1c3e3820d0e774 |
+| quote-regressions | 0 | 75.643 | fb6c5b07c8aa49a0b3df435537b61b8c |
+| unit | 0 | 287.224 | bde12051d7b442a388478f2e671110a9 |
+| integration | 0 | 727.011 | d420290920834f42b8af35a429239087 |
+| runtime | 0 | 12.572 | 3fc660a082e74dbca07c989f5046575e |
 
-Unit executed/passed 495; focused checks passed 21; runtime emitted QUOTE_RUNTIME_ASSERTIONS_PASS. Cumulative session check time: 1409.211 seconds, including earlier regression/warning diagnostics; latest chain: 1207.342 seconds.
+Regressions: 25 passed; unit: 495/495; integration: 482/482; runtime: QUOTE_RUNTIME_ASSERTIONS_PASS (fixture-module reload warning). Final checks: 1106.231s; all helper attempts: 1305.452s. Integration first failed at browser-prerequisite (42.641s, `integration/65f09d2c784c4e6395de1d9e3991d883.log`); the permitted retry outside the restricted sandbox passed. No check was weakened.
 
-First integration failure: browser-prerequisite. Second: test-failure, case a266e6ea9df5757d39f4ad89, `test/football_market_web/controllers/player_catalog_performance_test.exs`, title “all twelve filtered page cases meet the two-second p95 gate”; reported line 225. Sanitized evidence does not retain the underlying assertion, so precise cause is unconfirmed. Do not repeat unchanged checks or bypass the helper. Diagnose this case before further execution; after developer checks/readiness succeed, QA must independently execute every manifest check with `--stage qa`, without reuse, and challenge the scenario mapping.
+Earlier evidence: `quote-regressions/3cbf87e6e44a41a3a49d24f931d95eae.log` reproduced the orphan (75.339s); `quote-regressions/f8203736128642f3b9cac06421464484.log` showed enforcement worked but a test compared built/loaded Ecto metadata (75.495s); corrected by reading the original persisted row before comparison.
 
-Residuals: forward-only migration 009 must precede workers; TASK-060 consumption remains downstream. Commit a7c6598 appeared externally during execution; this session issued no commit/push/PR/merge commands. All checked task artifacts exist; pending verification marks remain in tasks.md. No extension hooks are configured.
+Residual scope: migration protects new inserts, without historical repair. QA must rerun the manifest with `--stage qa`, without reuse, and independently challenge direct SQL linkage, delete protection, blocked calculation/ACK expiry, atomic rollback, replay and restart. QA/review gates remain open. No commits or publishing.
+
+`python3 scripts/workflow_artifact_probe.py develop --readiness`: exit 0, valid=true, 0.608s; evidence `tmp/task026-develop-readiness.log`. T001–T029 reconciled against named files; only T030/T031 unchecked. No extension hooks registered.

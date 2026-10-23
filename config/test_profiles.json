@@ -1934,6 +1934,13 @@
       "profile": "integration"
     },
     {
+      "id": "49f5baf1511933e8945e82c3",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/immutability_test.exs",
+      "case_id": "FootballMarket.Quotes.ImmutabilityTest:test successful calculation inserted directly cannot commit without its quote and evaluation",
+      "profile": "integration"
+    },
+    {
       "id": "4a006857d97bbfc005ffefaa",
       "runner": "exunit",
       "file": "test/football_market/statistics/ingestion/provenance_test.exs",
@@ -2830,6 +2837,13 @@
       "profile": "unit"
     },
     {
+      "id": "6e33418835848a38c99c27b5",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/followup_test.exs",
+      "case_id": "FootballMarket.Quotes.FollowupTest:test pending follow-up event cannot be deleted",
+      "profile": "integration"
+    },
+    {
       "id": "6e3ff134ff6de46f3bdf5fe7",
       "runner": "python",
       "file": "test/scripts/agentflow_branch_test.py",
@@ -3506,6 +3520,13 @@
       "runner": "exunit",
       "file": "test/football_market_web/controllers/player_controller_test.exs",
       "case_id": "FootballMarketWeb.PlayerControllerTest:test strict parameters, error precedence, duplicates, and unknowns",
+      "profile": "integration"
+    },
+    {
+      "id": "89a47966159c168556d705a4",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/followup_test.exs",
+      "case_id": "FootballMarket.Quotes.FollowupTest:test acknowledgement blocked on event lock rejects a lease that expires before acquisition",
       "profile": "integration"
     },
     {
@@ -5600,6 +5621,13 @@
       "file": "test/football_market/valuation/normalization_test.exs",
       "case_id": "FootballMarket.Valuation.NormalizationTest:test exact ratios, saturation and half-away rounding independent of Decimal context",
       "profile": "unit"
+    },
+    {
+      "id": "d6e96d50c156e59ee71953ca",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/recovery_test.exs",
+      "case_id": "FootballMarket.Quotes.RecoveryTest:test calculation lease expiry while waiting on player lock rejects confirmation",
+      "profile": "integration"
     },
     {
       "id": "d6fd3a614a8ae0c6f154e62d",

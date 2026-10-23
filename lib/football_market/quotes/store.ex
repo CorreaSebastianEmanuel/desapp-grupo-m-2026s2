@@ -13,6 +13,10 @@ defmodule FootballMarket.Quotes.Store do
     Repo.query!("SELECT now()", []) |> then(fn %{rows: [[at]]} -> at end)
   end
 
+  def database_clock_now! do
+    Repo.query!("SELECT clock_timestamp()", []) |> then(fn %{rows: [[at]]} -> at end)
+  end
+
   def confirm!(%Calculation{} = calculation, player, managed, mapping, price, effective_at) do
     sequence =
       Repo.one(

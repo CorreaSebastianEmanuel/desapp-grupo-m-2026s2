@@ -1,0 +1,31 @@
+defmodule Task026IndependentOrphanResultTest do
+  use FootballMarket.DataCase, async: false
+  alias FootballMarket.{Quotes, Repo, QuotesCase, ValuationConfigurationCase}
+  alias FootballMarket.Valuation.Configurations
+  setup do
+    ValuationConfigurationCase.private_schema()
+    {:ok, QuotesCase.fixture()}
+  end
+  test "successful result cannot commit without its matching quote and evaluation", f do
+    assert {:ok, _} = Configurations.activate(f.configuration.id, nil)
+    assert {:ok, %{calculation: original}} = Quotes.request(f.subject, :active, f.mapping.id)
+    assert {:ok, mapping} = Quotes.save_mapping("independent-orphan", "1", Decimal.new("1.25"))
+    orphan_id = Ecto.UUID.generate()
+    result = Repo.transaction(fn ->
+      Repo.query!("""
+      INSERT INTO quote_calculations
+        (id, player_id, season_id, week_start, week_end, configuration_version_id,
+         mapping_id, membership, canonical_identity, status, reason, score,
+         unit_price, effective_at, evidence, inserted_at)
+      SELECT $1, player_id, season_id, week_start, week_end, configuration_version_id,
+        $2, membership, jsonb_set(canonical_identity, '{mapping_id}', to_jsonb($3::text)),
+        status, reason, score, unit_price, effective_at,
+        evidence || jsonb_build_object('mapping_id', $3::text,
+          'mapping_name', 'independent-orphan', 'mapping_version', '1'), inserted_at
+      FROM quote_calculations WHERE id=$4
+      """, [Ecto.UUID.dump!(orphan_id), Ecto.UUID.dump!(mapping.id), mapping.id, Ecto.UUID.dump!(original.id)])
+    end)
+    assert {:error, _} = result,
+      "successful result committed without quote/event: #{inspect(Repo.query!("SELECT (SELECT count(*) FROM quote_calculations WHERE id=$1), (SELECT count(*) FROM market_quotes WHERE calculation_id=$1), (SELECT count(*) FROM quote_evaluation_requests WHERE calculation_id=$1)", [Ecto.UUID.dump!(orphan_id)]).rows)}"
+  end
+end

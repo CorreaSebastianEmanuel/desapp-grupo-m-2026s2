@@ -1030,7 +1030,9 @@ defmodule FootballMarket.Quotes do
           lock: "FOR UPDATE"
       )
 
-    now = Store.database_now!()
+    # `now()` is fixed at transaction start. This confirmation may have waited
+    # for the player lock, so check lease expiry against the current DB clock.
+    now = Store.database_clock_now!()
 
     if request && request.state == "running" && request.lease_fence == fence &&
          request.lease_until && DateTime.compare(request.lease_until, now) == :gt do

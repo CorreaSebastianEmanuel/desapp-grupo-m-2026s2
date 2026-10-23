@@ -1,0 +1,181 @@
+defmodule FootballMarket.Quotes.ImmutabilityTest do
+  use FootballMarket.DataCase, async: false
+  @moduletag :integration
+
+  alias FootballMarket.{Quotes, Repo}
+  alias FootballMarket.QuotesCase
+  alias FootballMarket.Quotes.CalculationRequest
+  alias FootballMarket.ValuationConfigurationCase
+  alias FootballMarket.Valuation.Configurations
+
+  setup do
+    ValuationConfigurationCase.private_schema()
+    {:ok, QuotesCase.fixture()}
+  end
+
+  test "successful calculation inserted directly cannot commit without its quote and evaluation",
+       f do
+    assert {:ok, _} = Configurations.activate(f.configuration.id, nil)
+    assert {:ok, %{calculation: original}} = Quotes.request(f.subject, :active, f.mapping.id)
+    assert {:ok, original} = Quotes.get_calculation(original.id)
+    assert {:ok, mapping} = Quotes.save_mapping("orphan-result", "1", Decimal.new("1.25"))
+    orphan_id = Ecto.UUID.generate()
+    before = QuotesCase.protected_snapshot()
+
+    error =
+      assert_raise Postgrex.Error, fn ->
+        Repo.transaction(fn ->
+          assert %{num_rows: 1} =
+                   Repo.query!(
+                     """
+                     INSERT INTO quote_calculations
+                       (id, player_id, season_id, week_start, week_end, configuration_version_id,
+                        mapping_id, membership, canonical_identity, status, reason, score,
+                        unit_price, effective_at, evidence, inserted_at)
+                     SELECT $1, player_id, season_id, week_start, week_end, configuration_version_id,
+                       $2, membership, jsonb_set(canonical_identity, '{mapping_id}', to_jsonb($3::text)),
+                       status, reason, score, unit_price, effective_at,
+                       evidence || jsonb_build_object('mapping_id', $3::text,
+                         'mapping_name', 'orphan-result', 'mapping_version', '1'), inserted_at
+                     FROM quote_calculations WHERE id=$4
+                     """,
+                     [
+                       Ecto.UUID.dump!(orphan_id),
+                       Ecto.UUID.dump!(mapping.id),
+                       mapping.id,
+                       Ecto.UUID.dump!(original.id)
+                     ]
+                   )
+
+          # The check must run at commit, allowing normal result/quote/event
+          # insertion in one transaction while rejecting an orphan result.
+          assert Repo.query!("SELECT count(*) FROM quote_calculations WHERE id=$1", [
+                   Ecto.UUID.dump!(orphan_id)
+                 ]).rows == [[1]]
+        end)
+      end
+
+    assert error.postgres.code == :check_violation
+    assert error.postgres.constraint == "quote_calculation_confirmation_required"
+
+    assert Repo.query!("SELECT count(*) FROM quote_calculations WHERE id=$1", [
+             Ecto.UUID.dump!(orphan_id)
+           ]).rows == [[0]]
+
+    assert QuotesCase.protected_snapshot() == before
+    assert {:ok, retained} = Quotes.get_calculation(original.id)
+    assert retained == original
+  end
+
+  defp dt!(value) when is_binary(value) do
+    {:ok, dt, _} = DateTime.from_iso8601(value)
+    usec6(dt)
+  end
+
+  defp dt!(value) when is_struct(value, DateTime), do: usec6(value)
+
+  defp dt!(value), do: value
+
+  defp usec6(dt) do
+    dt = DateTime.truncate(dt, :microsecond)
+    {micros, _} = dt.microsecond
+    %{dt | microsecond: {micros, 6}}
+  end
+
+  test "stale calculation lease is fenced before any quote or calculation write", f do
+    now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
+
+    request =
+      Repo.insert!(%CalculationRequest{
+        id: Ecto.UUID.generate(),
+        source: "explicit",
+        player_id: f.player.id,
+        season_id: f.subject.season_id,
+        week_start: dt!(f.subject.week_start),
+        week_end: dt!(f.subject.week_end),
+        selector: "version:" <> f.configuration.id,
+        mapping_id: f.mapping.id,
+        state: "running",
+        attempt_count: 1,
+        lease_fence: 2,
+        lease_until: DateTime.add(now, 300, :second),
+        inserted_at: now
+      })
+
+    before =
+      Repo.query!("SELECT count(*) FROM market_quotes WHERE player_id=$1", [
+        Ecto.UUID.dump!(f.player.id)
+      ]).rows
+
+    assert {:error, :stale_fence} =
+             Quotes.request_membership(
+               f.subject,
+               {:version, f.configuration.id},
+               f.mapping.id,
+               [FootballMarket.Valuation.StatisticsReader.snapshot(f.performance, f.match)],
+               request.id,
+               {request.id, 1}
+             )
+
+    assert Repo.query!("SELECT count(*) FROM market_quotes WHERE player_id=$1", [
+             Ecto.UUID.dump!(f.player.id)
+           ]).rows == before
+
+    assert Repo.query!("SELECT count(*) FROM quote_calculations WHERE player_id=$1", [
+             Ecto.UUID.dump!(f.player.id)
+           ]).rows == [[0]]
+  end
+
+  test "performance quote and evaluation identity are immutable while delivery state is separate",
+       f do
+    assert {:ok, _} = Configurations.activate(f.configuration.id, nil)
+    assert {:ok, %{calculation: calculation}} = Quotes.request(f.subject, :active, f.mapping.id)
+    {:ok, [event]} = Quotes.pending_evaluations()
+
+    assert_raise Postgrex.Error, fn ->
+      Repo.query!("UPDATE market_quotes SET unit_price=9 WHERE calculation_id=$1", [
+        Ecto.UUID.dump!(calculation.id)
+      ])
+    end
+
+    assert_raise Postgrex.Error, fn ->
+      Repo.query!("UPDATE quote_evaluation_requests SET quote_id=gen_random_uuid() WHERE id=$1", [
+        Ecto.UUID.dump!(event.id)
+      ])
+    end
+
+    assert {:ok, _claim} = Quotes.claim_evaluation(event.id)
+    assert {:ok, []} = Quotes.pending_evaluations()
+
+    assert Repo.query!("SELECT state FROM quote_evaluation_requests WHERE id=$1", [
+             Ecto.UUID.dump!(event.id)
+           ]).rows == [["leased"]]
+  end
+
+  test "precommit follow-up failure rolls back calculation and quote without changing holdings",
+       f do
+    assert {:ok, _} = Configurations.activate(f.configuration.id, nil)
+    request_id = Ecto.UUID.generate()
+
+    before = QuotesCase.protected_snapshot()
+
+    Repo.query!(
+      "CREATE FUNCTION event_insert_guard() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'event precommit injection'; END; $$",
+      []
+    )
+
+    Repo.query!(
+      "CREATE TRIGGER event_insert_guard BEFORE INSERT ON quote_evaluation_requests FOR EACH ROW EXECUTE FUNCTION event_insert_guard()",
+      []
+    )
+
+    assert {:error, :temporarily_unavailable} =
+             Quotes.request(f.subject, :active, f.mapping.id, request_id)
+
+    Repo.query!("DROP TRIGGER event_insert_guard ON quote_evaluation_requests", [])
+    Repo.query!("DROP FUNCTION event_insert_guard()", [])
+
+    assert QuotesCase.protected_snapshot() == before
+    assert {:ok, %{state: "pending"}} = Quotes.get_request(request_id)
+  end
+end

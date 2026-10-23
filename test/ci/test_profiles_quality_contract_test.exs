@@ -37,6 +37,8 @@ defmodule FootballMarket.TestProfilesQualityContractTest do
     assert script =~ "scripts/test_profile.sh"
     assert script =~ "unit integration"
     assert script =~ "FOOTBALL_MARKET_CI_DISCOVERY_SENTINEL"
+    assert script =~ "PROFILE_DISCREPANCY id=[0-9a-f]{24}"
+    assert script =~ "CP1_PROFILE_OUTCOME status=failed category="
     refute script =~ "cat \"$output\""
     refute script =~ "mix test --warnings-as-errors"
   end

@@ -146,11 +146,11 @@ def isolated_services(directory):
 
 
 
-def verify_receipts(directory):
+def verify_receipts(directory, profiles=('unit', 'integration')):
     import hashlib
     inventory = json.loads(Path('config/test_profiles.json').read_text())
     digest = hashlib.sha256(Path('config/test_profiles.json').read_bytes()).hexdigest()
-    for profile in ('unit', 'integration'):
+    for profile in profiles:
         receipt = json.loads((Path(directory) / (profile + '.json')).read_text())
         expected = sum(c['profile'] == profile for c in inventory['entries'])
         if (receipt.get('status') != 'complete' or receipt.get('profile') != profile
@@ -167,8 +167,8 @@ def verify_receipts(directory):
 
 if __name__ == '__main__':
     try:
-        if len(sys.argv) == 3 and sys.argv[1] == 'verify-receipts':
-            verify_receipts(sys.argv[2])
+        if len(sys.argv) >= 3 and sys.argv[1] == 'verify-receipts':
+            verify_receipts(sys.argv[2], tuple(sys.argv[3:]))
         else:
             sys.exit(run_python())
     except (OSError, ValueError, KeyError):

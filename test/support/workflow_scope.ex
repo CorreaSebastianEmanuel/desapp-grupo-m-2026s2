@@ -3,13 +3,16 @@ defmodule FootballMarket.WorkflowScope do
 
   def active_feature(root \\ File.cwd!()) do
     python = """
+    import os
     import subprocess
     from pathlib import Path
-    from scripts.workflow_artifact_probe import active_feature
+    from scripts.agentflow_feature import task_id_from_head, task_for_id, resolve_feature
     root=Path.cwd().resolve()
     branch=subprocess.check_output(['git','branch','--show-current'],text=True).strip()
-    if branch not in ('main','master',''):
-        print(active_feature(root).relative_to(root).as_posix())
+    head=os.environ.get('GITHUB_HEAD_REF','').strip() or branch
+    if head not in ('main','master',''):
+        task=task_for_id(root,task_id_from_head(head))
+        print(resolve_feature(root,task,head_ref=head).feature.relative_to(root).as_posix())
     """
 
     case System.cmd("python3", ["-c", python], cd: root, stderr_to_stdout: true) do
@@ -149,6 +152,57 @@ defmodule FootballMarket.WorkflowScope do
       "test/support/test_profile_audit.ex",
       "test/scripts/agentflow_evidence_test.py",
       "test/support/workflow_scope.ex"
+    ]
+  end
+
+  def paths("specs/026-quote-recalculation-and-immutable-history") do
+    [
+      "lib/football_market/quotes.ex",
+      "lib/football_market/quotes/",
+      "lib/football_market/market/quote.ex",
+      "lib/football_market/statistics/ingestion/publisher.ex",
+      "lib/football_market/valuation.ex",
+      "lib/football_market/valuation/managed.ex",
+      "lib/football_market/valuation/statistics_reader.ex",
+      "lib/football_market/valuation/calculation_requests.ex",
+      "lib/football_market/workers/calculation_dispatch.ex",
+      "lib/football_market/workers/quote_calculation.ex",
+      "lib/football_market/application.ex",
+      "config/runtime.exs",
+      "config/synchronization.exs",
+      "config/test_profiles.json",
+      "priv/repo/migrations/20261018000000_create_quote_calculations.exs",
+      "priv/repo/migrations/20261018000100_add_quote_import_snapshots.exs",
+      "priv/repo/migrations/20261018000200_add_explicit_quote_requests.exs",
+      "priv/repo/migrations/20261018000300_reconcile_quote_import_snapshot_schema.exs",
+      "priv/repo/migrations/20261018000400_reconcile_quote_import_snapshot_facts.exs",
+      "priv/repo/migrations/20261018000500_reconcile_quote_mapping_schema.exs",
+      "priv/repo/migrations/20261018000600_reconcile_quote_calculation_requests.exs",
+      "priv/repo/migrations/20261018000700_reconcile_quote_calculation_attempts.exs",
+      "priv/repo/migrations/20261018000800_reconcile_quote_request_requested_mapping.exs",
+      "priv/repo/migrations/20261018000900_reconcile_legacy_quote_admission.exs",
+      "priv/repo/migrations/20261018001000_protect_quote_evaluation_deletion.exs",
+      "priv/repo/migrations/20261018001100_require_successful_quote_confirmation.exs",
+      "scripts/verify_quote_runtime.exs",
+      "test/football_market/quotes/",
+      "test/football_market/valuation/configurations/managed_test.exs",
+      "test/football_market/statistics/ingestion/calculation_test.exs",
+      "test/support/quotes/",
+      "test/support/valuation_configuration_case.ex",
+      "test/support/market_case.ex",
+      "test/football_market/market/retry_test.exs",
+      "test/football_market/market/concurrency_test.exs",
+      "test/football_market/market/storage_test.exs",
+      "test/football_market/market/rejection_test.exs",
+      "test/support/test_profile_audit.ex",
+      "test/ci/test_profile_audit_test.exs",
+      "test/scripts/agentflow_models_test.py",
+      "test/scripts/agentflow_workflow_gate_test.py",
+      "test/support/workflow_scope.ex",
+      "test/football_market/statistics/scope_test.exs",
+      "test/football_market/providers/scope_test.exs",
+      "test/football_market/market/scope_test.exs",
+      "test/football_market/synchronization/scope_test.exs"
     ]
   end
 

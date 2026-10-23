@@ -11,6 +11,23 @@ defmodule FootballMarket.WorkflowScopeTest do
     end
   end
 
+  test "pull request head ref resolves task scope from a detached checkout" do
+    previous = System.get_env("GITHUB_HEAD_REF")
+
+    System.put_env(
+      "GITHUB_HEAD_REF",
+      "064-proportional-agentflow-delivery-and-measurable-efficiency"
+    )
+
+    try do
+      assert WorkflowScope.active_feature() == "specs/064-proportional-agentflow-delivery"
+    after
+      if previous,
+        do: System.put_env("GITHUB_HEAD_REF", previous),
+        else: System.delete_env("GITHUB_HEAD_REF")
+    end
+  end
+
   test "workflow allowance is exact and excludes application behavior" do
     paths = WorkflowScope.paths("specs/064-proportional-agentflow-delivery")
     assert "test/support/workflow_scope.ex" in paths

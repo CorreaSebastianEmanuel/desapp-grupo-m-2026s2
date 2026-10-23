@@ -105,15 +105,11 @@ defmodule FootballMarket.Market.ConcurrencyTest do
     assert before == snapshot()
   end
 
-  test "quote-first lock order rejects issuance without rewriting committed quote", f do
-    [result] =
-      queued(f, [fn -> Market.initialize_player(f.player.id) end], "players", fn ->
-        later_quote(f.player)
-      end)
-
-    assert_error(result, :inconsistent_state)
+  test "malformed performance quotes cannot precede initial issuance", f do
+    invalid_performance_quote(f.player)
+    assert {:ok, %{outcome: :issued}} = Market.initialize_player(f.player.id)
     assert Repo.query!("SELECT count(*) FROM market_quotes").rows == [[1]]
-    assert Repo.query!("SELECT count(*) FROM market_issuances").rows == [[0]]
+    assert Repo.query!("SELECT count(*) FROM market_issuances").rows == [[1]]
   end
 
   test "issuance-first lock order blocks direct quote insert and retains both facts", f do
@@ -134,7 +130,10 @@ defmodule FootballMarket.Market.ConcurrencyTest do
         assert_receive {^ref, p1, pid1}, 10_000
         send(p1, {ref, :go})
         blocked(pid1)
-        quote_task = contender(f.schema, owner, ref, fn -> later_quote(f.player, "3") end)
+
+        quote_task =
+          contender(f.schema, owner, ref, fn -> invalid_performance_quote(f.player, "3") end)
+
         assert_receive {^ref, p2, pid2}, 10_000
         send(p2, {ref, :go})
         blocked(pid2)
@@ -143,9 +142,9 @@ defmodule FootballMarket.Market.ConcurrencyTest do
       end)
 
     assert {:ok, %{outcome: :issued, issuance: e}} = Task.await(initial, 20_000)
-    assert %FootballMarket.Market.Quote{} = Task.await(quote_task, 20_000)
+    assert %Ecto.ConstraintError{} = Task.await(quote_task, 20_000)
     assert {:ok, ^e} = Market.get_initial_issuance(f.player.id)
-    assert Repo.query!("SELECT count(*) FROM market_quotes").rows == [[2]]
+    assert Repo.query!("SELECT count(*) FROM market_quotes").rows == [[1]]
     assert Repo.query!("SELECT sum(quantity) FROM market_holdings").rows == [[100]]
   end
 

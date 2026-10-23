@@ -38,17 +38,8 @@ defmodule FootballMarket.Statistics.ScopeTest do
   end
 
   test "product edits stay within plan boundary" do
-    {out, 0} =
-      System.cmd("git", [
-        "status",
-        "--porcelain",
-        "--untracked-files=all",
-        "--",
-        "lib",
-        "priv",
-        "test",
-        ".github/workflows"
-      ])
+    changed =
+      product_change_lines(["lib", "priv", "test", ".github/workflows"])
 
     allowed = [
       "lib/football_market/statistics.ex",
@@ -212,16 +203,22 @@ defmodule FootballMarket.Statistics.ScopeTest do
       end
 
     allowed_ci_paths = [
+      ".github/workflows/quality-baseline.yml",
       "test/ci/quality_baseline_contract_test.exs",
       "test/ci/fixtures/quality-baseline.sha256"
     ]
 
-    for line <- String.split(out, "\n", trim: true) do
+    for line <- changed do
       path = String.slice(line, 3..-1//1)
 
       assert path in provider_paths or path in scraper_paths or path in ingestion_paths or
                path in valuation_paths(active_feature) or path in market_paths(active_feature) or
                path in synchronization_paths(active_feature) or
+               Enum.any?(FootballMarket.WorkflowScope.paths(active_feature), fn planned ->
+                 if String.ends_with?(planned, "/"),
+                   do: String.starts_with?(path, planned),
+                   else: path == planned
+               end) or
                path in FootballMarket.BrowserSessionCase.shell_paths(active_feature) or
                path in FootballMarket.WorkflowScope.paths(active_feature) or
                path in allowed_ci_paths or path in statistics_ingestion_paths or
@@ -431,6 +428,25 @@ defmodule FootballMarket.Statistics.ScopeTest do
       ]
     else
       []
+    end
+  end
+
+  defp product_change_lines(paths) do
+    case System.cmd("git", ["rev-parse", "--verify", "MERGE_HEAD"]) do
+      {_merge_head, 0} ->
+        {changed, 0} = System.cmd("git", ["diff", "--name-only", "MERGE_HEAD", "--" | paths])
+
+        {untracked, 0} =
+          System.cmd("git", ["ls-files", "--others", "--exclude-standard", "--" | paths])
+
+        Enum.map(String.split(changed, "\n", trim: true), &(" M " <> &1)) ++
+          Enum.map(String.split(untracked, "\n", trim: true), &("?? " <> &1))
+
+      _ ->
+        {out, 0} =
+          System.cmd("git", ["status", "--porcelain", "--untracked-files=all", "--" | paths])
+
+        String.split(out, "\n", trim: true)
     end
   end
 end

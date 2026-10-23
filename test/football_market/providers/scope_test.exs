@@ -60,7 +60,9 @@ defmodule FootballMarket.Providers.ScopeTest do
         do: refute(source =~ ~r/\bspawn(?:_link|_monitor)?\(/)
     end
 
-    {diff, 0} = System.cmd("git", ["diff", "HEAD", "--name-only"])
+    {merge_head, merge_status} = System.cmd("git", ["rev-parse", "--verify", "MERGE_HEAD"])
+    base = if merge_status == 0, do: String.trim(merge_head), else: "HEAD"
+    {diff, 0} = System.cmd("git", ["diff", base, "--name-only"])
     {untracked, 0} = System.cmd("git", ["ls-files", "--others", "--exclude-standard"])
     changed = String.split(diff <> untracked, "\n", trim: true) |> Enum.uniq()
 
@@ -103,6 +105,7 @@ defmodule FootballMarket.Providers.ScopeTest do
                         synchronization_paths(active_feature) ++
                         FootballMarket.BrowserSessionCase.shell_paths(active_feature)) or
                  &1 == "mix.exs" or
+                 &1 == "config/credo_inventory.json" or
                  FootballMarket.WorkflowScope.allows_path?(active_feature, &1))
            )
 

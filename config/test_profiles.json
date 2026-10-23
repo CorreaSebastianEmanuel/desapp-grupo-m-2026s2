@@ -191,6 +191,13 @@
       "profile": "integration"
     },
     {
+      "id": "075f61cf6400b2545bc82bd5",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/history_test.exs",
+      "case_id": "FootballMarket.Quotes.HistoryTest:test late accepted facts do not change replayed original membership",
+      "profile": "integration"
+    },
+    {
       "id": "077bd6ee934bae411cf0300b",
       "runner": "exunit",
       "file": "test/football_market/valuation/canonical_test.exs",
@@ -828,6 +835,20 @@
       "profile": "unit"
     },
     {
+      "id": "1fc980dfb2dafde3d98ff593",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/immutability_test.exs",
+      "case_id": "FootballMarket.Quotes.ImmutabilityTest:test precommit follow-up failure rolls back calculation and quote without changing holdings",
+      "profile": "integration"
+    },
+    {
+      "id": "2023717b6bdceb2e593b455f",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/calculation_test.exs",
+      "case_id": "FootballMarket.Quotes.CalculationTest:test an exact retry returns its immutable result without duplicate quote or follow-up",
+      "profile": "integration"
+    },
+    {
       "id": "20e6ece43feb344c8ed1433e",
       "runner": "exunit",
       "file": "test/football_market/providers/deadline_test.exs",
@@ -933,6 +954,13 @@
       "profile": "unit"
     },
     {
+      "id": "22b975d37853f75d9d016e20",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/codec_test.exs",
+      "case_id": "FootballMarket.Quotes.CodecTest:test typed fact evidence round-trips and rejects unknown keys",
+      "profile": "unit"
+    },
+    {
       "id": "22c9bb592d5f71bbe045d0a3",
       "runner": "python",
       "file": "test/scripts/test_profile_components_test.py",
@@ -1022,6 +1050,13 @@
       "file": "test/scripts/test_inventory_test.py",
       "case_id": "test.scripts.test_inventory_test.InventoryTest.test_membership_diagnostic_identifies_only_opaque_cases",
       "profile": "unit"
+    },
+    {
+      "id": "2650081023aa022eba5f1bd8",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/recovery_test.exs",
+      "case_id": "FootballMarket.Quotes.RecoveryTest:test due retrying calculations are re-enqueued while future backoffs remain untouched",
+      "profile": "integration"
     },
     {
       "id": "267cc67f99e054abfcefecb1",
@@ -1605,6 +1640,13 @@
       "profile": "integration"
     },
     {
+      "id": "3ea0276993878441e909d1a0",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/immutability_test.exs",
+      "case_id": "FootballMarket.Quotes.ImmutabilityTest:test stale calculation lease is fenced before any quote or calculation write",
+      "profile": "integration"
+    },
+    {
       "id": "3ec37ef449ad939e8b968cb3",
       "runner": "python",
       "file": "test/scripts/reconcile_merged_task_test.py",
@@ -1724,6 +1766,13 @@
       "profile": "integration"
     },
     {
+      "id": "4326da7bf61001f99a3e5e47",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/concurrency_test.exs",
+      "case_id": "FootballMarket.Quotes.ConcurrencyTest:test concurrent identical requests commit one quote and one evaluation",
+      "profile": "integration"
+    },
+    {
       "id": "4334fba40ba9004459bdebc0",
       "runner": "exunit",
       "file": "test/football_market/statistics/input_test.exs",
@@ -1829,11 +1878,25 @@
       "profile": "unit"
     },
     {
+      "id": "470bcf2025eaa3192acc5f7e",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/conversion_test.exs",
+      "case_id": "FootballMarket.Quotes.ConversionTest:test rejects nonpositive scale and does not depend on Decimal context",
+      "profile": "unit"
+    },
+    {
       "id": "47290a21dc8760d990bea925",
       "runner": "exunit",
       "file": "test/football_market/catalog/ingestion/publication_test.exs",
       "case_id": "FootballMarket.Catalog.Ingestion.PublicationTest:test complete import atomically publishes independent rows and counts",
       "profile": "integration"
+    },
+    {
+      "id": "4767556f38698a43cbfcd2e4",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/codec_test.exs",
+      "case_id": "FootballMarket.Quotes.CodecTest:test decoder only accepts known metric names and integer values",
+      "profile": "unit"
     },
     {
       "id": "4774d93a60fd02715d1131da",
@@ -1868,6 +1931,13 @@
       "runner": "exunit",
       "file": "test/football_market/market/scope_test.exs",
       "case_id": "FootballMarket.Market.ScopeTest:test configuration boundary rejects changes outside the approved fail-closed default",
+      "profile": "integration"
+    },
+    {
+      "id": "49f5baf1511933e8945e82c3",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/immutability_test.exs",
+      "case_id": "FootballMarket.Quotes.ImmutabilityTest:test successful calculation inserted directly cannot commit without its quote and evaluation",
       "profile": "integration"
     },
     {
@@ -1917,6 +1987,13 @@
       "runner": "exunit",
       "file": "test/ci/e2e_runtime_contract_test.exs",
       "case_id": "FootballMarket.E2E.RuntimeContractTest:test deadline polling fails rather than accepting unavailable or terminal failed work",
+      "profile": "integration"
+    },
+    {
+      "id": "4bbb7bc675ccaf6ed59de407",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/immutability_test.exs",
+      "case_id": "FootballMarket.Quotes.ImmutabilityTest:test performance quote and evaluation identity are immutable while delivery state is separate",
       "profile": "integration"
     },
     {
@@ -2004,6 +2081,13 @@
       "profile": "integration"
     },
     {
+      "id": "4f37972480881e63f78bb40b",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/recovery_test.exs",
+      "case_id": "FootballMarket.Quotes.RecoveryTest:test temporary persistence failures follow the 60 and 300 second schedule then recover",
+      "profile": "integration"
+    },
+    {
       "id": "5010ffc550631ab646d00109",
       "runner": "exunit",
       "file": "test/football_market/valuation/balanced/formula_test.exs",
@@ -2051,6 +2135,13 @@
       "file": "test/scripts/sonar_checkpoint_gate_test.py",
       "case_id": "test.scripts.sonar_checkpoint_gate_test.GateTest.test_auth_and_not_found_are_immediate_and_classified",
       "profile": "unit"
+    },
+    {
+      "id": "51cc3873309390f76faace12",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/outcomes_test.exs",
+      "case_id": "FootballMarket.Quotes.OutcomesTest:test an empty accepted week is a durable no-quote outcome with no fabricated score",
+      "profile": "integration"
     },
     {
       "id": "51d2add2e65d53bcd8d81884",
@@ -2214,6 +2305,13 @@
       "profile": "integration"
     },
     {
+      "id": "58499b6ae570467df5546d43",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/outcomes_test.exs",
+      "case_id": "FootballMarket.Quotes.OutcomesTest:test failure classes preserve the complete financial and protected-input snapshot",
+      "profile": "integration"
+    },
+    {
       "id": "5854bfc73f3a101aea472b55",
       "runner": "exunit",
       "file": "test/football_market_web/live/workspace_navigation_test.exs",
@@ -2228,10 +2326,24 @@
       "profile": "unit"
     },
     {
+      "id": "58dea6a9f48a6421fcc66d6a",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/replay_test.exs",
+      "case_id": "FootballMarket.Quotes.ReplayTest:test replay fails explicitly when retained evidence references a missing original",
+      "profile": "integration"
+    },
+    {
       "id": "59914b9ffb83491931ebec39",
       "runner": "exunit",
       "file": "test/football_market/market/scope_test.exs",
       "case_id": "FootballMarket.Market.ScopeTest:test pure domain, trusted facade and persistence retain narrow dependency and write boundaries",
+      "profile": "integration"
+    },
+    {
+      "id": "59bfc4cbc6f47619330fada6",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/import_test.exs",
+      "case_id": "FootballMarket.Quotes.ImportTest:test accepted changed facts pin complete immutable weekly membership before dispatch",
       "profile": "integration"
     },
     {
@@ -2361,6 +2473,13 @@
       "profile": "integration"
     },
     {
+      "id": "5dfe68eb59df252d01938f91",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/followup_test.exs",
+      "case_id": "FootballMarket.Quotes.FollowupTest:test one quote-keyed pending event survives duplicate delivery and matching acknowledgement",
+      "profile": "integration"
+    },
+    {
       "id": "5eff7e05068320aab734f527",
       "runner": "python",
       "file": "test/scripts/agentflow_models_test.py",
@@ -2393,6 +2512,13 @@
       "runner": "exunit",
       "file": "test/football_market/statistics/ingestion/completeness_test.exs",
       "case_id": "FootballMarket.Statistics.Ingestion.CompletenessTest:test unproven completeness fails before facts or last successful check can advance",
+      "profile": "integration"
+    },
+    {
+      "id": "606e01754bda7699e8e06025",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/history_test.exs",
+      "case_id": "FootballMarket.Quotes.HistoryTest:test a fresh same-price calculation keeps both immutable quote records",
       "profile": "integration"
     },
     {
@@ -2704,6 +2830,20 @@
       "profile": "integration"
     },
     {
+      "id": "6e2ba1468642a31a29ba8884",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/conversion_test.exs",
+      "case_id": "FootballMarket.Quotes.ConversionTest:test is monotonic and handles exponent changes without binary floating point",
+      "profile": "unit"
+    },
+    {
+      "id": "6e33418835848a38c99c27b5",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/followup_test.exs",
+      "case_id": "FootballMarket.Quotes.FollowupTest:test pending follow-up event cannot be deleted",
+      "profile": "integration"
+    },
+    {
       "id": "6e3ff134ff6de46f3bdf5fe7",
       "runner": "python",
       "file": "test/scripts/agentflow_branch_test.py",
@@ -2842,6 +2982,13 @@
       "file": "test/football_market/statistics/scope_test.exs",
       "case_id": "FootballMarket.Statistics.ScopeTest:test product edits stay within plan boundary",
       "profile": "unit"
+    },
+    {
+      "id": "75c88d6f53eb16485f8336cf",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/recovery_test.exs",
+      "case_id": "FootballMarket.Quotes.RecoveryTest:test explicit recovery recovers a pre-commit persistence failure through the worker",
+      "profile": "integration"
     },
     {
       "id": "7648489ec058d4d68c8db83e",
@@ -3250,6 +3397,13 @@
       "profile": "unit"
     },
     {
+      "id": "8526ffa7a91c6a6dfa229d6b",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/outcomes_test.exs",
+      "case_id": "FootballMarket.Quotes.OutcomesTest:test a no-quote result remains reproducible in a fresh application process",
+      "profile": "integration"
+    },
+    {
       "id": "852b6fa78bef4a4223b3abf3",
       "runner": "exunit",
       "file": "test/football_market/catalog/constraints_test.exs",
@@ -3369,6 +3523,13 @@
       "profile": "integration"
     },
     {
+      "id": "89a47966159c168556d705a4",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/followup_test.exs",
+      "case_id": "FootballMarket.Quotes.FollowupTest:test acknowledgement blocked on event lock rejects a lease that expires before acquisition",
+      "profile": "integration"
+    },
+    {
       "id": "89a64ff3ad1bc19df96c6bac",
       "runner": "exunit",
       "file": "test/football_market/market/rejection_test.exs",
@@ -3478,6 +3639,13 @@
       "runner": "exunit",
       "file": "test/football_market/statistics/ingestion/positions_test.exs",
       "case_id": "FootballMarket.Statistics.Ingestion.PositionsTest:test equal mode counts and empty usable history remain unknown",
+      "profile": "unit"
+    },
+    {
+      "id": "8c0742f4fe7970940ce172bb",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/scope_test.exs",
+      "case_id": "FootballMarket.Quotes.ScopeTest:test feature inventory stays explicitly bounded to quote calculation ownership",
       "profile": "unit"
     },
     {
@@ -3649,6 +3817,13 @@
       "profile": "integration"
     },
     {
+      "id": "93ba6184dae556d7da56b47d",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/import_test.exs",
+      "case_id": "FootballMarket.Quotes.ImportTest:test legacy intent without original snapshots records unreproducible instead of today's membership",
+      "profile": "integration"
+    },
+    {
       "id": "94734684b4b29280995db82d",
       "runner": "exunit",
       "file": "test/football_market/providers/scraping/safety_test.exs",
@@ -3716,6 +3891,13 @@
       "runner": "exunit",
       "file": "test/ci/test_profile_runner_contract_test.exs",
       "case_id": "FootballMarket.TestProfileRunnerContractTest:test controlled child failure releases no stdout stderr password token key or hash",
+      "profile": "unit"
+    },
+    {
+      "id": "97f2a72a319eda65c69b2b75",
+      "runner": "exunit",
+      "file": "test/ci/test_profile_runner_contract_test.exs",
+      "case_id": "FootballMarket.TestProfileRunnerContractTest:test controlled browser failure forwards only its allowlisted stage",
       "profile": "unit"
     },
     {
@@ -3887,6 +4069,13 @@
       "profile": "unit"
     },
     {
+      "id": "9e007054e8d5ca2a1be156a8",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/mapping_test.exs",
+      "case_id": "FootballMarket.Quotes.MappingTest:test saved mappings require an explicit positive scale and remain versioned",
+      "profile": "integration"
+    },
+    {
       "id": "9e638d8a3bbdb6a2f9e9a8ab",
       "runner": "exunit",
       "file": "test/football_market/catalog/query_test.exs",
@@ -3992,11 +4181,11 @@
       "profile": "integration"
     },
     {
-      "id": "a135a8eb487c8b6e0e1b99a4",
+      "id": "a138e29bf0217b631f2723ab",
       "runner": "exunit",
-      "file": "test/football_market/market/concurrency_test.exs",
-      "case_id": "FootballMarket.Market.ConcurrencyTest:test quote-first lock order rejects issuance without rewriting committed quote",
-      "profile": "integration"
+      "file": "test/ci/test_profile_runner_contract_test.exs",
+      "case_id": "FootballMarket.TestProfileRunnerContractTest:test CI failure reporting forwards only allowlisted profile diagnostics",
+      "profile": "unit"
     },
     {
       "id": "a178a2ea66033a8298e5f35d",
@@ -4174,6 +4363,13 @@
       "profile": "integration"
     },
     {
+      "id": "a6acd9c836f1644db489e320",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/calculation_test.exs",
+      "case_id": "FootballMarket.Quotes.CalculationTest:test calculates from the fixed saved strategy and accepted local facts",
+      "profile": "integration"
+    },
+    {
       "id": "a6d0349886415e2b42adb480",
       "runner": "shell",
       "file": "test/scripts/local_services_failure_test.sh",
@@ -4221,6 +4417,13 @@
       "file": "test/scripts/agentflow_policy_test.py",
       "case_id": "test.scripts.agentflow_policy_test.PolicyTest.test_reports_alone_do_not_authorize_summary_or_local_readiness",
       "profile": "unit"
+    },
+    {
+      "id": "a7de0a74ae31c03c80536a1d",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/admission_test.exs",
+      "case_id": "FootballMarket.Quotes.AdmissionTest:test reused request id with different mapping identity returns request_conflict",
+      "profile": "integration"
     },
     {
       "id": "a81b100073635b69fc73add5",
@@ -4531,6 +4734,13 @@
       "profile": "unit"
     },
     {
+      "id": "b3d09088cc7592b70e273d74",
+      "runner": "exunit",
+      "file": "test/ci/workflow_scope_test.exs",
+      "case_id": "FootballMarket.WorkflowScopeTest:test pull request head ref resolves task scope from a detached checkout",
+      "profile": "unit"
+    },
+    {
       "id": "b4182ca7237003dc58d6dfe0",
       "runner": "python",
       "file": "test/scripts/agentflow_stage_budget_test.py",
@@ -4676,6 +4886,13 @@
       "file": "test/scripts/agentflow_artifacts_test.py",
       "case_id": "test.scripts.agentflow_artifacts_test.ApplicabilityTest.test_required_directory_must_contain_nonempty_safe_file",
       "profile": "unit"
+    },
+    {
+      "id": "bc9e3f88286084b4c1b59d24",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/storage_test.exs",
+      "case_id": "FootballMarket.Quotes.StorageTest:test saved mappings and terminal calculation evidence reject direct mutation",
+      "profile": "integration"
     },
     {
       "id": "bcc55d4616b998470e92dbe0",
@@ -4836,6 +5053,13 @@
       "runner": "exunit",
       "file": "test/football_market/statistics/storage_test.exs",
       "case_id": "FootballMarket.Statistics.StorageTest:test malformed original identity returns field-safe write and scoped read errors",
+      "profile": "integration"
+    },
+    {
+      "id": "c26db5d098f995078a8c5a12",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/recovery_test.exs",
+      "case_id": "FootballMarket.Quotes.RecoveryTest:test a request with three reserved attempts exhausts without financial writes",
       "profile": "integration"
     },
     {
@@ -5042,6 +5266,13 @@
       "profile": "integration"
     },
     {
+      "id": "ca9ef2129ecb9b0138a0edd5",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/import_test.exs",
+      "case_id": "FootballMarket.Quotes.ImportTest:test two accepted imports before dispatch retain multi-player and multi-week memberships",
+      "profile": "integration"
+    },
+    {
       "id": "caa60f04b08a23353accaef5",
       "runner": "python",
       "file": "test/scripts/agentflow_fingerprint_test.py",
@@ -5075,6 +5306,13 @@
       "file": "test/scripts/agentflow_artifacts_test.py",
       "case_id": "test.scripts.agentflow_artifacts_test.ApplicabilityTest.test_direct_consumers_reject_whole_block_deletion",
       "profile": "unit"
+    },
+    {
+      "id": "cbb9f614fbef2125f318bf85",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/followup_test.exs",
+      "case_id": "FootballMarket.Quotes.FollowupTest:test a redelivered event produces one effective consumer action keyed by quote UUID",
+      "profile": "integration"
     },
     {
       "id": "cc74bb32f33abcebcc9a2fbc",
@@ -5406,6 +5644,13 @@
       "profile": "unit"
     },
     {
+      "id": "d6e96d50c156e59ee71953ca",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/recovery_test.exs",
+      "case_id": "FootballMarket.Quotes.RecoveryTest:test calculation lease expiry while waiting on player lock rejects confirmation",
+      "profile": "integration"
+    },
+    {
       "id": "d6fd3a614a8ae0c6f154e62d",
       "runner": "python",
       "file": "test/scripts/fast_lane_check_test.py",
@@ -5707,6 +5952,13 @@
       "profile": "unit"
     },
     {
+      "id": "e085efcce0fbe60f03065a47",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/outcomes_test.exs",
+      "case_id": "FootballMarket.Quotes.OutcomesTest:test a positive score that converts to zero is retained without quote or follow-up",
+      "profile": "integration"
+    },
+    {
       "id": "e0c5fbdf04cfec8eee92ae35",
       "runner": "exunit",
       "file": "test/football_market/valuation/position_aware/replay_test.exs",
@@ -5761,6 +6013,13 @@
       "file": "test/scripts/test_profile_runner_test.py",
       "case_id": "test.scripts.test_profile_runner_test.RunnerTest.test_committed_suites_keep_upstream_partition_isolation_and_coverage_scope",
       "profile": "unit"
+    },
+    {
+      "id": "e284d4e99eaf8bfe02b1bd06",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/recovery_test.exs",
+      "case_id": "FootballMarket.Quotes.RecoveryTest:test expired delivery lease is recovered with a higher fence and stale acknowledgement fails",
+      "profile": "integration"
     },
     {
       "id": "e28566a80f5bcb3f2f9e1fa1",
@@ -6246,6 +6505,13 @@
       "profile": "integration"
     },
     {
+      "id": "f536357d7d094dea32596bcb",
+      "runner": "exunit",
+      "file": "test/football_market/market/concurrency_test.exs",
+      "case_id": "FootballMarket.Market.ConcurrencyTest:test malformed performance quotes cannot precede initial issuance",
+      "profile": "integration"
+    },
+    {
       "id": "f53ce183adf4a36a3a2aa92a",
       "runner": "exunit",
       "file": "test/football_market/infrastructure/database_workflow_test.exs",
@@ -6477,6 +6743,13 @@
       "profile": "integration"
     },
     {
+      "id": "fb86d4f9ee5fd7b036cdb483",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/conversion_test.exs",
+      "case_id": "FootballMarket.Quotes.ConversionTest:test exact conversion rounds ties away and returns explicit no quote for zero cents",
+      "profile": "unit"
+    },
+    {
       "id": "fbb7836a5e56112551b517f8",
       "runner": "exunit",
       "file": "test/football_market/providers/error_safety_test.exs",
@@ -6488,6 +6761,13 @@
       "runner": "exunit",
       "file": "test/football_market/accounts/api_keys_test.exs",
       "case_id": "FootballMarket.Accounts.ApiKeysTest:test owner revocation affects one key and remains irreversible",
+      "profile": "integration"
+    },
+    {
+      "id": "fc1aa21c8e566169aa57c8f6",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/replay_test.exs",
+      "case_id": "FootballMarket.Quotes.ReplayTest:test successful calculation replays after a fresh application restart",
       "profile": "integration"
     },
     {
@@ -6503,6 +6783,13 @@
       "file": "test/scripts/agentflow_providers_test.py",
       "case_id": "test.scripts.agentflow_providers_test.ShimTest.test_frozen_selection_inserts_model_before_positional_message",
       "profile": "unit"
+    },
+    {
+      "id": "fc66cb6a3c9da8f3ef940140",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/recovery_test.exs",
+      "case_id": "FootballMarket.Quotes.RecoveryTest:test three interrupted workers retain the binding and exhaust without financial effects",
+      "profile": "integration"
     },
     {
       "id": "fcf5e6956f9e893055e8140a",
@@ -6580,6 +6867,13 @@
       "file": "test/football_market/accounts/persistence_test.exs",
       "case_id": "FootballMarket.Accounts.PersistenceTest:test uses UUID user identity and a one-to-one credential relationship",
       "profile": "integration"
+    },
+    {
+      "id": "fff3b2f53a6cad97abaa6919",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/calculation_test.exs",
+      "case_id": "FootballMarket.Quotes.CalculationTest:test an admitted request keeps its saved strategy after the active selection changes",
+      "profile": "integration"
     }
   ],
   "helpers": {
@@ -6650,7 +6944,10 @@
     "test/fixtures/statistics_ingestion/inventory.exs": "Statistics ingestion fixture inventory used by the owning ExUnit cases; no independent tests.",
     "test/support/statistics_ingestion/case.ex": "Shared isolated statistics store and provider harness for integration cases; no independent tests.",
     "test/support/statistics_ingestion/fixtures.ex": "Statistics ingestion fixture loader shared by owning tests; no independent tests.",
-    "test/support/statistics_ingestion/runtime_probe.ex": "Statistics synchronization runtime probe driven by integration cases; no independent tests."
+    "test/support/statistics_ingestion/runtime_probe.ex": "Statistics synchronization runtime probe driven by integration cases; no independent tests.",
+    "test/support/quotes/runtime_probe.ex": true,
+    "test/support/quotes/fixtures.ex": true,
+    "test/support/quotes/case.ex": true
   },
   "excluded_roots": [
     "tools/openapi/node_modules",

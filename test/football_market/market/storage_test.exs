@@ -134,7 +134,7 @@ defmodule FootballMarket.Market.StorageTest do
       before = snapshot()
 
       error =
-        assert_raise Postgrex.Error, fn ->
+        try do
           Repo.transaction(fn ->
             now = DateTime.utc_now()
 
@@ -169,9 +169,20 @@ defmodule FootballMarket.Market.StorageTest do
               completed_at: if(mutation == :date, do: DateTime.add(now, 1), else: now)
             })
           end)
+
+          nil
+        rescue
+          raised in [Postgrex.Error, Ecto.ConstraintError] -> raised
         end
 
-      assert error.postgres.constraint in [
+      constraint_name =
+        case error do
+          %Postgrex.Error{} -> error.postgres.constraint
+          %Ecto.ConstraintError{} -> error.constraint
+        end
+
+      assert constraint_name in [
+               "market_quote_performance_shape",
                "market_initial_owner",
                "market_supply_conserved",
                "market_issuance_quote_consistent",

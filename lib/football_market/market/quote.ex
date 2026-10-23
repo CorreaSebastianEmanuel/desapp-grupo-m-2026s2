@@ -11,11 +11,26 @@ defmodule FootballMarket.Market.Quote do
     field :inserted_at, :utc_datetime_usec
     field :rule_id, :string
     field :rule_version, :string
+    field :calculation_id, :binary_id
+    field :configuration_version_id, :binary_id
+    field :mapping_id, :binary_id
+    field :performance_sequence, :integer
   end
 
   def changeset(record, attrs) do
     record
-    |> cast(attrs, [:player_id, :unit_price, :effective_at, :inserted_at, :rule_id, :rule_version])
+    |> cast(attrs, [
+      :player_id,
+      :unit_price,
+      :effective_at,
+      :inserted_at,
+      :rule_id,
+      :rule_version,
+      :calculation_id,
+      :configuration_version_id,
+      :mapping_id,
+      :performance_sequence
+    ])
     |> validate_required([
       :player_id,
       :unit_price,
@@ -27,5 +42,8 @@ defmodule FootballMarket.Market.Quote do
     |> foreign_key_constraint(:player_id)
     |> unique_constraint(:player_id, name: :market_quote_initial_unique)
     |> check_constraint(:unit_price, name: :market_quote_canonical)
+    |> foreign_key_constraint(:calculation_id)
+    |> foreign_key_constraint(:configuration_version_id)
+    |> foreign_key_constraint(:mapping_id)
   end
 end

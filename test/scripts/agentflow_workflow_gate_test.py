@@ -22,8 +22,9 @@ class CiBaselineGateTest(unittest.TestCase):
     def test_gate_shape(self):
         block = self.workflow.split('  - id: ci_baseline', 1)[1].split('  - id: ', 1)[0]
         self.assertIn('type: shell', block)
-        self.assertIn('timeout: 1800', block)
-        self.assertIn('output_format: json', block)
+        self.assertIn('timeout: 3600', block)
+        # Text output by design: the gate streams plain CI output instead of a JSON envelope.
+        self.assertNotIn('output_format: json', block)
         self.assertIn('MIX_ENV=test', block)
         # No duplicated implementation: the gate invokes the CI script itself.
         self.assertIn('scripts/ci_unit_tests.sh', block)

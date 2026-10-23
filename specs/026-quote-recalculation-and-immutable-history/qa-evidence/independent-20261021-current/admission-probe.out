@@ -1,0 +1,423 @@
+database already exists
+
+22:43:59.417 [info] Migrations already up
+migrations current
+Running ExUnit with seed: 603006, max_cases: 16
+Excluding tags: [performance: true, e2e: true]
+
+QA_MISSING_MAPPING: {{:error, :temporarily_unavailable}, {:error, :not_found}}
+
+
+  1) test missing mapping UUID leaves a durable terminal admission (Task026IndependentAdmissionQA)
+     /private/tmp/task026_qa_current_test.exs:11
+     match (=) failed
+     code:  assert {:ok, %{state: "validation_failed", reason: "mapping_unavailable"}} = row
+     left:  {:ok, %{state: "validation_failed", reason: "mapping_unavailable"}}
+     right: {:error, :not_found}
+     stacktrace:
+       /private/tmp/task026_qa_current_test.exs:17: (test)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateInfrastructureProbe (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateInfrastructureProbe do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260913000000_create_infrastructure_probe.exs:1: FootballMarket.Repo.Migrations.CreateInfrastructureProbe (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateCatalogTables (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateCatalogTables do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260917090000_create_catalog_tables.exs:1: FootballMarket.Repo.Migrations.CreateCatalogTables (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateUsersAndPasswordCredentials (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateUsersAndPasswordCredentials do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260922000000_create_users_and_password_credentials.exs:1: FootballMarket.Repo.Migrations.CreateUsersAndPasswordCredentials (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateApiKeys (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateApiKeys do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260923000000_create_api_keys.exs:1: FootballMarket.Repo.Migrations.CreateApiKeys (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AddPlayerCatalogOrderIndex (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AddPlayerCatalogOrderIndex do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260927000000_add_player_catalog_order_index.exs:1: FootballMarket.Repo.Migrations.AddPlayerCatalogOrderIndex (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateMatchStatistics (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateMatchStatistics do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261003000000_create_match_statistics.exs:1: FootballMarket.Repo.Migrations.CreateMatchStatistics (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AlignStatisticsIdentityWhitespace (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AlignStatisticsIdentityWhitespace do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261004000000_align_statistics_identity_whitespace.exs:1: FootballMarket.Repo.Migrations.AlignStatisticsIdentityWhitespace (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateCatalogIngestionTables (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateCatalogIngestionTables do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261008000000_create_catalog_ingestion_tables.exs:1: FootballMarket.Repo.Migrations.CreateCatalogIngestionTables (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.MakeTeamBusinessKeysDeferrable (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.MakeTeamBusinessKeysDeferrable do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261008000100_make_team_business_keys_deferrable.exs:1: FootballMarket.Repo.Migrations.MakeTeamBusinessKeysDeferrable (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateValuationConfigurations (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateValuationConfigurations do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261013000000_create_valuation_configurations.exs:1: FootballMarket.Repo.Migrations.CreateValuationConfigurations (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateInitialPlayerIssuance (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateInitialPlayerIssuance do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261014000000_create_initial_player_issuance.exs:1: FootballMarket.Repo.Migrations.CreateInitialPlayerIssuance (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AddOban (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AddOban do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015000000_add_oban.exs:1: FootballMarket.Repo.Migrations.AddOban (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateSynchronizationLedgers (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateSynchronizationLedgers do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015000100_create_synchronization_ledgers.exs:1: FootballMarket.Repo.Migrations.CreateSynchronizationLedgers (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateCatalogDeliveryReceipts (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateCatalogDeliveryReceipts do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015000200_create_catalog_delivery_receipts.exs:1: FootballMarket.Repo.Migrations.CreateCatalogDeliveryReceipts (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateBrowserSessions (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateBrowserSessions do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015235000_create_browser_sessions.exs:1: FootballMarket.Repo.Migrations.CreateBrowserSessions (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AlignBrowserSessionContract (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AlignBrowserSessionContract do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015235100_align_browser_session_contract.exs:1: FootballMarket.Repo.Migrations.AlignBrowserSessionContract (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.ExtendStatisticsPositionEvidence (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.ExtendStatisticsPositionEvidence do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261016000100_extend_statistics_position_evidence.exs:1: FootballMarket.Repo.Migrations.ExtendStatisticsPositionEvidence (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateStatisticsIngestion (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateStatisticsIngestion do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261016000200_create_statistics_ingestion.exs:1: FootballMarket.Repo.Migrations.CreateStatisticsIngestion (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.ExtendSynchronizationOperations (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.ExtendSynchronizationOperations do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261016000300_extend_synchronization_operations.exs:1: FootballMarket.Repo.Migrations.ExtendSynchronizationOperations (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateQuoteCalculations (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateQuoteCalculations do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261018000000_create_quote_calculations.exs:1: FootballMarket.Repo.Migrations.CreateQuoteCalculations (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AddQuoteImportSnapshots (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AddQuoteImportSnapshots do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261018000100_add_quote_import_snapshots.exs:1: FootballMarket.Repo.Migrations.AddQuoteImportSnapshots (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AddExplicitQuoteRequests (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AddExplicitQuoteRequests do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261018000200_add_explicit_quote_requests.exs:1: FootballMarket.Repo.Migrations.AddExplicitQuoteRequests (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.ReconcileQuoteImportSnapshotSchema (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.ReconcileQuoteImportSnapshotSchema do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261018000300_reconcile_quote_import_snapshot_schema.exs:1: FootballMarket.Repo.Migrations.ReconcileQuoteImportSnapshotSchema (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.ReconcileQuoteImportSnapshotFacts (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.ReconcileQuoteImportSnapshotFacts do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261018000400_reconcile_quote_import_snapshot_facts.exs:1: FootballMarket.Repo.Migrations.ReconcileQuoteImportSnapshotFacts (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.ReconcileQuoteMappingSchema (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.ReconcileQuoteMappingSchema do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261018000500_reconcile_quote_mapping_schema.exs:1: FootballMarket.Repo.Migrations.ReconcileQuoteMappingSchema (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.ReconcileQuoteCalculationRequests (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.ReconcileQuoteCalculationRequests do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261018000600_reconcile_quote_calculation_requests.exs:1: FootballMarket.Repo.Migrations.ReconcileQuoteCalculationRequests (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.ReconcileQuoteCalculationAttempts (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.ReconcileQuoteCalculationAttempts do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261018000700_reconcile_quote_calculation_attempts.exs:1: FootballMarket.Repo.Migrations.ReconcileQuoteCalculationAttempts (module)
+
+QA_TERMINAL_RETRY: {:error, :unreproducible}
+
+
+  2) test retry of terminal missing selection returns the retained terminal outcome (Task026IndependentAdmissionQA)
+     /private/tmp/task026_qa_current_test.exs:20
+     match (=) failed
+     code:  assert {:error, :configuration_unavailable} = result
+     left:  {:error, :configuration_unavailable}
+     right: {:error, :unreproducible}
+     stacktrace:
+       /private/tmp/task026_qa_current_test.exs:26: (test)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateInfrastructureProbe (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateInfrastructureProbe do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260913000000_create_infrastructure_probe.exs:1: FootballMarket.Repo.Migrations.CreateInfrastructureProbe (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateCatalogTables (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateCatalogTables do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260917090000_create_catalog_tables.exs:1: FootballMarket.Repo.Migrations.CreateCatalogTables (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateUsersAndPasswordCredentials (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateUsersAndPasswordCredentials do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260922000000_create_users_and_password_credentials.exs:1: FootballMarket.Repo.Migrations.CreateUsersAndPasswordCredentials (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateApiKeys (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateApiKeys do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260923000000_create_api_keys.exs:1: FootballMarket.Repo.Migrations.CreateApiKeys (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AddPlayerCatalogOrderIndex (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AddPlayerCatalogOrderIndex do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20260927000000_add_player_catalog_order_index.exs:1: FootballMarket.Repo.Migrations.AddPlayerCatalogOrderIndex (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateMatchStatistics (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateMatchStatistics do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261003000000_create_match_statistics.exs:1: FootballMarket.Repo.Migrations.CreateMatchStatistics (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AlignStatisticsIdentityWhitespace (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AlignStatisticsIdentityWhitespace do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261004000000_align_statistics_identity_whitespace.exs:1: FootballMarket.Repo.Migrations.AlignStatisticsIdentityWhitespace (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateCatalogIngestionTables (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateCatalogIngestionTables do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261008000000_create_catalog_ingestion_tables.exs:1: FootballMarket.Repo.Migrations.CreateCatalogIngestionTables (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.MakeTeamBusinessKeysDeferrable (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.MakeTeamBusinessKeysDeferrable do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261008000100_make_team_business_keys_deferrable.exs:1: FootballMarket.Repo.Migrations.MakeTeamBusinessKeysDeferrable (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateValuationConfigurations (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateValuationConfigurations do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261013000000_create_valuation_configurations.exs:1: FootballMarket.Repo.Migrations.CreateValuationConfigurations (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateInitialPlayerIssuance (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateInitialPlayerIssuance do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261014000000_create_initial_player_issuance.exs:1: FootballMarket.Repo.Migrations.CreateInitialPlayerIssuance (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AddOban (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AddOban do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015000000_add_oban.exs:1: FootballMarket.Repo.Migrations.AddOban (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateSynchronizationLedgers (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateSynchronizationLedgers do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015000100_create_synchronization_ledgers.exs:1: FootballMarket.Repo.Migrations.CreateSynchronizationLedgers (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateCatalogDeliveryReceipts (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateCatalogDeliveryReceipts do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015000200_create_catalog_delivery_receipts.exs:1: FootballMarket.Repo.Migrations.CreateCatalogDeliveryReceipts (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateBrowserSessions (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateBrowserSessions do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015235000_create_browser_sessions.exs:1: FootballMarket.Repo.Migrations.CreateBrowserSessions (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AlignBrowserSessionContract (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AlignBrowserSessionContract do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261015235100_align_browser_session_contract.exs:1: FootballMarket.Repo.Migrations.AlignBrowserSessionContract (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.ExtendStatisticsPositionEvidence (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.ExtendStatisticsPositionEvidence do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261016000100_extend_statistics_position_evidence.exs:1: FootballMarket.Repo.Migrations.ExtendStatisticsPositionEvidence (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateStatisticsIngestion (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateStatisticsIngestion do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261016000200_create_statistics_ingestion.exs:1: FootballMarket.Repo.Migrations.CreateStatisticsIngestion (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.ExtendSynchronizationOperations (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.ExtendSynchronizationOperations do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261016000300_extend_synchronization_operations.exs:1: FootballMarket.Repo.Migrations.ExtendSynchronizationOperations (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.CreateQuoteCalculations (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.CreateQuoteCalculations do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261018000000_create_quote_calculations.exs:1: FootballMarket.Repo.Migrations.CreateQuoteCalculations (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AddQuoteImportSnapshots (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AddQuoteImportSnapshots do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261018000100_add_quote_import_snapshots.exs:1: FootballMarket.Repo.Migrations.AddQuoteImportSnapshots (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.AddExplicitQuoteRequests (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.AddExplicitQuoteRequests do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261018000200_add_explicit_quote_requests.exs:1: FootballMarket.Repo.Migrations.AddExplicitQuoteRequests (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.ReconcileQuoteImportSnapshotSchema (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.ReconcileQuoteImportSnapshotSchema do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261018000300_reconcile_quote_import_snapshot_schema.exs:1: FootballMarket.Repo.Migrations.ReconcileQuoteImportSnapshotSchema (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.ReconcileQuoteImportSnapshotFacts (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.ReconcileQuoteImportSnapshotFacts do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261018000400_reconcile_quote_import_snapshot_facts.exs:1: FootballMarket.Repo.Migrations.ReconcileQuoteImportSnapshotFacts (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.ReconcileQuoteMappingSchema (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.ReconcileQuoteMappingSchema do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261018000500_reconcile_quote_mapping_schema.exs:1: FootballMarket.Repo.Migrations.ReconcileQuoteMappingSchema (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.ReconcileQuoteCalculationRequests (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.ReconcileQuoteCalculationRequests do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261018000600_reconcile_quote_calculation_requests.exs:1: FootballMarket.Repo.Migrations.ReconcileQuoteCalculationRequests (module)
+
+    warning: redefining module FootballMarket.Repo.Migrations.ReconcileQuoteCalculationAttempts (current version defined in memory)
+    │
+  1 │ defmodule FootballMarket.Repo.Migrations.ReconcileQuoteCalculationAttempts do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ priv/repo/migrations/20261018000700_reconcile_quote_calculation_attempts.exs:1: FootballMarket.Repo.Migrations.ReconcileQuoteCalculationAttempts (module)
+
+
+
+  3) test successful terminal request cannot be overwritten after replay failure (Task026IndependentAdmissionQA)
+     /private/tmp/task026_qa_current_test.exs:29
+     Expected exception Postgrex.Error but nothing was raised
+     code: assert_raise Postgrex.Error, fn ->
+     stacktrace:
+       /private/tmp/task026_qa_current_test.exs:34: (test)
+
+
+Finished in 9.7 seconds (0.00s async, 9.7s sync)
+
+Result: 0/3 passed
+Failed: 3 tests

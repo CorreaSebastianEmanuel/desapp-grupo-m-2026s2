@@ -25,6 +25,34 @@ defmodule FootballMarket.Statistics.Ingestion.CalculationTest do
     intent = Repo.get!(CalculationIntent, outcome.calculation_intent_id)
     performance_ids = intent.changed_performance_ids
 
+    assert Repo.query!(
+             "SELECT cardinality(membership) FROM quote_import_scope_snapshots WHERE intent_id=$1",
+             [
+               Ecto.UUID.dump!(intent.id)
+             ]
+           ).rows == [[1]]
+
+    assert Repo.query!(
+             "SELECT count(*) FROM quote_import_snapshot_facts f JOIN quote_import_scope_snapshots s ON s.id=f.snapshot_id WHERE s.intent_id=$1",
+             [
+               Ecto.UUID.dump!(intent.id)
+             ]
+           ).rows == [[1]]
+
+    assert Repo.query!(
+             "SELECT cardinality(membership) FROM quote_import_scope_snapshots WHERE intent_id=$1",
+             [
+               Ecto.UUID.dump!(intent.id)
+             ]
+           ).rows == [[1]]
+
+    assert Repo.query!(
+             "SELECT count(*) FROM quote_import_snapshot_facts f JOIN quote_import_scope_snapshots s ON s.id=f.snapshot_id WHERE s.intent_id=$1",
+             [
+               Ecto.UUID.dump!(intent.id)
+             ]
+           ).rows == [[1]]
+
     assert {:ok, first} =
              FootballMarket.Valuation.CalculationRequests.accept(
                intent.id,
@@ -54,6 +82,37 @@ defmodule FootballMarket.Statistics.Ingestion.CalculationTest do
              FootballMarket.Valuation.CalculationRequests.get(intent.id)
 
     assert delivered.id == first.id
+
+    assert {:ok, calculation_request} =
+             FootballMarket.Quotes.get_request(
+               Repo.one!(
+                 from r in FootballMarket.Quotes.CalculationRequest,
+                   where: r.intent_id == ^intent.id,
+                   select: r.id
+               )
+             )
+
+    assert calculation_request.state == "pending"
+
+    assert :ok =
+             Oban.Testing.perform_job(
+               FootballMarket.Workers.QuoteCalculation,
+               %{"request_id" => calculation_request.id},
+               []
+             )
+
+    assert {:ok, %{state: "validation_failed", reason: "mapping_unavailable"}} =
+             FootballMarket.Quotes.get_request(calculation_request.id)
+
+    assert :ok =
+             Oban.Testing.perform_job(
+               FootballMarket.Workers.QuoteCalculation,
+               %{"request_id" => calculation_request.id},
+               []
+             )
+
+    assert {:ok, %{state: "validation_failed", reason: "mapping_unavailable"}} =
+             FootballMarket.Quotes.get_request(calculation_request.id)
 
     assert {:error, :calculation_request_conflict} =
              FootballMarket.Valuation.CalculationRequests.accept(

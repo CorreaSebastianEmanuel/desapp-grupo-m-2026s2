@@ -9,6 +9,7 @@ import re
 import subprocess
 import time
 import uuid
+from glob import glob
 from pathlib import Path
 
 try:
@@ -19,8 +20,42 @@ except ImportError:
     from workflow_artifact_probe import active_feature
 
 
+def node24_path() -> str | None:
+    """Local integration preflight requires Node v24 (CI pins it explicitly);
+    sandboxed agents inherit a PATH that lacks the nvm install."""
+    from shutil import which
+
+    candidates = sorted(glob(str(Path.home() / ".nvm/versions/node/v24*/bin")), reverse=True)
+    hit = next((entry for entry in candidates if Path(entry, "node").is_file()), None)
+    if not hit:
+        return None
+    current = which("node")
+    if current:
+        try:
+            probe = subprocess.run([current, "--version"], capture_output=True, text=True, timeout=5)
+            if probe.stdout.strip().startswith("v24"):
+                return None
+        except OSError:
+            pass
+    return hit
+
+
 def execute_check(check: dict, root: Path, evidence: Path) -> int:
-    env = {**os.environ, **check.get("env", {})}
+    # Mix's OS concurrency lock falls back to TCP sockets that agent sandboxes
+    # intermittently deny (:eperm); disable it by default for local checks.
+    # The integration profile preflight additionally requires Node v24.
+    env = {
+        **os.environ,
+        "MIX_OS_CONCURRENCY_LOCK": os.environ.get("MIX_OS_CONCURRENCY_LOCK", "0"),
+        **check.get("env", {}),
+    }
+    # Native coverage helpers (TASK-067) require a flat, non-symlinked TMPDIR.
+    flat_tmp = root / 'tmp'
+    flat_tmp.mkdir(exist_ok=True)
+    env['TMPDIR'] = str(flat_tmp)
+    node_path = node24_path()
+    if node_path:
+        env["PATH"] = node_path + os.pathsep + env.get("PATH", "")
     with evidence.open("w", encoding="utf-8") as output:
         try:
             return subprocess.run(check["argv"], cwd=root, env=env, stdout=output, stderr=subprocess.STDOUT).returncode

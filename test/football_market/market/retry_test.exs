@@ -24,14 +24,15 @@ defmodule FootballMarket.Market.RetryTest do
       local = Map.merge(private_schema(), fixture())
       {:ok, %{issuance: retained}} = Market.initialize_player(local.player.id)
       assert {:ok, _} = transfer(local, quantity)
-      later = later_quote(local.player, "7.15")
       before = snapshot()
+      invalid_performance_quote(local.player, "7.15")
 
       assert {:ok, %{outcome: :already_completed, issuance: ^retained}} =
                Market.initialize_player(local.player.id)
 
       assert snapshot() == before
-      assert Repo.get!(FootballMarket.Market.Quote, later.id).unit_price == Decimal.new("7.15")
+      assert Repo.query!("SELECT count(*) FROM market_quotes").rows == [[1]]
+      assert Repo.query!("SELECT unit_price FROM market_quotes").rows == [[Decimal.new(1)]]
     end
   end
 

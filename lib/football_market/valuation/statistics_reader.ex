@@ -64,7 +64,7 @@ defmodule FootballMarket.Valuation.StatisticsReader do
         fun
       )
 
-  defp snapshot(row, match) do
+  def snapshot(row, match) do
     %Fact{
       performance_id: row.id,
       match_id: match.id,

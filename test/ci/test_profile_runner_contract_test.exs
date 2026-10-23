@@ -26,6 +26,8 @@ defmodule FootballMarket.TestProfileRunnerContractTest do
     bridge = File.read!(Path.join(@root, "test/football_market_web/openapi_browser_test.exs"))
 
     assert browser =~ "CP1_BROWSER_RECEIPT status=complete"
+    assert browser =~ "if (process.env.CHROMIUM_PATH) launchOptions.executablePath"
+    refute browser =~ "existsSync('/usr/bin/chromium')"
     refute browser =~ "error.message"
     refute bridge =~ "IO.puts(output)"
     refute bridge =~ "assert status == 0, output"

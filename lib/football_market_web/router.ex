@@ -52,6 +52,9 @@ defmodule FootballMarketWeb.Router do
   scope "/api", FootballMarketWeb do
     pipe_through :api_protected
 
+    post "/purchases", PurchaseController, :create,
+      metadata: %{authentication_policy: :api_protected}
+
     get "/players", PlayerController, :index, metadata: %{authentication_policy: :api_protected}
 
     get "/players/:player_id", PlayerController, :show,

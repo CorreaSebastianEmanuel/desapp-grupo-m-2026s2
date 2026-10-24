@@ -235,11 +235,7 @@ defmodule Mix.Tasks.Catalog.SeedProcessTest do
     database = Application.fetch_env!(:football_market, Repo) |> Keyword.fetch!(:database)
 
     {output, status} =
-      System.cmd("mix", ["catalog.seed"],
-        cd: File.cwd!(),
-        env: [{"MIX_ENV", "dev"}, {"POSTGRES_DB", database}],
-        stderr_to_stdout: true
-      )
+      run_mix(["catalog.seed"], [{"MIX_ENV", "dev"}, {"POSTGRES_DB", database}])
 
     assert status == 0
     assert output =~ "catalog seed complete: total=44 created=44 reused=0"
@@ -253,11 +249,7 @@ defmodule Mix.Tasks.Catalog.SeedProcessTest do
 
   test "an unknown MIX_ENV fails with the capability error instead of a config file error" do
     {output, status} =
-      System.cmd("mix", ["catalog.seed"],
-        cd: File.cwd!(),
-        env: [{"MIX_ENV", "unknown"}],
-        stderr_to_stdout: true
-      )
+      run_mix(["catalog.seed"], [{"MIX_ENV", "unknown"}])
 
     assert status != 0
     assert output =~ "category=disabled entity=seed identity=development-seed"
@@ -267,11 +259,7 @@ defmodule Mix.Tasks.Catalog.SeedProcessTest do
 
   test "production fails with the capability error before runtime secrets or database startup" do
     {output, status} =
-      System.cmd("mix", ["catalog.seed"],
-        cd: File.cwd!(),
-        env: [{"MIX_ENV", "prod"}],
-        stderr_to_stdout: true
-      )
+      run_mix(["catalog.seed"], [{"MIX_ENV", "prod"}])
 
     assert status != 0
     assert output =~ "category=disabled entity=seed identity=development-seed"
@@ -281,17 +269,16 @@ defmodule Mix.Tasks.Catalog.SeedProcessTest do
 
   test "an unreachable database returns only a sanitized allowlisted Mix error" do
     {output, status} =
-      System.cmd("mix", ["catalog.seed"],
-        cd: File.cwd!(),
-        env: [
+      run_mix(
+        ["catalog.seed"],
+        [
           {"MIX_ENV", "dev"},
           {"POSTGRES_HOST", "127.0.0.1"},
           {"POSTGRES_PORT", "1"},
           {"POSTGRES_USER", "sentinel-user"},
           {"POSTGRES_PASSWORD", "sentinel-password"},
           {"POSTGRES_DB", "sentinel-database"}
-        ],
-        stderr_to_stdout: true
+        ]
       )
 
     assert status != 0
@@ -323,17 +310,16 @@ defmodule Mix.Tasks.Catalog.SeedProcessTest do
     """
 
     {output, status} =
-      System.cmd("mix", ["run", "--no-start", "-e", script],
-        cd: File.cwd!(),
-        env: [
+      run_mix(
+        ["run", "--no-start", "-e", script],
+        [
           {"MIX_ENV", "dev"},
           {"POSTGRES_HOST", "127.0.0.1"},
           {"POSTGRES_PORT", "1"},
           {"POSTGRES_USER", "sentinel-user"},
           {"POSTGRES_PASSWORD", "sentinel-password"},
           {"POSTGRES_DB", "sentinel-database"}
-        ],
-        stderr_to_stdout: true
+        ]
       )
 
     assert status != 0
@@ -346,6 +332,50 @@ defmodule Mix.Tasks.Catalog.SeedProcessTest do
     refute output =~ "connection refused"
     refute output =~ "DBConnection"
     refute output =~ "Postgrex"
+  end
+
+  test "nested Mix invocations use the resolved executable and clear the parent test partition" do
+    previous_partition = System.get_env("MIX_TEST_PARTITION")
+    System.put_env("MIX_TEST_PARTITION", "qa-parent-partition")
+
+    on_exit(fn ->
+      if is_nil(previous_partition),
+        do: System.delete_env("MIX_TEST_PARTITION"),
+        else: System.put_env("MIX_TEST_PARTITION", previous_partition)
+    end)
+
+    script = ~S"""
+    IO.write(System.get_env("MIX_ENV") <> "|" <> (System.get_env("MIX_TEST_PARTITION") || "unset"))
+    """
+
+    {output, status} =
+      run_mix(
+        ["run", "--no-start", "-e", script],
+        [{"MIX_ENV", "dev"}]
+      )
+
+    assert status == 0
+    assert String.trim(output) == "dev|unset"
+  end
+
+  defp run_mix(args, overrides) do
+    executable = System.find_executable("mix") || raise "mix executable unavailable"
+    override_names = MapSet.new(Enum.map(overrides, &elem(&1, 0)))
+
+    stable_env =
+      [
+        {"MIX_ENV", nil},
+        {"MIX_TEST_PARTITION", nil},
+        {"ERL_FLAGS", "+S 4:4"},
+        {"MIX_OS_CONCURRENCY_LOCK", "0"}
+      ]
+      |> Enum.reject(fn {name, _value} -> MapSet.member?(override_names, name) end)
+
+    System.cmd(executable, args,
+      cd: File.cwd!(),
+      env: stable_env ++ overrides,
+      stderr_to_stdout: true
+    )
   end
 
   defp clear_catalog do

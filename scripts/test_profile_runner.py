@@ -15,7 +15,44 @@ import uuid
 from test_inventory import check, entry, reconcile
 from test_profile_components import isolated_services, SERVICE_FILES
 
+PROFILE_TIMEOUTS = {'unit': 600, 'integration': 1500, 'e2e': 180}
+
 child = None
+
+
+def browser_preflight_command():
+    """Real Chromium smoke probe; only a closed cause enum crosses the process boundary."""
+    script = r'''/* PROFILE_BROWSER_PREFLIGHT */
+(async () => {
+  let browser;
+  try {
+    const {chromium} = require("./tools/openapi/node_modules/playwright-core");
+    const launchOptions = {headless:true,args:["--no-sandbox"],timeout:10000};
+    if (process.env.CHROMIUM_PATH) launchOptions.executablePath = process.env.CHROMIUM_PATH;
+    browser = await chromium.launch(launchOptions);
+    await browser.close();
+  } catch (error) {
+    const message = String(error && (error.message || error) || "");
+    let cause = "launch-failed";
+    if (/browser executable.*(?:missing|not found|does not exist)|executable doesn't exist|executable path.*not found|failed to launch.*ENOENT/i.test(message)) {
+      cause = "executable-missing";
+    } else if (/Cannot find module|MODULE_NOT_FOUND|shared librar|cannot open shared object|host system lacks dependencies|library .* not found/i.test(message)) {
+      cause = "dependency-missing";
+    } else if (/EACCES|EPERM|permission denied|access is denied/i.test(message)) {
+      cause = "permission-denied";
+    } else if (/ETIMEDOUT|TimeoutError|timed? ?out|timeout/i.test(message)) {
+      cause = "launch-timeout";
+    }
+    console.error(`PROFILE_SAFE_DIAGNOSTIC category=browser-prerequisite cause=${cause}`);
+    process.exitCode = 1;
+  }
+})();'''
+    return ['node', '-e', script]
+
+
+def is_browser_preflight(argv):
+    return bool(argv and argv[0] == 'node' and any(
+        isinstance(argument, str) and 'PROFILE_BROWSER_PREFLIGHT' in argument for argument in argv[1:]))
 
 
 def terminate():
@@ -47,10 +84,13 @@ def run(argv, env, timeout):
                 output.seek(0)
                 for raw in output:
                     line = raw.decode(errors='replace').rstrip('\r\n')
-                    if re.fullmatch(r'PROFILE_SAFE_DIAGNOSTIC category=openapi-browser stage=[a-z-]+', line):
+                    if (re.fullmatch(r'PROFILE_SAFE_DIAGNOSTIC category=openapi-browser stage=[a-z-]+', line)
+                            or re.fullmatch(r'PROFILE_SAFE_DIAGNOSTIC category=browser-prerequisite cause=(?:executable-missing|dependency-missing|permission-denied|launch-timeout|launch-failed)', line)):
                         print(line, file=sys.stderr)
                 raise ValueError('child-failure')
         except subprocess.TimeoutExpired:
+            if is_browser_preflight(argv):
+                print('PROFILE_SAFE_DIAGNOSTIC category=browser-prerequisite cause=launch-timeout', file=sys.stderr)
             raise ValueError('timeout') from None
         finally:
             terminate()
@@ -152,21 +192,12 @@ def main(profile):
     inventory = check()
     expected = [c for c in inventory['entries'] if c['profile'] == profile]
     digest = hashlib.sha256(Path('config/test_profiles.json').read_bytes()).hexdigest()
-    ceiling = 1200 if profile == 'integration' else 180 if profile == 'e2e' else 600
+    ceiling = PROFILE_TIMEOUTS[profile]
     with tempfile.TemporaryDirectory(prefix='profile-') as directory, contextlib.ExitStack() as resources:
         os.chmod(directory, 0o700)
         events = Path(directory) / 'events.jsonl'
         events.touch(mode=0o600)
-        env = {**os.environ, 'MIX_ENV': 'test', 'CP1_PROFILE': profile, 'PROFILE_EVENTS': str(events),
-               'PROFILE_NONCE': nonce}
-        for key in ('APPLICATION_COVERAGE_DIR', 'APPLICATION_COVERAGE_RUN_ID', 'APPLICATION_COVERAGE_SNAPSHOT'):
-            env.pop(key, None)
-        for key in ('DEBUG', 'NODE_DEBUG', 'PWDEBUG', 'BASH_ENV', 'ENV'):
-            env.pop(key, None)
-        if profile == 'e2e':
-            env.pop('APPLICATION_COVERAGE_DIR', None)
-            env.pop('APPLICATION_COVERAGE_RUN_ID', None)
-            env.pop('APPLICATION_COVERAGE_SNAPSHOT', None)
+        env = profile_environment(profile, events, nonce)
         def execute(argv, extra=None, timeout=ceiling):
             remaining = ceiling - (time.monotonic() - started)
             if remaining <= 0:
@@ -186,7 +217,7 @@ def main(profile):
                     category = str(error)
                 raise ValueError(category) from None
         if profile in ('integration', 'e2e'):
-            execute(['node', '-e', 'const {chromium}=require("./tools/openapi/node_modules/playwright-core");chromium.launch({headless:true,args:["--no-sandbox"],timeout:10000}).then(b=>b.close()).catch(()=>process.exit(1))'], timeout=30)
+            execute(browser_preflight_command(), timeout=30)
         if profile == 'integration':
             service_dir = Path(directory) / 'services'
             service_dir.mkdir(mode=0o700)
@@ -259,6 +290,18 @@ def main(profile):
             sidecar = Path(os.environ['APPLICATION_COVERAGE_DIR']) / (profile + '-coverage.json')
             sidecar.write_text(json.dumps(sealed) + '\n')
         print(f'CP1_PROFILE_RECEIPT profile={profile} audit_count={len(files)} expected={count} discovered={count} executed={count} passed={count} status=complete')
+
+
+def profile_environment(profile, events, nonce, parent=None):
+    """Build the child environment with bounded BEAM scheduler contention."""
+    env = {**(os.environ if parent is None else parent), 'MIX_ENV': 'test', 'CP1_PROFILE': profile,
+           'PROFILE_EVENTS': str(events), 'PROFILE_NONCE': nonce}
+    env.setdefault('ERL_FLAGS', '+S 4:4')
+    for key in ('APPLICATION_COVERAGE_DIR', 'APPLICATION_COVERAGE_RUN_ID', 'APPLICATION_COVERAGE_SNAPSHOT'):
+        env.pop(key, None)
+    for key in ('DEBUG', 'NODE_DEBUG', 'PWDEBUG', 'BASH_ENV', 'ENV'):
+        env.pop(key, None)
+    return env
 
 
 if __name__ == '__main__':

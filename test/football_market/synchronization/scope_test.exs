@@ -102,7 +102,11 @@ defmodule FootballMarket.Synchronization.ScopeTest do
     plugins = Application.fetch_env!(:football_market, Oban)[:plugins]
 
     case FootballMarket.WorkflowScope.active_feature() do
-      "specs/026-quote-recalculation-and-immutable-history" ->
+      feature
+      when feature in [
+             "specs/026-quote-recalculation-and-immutable-history",
+             "specs/068-atomic-idempotent-token-purchase"
+           ] ->
         assert [
                  {Oban.Plugins.Cron,
                   crontab: [{"* * * * *", FootballMarket.Workers.QuoteRecovery}]}

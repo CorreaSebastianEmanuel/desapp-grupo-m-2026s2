@@ -80,6 +80,13 @@ def manifest(feature: Path) -> dict:
         env = check.get("env", {})
         if not isinstance(env, dict) or not all(isinstance(k, str) and re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", k) and k.upper() not in ("HOME", "CODEX_HOME") and isinstance(v, str) and "\0" not in v for k, v in env.items()):
             raise RuntimeError("Invalid check environment")
+        retry_env = check.get("retry_env", [])
+        if (not isinstance(retry_env, list)
+                or not all(isinstance(k, str) and re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", k)
+                           and k.upper() not in ("HOME", "CODEX_HOME") for k in retry_env)
+                or len(set(retry_env)) != len(retry_env)
+                or set(retry_env).intersection(env)):
+            raise RuntimeError("Invalid retry_env declaration")
         if type(check.get("runtime", False)) is not bool:
             raise RuntimeError("runtime must be boolean")
         if type(check.get("reuse", True)) is not bool:
@@ -168,7 +175,11 @@ def source_fingerprint(root: Path) -> str:
 
 
 def check_identity(check: dict) -> str:
-    return digest(json.dumps({"argv": check["argv"], "env": check.get("env", {})}, sort_keys=True).encode())
+    identity = {"argv": check["argv"], "env": check.get("env", {})}
+    retry_env = check.get("retry_env", [])
+    if retry_env:
+        identity["retry_env"] = {name: os.environ.get(name) for name in retry_env}
+    return digest(json.dumps(identity, sort_keys=True).encode())
 
 
 def atomic_json(path: Path, data):

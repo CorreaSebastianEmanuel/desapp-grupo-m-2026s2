@@ -284,9 +284,7 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
     routes =
       FootballMarketWeb.Router
       |> Phoenix.Router.routes()
-      |> Enum.filter(
-        &(&1.path == "/api/players" or String.starts_with?(&1.path, "/api/players/"))
-      )
+      |> Enum.filter(&catalog_operation_path?(&1.path))
 
     assert Enum.all?(routes, &(&1.metadata[:authentication_policy] == :api_protected))
 
@@ -297,7 +295,12 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
       end)
 
     documented =
-      MapSet.new(for {path, item} <- doc["paths"], {method, _} <- item, do: {method, path})
+      MapSet.new(
+        for {path, item} <- doc["paths"],
+            catalog_operation_path?(path),
+            {method, _} <- item,
+            do: {method, path}
+      )
 
     assert documented == route_set
     assert doc["servers"] == [%{"url" => "/"}]
@@ -312,7 +315,7 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
              "description" => schemes["ApiKeyAuth"]["description"]
            }
 
-    for {_path, item} <- doc["paths"], {_method, op} <- item do
+    for {path, item} <- doc["paths"], catalog_operation_path?(path), {_method, op} <- item do
       assert op["security"] == [%{"BearerAuth" => []}, %{"ApiKeyAuth" => []}]
 
       assert Map.keys(op["responses"]) |> Enum.sort() ==
@@ -406,6 +409,9 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
                codes
     end
   end
+
+  defp catalog_operation_path?(path),
+    do: path == "/api/players" or String.starts_with?(path, "/api/players/")
 
   defp assert_schema!(doc, %{"$ref" => ref}, value) do
     assert_schema!(

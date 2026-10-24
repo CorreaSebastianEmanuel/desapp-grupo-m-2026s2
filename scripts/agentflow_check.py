@@ -68,25 +68,44 @@ def execute_check(check: dict, root: Path, evidence: Path) -> int:
 
 
 def safe_failure_diagnostics(evidence: Path) -> dict:
-    """Expose only the location summary emitted by test_profile.sh."""
+    """Expose only allowlisted profile, discrepancy and browser diagnostics."""
     stages = []
     failures = []
     locations = []
+    browser_causes = []
+    discrepancies = []
     for line in evidence.read_text(encoding="utf-8", errors="replace").splitlines():
-        line = line.strip()
-        if re.fullmatch(r"CP1_PROFILE_STAGE (?:transactional|committed-fixture:[A-Za-z0-9_./-]+)", line):
-            stages.append(line.removeprefix("CP1_PROFILE_STAGE "))
-        elif re.fullmatch(r"CP1_PROFILE_FAILURES count=(?:[0-9]+|unknown)", line):
-            failures.append(line.removeprefix("CP1_PROFILE_FAILURES count="))
-        elif re.fullmatch(r"CP1_PROFILE_FAILURE_LOCATION (?:test/[A-Za-z0-9_./-]+\.exs:[0-9]+|unavailable)", line):
-            locations.append(line.removeprefix("CP1_PROFILE_FAILURE_LOCATION "))
-    if not (stages or failures or locations):
+        legacy_line = line.strip()
+        if re.fullmatch(r"CP1_PROFILE_STAGE (?:transactional|committed-fixture:[A-Za-z0-9_./-]+)", legacy_line):
+            stages.append(legacy_line.removeprefix("CP1_PROFILE_STAGE "))
+        elif re.fullmatch(r"CP1_PROFILE_FAILURES count=(?:[0-9]+|unknown)", legacy_line):
+            failures.append(legacy_line.removeprefix("CP1_PROFILE_FAILURES count="))
+        elif re.fullmatch(r"CP1_PROFILE_FAILURE_LOCATION (?:test/[A-Za-z0-9_./-]+\.exs:[0-9]+|unavailable)", legacy_line):
+            locations.append(legacy_line.removeprefix("CP1_PROFILE_FAILURE_LOCATION "))
+        discrepancy = re.fullmatch(r"PROFILE_DISCREPANCY id=([0-9a-f]{24})(?: line=([0-9]+))?", legacy_line)
+        if discrepancy:
+            discrepancies.append({
+                "id": discrepancy.group(1),
+                "line": int(discrepancy.group(2)) if discrepancy.group(2) else None,
+            })
+        cause = re.fullmatch(
+            r"PROFILE_SAFE_DIAGNOSTIC category=browser-prerequisite cause=(executable-missing|dependency-missing|permission-denied|launch-timeout|launch-failed)",
+            line,
+        )
+        if cause:
+            browser_causes.append(cause.group(1))
+    if not (stages or failures or locations or browser_causes or discrepancies):
         return {}
-    return {
+    result = {
         "stages": stages,
         "failure_counts": failures,
         "locations": locations,
     }
+    if browser_causes:
+        result["browser_prerequisite_causes"] = browser_causes
+    if discrepancies:
+        result["profile_discrepancies"] = discrepancies
+    return result
 
 
 def run_check(root: Path, feature: Path, ident: str, *, reuse: bool = False, stage: str = "develop") -> int:

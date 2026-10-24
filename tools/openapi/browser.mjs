@@ -34,19 +34,26 @@ try {
   stage = 'docs-ready';
   await page.waitForFunction(() => document.documentElement.dataset.docsReady === 'true');
   stage = 'docs-content';
+  stage = 'catalog-discovery';
   assert(await page.locator('#docs-error').isHidden(), 'Documentation load error');
-  assert(await page.locator('.opblock').count() === 2, 'Catalog operation discovery failed');
-  const list = page.locator('.opblock').nth(0);
-  const detail = page.locator('.opblock').nth(1);
+  const catalog = page.locator('.opblock').filter({ hasText: '/api/players' });
+  assert(await catalog.count() === 2, 'Catalog operation discovery failed');
+  const list = catalog.nth(0);
+  const detail = catalog.nth(1);
+  stage = 'catalog-paths';
   assert((await list.innerText()).includes('/api/players'), 'List operation missing');
   assert((await detail.innerText()).includes('/api/players/{player_id}'), 'Detail operation missing');
+  stage = 'catalog-parameters';
   await list.locator('.opblock-summary').click();
   await detail.locator('.opblock-summary').click();
   await page.waitForFunction(() => document.querySelector('.opblock')?.textContent.includes('page_size'));
   for (const name of ['page_size','cursor','league_id','team_id','position_id']) {
     assert((await list.innerText()).includes(name), `Missing parameter ${name}`);
   }
-  await page.waitForFunction(() => [...document.querySelectorAll('.opblock')].every(block => block.querySelectorAll('.response-col_status').length >= 3));
+  stage = 'catalog-responses';
+  await page.waitForFunction(() => [...document.querySelectorAll('.opblock')]
+    .filter(block => block.textContent.includes('/api/players'))
+    .every(block => block.querySelectorAll('.response-col_status').length >= 3));
   const listStatuses = (await list.locator('.response-col_status').allTextContents()).map(value => value.trim());
   const detailStatuses = (await detail.locator('.response-col_status').allTextContents()).map(value => value.trim());
   assert(['200','400','401'].every(value => listStatuses.includes(value)), 'List response status discovery failed');

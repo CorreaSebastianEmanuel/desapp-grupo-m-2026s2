@@ -1,0 +1,317 @@
+{
+  "schema_version": 1,
+  "runtime_required": true,
+  "checks": [
+    {
+      "id": "toolchain",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "sh",
+        "scripts/check_toolchain.sh"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      }
+    },
+    {
+      "id": "prepare",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "mix",
+        "test.prepare"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "reuse": false
+    },
+    {
+      "id": "services",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "mix",
+        "infrastructure.verify"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "reuse": false
+    },
+    {
+      "id": "format",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "mix",
+        "format",
+        "--check-formatted"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      }
+    },
+    {
+      "id": "compile",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "mix",
+        "compile",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      }
+    },
+    {
+      "id": "credo",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "sh",
+        "scripts/credo_ci.sh"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      }
+    },
+    {
+      "id": "openapi",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "node",
+        "tools/openapi/validate.mjs",
+        "priv/static/openapi.json"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      }
+    },
+    {
+      "id": "inventory",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "python3",
+        "scripts/test_inventory.py",
+        "check"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      }
+    },
+    {
+      "id": "unit",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "mix",
+        "test.unit"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "expectation": "Existing complete unit profile includes native test/scripts/test_profile_runner_test.py and test/scripts/agentflow_evidence_test.py: test_browser_preflight_classifies_only_closed_causes_and_keeps_raw_errors_private covers all five causes, including Cannot find module and MODULE_NOT_FOUND as dependency-missing, launch success without diagnostics, unset CHROMIUM_PATH preserving Playwright defaults, and configured CHROMIUM_PATH forwarded exactly; test_supervisor_forwards_only_complete_safe_browser_records and test_browser_preflight_supervisor_timeout_emits_safe_timeout_cause cover forwarding and timeout; test_safe_diagnostics_accept_only_closed_browser_cause_records and test_profile_discrepancy_is_reported_without_legacy_profile_markers cover safe output. PurchaseInput tests reject NUL request keys before persistence. Existing cases cover resource cleanup, receipt invalidation and unchanged two-failure retry guards. Inventory must include all added cases. Retry_env identity regressions: test_declared_retry_environment_changes_hashed_check_identity_without_leaking_value and test_manifest_rejects_invalid_retry_environment_names."
+    },
+    {
+      "id": "integration",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "mix",
+        "test.integration"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "expectation": "Existing full profile must complete its real Chromium launch preflight and all registered cases; unavailable prerequisites fail nonzero with allowlisted causes only. No raw Playwright output or passing receipt on failure. Integration includes committed purchase races, HTTP contract tests, and protected-controller NUL-key rejection with unchanged snapshots; quote_order_test.exs proves both quote-first (purchase waits, then uses the newly committed quote) and purchase-first orderings. test/mix/tasks/catalog.seed_test.exs pins nested Mix to the resolved executable and clears inherited MIX_TEST_PARTITION while retaining its disabled/production checks. E2E preserves existing browser acceptance.",
+      "retry_env": [
+        "CHROMIUM_PATH"
+      ]
+    },
+    {
+      "id": "assets",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "mix",
+        "assets.build"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      }
+    },
+    {
+      "id": "e2e",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "mix",
+        "test.e2e"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "expectation": "Existing browser E2E profile must pass real Chromium preflight and registered browser acceptance; unavailable prerequisites fail nonzero with allowlisted causes only, no raw launch output or passing receipt.",
+      "retry_env": [
+        "CHROMIUM_PATH"
+      ]
+    },
+    {
+      "id": "purchase-runtime",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "mix",
+        "run",
+        "test/runtime/purchase_http.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "runtime": true,
+      "reuse": false,
+      "expectation": "Fail unless PostgreSQL SELECT 1, Redis PING and bounded real Endpoint readiness succeed. Real loopback POST /api/purchases: 200 JSON exact Decimal strings and trusted actor; identical retry 200 same body/operation; changed details 409 key_conflict; NUL request key 400 invalid_request with unchanged snapshots; insufficient funds 409 unchanged state; missing credential 401 JSON unauthenticated and WWW-Authenticate challenge. Assert conserved supply, exact buyer/recipient balances and exactly one purchase, transfer and paired ledger in isolated committed store. Startup/service/request/assertion failures exit nonzero; clean only owned resources."
+    }
+  ],
+  "coverage": {
+    "FR-001": [
+      "unit",
+      "integration",
+      "purchase-runtime"
+    ],
+    "FR-002": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "FR-003": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "FR-004": [
+      "unit",
+      "integration",
+      "purchase-runtime"
+    ],
+    "FR-005": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "FR-006": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "FR-007": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "FR-008": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "FR-009": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "FR-010": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "FR-011": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "FR-012": [
+      "unit",
+      "integration",
+      "purchase-runtime"
+    ],
+    "FR-013": [
+      "unit",
+      "integration",
+      "purchase-runtime"
+    ],
+    "FR-014": [
+      "unit",
+      "integration",
+      "inventory",
+      "purchase-runtime"
+    ],
+    "FR-015": [
+      "unit",
+      "integration",
+      "openapi"
+    ],
+    "SC-001": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "SC-002": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "SC-003": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "SC-004": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "SC-005": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "SC-006": [
+      "integration",
+      "purchase-runtime"
+    ]
+  },
+  "task_stages": {
+    "T029": "qa",
+    "T030": "review"
+  }
+}

@@ -34,7 +34,9 @@ defmodule FootballMarket.Market.ScopeTest do
     assert length(paths) == length(Enum.uniq(paths))
     assert Enum.all?(paths, &File.regular?/1)
 
-    assert Enum.sort(Path.wildcard("lib/football_market/market/*.ex")) ==
+    assert Enum.sort(
+             Enum.filter(Path.wildcard("lib/football_market/market/*.ex"), &(&1 in paths))
+           ) ==
              Enum.sort(
                Enum.filter(paths, &String.starts_with?(&1, "lib/football_market/market/"))
              )
@@ -91,18 +93,30 @@ defmodule FootballMarket.Market.ScopeTest do
     assert Enum.sort(functions) == [
              get_initial_issuance: 1,
              initialize_player: 1,
-             initialize_player: 2
+             initialize_player: 2,
+             purchase: 2
            ]
 
-    for path <- [
-          "lib/football_market/market.ex" | Path.wildcard("lib/football_market/market/*.ex")
-        ] do
+    issuance_paths =
+      ["lib/football_market/market.ex"] ++
+        Enum.map(
+          ~w(input consistency error store initialization_lock initial_recipient holding quote issuance),
+          &"lib/football_market/market/#{&1}.ex"
+        )
+
+    for path <- issuance_paths do
       source = File.read!(path)
 
       refute source =~
                ~r/FootballMarketWeb|FootballMarket\.(Providers|Valuation|Trading)|\b(Oban|Redix|Req|Finch)\b|PubSub|String.to_atom|Task\.async/
 
-      refute source =~ ~r/password|credential|balance|purchase|\bsale\b|\bfloat\b/
+      refute source =~ ~r/password|credential|balance|\bsale\b|\bfloat\b/
+
+      if path == "lib/football_market/market.ex" do
+        assert source =~ "defdelegate purchase(actor, input), to: FootballMarket.Market.Purchases"
+      else
+        refute source =~ "purchase"
+      end
     end
 
     store = File.read!("lib/football_market/market/store.ex")

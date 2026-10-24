@@ -4,9 +4,9 @@ title: Atomic idempotent token purchase
 type: task
 checkpoint: CP2
 priority: critical
-status: todo
+status: blocked
 depends_on: TASK-010, TASK-026, TASK-028
-active_run: none
+active_run: 0f431c0e
 ---
 
 ## Outcome

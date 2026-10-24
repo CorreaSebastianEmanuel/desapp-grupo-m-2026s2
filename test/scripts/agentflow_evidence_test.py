@@ -4,6 +4,7 @@ import sys
 from unittest.mock import patch
 from scripts.agentflow_check import run_check, safe_failure_diagnostics
 from scripts import agentflow_verification as v
+from scripts.agentflow_verification import check_identity
 from test.scripts.support.agentflow_delivery_fixtures import DeliveryFixture, applicability, verification
 
 
@@ -20,6 +21,8 @@ class EvidenceTest(DeliveryFixture):
             'CP1_PROFILE_STAGE committed-fixture:test/example_test.exs\n'
             'CP1_PROFILE_FAILURES count=2\n'
             'CP1_PROFILE_FAILURE_LOCATION test/example_test.exs:41\n'
+            'PROFILE_DISCREPANCY id=0123456789abcdef01234567 line=41\n'
+            'PROFILE_DISCREPANCY id=0123456789abcdef01234567 line=41 secret=sentinel\n'
             'expected secret payload and exception details\n'
         )
 
@@ -27,6 +30,59 @@ class EvidenceTest(DeliveryFixture):
             'stages': ['committed-fixture:test/example_test.exs'],
             'failure_counts': ['2'],
             'locations': ['test/example_test.exs:41'],
+            'profile_discrepancies': [{'id': '0123456789abcdef01234567', 'line': 41}],
+        })
+
+    def test_declared_retry_environment_changes_hashed_check_identity_without_leaking_value(self):
+        check = {'argv': [sys.executable, '-c', 'pass'], 'env': {}, 'retry_env': ['CHROMIUM_PATH']}
+        first_path = '/private/browser/one'
+        second_path = '/private/browser/two'
+        with patch.dict('os.environ', {'CHROMIUM_PATH': first_path}):
+            first = check_identity(check)
+        with patch.dict('os.environ', {'CHROMIUM_PATH': second_path}):
+            second = check_identity(check)
+        self.assertNotEqual(first, second)
+        self.assertNotIn(first_path, first)
+        self.assertNotIn(second_path, second)
+
+    def test_manifest_rejects_invalid_retry_environment_names(self):
+        self.data['checks'][0]['retry_env'] = ['CHROMIUM-PATH']
+        self.json('specs/003-example/verification.json', self.data)
+        with self.assertRaisesRegex(RuntimeError, 'retry_env'):
+            v.manifest(self.feature)
+
+    def test_safe_diagnostics_accept_only_closed_browser_cause_records(self):
+        evidence = self.root/'browser.log'
+        evidence.write_text(
+            'PROFILE_SAFE_DIAGNOSTIC category=browser-prerequisite cause=executable-missing\n'
+            'PROFILE_SAFE_DIAGNOSTIC category=browser-prerequisite cause=dependency-missing\n'
+            'PROFILE_SAFE_DIAGNOSTIC category=browser-prerequisite cause=permission-denied\n'
+            'PROFILE_SAFE_DIAGNOSTIC category=browser-prerequisite cause=launch-timeout\n'
+            'PROFILE_SAFE_DIAGNOSTIC category=browser-prerequisite cause=launch-failed\n'
+            'PROFILE_SAFE_DIAGNOSTIC category=browser-prerequisite cause=launch-failed secret=sentinel\n'
+            'PROFILE_SAFE_DIAGNOSTIC category=browser-prerequisite cause=forged\n'
+            'PROFILE_SAFE_DIAGNOSTIC category=browser-prerequisite cause=launch-failed\x1b[31m\n'
+            'secret-sentinel /private/browser/path\n'
+        )
+
+        self.assertEqual(safe_failure_diagnostics(evidence), {
+            'stages': [],
+            'failure_counts': [],
+            'locations': [],
+            'browser_prerequisite_causes': [
+                'executable-missing', 'dependency-missing', 'permission-denied',
+                'launch-timeout', 'launch-failed'
+            ]
+        })
+
+    def test_profile_discrepancy_is_reported_without_legacy_profile_markers(self):
+        evidence = self.root/'discrepancy.log'
+        evidence.write_text('PROFILE_DISCREPANCY id=0123456789abcdef01234567 line=41\n')
+        self.assertEqual(safe_failure_diagnostics(evidence), {
+            'profile_discrepancies': [{'id': '0123456789abcdef01234567', 'line': 41}],
+            'stages': [],
+            'failure_counts': [],
+            'locations': [],
         })
 
     def receipt(self, stage='develop'):

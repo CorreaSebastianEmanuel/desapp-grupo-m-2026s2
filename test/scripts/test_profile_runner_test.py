@@ -5,6 +5,7 @@ import json
 import os
 from pathlib import Path
 import signal
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -17,6 +18,120 @@ from test_inventory import entry
 
 
 class RunnerTest(unittest.TestCase):
+    def test_profile_timeouts_bound_runtime_without_truncating_full_integration_suite(self):
+        self.assertEqual(runner.PROFILE_TIMEOUTS, {
+            'unit': 600, 'integration': 1500, 'e2e': 180
+        })
+
+    def test_profile_environment_bounds_default_scheduler_count_and_preserves_explicit_choice(self):
+        default = runner.profile_environment('integration', '/tmp/events.jsonl', 'nonce', {
+            'PATH': '/bin', 'APPLICATION_COVERAGE_DIR': '/private/coverage', 'DEBUG': '1'
+        })
+        self.assertEqual(default['ERL_FLAGS'], '+S 4:4')
+        self.assertEqual(default['MIX_ENV'], 'test')
+        self.assertNotIn('APPLICATION_COVERAGE_DIR', default)
+        self.assertNotIn('DEBUG', default)
+
+        explicit = runner.profile_environment('integration', '/tmp/events.jsonl', 'nonce', {
+            'PATH': '/bin', 'ERL_FLAGS': '+S 2:2'
+        })
+        self.assertEqual(explicit['ERL_FLAGS'], '+S 2:2')
+
+    def test_browser_preflight_classifies_only_closed_causes_and_keeps_raw_errors_private(self):
+        node = shutil.which('node')
+        if not node:
+            self.skipTest('Node is required by the existing unit toolchain')
+        with tempfile.TemporaryDirectory() as directory:
+            preload = Path(directory) / 'preload.cjs'
+            preload.write_text("""
+const Module = require('node:module');
+const original = Module._load;
+Module._load = function(request, parent, isMain) {
+  if (request === './tools/openapi/node_modules/playwright-core') {
+    return {chromium: {launch: (options) => {
+      if (process.env.PREFLIGHT_MODE === 'success') {
+        console.log(JSON.stringify(options));
+        return Promise.resolve({close: () => Promise.resolve()});
+      }
+      return Promise.reject(new Error(process.env.PREFLIGHT_ERROR));
+    }}};
+  }
+  return original.call(this, request, parent, isMain);
+};
+""")
+            argv = runner.browser_preflight_command()
+            scenarios = [
+                ('executable-missing', 'browser executable missing'),
+                ('dependency-missing', 'shared library missing'),
+                ('dependency-missing', "Error: Cannot find module 'playwright-core'\nRequire stack:\n- /private/path/preflight.cjs"),
+                ('dependency-missing', "code: 'MODULE_NOT_FOUND'"),
+                ('permission-denied', 'permission denied'),
+                ('launch-timeout', 'timeout while launching'),
+                ('launch-failed', 'opaque-secret-sentinel unknown browser error'),
+            ]
+            for cause, message in scenarios:
+                with self.subTest(cause=cause):
+                    completed = subprocess.run(
+                        argv, env={**os.environ, 'NODE_OPTIONS': '--require=' + str(preload),
+                                   'PREFLIGHT_ERROR': message}, text=True,
+                        capture_output=True, timeout=15)
+                    self.assertNotEqual(completed.returncode, 0)
+                    self.assertEqual(completed.stderr.strip(),
+                                     f'PROFILE_SAFE_DIAGNOSTIC category=browser-prerequisite cause={cause}')
+                    self.assertNotIn('opaque-secret-sentinel', completed.stderr)
+            default_env = {**os.environ, 'NODE_OPTIONS': '--require=' + str(preload),
+                           'PREFLIGHT_MODE': 'success'}
+            default_env.pop('CHROMIUM_PATH', None)
+            success = subprocess.run(argv, env=default_env, text=True, capture_output=True, timeout=15)
+            self.assertEqual(success.returncode, 0)
+            self.assertNotIn('PROFILE_SAFE_DIAGNOSTIC', success.stderr)
+            self.assertNotIn('executablePath', json.loads(success.stdout))
+
+            configured = subprocess.run(
+                argv, env={**default_env, 'CHROMIUM_PATH': '/verified/chrome/chrome'}, text=True,
+                capture_output=True, timeout=15)
+            self.assertEqual(configured.returncode, 0)
+            self.assertEqual(json.loads(configured.stdout)['executablePath'], '/verified/chrome/chrome')
+
+    def test_supervisor_forwards_only_complete_safe_browser_records(self):
+        lines = [
+            'PROFILE_SAFE_DIAGNOSTIC category=browser-prerequisite cause=launch-failed',
+            'PROFILE_SAFE_DIAGNOSTIC category=browser-prerequisite cause=forged',
+            'PROFILE_SAFE_DIAGNOSTIC category=browser-prerequisite cause=launch-timeout extra=secret',
+            'PROFILE_SAFE_DIAGNOSTIC category=browser-prerequisite cause=launch-failed\x1b[31m',
+            'PROFILE_SAFE_DIAGNOSTIC category=openapi-browser stage=location',
+            'raw-secret-sentinel /private/browser/path',
+        ]
+        code = 'import sys;sys.stderr.write(' + repr('\n'.join(lines) + '\n') + ');raise SystemExit(1)'
+        captured = io.StringIO()
+        with contextlib.redirect_stderr(captured), self.assertRaises(ValueError):
+            runner.run([sys.executable, '-c', code], os.environ.copy(), 5)
+        self.assertEqual(captured.getvalue().splitlines(), [lines[0], lines[4]])
+        self.assertNotIn('secret', captured.getvalue())
+        self.assertNotIn('/private', captured.getvalue())
+
+    def test_browser_preflight_supervisor_timeout_emits_safe_timeout_cause(self):
+        node = shutil.which('node')
+        if not node:
+            self.skipTest('Node is required by the existing unit toolchain')
+        with tempfile.TemporaryDirectory() as directory:
+            preload = Path(directory) / 'preload.cjs'
+            preload.write_text("""
+const Module = require('node:module');
+const original = Module._load;
+Module._load = function(request, parent, isMain) {
+  if (request === './tools/openapi/node_modules/playwright-core') {
+    return {chromium: {launch: () => new Promise(() => setInterval(() => {}, 1000))}};
+  }
+  return original.call(this, request, parent, isMain);
+};
+""")
+            captured = io.StringIO()
+            with contextlib.redirect_stderr(captured), self.assertRaises(ValueError):
+                runner.run(runner.browser_preflight_command(),
+                           {**os.environ, 'NODE_OPTIONS': '--require=' + str(preload)}, .05)
+            self.assertIn('cause=launch-timeout', captured.getvalue())
+
     def test_resource_cleanup_runs_after_child_exit_and_failure_propagates(self):
         import re
         code = "import os;from pathlib import Path;Path(os.environ['PROFILE_RESOURCES']).write_text('[]');print('cleanup-secret-sentinel')"

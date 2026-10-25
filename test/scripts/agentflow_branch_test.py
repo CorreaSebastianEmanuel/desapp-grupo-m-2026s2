@@ -275,7 +275,7 @@ class RealStartPreproductTest(Fixture):
         prerequisites = self.root/'prerequisite-bin'; prerequisites.mkdir()
         specify = prerequisites/'specify'; specify.write_text('#!/bin/sh\nexit 0\n'); specify.chmod(0o700)
         test_path = str(prerequisites) + os.pathsep + os.environ.get('PATH', '')
-        with patch.dict(os.environ,{'SPECKIT_INTEGRATION_CODEX_EXECUTABLE':sys.executable, 'PATH':test_path}),patch.object(AGENTFLOW,'ROOT',self.root),patch.object(AGENTFLOW,'BACKLOG',self.root/'backlog'),patch.object(AGENTFLOW,'FEEDBACK',self.root/'backlog/feedback'),patch.object(AGENTFLOW,'monitor_process',return_value=(130,'captured-run')) as launch:
+        with patch.dict(os.environ,{'SPECKIT_INTEGRATION_CODEX_EXECUTABLE':sys.executable, 'PATH':test_path}),patch.object(AGENTFLOW,'ROOT',self.root),patch.object(AGENTFLOW,'BACKLOG',self.root/'backlog'),patch.object(AGENTFLOW,'FEEDBACK',self.root/'backlog/feedback'),patch('scripts.agentflow_preflight.preflight_or_raise'),patch.object(AGENTFLOW,'monitor_process',return_value=(130,'captured-run')) as launch:
             if invalid and invalid!='headerless':
                 with self.assertRaises((ValueError,SystemExit)):AGENTFLOW.start(args)
                 launch.assert_not_called();self.assertEqual(self.task.read_bytes(),before)

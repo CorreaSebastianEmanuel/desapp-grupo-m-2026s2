@@ -386,10 +386,9 @@ class OuterLaunchTest(ProviderFixture):
         def refuse(context):
             contexts.append(context)
             raise RuntimeError('fixture preflight refusal')
-        which = module.shutil.which
-        with patch.object(module.shutil, 'which', side_effect=lambda name: '/fixture/specify' if name == 'specify' else which(name)), \
+        with patch.dict(os.environ, {'PATH': self.preflight_path}), \
                 patch.object(module, 'node24_path', return_value=None), \
-                patch('scripts.agentflow_preflight.preflight_or_raise', side_effect=refuse):
+                patch.object(agentflow_preflight, 'preflight_or_raise', side_effect=refuse):
             with self.assertRaisesRegex(RuntimeError, 'fixture preflight refusal'):
                 module.start(module.parser().parse_args(['start', 'TASK-003', '--no-pr']))
         self.assertEqual(len(contexts), 1)
@@ -420,10 +419,9 @@ class OuterLaunchTest(ProviderFixture):
         def refuse(context):
             contexts.append(context)
             raise RuntimeError('fixture preflight refusal')
-        which = module.shutil.which
-        with patch.object(module.shutil, 'which', side_effect=lambda name: '/fixture/specify' if name == 'specify' else which(name)), \
+        with patch.dict(os.environ, {'PATH': self.preflight_path}), \
                 patch.object(module, 'node24_path', return_value=None), \
-                patch('scripts.agentflow_preflight.preflight_or_raise', side_effect=refuse):
+                patch.object(agentflow_preflight, 'preflight_or_raise', side_effect=refuse):
             with self.assertRaisesRegex(RuntimeError, 'fixture preflight refusal'):
                 module.resume(module.parser().parse_args(['resume', 'TASK-003']))
         self.assertEqual(len(contexts), 1)

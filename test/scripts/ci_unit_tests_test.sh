@@ -13,7 +13,7 @@ printf '%s\n' 'CP1_PROFILE_SECRET_SENTINEL password token api-key'
 [ "${FAKE_CASE:-}" != browser-diagnostic ] || { printf '%s\n' 'PROFILE_BROWSER_DIAGNOSTIC cause=chromium-launch-failed stage=integration' 'BROWSER-RAW-CANARY private failure detail'; exit 7; }
 [ "${FAKE_CASE:-}" != membership-diagnostic ] || { printf '%s\n' 'PROFILE_MEMBERSHIP_DIAGNOSTIC profile=unit phase=event-reconciliation reason=missing-events expected=69 observed=137 missing_started=0 missing_passed=1 extra=0 duplicate=0 invalid_state=0 wrong_nonce=0' 'MEMBERSHIP-RAW-CANARY private case id'; exit 7; }
 [ "${FAKE_CASE:-}" != membership-extra-source ] || { printf '%s\n' 'PROFILE_MEMBERSHIP_EXTRA profile=unit runner=python file=test/scripts/example_test.py' 'PROFILE_MEMBERSHIP_EXTRA profile=unit runner=python file=private/secret_test.py' 'MEMBERSHIP-SOURCE-RAW-CANARY'; exit 7; }
-[ "${FAKE_CASE:-}" != child-failure ] || { printf '%s\n' 'CP1_PROFILE_OUTCOME status=failed category=test-failure' 'PROFILE_CASE_DIAGNOSTIC id=0123456789abcdef01234567 runner=python file=test/scripts/fixture_test.py case=test.fixture.FixtureTest.test_failure state=failed cause=assertion line=42 exit=none started=1 passed=0 failed=1 skipped=0'; exit 7; }
+[ "${FAKE_CASE:-}" != child-failure ] || { printf '%s\n' 'CP1_PROFILE_OUTCOME status=failed category=test-failure' 'PROFILE_CASE_DIAGNOSTIC id=0123456789abcdef01234567 runner=python file=test/scripts/fixture_test.py case=test.fixture.FixtureTest.test_failure state=failed cause=assertion line=42 started=1 passed=0 failed=1 skipped=0'; exit 7; }
 [ "${FAKE_CASE:-}" != missing ] || exit 0
 python3 - "$1" <<'PY'
 import hashlib,json,os,sys
@@ -54,7 +54,7 @@ profile_case_pass 'complete'
 profile_case_start 'child-failure'
 run_case child-failure 1
 grep -Fxq 'CI_PROFILE_DIAGNOSTIC profile=unit category=test-failure' "$private/stderr" || { echo 'missing safe profile failure diagnostic' >&2; exit 1; }
-grep -Fxq 'PROFILE_CASE_DIAGNOSTIC id=0123456789abcdef01234567 runner=python file=test/scripts/fixture_test.py case=test.fixture.FixtureTest.test_failure state=failed cause=assertion line=42 exit=none started=1 passed=0 failed=1 skipped=0' "$private/stderr"
+grep -Fxq 'PROFILE_CASE_DIAGNOSTIC id=0123456789abcdef01234567 runner=python file=test/scripts/fixture_test.py case=test.fixture.FixtureTest.test_failure state=failed cause=assertion line=42 started=1 passed=0 failed=1 skipped=0' "$private/stderr"
 profile_case_pass 'child-failure'
 profile_case_start 'browser-diagnostic'
 run_case browser-diagnostic 1

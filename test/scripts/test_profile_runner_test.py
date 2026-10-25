@@ -132,14 +132,24 @@ class RunnerTest(unittest.TestCase):
     def test_component_failure_identifies_unfinished_case_without_raw_name(self):
         case = entry('python', 'test/scripts/secret_test.py', 'secret-password-token-key', 'unit')
         def fake(argv, env, timeout):
-            Path(env['PROFILE_EVENTS']).write_text(json.dumps(dict(nonce=env['PROFILE_NONCE'], runner=case['runner'], file=case['file'], case_id=case['case_id'], state='started'))+'\n')
+            events = [
+                dict(nonce=env['PROFILE_NONCE'], runner=case['runner'], file=case['file'], case_id=case['case_id'], state='started'),
+                dict(nonce=env['PROFILE_NONCE'], runner=case['runner'], file=case['file'], case_id=case['case_id'],
+                     state='failed', cause='assertion', failure_line=41),
+            ]
+            Path(env['PROFILE_EVENTS']).write_text(''.join(json.dumps(value)+'\n' for value in events))
             raise ValueError('child-failure')
         captured = io.StringIO()
         with patch.object(runner, 'check', return_value={'entries':[case]}), patch.object(runner, 'run', side_effect=fake), contextlib.redirect_stderr(captured):
             with self.assertRaises(ValueError):
                 runner.main('unit')
-        self.assertIn(case['id'], captured.getvalue())
+        output = captured.getvalue()
+        self.assertEqual(output.count('PROFILE_CASE_DIAGNOSTIC'), 1)
+        self.assertIn('PROFILE_CASE_DIAGNOSTIC id=' + case['id'], output)
+        self.assertIn('case=redacted state=failed cause=assertion line=41 started=1 passed=0 failed=1 skipped=0', output)
         self.assertNotIn(case['case_id'], captured.getvalue())
+        self.assertEqual(runner.failure_cause('exunit', [{'state': 'failed'}], 1, 0), 'error')
+        self.assertEqual(runner.failure_cause('python', [{'state': 'failed'}], 1, 0), 'assertion')
 
     def test_membership_diagnostic_is_aggregate_and_never_prints_case_ids(self):
         from test_inventory import reconcile_diagnostics

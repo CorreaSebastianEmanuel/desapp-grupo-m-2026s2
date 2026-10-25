@@ -33,6 +33,41 @@ def emit_membership_diagnostic(profile, phase, reason, *, expected=0, observed=0
         f"wrong_nonce={wrong_nonce}")), file=sys.stderr)
 
 
+def safe_case_id(value):
+    """Expose conventional test identifiers only; redact arbitrary labels."""
+    return value if isinstance(value, str) and re.fullmatch(r'test(?:\.[A-Za-z0-9_]+)+', value) else 'redacted'
+
+
+def failure_cause(runner_name, related, failed, skipped):
+    cause = next((event.get('cause') for event in related
+                  if event.get('state') == 'failed' and event.get('cause') in ('assertion', 'error')),
+                 None)
+    if cause:
+        return cause
+    if failed:
+        return 'error' if runner_name == 'exunit' else 'assertion'
+    return 'skipped' if skipped else 'incomplete'
+
+
+def emit_case_diagnostic(case, related):
+    failed = sum(event.get('state') == 'failed' for event in related)
+    skipped = sum(event.get('state') == 'skipped' for event in related)
+    started = sum(event.get('state') == 'started' for event in related)
+    passed = sum(event.get('state') == 'passed' for event in related)
+    state = 'failed' if failed else 'skipped' if skipped else 'incomplete'
+    cause = failure_cause(case['runner'], related, failed, skipped)
+    failure = next((event for event in related if event.get('state') == 'failed'), {})
+    line = failure.get('failure_line')
+    line_value = str(line) if type(line) is int and 0 < line <= 1000000 else '0'
+    # Keep the identity-only marker for structured QA parsing; publish details only through this closed schema.
+    print('PROFILE_DISCREPANCY id=' + case['id'] + ' line=' + line_value, file=sys.stderr)
+    print('PROFILE_CASE_DIAGNOSTIC id=' + case['id'] + ' runner=' + case['runner'] +
+          ' file=' + case['file'] + ' case=' + safe_case_id(case['case_id']) +
+          ' state=' + state + ' cause=' + cause + ' line=' + line_value +
+          ' started=' + str(started) + ' passed=' + str(passed) +
+          ' failed=' + str(failed) + ' skipped=' + str(skipped), file=sys.stderr)
+
+
 def browser_prerequisite(env, launch):
     """Classify the integration browser smoke probe without exposing child output."""
     node = shutil.which("node", path=env.get("PATH"))
@@ -261,12 +296,14 @@ def main(profile):
                 step, partition = command_location(argv, extra)
                 print(f'PROFILE_STEP_DIAGNOSTIC profile={profile} step={step} partition={partition}', file=sys.stderr)
                 observations = [json.loads(raw) for raw in events.read_text().splitlines()]
-                passed = {(e['runner'], e['file'], e['case_id']) for e in observations if e.get('state') == 'passed'}
-                for observed in observations:
-                    identity = (observed['runner'], observed['file'], observed['case_id'])
-                    if observed.get('state') in ('failed', 'skipped') or (observed.get('state') == 'started' and identity not in passed):
-                        opaque = entry(observed['runner'], observed['file'], observed['case_id'], profile)['id']
-                        print('PROFILE_DISCREPANCY id=' + opaque + ' line=' + str(observed.get('failure_line', 0)), file=sys.stderr)
+                identities = {(item['runner'], item['file'], item['case_id']) for item in observations}
+                for runner_name, file_name, case_id in sorted(identities):
+                    related = [item for item in observations if (item['runner'], item['file'], item['case_id']) ==
+                               (runner_name, file_name, case_id)]
+                    states = {item.get('state') for item in related}
+                    if 'failed' in states or 'skipped' in states or ('started' in states and 'passed' not in states):
+                        case = entry(runner_name, file_name, case_id, profile)
+                        emit_case_diagnostic(case, related)
                 category = 'test-failure' if argv[0] == 'mix' else 'component-failure'
                 if isinstance(error, ValueError) and str(error) in ('timeout', 'resource-cleanup'):
                     category = str(error)

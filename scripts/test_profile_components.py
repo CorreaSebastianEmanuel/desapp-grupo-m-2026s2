@@ -120,6 +120,14 @@ class EventResult(unittest.TestResult):
                 labels = ('cli-missing', 'dirty-worktree', 'wrong-branch', 'dependencies')
                 details['exit_kind'] = next((label for prefix, label in zip(known, labels)
                                              if code.startswith(prefix)), 'other')
+                if details['exit_kind'] == 'other':
+                    first = re.match(r'[A-Za-z]+', code)
+                    words = {'task', 'feature', 'model', 'provider', 'invalid', 'expected',
+                             'missing', 'cannot', 'no', 'start', 'specify', 'unfinished',
+                             'not', 'workflow', 'feedback', 'verification', 'run', 'branch',
+                             'configuration', 'repository', 'unknown'}
+                    if first and first.group().lower() in words:
+                        details['exit_kind'] = 'message-' + first.group().lower()
         event(file, test.id(), 'failed', 'python', **details)
 
     def addFailure(self, test, err):

@@ -146,7 +146,7 @@ class RunnerTest(unittest.TestCase):
         output = captured.getvalue()
         self.assertEqual(output.count('PROFILE_CASE_DIAGNOSTIC'), 1)
         self.assertIn('PROFILE_CASE_DIAGNOSTIC id=' + case['id'], output)
-        self.assertIn('case=redacted state=failed cause=assertion line=41 started=1 passed=0 failed=1 skipped=0', output)
+        self.assertIn('case=redacted state=failed cause=assertion line=41 exit=none started=1 passed=0 failed=1 skipped=0', output)
         self.assertNotIn(case['case_id'], captured.getvalue())
         self.assertEqual(runner.failure_cause('exunit', [{'state': 'failed'}], 1, 0), 'error')
         self.assertEqual(runner.failure_cause('python', [{'state': 'failed'}], 1, 0), 'assertion')

@@ -59,11 +59,15 @@ def emit_case_diagnostic(case, related):
     failure = next((event for event in related if event.get('state') == 'failed'), {})
     line = failure.get('failure_line')
     line_value = str(line) if type(line) is int and 0 < line <= 1000000 else '0'
+    exit_kind = failure.get('exit_kind', 'none')
+    if exit_kind not in ('none', 'numeric', 'cli-missing', 'dirty-worktree', 'wrong-branch', 'dependencies', 'other'):
+        exit_kind = 'other'
     # Keep the identity-only marker for structured QA parsing; publish details only through this closed schema.
     print('PROFILE_DISCREPANCY id=' + case['id'] + ' line=' + line_value, file=sys.stderr)
     print('PROFILE_CASE_DIAGNOSTIC id=' + case['id'] + ' runner=' + case['runner'] +
           ' file=' + case['file'] + ' case=' + safe_case_id(case['case_id']) +
           ' state=' + state + ' cause=' + cause + ' line=' + line_value +
+          ' exit=' + exit_kind +
           ' started=' + str(started) + ' passed=' + str(passed) +
           ' failed=' + str(failed) + ' skipped=' + str(skipped), file=sys.stderr)
 

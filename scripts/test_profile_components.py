@@ -109,7 +109,18 @@ class EventResult(unittest.TestResult):
         frames = traceback.extract_tb(err[2]) if err and len(err) > 2 else []
         line = next((frame.lineno for frame in reversed(frames)
                      if Path(frame.filename).resolve() == Path.cwd() / file), None)
-        event(file, test.id(), 'failed', 'python', cause=cause, failure_line=line)
+        details = {'cause': cause, 'failure_line': line}
+        if err and len(err) > 1 and isinstance(err[1], SystemExit):
+            code = err[1].code
+            if isinstance(code, int):
+                details['exit_kind'] = 'numeric'
+            elif isinstance(code, str):
+                known = ('Specify CLI missing', 'Start requires a clean worktree',
+                         'Start from an up-to-date main branch', 'Unfinished dependencies')
+                labels = ('cli-missing', 'dirty-worktree', 'wrong-branch', 'dependencies')
+                details['exit_kind'] = next((label for prefix, label in zip(known, labels)
+                                             if code.startswith(prefix)), 'other')
+        event(file, test.id(), 'failed', 'python', **details)
 
     def addFailure(self, test, err):
         super().addFailure(test, err)

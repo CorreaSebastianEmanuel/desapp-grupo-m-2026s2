@@ -19,10 +19,13 @@ class ModelTest(DeliveryFixture):
                        if not key.startswith('AGENTFLOW_')}
         fake = self.write('fake-codex', '#!/bin/sh\necho \'{"type":"error","message":"selected model unavailable"}\'\nexit 0\n')
         fake.chmod(0o755)
+        prerequisites = self.root/'prerequisite-bin'; prerequisites.mkdir()
+        specify = prerequisites/'specify'; specify.write_text('#!/bin/sh\nexit 0\n'); specify.chmod(0o700)
         result = subprocess.run([sys.executable, str(ROOT/'scripts/agentflow_codex.py'), 'exec',
                                  'Agentflow stage: develop'], cwd=self.root, capture_output=True, text=True,
                                 env={**environment, 'AGENTFLOW_CODEX_REAL': str(fake), 'AGENTFLOW_TASK_ID': 'TASK-003',
-                                     'AGENTFLOW_METRICS_FILE': str(self.root/'events.jsonl')})
+                                     'AGENTFLOW_METRICS_FILE': str(self.root/'events.jsonl'),
+                                     'PATH': str(prerequisites) + os.pathsep + os.environ.get('PATH', '')})
         self.assertNotEqual(result.returncode, 0)
         events = [json.loads(line) for line in (self.root/'events.jsonl').read_text().splitlines()]
         self.assertEqual(sum(e['event']=='agent_started' for e in events), 1)

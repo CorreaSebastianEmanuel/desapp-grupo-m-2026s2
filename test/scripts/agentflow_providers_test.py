@@ -23,6 +23,15 @@ def mk_cleanup(directory):
 
 
 class ProviderFixture(DeliveryFixture):
+    def setUp(self):
+        super().setUp()
+        self.prerequisites = self.root / 'prerequisite-bin'
+        self.prerequisites.mkdir()
+        specify = self.prerequisites / 'specify'
+        specify.write_text('#!/bin/sh\nexit 0\n')
+        specify.chmod(0o700)
+        self.preflight_path = str(self.prerequisites) + os.pathsep + os.environ.get('PATH', '')
+
     def config(self):
         self.write('.agentflow/providers.json', (ROOT/'.agentflow/providers.json').read_text())
 
@@ -158,7 +167,7 @@ print(json.dumps({{"type": "text", "sessionID": session, "part": {{"type": "text
     def run_shim(self, *args, assignment=None, new_session=False):
         environment = {key: value for key, value in os.environ.items() if not key.startswith('AGENTFLOW_')}
         environment.update(AGENTFLOW_OPENCODE_REAL=str(self.fake), AGENTFLOW_TASK_ID='TASK-003',
-                           AGENTFLOW_METRICS_FILE=str(self.root/'events.jsonl'))
+                           AGENTFLOW_METRICS_FILE=str(self.root/'events.jsonl'), PATH=self.preflight_path)
         if assignment:
             environment['AGENTFLOW_ASSIGNMENT'] = str(assignment)
             import hashlib

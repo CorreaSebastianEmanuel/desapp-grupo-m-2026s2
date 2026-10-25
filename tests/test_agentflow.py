@@ -198,7 +198,8 @@ class FeedbackLoopTest(unittest.TestCase):
 
     def test_feedback_rewinds_and_is_added_to_context(self):
         self.api["add_feedback"](SimpleNamespace(
-            task="TASK-001", message="Keep adapters outside the domain.", stage="architecture"
+            task="TASK-001", message="Keep adapters outside the domain.", stage="architecture",
+            impact=["architecture"]
         ))
 
         state = json.loads((self.run_dir / "state.json").read_text(encoding="utf-8"))
@@ -273,7 +274,16 @@ class WorkflowArtifactProbeTest(unittest.TestCase):
         (backlog / "TASK-001-example.md").write_text(
             "---\nid: TASK-001\ntitle: Example\nstatus: wip\nactive_run: none\n---\n"
         )
-        (self.feature / "spec.md").write_text("**Feature Branch**: `001-example`\n")
+        (self.feature / "spec.md").write_text("**Feature Branch**: `001-example`\nFR-001: behavior\nSC-001: outcome\n")
+        policy = {"schema_version": 1, **{key: {"required": False, "reason": "fixture decision"}
+                  for key in ("research", "data_model", "contracts", "quickstart")}}
+        (self.feature / "plan.md").write_text("Fixture plan\n```json artifact-applicability\n" +
+            json.dumps(policy) + "\n```\n")
+        (self.feature / "verification.json").write_text(json.dumps({
+            "schema_version": 1, "runtime_required": False,
+            "checks": [{"id": "unit", "argv": ["true"]}],
+            "coverage": {"FR-001": ["unit"], "SC-001": ["unit"]},
+        }))
         subprocess.run(
             ["git", "init", "-q", "-b", "001-example", str(self.root)],
             check=True, capture_output=True,
@@ -290,6 +300,12 @@ class WorkflowArtifactProbeTest(unittest.TestCase):
         self.tmp.cleanup()
 
     def write(self, relative, content="Evidence.\n"):
+        if relative == "spec.md" and content == "Evidence.\n":
+            content = "**Feature Branch**: `001-example`\nFR-001: behavior\nSC-001: outcome\n"
+        if relative == "plan.md" and content == "Evidence.\n":
+            policy = {"schema_version": 1, **{key: {"required": False, "reason": "fixture decision"}
+                      for key in ("research", "data_model", "contracts", "quickstart")}}
+            content = "Fixture plan\n```json artifact-applicability\n" + json.dumps(policy) + "\n```\n"
         (self.feature / relative).write_text(content, encoding="utf-8")
 
     def test_accepts_complete_plan_artifacts(self):
@@ -311,11 +327,13 @@ class WorkflowArtifactProbeTest(unittest.TestCase):
             self.probe(self.root, "plan")
 
     def test_accepts_passing_qa_report(self):
+        (self.feature / "tasks.md").write_text("- [X] T001 Fixture complete\n")
         self.write("qa-report.md", "Evidence.\n\nVerdict: PASS\n")
         self.write("handoffs/qa.md")
         self.assertTrue(self.probe(self.root, "qa")["valid"])
 
     def test_rejects_failed_qa_before_final_review(self):
+        (self.feature / "tasks.md").write_text("- [X] T001 Fixture complete\n")
         self.write("qa-report.md", "Blocker.\n\nVerdict: FAIL\n")
         self.write("handoffs/qa.md")
         with self.assertRaisesRegex(RuntimeError, "Final review will not run"):

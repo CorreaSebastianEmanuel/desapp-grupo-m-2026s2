@@ -8,3 +8,5 @@ description: Record human feedback for an Agentflow backlog task and rewind its 
 Run `./agentflow feedback $ARGUMENTS` on POSIX or `.\agentflow.ps1 feedback $ARGUMENTS` on Windows.
 
 Use repeatable `--impact product|architecture|verification|implementation|qa|review` to identify affected ownership. Optional `--stage` must match the earliest impact; a conflict fails before mutation. Omitted impact records pending feedback and blocks resume until explicitly classified. Preserve settled artifacts; run cited regressions, required checks and fresh independent gates. Do not edit run state manually. After recording feedback, use `resume` when Agentflow reports that the workflow was rewound.
+
+The repository permits three durable feedback repair cycles; the third may complete, while a fourth is refused before rewind and leaves feedback/history intact. This limit is separate from two unchanged failures for a full stage or individual check. Unrelated edits do not reset either retry budget.

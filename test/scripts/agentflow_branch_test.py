@@ -5,6 +5,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import sys
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -21,6 +22,9 @@ def result(returncode=0,stdout='',stderr=''):
 class DeliveryFixture(Fixture):
     def setUp(self):
         super().setUp()
+        # These tests exercise workflow state/ownership with fake repositories;
+        # host toolchain readiness has its own focused contract tests.
+        p=patch('scripts.agentflow_preflight.preflight_or_raise');p.start();self.addCleanup(p.stop)
         for name,value in {'ROOT':self.root,'BACKLOG':self.root/'backlog','FEEDBACK':self.root/'backlog/feedback','RUNS':self.root/'tmp'}.items():
             p=patch.object(AGENTFLOW,name,value);p.start();self.addCleanup(p.stop)
         AGENTFLOW.RUNS.mkdir()
@@ -268,7 +272,7 @@ class RealStartPreproductTest(Fixture):
         unchanged={p:p.read_bytes() for p in self.root.rglob('*.md') if p!=self.task}
         before=self.task.read_bytes();pointer_before=session.read_bytes() if session.exists() else None
         args=SimpleNamespace(task='TASK-055',agent='auto',dry_run=False,no_pr=True)
-        with patch.object(AGENTFLOW,'ROOT',self.root),patch.object(AGENTFLOW,'BACKLOG',self.root/'backlog'),patch.object(AGENTFLOW,'FEEDBACK',self.root/'backlog/feedback'),patch.object(AGENTFLOW.shutil,'which',return_value='/captured/tool'),patch.object(AGENTFLOW,'monitor_process',return_value=(130,'captured-run')) as launch:
+        with patch.dict(os.environ,{'SPECKIT_INTEGRATION_CODEX_EXECUTABLE':sys.executable}),patch.object(AGENTFLOW,'ROOT',self.root),patch.object(AGENTFLOW,'BACKLOG',self.root/'backlog'),patch.object(AGENTFLOW,'FEEDBACK',self.root/'backlog/feedback'),patch.object(AGENTFLOW,'monitor_process',return_value=(130,'captured-run')) as launch:
             if invalid and invalid!='headerless':
                 with self.assertRaises((ValueError,SystemExit)):AGENTFLOW.start(args)
                 launch.assert_not_called();self.assertEqual(self.task.read_bytes(),before)

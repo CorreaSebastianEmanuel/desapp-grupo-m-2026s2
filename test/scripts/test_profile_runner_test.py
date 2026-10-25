@@ -85,6 +85,30 @@ class RunnerTest(unittest.TestCase):
             runner.run(['/definitely-missing-profile-runner'], os.environ.copy(), .1)
         self.assertIsNone(runner.child)
 
+    def test_browser_prerequisite_reports_only_closed_causes(self):
+        def completed(code=0, stdout='v24.1.0'):
+            return subprocess.CompletedProcess([], code, stdout, '')
+        with patch.object(runner.shutil, 'which', return_value=None):
+            self.assertEqual(runner.browser_prerequisite({'PATH': ''}, lambda *_: None), 'node-unavailable')
+        with patch.object(runner.shutil, 'which', return_value='/node'), \
+                patch.object(runner.subprocess, 'run', return_value=completed(stdout='v20.1.0')):
+            self.assertEqual(runner.browser_prerequisite({'PATH': '/bin'}, lambda *_: None), 'node-incompatible')
+        for cause, results in (
+            ('playwright-missing', [completed(), completed(code=1, stdout='')]),
+            ('bundled-chromium-missing', [completed(), completed(), completed(code=1, stdout='')]),
+        ):
+            with self.subTest(cause=cause), patch.object(runner.shutil, 'which', return_value='/node'), \
+                    patch.object(runner.subprocess, 'run', side_effect=results):
+                self.assertEqual(runner.browser_prerequisite({'PATH': '/bin'}, lambda *_: None), cause)
+        with patch.object(runner.shutil, 'which', return_value='/node'), \
+                patch.object(runner.subprocess, 'run', side_effect=[completed(), completed(), completed()]):
+            self.assertEqual(runner.browser_prerequisite(
+                {'PATH': '/bin'}, lambda *_: (_ for _ in ()).throw(ValueError('child-failure'))),
+                'chromium-launch-failed')
+        with patch.object(runner.shutil, 'which', return_value='/node'), \
+                patch.object(runner.subprocess, 'run', side_effect=[completed(), completed(), completed()]):
+            self.assertIsNone(runner.browser_prerequisite({'PATH': '/bin'}, lambda *_: None))
+
     def test_hard_kill_cannot_retain_a_previous_complete_receipt(self):
         import time
         with tempfile.TemporaryDirectory() as directory:
@@ -116,6 +140,26 @@ class RunnerTest(unittest.TestCase):
                 runner.main('unit')
         self.assertIn(case['id'], captured.getvalue())
         self.assertNotIn(case['case_id'], captured.getvalue())
+
+    def test_membership_diagnostic_is_aggregate_and_never_prints_case_ids(self):
+        from test_inventory import reconcile_diagnostics
+        expected = [{'id': 'a' * 24}, {'id': 'b' * 24}]
+        events = [
+            {'id': 'a' * 24, 'state': 'started'}, {'id': 'a' * 24, 'state': 'passed'},
+            {'id': 'a' * 24, 'state': 'started'}, {'id': 'b' * 24, 'state': 'started'},
+            {'id': 'x' * 24, 'state': 'passed'}, {'id': 'b' * 24, 'state': 'skipped'},
+        ]
+        result = reconcile_diagnostics(expected, events)
+        self.assertEqual(result, {'reason': 'extra-events', 'expected': 2, 'observed': 6,
+            'missing_started': 0, 'missing_passed': 1, 'extra': 1,
+            'duplicate': 1, 'invalid_state': 1})
+        captured = io.StringIO()
+        with contextlib.redirect_stderr(captured):
+            runner.emit_membership_diagnostic('unit', 'event-reconciliation', **result)
+        marker = captured.getvalue()
+        self.assertIn('reason=extra-events expected=2 observed=6', marker)
+        self.assertNotIn('a' * 24, marker)
+        self.assertNotIn('x' * 24, marker)
 
     def test_committed_suites_keep_upstream_partition_isolation_and_coverage_scope(self):
         with tempfile.TemporaryDirectory() as directory:

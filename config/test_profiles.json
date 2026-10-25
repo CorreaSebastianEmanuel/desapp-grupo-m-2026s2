@@ -44,6 +44,13 @@
       "profile": "unit"
     },
     {
+      "id": "028ec37410c1e1f806f70a3f",
+      "runner": "python",
+      "file": "test/scripts/agentflow_preflight_test.py",
+      "case_id": "test.scripts.agentflow_preflight_test.PreflightTest.test_service_probe_timeout_is_unknown_and_safe",
+      "profile": "unit"
+    },
+    {
       "id": "02c4672d4184dc2ada1ed6ca",
       "runner": "exunit",
       "file": "test/football_market/catalog/ingestion/delivery_receipt_test.exs",
@@ -76,6 +83,20 @@
       "runner": "python",
       "file": "test/scripts/agentflow_models_test.py",
       "case_id": "test.scripts.agentflow_models_test.LauncherTest.test_start_applies_frozen_override_and_propagates_one_child_rejection",
+      "profile": "unit"
+    },
+    {
+      "id": "03684cf91342c446056b3d31",
+      "runner": "python",
+      "file": "test/scripts/agentflow_providers_test.py",
+      "case_id": "test.scripts.agentflow_providers_test.OuterLaunchTest.test_resume_preflight_refusal_precedes_recovery_and_saved_state_mutation",
+      "profile": "unit"
+    },
+    {
+      "id": "03915f0954f335c03c746500",
+      "runner": "python",
+      "file": "test/scripts/agentflow_stage_checks_test.py",
+      "case_id": "test.scripts.agentflow_stage_checks_test.StageExecutionTest.test_retry_limit_survives_unrelated_independent_input_change",
       "profile": "unit"
     },
     {
@@ -156,6 +177,13 @@
       "profile": "integration"
     },
     {
+      "id": "064d3fa4ffe46de6273c41e8",
+      "runner": "shell",
+      "file": "test/scripts/ci_unit_tests_test.sh",
+      "case_id": "membership-diagnostic",
+      "profile": "unit"
+    },
+    {
       "id": "0660bc10b4d0ad9620fdf09f",
       "runner": "exunit",
       "file": "test/football_market/synchronization/scheduler_test.exs",
@@ -224,6 +252,13 @@
       "file": "test/football_market_web/workspace_browser_test.exs",
       "case_id": "FootballMarketWeb.WorkspaceBrowserTest:test real Chromium exercises shell journeys and session lifecycle",
       "profile": "integration"
+    },
+    {
+      "id": "08fa62d1b3094ba68f7cf0ed",
+      "runner": "python",
+      "file": "test/scripts/test_profile_runner_test.py",
+      "case_id": "test.scripts.test_profile_runner_test.RunnerTest.test_membership_diagnostic_is_aggregate_and_never_prints_case_ids",
+      "profile": "unit"
     },
     {
       "id": "093db44d0ad85b83126fea7f",
@@ -506,6 +541,13 @@
       "profile": "integration"
     },
     {
+      "id": "13e63e275a7459dc99b9d0c8",
+      "runner": "python",
+      "file": "test/scripts/profile_safe_diagnostics_test.py",
+      "case_id": "test.scripts.profile_safe_diagnostics_test.SafeProfileDiagnosticsTest.test_maps_only_registered_identity_and_discards_raw_canaries",
+      "profile": "unit"
+    },
+    {
       "id": "13f3f156f2c1bbeb828939bf",
       "runner": "python",
       "file": "test/scripts/reconcile_merged_task_test.py",
@@ -548,6 +590,13 @@
       "profile": "integration"
     },
     {
+      "id": "153758e10f1f5211e2be49d8",
+      "runner": "python",
+      "file": "test/scripts/agentflow_stage_checks_test.py",
+      "case_id": "test.scripts.agentflow_stage_checks_test.ManifestContractTest.test_typed_prerequisites_reject_shell_like_targets",
+      "profile": "unit"
+    },
+    {
       "id": "1566b3368b9fd4b94a9a6722",
       "runner": "exunit",
       "file": "test/football_market/synchronization/statistics_test.exs",
@@ -555,10 +604,24 @@
       "profile": "integration"
     },
     {
+      "id": "15bbb034c7d07a78ff768993",
+      "runner": "python",
+      "file": "test/scripts/agentflow_preflight_test.py",
+      "case_id": "test.scripts.agentflow_preflight_test.PreflightTest.test_missing_setting_is_safe_and_service_failure_is_unavailable",
+      "profile": "unit"
+    },
+    {
       "id": "162b0a852c3714503845d417",
       "runner": "exunit",
       "file": "test/football_market/statistics/input_test.exs",
       "case_id": "FootballMarket.Statistics.InputTest:test instants retain microseconds normalize offsets and reject excess precision",
+      "profile": "unit"
+    },
+    {
+      "id": "166e6f4a2c74293b9b7a66c1",
+      "runner": "python",
+      "file": "test/scripts/agentflow_stage_checks_test.py",
+      "case_id": "test.scripts.agentflow_stage_checks_test.StageExecutionTest.test_concurrent_launchers_serialize_attempt_journal_without_lost_rows",
       "profile": "unit"
     },
     {
@@ -615,13 +678,6 @@
       "runner": "exunit",
       "file": "test/ci/application_coverage_native_test.exs",
       "case_id": "FootballMarket.ApplicationCoverageNativeTest:test native fixture preserves covered and never-called lines and rejects lost modules",
-      "profile": "unit"
-    },
-    {
-      "id": "192bf5ae32b414994d270548",
-      "runner": "python",
-      "file": "test/scripts/agentflow_policy_test.py",
-      "case_id": "test.scripts.agentflow_policy_test.PolicyTest.test_implementation_cannot_be_mislabeled_as_independent_gate",
       "profile": "unit"
     },
     {
@@ -695,6 +751,13 @@
       "profile": "unit"
     },
     {
+      "id": "1ba7b45e4a11bd59c0fdc1b1",
+      "runner": "python",
+      "file": "test/scripts/agentflow_dedup_test.py",
+      "case_id": "test.scripts.agentflow_dedup_test.DedupTest.test_parity_checks_contract_without_starting_native_profiles",
+      "profile": "unit"
+    },
+    {
       "id": "1be00bc71ffe6806945ea41a",
       "runner": "python",
       "file": "test/scripts/agentflow_metrics_test.py",
@@ -720,6 +783,13 @@
       "runner": "exunit",
       "file": "test/football_market/providers/scraping/safety_test.exs",
       "case_id": "FootballMarket.Providers.ScrapingSafetyTest:test offline harness refuses unknown and empty selectors",
+      "profile": "unit"
+    },
+    {
+      "id": "1cb53ca8a856dc388e5aab7d",
+      "runner": "python",
+      "file": "test/scripts/agentflow_preflight_test.py",
+      "case_id": "test.scripts.agentflow_preflight_test.PreflightTest.test_mise_elixir_or_node_version_mismatch_fails_with_safe_remediation",
       "profile": "unit"
     },
     {
@@ -1003,13 +1073,6 @@
       "profile": "integration"
     },
     {
-      "id": "24e32e883c30149c963360f0",
-      "runner": "python",
-      "file": "test/scripts/agentflow_providers_test.py",
-      "case_id": "test.scripts.agentflow_providers_test.ShimTest.test_frozen_selection_for_another_provider_is_refused",
-      "profile": "unit"
-    },
-    {
       "id": "24ee8abc4f751ac12be215a9",
       "runner": "python",
       "file": "test/scripts/agentflow_stage_budget_test.py",
@@ -1099,6 +1162,13 @@
       "file": "test/football_market/valuation/configurations/canonical_test.exs",
       "case_id": "FootballMarket.Valuation.Configurations.CanonicalTest:test 24 group/metric/mapping entry permutations produce identical complete evidence and distinct UUIDs",
       "profile": "integration"
+    },
+    {
+      "id": "29381f528aa75eacfe1b318c",
+      "runner": "python",
+      "file": "test/scripts/agentflow_evidence_test.py",
+      "case_id": "test.scripts.agentflow_evidence_test.EvidenceTest.test_provider_early_exit_writes_complete_nonpass_qa_inventory",
+      "profile": "unit"
     },
     {
       "id": "297d0b5c016fdb93492f7b09",
@@ -1374,6 +1444,13 @@
       "profile": "unit"
     },
     {
+      "id": "3233ad7e002fe2500e355c1c",
+      "runner": "python",
+      "file": "test/scripts/agentflow_recovery_test.py",
+      "case_id": "test.scripts.agentflow_recovery_test.StageAttemptTest.test_corrupt_stage_journal_is_not_replaced",
+      "profile": "unit"
+    },
+    {
       "id": "3291c8247eea1ed1891fcac6",
       "runner": "python",
       "file": "test/scripts/agentflow_ci_check_test.py",
@@ -1416,6 +1493,13 @@
       "profile": "unit"
     },
     {
+      "id": "340c530c33de4f318d8d34a3",
+      "runner": "python",
+      "file": "test/scripts/agentflow_preflight_test.py",
+      "case_id": "test.scripts.agentflow_preflight_test.PreflightTest.test_missing_child_executable_is_failed_with_safe_details",
+      "profile": "unit"
+    },
+    {
       "id": "3476c6bf64b83412d888cf93",
       "runner": "exunit",
       "file": "test/football_market_web/controllers/player_catalog_auth_precedence_test.exs",
@@ -1449,6 +1533,13 @@
       "file": "test/football_market_web/browser_feedback_test.exs",
       "case_id": "FootballMarketWeb.BrowserFeedbackTest:test recovery components escape arbitrary text and provide navigable outcomes",
       "profile": "integration"
+    },
+    {
+      "id": "35e3f862f1dc20efe4849084",
+      "runner": "python",
+      "file": "test/scripts/agentflow_dedup_test.py",
+      "case_id": "test.scripts.agentflow_dedup_test.DedupTest.test_bare_http_request_without_runtime_result_is_rejected",
+      "profile": "unit"
     },
     {
       "id": "36e543b3442f9d0825bc32ce",
@@ -1549,13 +1640,6 @@
       "profile": "integration"
     },
     {
-      "id": "3976b79c272558f09e0cb888",
-      "runner": "python",
-      "file": "test/scripts/agentflow_providers_test.py",
-      "case_id": "test.scripts.agentflow_providers_test.ShimTest.test_continuation_flags_are_refused_under_adoption",
-      "profile": "unit"
-    },
-    {
       "id": "39ed7b90e1b9384e6022f5c3",
       "runner": "exunit",
       "file": "test/mix/tasks/catalog.seed_test.exs",
@@ -1626,6 +1710,13 @@
       "profile": "integration"
     },
     {
+      "id": "3d27c699da2ab5efdf53b2c0",
+      "runner": "python",
+      "file": "test/scripts/agentflow_preflight_test.py",
+      "case_id": "test.scripts.agentflow_preflight_test.PreflightTest.test_changed_child_path_is_not_hidden_by_parent_path",
+      "profile": "unit"
+    },
+    {
       "id": "3d2b31755f8c40559b57e6a8",
       "runner": "exunit",
       "file": "test/football_market/catalog/ingestion/publication_test.exs",
@@ -1675,10 +1766,24 @@
       "profile": "integration"
     },
     {
+      "id": "3f4c55d3d7742e2ba93066c1",
+      "runner": "python",
+      "file": "test/scripts/agentflow_stage_checks_test.py",
+      "case_id": "test.scripts.agentflow_stage_checks_test.StageSummaryTest.test_safe_command_preserves_only_allowlisted_browser_cause",
+      "profile": "unit"
+    },
+    {
       "id": "3f4cd02c7896167bfdeada0e",
       "runner": "exunit",
       "file": "test/football_market/statistics/ingestion/canonical_test.exs",
       "case_id": "FootballMarket.Statistics.Ingestion.CanonicalTest:test source result identity ignores list order, DTO references and retrieval time",
+      "profile": "unit"
+    },
+    {
+      "id": "3f7e17879089ff1cda535947",
+      "runner": "python",
+      "file": "test/scripts/agentflow_stage_checks_test.py",
+      "case_id": "test.scripts.agentflow_stage_checks_test.StageExecutionTest.test_interrupted_attempt_without_retry_scope_uses_complete_stage_snapshot",
       "profile": "unit"
     },
     {
@@ -1766,6 +1871,13 @@
       "profile": "integration"
     },
     {
+      "id": "4320c261a7eff348197b42d8",
+      "runner": "python",
+      "file": "test/scripts/agentflow_stage_checks_test.py",
+      "case_id": "test.scripts.agentflow_stage_checks_test.StageExecutionTest.test_static_argv_and_effects_reject_unregistered_or_stateful_commands",
+      "profile": "unit"
+    },
+    {
       "id": "4326da7bf61001f99a3e5e47",
       "runner": "exunit",
       "file": "test/football_market/quotes/concurrency_test.exs",
@@ -1794,6 +1906,13 @@
       "profile": "unit"
     },
     {
+      "id": "439a7fe0988706a8ac1b1516",
+      "runner": "python",
+      "file": "test/scripts/agentflow_dedup_test.py",
+      "case_id": "test.scripts.agentflow_dedup_test.DedupTest.test_project_toolchain_checks_and_mix_commands_are_mise_scoped",
+      "profile": "unit"
+    },
+    {
       "id": "43e3e0f1a4700f107b242f8f",
       "runner": "python",
       "file": "test/scripts/reconcile_merged_task_test.py",
@@ -1812,6 +1931,13 @@
       "runner": "python",
       "file": "test/scripts/agentflow_feature_test.py",
       "case_id": "test.scripts.agentflow_feature_test.AdversarialResolutionTest.test_contained_symlinks_aliases_and_unrelated_malformed_spec",
+      "profile": "unit"
+    },
+    {
+      "id": "441936e229e7149b4c2f5ef2",
+      "runner": "python",
+      "file": "test/scripts/agentflow_stage_checks_test.py",
+      "case_id": "test.scripts.agentflow_stage_checks_test.SafeDiagnosticTest.test_catalog_diagnostic_never_reflects_secret_or_exception_text",
       "profile": "unit"
     },
     {
@@ -1927,6 +2053,13 @@
       "profile": "unit"
     },
     {
+      "id": "487185d4197cb6d24d4f1387",
+      "runner": "python",
+      "file": "test/scripts/agentflow_stage_checks_test.py",
+      "case_id": "test.scripts.agentflow_stage_checks_test.ManifestContractTest.test_accepts_known_dependency_and_declared_effects",
+      "profile": "unit"
+    },
+    {
       "id": "48ce09b2756ff2604509e7cb",
       "runner": "exunit",
       "file": "test/football_market/market/scope_test.exs",
@@ -2004,6 +2137,13 @@
       "profile": "unit"
     },
     {
+      "id": "4c873dd211a24eebff56bcb1",
+      "runner": "python",
+      "file": "test/scripts/agentflow_stage_checks_test.py",
+      "case_id": "test.scripts.agentflow_stage_checks_test.ManifestContractTest.test_unknown_isolation_and_duplicate_effects_fail",
+      "profile": "unit"
+    },
+    {
       "id": "4ca86e57d2a8f945fea7cd41",
       "runner": "exunit",
       "file": "test/football_market/providers/request_test.exs",
@@ -2065,6 +2205,13 @@
       "file": "test/football_market/providers/catalog_isolation_test.exs",
       "case_id": "FootballMarket.Providers.CatalogIsolationTest:test F-I01 all eight failures preserve exact five-table state/reads; local reads invoke no provider",
       "profile": "integration"
+    },
+    {
+      "id": "4e0ed8ae50369acb4f08aa35",
+      "runner": "python",
+      "file": "test/scripts/agentflow_stage_checks_test.py",
+      "case_id": "test.scripts.agentflow_stage_checks_test.StageExecutionTest.test_dependency_contamination_is_transitive_and_report_keeps_declaration_order",
+      "profile": "unit"
     },
     {
       "id": "4e8ead2cb8140f8e5089211f",
@@ -2149,6 +2296,13 @@
       "file": "test/football_market/accounts/browser_sessions_test.exs",
       "case_id": "FootballMarket.Accounts.BrowserSessionsTest:test a retired anonymous handle grants authority to at most one submission",
       "profile": "integration"
+    },
+    {
+      "id": "5211cf8682ae24ce1c4c12d3",
+      "runner": "python",
+      "file": "test/scripts/agentflow_recovery_test.py",
+      "case_id": "test.scripts.agentflow_recovery_test.StageAttemptTest.test_two_unchanged_failed_attempts_refuse_third_and_relevant_change_resets_scope",
+      "profile": "unit"
     },
     {
       "id": "5236843775a763a2709367dd",
@@ -2291,11 +2445,25 @@
       "profile": "integration"
     },
     {
+      "id": "56cf393e3d2d4f775c43f20a",
+      "runner": "python",
+      "file": "test/scripts/agentflow_stage_checks_test.py",
+      "case_id": "test.scripts.agentflow_stage_checks_test.ManifestContractTest.test_legacy_manifest_remains_valid_with_unknown_independence",
+      "profile": "unit"
+    },
+    {
       "id": "57ca73277407f41ac1b3014e",
       "runner": "exunit",
       "file": "test/football_market/accounts/authentication_security_test.exs",
       "case_id": "FootballMarket.Accounts.AuthenticationSecurityTest:test configuration failures are safe and fail closed",
       "profile": "integration"
+    },
+    {
+      "id": "57f8289bfee2f5664c034c97",
+      "runner": "python",
+      "file": "test/scripts/agentflow_providers_test.py",
+      "case_id": "test.scripts.agentflow_providers_test.ShimTest.test_codex_preflight_refusal_precedes_spawn_and_checks_final_context",
+      "profile": "unit"
     },
     {
       "id": "5828540e595c46de20a37084",
@@ -2323,6 +2491,13 @@
       "runner": "python",
       "file": "test/scripts/agentflow_metrics_test.py",
       "case_id": "test.scripts.agentflow_metrics_test.MetricsTest.test_cached_and_reasoning_subsets_are_not_added_to_parents",
+      "profile": "unit"
+    },
+    {
+      "id": "58d13020c427298204e97f33",
+      "runner": "python",
+      "file": "test/scripts/agentflow_stage_checks_test.py",
+      "case_id": "test.scripts.agentflow_stage_checks_test.StageExecutionTest.test_fresh_qa_requires_independent_assessment_even_when_all_checks_pass",
       "profile": "unit"
     },
     {
@@ -2386,6 +2561,13 @@
       "runner": "exunit",
       "file": "test/ci/quality_baseline_contract_test.exs",
       "case_id": "FootballMarket.QualityBaselineContractTest:test workflow gates main pull requests and pushes in least-privilege jobs",
+      "profile": "unit"
+    },
+    {
+      "id": "5bb2c22a6eb4dff466120acb",
+      "runner": "python",
+      "file": "test/scripts/agentflow_preflight_test.py",
+      "case_id": "test.scripts.agentflow_preflight_test.PreflightTest.test_identical_context_produces_identical_redacted_results",
       "profile": "unit"
     },
     {
@@ -2494,6 +2676,13 @@
       "profile": "integration"
     },
     {
+      "id": "5f7fed6ef73d95944b090885",
+      "runner": "python",
+      "file": "test/scripts/agentflow_providers_test.py",
+      "case_id": "test.scripts.agentflow_providers_test.ShimContinuationTest.test_frozen_selection_for_another_provider_is_refused",
+      "profile": "unit"
+    },
+    {
       "id": "5fed00166a636cda30658bda",
       "runner": "exunit",
       "file": "test/football_market/accounts/persistence_test.exs",
@@ -2520,6 +2709,13 @@
       "file": "test/football_market/quotes/history_test.exs",
       "case_id": "FootballMarket.Quotes.HistoryTest:test a fresh same-price calculation keeps both immutable quote records",
       "profile": "integration"
+    },
+    {
+      "id": "60ac05bf9e9a46ee22db03a6",
+      "runner": "python",
+      "file": "test/scripts/agentflow_evidence_test.py",
+      "case_id": "test.scripts.agentflow_evidence_test.EvidenceTest.test_abrupt_qa_exit_projects_partial_journal_as_nonpass_once",
+      "profile": "unit"
     },
     {
       "id": "60d90f5552dfb82ff5adab30",
@@ -2578,6 +2774,13 @@
       "profile": "integration"
     },
     {
+      "id": "629e5624a938b8da52c5487c",
+      "runner": "python",
+      "file": "test/scripts/agentflow_recovery_test.py",
+      "case_id": "test.scripts.agentflow_recovery_test.StageAttemptTest.test_running_attempt_is_recovered_as_interrupted_and_counts_toward_cap",
+      "profile": "unit"
+    },
+    {
       "id": "62f1d85a5b68f617b941c4a7",
       "runner": "exunit",
       "file": "test/football_market/valuation/position_aware/outcomes_test.exs",
@@ -2618,6 +2821,13 @@
       "file": "test/football_market/statistics/ingestion/acceptance_test.exs",
       "case_id": "FootballMarket.Statistics.Ingestion.AcceptanceTest:test trusted mapping adopts an exact legacy match with first source provenance",
       "profile": "integration"
+    },
+    {
+      "id": "65557020efb413a454508e02",
+      "runner": "python",
+      "file": "test/scripts/agentflow_evidence_test.py",
+      "case_id": "test.scripts.agentflow_evidence_test.EvidenceTest.test_handled_signal_inventory_stays_nonpass_and_retains_completed_rows",
+      "profile": "unit"
     },
     {
       "id": "6581eda324845a0826787bab",
@@ -2767,18 +2977,18 @@
       "profile": "unit"
     },
     {
+      "id": "6b28c9f8dcd646050e0e4127",
+      "runner": "python",
+      "file": "test/scripts/agentflow_stage_checks_test.py",
+      "case_id": "test.scripts.agentflow_stage_checks_test.StageSummaryTest.test_real_signal_exit_codes_are_nonzero_and_classified_interrupted",
+      "profile": "unit"
+    },
+    {
       "id": "6bc67f96b59a84743c098046",
       "runner": "exunit",
       "file": "test/football_market/catalog/ingestion/reconciliation_test.exs",
       "case_id": "FootballMarket.Catalog.Ingestion.ReconciliationTest:test adoption requires both team keys and compatible canonical names",
       "profile": "integration"
-    },
-    {
-      "id": "6c122961380bf1305ad58f29",
-      "runner": "python",
-      "file": "test/scripts/agentflow_policy_test.py",
-      "case_id": "test.scripts.agentflow_policy_test.PolicyTest.test_both_exact_terminal_verdicts_remain_required",
-      "profile": "unit"
     },
     {
       "id": "6c35b59a5a3e603fd3f1a0e2",
@@ -2820,6 +3030,13 @@
       "runner": "exunit",
       "file": "test/ci/test_profiles_scope_test.exs",
       "case_id": "FootballMarket.TestProfilesScopeTest:test historical coverage scope remains unchanged and excludes E2E",
+      "profile": "unit"
+    },
+    {
+      "id": "6da03c5d20f06ad7c669b5c0",
+      "runner": "python",
+      "file": "test/scripts/agentflow_dedup_test.py",
+      "case_id": "test.scripts.agentflow_dedup_test.DedupTest.test_parity_refuses_mismatched_workflow_or_missing_ci_obligation_without_profiles",
       "profile": "unit"
     },
     {
@@ -2977,6 +3194,13 @@
       "profile": "unit"
     },
     {
+      "id": "75354d2a86ba2b13dbbfe443",
+      "runner": "python",
+      "file": "test/scripts/agentflow_dedup_test.py",
+      "case_id": "test.scripts.agentflow_dedup_test.DedupTest.test_route_obligation_requires_runtime_assertions",
+      "profile": "unit"
+    },
+    {
       "id": "7575b71a5f09b91c6126a833",
       "runner": "exunit",
       "file": "test/football_market/statistics/scope_test.exs",
@@ -2989,6 +3213,13 @@
       "file": "test/football_market/quotes/recovery_test.exs",
       "case_id": "FootballMarket.Quotes.RecoveryTest:test explicit recovery recovers a pre-commit persistence failure through the worker",
       "profile": "integration"
+    },
+    {
+      "id": "75d44a46f42f677224846dd1",
+      "runner": "python",
+      "file": "test/scripts/agentflow_evidence_test.py",
+      "case_id": "test.scripts.agentflow_evidence_test.EvidenceTest.test_sigkill_recovery_demotes_historical_qa_pass",
+      "profile": "unit"
     },
     {
       "id": "7648489ec058d4d68c8db83e",
@@ -3117,6 +3348,13 @@
       "profile": "unit"
     },
     {
+      "id": "7a25347b5d74636d4cfbae26",
+      "runner": "python",
+      "file": "test/scripts/agentflow_preflight_test.py",
+      "case_id": "test.scripts.agentflow_preflight_test.PreflightTest.test_incompatible_python_is_reported_without_version_output",
+      "profile": "unit"
+    },
+    {
       "id": "7a31dc373b8ace4ec7f9ed4c",
       "runner": "exunit",
       "file": "test/football_market/accounts/authentication_security_test.exs",
@@ -3150,6 +3388,13 @@
       "file": "test/football_market/statistics/integrity_test.exs",
       "case_id": "FootballMarket.Statistics.IntegrityTest:test normalized duplicates conflict without replacing facts, including cross-season reuse",
       "profile": "integration"
+    },
+    {
+      "id": "7ab100fe3193f3c97df074f6",
+      "runner": "python",
+      "file": "test/scripts/agentflow_stage_checks_test.py",
+      "case_id": "test.scripts.agentflow_stage_checks_test.StageExecutionTest.test_registered_static_checks_overlap_by_at_most_two",
+      "profile": "unit"
     },
     {
       "id": "7acbf2f01a428b2e76a0c6fe",
@@ -3250,6 +3495,20 @@
       "profile": "unit"
     },
     {
+      "id": "7fbebd57ae90e841a10c1d8c",
+      "runner": "python",
+      "file": "test/scripts/agentflow_stage_checks_test.py",
+      "case_id": "test.scripts.agentflow_stage_checks_test.StageSummaryTest.test_summary_maps_only_registered_profile_case_and_safe_category",
+      "profile": "unit"
+    },
+    {
+      "id": "7fdc529afca6d37fc94169ea",
+      "runner": "python",
+      "file": "test/scripts/agentflow_evidence_test.py",
+      "case_id": "test.scripts.agentflow_evidence_test.EvidenceTest.test_stage_attempt_token_is_bound_to_check_receipt",
+      "profile": "unit"
+    },
+    {
       "id": "801a5f18f4adbbd94d178999",
       "runner": "exunit",
       "file": "test/football_market/providers/catalog_contract_test.exs",
@@ -3339,6 +3598,13 @@
       "file": "test/football_market/accounts/accounts_test.exs",
       "case_id": "FootballMarket.AccountsTest:test registers one normalized public user with a private verifiable credential",
       "profile": "integration"
+    },
+    {
+      "id": "832c3d785c8a4c099ca180f6",
+      "runner": "python",
+      "file": "test/scripts/agentflow_preflight_test.py",
+      "case_id": "test.scripts.agentflow_preflight_test.PreflightTest.test_product_launch_preflight_checks_task_toolchain_and_docs_only_manifest_can_opt_out",
+      "profile": "unit"
     },
     {
       "id": "835e6f30d9562d1be69c1e40",
@@ -3453,6 +3719,13 @@
       "profile": "integration"
     },
     {
+      "id": "876701bc6e18558f801b2940",
+      "runner": "python",
+      "file": "test/scripts/agentflow_providers_test.py",
+      "case_id": "test.scripts.agentflow_providers_test.OuterLaunchTest.test_legacy_ci_baseline_resume_uses_saved_workflow_once_without_snapshot_write",
+      "profile": "unit"
+    },
+    {
       "id": "8824d5822a7f20f067ccbd6b",
       "runner": "python",
       "file": "test/scripts/agentflow_completion_test.py",
@@ -3542,6 +3815,13 @@
       "file": "test/football_market/valuation/balanced/formula_test.exs",
       "case_id": "FootballMarket.Valuation.Balanced.FormulaTest:test roles, minutes and current affiliations affect evidence, not overall formula",
       "profile": "integration"
+    },
+    {
+      "id": "89db84af7b2a6e62d2272a8d",
+      "runner": "python",
+      "file": "test/scripts/agentflow_stage_checks_test.py",
+      "case_id": "test.scripts.agentflow_stage_checks_test.StageSummaryTest.test_summary_fails_closed_for_bad_status_category_and_evidence",
+      "profile": "unit"
     },
     {
       "id": "8a2c2735dd553b5217eaa87e",
@@ -3656,6 +3936,13 @@
       "profile": "unit"
     },
     {
+      "id": "8c463ad3a122db79f5a701c5",
+      "runner": "python",
+      "file": "test/scripts/profile_safe_diagnostics_test.py",
+      "case_id": "test.scripts.profile_safe_diagnostics_test.SafeProfileDiagnosticsTest.test_rejects_evidence_outside_protected_directory",
+      "profile": "unit"
+    },
+    {
       "id": "8ce0cec81fc79cf41fb1b7d4",
       "runner": "python",
       "file": "test/scripts/agentflow_feedback_test.py",
@@ -3710,6 +3997,13 @@
       "file": "test/football_market/valuation/balanced/outcomes_test.exs",
       "case_id": "FootballMarket.Valuation.Balanced.OutcomesTest:test omitted unknown metrics succeed, zero weights still require every selected row",
       "profile": "integration"
+    },
+    {
+      "id": "8f5c3adbb2e16099d61012e9",
+      "runner": "python",
+      "file": "test/scripts/agentflow_workflow_gate_test.py",
+      "case_id": "test.scripts.agentflow_workflow_gate_test.CiBaselineGateTest.test_gate_command_invokes_read_only_wrapper_parity",
+      "profile": "unit"
     },
     {
       "id": "8f82cc577a539c59ab60c6ad",
@@ -3957,6 +4251,13 @@
       "profile": "integration"
     },
     {
+      "id": "9a59d01a71e0549d6d89279e",
+      "runner": "python",
+      "file": "test/scripts/agentflow_policy_test.py",
+      "case_id": "test.scripts.agentflow_policy_test.WorkflowSpeedPolicyTest.test_high_risk_and_workflow_changes_are_excluded_and_no_selector_added",
+      "profile": "unit"
+    },
+    {
       "id": "9b1059ca64afca2019303efc",
       "runner": "exunit",
       "file": "test/ci/test_profile_audit_test.exs",
@@ -4045,6 +4346,13 @@
       "runner": "exunit",
       "file": "test/ci/credo_inventory_test.exs",
       "case_id": "FootballMarket.CredoInventoryTest:test write mode discovers added files and preserves exact reviewed exclusions",
+      "profile": "unit"
+    },
+    {
+      "id": "9cf78a1daf0009da2d6f7161",
+      "runner": "python",
+      "file": "test/scripts/agentflow_stage_checks_test.py",
+      "case_id": "test.scripts.agentflow_stage_checks_test.ManifestContractTest.test_static_class_requires_exact_registered_argv",
       "profile": "unit"
     },
     {
@@ -4167,6 +4475,13 @@
       "profile": "unit"
     },
     {
+      "id": "a0d006f0d98b5dd483345351",
+      "runner": "python",
+      "file": "test/scripts/agentflow_preflight_test.py",
+      "case_id": "test.scripts.agentflow_preflight_test.PreflightTest.test_configuration_change_and_explicit_path_override_use_final_child_context",
+      "profile": "unit"
+    },
+    {
       "id": "a0ee6bbcf1967af49105945b",
       "runner": "node",
       "file": "tools/openapi/workspace_session.test.mjs",
@@ -4220,6 +4535,13 @@
       "runner": "exunit",
       "file": "test/ci/test_profile_audit_test.exs",
       "case_id": "FootballMarket.TestProfileAuditTest:test rejects absent, duplicate, unknown, test-level, skipped, and empty profile memberships",
+      "profile": "unit"
+    },
+    {
+      "id": "a1ee5ee9847f56f6c136f7e5",
+      "runner": "python",
+      "file": "test/scripts/agentflow_providers_test.py",
+      "case_id": "test.scripts.agentflow_providers_test.ShimTest.test_preflight_refusal_precedes_provider_spawn_and_checks_final_context",
       "profile": "unit"
     },
     {
@@ -4279,17 +4601,17 @@
       "profile": "unit"
     },
     {
-      "id": "a32e439e6fbe116e09991f92",
-      "runner": "python",
-      "file": "test/scripts/agentflow_workflow_gate_test.py",
-      "case_id": "test.scripts.agentflow_workflow_gate_test.CiBaselineGateTest.test_gate_command_matches_the_ci_unit_tests_job",
-      "profile": "unit"
-    },
-    {
       "id": "a391326115cc02dd746e75f3",
       "runner": "exunit",
       "file": "test/football_market_web/controllers/error_html_test.exs",
       "case_id": "FootballMarketWeb.ErrorHTMLTest:test renders 404.html",
+      "profile": "unit"
+    },
+    {
+      "id": "a3a1361dbfbe0144b46e6119",
+      "runner": "python",
+      "file": "test/scripts/agentflow_stage_checks_test.py",
+      "case_id": "test.scripts.agentflow_stage_checks_test.StageSummaryTest.test_summary_exposes_only_registered_ids_and_safe_allowlisted_fields",
       "profile": "unit"
     },
     {
@@ -4349,13 +4671,6 @@
       "profile": "unit"
     },
     {
-      "id": "a6433a6deb02956501476c3e",
-      "runner": "python",
-      "file": "test/scripts/agentflow_policy_test.py",
-      "case_id": "test.scripts.agentflow_policy_test.PolicyTest.test_current_checklist_is_a_read_only_gate",
-      "profile": "unit"
-    },
-    {
       "id": "a67bd54c32e70a6dac7f214f",
       "runner": "exunit",
       "file": "test/football_market/synchronization/request_test.exs",
@@ -4409,13 +4724,6 @@
       "runner": "python",
       "file": "test/scripts/sonar_checkpoint_gate_test.py",
       "case_id": "test.scripts.sonar_checkpoint_gate_test.GateTest.test_invalid_measures_fail_closed",
-      "profile": "unit"
-    },
-    {
-      "id": "a7b54214a1df588a1f259eb0",
-      "runner": "python",
-      "file": "test/scripts/agentflow_policy_test.py",
-      "case_id": "test.scripts.agentflow_policy_test.PolicyTest.test_reports_alone_do_not_authorize_summary_or_local_readiness",
       "profile": "unit"
     },
     {
@@ -4503,6 +4811,13 @@
       "profile": "integration"
     },
     {
+      "id": "ab5c744e841a2761b9bc9b78",
+      "runner": "python",
+      "file": "test/scripts/test_inventory_test.py",
+      "case_id": "test.scripts.test_inventory_test.InventoryTest.test_extra_source_diagnostic_maps_only_registered_runner_file_pairs",
+      "profile": "unit"
+    },
+    {
       "id": "ab5eb0d759a67eceb01bae33",
       "runner": "exunit",
       "file": "test/football_market/statistics/ingestion/completeness_test.exs",
@@ -4549,6 +4864,13 @@
       "runner": "python",
       "file": "test/scripts/application_coverage_test.py",
       "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_cli_selects_test_environment_before_service_preflight",
+      "profile": "unit"
+    },
+    {
+      "id": "ac433f4f16ce39e1cffb35af",
+      "runner": "python",
+      "file": "test/scripts/agentflow_preflight_test.py",
+      "case_id": "test.scripts.agentflow_preflight_test.PreflightTest.test_unknown_prerequisite_kind_fails_closed",
       "profile": "unit"
     },
     {
@@ -4601,6 +4923,13 @@
       "profile": "unit"
     },
     {
+      "id": "ae05678d8102ea07afaff68e",
+      "runner": "python",
+      "file": "test/scripts/agentflow_evidence_test.py",
+      "case_id": "test.scripts.agentflow_evidence_test.EvidenceTest.test_early_exit_lists_every_manifest_check_without_reflecting_private_cause",
+      "profile": "unit"
+    },
+    {
       "id": "ae3a0eda14ab80c9f4bb839b",
       "runner": "exunit",
       "file": "test/football_market/synchronization/inspection_test.exs",
@@ -4650,11 +4979,32 @@
       "profile": "unit"
     },
     {
+      "id": "afc25827493924f289d41402",
+      "runner": "python",
+      "file": "test/scripts/agentflow_policy_test.py",
+      "case_id": "test.scripts.agentflow_policy_test.WorkflowSpeedPolicyTest.test_low_risk_procedure_keeps_preflight_ci_independent_gates_and_human_merge",
+      "profile": "unit"
+    },
+    {
       "id": "b061c671fa0c3530b9990c42",
       "runner": "exunit",
       "file": "test/football_market/synchronization/migration_test.exs",
       "case_id": "FootballMarket.Synchronization.MigrationTest:test prefix migrations isolate constraints from public search_path and retain referenced history",
       "profile": "integration"
+    },
+    {
+      "id": "b065483d5a7b683236066530",
+      "runner": "python",
+      "file": "test/scripts/test_profile_runner_test.py",
+      "case_id": "test.scripts.test_profile_runner_test.RunnerTest.test_browser_prerequisite_reports_only_closed_causes",
+      "profile": "unit"
+    },
+    {
+      "id": "b0877e651c8ca885eefc483f",
+      "runner": "python",
+      "file": "test/scripts/agentflow_stage_checks_test.py",
+      "case_id": "test.scripts.agentflow_stage_checks_test.StageExecutionTest.test_safe_command_records_elapsed_time_from_monotonic_clock",
+      "profile": "unit"
     },
     {
       "id": "b087b9bd697e9e48d8352e7d",
@@ -4825,6 +5175,20 @@
       "profile": "integration"
     },
     {
+      "id": "b746b795eda9eff668426bad",
+      "runner": "shell",
+      "file": "test/scripts/ci_unit_tests_test.sh",
+      "case_id": "membership-extra-source",
+      "profile": "unit"
+    },
+    {
+      "id": "b78172c54cb6fca7814e69ae",
+      "runner": "python",
+      "file": "test/scripts/agentflow_providers_test.py",
+      "case_id": "test.scripts.agentflow_providers_test.OuterLaunchTest.test_mocked_windows_outer_spawn_uses_preflight_context_and_process_group",
+      "profile": "unit"
+    },
+    {
       "id": "b7c3be4a4a5fa09672b3d3dd",
       "runner": "exunit",
       "file": "test/football_market/statistics/ingestion/completeness_test.exs",
@@ -4858,6 +5222,13 @@
       "file": "test/mix/tasks/catalog.seed_test.exs",
       "case_id": "Mix.Tasks.Catalog.SeedProcessTest:test a failed seed leaves no owned database workers logging after its error",
       "profile": "integration"
+    },
+    {
+      "id": "ba7489afa59f7ec031414893",
+      "runner": "python",
+      "file": "test/scripts/agentflow_preflight_test.py",
+      "case_id": "test.scripts.agentflow_preflight_test.PreflightTest.test_wrong_global_elixir_is_ignored_when_mise_selects_project_pin",
+      "profile": "unit"
     },
     {
       "id": "ba97fa4b22e094db312dcb17",
@@ -4906,6 +5277,13 @@
       "runner": "python",
       "file": "test/scripts/agentflow_providers_test.py",
       "case_id": "test.scripts.agentflow_providers_test.ShimTest.test_command_dispatch_maps_onto_native_slash_invocation",
+      "profile": "unit"
+    },
+    {
+      "id": "bcff05234809dac42cfe88a3",
+      "runner": "python",
+      "file": "test/scripts/agentflow_providers_test.py",
+      "case_id": "test.scripts.agentflow_providers_test.ShimContinuationTest.test_continuation_flags_are_refused_under_adoption",
       "profile": "unit"
     },
     {
@@ -5077,6 +5455,13 @@
       "profile": "unit"
     },
     {
+      "id": "c337e4d95da789570d021d90",
+      "runner": "python",
+      "file": "test/scripts/agentflow_stage_checks_test.py",
+      "case_id": "test.scripts.agentflow_stage_checks_test.StageExecutionTest.test_full_stage_attempt_token_is_forwarded_to_check_child",
+      "profile": "unit"
+    },
+    {
       "id": "c36a1cbbe82ee3dc53b37d9a",
       "runner": "exunit",
       "file": "test/football_market/statistics/concurrency_test.exs",
@@ -5116,6 +5501,13 @@
       "runner": "python",
       "file": "test/scripts/fast_lane_check_test.py",
       "case_id": "test.scripts.fast_lane_check_test.FastLaneCheckTest.test_untracked_no_behavior_files_are_checked_without_commit",
+      "profile": "unit"
+    },
+    {
+      "id": "c4af718d32d60a9a30bdc262",
+      "runner": "python",
+      "file": "test/scripts/agentflow_stage_checks_test.py",
+      "case_id": "test.scripts.agentflow_stage_checks_test.StageExecutionTest.test_retry_limit_allows_recovery_when_failed_or_dependency_input_changes",
       "profile": "unit"
     },
     {
@@ -5161,6 +5553,13 @@
       "profile": "unit"
     },
     {
+      "id": "c6a8b4bdfe9b5d5db0fad508",
+      "runner": "python",
+      "file": "test/scripts/agentflow_dedup_test.py",
+      "case_id": "test.scripts.agentflow_dedup_test.DedupTest.test_vibecode_procedure_has_explicit_high_risk_exclusions",
+      "profile": "unit"
+    },
+    {
       "id": "c6bfa59123c02703fc11f8be",
       "runner": "python",
       "file": "test/scripts/reconcile_merged_task_test.py",
@@ -5179,6 +5578,13 @@
       "runner": "python",
       "file": "test/scripts/agentflow_completion_test.py",
       "case_id": "test.scripts.agentflow_completion_test.StrictDependentMetadataTest.test_invalid_dependent_task_refuses_before_enumeration_or_completion",
+      "profile": "unit"
+    },
+    {
+      "id": "c79c5923614d4a16719b7246",
+      "runner": "python",
+      "file": "test/scripts/agentflow_preflight_test.py",
+      "case_id": "test.scripts.agentflow_preflight_test.PreflightTest.test_uses_child_path_and_working_directory",
       "profile": "unit"
     },
     {
@@ -5217,6 +5623,13 @@
       "profile": "unit"
     },
     {
+      "id": "c83498e0a41fbec1ba888301",
+      "runner": "python",
+      "file": "test/scripts/agentflow_preflight_test.py",
+      "case_id": "test.scripts.agentflow_preflight_test.PreflightTest.test_node_resolver_uses_nvm_24_when_effective_path_has_other_major",
+      "profile": "unit"
+    },
+    {
       "id": "c87c7ee109fafe608b4de7ab",
       "runner": "exunit",
       "file": "test/football_market_web/controllers/session_controller_test.exs",
@@ -5238,6 +5651,13 @@
       "profile": "integration"
     },
     {
+      "id": "c8fc2e7cc9c102da98c8be29",
+      "runner": "python",
+      "file": "test/scripts/agentflow_stage_checks_test.py",
+      "case_id": "test.scripts.agentflow_stage_checks_test.StageExecutionTest.test_sigint_and_sigterm_are_recorded_as_interrupted_and_stop_following_checks",
+      "profile": "unit"
+    },
+    {
       "id": "c929df2debb2e46bb703429b",
       "runner": "exunit",
       "file": "test/football_market/synchronization/recovery_test.exs",
@@ -5250,13 +5670,6 @@
       "file": "test/football_market/statistics/history_test.exs",
       "case_id": "FootballMarket.Statistics.HistoryTest:test empty absent unknown and malformed subjects stay distinct",
       "profile": "integration"
-    },
-    {
-      "id": "c9542358707aa4ebbfe964af",
-      "runner": "python",
-      "file": "test/scripts/agentflow_policy_test.py",
-      "case_id": "test.scripts.agentflow_policy_test.PolicyTest.test_canonical_manifest_required_with_conditional_plan",
-      "profile": "unit"
     },
     {
       "id": "c9da6e5a560c2a720754a576",
@@ -5350,6 +5763,13 @@
       "profile": "unit"
     },
     {
+      "id": "cde4a405abece479f4b544fa",
+      "runner": "python",
+      "file": "test/scripts/agentflow_stage_checks_test.py",
+      "case_id": "test.scripts.agentflow_stage_checks_test.StageExecutionTest.test_failure_continues_independent_and_blocks_state_dependent",
+      "profile": "unit"
+    },
+    {
       "id": "cdebcd3e2a8191e2af77ec56",
       "runner": "exunit",
       "file": "test/football_market/statistics/integrity_test.exs",
@@ -5411,6 +5831,13 @@
       "file": "test/football_market_web/api_authentication_security_test.exs",
       "case_id": "FootballMarketWeb.APIAuthenticationSecurityTest:test real API-key lookup keeps the secret and identity out of query logs and telemetry",
       "profile": "integration"
+    },
+    {
+      "id": "cffd0ac6d9e05f104f74dd4d",
+      "runner": "python",
+      "file": "test/scripts/agentflow_feedback_test.py",
+      "case_id": "test.scripts.agentflow_feedback_test.FeedbackTest.test_preexisting_cycle_count_uses_configured_cap_without_resetting_history",
+      "profile": "unit"
     },
     {
       "id": "d0068541b31c92fdf8b3bb68",
@@ -5518,13 +5945,6 @@
       "profile": "integration"
     },
     {
-      "id": "d2edfabdaa228534853c871f",
-      "runner": "python",
-      "file": "test/scripts/agentflow_policy_test.py",
-      "case_id": "test.scripts.agentflow_policy_test.CandidateBoundaryTest.test_task064_preserves_application_and_checkpoint_boundary",
-      "profile": "unit"
-    },
-    {
       "id": "d3aa0ae43acbeba18875dea3",
       "runner": "exunit",
       "file": "test/football_market/catalog/constraints_test.exs",
@@ -5581,6 +6001,13 @@
       "profile": "unit"
     },
     {
+      "id": "d4d9a4efb40e86bb3e729653",
+      "runner": "python",
+      "file": "test/scripts/agentflow_preflight_test.py",
+      "case_id": "test.scripts.agentflow_preflight_test.PreflightTest.test_unknown_inventory_is_not_reported_as_ready",
+      "profile": "unit"
+    },
+    {
       "id": "d500b5c85745b171959fdc70",
       "runner": "python",
       "file": "test/scripts/test_inventory_test.py",
@@ -5628,6 +6055,13 @@
       "file": "test/football_market/synchronization/scheduler_test.exs",
       "case_id": "FootballMarket.Synchronization.SchedulerTest:test equivalent active work permanently absorbs its due occurrence even if it fails",
       "profile": "integration"
+    },
+    {
+      "id": "d6370cf6d5690649f22a4e2b",
+      "runner": "python",
+      "file": "test/scripts/test_inventory_test.py",
+      "case_id": "test.scripts.test_inventory_test.InventoryTest.test_extra_event_diagnostic_maps_only_registered_cross_profile_identity",
+      "profile": "unit"
     },
     {
       "id": "d675240b93c42aa15648c919",
@@ -5896,6 +6330,13 @@
       "profile": "unit"
     },
     {
+      "id": "de32380599bbd6b786d699c8",
+      "runner": "python",
+      "file": "test/scripts/agentflow_stage_checks_test.py",
+      "case_id": "test.scripts.agentflow_stage_checks_test.SafeDiagnosticTest.test_incomplete_qa_projection_cannot_pass",
+      "profile": "unit"
+    },
+    {
       "id": "de9615300a9264416043a329",
       "runner": "exunit",
       "file": "test/football_market/market/rollback_test.exs",
@@ -6106,6 +6547,13 @@
       "profile": "integration"
     },
     {
+      "id": "e5b07ae0fe5fa1d58479d756",
+      "runner": "python",
+      "file": "test/scripts/agentflow_stage_checks_test.py",
+      "case_id": "test.scripts.agentflow_stage_checks_test.ManifestContractTest.test_unknown_dependency_fails_before_any_execution",
+      "profile": "unit"
+    },
+    {
       "id": "e5f7fc0ca0064d0bfa762ec2",
       "runner": "exunit",
       "file": "test/ci/test_profile_audit_test.exs",
@@ -6146,6 +6594,13 @@
       "file": "test/football_market/catalog/development_seed_test.exs",
       "case_id": "FootballMarket.Catalog.DevelopmentSeedTest:test preservation, conflicts, and rollback a target team under the wrong season is a relationship conflict and rolls back",
       "profile": "integration"
+    },
+    {
+      "id": "e6f9676e1a8d00e52b229524",
+      "runner": "python",
+      "file": "test/scripts/agentflow_stage_checks_test.py",
+      "case_id": "test.scripts.agentflow_stage_checks_test.StageExecutionTest.test_interrupted_check_stops_batch_and_leaves_remaining_unexecuted",
+      "profile": "unit"
     },
     {
       "id": "e717be9af230011c1c6e97b5",
@@ -6449,6 +6904,13 @@
       "profile": "integration"
     },
     {
+      "id": "f216b5a0932dd1055d83b995",
+      "runner": "python",
+      "file": "test/scripts/agentflow_feedback_test.py",
+      "case_id": "test.scripts.agentflow_feedback_test.FeedbackTest.test_third_feedback_cycle_is_allowed_and_fourth_preserves_history",
+      "profile": "unit"
+    },
+    {
       "id": "f2868b347b84eba731588f58",
       "runner": "exunit",
       "file": "test/ci/workflow_scope_test.exs",
@@ -6468,6 +6930,13 @@
       "file": "test/football_market/catalog/ingestion/publication_test.exs",
       "case_id": "FootballMarket.Catalog.Ingestion.PublicationTest:test typed targets and membership reject dangling cross-kind and cross-scope records",
       "profile": "integration"
+    },
+    {
+      "id": "f2e0b37b0d0e9034c17ac857",
+      "runner": "python",
+      "file": "test/scripts/agentflow_recovery_test.py",
+      "case_id": "test.scripts.agentflow_recovery_test.StageAttemptTest.test_attempt_finalization_is_idempotent_and_preserves_partial_results",
+      "profile": "unit"
     },
     {
       "id": "f3548ccb1286bfe528246a97",
@@ -6533,6 +7002,13 @@
       "profile": "unit"
     },
     {
+      "id": "f5cddf24c1e0ce2dd74ac682",
+      "runner": "python",
+      "file": "test/scripts/agentflow_providers_test.py",
+      "case_id": "test.scripts.agentflow_providers_test.OuterLaunchTest.test_start_preflight_refusal_precedes_branch_assignment_and_stage_spawn",
+      "profile": "unit"
+    },
+    {
       "id": "f5dc48d8741a16070f8f66b4",
       "runner": "exunit",
       "file": "test/football_market/accounts/api_key_persistence_test.exs",
@@ -6575,6 +7051,13 @@
       "profile": "integration"
     },
     {
+      "id": "f733a59a414b92271a5a534f",
+      "runner": "shell",
+      "file": "test/scripts/ci_unit_tests_test.sh",
+      "case_id": "browser-diagnostic",
+      "profile": "unit"
+    },
+    {
       "id": "f74231e7144e6892722fa063",
       "runner": "exunit",
       "file": "test/mix/tasks/catalog.seed_test.exs",
@@ -6600,6 +7083,13 @@
       "runner": "exunit",
       "file": "test/football_market/providers/scraping/assessment_test.exs",
       "case_id": "FootballMarket.Providers.ScrapingAssessmentTest:test malformed evidence denies before source work with unsupported capability",
+      "profile": "unit"
+    },
+    {
+      "id": "f83bba6de7820806a6ca9eb1",
+      "runner": "python",
+      "file": "test/scripts/agentflow_stage_checks_test.py",
+      "case_id": "test.scripts.agentflow_stage_checks_test.ManifestContractTest.test_dependency_cycle_fails",
       "profile": "unit"
     },
     {
@@ -6775,6 +7265,13 @@
       "runner": "python",
       "file": "test/scripts/workflow_artifact_probe_test.py",
       "case_id": "test.scripts.workflow_artifact_probe_test.AuthoritativeReceiptSelectionTest.test_stage_selection_refuses_shared_invalid_associations",
+      "profile": "unit"
+    },
+    {
+      "id": "fc3ed364142ff3a65e561898",
+      "runner": "python",
+      "file": "test/scripts/agentflow_providers_test.py",
+      "case_id": "test.scripts.agentflow_providers_test.ShimTest.test_both_provider_shims_spawn_the_exact_preflight_context",
       "profile": "unit"
     },
     {

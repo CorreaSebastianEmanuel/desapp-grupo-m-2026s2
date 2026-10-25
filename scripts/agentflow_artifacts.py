@@ -49,6 +49,8 @@ def validate(feature: Path, *, setup=False, stage=None):
     plan = feature / 'plan.md'
     if setup and not plan.exists():
         return None
+    if not plan.is_file() or not plan.read_text(encoding='utf-8').strip():
+        raise RuntimeError('Missing or empty plan.md')
     text = plan.read_text()
     blocks = re.findall(r'```json artifact-applicability\s*\n(.*?)\n```', text, re.S)
     if not blocks:

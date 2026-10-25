@@ -10,7 +10,10 @@ cp "$repo_root/scripts/ci_unit_tests.sh" "$repo_root/scripts/test_profile_compon
 cat >"$private/scripts/test_profile.sh" <<'CHILD'
 #!/bin/sh
 printf '%s\n' 'CP1_PROFILE_SECRET_SENTINEL password token api-key'
-[ "${FAKE_CASE:-}" != child-failure ] || exit 7
+[ "${FAKE_CASE:-}" != browser-diagnostic ] || { printf '%s\n' 'PROFILE_BROWSER_DIAGNOSTIC cause=chromium-launch-failed stage=integration' 'BROWSER-RAW-CANARY private failure detail'; exit 7; }
+[ "${FAKE_CASE:-}" != membership-diagnostic ] || { printf '%s\n' 'PROFILE_MEMBERSHIP_DIAGNOSTIC profile=unit phase=event-reconciliation reason=missing-events expected=69 observed=137 missing_started=0 missing_passed=1 extra=0 duplicate=0 invalid_state=0 wrong_nonce=0' 'MEMBERSHIP-RAW-CANARY private case id'; exit 7; }
+[ "${FAKE_CASE:-}" != membership-extra-source ] || { printf '%s\n' 'PROFILE_MEMBERSHIP_EXTRA profile=unit runner=python file=test/scripts/example_test.py' 'PROFILE_MEMBERSHIP_EXTRA profile=unit runner=python file=private/secret_test.py' 'MEMBERSHIP-SOURCE-RAW-CANARY'; exit 7; }
+[ "${FAKE_CASE:-}" != child-failure ] || { printf '%s\n' 'CP1_PROFILE_OUTCOME status=failed category=test-failure'; exit 7; }
 [ "${FAKE_CASE:-}" != missing ] || exit 0
 python3 - "$1" <<'PY'
 import hashlib,json,os,sys
@@ -50,7 +53,23 @@ run_case complete 0
 profile_case_pass 'complete'
 profile_case_start 'child-failure'
 run_case child-failure 1
+grep -Fxq 'CI_PROFILE_DIAGNOSTIC profile=unit category=test-failure' "$private/stderr" || { echo 'missing safe profile failure diagnostic' >&2; exit 1; }
 profile_case_pass 'child-failure'
+profile_case_start 'browser-diagnostic'
+run_case browser-diagnostic 1
+grep -Fxq 'PROFILE_BROWSER_DIAGNOSTIC cause=chromium-launch-failed stage=integration' "$private/stderr"
+! grep -q BROWSER-RAW-CANARY "$private/output"
+profile_case_pass 'browser-diagnostic'
+profile_case_start 'membership-diagnostic'
+run_case membership-diagnostic 1
+grep -Fxq 'PROFILE_MEMBERSHIP_DIAGNOSTIC profile=unit phase=event-reconciliation reason=missing-events expected=69 observed=137 missing_started=0 missing_passed=1 extra=0 duplicate=0 invalid_state=0 wrong_nonce=0' "$private/stderr"
+! grep -q MEMBERSHIP-RAW-CANARY "$private/output"
+profile_case_pass 'membership-diagnostic'
+profile_case_start 'membership-extra-source'
+run_case membership-extra-source 1
+grep -Fxq 'PROFILE_MEMBERSHIP_EXTRA profile=unit runner=python file=test/scripts/example_test.py' "$private/stderr"
+! grep -q 'private/secret_test.py\|MEMBERSHIP-SOURCE-RAW-CANARY' "$private/output"
+profile_case_pass 'membership-extra-source'
 profile_case_start 'missing'
 run_case missing 1
 profile_case_pass 'missing'

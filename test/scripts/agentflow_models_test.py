@@ -72,10 +72,13 @@ class LauncherTest(DeliveryFixture):
         super().setUp()
         import shutil
         shutil.copy2(ROOT/'agentflow',self.root/'agentflow')
-        shutil.copytree(ROOT/'scripts',self.root/'scripts',ignore=shutil.ignore_patterns('__pycache__'))
+        shutil.copytree(ROOT/'scripts',self.root/'scripts',dirs_exist_ok=True,ignore=shutil.ignore_patterns('__pycache__'))
+        self.write('scripts/local_services.sh','#!/bin/sh\n[ "$1" = ready ] && exit 0\nexit 0\n')
         self.write('.agentflow/models.json',(ROOT/'.agentflow/models.json').read_text())
         from test.scripts.support.agentflow_delivery_fixtures import verification
-        self.json('specs/003-example/verification.json',verification([sys.executable,'-c',"print('fixture')"]))
+        manifest=verification([sys.executable,'-c',"print('fixture')"])
+        manifest['toolchain_required']=False
+        self.json('specs/003-example/verification.json',manifest)
         self.write('.agentflow/workflow.yml','steps:\n'+''.join(f'  - id: {stage}\n' for stage in ('product','architecture','develop','qa','review')))
         self.write('.gitignore','.agentflow/runs/\n.specify/feature.json\n.specify/workflows/runs/\n__pycache__/\n')
         task=self.root/'backlog/TASK-003-example.md'

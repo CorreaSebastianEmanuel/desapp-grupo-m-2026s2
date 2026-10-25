@@ -72,6 +72,13 @@ start a new attempt scope; independent stages have separate counters. The summar
 includes elapsed check time, failure count and evidence. Do not infer token usage
 from test runtime; use Agentflow metrics for recorded model usage.
 
+Batch execution uses `python3 scripts/agentflow_stage_checks.py --stage develop|qa|review`.
+The manifest is fully validated before execution; only checks with declared,
+proven independence may continue after a failure. Development may pass `--reuse`;
+QA and review must execute fresh checks. QA's incremental report records every
+failed, blocked and unexecuted obligation and remains non-PASS until an independent
+semantic assessment accepts a complete fresh run.
+
 The helper captures complete output under ignored `.agentflow/runs/checks/` and
 prints only the check ID, exit code, freshness status and evidence path. Inspect
 bounded failure excerpts when needed. It invalidates the previous receipt before

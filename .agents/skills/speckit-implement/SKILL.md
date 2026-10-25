@@ -11,6 +11,8 @@ metadata:
 
 Canonical spec.md, plan.md, tasks.md, verification.json and downstream QA/review reports remain mandatory at their owning stages. Record all four supporting decisions in one schema-1 `json artifact-applicability` block in plan.md. Research is required for an unresolved decision, data-model for changed structures, contracts for a changed interface, and quickstart for feature-specific setup/demo. Each decision needs `required` (boolean) and a nonempty `reason`. Run `python3 scripts/agentflow_artifacts.py FEATURE_DIR` before consuming a completed plan; applicable files must be nonempty and contained. Legacy plans retain their existing requirements. Setup may use `--setup` before the plan exists. Do not generate an inapplicable document just to satisfy an old template. Keep handoffs to deltas and references, preserving required hook dispatch.
 
+For Agentflow work, iterate with focused tests and cheap checks, freeze source/design/feedback inputs, then execute the complete verification manifest once through the check helper. Reuse only intact current development receipts. The ordered runner may continue declared-independent checks; it blocks uncertain dependents and preserves partial QA outcomes. The local baseline is wrapper/CI parity and never replaces receipts, CI, independent QA, real HTTP acceptance or human merge.
+
 
 
 ## User Input

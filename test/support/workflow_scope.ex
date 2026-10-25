@@ -24,6 +24,37 @@ defmodule FootballMarket.WorkflowScope do
     end
   end
 
+  def paths("specs/068-agentflow-preflight-recovery") do
+    [
+      "test/scripts/agentflow_artifacts_test.py",
+      "test/scripts/agentflow_branch_test.py",
+      "test/scripts/agentflow_dedup_test.py",
+      "test/scripts/agentflow_evidence_test.py",
+      "test/scripts/agentflow_feedback_test.py",
+      "test/scripts/agentflow_models_test.py",
+      "test/scripts/agentflow_policy_test.py",
+      "test/scripts/agentflow_preflight_test.py",
+      "test/scripts/agentflow_providers_test.py",
+      "test/scripts/agentflow_recovery_test.py",
+      "test/scripts/agentflow_stage_checks_test.py",
+      "test/scripts/agentflow_workflow_gate_test.py",
+      "test/scripts/ci_unit_tests_test.sh",
+      "test/scripts/profile_safe_diagnostics_test.py",
+      "test/scripts/support/agentflow_delivery_fixtures.py",
+      "test/scripts/test_profile_runner_test.py",
+      "test/ci/quality_baseline_contract_test.exs",
+      "test/ci/test_profile_runner_contract_test.exs",
+      "test/ci/test_profile_audit_test.exs",
+      "test/scripts/test_inventory_test.py",
+      "config/test_profiles.json",
+      "test/mix/tasks/catalog.seed_test.exs",
+      "test/football_market/quotes/outcomes_test.exs",
+      "test/support/test_profile_audit.ex",
+      "test/football_market/synchronization/scope_test.exs",
+      "test/support/workflow_scope.ex"
+    ]
+  end
+
   def paths("specs/067-whole-application-elixir-coverage-and-report-reconciliation") do
     [
       "mix.exs",

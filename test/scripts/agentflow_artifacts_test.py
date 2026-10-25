@@ -77,7 +77,8 @@ class ApplicabilityTest(DeliveryFixture):
         self.setup_plan()
         shutil.copytree(source/'.specify/scripts', self.root/'.specify/scripts')
         shutil.copytree(source/'.specify/templates', self.root/'.specify/templates')
-        shutil.copytree(source/'scripts', self.root/'scripts', ignore=shutil.ignore_patterns('__pycache__'))
+        shutil.copytree(source/'scripts', self.root/'scripts', dirs_exist_ok=True,
+                        ignore=shutil.ignore_patterns('__pycache__'))
         self.baseline()
         self.write('specs/003-example/plan.md', 'Deleted complete policy\n')
         env = {**os.environ, 'SPECIFY_FEATURE_DIRECTORY':str(self.feature)}
@@ -93,7 +94,8 @@ class ApplicabilityTest(DeliveryFixture):
         root=Path(__file__).resolve().parents[2]
         shutil.copytree(root/'.specify/scripts',self.root/'.specify/scripts')
         shutil.copytree(root/'.specify/templates',self.root/'.specify/templates')
-        shutil.copytree(root/'scripts',self.root/'scripts',ignore=shutil.ignore_patterns('__pycache__'))
+        shutil.copytree(root/'scripts',self.root/'scripts',dirs_exist_ok=True,
+                        ignore=shutil.ignore_patterns('__pycache__'))
         self.setup_plan(True)
         env={**os.environ,'SPECIFY_FEATURE_DIRECTORY':str(self.feature)}
         for consumer in ('setup-tasks.sh','check-prerequisites.sh'):

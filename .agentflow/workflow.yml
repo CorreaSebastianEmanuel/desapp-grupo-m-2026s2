@@ -113,13 +113,11 @@ steps:
     run: "python3 scripts/workflow_artifact_probe.py develop --readiness"
     output_format: json
 
-  # CI parity gate inside the develop cycle: run exactly the CI unit command so
-  # workflow/CI divergence is discovered locally during develop, once per cycle
-  # (already-completed steps are not re-executed on resume).
+  # Fast wrapper/profile parity only; it never executes native test profiles.
   - id: ci_baseline
     type: shell
-    timeout: 3600
-    run: "MIX_ENV=test scripts/ci_unit_tests.sh"
+    timeout: 300
+    run: "python3 scripts/agentflow_stage_checks.py --ci-parity"
 
   - id: qa
     type: prompt
@@ -134,7 +132,8 @@ steps:
       handoffs/architecture.md, handoffs/develop.md, current human feedback, and the
       diff, and verification.json. Use the manifest to find checks, then independently
       rerun them and challenge the coverage against spec.md; developer receipts do
-      not replace acceptance evidence. Do not read product debate, stale QA/review reports, unrelated artifacts,
+      not replace acceptance evidence. Use the ordered stage runner so proven-independent
+      checks continue after isolated failures and every outcome is reported. Do not read product debate, stale QA/review reports, unrelated artifacts,
       or workflow/live logs. Run applicable checks directly or through agentflow_check.py CHECK_ID --stage qa
       without --reuse. Stop and report after two failures with unchanged inputs; do
       not bypass retry limits. Verify every

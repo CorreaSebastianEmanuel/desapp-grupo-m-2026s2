@@ -170,6 +170,7 @@ defmodule FootballMarket.QualityBaselineContractTest do
     assert workflow =~ "scripts/test_profile.sh e2e"
     refute workflow =~ "cp1_coverage"
     assert runner =~ "scripts/test_profile.sh"
-    refute runner =~ "coverage"
+    assert runner =~ "PROFILE_MEMBERSHIP_DIAGNOSTIC"
+    refute runner =~ "print(output"
   end
 end

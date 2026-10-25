@@ -56,6 +56,22 @@ Límites y alcances explícitos:
   estándar de Mix y nunca invalida el caché de forma destructiva.
 - Limpiar el caché es siempre seguro: `rm -rf ~/.cache/desapp-grupo-m-2026s2/mix`.
 
+## Procedimiento proporcional para cambios pequeños (Vibecode)
+
+Opt-in para un cambio claro, reversible y de bajo riesgo. La especificación
+breve debe registrar alcance, criterio de aceptación, riesgo y rollback. Ejecutar
+preflight del entorno efectivo del hijo y pruebas enfocadas; mantener CI, QA y
+review independientes con veredictos PASS proporcionales, además del merge
+humano. Resolver decisiones ya asentadas en un único plan breve, sin sesiones
+de deliberación redundantes. Una decisión material sin resolver vuelve al flujo
+completo.
+
+No aplica a seguridad, autenticación o permisos, finanzas, integridad de datos,
+migraciones, contratos externos, cambios del workflow/gates/herramientas ni
+cambios de impacto incierto. Lo no clasificado usa el flujo completo. TASK-070
+queda explícitamente excluida; este procedimiento no agrega un selector ni un
+bypass ejecutable.
+
 ## Medición (obligatoria, la prueba está en el resultado)
 
 El [stage token audit](WORKFLOW_STAGE_TOKEN_AUDIT.md) mostró que los reintentos

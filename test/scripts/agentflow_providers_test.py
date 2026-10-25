@@ -386,7 +386,11 @@ class OuterLaunchTest(ProviderFixture):
         def refuse(context):
             contexts.append(context)
             raise RuntimeError('fixture preflight refusal')
+        real_which = module.shutil.which
+        fixture_shutil = SimpleNamespace(which=lambda name, *args, **kwargs: '/fixture/specify' if name == 'specify' else real_which(name, *args, **kwargs))
         with patch.dict(os.environ, {'PATH': self.preflight_path}), \
+                patch.object(module, 'shutil', fixture_shutil), \
+                patch.object(fixture_shutil, 'which', side_effect=lambda name, *args, **kwargs: '/fixture/specify' if name == 'specify' else real_which(name, *args, **kwargs)), \
                 patch.object(module, 'node24_path', return_value=None), \
                 patch.object(agentflow_preflight, 'preflight_or_raise', side_effect=refuse):
             with self.assertRaisesRegex(RuntimeError, 'fixture preflight refusal'):

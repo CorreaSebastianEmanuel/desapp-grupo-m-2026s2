@@ -45,7 +45,7 @@ profile = sys.argv[2]
 for line in pathlib.Path(sys.argv[1]).read_text(errors="replace").splitlines():
     if re.fullmatch(r"PROFILE_DISCREPANCY id=[0-9a-f]{24}(?: line=[0-9]+)?", line):
         print(line, file=sys.stderr)
-    elif re.fullmatch(r"PROFILE_CASE_DIAGNOSTIC id=[0-9a-f]{24} runner=(?:python|node|shell|exunit) file=test/[A-Za-z0-9_./-]{1,220} case=(?:test(?:\.[A-Za-z0-9_]+)+|redacted) state=(?:failed|skipped|incomplete) cause=(?:assertion|error|skipped|incomplete) line=[0-9]{1,8} exit=(?:none|numeric|cli-missing|dirty-worktree|wrong-branch|dependencies|other|message-(?:task|feature|model|provider|invalid|expected|missing|cannot|no|start|specify|unfinished|not|workflow|feedback|verification|run|branch|configuration|repository|unknown)) started=[0-9]{1,8} passed=[0-9]{1,8} failed=[0-9]{1,8} skipped=[0-9]{1,8}", line) and '..' not in pathlib.PurePosixPath(line.split(' file=', 1)[1].split(' case=', 1)[0]).parts:
+    elif re.fullmatch(r"PROFILE_CASE_DIAGNOSTIC id=[0-9a-f]{24} runner=(?:python|node|shell|exunit) file=test/[A-Za-z0-9_./-]{1,220} case=(?:test(?:\.[A-Za-z0-9_]+)+|redacted) state=(?:failed|skipped|incomplete) cause=(?:assertion|error|skipped|incomplete) line=[0-9]{1,8} exit=(?:none|numeric|cli-missing|dirty-worktree|wrong-branch|dependencies|other) started=[0-9]{1,8} passed=[0-9]{1,8} failed=[0-9]{1,8} skipped=[0-9]{1,8}", line) and '..' not in pathlib.PurePosixPath(line.split(' file=', 1)[1].split(' case=', 1)[0]).parts:
         print(line, file=sys.stderr)
     elif re.fullmatch(r"PROFILE_SAFE_DIAGNOSTIC category=openapi-browser stage=[a-z-]+", line):
         print(line, file=sys.stderr)

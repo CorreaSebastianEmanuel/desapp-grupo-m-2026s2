@@ -122,11 +122,7 @@ class EventResult(unittest.TestResult):
                                              if code.startswith(prefix)), 'other')
                 if details['exit_kind'] == 'other':
                     first = re.match(r'[A-Za-z]+', code)
-                    words = {'task', 'feature', 'model', 'provider', 'invalid', 'expected',
-                             'missing', 'cannot', 'no', 'start', 'specify', 'unfinished',
-                             'not', 'workflow', 'feedback', 'verification', 'run', 'branch',
-                             'configuration', 'repository', 'unknown'}
-                    if first and first.group().lower() in words:
+                    if first and len(first.group()) <= 20:
                         details['exit_kind'] = 'message-' + first.group().lower()
         event(file, test.id(), 'failed', 'python', **details)
 

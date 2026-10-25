@@ -59,21 +59,11 @@ def emit_case_diagnostic(case, related):
     failure = next((event for event in related if event.get('state') == 'failed'), {})
     line = failure.get('failure_line')
     line_value = str(line) if type(line) is int and 0 < line <= 1000000 else '0'
-    exception_type = failure.get('exception_type', 'none')
-    if not isinstance(exception_type, str) or not re.fullmatch(r'[A-Za-z][A-Za-z0-9]{0,39}', exception_type):
-        exception_type = 'unknown'
-    comparison = failure.get('numeric_comparison')
-    if (isinstance(comparison, (list, tuple)) and len(comparison) == 2 and
-            all(isinstance(value, str) and re.fullmatch(r'-?[0-9]{1,9}', value) for value in comparison)):
-        comparison_value = comparison[0] + ':' + comparison[1]
-    else:
-        comparison_value = 'none'
     # Keep the identity-only marker for structured QA parsing; publish details only through this closed schema.
     print('PROFILE_DISCREPANCY id=' + case['id'] + ' line=' + line_value, file=sys.stderr)
     print('PROFILE_CASE_DIAGNOSTIC id=' + case['id'] + ' runner=' + case['runner'] +
           ' file=' + case['file'] + ' case=' + safe_case_id(case['case_id']) +
           ' state=' + state + ' cause=' + cause + ' line=' + line_value +
-          ' exception=' + exception_type + ' comparison=' + comparison_value +
           ' started=' + str(started) + ' passed=' + str(passed) +
           ' failed=' + str(failed) + ' skipped=' + str(skipped), file=sys.stderr)
 

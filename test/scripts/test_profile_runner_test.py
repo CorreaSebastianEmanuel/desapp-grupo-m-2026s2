@@ -135,8 +135,7 @@ class RunnerTest(unittest.TestCase):
             events = [
                 dict(nonce=env['PROFILE_NONCE'], runner=case['runner'], file=case['file'], case_id=case['case_id'], state='started'),
                 dict(nonce=env['PROFILE_NONCE'], runner=case['runner'], file=case['file'], case_id=case['case_id'],
-                     state='failed', cause='assertion', failure_line=41,
-                     exception_type='AssertionError', numeric_comparison=('0', '130')),
+                     state='failed', cause='assertion', failure_line=41),
             ]
             Path(env['PROFILE_EVENTS']).write_text(''.join(json.dumps(value)+'\n' for value in events))
             raise ValueError('child-failure')
@@ -147,7 +146,7 @@ class RunnerTest(unittest.TestCase):
         output = captured.getvalue()
         self.assertEqual(output.count('PROFILE_CASE_DIAGNOSTIC'), 1)
         self.assertIn('PROFILE_CASE_DIAGNOSTIC id=' + case['id'], output)
-        self.assertIn('case=redacted state=failed cause=assertion line=41 exception=AssertionError comparison=0:130 started=1 passed=0 failed=1 skipped=0', output)
+        self.assertIn('case=redacted state=failed cause=assertion line=41 started=1 passed=0 failed=1 skipped=0', output)
         self.assertNotIn(case['case_id'], captured.getvalue())
         self.assertEqual(runner.failure_cause('exunit', [{'state': 'failed'}], 1, 0), 'error')
         self.assertEqual(runner.failure_cause('python', [{'state': 'failed'}], 1, 0), 'assertion')

@@ -109,17 +109,7 @@ class EventResult(unittest.TestResult):
         frames = traceback.extract_tb(err[2]) if err and len(err) > 2 else []
         line = next((frame.lineno for frame in reversed(frames)
                      if Path(frame.filename).resolve() == Path.cwd() / file), None)
-        details = {'cause': cause, 'failure_line': line}
-        if err and len(err) > 1:
-            exception_type = type(err[1]).__name__
-            if re.fullmatch(r'[A-Za-z][A-Za-z0-9]{0,39}', exception_type):
-                details['exception_type'] = exception_type
-            # unittest's default assertEqual message for numeric mismatches is
-            # safe to expose and helps diagnose cross-platform return codes.
-            match = re.fullmatch(r'(-?[0-9]{1,9}) != (-?[0-9]{1,9})', str(err[1]))
-            if match:
-                details['numeric_comparison'] = match.groups()
-        event(file, test.id(), 'failed', 'python', **details)
+        event(file, test.id(), 'failed', 'python', cause=cause, failure_line=line)
 
     def addFailure(self, test, err):
         super().addFailure(test, err)

@@ -47,8 +47,10 @@ defmodule FootballMarket.Market.Purchases.InputTest do
     assert {:error, %{kind: :invalid_request}} =
              PurchaseInput.validate(actor, Map.put(input, :buyer_id, actor.account_id))
 
-    assert {:error, %{kind: :invalid_request}} =
-             PurchaseInput.validate(actor, %{input | player_id: "bad"})
+    for player_id <- ["bad", "abcdefghijklmnop"] do
+      assert {:error, %{kind: :invalid_request}} =
+               PurchaseInput.validate(actor, %{input | player_id: player_id})
+    end
 
     assert {:error, %{kind: :invalid_request}} = PurchaseInput.validate(actor, [])
   end

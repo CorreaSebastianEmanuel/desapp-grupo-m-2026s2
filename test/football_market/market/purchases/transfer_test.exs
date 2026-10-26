@@ -55,4 +55,33 @@ defmodule FootballMarket.Market.Purchases.TransferTest do
                [Ecto.UUID.dump!(f.other.id)]
              ).rows
   end
+
+  test "large accepted buyer balance is debited exactly", f do
+    PurchasesCase.fund(f.buyer, "1e40")
+
+    assert {:ok, _purchase} = PurchasesCase.purchase(f)
+
+    [[buyer_delta]] =
+      Repo.query!(
+        "SELECT amount - (1e40::numeric - 3::numeric) FROM market_credit_balances WHERE user_id=$1",
+        [Ecto.UUID.dump!(f.buyer.id)]
+      ).rows
+
+    assert Decimal.equal?(buyer_delta, 0)
+  end
+
+  test "large accepted recipient balance is credited exactly", f do
+    PurchasesCase.fund(f.buyer, "10.25")
+    PurchasesCase.fund(f.owner, "1e40")
+
+    assert {:ok, _purchase} = PurchasesCase.purchase(f)
+
+    [[recipient_delta]] =
+      Repo.query!(
+        "SELECT amount - (1e40::numeric + 3::numeric) FROM market_credit_balances WHERE user_id=$1",
+        [Ecto.UUID.dump!(f.owner.id)]
+      ).rows
+
+    assert Decimal.equal?(recipient_delta, 0)
+  end
 end

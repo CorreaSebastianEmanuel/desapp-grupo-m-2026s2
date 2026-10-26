@@ -122,7 +122,7 @@ defmodule FootballMarket.Market.PurchaseStore do
   end
 
   defp eligible!(i, issue, balances, holdings, quote) do
-    total = Decimal.mult(quote.unit_price, i.quantity)
+    total = exact_total!(quote.unit_price, i.quantity)
     buyer = Enum.find(balances, &(&1.user_id == i.buyer_id))
     seller = Enum.find(balances, &(&1.user_id == issue.recipient_id))
 
@@ -156,20 +156,31 @@ defmodule FootballMarket.Market.PurchaseStore do
 
   defp exact_positive?(_), do: false
 
+  defp exact_total!(unit_price, quantity) do
+    case Repo.query!("SELECT $1::numeric * $2::numeric", [unit_price, quantity]).rows do
+      [[%Decimal{} = total]] -> total
+      _ -> reject(:inconsistent_state)
+    end
+  end
+
   defp debit!(buyer, total, now),
-    do:
-      Repo.update!(
-        Ecto.Changeset.change(buyer, amount: Decimal.sub(buyer.amount, total), updated_at: now)
-      )
+    do: adjust_balance!(buyer, Decimal.negate(total), now)
 
   defp credit!(nil, id, total, now),
     do: Repo.insert!(%CreditBalance{user_id: id, amount: total, updated_at: now})
 
   defp credit!(seller, _, total, now),
-    do:
-      Repo.update!(
-        Ecto.Changeset.change(seller, amount: Decimal.add(seller.amount, total), updated_at: now)
-      )
+    do: adjust_balance!(seller, total, now)
+
+  defp adjust_balance!(balance, delta, now) do
+    case Repo.query!(
+           "UPDATE market_credit_balances SET amount = amount + $1::numeric, updated_at = $2 WHERE user_id = $3",
+           [delta, now, Ecto.UUID.dump!(balance.user_id)]
+         ).num_rows do
+      1 -> :ok
+      0 -> reject(:inconsistent_state)
+    end
+  end
 
   defp receive_tokens!(holdings, i) do
     case Enum.find(holdings, &(&1.user_id == i.buyer_id)) do

@@ -4,10 +4,10 @@ defmodule FootballMarket.Market.PurchaseInput do
   alias FootballMarket.Market.Error
 
   def validate(%AuthenticatedActor{account_id: buyer}, input) when is_map(input) do
-    with {:ok, buyer} <- Ecto.UUID.cast(buyer),
+    with {:ok, buyer} <- cast_uuid(buyer),
          true <-
            Map.keys(input) |> Enum.sort() == Enum.sort([:player_id, :quantity, :request_key]),
-         {:ok, player} <- Ecto.UUID.cast(input.player_id),
+         {:ok, player} <- cast_uuid(input.player_id),
          true <-
            is_integer(input.quantity) and input.quantity > 0 and input.quantity <= 2_147_483_647,
          true <- valid_key?(input.request_key) do
@@ -25,6 +25,11 @@ defmodule FootballMarket.Market.PurchaseInput do
 
   def validate(%AuthenticatedActor{}, _), do: Error.new(:invalid_request, :invalid_request)
   def validate(_, _), do: Error.new(:unauthenticated, :unauthenticated)
+
+  defp cast_uuid(value) when is_binary(value) and byte_size(value) == 36,
+    do: Ecto.UUID.cast(value)
+
+  defp cast_uuid(_), do: :error
 
   defp valid_key?(key) when is_binary(key),
     do:

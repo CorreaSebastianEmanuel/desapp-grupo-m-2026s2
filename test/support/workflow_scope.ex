@@ -369,7 +369,9 @@ defmodule FootballMarket.WorkflowScope do
       "config/credo_inventory.json",
       "config/test_profiles.json",
       "docs/AGENT_VERIFICATION.md",
+      "docs/WORKFLOW_LESSONS.md",
       "docs/adr/0034-check-environment-retry-identity.md",
+      "docs/adr/0035-effective-sandbox-check-identity.md",
       "lib/football_market/market.ex",
       "lib/football_market/market/credit_balance.ex",
       "lib/football_market/market/credit_entry.ex",
@@ -385,8 +387,16 @@ defmodule FootballMarket.WorkflowScope do
       "priv/repo/migrations/20261023000000_create_market_purchases.exs",
       "priv/static/openapi.json",
       "scripts/agentflow_check.py",
+      "scripts/agentflow_stage_checks.py",
+      "agentflow",
+      "scripts/agentflow_codex.py",
       "scripts/agentflow_verification.py",
+      "scripts/application_coverage.py",
+      "scripts/ci_unit_tests.sh",
+      "scripts/profile_safe_diagnostics.py",
+      "scripts/test_profile_components.py",
       "scripts/test_profile_runner.py",
+      "test/scripts/agentflow_branch_test.py",
       "test/ci/workflow_scope_test.exs",
       "test/football_market/market/scope_test.exs",
       "test/football_market/market/purchases/concurrency_test.exs",
@@ -405,6 +415,12 @@ defmodule FootballMarket.WorkflowScope do
       "test/mix/tasks/catalog.seed_test.exs",
       "test/runtime/purchase_http.exs",
       "test/scripts/agentflow_evidence_test.py",
+      "test/scripts/agentflow_stage_checks_test.py",
+      "test/scripts/agentflow_dedup_test.py",
+      "test/scripts/ci_unit_tests_test.sh",
+      "test/scripts/profile_safe_diagnostics_test.py",
+      "test/scripts/agentflow_models_test.py",
+      "test/scripts/application_coverage_test.py",
       "test/scripts/test_profile_runner_test.py",
       "test/support/purchases/case.ex",
       "test/support/purchases/runtime_probe.ex",
@@ -412,7 +428,6 @@ defmodule FootballMarket.WorkflowScope do
       "tools/openapi/browser.mjs"
     ]
   end
-
 
   def paths(_), do: []
 

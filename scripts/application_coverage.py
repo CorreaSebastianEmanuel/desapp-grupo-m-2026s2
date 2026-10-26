@@ -327,10 +327,17 @@ def reconcile_records(entries, partitions):
 
 def contained_path(root, relative):
     """One read/write boundary, including existing ancestors of new paths."""
-    path = Path(root).absolute() / safe_path(relative)
-    declared = Path(root).absolute()
-    if (any(item.is_symlink() for item in (path, *path.parents)) or
-            not path.resolve().is_relative_to(declared.resolve())):
+    declared_input = Path(root).absolute()
+    if declared_input.is_symlink():
+        raise ValueError('publication')
+    declared = declared_input.resolve()
+    path = declared_input / safe_path(relative)
+    current = path
+    while current != declared_input:
+        if current.is_symlink():
+            raise ValueError('publication')
+        current = current.parent
+    if not path.resolve().is_relative_to(declared):
         raise ValueError('publication')
     return path
 
@@ -437,8 +444,14 @@ def validate_sidecar(sidecar, profile, run_id, snap, receipt, receipt_hash, sche
     return sidecar['partitions']
 
 
-def atomic_json(path, obj):
-    path = contained_path(path.parent, path.name)
+def atomic_json(path, obj, root=None):
+    path = Path(path).absolute()
+    declared_root = Path(OUTPUT if root is None else root).absolute()
+    try:
+        relative = path.relative_to(declared_root)
+    except ValueError:
+        raise ValueError('publication') from None
+    path = contained_path(declared_root, relative.as_posix())
     path.parent.mkdir(parents=True, exist_ok=True)
     fd, name = tempfile.mkstemp(prefix='.tmp-', dir=path.parent)
     try:
@@ -527,7 +540,7 @@ def validate(pending=None, pending_path=None):
         raise ValueError(status.get('error_category', 'report'))
     rel = safe_path(status.get('report_path'))
     report_path = contained_path(OUTPUT, rel)
-    if not report_path.is_relative_to(OUTPUT.resolve()) or digest(report_path.read_bytes()) != status.get('report_sha256'):
+    if not report_path.resolve().is_relative_to(OUTPUT.resolve()) or digest(report_path.read_bytes()) != status.get('report_sha256'):
         raise ValueError('report')
     report = strict_json(report_path.read_text())
     if not schema_one(report):

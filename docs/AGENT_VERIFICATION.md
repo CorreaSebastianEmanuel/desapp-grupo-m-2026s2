@@ -106,3 +106,9 @@ full output files are intentionally not published. Do not manufacture receipts,
 replace checks with trivial successes or weaken the manifest to bypass a blocker.
 
 Retry budgets bind check/stage/command, canonical/current feedback inputs, declared retry_inputs, and explicitly declared nonsecret retry_env values. Declare only environment values that can materially change check execution; values are hashed into check identity and never stored in receipts. Unrelated edits cannot reset a stopped obligation. Reuse binds the complete current source. Interrupted running receipts recover as failures once. After both independent PASS reports Agentflow finalizes the bounded schema-1 evidence-summary.json. This portable review record cannot authorize local execution reuse.
+
+For Codex-launched browser checks, bind the launcher-resolved sandbox mode in `retry_env`; network access alone does not identify or widen that sandbox. Codex CLI's `--approve-for-me` selects workspace-write and conflicts with explicit sandbox selection, so the Agentflow wrapper removes that preset only when it forwards the user's resolved danger-full-access mode.
+
+The direct `./agentflow verify` entry point uses the same resolver before starting its independent verifier, so QA inherits the user's effective sandbox instead of being silently restricted by `--approve-for-me`.
+
+For checks that declare `AGENTFLOW_CODEX_SANDBOX_MODE` in `retry_env`, the launcher must first resolve the user's effective Codex sandbox policy and overwrite inherited child metadata with that closed value. The check helper accepts only `read-only`, `workspace-write` or `danger-full-access` and refuses missing/invalid metadata before spawning the check. Do not set a guessed mode to obtain a new retry scope; a mode change is meaningful only when the selected execution policy actually changed. The launcher records only the resolved enum, and the helper hashes it without storing the raw value in receipts.

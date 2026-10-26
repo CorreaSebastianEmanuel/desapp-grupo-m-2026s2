@@ -46,6 +46,9 @@ defmodule FootballMarketWeb.PurchaseControllerTest do
                %{"error" => %{"code" => "invalid_request"}}
     end
 
+    assert request(f, %{PurchasesCase.request(f) | player_id: "abcdefghijklmnop"})
+           |> json_response(400) == %{"error" => %{"code" => "invalid_request"}}
+
     assert request(f, %{PurchasesCase.request(f) | request_key: "nul\0key"})
            |> json_response(400) == %{"error" => %{"code" => "invalid_request"}}
 

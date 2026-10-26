@@ -10,10 +10,21 @@ cp "$repo_root/scripts/ci_unit_tests.sh" "$repo_root/scripts/test_profile_compon
 cat >"$private/scripts/test_profile.sh" <<'CHILD'
 #!/bin/sh
 printf '%s\n' 'CP1_PROFILE_SECRET_SENTINEL password token api-key'
-[ "${FAKE_CASE:-}" != browser-diagnostic ] || { printf '%s\n' 'PROFILE_BROWSER_DIAGNOSTIC cause=chromium-launch-failed stage=integration' 'BROWSER-RAW-CANARY private failure detail'; exit 7; }
+[ "${FAKE_CASE:-}" != browser-diagnostic ] || { printf '%s\n' 'PROFILE_SAFE_DIAGNOSTIC category=browser-prerequisite cause=launch-failed' 'PROFILE_SAFE_DIAGNOSTIC category=browser-prerequisite cause=launch-failed secret=private' 'PROFILE_BROWSER_DIAGNOSTIC cause=launch-failed stage=integration' 'BROWSER-RAW-CANARY private failure detail'; exit 7; }
 [ "${FAKE_CASE:-}" != membership-diagnostic ] || { printf '%s\n' 'PROFILE_MEMBERSHIP_DIAGNOSTIC profile=unit phase=event-reconciliation reason=missing-events expected=69 observed=137 missing_started=0 missing_passed=1 extra=0 duplicate=0 invalid_state=0 wrong_nonce=0' 'MEMBERSHIP-RAW-CANARY private case id'; exit 7; }
 [ "${FAKE_CASE:-}" != membership-extra-source ] || { printf '%s\n' 'PROFILE_MEMBERSHIP_EXTRA profile=unit runner=python file=test/scripts/example_test.py' 'PROFILE_MEMBERSHIP_EXTRA profile=unit runner=python file=private/secret_test.py' 'MEMBERSHIP-SOURCE-RAW-CANARY'; exit 7; }
-[ "${FAKE_CASE:-}" != child-failure ] || { printf '%s\n' 'CP1_PROFILE_OUTCOME status=failed category=test-failure' 'PROFILE_CASE_DIAGNOSTIC id=0123456789abcdef01234567 runner=python file=test/scripts/fixture_test.py case=test.fixture.FixtureTest.test_failure state=failed cause=assertion line=42 started=1 passed=0 failed=1 skipped=0'; exit 7; }
+[ "${FAKE_CASE:-}" != child-failure ] || { printf '%s\n' 'CP1_PROFILE_OUTCOME status=failed category=test-failure' 'PROFILE_DISCREPANCY id=0123456789abcdef01234567 runner=python file=test/../private.txt case=PRIVATE_SENTINEL state=failed cause=error line=1 started=1 passed=0 failed=1 skipped=0' 'PROFILE_DISCREPANCY id=0123456789abcdef01234567 line=1000001' 'PROFILE_CASE_DIAGNOSTIC id=0123456789abcdef01234567 runner=python file=test/scripts/fixture_test.py case=test.fixture.FixtureTest.test_failure state=failed cause=assertion line=42 started=1 passed=0 failed=1 skipped=0'; exit 7; }
+case "${FAKE_CASE:-}" in
+  oversized-line|oversized-started|oversized-passed|oversized-failed|oversized-skipped)
+    line=42 started=1 passed=0 failed=1 skipped=0
+    field=${FAKE_CASE#oversized-}
+    case "$field" in line) line=1000001 ;; started) started=1000001 ;; passed) passed=1000001 ;; failed) failed=1000001 ;; skipped) skipped=1000001 ;; esac
+    printf '%s\n' "PROFILE_CASE_DIAGNOSTIC id=0123456789abcdef01234567 runner=python file=test/scripts/fixture_test.py case=test.fixture.FixtureTest.test_failure state=failed cause=assertion line=$line started=$started passed=$passed failed=$failed skipped=$skipped"
+    exit 7 ;;
+  boundary-diagnostic)
+    printf '%s\n' 'PROFILE_CASE_DIAGNOSTIC id=0123456789abcdef01234567 runner=python file=test/scripts/fixture_test.py case=test.fixture.FixtureTest.test_failure state=failed cause=assertion line=1000000 started=1000000 passed=1000000 failed=1000000 skipped=1000000'
+    exit 7 ;;
+esac
 [ "${FAKE_CASE:-}" != missing ] || exit 0
 python3 - "$1" <<'PY'
 import hashlib,json,os,sys
@@ -55,10 +66,23 @@ profile_case_start 'child-failure'
 run_case child-failure 1
 grep -Fxq 'CI_PROFILE_DIAGNOSTIC profile=unit category=test-failure' "$private/stderr" || { echo 'missing safe profile failure diagnostic' >&2; exit 1; }
 grep -Fxq 'PROFILE_CASE_DIAGNOSTIC id=0123456789abcdef01234567 runner=python file=test/scripts/fixture_test.py case=test.fixture.FixtureTest.test_failure state=failed cause=assertion line=42 started=1 passed=0 failed=1 skipped=0' "$private/stderr"
+! grep -q 'PRIVATE_SENTINEL\|test/../private.txt' "$private/stderr"
+! grep -q 'PROFILE_DISCREPANCY .*line=1000001' "$private/stderr"
 profile_case_pass 'child-failure'
+profile_case_start 'diagnostic-numeric-bounds'
+for field in line started passed failed skipped; do
+  name="oversized-$field"
+  run_case "$name" 1
+  ! grep -q '^PROFILE_CASE_DIAGNOSTIC ' "$private/stderr"
+done
+run_case boundary-diagnostic 1
+grep -Fxq 'PROFILE_CASE_DIAGNOSTIC id=0123456789abcdef01234567 runner=python file=test/scripts/fixture_test.py case=test.fixture.FixtureTest.test_failure state=failed cause=assertion line=1000000 started=1000000 passed=1000000 failed=1000000 skipped=1000000' "$private/stderr"
+profile_case_pass 'diagnostic-numeric-bounds'
 profile_case_start 'browser-diagnostic'
 run_case browser-diagnostic 1
-grep -Fxq 'PROFILE_BROWSER_DIAGNOSTIC cause=chromium-launch-failed stage=integration' "$private/stderr"
+grep -Fxq 'PROFILE_SAFE_DIAGNOSTIC category=browser-prerequisite cause=launch-failed' "$private/stderr"
+grep -Fxq 'PROFILE_BROWSER_DIAGNOSTIC cause=launch-failed stage=integration' "$private/stderr"
+! grep -q 'secret=private' "$private/stderr"
 ! grep -q BROWSER-RAW-CANARY "$private/output"
 profile_case_pass 'browser-diagnostic'
 profile_case_start 'membership-diagnostic'

@@ -13,6 +13,7 @@ from unittest.mock import patch
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'scripts'))
 import application_coverage as coverage
 import test_profile_runner as profile_runner
+from test_profile_components import EventResult
 
 
 class CoverageAccountingTest(unittest.TestCase):
@@ -22,6 +23,20 @@ class CoverageAccountingTest(unittest.TestCase):
             dict(path='test/a_test.exs', role='test', disposition='exclude', reason='test source'),
             dict(path='test/support/helper.ex', role='test-support', disposition='exclude', reason='test helper'),
         ]
+
+    def test_python_profile_failure_event_contains_only_safe_assertion_location(self):
+        with tempfile.TemporaryDirectory() as directory, patch.dict(os.environ, {
+                'PROFILE_EVENTS': str(Path(directory) / 'events.jsonl'), 'PROFILE_NONCE': 'nonce'}):
+            try:
+                raise AssertionError('secret assertion detail')
+            except AssertionError:
+                EventResult().report_failure(self, sys.exc_info(), 'assertion')
+            event = json.loads(Path(directory, 'events.jsonl').read_text())
+            self.assertEqual(event['state'], 'failed')
+            self.assertEqual(event['cause'], 'assertion')
+            self.assertIsInstance(event['failure_line'], int)
+            self.assertGreater(event['failure_line'], 0)
+            self.assertNotIn('secret assertion detail', json.dumps(event))
 
     def test_union_counts_each_source_line_once_and_or_combines_profile_hits(self):
         first = dict(profile='unit', complete=True, lines=[
@@ -69,6 +84,16 @@ class CoverageAccountingTest(unittest.TestCase):
     def test_unsafe_paths_and_incomplete_partitions_are_rejected(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
+            external = root / 'external'
+            external.mkdir()
+            external_alias = root / 'external-alias'
+            external_alias.symlink_to(external, target_is_directory=True)
+            aliased_output = external_alias / 'output'
+            aliased_output.mkdir()
+            self.assertEqual(
+                coverage.contained_path(aliased_output, 'new/report.json'),
+                aliased_output / 'new/report.json',
+            )
             declared = root / 'output'
             declared.mkdir()
             outside = root / 'outside'
@@ -78,12 +103,14 @@ class CoverageAccountingTest(unittest.TestCase):
                 with self.subTest(write=relative), self.assertRaisesRegex(ValueError, 'publication'):
                     coverage.contained_path(declared, relative)
                 with self.assertRaisesRegex(ValueError, 'publication'):
-                    coverage.atomic_json(declared / relative, {'schema_version': 1})
+                    coverage.atomic_json(declared / relative, {'schema_version': 1}, root=declared)
             self.assertFalse((outside / 'new.json').exists())
             self.assertEqual(coverage.contained_path(declared, 'new/file.json'), declared / 'new/file.json')
-            # The output root itself can be reached through an unsafe ancestor.
+            # The declared output root itself cannot be a symlink.
+            root_alias = root / 'output-alias'
+            root_alias.symlink_to(declared, target_is_directory=True)
             with self.assertRaisesRegex(ValueError, 'publication'):
-                coverage.contained_path(declared / 'ancestor' / 'nested', 'new.json')
+                coverage.contained_path(root_alias, 'new.json')
         with self.assertRaisesRegex(ValueError, 'inventory'):
             coverage.safe_path('../lib/a.ex')
         with self.assertRaisesRegex(ValueError, 'partition'):

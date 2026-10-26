@@ -4,7 +4,7 @@ title: Correlation IDs and structured logging
 type: task
 checkpoint: CP3
 priority: high
-status: review
+status: done
 depends_on: TASK-013
 active_run: none
 feature_directory: specs/036-correlation-ids-and-structured-logging

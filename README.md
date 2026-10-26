@@ -59,9 +59,9 @@ The first run reports `total=44 created=44 reused=0` with 5 leagues, 5 seasons, 
 
 This command is enabled only by checked-in development and test configuration. It is never called by application startup, `mix setup`, Ecto aliases, migrations, releases, or deployment, and production/unknown environments fail before database access. Failures are nonzero and expose only the categories `disabled`, `validation`, `conflict`, and `persistence`; the causes `invalid_manifest`, `alternate_identity`, `misplaced_relationship`, `attribute_mismatch`, `relationship_mismatch`, `database`, `write_failed`, `concurrent_write`, and `database_unavailable`; an allowlisted entity; and a manifest-owned identity. Any unknown internal failure becomes the generic `persistence/write_failed` result. Resolve conflicts in the named local record; retry a `concurrent_write` after the other seed run finishes; investigate local PostgreSQL for `database` or `database_unavailable` failures. The complete isolated-database and timing procedure is in [`specs/006-development-seed-data/quickstart.md`](specs/006-development-seed-data/quickstart.md).
 
-### CP1 API documentation
+### API documentation
 
-With Phoenix running (`mix phx.server`), open [the interactive API documentation](http://127.0.0.1:4000/docs) or retrieve [the OpenAPI 3 JSON description](http://127.0.0.1:4000/openapi.json). Both are public. The page documents only `GET /api/players` and `GET /api/players/{player_id}`; executing either route requires one valid credential.
+With Phoenix running (`mix phx.server`), open [the interactive API documentation](http://127.0.0.1:4000/docs) or retrieve [the OpenAPI 3 JSON description](http://127.0.0.1:4000/openapi.json). Both are public. The page documents the two catalog routes and three quote routes; executing any operation requires one valid credential.
 
 In `/docs`, choose **Bearer JWT** or **API key**, enter your own credential in the masked field, open an operation, and select **Try it out** then **Execute**. The page sends `Authorization: Bearer <JWT>` or `X-API-Key: <key>` for the selected method. Switching methods clears the field. Leave it empty to see the generic 401 and `WWW-Authenticate: Bearer realm="api"`. The credential is not part of the documentation URL or saved in browser storage. These placeholders are not functional credentials; there is no public login or key-issuance HTTP route.
 
@@ -74,7 +74,44 @@ npm test --prefix tools/openapi
 MIX_ENV=test mix test test/football_market_web/openapi_contract_test.exs test/football_market_web/openapi_browser_test.exs
 ```
 
-The browser test starts an isolated loopback server, discovers both operations and all five list parameters within three minutes, executes JWT → API key → JWT requests, verifies 401 with no credential, and closes Chromium and the server. It reports header presence and status without printing credential values. See the [TASK-013 quickstart](specs/013-openapi-cp1-contracts/quickstart.md) for the full check sequence.
+The browser test starts an isolated loopback server, discovers all five catalog and quote operations and all five list parameters within three minutes, executes JWT → API key → JWT requests, verifies 401 with no credential, and closes Chromium and the server. It reports header presence and status without printing credential values. See the [TASK-013 quickstart](specs/013-openapi-cp1-contracts/quickstart.md) for the full check sequence.
+
+### Player quote reads
+
+The protected quote API accepts the same JWT or API-key authentication as the catalog:
+
+| GET path | Result |
+| --- | --- |
+| `/api/players/:player_id/quotes/current` | Current persisted quote |
+| `/api/players/:player_id/quotes/history` | Complete immutable history, oldest sequence first, including issuance |
+| `/api/players/:player_id/quotes/at?date=YYYY-MM-DD` | Last quote effective through the end of that UTC date |
+
+Single results use `{"data": quote}`; history uses `{"data": [quote, ...]}` without pagination. Prices are exact decimal strings with two places. Each quote retains its original UTC timestamp and strategy/configuration/calculation identities; initial issuance has nullable performance metadata. Dated reads carry the prior quote through gaps, return `quote_not_found` before issuance, and accept future dates. No read calculates quotes or contacts providers.
+
+Authentication errors return 401. Invalid or ambiguous dates return 400 `invalid_date` before player lookup. Malformed or unknown players return 404 `player_not_found`; existing players without a quote return an empty history or 404 `quote_not_found` for a single result. Storage failures return 503 `temporarily_unavailable`. See `/docs` for complete schemas and examples.
+
+### Player statistics freshness
+
+`GET /api/players/:player_id` preserves the catalog object in `data` and includes `statistics_status`. It reports the exact configured provider and league-season coverage, the last complete accepted check, expiry, import progress, and independent valuation progress. Catalog list/search reads never enqueue refreshes. Opening detail always checks PostgreSQL, including after a cached search.
+
+Configure trusted source options in the application configuration; HTTP callers cannot choose sources, mappings, timeouts, or retry policies:
+
+```elixir
+config :football_market, FootballMarket.Statistics.Freshness,
+  ttl_seconds: 86_400,
+  cooldown_seconds: 3_600,
+  refresh_options_by_scope: %{
+    {"PL", 2025, 2026} => [source_ref: "approved-statistics-source"]
+  }
+```
+
+The reference must resolve through `FootballMarket.Synchronization`'s existing trusted `sources` configuration. Existing optional `fixture_ref`, mapping and bounded policy options may be supplied by the operator for that exact scope. No source is configured by default: detail still returns local data with refresh state `unconfigured`. The current configured adapter boundary uses fixture artifacts; `source_mode: "fixture"` explicitly means non-live data. A `fresh` result describes the accepted-check TTL, not verified real-time source accuracy. This feature does not authorize live scraping or bypass access/coverage checks.
+
+Never-checked or expired scopes queue one existing statistics-import job. Players in the same provider/league-season share that work. Repeated reads reuse queued, executing and retry-wait work without adding trigger records; admission contention reports `busy`. Complete changed, unchanged, replay and empty checks renew the timestamp atomically; failures and incomplete responses do not. Local detail never waits for provider execution. Enqueue/configuration failures remain visible while local data stays available.
+
+After bounded retries exhaust a transient failure, automatic requests wait for the configured cooldown or a longer provider retry hint. Permanent access, malformed-data, immutable-history and unconfirmed-publication failures remain `blocked` for unchanged inputs. An operator can correct the configured input or use the existing trusted manual request interface; detail exposes no force-refresh or permission-changing operation.
+
+`statistics_status.valuation` follows the latest changed import affecting this player and aggregates its weekly calculation requests. New no-change checks do not hide outstanding work. A successful import can still have pending or failed valuation; completed valuation may include explicit `no_quote` results and does not promise a new price. Existing quote endpoints retain their original immutable quote timestamps.
 
 ### Prepare, compile, and test
 

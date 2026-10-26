@@ -36,7 +36,7 @@ try {
   stage = 'docs-content';
   assert(await page.locator('#docs-error').isHidden(), 'Documentation load error');
   stage = 'operation-count';
-  assert(await page.locator('.opblock').count() === 3, 'Protected operation discovery failed');
+  assert(await page.locator('.opblock').count() === 6, 'Protected operation discovery failed');
   stage = 'operation-locators';
   stage = 'operation-summary-read';
   const operations = await page.locator('.opblock').evaluateAll(blocks => blocks.map(block => ({
@@ -52,8 +52,11 @@ try {
   const list = operation('/api/players');
   const detail = operation('/api/players/{player_id}');
   const ranking = operation('/api/ranking');
+  for (const suffix of ['current', 'history', 'at']) {
+    operation(`/api/players/{player_id}/quotes/${suffix}`);
+  }
   stage = 'operation-set-check';
-  assert(operations.length === 3 && new Set(operations.map(item => `${item.method} ${item.path}`)).size === 3, 'Exact protected operation set mismatch');
+  assert(operations.length === 6 && new Set(operations.map(item => `${item.method} ${item.path}`)).size === 6, 'Exact protected operation set mismatch');
   stage = 'expand-catalog-operations';
   stage = 'expand-list';
   await list.locator('.opblock-summary').click();
@@ -69,7 +72,7 @@ try {
   stage = 'wait-list-statuses';
   await page.waitForFunction(() => [...document.querySelectorAll('.opblock')].find(block => block.querySelector('.opblock-summary-path')?.textContent.trim() === '/api/players')?.querySelectorAll('.response-col_status').length >= 3);
   stage = 'wait-detail-statuses';
-  await page.waitForFunction(() => [...document.querySelectorAll('.opblock')].find(block => block.querySelector('.opblock-summary-path')?.textContent.trim() === '/api/players/{player_id}')?.querySelectorAll('.response-col_status').length >= 3);
+  await page.waitForFunction(() => [...document.querySelectorAll('.opblock')].find(block => block.querySelector('.opblock-summary-path')?.textContent.trim() === '/api/players/{player_id}')?.querySelectorAll('.response-col_status').length >= 4);
   stage = 'ranking-contract-statuses';
   const rankingContract = await page.evaluate(async () => {
     const response = await fetch('/openapi.json');
@@ -86,7 +89,7 @@ try {
   const detailStatuses = (await detail.locator('.response-col_status').allTextContents()).map(value => value.trim());
   stage = 'catalog-statuses';
   assert(['200','400','401'].every(value => listStatuses.includes(value)), 'List response status discovery failed');
-  assert(['200','401','404'].every(value => detailStatuses.includes(value)), 'Detail response status discovery failed');
+  assert(['200','401','404','503'].every(value => detailStatuses.includes(value)), 'Detail response status discovery failed');
   stage = 'catalog-example';
   assert(await list.getByText('Example Value').count() > 0, 'Response example discovery failed');
   stage = 'credential-controls';

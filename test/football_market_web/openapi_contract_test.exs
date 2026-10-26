@@ -10,7 +10,10 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
   @codes ~w(invalid_page_size invalid_league_id invalid_team_id invalid_position_id invalid_cursor)
   @expected_statuses %{
     "listPlayers" => ~w(200 400 401),
-    "getPlayer" => ~w(200 401 404),
+    "getPlayer" => ~w(200 401 404 503),
+    "getCurrentQuote" => ~w(200 401 404 503),
+    "getQuoteHistory" => ~w(200 401 404 503),
+    "getQuoteAtDate" => ~w(200 400 401 404 503),
     "getActiveStrategyRanking" => ~w(200 401 409 503)
   }
 
@@ -181,7 +184,8 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
              "next_cursor" => nil
            }
 
-    for operation <- [list, detail],
+    for {_path, item} <- doc["paths"],
+        {_method, operation} <- item,
         {_, response} <- operation["responses"],
         {_, example} <- get_in(response, ["content", "application/json", "examples"]) do
       assert_schema!(doc, response["content"]["application/json"]["schema"], example["value"])
@@ -394,7 +398,7 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
           {"League", ~w(id code name)},
           {"Pagination", ~w(page_size returned_count has_more next_cursor)},
           {"PlayerPage", ~w(data pagination)},
-          {"PlayerDetail", ~w(data)}
+          {"PlayerDetail", ~w(data statistics_status)}
         ] do
       schema = schemas[name]
       assert Enum.sort(schema["required"]) == Enum.sort(fields)
@@ -442,8 +446,18 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
 
   defp assert_schema!(doc, %{"type" => "object"} = schema, value) do
     assert is_map(value)
-    assert Enum.sort(Map.keys(value)) == Enum.sort(schema["required"])
-    for {key, child} <- schema["properties"], do: assert_schema!(doc, child, value[key])
+    properties = Map.get(schema, "properties", %{})
+    assert Enum.all?(Map.get(schema, "required", []), &Map.has_key?(value, &1))
+    extras = Map.keys(value) -- Map.keys(properties)
+    if schema["additionalProperties"] == false, do: assert(extras == [])
+
+    for {key, child} <- properties,
+        Map.has_key?(value, key),
+        do: assert_schema!(doc, child, value[key])
+
+    if is_map(schema["additionalProperties"]) do
+      for key <- extras, do: assert_schema!(doc, schema["additionalProperties"], value[key])
+    end
   end
 
   defp assert_schema!(doc, %{"type" => "array", "items" => item}, value) do

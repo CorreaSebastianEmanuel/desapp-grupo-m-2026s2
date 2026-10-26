@@ -19,8 +19,17 @@ defmodule FootballMarketWeb.PlayerController do
 
   def show(conn, %{"player_id" => player_id}) do
     case Catalog.get_player_detail(player_id) do
-      {:ok, player} -> render(conn, :show, player: player)
-      {:error, :not_found} -> error(conn, 404, "player_not_found")
+      {:ok, player} ->
+        render(conn, :show,
+          player: player,
+          statistics_status: FootballMarket.Statistics.Freshness.for_player(player)
+        )
+
+      {:error, :not_found} ->
+        error(conn, 404, "player_not_found")
+
+      {:error, :temporarily_unavailable} ->
+        error(conn, 503, "temporarily_unavailable")
     end
   end
 

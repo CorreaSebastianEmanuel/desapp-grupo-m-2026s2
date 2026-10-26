@@ -74,6 +74,67 @@ defmodule FootballMarket.Ranking.SelectionTest do
     assert entry.quote_id == newer.id
   end
 
+  test "selection spans retained seasons rather than filtering to the player's current season" do
+    f = FootballMarket.RankingCase.fixture(quote: false)
+    other_season = FootballMarket.StatisticsCase.unique_fixture().season
+    historical = %{f | subject: %{f.subject | season_id: other_season.id}}
+    earlier = FootballMarket.QuotesCase.dated_quote(f, ~U[2027-10-01 12:00:00.123456Z], "8.00")
+
+    later =
+      FootballMarket.QuotesCase.dated_quote(historical, ~U[2028-10-01 12:00:00.654321Z], "3.00")
+
+    calculation =
+      FootballMarket.Repo.get!(FootballMarket.Quotes.Calculation, later.calculation_id)
+
+    assert calculation.season_id == other_season.id
+    refute calculation.season_id == f.player.season_id
+    assert {:ok, %{entries: [entry]}} = Ranking.read()
+    assert entry.quote_id == later.id
+    refute entry.quote_id == earlier.id
+    assert entry.effective_at == later.effective_at
+    assert Decimal.equal?(entry.unit_price, later.unit_price)
+  end
+
+  test "effective time takes priority over sequence and the individual current quote" do
+    f = FootballMarket.RankingCase.fixture(quote: false)
+
+    latest_time =
+      FootballMarket.QuotesCase.dated_quote(f, ~U[2028-10-02 12:00:00.000000Z], "3.00")
+
+    latest_sequence =
+      FootballMarket.QuotesCase.dated_quote(f, ~U[2028-10-01 12:00:00.000000Z], "9.00")
+
+    assert latest_sequence.performance_sequence > latest_time.performance_sequence
+    assert {:ok, ^latest_sequence} = FootballMarket.Quotes.latest(f.player.id)
+    assert {:ok, %{entries: [entry]}} = Ranking.read()
+    assert entry.quote_id == latest_time.id
+    assert entry.effective_at == latest_time.effective_at
+    assert Decimal.equal?(entry.unit_price, latest_time.unit_price)
+  end
+
+  test "a failed calculation under the active configuration never creates a ranking entry" do
+    f = FootballMarket.RankingCase.fixture(quote: false)
+    fact = FootballMarket.Valuation.StatisticsReader.snapshot(f.performance, f.match)
+    missing = %{fact | match_id: Ecto.UUID.generate(), performance_id: Ecto.UUID.generate()}
+
+    assert {:ok, %{calculation: calculation}} =
+             FootballMarket.Quotes.request_membership(
+               f.subject,
+               :active,
+               f.mapping.id,
+               [missing],
+               Ecto.UUID.generate()
+             )
+
+    assert calculation.status == "unreproducible"
+    assert calculation.player_id == f.player.id
+    assert calculation.configuration_version_id == f.configuration.id
+    assert calculation.unit_price == nil
+    refute FootballMarket.Repo.get_by(FootballMarket.Market.Quote, calculation_id: calculation.id)
+    assert {:ok, %{configuration: active, entries: []}} = Ranking.read()
+    assert active.id == f.configuration.id
+  end
+
   test "initial-only, no-quote and no-history issued players are omitted exactly" do
     f = FootballMarket.RankingCase.fixture()
     no_quote = FootballMarket.RankingCase.add_no_quote_player(f)

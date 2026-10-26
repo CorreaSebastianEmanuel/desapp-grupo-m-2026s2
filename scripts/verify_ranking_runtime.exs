@@ -45,6 +45,17 @@ defmodule RankingRuntimeAssertions do
         {String.downcase(List.to_string(key)), List.to_string(value)}
       end)
 
+    assert!(String.starts_with?(normalized["content-type"], "application/json"), "JSON response")
+
+    if status == 401 do
+      assert!(
+        normalized["www-authenticate"] == ~s(Bearer realm="api"),
+        "authentication challenge"
+      )
+    else
+      assert!(normalized["cache-control"] == "no-store", "uncached market response")
+    end
+
     {status, normalized, Jason.decode!(body)}
   end
 
@@ -80,7 +91,7 @@ defmodule RankingRuntimeAssertions do
     Repo.query!("DROP SCHEMA #{schema} CASCADE")
   end
 
-  def fixture(repo) do
+  def fixture(%{repo: repo, schema: schema}) do
     alias FootballMarket.{Accounts, Market, Quotes, Repo, Valuation, ValuationCase}
     alias FootballMarket.Valuation.Configurations
 
@@ -97,7 +108,7 @@ defmodule RankingRuntimeAssertions do
     Application.put_env(:football_market, :initial_issuance_recipients, [user.id])
     {:ok, %{outcome: :issued}} = Market.initialize_player(hd(base.players).id)
 
-    {match, _performance} =
+    {match, performance} =
       ValuationCase.record(base, "ranking-runtime-" <> Ecto.UUID.generate(), %{goals: 1})
 
     {:ok, configuration} =
@@ -126,7 +137,31 @@ defmodule RankingRuntimeAssertions do
       quote: quote,
       match: match,
       position: base.position,
-      repo: repo
+      repo: repo,
+      schema: schema,
+      base: base,
+      player: hd(base.players),
+      subject: subject,
+      mapping: mapping,
+      performance: performance
+    }
+  end
+
+  def configuration_json(configuration) do
+    %{
+      "configuration_version_id" => configuration.id,
+      "strategy_id" => configuration.strategy_id,
+      "formula_version" => configuration.formula_version
+    }
+  end
+
+  def entry_json(quote, position) do
+    %{
+      "position" => position,
+      "player_id" => quote.player_id,
+      "quote_id" => quote.id,
+      "unit_price" => Decimal.to_string(Decimal.round(quote.unit_price, 2), :normal),
+      "effective_at" => DateTime.to_iso8601(quote.effective_at)
     }
   end
 
@@ -141,13 +176,20 @@ port = Enum.random(40_000..60_000)
 Process.put(:ranking_runtime_schemas, [])
 original_dynamic_repo = FootballMarket.Repo.get_dynamic_repo()
 application_keys = [:ranking_runtime_repo, FootballMarket.Providers, :initial_issuance_recipients]
-original_application = Map.new(application_keys, &{&1, Application.get_env(:football_market, &1, :__missing__)})
+
+original_application =
+  Map.new(application_keys, &{&1, Application.get_env(:football_market, &1, :__missing__)})
 
 try do
   first = RankingRuntimeAssertions.isolated_schema()
   Process.put(:ranking_runtime_schemas, [first | Process.get(:ranking_runtime_schemas)])
   Application.put_env(:football_market, :ranking_runtime_repo, first.repo)
-  fixture = RankingRuntimeAssertions.fixture(first.repo)
+  fixture = RankingRuntimeAssertions.fixture(first)
+  high = FootballMarket.RankingCase.add_issued_player(fixture, Decimal.new("10"))
+  low = FootballMarket.RankingCase.add_issued_player(fixture, Decimal.new("2"))
+  tied = FootballMarket.RankingCase.add_issued_player(fixture, Decimal.new("0.625"))
+  ties = Enum.sort_by([fixture.quote, tied.quote], & &1.player_id)
+  expected_quotes = [high.quote, low.quote] ++ ties
 
   # A second owned schema provides an authenticated no-active-configuration case.
   second = RankingRuntimeAssertions.isolated_schema()
@@ -200,33 +242,28 @@ try do
 
     RankingRuntimeAssertions.assert!(headers["cache-control"] == "no-store", "no-store response")
 
-    RankingRuntimeAssertions.assert!(
-      populated["configuration"]["configuration_version_id"] == fixture.configuration.id,
-      "active configuration identity"
-    )
+    expected = %{
+      "configuration" => RankingRuntimeAssertions.configuration_json(fixture.configuration),
+      "data" =>
+        Enum.with_index(expected_quotes, 1)
+        |> Enum.map(fn {quote, position} ->
+          RankingRuntimeAssertions.entry_json(quote, position)
+        end)
+    }
 
-    [entry] = populated["data"]
-    RankingRuntimeAssertions.assert!(is_map(entry), "populated ranking")
-
-    RankingRuntimeAssertions.assert!(
-      entry["quote_id"] == fixture.quote.id,
-      "selected quote identity"
-    )
+    RankingRuntimeAssertions.assert!(populated == expected, "complete ordered ranking contract")
 
     RankingRuntimeAssertions.assert!(
-      entry["player_id"] == fixture.quote.player_id,
-      "selected player identity"
+      Enum.map(populated["data"], & &1["unit_price"]) == ["20.00", "4.00", "1.25", "1.25"],
+      "numeric price order"
     )
 
-    RankingRuntimeAssertions.assert!(
-      entry["unit_price"] == "1.25" and entry["position"] == 1,
-      "price and position"
-    )
+    for _ <- 1..2 do
+      {200, _, repeated} =
+        RankingRuntimeAssertions.request(port, "/api/ranking?ignored=true", fixture.token)
 
-    RankingRuntimeAssertions.assert!(
-      entry["effective_at"] == DateTime.to_iso8601(fixture.quote.effective_at),
-      "effective time"
-    )
+      RankingRuntimeAssertions.assert!(repeated == populated, "repeatable ranking")
+    end
 
     RankingRuntimeAssertions.assert!(
       RankingRuntimeAssertions.snapshot(first.repo) == populated_snapshot,
@@ -260,8 +297,10 @@ try do
     )
 
     RankingRuntimeAssertions.assert!(
-      empty["configuration"]["configuration_version_id"] == empty_configuration.id and
-        empty["data"] == [],
+      empty == %{
+        "configuration" => RankingRuntimeAssertions.configuration_json(empty_configuration),
+        "data" => []
+      },
       "active empty response"
     )
 
@@ -276,6 +315,7 @@ try do
     )
 
     Application.put_env(:football_market, :ranking_runtime_repo, second.repo)
+    absent_snapshot = RankingRuntimeAssertions.snapshot(second.repo)
 
     {409, absent_headers, absent} =
       RankingRuntimeAssertions.request(port, "/api/ranking", absent_token)
@@ -290,11 +330,19 @@ try do
       "no-active response"
     )
 
+    RankingRuntimeAssertions.assert!(
+      RankingRuntimeAssertions.snapshot(second.repo) == absent_snapshot,
+      "absent read has no persisted effects"
+    )
+
     Application.put_env(:football_market, :ranking_runtime_repo, first.repo)
     FootballMarket.Repo.put_dynamic_repo(first.repo)
+
     FootballMarket.Repo.query!(
       "ALTER TABLE valuation_selection_locks RENAME TO valuation_selection_locks_unavailable"
     )
+
+    storage_snapshot = RankingRuntimeAssertions.snapshot(first.repo)
 
     {503, storage_headers, storage} =
       RankingRuntimeAssertions.request(port, "/api/ranking", fixture.token)
@@ -329,8 +377,18 @@ try do
       "invalid credential response"
     )
 
+    RankingRuntimeAssertions.assert!(
+      RankingRuntimeAssertions.snapshot(first.repo) == storage_snapshot,
+      "failed reads have no persisted effects"
+    )
+
+    RankingRuntimeAssertions.assert!(
+      :ets.lookup_element(:ranking_provider_calls, :count, 2) == 0,
+      "all reads are provider independent"
+    )
+
     IO.puts(
-      "ranking runtime assertions passed: authenticated populated/empty, no-active, storage failure, and 401 over TCP"
+      "ranking runtime assertions passed: four-player numeric/UUID order, full configuration, repeated/empty reads, no-active, storage failure, and 401 over TCP"
     )
   after
     Supervisor.stop(listener)
@@ -338,6 +396,7 @@ try do
 after
   Process.get(:ranking_runtime_schemas, [])
   |> Enum.each(&RankingRuntimeAssertions.dispose_schema/1)
+
   FootballMarket.Repo.put_dynamic_repo(original_dynamic_repo)
 
   Enum.each(original_application, fn

@@ -17,6 +17,36 @@ defmodule FootballMarketWeb.SessionControllerTest do
     )
   end
 
+  test "expired and missing sign-in authority issues a recoverable form without authenticating" do
+    controlled_clock!()
+    account()
+    opened = anonymous()
+    expired_handle = get_session(opened, :browser_handle)
+
+    :persistent_term.put(
+      {FootballMarket.BrowserTestClock, :now},
+      DateTime.add(BrowserSessions.now(), 901, :second)
+    )
+
+    for conn <- [opened, build_conn() |> init_test_session(%{})] do
+      retry = submit(conn, %{"return_to" => "/conditional-orders"})
+      html = html_response(retry, 422)
+      assert html =~ "Your sign-in form expired. Please try again."
+      refute html =~ "correct-password-123"
+      fresh_handle = get_session(retry, :browser_handle)
+      refute fresh_handle == expired_handle
+      assert {:error, :invalid} = BrowserSessions.validate(fresh_handle)
+
+      signed = submit(retry, %{"return_to" => "/conditional-orders"})
+      assert redirected_to(signed, 303) == "/conditional-orders"
+      assert {:ok, _} = BrowserSessions.validate(get_session(signed, :browser_handle))
+      assert {:error, :invalid} = BrowserSessions.validate(fresh_handle)
+    end
+
+    assert {:error, :invalid} =
+             BrowserSessions.authenticate(expired_handle, account("another@example.com").id)
+  end
+
   test "expired transport still offers session-ended recovery without private content" do
     controlled_clock!()
     user = account()

@@ -46,6 +46,7 @@ defmodule FootballMarket.AccountsTest do
                Accounts.register_user(%{email: duplicate, password: "another secure password"})
 
       assert Keyword.has_key?(changeset.errors, :email)
+      refute Keyword.has_key?(changeset.errors, :password)
     end
 
     assert %{users: 1, credentials: 1} = account_counts()

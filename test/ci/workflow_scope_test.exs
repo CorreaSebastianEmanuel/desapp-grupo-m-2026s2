@@ -3,6 +3,29 @@ defmodule FootballMarket.WorkflowScopeTest do
   @moduletag :unit
   alias FootballMarket.WorkflowScope
 
+  test "ordinary maintenance branches have no workflow owner while numbered claims fail closed" do
+    previous = System.get_env("GITHUB_HEAD_REF")
+
+    try do
+      for head <- ["main", "repo-review-fixes", "fix/sign-in"] do
+        System.put_env("GITHUB_HEAD_REF", head)
+        assert WorkflowScope.active_feature() == nil
+      end
+
+      for head <- ["999-missing-task", "064-wrong-owner", "064"] do
+        System.put_env("GITHUB_HEAD_REF", head)
+
+        assert_raise RuntimeError, ~r/Cannot resolve durable workflow scope/, fn ->
+          WorkflowScope.active_feature()
+        end
+      end
+    after
+      if previous,
+        do: System.put_env("GITHUB_HEAD_REF", previous),
+        else: System.delete_env("GITHUB_HEAD_REF")
+    end
+  end
+
   test "durable owner resolves without session metadata" do
     {branch, 0} = System.cmd("git", ["branch", "--show-current"])
 

@@ -4,13 +4,16 @@ defmodule FootballMarket.WorkflowScope do
   def active_feature(root \\ File.cwd!()) do
     python = """
     import os
+    import re
     import subprocess
     from pathlib import Path
     from scripts.agentflow_feature import task_id_from_head, task_for_id, resolve_feature
     root=Path.cwd().resolve()
     branch=subprocess.check_output(['git','branch','--show-current'],text=True).strip()
     head=os.environ.get('GITHUB_HEAD_REF','').strip() or branch
-    if head not in ('main','master',''):
+    # Only numbered task branches claim Agentflow plan ownership.
+    # Ordinary maintenance branches still run every architecture assertion.
+    if re.match(r'^[0-9]{3}(?:-|$)', head):
         task=task_for_id(root,task_id_from_head(head))
         print(resolve_feature(root,task,head_ref=head).feature.relative_to(root).as_posix())
     """
@@ -22,6 +25,46 @@ defmodule FootballMarket.WorkflowScope do
       {_output, _} ->
         raise "Cannot resolve durable workflow scope; validate branch/task/spec ownership"
     end
+  end
+
+  def paths("specs/036-correlation-ids-and-structured-logging") do
+    [
+      "README.md",
+      "config/application_coverage_inventory.json",
+      "config/config.exs",
+      "config/credo_inventory.json",
+      "config/runtime.exs",
+      "config/test_profiles.json",
+      "lib/football_market/application.ex",
+      "lib/football_market/observability.ex",
+      "lib/football_market/observability/context.ex",
+      "lib/football_market/observability/job_context.ex",
+      "lib/football_market/observability/job_logger.ex",
+      "lib/football_market/observability/json_formatter.ex",
+      "lib/football_market/providers/runtime.ex",
+      "lib/football_market/quotes/membership.ex",
+      "lib/football_market/quotes/recovery.ex",
+      "lib/football_market/synchronization/dispatcher.ex",
+      "lib/football_market/synchronization/recovery.ex",
+      "lib/football_market/synchronization/run.ex",
+      "lib/football_market/synchronization/store.ex",
+      "lib/football_market_web/endpoint.ex",
+      "lib/football_market_web/request_logger.ex",
+      "priv/repo/migrations/20261026000100_add_synchronization_correlation.exs",
+      "test/ci/e2e_runtime_contract_test.exs",
+      "test/ci/structured_logging_scope_test.exs",
+      "test/e2e/correlated_logging_test.exs",
+      "test/football_market/market/scope_test.exs",
+      "test/football_market/observability/context_test.exs",
+      "test/football_market/observability/job_context_test.exs",
+      "test/football_market/observability/job_logger_test.exs",
+      "test/football_market/observability/json_formatter_test.exs",
+      "test/football_market_web/request_logger_test.exs",
+      "test/support/e2e/runtime.ex",
+      "test/support/observability_worker.ex",
+      "test/support/synchronization/case.ex",
+      "test/support/workflow_scope.ex"
+    ]
   end
 
   def paths("specs/068-agentflow-preflight-recovery") do

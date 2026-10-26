@@ -131,6 +131,44 @@ test/scripts/verify_foundation_test.sh
 
 Only the preparation commands (`local.hex`, `local.rebar`, `deps.get`, and first-time asset setup) require downloads. Compilation and tests must not fetch dependencies. A missing package, unavailable network during preparation, compiler warning, or failing assertion produces a nonzero exit.
 
+### Correlation and JSON logging
+
+Application runtime logs use one JSON object per line in development, test and
+production. Existing levels remain unchanged (tests default to warnings). Build
+and command output is not a JSON log stream. Records contain UTC `timestamp`,
+`level`, `message`, and approved event fields. New lifecycle records never include
+raw paths/query strings, headers, parameters, job arguments, provider payloads or
+exception messages. Existing Phoenix parameter filtering remains in force.
+
+HTTP responses retain `x-request-id`. Plug reuses an incoming 20–200-byte ID or
+generates one; this is diagnostic context, never authorization. Normal requests
+emit `http.request.start` and `http.request.stop`; error rendering supplies a
+single terminal fallback `http.request.exception` when no stop was emitted.
+Terminal records include method, template route when available, status and
+`duration_ms`. Static serving is instrumented too.
+
+Synchronization runs preserve the originating `correlation_id`, including when
+later requests coalesce. Background runs generate their own ID. Job metadata
+carries that root through durable retries, recovery, delayed calculation dispatch
+and quote calculations. Legacy rows use stable domain-ID fallbacks; unrelated
+jobs use their job identity. Context never enters business input digests or
+uniqueness keys. Apply the nullable synchronization correlation migration before
+starting this application revision; existing rows need no rewrite and older
+application code can ignore the extra column.
+
+`job.start`, `job.stop` and `job.exception` include job ID, worker, queue, attempt,
+execution state and available duration/queue time in milliseconds. They report
+**Oban transport execution**, not whether an import or valuation succeeded; use
+the existing durable run/calculation states for that domain outcome. Quote
+`calculation_request_id` is distinct from the HTTP `request_id`.
+
+For a local request, send a UUID in `x-request-id`, then filter the JSON stream:
+
+```sh
+curl -i -H 'x-request-id: 11111111-1111-4111-8111-111111111111' http://localhost:4000/docs
+jq 'select(.correlation_id == "11111111-1111-4111-8111-111111111111")' application.jsonl
+```
+
 ### Continuous integration quality baseline
 
 GitHub Actions runs the stable `Quality baseline` job for pull requests targeting `main` and pushes to `main`. It uses only locked, non-secret build dependencies and an ephemeral PostgreSQL test database and Redis service using the pinned local images. The job retains formatting, warnings-as-errors compilation, and the complete unit test suite, and independently requires Credo source-inventory reconciliation. SonarCloud remains a separate workflow. The baseline does not enforce coverage, releases, or deployments.
@@ -159,6 +197,8 @@ mix test.integration
 ```
 
 Each profile audits every default-discovered `test/**/*_test.exs` module before running it. A module has exactly one `:unit` or `:integration` tag: tests asserting HTTP, browser/public-contract, or Ecto/PostgreSQL boundaries are integration; isolated behavior is unit. The runners include selected performance tests, require a nonzero completed count and profile sentinel, reject skips, and retain no credential-bearing diagnostics.
+
+Architecture and dependency assertions run on every branch. Historical plan-diff assertions apply to numbered Agentflow task branches, where missing or contradictory ownership still fails closed. Ordinary maintenance branches have no task-plan owner and run the same complete test profiles without requiring generated workflow metadata.
 
 The integration profile requires Node.js 24.x, the locked OpenAPI packages, and Playwright Chromium. Prepare them once with:
 
@@ -250,6 +290,8 @@ Agentflow associates tasks with versioned feature ownership, independently of di
 Task frontmatter uses unindented lowercase scalar keys immediately followed by `:`. Values may be balanced single/double quoted; blank lines, full-line comments and unknown scalar fields are supported. Unsupported forms such as `feature_directory : specs/099-other`, `Status: blocked`, indented/quoted keys, structured YAML and duplicate keys refuse every ownership/state operation before changing backlog or session state. The same parser guards dependency reads and already-done completion retries.
 
 Publication and completion require the resolved feature's contained QA and final review reports, each ending on its final nonempty line with exactly `Verdict: PASS`. Invoke `complete` after human review or merge for a task in `review`; it validates both reports before atomically setting `status: done` and `active_run: none`. Dependency reconciliation uses the same guard only for listed reviewed dependencies after GitHub confirms their PR was merged. Post-merge retries for an already completed task are unchanged no-ops after validating task and full branch identity. TASK-054's separate tooling correction must merge before provider PR #28.
+
+Manual deliveries of TASK-027 and TASK-056 are reconciled through explicit retrospective records and fresh independent acceptance; see [manual-delivery reconciliation](docs/AGENTFLOW_MANUAL_DELIVERIES.md) before continuing an existing branch.
 
 `next` considers only `todo` tasks with no unfinished dependencies. It recommends deterministically by earliest checkpoint, then `critical`/`high`/`medium`/`low` priority, then task ID, and lists any other tasks that can be started in parallel.
 

@@ -4,9 +4,10 @@ title: Current historical and dated quote APIs
 type: task
 checkpoint: CP2
 priority: high
-status: todo
+status: done
 depends_on: TASK-013, TASK-026
 active_run: none
+feature_directory: specs/027-current-historical-and-dated-quote-apis
 ---
 
 ## Outcome

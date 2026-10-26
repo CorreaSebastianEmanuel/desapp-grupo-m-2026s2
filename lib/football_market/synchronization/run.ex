@@ -4,6 +4,7 @@ defmodule FootballMarket.Synchronization.Run do
   @primary_key {:id, :binary_id, autogenerate: true}
   schema "synchronization_runs" do
     field :operation, :string, default: "catalog"
+    field :correlation_id, :string
     field :league_code, :string
     field :start_year, :integer
     field :end_year, :integer

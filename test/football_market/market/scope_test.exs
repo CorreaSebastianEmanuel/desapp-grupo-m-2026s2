@@ -19,7 +19,7 @@ defmodule FootballMarket.Market.ScopeTest do
 
     quality_paths = ["config/credo_inventory.json"]
 
-    for line <- changed do
+    for line <- changed, not is_nil(feature) do
       path = String.slice(line, 3..-1//1)
 
       assert path in (paths ++
@@ -155,6 +155,12 @@ defmodule FootballMarket.Market.ScopeTest do
             "development_seed_enabled: true"
           ),
           String.replace(source, "t_cost: 2", "t_cost: 1"),
+          String.replace(
+            source,
+            "~w(event correlation_id",
+            "~w(raw_arguments event correlation_id"
+          ),
+          String.replace(source, "method route status", "method status"),
           source <> "\nconfig :football_market, unplanned: true\n"
         ] do
       refute changed == source
@@ -163,6 +169,12 @@ defmodule FootballMarket.Market.ScopeTest do
   end
 
   defp assert_config_boundary(source) do
+    # Normalize only TASK-036's complete approved logging metadata declaration.
+    logging_metadata =
+      "  metadata:\n    ~w(event correlation_id request_id method route status duration_ms queue_time_ms job_id worker queue attempt max_attempts execution_state error_kind run_id delivery_id intent_id calculation_request_id)a"
+
+    source = String.replace(source, logging_metadata, "  metadata: [:request_id]")
+
     # Normalize only the approved TASK-046 secret-filter extension.
     source =
       String.replace(

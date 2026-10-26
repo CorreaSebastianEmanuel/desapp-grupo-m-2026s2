@@ -127,6 +127,9 @@ defmodule FootballMarket.Synchronization.Dispatcher do
           limit: 50
       )
 
+    correlations =
+      FootballMarket.Observability.JobContext.for_intents(Enum.map(intents, & &1.id))
+
     Enum.each(intents, fn intent ->
       active =
         FootballMarket.Repo.exists?(
@@ -139,7 +142,11 @@ defmodule FootballMarket.Synchronization.Dispatcher do
         )
 
       unless active do
-        job = FootballMarket.Workers.CalculationDispatch.new(%{"intent_id" => intent.id})
+        job =
+          FootballMarket.Workers.CalculationDispatch.new(%{"intent_id" => intent.id})
+          |> FootballMarket.Observability.JobContext.annotate(
+            Map.get(correlations, intent.id, intent.id)
+          )
 
         oban_name =
           :football_market

@@ -57,6 +57,15 @@ defmodule FootballMarketWeb.Router do
 
     get "/players", PlayerController, :index, metadata: %{authentication_policy: :api_protected}
 
+    get "/players/:player_id/quotes/current", QuoteController, :current,
+      metadata: %{authentication_policy: :api_protected}
+
+    get "/players/:player_id/quotes/history", QuoteController, :history,
+      metadata: %{authentication_policy: :api_protected}
+
+    get "/players/:player_id/quotes/at", QuoteController, :at,
+      metadata: %{authentication_policy: :api_protected}
+
     get "/players/:player_id", PlayerController, :show,
       metadata: %{authentication_policy: :api_protected}
   end

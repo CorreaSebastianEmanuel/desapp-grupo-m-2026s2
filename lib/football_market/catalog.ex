@@ -33,25 +33,18 @@ defmodule FootballMarket.Catalog do
   def update_player(%Player{} = player, attrs) do
     team_id = Map.get(attrs, :team_id, Map.get(attrs, "team_id", player.team_id))
 
-    case team_id do
+    case find_team(team_id) do
+      %Team{season_id: season_id} when season_id == player.season_id ->
+        player
+        |> Player.update_changeset(attrs, season_id)
+        |> Repo.update()
+        |> preload_player()
+
+      %Team{} ->
+        {:error, player |> change() |> add_error(:team_id, "must belong to the player's season")}
+
       nil ->
         {:error, player |> change() |> add_error(:team_id, "does not exist")}
-
-      team_id ->
-        case Repo.get(Team, team_id) do
-          %Team{season_id: season_id} when season_id == player.season_id ->
-            player
-            |> Player.update_changeset(attrs, season_id)
-            |> Repo.update()
-            |> preload_player()
-
-          %Team{} ->
-            {:error,
-             player |> change() |> add_error(:team_id, "must belong to the player's season")}
-
-          nil ->
-            {:error, player |> change() |> add_error(:team_id, "does not exist")}
-        end
     end
   end
 
@@ -82,12 +75,17 @@ defmodule FootballMarket.Catalog do
   def get_player(id), do: Query.by_id(Player, id) |> Repo.one() |> preload_one_player()
 
   def get_player_detail(id) do
-    with {:ok, uuid} <- Ecto.UUID.cast(id),
+    with true <-
+           is_binary(id) and
+             Regex.match?(~r/\A[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}\z/, id),
+         {:ok, uuid} <- Ecto.UUID.cast(id),
          %Player{} = player <- Query.by_id(Player, uuid) |> Repo.one() do
       {:ok, Repo.preload(player, team: [season: :league], position: [])}
     else
       _ -> {:error, :not_found}
     end
+  rescue
+    _ -> {:error, :temporarily_unavailable}
   end
 
   def list_player_page(opts) when is_map(opts) do
@@ -161,15 +159,16 @@ defmodule FootballMarket.Catalog do
   defp existing_team(attrs) do
     team_id = Map.get(attrs, :team_id, Map.get(attrs, "team_id"))
 
-    case team_id do
-      nil ->
-        {:error, %Player{} |> change() |> add_error(:team_id, "does not exist")}
+    case find_team(team_id) do
+      nil -> {:error, %Player{} |> change() |> add_error(:team_id, "does not exist")}
+      team -> {:ok, team}
+    end
+  end
 
-      team_id ->
-        case Repo.get(Team, team_id) do
-          nil -> {:error, %Player{} |> change() |> add_error(:team_id, "does not exist")}
-          team -> {:ok, team}
-        end
+  defp find_team(id) do
+    case Ecto.UUID.cast(id) do
+      {:ok, uuid} -> Repo.get(Team, uuid)
+      :error -> nil
     end
   end
 

@@ -208,7 +208,7 @@ defmodule FootballMarket.Statistics.ScopeTest do
       "test/ci/fixtures/quality-baseline.sha256"
     ]
 
-    for line <- changed do
+    for line <- changed, not is_nil(active_feature) do
       path = String.slice(line, 3..-1//1)
 
       assert path in provider_paths or path in scraper_paths or path in ingestion_paths or

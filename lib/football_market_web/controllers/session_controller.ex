@@ -19,15 +19,16 @@ defmodule FootballMarketWeb.SessionController do
     end
   end
 
-  defp new_anonymous(conn, params) do
+  defp new_anonymous(conn, params, status \\ 200, message \\ nil) do
     case BrowserSessions.create_anonymous() do
       {:ok, handle} ->
         conn
         |> put_session(:browser_handle, handle)
         |> form(
           params,
-          200,
-          if(params["notice"] == "ended", do: "Your session ended. Please sign in again.")
+          status,
+          message ||
+            if(params["notice"] == "ended", do: "Your session ended. Please sign in again.")
         )
 
       _ ->
@@ -51,7 +52,7 @@ defmodule FootballMarketWeb.SessionController do
   defp sign_in(conn, params) do
     with {:ok, user} <- Accounts.verify_browser_credentials(params),
          {:ok, handle} <-
-           BrowserSessions.authenticate(get_session(conn, :browser_handle), user.id) do
+           authenticate_anonymous(conn, user.id) do
       Plug.CSRFProtection.delete_csrf_token()
 
       conn
@@ -63,8 +64,18 @@ defmodule FootballMarketWeb.SessionController do
       {:error, :unavailable} ->
         form(conn, params, 503, "Authentication temporarily unavailable. Please retry.")
 
+      {:error, :expired_form} ->
+        new_anonymous(conn, params, 422, "Your sign-in form expired. Please try again.")
+
       _ ->
         form(conn, params, 422, "Unable to sign in with those credentials.")
+    end
+  end
+
+  defp authenticate_anonymous(conn, user_id) do
+    case BrowserSessions.authenticate(get_session(conn, :browser_handle), user_id) do
+      {:error, :invalid} -> {:error, :expired_form}
+      result -> result
     end
   end
 

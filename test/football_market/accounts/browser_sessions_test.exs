@@ -22,6 +22,14 @@ defmodule FootballMarket.Accounts.BrowserSessionsTest do
     assert {:error, :invalid} = BrowserSessions.validate(handle, now)
   end
 
+  test "missing and malformed anonymous handles are invalid without querying persistence" do
+    user = account()
+
+    for handle <- [nil, "", "invalid", String.duplicate("!", 43)] do
+      assert {:error, :invalid} = BrowserSessions.authenticate(handle, user.id)
+    end
+  end
+
   test "persistence contains only digests and independent sessions survive revocation" do
     user = account()
     now = DateTime.utc_now()

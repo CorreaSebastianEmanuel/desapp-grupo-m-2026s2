@@ -5,17 +5,28 @@ defmodule FootballMarket.Synchronization.Store do
   alias FootballMarket.Synchronization.{Run, Attempt, Trigger, Occurrence, Clock, Policy}
   alias FootballMarket.Synchronization.DeliveryReceipt
   alias FootballMarket.Workers.CatalogSync
+  alias FootballMarket.Observability.{Context, JobContext}
   @test Mix.env() == :test
   @active ["queued", "executing", "retry_wait"]
 
-  def lock_scope(scope) do
+  def lock_scope(scope),
+    do: Repo.query!("SELECT pg_advisory_xact_lock($1)", [scope_lock_key(scope)])
+
+  def try_lock_scope(scope) do
+    %{rows: [[locked]]} =
+      Repo.query!("SELECT pg_try_advisory_xact_lock($1)", [scope_lock_key(scope)])
+
+    locked
+  end
+
+  defp scope_lock_key(scope) do
     <<key::signed-64, _::binary>> =
       :crypto.hash(
         :sha256,
         :erlang.term_to_binary({:synchronization_admission, scope}, [:deterministic])
       )
 
-    Repo.query!("SELECT pg_advisory_xact_lock($1)", [key])
+    key
   end
 
   def admit(input, now \\ Clock.now(), occurrence_id \\ nil) do
@@ -77,6 +88,7 @@ defmodule FootballMarket.Synchronization.Store do
     job =
       %{"run_id" => run.id, "delivery_id" => receipt.id}
       |> worker.new(scheduled_at: eligible_at)
+      |> JobContext.annotate(JobContext.for_run(run))
       |> insert_job!()
 
     run |> Ecto.Changeset.change(delivery_id: receipt.id, job_id: job.id) |> Repo.update!()
@@ -149,6 +161,7 @@ defmodule FootballMarket.Synchronization.Store do
 
     run
     |> plain()
+    |> Map.delete(:correlation_id)
     |> Map.merge(%{
       attempts: Enum.map(attempts, &plain/1),
       triggers: triggers,
@@ -273,6 +286,7 @@ defmodule FootballMarket.Synchronization.Store do
               Run,
               Map.merge(scope, %{
                 operation: Atom.to_string(input.operation),
+                correlation_id: Context.current(),
                 source_ref: input.material["source_ref"],
                 fixture_ref: input.material["fixture_ref"],
                 input: input.material,

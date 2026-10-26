@@ -12,6 +12,34 @@ defmodule FootballMarket.Catalog.Ingestion.RetentionTest do
     :ok
   end
 
+  test "accepted empty teams and seasons return relationship errors on deletion" do
+    assert {:ok, _} = Ingestion.import_catalog(request(), options())
+    team = Repo.get_by!(FootballMarket.Catalog.Team, code: "BET")
+
+    assert {:error, %Ecto.Changeset{valid?: false} = error} =
+             FootballMarket.Catalog.delete_team(team)
+
+    assert Keyword.has_key?(error.errors, :source_bindings)
+    assert Repo.get!(FootballMarket.Catalog.Team, team.id)
+
+    c = candidate("PL", 2027)
+
+    empty = %{
+      c
+      | facts: %{c.facts | teams: [], players: []},
+        bindings: Enum.filter(c.bindings, &(&1.kind in [:league, :season]))
+    }
+
+    assert {:ok, _} = Ingestion.import_catalog(request("PL", 2027), options(empty))
+    season = Repo.get_by!(FootballMarket.Catalog.Season, start_year: 2027)
+
+    assert {:error, %Ecto.Changeset{valid?: false} = error} =
+             FootballMarket.Catalog.delete_season(season)
+
+    assert Enum.any?([:import_scopes, :source_bindings], &Keyword.has_key?(error.errors, &1))
+    assert Repo.get!(FootballMarket.Catalog.Season, season.id)
+  end
+
   test "stale and equal-time differing facts preserve acceptance and catalog" do
     assert {:ok, first} = Ingestion.import_catalog(request(), options())
     before = snapshot()

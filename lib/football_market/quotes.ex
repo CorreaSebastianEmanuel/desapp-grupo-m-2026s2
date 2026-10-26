@@ -99,13 +99,7 @@ defmodule FootballMarket.Quotes do
     # identity equals the supplied identity recorded on the persisted
     # request; a different identity conflicts instead of inheriting the
     # retained error.
-    if request.reason == "mapping_unavailable" and
-         explicit_mapping_identity?(request, mapping_id) and
-         explicit_request_scope_matches?(request, subject, selector_name) do
-      retained_explicit(request)
-    else
-      {:error, :request_conflict}
-    end
+    retained_mapping_failure(request, subject, selector_name, mapping_id)
   end
 
   defp resolve_existing_request(
@@ -124,8 +118,7 @@ defmodule FootballMarket.Quotes do
     request_terminal_failure = fn reason ->
       case selector_name(selector) do
         {:ok, name} ->
-          record_admission_failure!(subject, name, mapping_id, request_id, Atom.to_string(reason))
-          {:error, reason}
+          admit_failure(subject, name, mapping_id, request_id, reason)
 
         {:error, invalid} ->
           {:error, invalid}
@@ -171,15 +164,36 @@ defmodule FootballMarket.Quotes do
     case selector_name(selector) do
       {:ok, name} ->
         Repo.transaction(fn ->
-          Repo.query!("SELECT pg_advisory_xact_lock(hashtextextended($1,0))", [request_id])
+          lock_request!(request_id)
 
-          result = explicit_admission(subject, selector, name, mapping, request_id)
-          commit_admission_result(result, subject, name, mapping, request_id)
+          explicit_admission(subject, selector, name, mapping, request_id)
         end)
         |> normalize_admission_result()
 
       {:error, reason} ->
         {:error, reason}
+    end
+  end
+
+  defp lock_request!(id),
+    do: Repo.query!("SELECT pg_advisory_xact_lock(hashtextextended($1,0))", [id])
+
+  defp admit_failure(subject, name, mapping_id, request_id, reason) do
+    Repo.transaction(fn ->
+      lock_request!(request_id)
+
+      case Repo.get(FootballMarket.Quotes.CalculationRequest, request_id) do
+        nil ->
+          record_admission_failure!(subject, name, mapping_id, request_id, Atom.to_string(reason))
+          {:error, reason}
+
+        existing ->
+          retained_mapping_failure(existing, subject, name, mapping_id)
+      end
+    end)
+    |> case do
+      {:ok, result} -> result
+      {:error, reason} -> {:error, reason}
     end
   end
 
@@ -191,7 +205,8 @@ defmodule FootballMarket.Quotes do
           else: {:error, :request_conflict}
 
       nil ->
-        admit_new_explicit(subject, selector, name, mapping, request_id)
+        result = admit_new_explicit(subject, selector, name, mapping, request_id)
+        commit_admission_result(result, subject, name, mapping, request_id)
     end
   end
 
@@ -217,8 +232,7 @@ defmodule FootballMarket.Quotes do
 
   defp normalize_admission_result(result) do
     case result do
-      {:ok, {:ok, request, facts}} -> {:ok, request, facts}
-      {:ok, {:error, :configuration_unavailable}} -> {:error, :configuration_unavailable}
+      {:ok, result} -> result
       {:error, reason} -> {:error, reason}
     end
   end
@@ -226,23 +240,18 @@ defmodule FootballMarket.Quotes do
   # Persists the contract-whitelisted terminal admission failure so the request
   # identity remains observable after the caller returns.
   defp record_admission_failure!(subject, selector_name, mapping_id, request_id, reason) do
-    persisted_mapping =
-      if is_binary(mapping_id) and
-           Repo.exists?(from m in FootballMarket.Quotes.Mapping, where: m.id == ^mapping_id) do
-        mapping_id
-      else
-        nil
+    identity =
+      case Ecto.UUID.cast(mapping_id) do
+        {:ok, id} -> id
+        _ -> nil
       end
 
-    # The authoritative FK stays NULL for an unavailable mapping; keep the
-    # requested identity inspectable when it is a well-formed UUID.
-    requested_mapping =
-      if persisted_mapping == nil and is_binary(mapping_id) do
-        case Ecto.UUID.cast(mapping_id) do
-          {:ok, identity} -> identity
-          _ -> nil
-        end
-      end
+    persisted_mapping =
+      if identity &&
+           Repo.exists?(from m in FootballMarket.Quotes.Mapping, where: m.id == ^identity),
+         do: identity
+
+    requested_mapping = if is_nil(persisted_mapping), do: identity
 
     Repo.insert!(%FootballMarket.Quotes.CalculationRequest{
       id: request_id,
@@ -335,6 +344,14 @@ defmodule FootballMarket.Quotes do
   # The persisted unavailable-mapping identity must equal the retried one.
   # Identity-unknown rows (legacy or malformed input) conflict conservatively
   # instead of silently retaining an unrelated mapping's terminal error.
+  defp retained_mapping_failure(request, subject, selector_name, mapping_id) do
+    if request.reason == "mapping_unavailable" and
+         explicit_mapping_identity?(request, mapping_id) and
+         explicit_request_scope_matches?(request, subject, selector_name),
+       do: retained_explicit(request),
+       else: {:error, :request_conflict}
+  end
+
   defp explicit_mapping_identity?(
          %FootballMarket.Quotes.CalculationRequest{mapping_id: nil} = request,
          mapping_id
@@ -487,13 +504,20 @@ defmodule FootballMarket.Quotes do
   end
 
   defp persist_binding(req, version) do
-    case Repo.update(
-           Ecto.Changeset.change(req,
-             configuration_version_id: version.id,
-             state: "running"
-           )
-         ) do
-      {:ok, bound} -> {:ok, bound, {:version, version.id}}
+    Repo.transaction(fn ->
+      current = ensure_confirmation_lease!({req.id, req.lease_fence})
+
+      if current.configuration_version_id do
+        current
+      else
+        current
+        |> Ecto.Changeset.change(configuration_version_id: version.id)
+        |> Repo.update!()
+      end
+    end)
+    |> case do
+      {:ok, bound} -> {:ok, bound, {:version, bound.configuration_version_id}}
+      {:error, :stale_fence} -> {:error, :stale_worker}
       _ -> {:error, :temporarily_unavailable}
     end
   end
@@ -507,7 +531,7 @@ defmodule FootballMarket.Quotes do
             lock: "FOR UPDATE"
         )
 
-      now = Store.database_now!()
+      now = Store.database_clock_now!()
       claim_import_locked(req, now)
     end)
     |> case do
@@ -701,46 +725,9 @@ defmodule FootballMarket.Quotes do
     _ -> {:error, :temporarily_unavailable}
   end
 
-  def list_history(player_id) do
-    case Ecto.UUID.cast(player_id) do
-      {:ok, id} ->
-        {:ok,
-         Repo.all(
-           from q in Quote,
-             where: q.player_id == ^id,
-             order_by: [
-               asc: fragment("COALESCE(?, 0)", q.performance_sequence),
-               asc: q.inserted_at,
-               asc: q.id
-             ]
-         )}
-
-      _ ->
-        {:error, :invalid_player}
-    end
-  rescue
-    _ -> {:error, :temporarily_unavailable}
-  end
-
-  def latest(player_id) do
-    with {:ok, player_id} <- Ecto.UUID.cast(player_id),
-         %Quote{} = quote <-
-           Repo.one(
-             from q in Quote,
-               where: q.player_id == ^player_id,
-               order_by: [
-                 desc: fragment("COALESCE(?, 0)", q.performance_sequence),
-                 desc: q.effective_at
-               ],
-               limit: 1
-           ) do
-      {:ok, quote}
-    else
-      _ -> {:error, :not_found}
-    end
-  rescue
-    _ -> {:error, :temporarily_unavailable}
-  end
+  defdelegate list_history(player_id), to: FootballMarket.Quotes.Reader
+  defdelegate latest(player_id), to: FootballMarket.Quotes.Reader
+  defdelegate at_date(player_id, date), to: FootballMarket.Quotes.Reader
 
   def pending_evaluations do
     now = Store.database_now!()
@@ -971,7 +958,7 @@ defmodule FootballMarket.Quotes do
   end
 
   defp insert_calculation(context) do
-    now = Store.database_now!()
+    now = Store.database_clock_now!()
     outcome = context.outcome
 
     calculation = %Calculation{
@@ -1036,7 +1023,7 @@ defmodule FootballMarket.Quotes do
 
     if request && request.state == "running" && request.lease_fence == fence &&
          request.lease_until && DateTime.compare(request.lease_until, now) == :gt do
-      :ok
+      request
     else
       Repo.rollback(:stale_fence)
     end
@@ -1057,6 +1044,7 @@ defmodule FootballMarket.Quotes do
   end
 
   defp persist_no_score_version(subject, player, attributes, version) do
+    attributes = Map.update!(attributes, :facts, &Valuation.Preparation.canonical_order/1)
     membership = Enum.map(attributes.facts, & &1.performance_id)
 
     identity = %{
@@ -1093,7 +1081,7 @@ defmodule FootballMarket.Quotes do
   end
 
   defp insert_no_score_calculation(context) do
-    now = Store.database_now!()
+    now = Store.database_clock_now!()
     attributes = context.attributes
     mapping = attributes.mapping
     version = context.version

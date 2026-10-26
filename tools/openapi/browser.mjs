@@ -36,7 +36,11 @@ try {
   stage = 'docs-content';
   stage = 'catalog-discovery';
   assert(await page.locator('#docs-error').isHidden(), 'Documentation load error');
-  const catalog = page.locator('.opblock').filter({ hasText: '/api/players' });
+  assert(await page.locator('.opblock').count() === 6, 'API operation discovery failed');
+  for (const suffix of ['current', 'history', 'at']) {
+    assert(await page.locator('.opblock').filter({ hasText: `/api/players/{player_id}/quotes/${suffix}` }).count() === 1, `Quote ${suffix} operation missing`);
+  }
+  const catalog = page.locator('.opblock').filter({ hasText: /^GET\s+\/api\/players(?:\s|$)/ });
   assert(await catalog.count() === 2, 'Catalog operation discovery failed');
   const list = catalog.nth(0);
   const detail = catalog.nth(1);
@@ -52,7 +56,6 @@ try {
   }
   stage = 'catalog-responses';
   await page.waitForFunction(() => [...document.querySelectorAll('.opblock')]
-    .filter(block => block.textContent.includes('/api/players'))
     .every(block => block.querySelectorAll('.response-col_status').length >= 3));
   const listStatuses = (await list.locator('.response-col_status').allTextContents()).map(value => value.trim());
   const detailStatuses = (await detail.locator('.response-col_status').allTextContents()).map(value => value.trim());

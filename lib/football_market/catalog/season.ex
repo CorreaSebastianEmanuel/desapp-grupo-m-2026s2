@@ -26,6 +26,18 @@ defmodule FootballMarket.Catalog.Season do
     season
     |> change()
     |> no_assoc_constraint(:teams)
+    |> foreign_key_constraint(:import_scopes,
+      name: :catalog_ingestion_scopes_season_id_league_id_fkey,
+      message: "still has retained import references"
+    )
+    |> foreign_key_constraint(:source_bindings,
+      name: :catalog_source_bindings_season_id_fkey,
+      message: "still has retained import references"
+    )
+    |> foreign_key_constraint(:statistics_import_scopes,
+      name: :statistics_import_scopes_season_id_fkey,
+      message: "still has retained import references"
+    )
     |> foreign_key_constraint(:matches,
       name: :matches_season_witness_fkey,
       message: "still has historical matches"

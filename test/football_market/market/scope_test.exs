@@ -19,7 +19,7 @@ defmodule FootballMarket.Market.ScopeTest do
 
     quality_paths = ["config/credo_inventory.json"]
 
-    for line <- changed do
+    for line <- changed, not is_nil(feature) do
       path = String.slice(line, 3..-1//1)
 
       assert path in (paths ++

@@ -2096,6 +2096,12 @@
       "reason": "Test source, not application implementation: test/football_market/quotes/import_test.exs."
     },
     {
+      "path": "test/football_market/quotes/lifecycle_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Test source, not application implementation: test/football_market/quotes/lifecycle_test.exs."
+    },
+    {
       "path": "test/football_market/quotes/mapping_test.exs",
       "role": "test",
       "disposition": "exclude",

@@ -42,11 +42,14 @@ defmodule FootballMarketWeb.QuoteControllerTest do
     first = QuotesCase.dated_quote(f, ~U[2028-02-28 23:59:59.999999Z], "12345678901234567890.12")
     second = QuotesCase.dated_quote(f, ~U[2028-03-02 00:00:00.000000Z], "2.50")
     before = QuotesCase.protected_snapshot()
-    provider_env = Application.get_env(:football_market, FootballMarket.Providers)
+    provider_env = Application.fetch_env(:football_market, FootballMarket.Providers)
     Application.put_env(:football_market, FootballMarket.Providers, provider: nil, positions: nil)
 
     on_exit(fn ->
-      Application.put_env(:football_market, FootballMarket.Providers, provider_env)
+      case provider_env do
+        {:ok, value} -> Application.put_env(:football_market, FootballMarket.Providers, value)
+        :error -> Application.delete_env(:football_market, FootballMarket.Providers)
+      end
     end)
 
     conn = auth(f)

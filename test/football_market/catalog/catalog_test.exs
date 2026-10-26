@@ -98,6 +98,13 @@ defmodule FootballMarket.CatalogTest do
     {:ok, player} = Catalog.create_player(player_attrs(team, position))
     assert {:error, nil_team} = Catalog.update_player(player, %{team_id: nil})
     assert %{team_id: [_ | _]} = errors_on(nil_team)
+
+    for id <- ["malformed", 123, Ecto.UUID.generate()] do
+      assert {:error, create_error} = Catalog.create_player(%{team_id: id})
+      assert %{team_id: [_ | _]} = errors_on(create_error)
+      assert {:error, update_error} = Catalog.update_player(player, %{team_id: id})
+      assert %{team_id: [_ | _]} = errors_on(update_error)
+    end
   end
 
   defp catalog_counts do

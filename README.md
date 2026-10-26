@@ -160,6 +160,8 @@ mix test.integration
 
 Each profile audits every default-discovered `test/**/*_test.exs` module before running it. A module has exactly one `:unit` or `:integration` tag: tests asserting HTTP, browser/public-contract, or Ecto/PostgreSQL boundaries are integration; isolated behavior is unit. The runners include selected performance tests, require a nonzero completed count and profile sentinel, reject skips, and retain no credential-bearing diagnostics.
 
+Architecture and dependency assertions run on every branch. Historical plan-diff assertions apply to numbered Agentflow task branches, where missing or contradictory ownership still fails closed. Ordinary maintenance branches have no task-plan owner and run the same complete test profiles without requiring generated workflow metadata.
+
 The integration profile requires Node.js 24.x, the locked OpenAPI packages, and Playwright Chromium. Prepare them once with:
 
 ```bash

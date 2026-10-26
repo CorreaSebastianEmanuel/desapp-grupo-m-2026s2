@@ -82,12 +82,17 @@ defmodule FootballMarket.Catalog do
   def get_player(id), do: Query.by_id(Player, id) |> Repo.one() |> preload_one_player()
 
   def get_player_detail(id) do
-    with {:ok, uuid} <- Ecto.UUID.cast(id),
+    with true <-
+           is_binary(id) and
+             Regex.match?(~r/\A[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}\z/, id),
+         {:ok, uuid} <- Ecto.UUID.cast(id),
          %Player{} = player <- Query.by_id(Player, uuid) |> Repo.one() do
       {:ok, Repo.preload(player, team: [season: :league], position: [])}
     else
       _ -> {:error, :not_found}
     end
+  rescue
+    _ -> {:error, :temporarily_unavailable}
   end
 
   def list_player_page(opts) when is_map(opts) do

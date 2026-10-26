@@ -323,26 +323,7 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
         assert Map.keys(response["content"]) == ["application/json"]
       end
 
-      if op["operationId"] == "purchaseTokens" do
-        assert get_in(op, ["responses", "401", "content", "application/json", "schema", "$ref"]) ==
-                 "#/components/schemas/PurchaseError"
-      else
-        assert get_in(op, ["responses", "401", "headers", "WWW-Authenticate", "example"]) ==
-                 "Bearer realm=\"api\""
-
-        assert get_in(op, ["responses", "401", "content", "application/json", "schema", "$ref"]) ==
-                 "#/components/schemas/UnauthenticatedError"
-
-        assert get_in(op, [
-                 "responses",
-                 "401",
-                 "content",
-                 "application/json",
-                 "examples",
-                 "unauthenticated",
-                 "value"
-               ]) == %{"error" => %{"code" => "unauthenticated"}}
-      end
+      assert_auth_failure_contract!(op)
     end
 
     list = get_in(doc, ["paths", "/api/players", "get"])
@@ -425,6 +406,29 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
     do: ~w(200 401 404 503)
 
   defp response_statuses(_), do: ~w(200 401 404)
+
+  defp assert_auth_failure_contract!(%{"operationId" => "purchaseTokens"} = op) do
+    assert get_in(op, ["responses", "401", "content", "application/json", "schema", "$ref"]) ==
+             "#/components/schemas/PurchaseError"
+  end
+
+  defp assert_auth_failure_contract!(op) do
+    assert get_in(op, ["responses", "401", "headers", "WWW-Authenticate", "example"]) ==
+             "Bearer realm=\"api\""
+
+    assert get_in(op, ["responses", "401", "content", "application/json", "schema", "$ref"]) ==
+             "#/components/schemas/UnauthenticatedError"
+
+    assert get_in(op, [
+             "responses",
+             "401",
+             "content",
+             "application/json",
+             "examples",
+             "unauthenticated",
+             "value"
+           ]) == %{"error" => %{"code" => "unauthenticated"}}
+  end
 
   defp assert_schema!(doc, %{"$ref" => ref}, value) do
     assert_schema!(

@@ -4,9 +4,9 @@ title: Active strategy player ranking
 type: task
 checkpoint: CP2
 priority: high
-status: todo
+status: blocked
 depends_on: TASK-026
-active_run: none
+active_run: d199bcdb
 ---
 
 ## Outcome

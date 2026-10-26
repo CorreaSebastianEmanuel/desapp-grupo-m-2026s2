@@ -364,6 +364,32 @@ defmodule FootballMarket.WorkflowScope do
     ]
   end
 
+  def paths("specs/069-active-strategy-player-ranking") do
+    [
+      "config/application_coverage_inventory.json",
+      "config/credo_inventory.json",
+      "config/test_profiles.json",
+      "lib/football_market/ranking.ex",
+      "lib/football_market/ranking/reader.ex",
+      "lib/football_market_web/controllers/ranking_controller.ex",
+      "lib/football_market_web/controllers/ranking_json.ex",
+      "lib/football_market_web/router.ex",
+      "priv/static/openapi.json",
+      "scripts/verify_ranking_runtime.exs",
+      "test/ci/workflow_scope_test.exs",
+      "test/football_market/ranking/order_test.exs",
+      "test/football_market/ranking/safety_test.exs",
+      "test/football_market/ranking/selection_test.exs",
+      "test/football_market/ranking/snapshot_test.exs",
+      "test/football_market_web/controllers/ranking_controller_test.exs",
+      "test/support/ranking_case.ex",
+      "test/support/workflow_scope.ex",
+      "test/football_market_web/openapi_contract_test.exs",
+      "tools/openapi/browser.mjs",
+      "test/football_market/synchronization/scope_test.exs"
+    ]
+  end
+
   def paths(_), do: []
 
   def allows_path?(feature, path) do

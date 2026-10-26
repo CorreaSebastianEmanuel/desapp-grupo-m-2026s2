@@ -1,0 +1,194 @@
+{
+  "schema_version": 1,
+  "runtime_required": true,
+  "checks": [
+    {
+      "id": "ci_parity",
+      "argv": [
+        "python3",
+        "scripts/agentflow_stage_checks.py",
+        "--ci-parity"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "expectation": "Fail cheaply on workflow copy drift, a mismatched ci_profiles wrapper obligation, or failed wrapper contract fixtures; native_profile_runs must be zero."
+    },
+    {
+      "id": "preflight",
+      "argv": [
+        "mix",
+        "infrastructure.verify"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "reuse": false,
+      "depends_on": [
+        "ci_parity"
+      ]
+    },
+    {
+      "id": "format",
+      "argv": [
+        "mix",
+        "format",
+        "--check-formatted"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "depends_on": [
+        "preflight"
+      ]
+    },
+    {
+      "id": "compile",
+      "argv": [
+        "mix",
+        "compile",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "depends_on": [
+        "format"
+      ]
+    },
+    {
+      "id": "credo",
+      "argv": [
+        "bash",
+        "scripts/credo_ci.sh"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "depends_on": [
+        "compile"
+      ]
+    },
+    {
+      "id": "openapi",
+      "argv": [
+        "node",
+        "tools/openapi/validate.mjs",
+        "priv/static/openapi.json"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "depends_on": [
+        "credo"
+      ]
+    },
+    {
+      "id": "runtime",
+      "argv": [
+        "sh",
+        "-c",
+        "mix infrastructure.verify && mix run scripts/verify_ranking_runtime.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "depends_on": [
+        "openapi"
+      ],
+      "runtime": true,
+      "reuse": false,
+      "expectation": "PostgreSQL migration readiness and Redis PONG must pass; script starts actual listener with bounded readiness and fails when unavailable. Over TCP assert authenticated GET /api/ranking status 200, JSON and no-store headers, exact configuration/quote UUIDs, decimal strings, effective times, consecutive deterministic ordering; active empty 200, no-active 409 and safe storage failure 503 with exact error codes; missing/invalid credentials 401 with existing safe contract. Assert unchanged quote/selection/financial/audit/jobs and zero provider calls. Owned isolated fixtures, no secret output, cleanup listeners. Script and listener must use the same explicitly selected owned Repo for each outcome and no-effect snapshot; accept only validated owned schema names, restore prior state and clean up on failure. Runtime executes before the complete profiles."
+    },
+    {
+      "id": "ci_profiles",
+      "argv": [
+        "scripts/ci_unit_tests.sh"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "AGENTFLOW_TOOLCHAIN_REQUIRED": ""
+      },
+      "depends_on": [
+        "runtime"
+      ],
+      "expectation": "Run the complete unit and integration profiles exactly once via the CI wrapper; verify native profile receipts and discovery sentinel. Integration must discover and execute ranking selection_test.exs, order_test.exs, snapshot_test.exs, safety_test.exs and controllers/ranking_controller_test.exs with all exact assertions in tasks.md, including real committed-connection races. Preserve all existing regression/profile audits. Restore contextual toolchain detection with AGENTFLOW_TOOLCHAIN_REQUIRED empty: real workspaces with .tool-versions retain pinned preflight; unpinned launcher fixtures do not inherit the workflow-only forced flag. Never set false or retry unchanged failed inputs. Before this complete wrapper, implementation must pass the focused ranking, OpenAPI contract/browser, synchronization scope and workflow-scope regressions in tasks.md and the real runtime; freeze sources/inventories afterward. Preserve the exact catalog-plus-ranking operation set, catalog credential safety and merged QuoteRecovery baseline."
+    },
+    {
+      "id": "diff",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "depends_on": [
+        "ci_profiles"
+      ]
+    }
+  ],
+  "coverage": {
+    "FR-001": [
+      "ci_profiles",
+      "runtime"
+    ],
+    "FR-002": [
+      "ci_profiles",
+      "runtime"
+    ],
+    "FR-003": [
+      "ci_profiles"
+    ],
+    "FR-004": [
+      "ci_profiles"
+    ],
+    "FR-005": [
+      "ci_profiles"
+    ],
+    "FR-006": [
+      "ci_profiles"
+    ],
+    "FR-007": [
+      "ci_profiles",
+      "runtime"
+    ],
+    "FR-008": [
+      "ci_profiles",
+      "runtime"
+    ],
+    "FR-009": [
+      "ci_profiles",
+      "runtime"
+    ],
+    "FR-010": [
+      "ci_profiles"
+    ],
+    "FR-011": [
+      "ci_profiles",
+      "diff"
+    ],
+    "SC-001": [
+      "ci_profiles"
+    ],
+    "SC-002": [
+      "ci_profiles"
+    ],
+    "SC-003": [
+      "ci_profiles"
+    ],
+    "SC-004": [
+      "ci_profiles",
+      "runtime"
+    ],
+    "SC-005": [
+      "ci_profiles",
+      "runtime"
+    ]
+  },
+  "task_stages": {
+    "T020": "qa",
+    "T021": "review"
+  }
+}

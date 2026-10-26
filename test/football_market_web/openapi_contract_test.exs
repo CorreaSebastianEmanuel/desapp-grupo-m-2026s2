@@ -8,6 +8,11 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
 
   @endpoint FootballMarketWeb.Endpoint
   @codes ~w(invalid_page_size invalid_league_id invalid_team_id invalid_position_id invalid_cursor)
+  @expected_statuses %{
+    "listPlayers" => ~w(200 400 401),
+    "getPlayer" => ~w(200 401 404),
+    "getActiveStrategyRanking" => ~w(200 401 409 503)
+  }
 
   setup do
     fixture!()
@@ -285,7 +290,8 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
       FootballMarketWeb.Router
       |> Phoenix.Router.routes()
       |> Enum.filter(
-        &(&1.path == "/api/players" or String.starts_with?(&1.path, "/api/players/"))
+        &(&1.path == "/api/ranking" or &1.path == "/api/players" or
+            String.starts_with?(&1.path, "/api/players/"))
       )
 
     assert Enum.all?(routes, &(&1.metadata[:authentication_policy] == :api_protected))
@@ -315,11 +321,12 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
     for {_path, item} <- doc["paths"], {_method, op} <- item do
       assert op["security"] == [%{"BearerAuth" => []}, %{"ApiKeyAuth" => []}]
 
-      assert Map.keys(op["responses"]) |> Enum.sort() ==
-               if(op["operationId"] == "listPlayers", do: ~w(200 400 401), else: ~w(200 401 404))
+      assert Map.has_key?(@expected_statuses, op["operationId"])
+      assert Map.keys(op["responses"]) |> Enum.sort() == @expected_statuses[op["operationId"]]
 
-      for {_status, response} <- op["responses"] do
+      for {status, response} <- op["responses"] do
         assert Map.keys(response["content"]) == ["application/json"]
+        assert_ranking_cache_header!(op, status, response)
       end
 
       assert get_in(op, ["responses", "401", "headers", "WWW-Authenticate", "example"]) ==
@@ -406,6 +413,20 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
                codes
     end
   end
+
+  defp assert_ranking_cache_header!(
+         %{"operationId" => "getActiveStrategyRanking"},
+         status,
+         response
+       )
+       when status in ["200", "409", "503"] do
+    assert response["headers"]["Cache-Control"]["schema"] == %{
+             "type" => "string",
+             "enum" => ["no-store"]
+           }
+  end
+
+  defp assert_ranking_cache_header!(_operation, _status, _response), do: :ok
 
   defp assert_schema!(doc, %{"$ref" => ref}, value) do
     assert_schema!(

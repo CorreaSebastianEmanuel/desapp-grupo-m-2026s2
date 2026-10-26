@@ -4,9 +4,9 @@ title: Agentflow preflight and efficient failure recovery
 type: task
 checkpoint: CP2
 priority: high
-status: review
+status: done
 depends_on: none
-active_run: 6095b64e
+active_run: none
 ---
 
 ## Outcome

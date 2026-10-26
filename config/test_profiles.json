@@ -9,6 +9,13 @@
       "profile": "unit"
     },
     {
+      "id": "00b2484c6735395d7a4eb633",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/player_freshness_test.exs",
+      "case_id": "FootballMarketWeb.PlayerFreshnessTest:test authentication and player lookup reject before freshness admission",
+      "profile": "integration"
+    },
+    {
       "id": "00b2ecbd571cd7ff0284d855",
       "runner": "python",
       "file": "test/scripts/agentflow_feature_test.py",
@@ -359,6 +366,13 @@
       "profile": "unit"
     },
     {
+      "id": "0c2667afdd54c31a2fc11b8d",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/player_freshness_test.exs",
+      "case_id": "FootballMarketWeb.PlayerFreshnessTest:test authenticated detail appends status while list reads never enqueue",
+      "profile": "integration"
+    },
+    {
       "id": "0c99c323729749a448dfe485",
       "runner": "exunit",
       "file": "test/football_market/catalog/ingestion/replay_test.exs",
@@ -653,6 +667,13 @@
       "profile": "integration"
     },
     {
+      "id": "1740eec1a1ad8b55b82ad416",
+      "runner": "exunit",
+      "file": "test/football_market/statistics/freshness/context_test.exs",
+      "case_id": "FootballMarket.Statistics.Freshness.ContextTest:test job insertion failure rolls back admission and retains local data",
+      "profile": "integration"
+    },
+    {
       "id": "174db52dd6f2c2aea49988ba",
       "runner": "python",
       "file": "test/scripts/application_coverage_test.py",
@@ -665,6 +686,13 @@
       "file": "test/scripts/agentflow_providers_test.py",
       "case_id": "test.scripts.agentflow_providers_test.SelectionTest.test_provider_configuration_is_external_and_validated",
       "profile": "unit"
+    },
+    {
+      "id": "17a169f382595b04406e61fa",
+      "runner": "exunit",
+      "file": "test/football_market/statistics/freshness/context_test.exs",
+      "case_id": "FootballMarket.Statistics.Freshness.ContextTest:test a trusted manual retry can recover a permanent failure with unchanged inputs",
+      "profile": "integration"
     },
     {
       "id": "17a2a9c755cd4915a3355bb8",
@@ -1192,6 +1220,13 @@
       "profile": "integration"
     },
     {
+      "id": "28f5a104818d2bb3b7aeeef6",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/player_freshness_test.exs",
+      "case_id": "FootballMarketWeb.PlayerFreshnessTest:test missing source configuration returns local data and explicit unavailable refresh",
+      "profile": "integration"
+    },
+    {
       "id": "29381f528aa75eacfe1b318c",
       "runner": "python",
       "file": "test/scripts/agentflow_evidence_test.py",
@@ -1210,6 +1245,13 @@
       "runner": "exunit",
       "file": "test/football_market_web/api_authentication_test.exs",
       "case_id": "FootballMarketWeb.APIAuthenticationTest:test real JWT validation accepts issued tokens and rejects expired tokens",
+      "profile": "integration"
+    },
+    {
+      "id": "29d1ff1fb995e833fabf772c",
+      "runner": "exunit",
+      "file": "test/football_market/statistics/freshness/context_test.exs",
+      "case_id": "FootballMarket.Statistics.Freshness.ContextTest:test default cooldown lasts exactly one hour",
       "profile": "integration"
     },
     {
@@ -1619,6 +1661,13 @@
       "profile": "unit"
     },
     {
+      "id": "38505c21e8b11c55f49b01d3",
+      "runner": "exunit",
+      "file": "test/football_market/statistics/freshness/context_test.exs",
+      "case_id": "FootballMarket.Statistics.Freshness.ContextTest:test active retries and executions are reused without advancing freshness",
+      "profile": "integration"
+    },
+    {
       "id": "3856c048bcb3a6469425d675",
       "runner": "exunit",
       "file": "test/football_market/providers/catalog_contract_test.exs",
@@ -1815,6 +1864,13 @@
       "profile": "unit"
     },
     {
+      "id": "3f879a60c51e25bca5da8b40",
+      "runner": "exunit",
+      "file": "test/football_market/statistics/freshness/context_test.exs",
+      "case_id": "FootballMarket.Statistics.Freshness.ContextTest:test accepted complete checks set the TTL; exact expiry and TTL changes request refresh",
+      "profile": "integration"
+    },
+    {
       "id": "3fe82f12521aad452e71c4d5",
       "runner": "exunit",
       "file": "test/football_market/catalog/ingestion/concurrency_test.exs",
@@ -1889,6 +1945,13 @@
       "runner": "exunit",
       "file": "test/football_market/accounts/browser_sessions_test.exs",
       "case_id": "FootballMarket.Accounts.BrowserSessionsTest:test simultaneous submissions serialize retirement",
+      "profile": "integration"
+    },
+    {
+      "id": "41cb4d62a56a0fa40d689ab7",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/player_freshness_test.exs",
+      "case_id": "FootballMarketWeb.PlayerFreshnessTest:test catalog storage failure maps to 503 without replacing it with a missing player",
       "profile": "integration"
     },
     {
@@ -2410,6 +2473,13 @@
       "profile": "unit"
     },
     {
+      "id": "54a1159029ba9532cd6ceed9",
+      "runner": "exunit",
+      "file": "test/football_market/statistics/freshness/context_test.exs",
+      "case_id": "FootballMarket.Statistics.Freshness.ContextTest:test incomplete and conflicting imports retain the accepted check and immutable facts",
+      "profile": "integration"
+    },
+    {
       "id": "5514dcc9a3baed168c8d78d0",
       "runner": "exunit",
       "file": "test/football_market/catalog/ingestion/replay_test.exs",
@@ -2851,6 +2921,13 @@
       "profile": "integration"
     },
     {
+      "id": "641eff51e36400c2e8a121b3",
+      "runner": "exunit",
+      "file": "test/football_market/statistics/freshness/context_test.exs",
+      "case_id": "FootballMarket.Statistics.Freshness.ContextTest:test unconfigured and invalid configuration retain local status and enqueue nothing",
+      "profile": "integration"
+    },
+    {
       "id": "6449af7a7a854120530794bb",
       "runner": "python",
       "file": "test/scripts/agentflow_branch_test.py",
@@ -2862,6 +2939,20 @@
       "runner": "exunit",
       "file": "test/football_market/catalog/development_seed_test.exs",
       "case_id": "FootballMarket.Catalog.DevelopmentSeedTest:test manifest rejects missing required fields and malformed records without raising",
+      "profile": "integration"
+    },
+    {
+      "id": "64c0b46c0b83327740382e32",
+      "runner": "exunit",
+      "file": "test/football_market/statistics/freshness/context_test.exs",
+      "case_id": "FootballMarket.Statistics.Freshness.ContextTest:test another provider cannot make this scope fresh",
+      "profile": "integration"
+    },
+    {
+      "id": "64d369d2a55259ed22c6462f",
+      "runner": "exunit",
+      "file": "test/football_market/statistics/freshness/context_test.exs",
+      "case_id": "FootballMarket.Statistics.Freshness.ContextTest:test a complete no-change check renews freshness without replacing prior pending valuation",
       "profile": "integration"
     },
     {
@@ -3257,6 +3348,13 @@
       "profile": "unit"
     },
     {
+      "id": "75595a69223ca99ff290044c",
+      "runner": "exunit",
+      "file": "test/football_market/statistics/freshness/concurrency_test.exs",
+      "case_id": "FootballMarket.Statistics.Freshness.ConcurrencyTest:test committed concurrent reads of different players share one run job receipt and trigger",
+      "profile": "integration"
+    },
+    {
       "id": "7575b71a5f09b91c6126a833",
       "runner": "exunit",
       "file": "test/football_market/statistics/scope_test.exs",
@@ -3278,10 +3376,24 @@
       "profile": "unit"
     },
     {
+      "id": "75fea327d99846f491af3ce0",
+      "runner": "exunit",
+      "file": "test/football_market/statistics/freshness/context_test.exs",
+      "case_id": "FootballMarket.Statistics.Freshness.ContextTest:test a completed check in one season does not freshen another season",
+      "profile": "integration"
+    },
+    {
       "id": "7648489ec058d4d68c8db83e",
       "runner": "exunit",
       "file": "test/football_market/statistics/integrity_test.exs",
       "case_id": "FootballMarket.Statistics.IntegrityTest:test late malformed identity rolls back all batch facts and preserves existing facts",
+      "profile": "integration"
+    },
+    {
+      "id": "7659e2eb3e7cb23e00f6d540",
+      "runner": "exunit",
+      "file": "test/football_market/statistics/freshness/valuation_status_test.exs",
+      "case_id": "FootballMarket.Statistics.Freshness.ValuationStatusTest:test dispatch exhaustion and explicit dispatch failure remain failed",
       "profile": "integration"
     },
     {
@@ -3530,6 +3642,13 @@
       "profile": "integration"
     },
     {
+      "id": "7d5fc414fdf89d0580700569",
+      "runner": "exunit",
+      "file": "test/football_market/statistics/freshness/valuation_status_test.exs",
+      "case_id": "FootballMarket.Statistics.Freshness.ValuationStatusTest:test newer legacy imports without snapshots override older valuation status",
+      "profile": "integration"
+    },
+    {
       "id": "7ddf4c7583366af261134f8a",
       "runner": "exunit",
       "file": "test/football_market/accounts/api_key_security_test.exs",
@@ -3758,6 +3877,13 @@
       "runner": "exunit",
       "file": "test/football_market/valuation/position_aware/formula_test.exs",
       "case_id": "FootballMarket.Valuation.PositionAware.FormulaTest:test US1.4 minutes zero, normal and extra-time leave the formula identical",
+      "profile": "integration"
+    },
+    {
+      "id": "86ecd1578b081b7ed8e702ac",
+      "runner": "exunit",
+      "file": "test/football_market/statistics/freshness/context_test.exs",
+      "case_id": "FootballMarket.Statistics.Freshness.ContextTest:test complete empty checks are fresh and need no valuation",
       "profile": "integration"
     },
     {
@@ -4279,6 +4405,13 @@
       "profile": "unit"
     },
     {
+      "id": "9921f205ec9e30ed8809ed4b",
+      "runner": "exunit",
+      "file": "test/football_market/statistics/freshness/concurrency_test.exs",
+      "case_id": "FootballMarket.Statistics.Freshness.ConcurrencyTest:test an admission lock held by another connection does not block local detail",
+      "profile": "integration"
+    },
+    {
       "id": "99915390535bc6124196c594",
       "runner": "exunit",
       "file": "test/football_market/synchronization/input_test.exs",
@@ -4487,6 +4620,13 @@
       "file": "test/ci/workflow_scope_test.exs",
       "case_id": "FootballMarket.WorkflowScopeTest:test Credo cleanup allowance is finite and rejects unknown production and CI paths",
       "profile": "unit"
+    },
+    {
+      "id": "9f57cc37f247b6a910ae413c",
+      "runner": "exunit",
+      "file": "test/football_market/statistics/freshness/valuation_status_test.exs",
+      "case_id": "FootballMarket.Statistics.Freshness.ValuationStatusTest:test all weekly requests contribute and partial success cannot claim valuation completed",
+      "profile": "integration"
     },
     {
       "id": "9f80d7989dd9e1ac9c7974cc",
@@ -5441,6 +5581,13 @@
       "profile": "integration"
     },
     {
+      "id": "c02e79f34a5cf17265574335",
+      "runner": "exunit",
+      "file": "test/football_market/statistics/freshness/concurrency_test.exs",
+      "case_id": "FootballMarket.Statistics.Freshness.ConcurrencyTest:test confirmed import remains readable while its worker is waiting to finish",
+      "profile": "integration"
+    },
+    {
       "id": "c03bb6c8a62cc4c3a437e7e2",
       "runner": "python",
       "file": "test/scripts/agentflow_evidence_test.py",
@@ -5602,6 +5749,13 @@
       "profile": "unit"
     },
     {
+      "id": "c53cc1c168ad04e6a57bd61f",
+      "runner": "exunit",
+      "file": "test/football_market/statistics/freshness/context_test.exs",
+      "case_id": "FootballMarket.Statistics.Freshness.ContextTest:test permanent failures block reads from retrying but changed configured inputs recover",
+      "profile": "integration"
+    },
+    {
       "id": "c57e663fba9a7b2496f64d9e",
       "runner": "exunit",
       "file": "test/ci/application_coverage_native_test.exs",
@@ -5628,6 +5782,13 @@
       "file": "test/scripts/agentflow_dedup_test.py",
       "case_id": "test.scripts.agentflow_dedup_test.DedupTest.test_vibecode_procedure_has_explicit_high_risk_exclusions",
       "profile": "unit"
+    },
+    {
+      "id": "c6aca7f679bfda9d9f2ae3ab",
+      "runner": "exunit",
+      "file": "test/football_market/statistics/freshness/context_test.exs",
+      "case_id": "FootballMarket.Statistics.Freshness.ContextTest:test a different active input is busy and does not borrow its run or provider freshness",
+      "profile": "integration"
     },
     {
       "id": "c6bfa59123c02703fc11f8be",
@@ -5838,6 +5999,13 @@
       "file": "test/ci/credo_ci_contract_test.exs",
       "case_id": "FootballMarket.CredoCiContractTest:test wrapper rejects a symlink output directory before replacing it",
       "profile": "unit"
+    },
+    {
+      "id": "cd8b22b5159c32d5bd3a320e",
+      "runner": "exunit",
+      "file": "test/football_market/statistics/freshness/context_test.exs",
+      "case_id": "FootballMarket.Statistics.Freshness.ContextTest:test transient exhaustion observes cooldown, provider wait and exact eligibility",
+      "profile": "integration"
     },
     {
       "id": "cde4a405abece479f4b544fa",
@@ -6580,6 +6748,13 @@
       "file": "test/football_market/providers/equivalence_test.exs",
       "case_id": "FootballMarket.Providers.EquivalenceTest:test F-O02 bijection accepts renamed/reordered refs, rejects missing/merged same-name players and swapped edges",
       "profile": "unit"
+    },
+    {
+      "id": "e2efc850ad29bbf900fd1802",
+      "runner": "exunit",
+      "file": "test/football_market/statistics/freshness/context_test.exs",
+      "case_id": "FootballMarket.Statistics.Freshness.ContextTest:test never checked detail admits one durable job and repeated reads reuse it",
+      "profile": "integration"
     },
     {
       "id": "e35c1758e057e7dbfee10e4a",
@@ -7528,7 +7703,8 @@
     "test/support/statistics_ingestion/runtime_probe.ex": "Statistics synchronization runtime probe driven by integration cases; no independent tests.",
     "test/support/quotes/runtime_probe.ex": true,
     "test/support/quotes/fixtures.ex": true,
-    "test/support/quotes/case.ex": true
+    "test/support/quotes/case.ex": true,
+    "test/support/freshness_case.ex": "Shared deterministic freshness fixtures; executed by registered integration tests."
   },
   "excluded_roots": [
     "tools/openapi/node_modules",

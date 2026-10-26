@@ -512,6 +512,30 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/statistics/error.ex."
     },
     {
+      "path": "lib/football_market/statistics/freshness/context.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/statistics/freshness/context.ex."
+    },
+    {
+      "path": "lib/football_market/statistics/freshness/refresh.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/statistics/freshness/refresh.ex."
+    },
+    {
+      "path": "lib/football_market/statistics/freshness/settings.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/statistics/freshness/settings.ex."
+    },
+    {
+      "path": "lib/football_market/statistics/freshness/valuation_status.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/statistics/freshness/valuation_status.ex."
+    },
+    {
       "path": "lib/football_market/statistics/ingestion.ex",
       "role": "application",
       "disposition": "include",
@@ -1230,6 +1254,12 @@
       "role": "migration",
       "disposition": "exclude",
       "reason": "Migration source, not application implementation: priv/repo/migrations/20261018001100_require_successful_quote_confirmation.exs."
+    },
+    {
+      "path": "priv/repo/migrations/20261026000000_index_statistics_freshness_reads.exs",
+      "role": "migration",
+      "disposition": "exclude",
+      "reason": "Migration source, not application implementation: priv/repo/migrations/20261026000000_index_statistics_freshness_reads.exs."
     },
     {
       "path": "scripts/application_coverage_native.exs",
@@ -2120,6 +2150,24 @@
       "reason": "Test code, not application behavior: test/football_market/statistics/count_test.exs."
     },
     {
+      "path": "test/football_market/statistics/freshness/concurrency_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Test source, not application implementation: test/football_market/statistics/freshness/concurrency_test.exs."
+    },
+    {
+      "path": "test/football_market/statistics/freshness/context_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Test source, not application implementation: test/football_market/statistics/freshness/context_test.exs."
+    },
+    {
+      "path": "test/football_market/statistics/freshness/valuation_status_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Test source, not application implementation: test/football_market/statistics/freshness/valuation_status_test.exs."
+    },
+    {
       "path": "test/football_market/statistics/history_test.exs",
       "role": "test",
       "disposition": "exclude",
@@ -2612,6 +2660,12 @@
       "reason": "Test code, not application behavior: test/football_market_web/controllers/player_detail_controller_test.exs."
     },
     {
+      "path": "test/football_market_web/controllers/player_freshness_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Test source, not application implementation: test/football_market_web/controllers/player_freshness_test.exs."
+    },
+    {
       "path": "test/football_market_web/controllers/quote_controller_test.exs",
       "role": "test",
       "disposition": "exclude",
@@ -2772,6 +2826,12 @@
       "role": "test-support",
       "disposition": "exclude",
       "reason": "Test harness or fixture support, not application behavior: test/support/e2e/runtime.ex."
+    },
+    {
+      "path": "test/support/freshness_case.ex",
+      "role": "test-support",
+      "disposition": "exclude",
+      "reason": "Test-support source, not application implementation: test/support/freshness_case.ex."
     },
     {
       "path": "test/support/infrastructure_case.ex",

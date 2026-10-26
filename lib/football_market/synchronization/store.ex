@@ -8,14 +8,24 @@ defmodule FootballMarket.Synchronization.Store do
   @test Mix.env() == :test
   @active ["queued", "executing", "retry_wait"]
 
-  def lock_scope(scope) do
+  def lock_scope(scope),
+    do: Repo.query!("SELECT pg_advisory_xact_lock($1)", [scope_lock_key(scope)])
+
+  def try_lock_scope(scope) do
+    %{rows: [[locked]]} =
+      Repo.query!("SELECT pg_try_advisory_xact_lock($1)", [scope_lock_key(scope)])
+
+    locked
+  end
+
+  defp scope_lock_key(scope) do
     <<key::signed-64, _::binary>> =
       :crypto.hash(
         :sha256,
         :erlang.term_to_binary({:synchronization_admission, scope}, [:deterministic])
       )
 
-    Repo.query!("SELECT pg_advisory_xact_lock($1)", [key])
+    key
   end
 
   def admit(input, now \\ Clock.now(), occurrence_id \\ nil) do

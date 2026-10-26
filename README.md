@@ -90,6 +90,29 @@ Single results use `{"data": quote}`; history uses `{"data": [quote, ...]}` with
 
 Authentication errors return 401. Invalid or ambiguous dates return 400 `invalid_date` before player lookup. Malformed or unknown players return 404 `player_not_found`; existing players without a quote return an empty history or 404 `quote_not_found` for a single result. Storage failures return 503 `temporarily_unavailable`. See `/docs` for complete schemas and examples.
 
+### Player statistics freshness
+
+`GET /api/players/:player_id` preserves the catalog object in `data` and includes `statistics_status`. It reports the exact configured provider and league-season coverage, the last complete accepted check, expiry, import progress, and independent valuation progress. Catalog list/search reads never enqueue refreshes. Opening detail always checks PostgreSQL, including after a cached search.
+
+Configure trusted source options in the application configuration; HTTP callers cannot choose sources, mappings, timeouts, or retry policies:
+
+```elixir
+config :football_market, FootballMarket.Statistics.Freshness,
+  ttl_seconds: 86_400,
+  cooldown_seconds: 3_600,
+  refresh_options_by_scope: %{
+    {"PL", 2025, 2026} => [source_ref: "approved-statistics-source"]
+  }
+```
+
+The reference must resolve through `FootballMarket.Synchronization`'s existing trusted `sources` configuration. Existing optional `fixture_ref`, mapping and bounded policy options may be supplied by the operator for that exact scope. No source is configured by default: detail still returns local data with refresh state `unconfigured`. The current configured adapter boundary uses fixture artifacts; `source_mode: "fixture"` explicitly means non-live data. A `fresh` result describes the accepted-check TTL, not verified real-time source accuracy. This feature does not authorize live scraping or bypass access/coverage checks.
+
+Never-checked or expired scopes queue one existing statistics-import job. Players in the same provider/league-season share that work. Repeated reads reuse queued, executing and retry-wait work without adding trigger records; admission contention reports `busy`. Complete changed, unchanged, replay and empty checks renew the timestamp atomically; failures and incomplete responses do not. Local detail never waits for provider execution. Enqueue/configuration failures remain visible while local data stays available.
+
+After bounded retries exhaust a transient failure, automatic requests wait for the configured cooldown or a longer provider retry hint. Permanent access, malformed-data, immutable-history and unconfirmed-publication failures remain `blocked` for unchanged inputs. An operator can correct the configured input or use the existing trusted manual request interface; detail exposes no force-refresh or permission-changing operation.
+
+`statistics_status.valuation` follows the latest changed import affecting this player and aggregates its weekly calculation requests. New no-change checks do not hide outstanding work. A successful import can still have pending or failed valuation; completed valuation may include explicit `no_quote` results and does not promise a new price. Existing quote endpoints retain their original immutable quote timestamps.
+
 ### Prepare, compile, and test
 
 From a clean checkout, run these commands in order:

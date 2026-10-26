@@ -17,6 +17,10 @@ defmodule FootballMarketWeb.Endpoint do
     websocket: [connect_info: [session: @session_options]],
     longpoll: [connect_info: [session: @session_options]]
 
+  plug Plug.RequestId, assign_as: :request_id
+  plug FootballMarketWeb.RequestLogger
+  plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint], log: false
+
   # Serve at "/" the static files from "priv/static" directory.
   #
   # When code reloading is disabled (e.g., in production),
@@ -37,9 +41,6 @@ defmodule FootballMarketWeb.Endpoint do
     plug Phoenix.CodeReloader
     plug Phoenix.Ecto.CheckRepoStatus, otp_app: :football_market
   end
-
-  plug Plug.RequestId
-  plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint]
 
   plug Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],

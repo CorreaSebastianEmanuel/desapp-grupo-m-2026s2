@@ -7,6 +7,8 @@ defmodule FootballMarket.Application do
 
   @impl true
   def start(_type, _args) do
+    :ok = FootballMarket.Observability.attach()
+
     children = [
       FootballMarket.Repo,
       {Oban, Application.fetch_env!(:football_market, Oban)},
@@ -31,4 +33,7 @@ defmodule FootballMarket.Application do
     FootballMarketWeb.Endpoint.config_change(changed, removed)
     :ok
   end
+
+  @impl true
+  def stop(_state), do: FootballMarket.Observability.detach()
 end

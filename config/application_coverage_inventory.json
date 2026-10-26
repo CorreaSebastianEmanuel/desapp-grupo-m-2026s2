@@ -314,6 +314,36 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/market/store.ex."
     },
     {
+      "path": "lib/football_market/observability.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/observability.ex."
+    },
+    {
+      "path": "lib/football_market/observability/context.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/observability/context.ex."
+    },
+    {
+      "path": "lib/football_market/observability/job_context.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/observability/job_context.ex."
+    },
+    {
+      "path": "lib/football_market/observability/job_logger.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/observability/job_logger.ex."
+    },
+    {
+      "path": "lib/football_market/observability/json_formatter.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/observability/json_formatter.ex."
+    },
+    {
       "path": "lib/football_market/providers.ex",
       "role": "application",
       "disposition": "include",
@@ -1034,6 +1064,12 @@
       "reason": "Maintained first-party application implementation source: lib/football_market_web/plugs/browser_origin.ex."
     },
     {
+      "path": "lib/football_market_web/request_logger.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market_web/request_logger.ex."
+    },
+    {
       "path": "lib/football_market_web/router.ex",
       "role": "application",
       "disposition": "include",
@@ -1260,6 +1296,12 @@
       "role": "migration",
       "disposition": "exclude",
       "reason": "Migration source, not application implementation: priv/repo/migrations/20261026000000_index_statistics_freshness_reads.exs."
+    },
+    {
+      "path": "priv/repo/migrations/20261026000100_add_synchronization_correlation.exs",
+      "role": "migration",
+      "disposition": "exclude",
+      "reason": "Database schema migration, not runtime application behavior: priv/repo/migrations/20261026000100_add_synchronization_correlation.exs."
     },
     {
       "path": "scripts/application_coverage_native.exs",
@@ -1538,6 +1580,12 @@
       "reason": "Test code, not application behavior: test/ci/sonarcloud_contract_test.exs."
     },
     {
+      "path": "test/ci/structured_logging_scope_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Test code, not application behavior: test/ci/structured_logging_scope_test.exs."
+    },
+    {
       "path": "test/ci/test_profile_audit_test.exs",
       "role": "test",
       "disposition": "exclude",
@@ -1578,6 +1626,12 @@
       "role": "test",
       "disposition": "exclude",
       "reason": "Test code, not application behavior: test/e2e/catalog_sync_test.exs."
+    },
+    {
+      "path": "test/e2e/correlated_logging_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Test code, not application behavior: test/e2e/correlated_logging_test.exs."
     },
     {
       "path": "test/fixtures/providers/cases.exs",
@@ -1926,6 +1980,30 @@
       "role": "test",
       "disposition": "exclude",
       "reason": "Test code, not application behavior: test/football_market/market/storage_test.exs."
+    },
+    {
+      "path": "test/football_market/observability/context_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Test code, not application behavior: test/football_market/observability/context_test.exs."
+    },
+    {
+      "path": "test/football_market/observability/job_context_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Test code, not application behavior: test/football_market/observability/job_context_test.exs."
+    },
+    {
+      "path": "test/football_market/observability/job_logger_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Test code, not application behavior: test/football_market/observability/job_logger_test.exs."
+    },
+    {
+      "path": "test/football_market/observability/json_formatter_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Test code, not application behavior: test/football_market/observability/json_formatter_test.exs."
     },
     {
       "path": "test/football_market/providers/catalog_contract_test.exs",
@@ -2708,6 +2786,12 @@
       "reason": "Test code, not application behavior: test/football_market_web/openapi_contract_test.exs."
     },
     {
+      "path": "test/football_market_web/request_logger_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Test code, not application behavior: test/football_market_web/request_logger_test.exs."
+    },
+    {
       "path": "test/football_market_web/router_authentication_policy_test.exs",
       "role": "test",
       "disposition": "exclude",
@@ -2856,6 +2940,12 @@
       "role": "test-support",
       "disposition": "exclude",
       "reason": "Test harness or fixture support, not application behavior: test/support/market_case.ex."
+    },
+    {
+      "path": "test/support/observability_worker.ex",
+      "role": "test-support",
+      "disposition": "exclude",
+      "reason": "Test harness or fixture support, not application behavior: test/support/observability_worker.ex."
     },
     {
       "path": "test/support/openapi_case.ex",

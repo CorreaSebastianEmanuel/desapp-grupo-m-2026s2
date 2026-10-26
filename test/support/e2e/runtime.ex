@@ -86,7 +86,7 @@ defmodule FootballMarket.E2E.Runtime do
         repo: Repo,
         prefix: schema,
         testing: :disabled,
-        queues: [catalog_sync: 1],
+        queues: [catalog_sync: 1, statistics_import: 1, quote_calculation: 2],
         plugins: []
       ],
       sync: [enabled: true, automatic: false, sources: %{}, schedules: []],
@@ -155,7 +155,16 @@ defmodule FootballMarket.E2E.Runtime do
     register_schema!(owned)
     outside_sandbox(fn -> Ecto.Adapters.SQL.query!(Repo, "CREATE SCHEMA " <> owned, []) end)
     endpoint = FootballMarketWeb.Endpoint
-    keys = [Repo, Oban, Synchronization, endpoint, :browser_clock]
+
+    keys = [
+      Repo,
+      Oban,
+      Synchronization,
+      endpoint,
+      :browser_clock,
+      FootballMarket.Statistics.Freshness
+    ]
+
     original = Map.new(keys, &{&1, Application.get_env(:football_market, &1)})
     {:ok, socket} = :gen_tcp.listen(0, ip: {127, 0, 0, 1}, active: false)
     {:ok, port} = :inet.port(socket)

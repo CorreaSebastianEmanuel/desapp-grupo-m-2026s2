@@ -51,3 +51,4 @@ list passes the checkpoint hygiene review.
 - 2026-10-26 — Row-lock waits can consume transaction-time leases before authority is acquired — use the current database clock after locking and fence configuration binding as well as confirmation — TASK-026
 - 2026-10-26 — Restoring absent application configuration as an explicit nil contaminates later tests — preserve absence with fetch_env/delete_env during fixture cleanup — TASK-027
 - 2026-10-26 — Manual deliveries leave dependency and ownership records behind — reconcile canonical retrospective artifacts through fresh independent acceptance and normal completion without inventing workflow runs — TASK-027, TASK-056
+- 2026-10-26 — New Elixir files can pass lint while coverage or helper inventories reject delivery — reconcile source roles, helper classifications and exact compatibility guards before full profiles — TASK-036

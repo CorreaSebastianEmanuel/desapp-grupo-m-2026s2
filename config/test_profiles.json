@@ -485,6 +485,13 @@
       "profile": "unit"
     },
     {
+      "id": "10613c2d388c4c8e44f61272",
+      "runner": "exunit",
+      "file": "test/football_market_web/request_logger_test.exs",
+      "case_id": "FootballMarketWeb.RequestLoggerTest:test default runtime handler uses JSON and preserves the environment level",
+      "profile": "integration"
+    },
+    {
       "id": "108779bb69b9679152473580",
       "runner": "python",
       "file": "test/scripts/agentflow_fingerprint_test.py",
@@ -909,6 +916,13 @@
       "runner": "shell",
       "file": "test/scripts/verify_foundation_test.sh",
       "case_id": "readiness-4",
+      "profile": "unit"
+    },
+    {
+      "id": "1e8b2233df2d3c5947ed38e5",
+      "runner": "exunit",
+      "file": "test/football_market/observability/context_test.exs",
+      "case_id": "FootballMarket.Observability.ContextTest:test scoped context restores all caller metadata on return raise and throw",
       "profile": "unit"
     },
     {
@@ -1626,6 +1640,13 @@
       "profile": "integration"
     },
     {
+      "id": "3592b4326b1db1745719f8ee",
+      "runner": "exunit",
+      "file": "test/football_market/observability/job_logger_test.exs",
+      "case_id": "FootballMarket.Observability.JobLoggerTest:test malformed optional data and unrelated legacy jobs keep the subscription alive",
+      "profile": "unit"
+    },
+    {
       "id": "35e3f862f1dc20efe4849084",
       "runner": "python",
       "file": "test/scripts/agentflow_dedup_test.py",
@@ -2214,6 +2235,13 @@
       "profile": "unit"
     },
     {
+      "id": "4a67e663e6ce1ae5a7d8ac6e",
+      "runner": "exunit",
+      "file": "test/football_market/observability/json_formatter_test.exs",
+      "case_id": "FootballMarket.Observability.JSONFormatterTest:test runtime format is one UTC JSON line with typed allowlisted fields",
+      "profile": "unit"
+    },
+    {
       "id": "4aa77d0b09b17a14e31fb452",
       "runner": "exunit",
       "file": "test/football_market/providers/ingestion_contract_test.exs",
@@ -2246,6 +2274,13 @@
       "runner": "exunit",
       "file": "test/ci/e2e_runtime_contract_test.exs",
       "case_id": "FootballMarket.E2E.RuntimeContractTest:test deadline polling fails rather than accepting unavailable or terminal failed work",
+      "profile": "integration"
+    },
+    {
+      "id": "4bad27da6833d32c65cad1dd",
+      "runner": "exunit",
+      "file": "test/football_market_web/request_logger_test.exs",
+      "case_id": "FootballMarketWeb.RequestLoggerTest:test missing and invalid IDs are generated and parser failures finish once",
       "profile": "integration"
     },
     {
@@ -2389,6 +2424,13 @@
       "profile": "unit"
     },
     {
+      "id": "509ac4c12d6b10c3caba2f2d",
+      "runner": "exunit",
+      "file": "test/football_market/observability/json_formatter_test.exs",
+      "case_id": "FootballMarket.Observability.JSONFormatterTest:test quotes newlines Unicode and malformed bytes cannot break framing",
+      "profile": "unit"
+    },
+    {
       "id": "50b3415fe9e8e3b46ff5edbb",
       "runner": "exunit",
       "file": "test/football_market/providers/deadline_test.exs",
@@ -2513,6 +2555,13 @@
       "file": "test/football_market/statistics/freshness/context_test.exs",
       "case_id": "FootballMarket.Statistics.Freshness.ContextTest:test incomplete and conflicting imports retain the accepted check and immutable facts",
       "profile": "integration"
+    },
+    {
+      "id": "550f9aa9b77d09b2536dfe52",
+      "runner": "exunit",
+      "file": "test/football_market/observability/job_logger_test.exs",
+      "case_id": "FootballMarket.Observability.JobLoggerTest:test legacy jobs have deterministic IDs and registration is idempotent",
+      "profile": "unit"
     },
     {
       "id": "5514dcc9a3baed168c8d78d0",
@@ -2695,6 +2744,13 @@
       "file": "test/football_market/valuation/configurations/immutability_test.exs",
       "case_id": "FootballMarket.Valuation.Configurations.ImmutabilityTest:test ordinary SQL protects unused versions, metadata, anchor and history",
       "profile": "integration"
+    },
+    {
+      "id": "5aa84c34a8762603295ddd2e",
+      "runner": "exunit",
+      "file": "test/football_market/observability/context_test.exs",
+      "case_id": "FootballMarket.Observability.ContextTest:test provider coordinator and worker receive only approved caller context",
+      "profile": "unit"
     },
     {
       "id": "5b57f092dbd6f927931679cc",
@@ -3145,6 +3201,13 @@
       "profile": "integration"
     },
     {
+      "id": "6a2360eb05666f483381f95b",
+      "runner": "exunit",
+      "file": "test/football_market_web/request_logger_test.exs",
+      "case_id": "FootballMarketWeb.RequestLoggerTest:test raised endpoint errors have one safe terminal record",
+      "profile": "integration"
+    },
+    {
       "id": "6aafba436a052fff8e8439c7",
       "runner": "exunit",
       "file": "test/football_market/valuation/week_test.exs",
@@ -3304,6 +3367,13 @@
       "file": "test/football_market/catalog/ingestion/replay_test.exs",
       "case_id": "FootballMarket.Catalog.Ingestion.ReplayTest:test ten replays preserve acceptance, rows, timestamps and binding evidence",
       "profile": "integration"
+    },
+    {
+      "id": "7104402c980a36aa1e79341c",
+      "runner": "exunit",
+      "file": "test/football_market/observability/job_logger_test.exs",
+      "case_id": "FootballMarket.Observability.JobLoggerTest:test terminal reporting in another process uses job context and restores reporter",
+      "profile": "unit"
     },
     {
       "id": "719e5aa8f050f4c9d10f9796",
@@ -3719,6 +3789,13 @@
       "profile": "unit"
     },
     {
+      "id": "7f6feecf0d430d1e9d5640bc",
+      "runner": "exunit",
+      "file": "test/ci/structured_logging_scope_test.exs",
+      "case_id": "FootballMarket.StructuredLoggingScopeTest:test production coverage roles reconcile with every maintained Elixir source",
+      "profile": "unit"
+    },
+    {
       "id": "7fbebd57ae90e841a10c1d8c",
       "runner": "python",
       "file": "test/scripts/agentflow_stage_checks_test.py",
@@ -4027,6 +4104,13 @@
       "profile": "integration"
     },
     {
+      "id": "897e3a03b688ee77fc07274e",
+      "runner": "exunit",
+      "file": "test/football_market_web/request_logger_test.exs",
+      "case_id": "FootballMarketWeb.RequestLoggerTest:test HEAD keeps its original HTTP method after Plug.Head routes it as GET",
+      "profile": "integration"
+    },
+    {
       "id": "89a47966159c168556d705a4",
       "runner": "exunit",
       "file": "test/football_market/quotes/followup_test.exs",
@@ -4244,6 +4328,13 @@
       "profile": "unit"
     },
     {
+      "id": "8f8716dfb063b2c6b76e871d",
+      "runner": "exunit",
+      "file": "test/football_market/observability/job_context_test.exs",
+      "case_id": "FootballMarket.Observability.JobContextTest:test legacy nullable roots use the run UUID and annotations preserve unrelated metadata",
+      "profile": "integration"
+    },
+    {
       "id": "8f91527793b7938df5cd7e17",
       "runner": "exunit",
       "file": "test/football_market/accounts/password_credential_test.exs",
@@ -4349,6 +4440,13 @@
       "profile": "integration"
     },
     {
+      "id": "93ff5d3bf6ad5ac1e166c814",
+      "runner": "exunit",
+      "file": "test/ci/structured_logging_scope_test.exs",
+      "case_id": "FootballMarket.StructuredLoggingScopeTest:test logging plan permits its exact adapter integration and test files only",
+      "profile": "unit"
+    },
+    {
       "id": "94734684b4b29280995db82d",
       "runner": "exunit",
       "file": "test/football_market/providers/scraping/safety_test.exs",
@@ -4367,6 +4465,13 @@
       "runner": "python",
       "file": "test/scripts/agentflow_providers_test.py",
       "case_id": "test.scripts.agentflow_providers_test.CliProviderTest.test_resume_refuses_access_provider_without_explicit_adoption",
+      "profile": "unit"
+    },
+    {
+      "id": "94bd40b1af5a453133ba80fc",
+      "runner": "exunit",
+      "file": "test/football_market/observability/job_logger_test.exs",
+      "case_id": "FootballMarket.Observability.JobLoggerTest:test job lifecycle records only safe fields and restores caller metadata",
       "profile": "unit"
     },
     {
@@ -4494,6 +4599,13 @@
       "file": "test/scripts/agentflow_policy_test.py",
       "case_id": "test.scripts.agentflow_policy_test.WorkflowSpeedPolicyTest.test_high_risk_and_workflow_changes_are_excluded_and_no_selector_added",
       "profile": "unit"
+    },
+    {
+      "id": "9a9942d5272fbe91f3f3348b",
+      "runner": "exunit",
+      "file": "test/football_market/observability/job_context_test.exs",
+      "case_id": "FootballMarket.Observability.JobContextTest:test delayed dispatch and quote recovery retain lineage even if the root job is removed",
+      "profile": "integration"
     },
     {
       "id": "9b1059ca64afca2019303efc",
@@ -5161,6 +5273,13 @@
       "profile": "unit"
     },
     {
+      "id": "acc8d3c83fb7b850704f4e7f",
+      "runner": "exunit",
+      "file": "test/football_market/observability/json_formatter_test.exs",
+      "case_id": "FootballMarket.Observability.JSONFormatterTest:test standard reports and truncated messages remain valid JSON",
+      "profile": "unit"
+    },
+    {
       "id": "ad231030bfca130d2d7c7e1b",
       "runner": "python",
       "file": "test/scripts/agentflow_feature_test.py",
@@ -5292,6 +5411,13 @@
       "file": "test/football_market/providers/deadline_test.exs",
       "case_id": "FootballMarket.Providers.DeadlineTest:test F-D05 blocked worker cancellation, no late reply and next request correlation",
       "profile": "unit"
+    },
+    {
+      "id": "b1af04defb285dd381f57a03",
+      "runner": "exunit",
+      "file": "test/football_market/observability/job_context_test.exs",
+      "case_id": "FootballMarket.Observability.JobContextTest:test origin persists through coalescing retry and recovery without entering identity material",
+      "profile": "integration"
     },
     {
       "id": "b241f71bae21104f81a9a42d",
@@ -5453,6 +5579,13 @@
       "file": "test/scripts/agentflow_providers_test.py",
       "case_id": "test.scripts.agentflow_providers_test.OuterLaunchTest.test_mocked_windows_outer_spawn_uses_preflight_context_and_process_group",
       "profile": "unit"
+    },
+    {
+      "id": "b7b9728e2f1ca9f769d4dc74",
+      "runner": "exunit",
+      "file": "test/e2e/correlated_logging_test.exs",
+      "case_id": "FootballMarket.E2E.CorrelatedLoggingTest:test real HTTP detail import downstream calculations and timeout reports use JSON context",
+      "profile": "e2e"
     },
     {
       "id": "b7c3be4a4a5fa09672b3d3dd",
@@ -6026,6 +6159,13 @@
       "runner": "python",
       "file": "test/scripts/agentflow_artifacts_test.py",
       "case_id": "test.scripts.agentflow_artifacts_test.ApplicabilityTest.test_direct_consumers_reject_whole_block_deletion",
+      "profile": "unit"
+    },
+    {
+      "id": "cb3c4296ff2ba38d78fcf608",
+      "runner": "exunit",
+      "file": "test/football_market/observability/job_logger_test.exs",
+      "case_id": "FootballMarket.Observability.JobLoggerTest:test concurrent job processes keep their own context and restore their callers",
       "profile": "unit"
     },
     {
@@ -6680,6 +6820,13 @@
       "profile": "integration"
     },
     {
+      "id": "df72bb711e2c9a3c7d705f44",
+      "runner": "exunit",
+      "file": "test/football_market_web/request_logger_test.exs",
+      "case_id": "FootballMarketWeb.RequestLoggerTest:test encoded routes and overlapping requests use their own template and identifiers",
+      "profile": "integration"
+    },
+    {
       "id": "df937d01152363e042650f55",
       "runner": "exunit",
       "file": "test/football_market/valuation/contract_test.exs",
@@ -6890,6 +7037,13 @@
       "profile": "integration"
     },
     {
+      "id": "e5a7b4906e5cc29e8ee9a617",
+      "runner": "exunit",
+      "file": "test/football_market/observability/context_test.exs",
+      "case_id": "FootballMarket.Observability.ContextTest:test invalid origins use a valid fallback without modifying caller context",
+      "profile": "unit"
+    },
+    {
       "id": "e5b07ae0fe5fa1d58479d756",
       "runner": "python",
       "file": "test/scripts/agentflow_stage_checks_test.py",
@@ -6936,6 +7090,13 @@
       "runner": "exunit",
       "file": "test/football_market/catalog/development_seed_test.exs",
       "case_id": "FootballMarket.Catalog.DevelopmentSeedTest:test preservation, conflicts, and rollback a target team under the wrong season is a relationship conflict and rolls back",
+      "profile": "integration"
+    },
+    {
+      "id": "e6a702b82431cd65fe43fbab",
+      "runner": "exunit",
+      "file": "test/football_market_web/request_logger_test.exs",
+      "case_id": "FootballMarketWeb.RequestLoggerTest:test normal static unauthorized and unmatched responses have one terminal event",
       "profile": "integration"
     },
     {
@@ -7795,7 +7956,8 @@
     "test/support/quotes/runtime_probe.ex": true,
     "test/support/quotes/fixtures.ex": true,
     "test/support/quotes/case.ex": true,
-    "test/support/freshness_case.ex": "Shared deterministic freshness fixtures; executed by registered integration tests."
+    "test/support/freshness_case.ex": "Shared deterministic freshness fixtures; executed by registered integration tests.",
+    "test/support/observability_worker.ex": "Test-only raising endpoint and timed-out Oban worker, exercised by registered HTTP integration and real-runtime E2E cases."
   },
   "excluded_roots": [
     "tools/openapi/node_modules",

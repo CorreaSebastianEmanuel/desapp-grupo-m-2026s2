@@ -5,6 +5,7 @@ defmodule FootballMarket.Synchronization.Store do
   alias FootballMarket.Synchronization.{Run, Attempt, Trigger, Occurrence, Clock, Policy}
   alias FootballMarket.Synchronization.DeliveryReceipt
   alias FootballMarket.Workers.CatalogSync
+  alias FootballMarket.Observability.{Context, JobContext}
   @test Mix.env() == :test
   @active ["queued", "executing", "retry_wait"]
 
@@ -87,6 +88,7 @@ defmodule FootballMarket.Synchronization.Store do
     job =
       %{"run_id" => run.id, "delivery_id" => receipt.id}
       |> worker.new(scheduled_at: eligible_at)
+      |> JobContext.annotate(JobContext.for_run(run))
       |> insert_job!()
 
     run |> Ecto.Changeset.change(delivery_id: receipt.id, job_id: job.id) |> Repo.update!()
@@ -159,6 +161,7 @@ defmodule FootballMarket.Synchronization.Store do
 
     run
     |> plain()
+    |> Map.delete(:correlation_id)
     |> Map.merge(%{
       attempts: Enum.map(attempts, &plain/1),
       triggers: triggers,
@@ -283,6 +286,7 @@ defmodule FootballMarket.Synchronization.Store do
               Run,
               Map.merge(scope, %{
                 operation: Atom.to_string(input.operation),
+                correlation_id: Context.current(),
                 source_ref: input.material["source_ref"],
                 fixture_ref: input.material["fixture_ref"],
                 input: input.material,

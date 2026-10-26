@@ -27,6 +27,46 @@ defmodule FootballMarket.WorkflowScope do
     end
   end
 
+  def paths("specs/036-correlation-ids-and-structured-logging") do
+    [
+      "README.md",
+      "config/application_coverage_inventory.json",
+      "config/config.exs",
+      "config/credo_inventory.json",
+      "config/runtime.exs",
+      "config/test_profiles.json",
+      "lib/football_market/application.ex",
+      "lib/football_market/observability.ex",
+      "lib/football_market/observability/context.ex",
+      "lib/football_market/observability/job_context.ex",
+      "lib/football_market/observability/job_logger.ex",
+      "lib/football_market/observability/json_formatter.ex",
+      "lib/football_market/providers/runtime.ex",
+      "lib/football_market/quotes/membership.ex",
+      "lib/football_market/quotes/recovery.ex",
+      "lib/football_market/synchronization/dispatcher.ex",
+      "lib/football_market/synchronization/recovery.ex",
+      "lib/football_market/synchronization/run.ex",
+      "lib/football_market/synchronization/store.ex",
+      "lib/football_market_web/endpoint.ex",
+      "lib/football_market_web/request_logger.ex",
+      "priv/repo/migrations/20261026000100_add_synchronization_correlation.exs",
+      "test/ci/e2e_runtime_contract_test.exs",
+      "test/ci/structured_logging_scope_test.exs",
+      "test/e2e/correlated_logging_test.exs",
+      "test/football_market/market/scope_test.exs",
+      "test/football_market/observability/context_test.exs",
+      "test/football_market/observability/job_context_test.exs",
+      "test/football_market/observability/job_logger_test.exs",
+      "test/football_market/observability/json_formatter_test.exs",
+      "test/football_market_web/request_logger_test.exs",
+      "test/support/e2e/runtime.ex",
+      "test/support/observability_worker.ex",
+      "test/support/synchronization/case.ex",
+      "test/support/workflow_scope.ex"
+    ]
+  end
+
   def paths("specs/068-agentflow-preflight-recovery") do
     [
       "test/scripts/agentflow_artifacts_test.py",

@@ -8,7 +8,14 @@ defmodule FootballMarket.Providers.Runtime do
   def launch(fun, deadline, state) do
     owner = self()
     target = :erlang.alias()
-    {pid, monitor} = spawn_monitor(fn -> coordinate(owner, target, fun, deadline, state) end)
+    context = Logger.metadata() |> Keyword.take([:correlation_id, :request_id])
+
+    {pid, monitor} =
+      spawn_monitor(fn ->
+        Logger.metadata(context)
+        coordinate(owner, target, fun, deadline, state)
+      end)
+
     %{pid: pid, monitor: monitor, target: target}
   end
 
@@ -56,9 +63,11 @@ defmodule FootballMarket.Providers.Runtime do
   defp coordinate(owner, target, fun, deadline, state) do
     caller_monitor = Process.monitor(owner)
     coordinator = self()
+    context = Logger.metadata() |> Keyword.take([:correlation_id, :request_id])
 
     worker =
       spawn_link(fn ->
+        Logger.metadata(context)
         outcome = fun.()
         send(coordinator, {:ready, outcome, now_us(state)})
       end)

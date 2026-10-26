@@ -4,6 +4,7 @@ defmodule FootballMarket.Quotes.Recovery do
   alias FootballMarket.{Repo, Quotes.CalculationRequest}
   alias FootballMarket.Quotes.{Evaluation, Store}
   alias FootballMarket.Workers.QuoteCalculation
+  alias FootballMarket.Observability.JobContext
 
   def recover_pending do
     now = Store.database_now!()
@@ -20,8 +21,15 @@ defmodule FootballMarket.Quotes.Recovery do
           limit: 500
       )
 
+    correlations = JobContext.for_calculations(request_ids)
+
     Enum.each(request_ids, fn id ->
-      Oban.insert!(oban_name(), QuoteCalculation.new(%{"request_id" => id}))
+      job =
+        %{"request_id" => id}
+        |> QuoteCalculation.new()
+        |> JobContext.annotate(Map.get(correlations, id, id))
+
+      Oban.insert!(oban_name(), job)
     end)
 
     {:ok, length(request_ids)}

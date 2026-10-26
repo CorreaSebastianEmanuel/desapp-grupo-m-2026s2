@@ -1,5 +1,9 @@
 import Config
 
+# Runtime configuration runs after compilation, including on a cold checkout.
+config :logger, :default_handler,
+  formatter: Logger.Formatter.new(FootballMarket.Observability.JSONFormatter.options())
+
 for {app, values} <-
       Config.Reader.read!(Path.join(__DIR__, "synchronization.exs"),
         env: config_env(),

@@ -1,0 +1,8 @@
+# Research decisions — TASK-036
+
+- Elixir 1.20.3 Logger.Formatter supports a four-argument format callback, retaining standard report conversion and truncation. Use it with existing Jason rather than adding a formatter dependency. Configure after compilation and explicitly disable colors/use UTC. Source: https://github.com/elixir-lang/elixir/blob/v1.20.3/lib/logger/lib/logger/formatter.ex
+- Plug 1.20.3 RequestId already accepts an incoming ID of 20–200 bytes or generates one, sets Logger request_id and echoes x-request-id. Preserve that behavior. Source: https://plug.hexdocs.pm/1.20.3/Plug.RequestId.html
+- Oban 2.24.2 emits job start/stop/exception; executor source confirms timeout reporting can occur from a separate process. Its default logger emits raw args/meta, so use a small allowlisted telemetry adapter instead. Sources: local deps/oban/lib/oban/telemetry.ex and deps/oban/lib/oban/queues/{executor,producer}.ex; https://oban.hexdocs.pm/Oban.Telemetry.html (hosted docs currently label 2.24.1; pinned local source is authoritative).
+- The dispatcher creates calculation deliveries after import completion. Persist root context on the synchronization run and resolve existing accepted-check lineage when annotating jobs; do not depend on retained old Oban rows, modify digest inputs or introduce a second ledger. Batch scan lookups.
+- Existing CatalogSync intentionally returns :ok after recording durable domain failures. Logs label Oban execution state rather than claiming import/valuation success.
+- Manual delivery uses canonical ownership and real QA/review reports, not synthetic orchestration runs. Merge finalizer validates exact branch identity and both terminal PASS reports before completing the reviewed task.

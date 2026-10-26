@@ -99,12 +99,18 @@ defmodule FootballMarket.Quotes.Membership do
     import Ecto.Query
     alias FootballMarket.Quotes.CalculationRequest
     alias FootballMarket.Workers.QuoteCalculation
+    alias FootballMarket.Observability.JobContext
+
+    correlation = Map.get(JobContext.for_intents([id]), id, id)
 
     for request <-
           Repo.all(
             from r in CalculationRequest, where: r.intent_id == ^id and r.state == "pending"
           ) do
-      Repo.insert!(QuoteCalculation.new(%{"request_id" => request.id}))
+      %{"request_id" => request.id}
+      |> QuoteCalculation.new()
+      |> JobContext.annotate(correlation)
+      |> Repo.insert!()
     end
 
     :ok

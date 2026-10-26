@@ -4,6 +4,7 @@ defmodule FootballMarket.Synchronization.Recovery do
   alias FootballMarket.Repo
   alias FootballMarket.Synchronization.{Run, Store, ExecutionGuard}
   alias FootballMarket.Workers.CatalogSync
+  alias FootballMarket.Observability.JobContext
 
   def reconcile(now) do
     runs =
@@ -68,6 +69,7 @@ defmodule FootballMarket.Synchronization.Recovery do
       job =
         %{"run_id" => current.id, "delivery_id" => current.delivery_id}
         |> worker.new(scheduled_at: eligible)
+        |> JobContext.annotate(JobContext.for_run(current))
         |> Store.insert_job!()
 
       Repo.update!(Ecto.Changeset.change(current, job_id: job.id))

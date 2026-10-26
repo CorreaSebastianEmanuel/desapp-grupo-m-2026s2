@@ -19,7 +19,7 @@ defmodule FootballMarket.Statistics.Ingestion do
            Keyword.take(options, [:provider, :runtime]) |> Keyword.put(:positions, positions),
          {:ok, result} <-
            Providers.performances(
-             Map.put(scope, :timeout_ms, request.timeout_ms),
+             Map.put(request.scope, :timeout_ms, request.timeout_ms),
              provider_options
            ),
          :ok <- complete_scope?(result),

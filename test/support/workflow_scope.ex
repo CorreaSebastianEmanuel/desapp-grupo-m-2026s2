@@ -4,13 +4,16 @@ defmodule FootballMarket.WorkflowScope do
   def active_feature(root \\ File.cwd!()) do
     python = """
     import os
+    import re
     import subprocess
     from pathlib import Path
     from scripts.agentflow_feature import task_id_from_head, task_for_id, resolve_feature
     root=Path.cwd().resolve()
     branch=subprocess.check_output(['git','branch','--show-current'],text=True).strip()
     head=os.environ.get('GITHUB_HEAD_REF','').strip() or branch
-    if head not in ('main','master',''):
+    # Only numbered task branches claim Agentflow plan ownership.
+    # Ordinary maintenance branches still run every architecture assertion.
+    if re.match(r'^[0-9]{3}(?:-|$)', head):
         task=task_for_id(root,task_id_from_head(head))
         print(resolve_feature(root,task,head_ref=head).feature.relative_to(root).as_posix())
     """

@@ -14,14 +14,23 @@ defmodule FootballMarket.Accounts.BrowserSessions do
   def create_anonymous(time \\ now()), do: safely(fn -> insert(nil, "anonymous", time) end)
 
   def authenticate(handle, user_id, time \\ now()) do
-    safely(fn -> Repo.transaction(fn -> authenticate_locked(handle, user_id, time) end) end)
+    case digest(handle) do
+      nil ->
+        {:error, :invalid}
+
+      hash ->
+        authenticate_digest(hash, user_id, time)
+    end
   end
 
-  defp authenticate_locked(handle, user_id, time) do
+  defp authenticate_digest(hash, user_id, time),
+    do: safely(fn -> Repo.transaction(fn -> authenticate_locked(hash, user_id, time) end) end)
+
+  defp authenticate_locked(hash, user_id, time) do
     row =
       Repo.one(
         from(s in BrowserSession,
-          where: s.token_digest == ^digest(handle),
+          where: s.token_digest == ^hash,
           lock: "FOR UPDATE"
         ),
         log: false

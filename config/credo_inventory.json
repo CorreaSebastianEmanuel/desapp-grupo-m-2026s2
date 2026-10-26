@@ -463,6 +463,7 @@
     "test/football_market/quotes/history_test.exs",
     "test/football_market/quotes/immutability_test.exs",
     "test/football_market/quotes/import_test.exs",
+    "test/football_market/quotes/lifecycle_test.exs",
     "test/football_market/quotes/mapping_test.exs",
     "test/football_market/quotes/outcomes_test.exs",
     "test/football_market/quotes/reader_test.exs",

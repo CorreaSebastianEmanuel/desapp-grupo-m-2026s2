@@ -268,6 +268,13 @@
       "profile": "integration"
     },
     {
+      "id": "08659953ae3840c61b086d6b",
+      "runner": "exunit",
+      "file": "test/ci/workflow_scope_test.exs",
+      "case_id": "FootballMarket.WorkflowScopeTest:test ordinary maintenance branches have no workflow owner while numbered claims fail closed",
+      "profile": "unit"
+    },
+    {
       "id": "08fa62d1b3094ba68f7cf0ed",
       "runner": "python",
       "file": "test/scripts/test_profile_runner_test.py",
@@ -891,6 +898,13 @@
       "profile": "integration"
     },
     {
+      "id": "1e59464747673edb2bea5769",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/lifecycle_test.exs",
+      "case_id": "FootballMarket.Quotes.LifecycleTest:test malformed mapping identity is a mapping admission failure",
+      "profile": "integration"
+    },
+    {
       "id": "1e6e6c9ade0475653eab7be6",
       "runner": "shell",
       "file": "test/scripts/verify_foundation_test.sh",
@@ -1388,6 +1402,13 @@
       "profile": "unit"
     },
     {
+      "id": "2f25dcbdf7485e725e9dc317",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/lifecycle_test.exs",
+      "case_id": "FootballMarket.Quotes.LifecycleTest:test duplicate missing mapping admissions are idempotent under concurrency",
+      "profile": "integration"
+    },
+    {
       "id": "2f5066615b95ac57b94cb9d7",
       "runner": "exunit",
       "file": "test/football_market/catalog/ingestion/concurrency_test.exs",
@@ -1714,6 +1735,13 @@
       "runner": "exunit",
       "file": "test/football_market/catalog/ingestion/publication_test.exs",
       "case_id": "FootballMarket.Catalog.Ingestion.PublicationTest:test membership is complete and cannot join observations and bindings from different scopes",
+      "profile": "integration"
+    },
+    {
+      "id": "39d762259adb05318e046efc",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/lifecycle_test.exs",
+      "case_id": "FootballMarket.Quotes.LifecycleTest:test expired worker cannot steal binding from a newly claimed worker",
       "profile": "integration"
     },
     {
@@ -2221,6 +2249,13 @@
       "profile": "integration"
     },
     {
+      "id": "4bb93c02b3066f8da4f3dded",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/lifecycle_test.exs",
+      "case_id": "FootballMarket.Quotes.LifecycleTest:test a worker waiting on request lock reclaims a lease that expires during the wait",
+      "profile": "integration"
+    },
+    {
       "id": "4bbb7bc675ccaf6ed59de407",
       "runner": "exunit",
       "file": "test/football_market/quotes/immutability_test.exs",
@@ -2617,6 +2652,13 @@
       "runner": "exunit",
       "file": "test/football_market/quotes/replay_test.exs",
       "case_id": "FootballMarket.Quotes.ReplayTest:test replay fails explicitly when retained evidence references a missing original",
+      "profile": "integration"
+    },
+    {
+      "id": "5981b836a5ac4a1fbac0367a",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/lifecycle_test.exs",
+      "case_id": "FootballMarket.Quotes.LifecycleTest:test lease claim starts its duration after acquiring the row lock",
       "profile": "integration"
     },
     {
@@ -3261,6 +3303,13 @@
       "runner": "exunit",
       "file": "test/football_market/catalog/ingestion/replay_test.exs",
       "case_id": "FootballMarket.Catalog.Ingestion.ReplayTest:test ten replays preserve acceptance, rows, timestamps and binding evidence",
+      "profile": "integration"
+    },
+    {
+      "id": "719e5aa8f050f4c9d10f9796",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/lifecycle_test.exs",
+      "case_id": "FootballMarket.Quotes.LifecycleTest:test concurrent configuration failures retain one terminal admission",
       "profile": "integration"
     },
     {
@@ -4657,6 +4706,13 @@
       "profile": "integration"
     },
     {
+      "id": "a0796ea42e68f5309d0afea6",
+      "runner": "exunit",
+      "file": "test/football_market/statistics/ingestion/acceptance_test.exs",
+      "case_id": "FootballMarket.Statistics.Ingestion.AcceptanceTest:test string-keyed scopes use normalized provider input throughout admission",
+      "profile": "integration"
+    },
+    {
       "id": "a0845e2b3e3d36b6b8acbf5e",
       "runner": "python",
       "file": "test/scripts/agentflow_evidence_test.py",
@@ -5364,6 +5420,13 @@
       "profile": "unit"
     },
     {
+      "id": "b6c9b8ca3b48b7e567a219cb",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/session_controller_test.exs",
+      "case_id": "FootballMarketWeb.SessionControllerTest:test expired and missing sign-in authority issues a recoverable form without authenticating",
+      "profile": "integration"
+    },
+    {
       "id": "b6e6a169c635256203377a13",
       "runner": "exunit",
       "file": "test/football_market/providers/fixture_matrix_test.exs",
@@ -5411,6 +5474,13 @@
       "file": "test/scripts/agentflow_models_test.py",
       "case_id": "test.scripts.agentflow_models_test.LauncherTest.test_adoption_removes_old_child_session_and_conflicts_fail_before_spawn",
       "profile": "unit"
+    },
+    {
+      "id": "b99357896e27a54b36a5f882",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/lifecycle_test.exs",
+      "case_id": "FootballMarket.Quotes.LifecycleTest:test insufficient-data identity uses canonical membership ordering",
+      "profile": "integration"
     },
     {
       "id": "ba2de3018c43f720367357d3",
@@ -6232,6 +6302,13 @@
       "profile": "unit"
     },
     {
+      "id": "d44829aded1bc2ef3cc43b49",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/lifecycle_test.exs",
+      "case_id": "FootballMarket.Quotes.LifecycleTest:test scored and empty calculation times are sampled after acquiring the player lock",
+      "profile": "integration"
+    },
+    {
       "id": "d44977b19748fe59095e55b2",
       "runner": "exunit",
       "file": "test/football_market/synchronization/request_test.exs",
@@ -6642,6 +6719,13 @@
       "runner": "exunit",
       "file": "test/football_market/quotes/outcomes_test.exs",
       "case_id": "FootballMarket.Quotes.OutcomesTest:test a positive score that converts to zero is retained without quote or follow-up",
+      "profile": "integration"
+    },
+    {
+      "id": "e0bd48fb46e60f9ad3de37ec",
+      "runner": "exunit",
+      "file": "test/football_market/accounts/browser_sessions_test.exs",
+      "case_id": "FootballMarket.Accounts.BrowserSessionsTest:test missing and malformed anonymous handles are invalid without querying persistence",
       "profile": "integration"
     },
     {
@@ -7594,6 +7678,13 @@
       "runner": "exunit",
       "file": "test/football_market/catalog/query_test.exs",
       "case_id": "FootballMarket.CatalogQueryTest:test singular fetches support stable and normalized business identities",
+      "profile": "integration"
+    },
+    {
+      "id": "fe5f437ac1d05b206a36ff30",
+      "runner": "exunit",
+      "file": "test/football_market/catalog/ingestion/retention_test.exs",
+      "case_id": "FootballMarket.Catalog.Ingestion.RetentionTest:test accepted empty teams and seasons return relationship errors on deletion",
       "profile": "integration"
     },
     {

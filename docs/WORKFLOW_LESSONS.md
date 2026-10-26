@@ -48,3 +48,5 @@ list passes the checkpoint hygiene review.
 - 2026-10-21 — Human feedback changes verification fingerprints and invalidates older receipts — finish canonical edits before the authorized round, regenerate development evidence, and stop at a concrete blocker without launching another full cycle — TASK-067
 - 2026-10-21 — A formatter failure location may refer to a dependency stack frame — preserve the case identity and distinguish observed failure from an unproven assertion or performance cause before changing code — TASK-067
 - 2026-10-26 — Older calculation intents may lack newer snapshot records — preserve a player-and-season-scoped fallback when reporting asynchronous valuation status — TASK-056
+- 2026-10-26 — Row-lock waits can consume transaction-time leases before authority is acquired — use the current database clock after locking and fence configuration binding as well as confirmation — TASK-026
+- 2026-10-26 — Restoring absent application configuration as an explicit nil contaminates later tests — preserve absence with fetch_env/delete_env during fixture cleanup — TASK-027

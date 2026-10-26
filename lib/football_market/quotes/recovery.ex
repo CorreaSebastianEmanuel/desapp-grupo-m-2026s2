@@ -56,7 +56,7 @@ defmodule FootballMarket.Quotes.Recovery do
   defp claim_evaluation_by_id(event_id, lease_seconds) do
     Repo.transaction(fn ->
       event = Repo.one(from e in Evaluation, where: e.id == ^event_id, lock: "FOR UPDATE")
-      now = Store.database_now!()
+      now = Store.database_clock_now!()
       claim_locked(event, lease_seconds, now)
     end)
   end

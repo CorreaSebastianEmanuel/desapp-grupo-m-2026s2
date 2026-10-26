@@ -101,24 +101,9 @@ defmodule FootballMarket.Synchronization.ScopeTest do
     assert File.read!("lib/football_market/workers/catalog_sync.ex") =~ "Ingestion.import_catalog"
     plugins = Application.fetch_env!(:football_market, Oban)[:plugins]
 
-    case FootballMarket.WorkflowScope.active_feature() do
-      "specs/026-quote-recalculation-and-immutable-history" ->
-        assert [
-                 {Oban.Plugins.Cron,
-                  crontab: [{"* * * * *", FootballMarket.Workers.QuoteRecovery}]}
-               ] =
-                 plugins
-
-      "specs/068-agentflow-preflight-recovery" ->
-        assert [
-                 {Oban.Plugins.Cron,
-                  crontab: [{"* * * * *", FootballMarket.Workers.QuoteRecovery}]}
-               ] =
-                 plugins
-
-      _ ->
-        assert plugins == []
-    end
+    assert [
+             {Oban.Plugins.Cron, crontab: [{"* * * * *", FootballMarket.Workers.QuoteRecovery}]}
+           ] = plugins
 
     assert File.read!("config/synchronization.exs") =~ "enabled: false"
     assert File.read!("config/synchronization.exs") =~ "catalog_sync: 1"

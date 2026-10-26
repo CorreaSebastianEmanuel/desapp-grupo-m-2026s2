@@ -11,11 +11,7 @@ defmodule FootballMarket.Valuation.Preparation do
   }
 
   def build(request, rows) do
-    rows =
-      Enum.sort_by(
-        rows,
-        &{DateTime.to_unix(&1.kickoff, :microsecond), &1.match_identity, &1.performance_id}
-      )
+    rows = canonical_order(rows)
 
     with :ok <- membership(request, rows),
          {:ok, rows} <- PositionGroups.assign(rows, request.position_mapping) do
@@ -30,6 +26,13 @@ defmodule FootballMarket.Valuation.Preparation do
 
       with :ok <- completeness(request, scopes), do: {:ok, prepared(request, rows, scopes)}
     end
+  end
+
+  def canonical_order(rows) do
+    Enum.sort_by(
+      rows,
+      &{DateTime.to_unix(&1.kickoff, :microsecond), &1.match_identity, &1.performance_id}
+    )
   end
 
   defp completeness(request, scopes) do

@@ -25,6 +25,10 @@ defmodule FootballMarket.Catalog.Team do
   def delete_changeset(team) do
     team
     |> change()
+    |> foreign_key_constraint(:source_bindings,
+      name: :catalog_source_bindings_team_id_season_scope_id_fkey,
+      message: "still has retained import references"
+    )
     |> foreign_key_constraint(:matches,
       name: :matches_home_team_id_season_fkey,
       message: "still has historical matches"

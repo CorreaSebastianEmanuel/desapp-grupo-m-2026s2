@@ -16,6 +16,20 @@ defmodule FootballMarket.Statistics.Ingestion.AcceptanceTest do
   alias FootballMarket.Statistics.Performance
   alias FootballMarket.StatisticsIngestion.{Case, Fixtures}
 
+  test "string-keyed scopes use normalized provider input throughout admission" do
+    scope = Fixtures.scope()
+    Case.seed_catalog!(scope)
+    candidate = Case.candidate(Fixtures.request(scope))
+    context = Case.delivery_context!(scope)
+    string_scope = Map.new(scope, fn {key, value} -> {Atom.to_string(key), value} end)
+
+    assert {:ok, %{status: :accepted_changes}} =
+             Ingestion.import_scope(
+               string_scope,
+               Case.provider_options(candidate) ++ [delivery_context: context]
+             )
+  end
+
   test "complete source result atomically accepts facts, lineage, check and calculation intent" do
     scope = Fixtures.scope()
     Case.seed_catalog!(scope)

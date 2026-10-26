@@ -22,12 +22,20 @@ defmodule FootballMarket.Accounts do
       |> register_with_credential(password_hash)
       |> registration_result()
     else
-      {:error, :email} -> {:error, safe_error_changeset(user_changeset, password)}
-      {:error, message} -> {:error, safe_error_changeset(user_changeset, password, message)}
+      {:error, :email} ->
+        {:error,
+         safe_error_changeset(
+           user_changeset,
+           if(is_binary(password), do: nil, else: "is invalid")
+         )}
+
+      {:error, message} ->
+        {:error, safe_error_changeset(user_changeset, message)}
     end
   end
 
-  def register_user(_attrs), do: {:error, safe_error_changeset(User.changeset(%User{}, %{}), nil)}
+  def register_user(_attrs),
+    do: {:error, safe_error_changeset(User.changeset(%User{}, %{}), "is invalid")}
 
   @doc "Verifies a candidate password for a user without exposing credential material."
   def verify_password(user_id, password) do
@@ -221,12 +229,12 @@ defmodule FootballMarket.Accounts do
   defp registration_result({:ok, %{user: user}}), do: {:ok, User.public_projection(user)}
 
   defp registration_result({:error, :user, changeset, _changes}),
-    do: {:error, safe_error_changeset(changeset, nil)}
+    do: {:error, safe_error_changeset(changeset)}
 
   defp registration_result({:error, _operation, _reason, _changes}),
-    do: {:error, safe_error_changeset(User.changeset(%User{}, %{}), nil, "could not be created")}
+    do: {:error, safe_error_changeset(User.changeset(%User{}, %{}), "could not be created")}
 
-  defp safe_error_changeset(user_changeset, password, password_message \\ nil) do
+  defp safe_error_changeset(user_changeset, password_message \\ nil) do
     safe = %User{} |> change() |> put_change(:email, get_change(user_changeset, :email))
 
     safe =
@@ -236,8 +244,7 @@ defmodule FootballMarket.Accounts do
       end
 
     case password_message do
-      nil when is_binary(password) -> safe
-      nil -> add_error(safe, :password, "is invalid")
+      nil -> safe
       message -> add_error(safe, :password, message)
     end
   end

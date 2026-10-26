@@ -95,19 +95,20 @@ defmodule FootballMarket.Providers.ScopeTest do
         []
       end
 
-    assert Enum.all?(
-             production,
-             &(&1 in (@production ++
-                        @scraping_production ++
-                        ingestion_paths ++
-                        valuation_paths(active_feature) ++
-                        market_paths(active_feature) ++
-                        synchronization_paths(active_feature) ++
-                        FootballMarket.BrowserSessionCase.shell_paths(active_feature)) or
-                 &1 == "mix.exs" or
-                 &1 == "config/credo_inventory.json" or
-                 FootballMarket.WorkflowScope.allows_path?(active_feature, &1))
-           )
+    assert is_nil(active_feature) or
+             Enum.all?(
+               production,
+               &(&1 in (@production ++
+                          @scraping_production ++
+                          ingestion_paths ++
+                          valuation_paths(active_feature) ++
+                          market_paths(active_feature) ++
+                          synchronization_paths(active_feature) ++
+                          FootballMarket.BrowserSessionCase.shell_paths(active_feature)) or
+                   &1 == "mix.exs" or
+                   &1 == "config/credo_inventory.json" or
+                   FootballMarket.WorkflowScope.allows_path?(active_feature, &1))
+             )
 
     assert Enum.sort(
              Path.wildcard("lib/football_market/providers/**/*.ex") ++

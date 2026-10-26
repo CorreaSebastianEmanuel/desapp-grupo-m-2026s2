@@ -4,9 +4,10 @@ title: Player statistics freshness and asynchronous refresh
 type: task
 checkpoint: CP2
 priority: medium
-status: todo
+status: done
 depends_on: TASK-011, TASK-019, TASK-021
 active_run: none
+feature_directory: specs/056-player-statistics-freshness-and-asynchronous-refresh
 ---
 
 ## Outcome

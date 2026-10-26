@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "runtime_required": true,
+  "checks": [
+    {
+      "id": "format",
+      "argv": [
+        "mix",
+        "format",
+        "--check-formatted"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "reuse": false
+    },
+    {
+      "id": "compile",
+      "argv": [
+        "mix",
+        "compile",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "reuse": false
+    },
+    {
+      "id": "openapi",
+      "argv": [
+        "node",
+        "tools/openapi/validate.mjs",
+        "priv/static/openapi.json"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "reuse": false
+    },
+    {
+      "id": "unit",
+      "argv": [
+        "sh",
+        "scripts/test_profile.sh",
+        "unit"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "reuse": false
+    },
+    {
+      "id": "integration",
+      "argv": [
+        "sh",
+        "scripts/test_profile.sh",
+        "integration"
+      ],
+      "runtime": true,
+      "expectation": "Authenticated detail HTTP responses assert status and freshness bodies; database-backed tests assert shared-scope deduplication, accepted-check TTL, retry cooldown and independent valuation state.",
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "reuse": false
+    },
+    {
+      "id": "e2e",
+      "argv": [
+        "sh",
+        "scripts/test_profile.sh",
+        "e2e"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "reuse": false
+    }
+  ],
+  "coverage": {
+    "FR-001": [
+      "integration",
+      "unit"
+    ],
+    "FR-002": [
+      "integration",
+      "unit"
+    ],
+    "FR-003": [
+      "integration",
+      "unit"
+    ],
+    "FR-004": [
+      "integration",
+      "unit"
+    ],
+    "FR-005": [
+      "integration",
+      "unit"
+    ],
+    "FR-006": [
+      "integration",
+      "unit"
+    ],
+    "FR-007": [
+      "integration",
+      "unit"
+    ],
+    "FR-008": [
+      "integration",
+      "unit"
+    ],
+    "FR-009": [
+      "integration",
+      "unit"
+    ],
+    "FR-010": [
+      "integration",
+      "unit"
+    ]
+  },
+  "task_stages": {
+    "T008": "qa",
+    "T009": "review"
+  }
+}

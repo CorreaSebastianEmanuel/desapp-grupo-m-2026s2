@@ -7,4 +7,6 @@
 - [X] T005 Document runtime logging and validate Agentflow compatibility.
 - [X] T006 Independently execute QA and write `qa-report.md`.
 - [X] T007 Independently review implementation and evidence in `review-report.md`.
-- [ ] T008 Publish the reviewed canonical task branch as a PR; leave merge human-controlled.
+- [X] T008 Publish the reviewed canonical task branch as a PR; leave merge human-controlled.
+
+Published: [PR #56](https://github.com/CorreaSebastianEmanuel/desapp-grupo-m-2026s2/pull/56). TASK-036 remains in review until human merge.

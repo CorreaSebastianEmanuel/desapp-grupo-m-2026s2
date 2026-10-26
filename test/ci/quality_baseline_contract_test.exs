@@ -96,6 +96,8 @@ defmodule FootballMarket.QualityBaselineContractTest do
     assert workflow =~ "run: mix format --check-formatted"
     assert workflow =~ "run: MIX_ENV=test mix compile --warnings-as-errors"
     assert workflow =~ "run: scripts/ci_unit_tests.sh"
+    assert workflow =~ "playwright-core install --with-deps chromium"
+    refute workflow =~ "playwright-core install --with-deps --only-shell chromium"
     assert workflow =~ "name: Workflow behavior tests"
     assert workflow =~ "verify-receipts tmp/profile-ci"
     assert workflow =~ "fetch-depth: 0"
@@ -170,6 +172,7 @@ defmodule FootballMarket.QualityBaselineContractTest do
     assert workflow =~ "scripts/test_profile.sh e2e"
     refute workflow =~ "cp1_coverage"
     assert runner =~ "scripts/test_profile.sh"
-    refute runner =~ "coverage"
+    assert runner =~ "PROFILE_MEMBERSHIP_DIAGNOSTIC"
+    refute runner =~ "print(output"
   end
 end

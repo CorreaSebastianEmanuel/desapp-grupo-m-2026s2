@@ -9,7 +9,6 @@ import re
 import subprocess
 import time
 import uuid
-from glob import glob
 from pathlib import Path
 
 try:
@@ -23,21 +22,11 @@ except ImportError:
 def node24_path() -> str | None:
     """Local integration preflight requires Node v24 (CI pins it explicitly);
     sandboxed agents inherit a PATH that lacks the nvm install."""
-    from shutil import which
-
-    candidates = sorted(glob(str(Path.home() / ".nvm/versions/node/v24*/bin")), reverse=True)
-    hit = next((entry for entry in candidates if Path(entry, "node").is_file()), None)
-    if not hit:
-        return None
-    current = which("node")
-    if current:
-        try:
-            probe = subprocess.run([current, "--version"], capture_output=True, text=True, timeout=5)
-            if probe.stdout.strip().startswith("v24"):
-                return None
-        except OSError:
-            pass
-    return hit
+    try:
+        from .agentflow_preflight import node24_path as resolve_node24_path
+    except ImportError:
+        from agentflow_preflight import node24_path as resolve_node24_path
+    return resolve_node24_path(os.environ.get("PATH"))
 
 
 def execute_check(check: dict, root: Path, evidence: Path) -> int:
@@ -67,7 +56,7 @@ def execute_check(check: dict, root: Path, evidence: Path) -> int:
             return 130
 
 
-def safe_failure_diagnostics(evidence: Path) -> dict:
+def safe_failure_diagnostics(evidence: Path, root: Path | None = None) -> dict:
     """Expose only the location summary emitted by test_profile.sh."""
     stages = []
     failures = []
@@ -80,13 +69,18 @@ def safe_failure_diagnostics(evidence: Path) -> dict:
             failures.append(line.removeprefix("CP1_PROFILE_FAILURES count="))
         elif re.fullmatch(r"CP1_PROFILE_FAILURE_LOCATION (?:test/[A-Za-z0-9_./-]+\.exs:[0-9]+|unavailable)", line):
             locations.append(line.removeprefix("CP1_PROFILE_FAILURE_LOCATION "))
-    if not (stages or failures or locations):
-        return {}
-    return {
+    result = {
         "stages": stages,
         "failure_counts": failures,
         "locations": locations,
     }
+    if root is not None:
+        try:
+            from .profile_safe_diagnostics import parse_profile_diagnostics
+        except ImportError:
+            from profile_safe_diagnostics import parse_profile_diagnostics
+        result.update(parse_profile_diagnostics(root, evidence))
+    return {key: value for key, value in result.items() if value}
 
 
 def run_check(root: Path, feature: Path, ident: str, *, reuse: bool = False, stage: str = "develop") -> int:
@@ -98,6 +92,9 @@ def run_check(root: Path, feature: Path, ident: str, *, reuse: bool = False, sta
     check = next((c for c in data["checks"] if c["id"] == ident), None)
     if check is None:
         raise RuntimeError("Unknown required check")
+    stage_attempt_token = os.environ.get("AGENTFLOW_STAGE_ATTEMPT_TOKEN")
+    if stage_attempt_token is not None and not re.fullmatch(r"[a-f0-9]{32}", stage_attempt_token):
+        raise RuntimeError("Invalid full-stage attempt token")
     local_receipt = receipt_path(root, feature, check, stage, create=True)
     local_receipt.parent.mkdir(parents=True, exist_ok=True)
     before = source_fingerprint(root)
@@ -139,7 +136,8 @@ def run_check(root: Path, feature: Path, ident: str, *, reuse: bool = False, sta
         return 2
     # Invalidate prior success before spawning anything, including on cancellation.
     atomic_json(local_receipt, {"schema_version": 2, "state": "running", "scope": scope,
-                               "exit_code": None, "check_identity": check_identity(check)})
+                               "exit_code": None, "check_identity": check_identity(check),
+                               **({"stage_attempt_token": stage_attempt_token} if stage_attempt_token else {})})
     directory = local_receipt.parent
     directory.mkdir(parents=True, exist_ok=True)
     evidence = directory / f"{uuid.uuid4().hex}.log"
@@ -153,7 +151,8 @@ def run_check(root: Path, feature: Path, ident: str, *, reuse: bool = False, sta
                "state": "failed" if code or changed else "passed", "exit_code": code, "check_identity": check_identity(check), "source_before": before,
                "source_after": after, "inputs": inputs, "evidence": evidence.relative_to(root).as_posix(),
                "evidence_sha256": digest(evidence.read_bytes()), "stage": stage,
-               "elapsed_seconds": duration}
+               "elapsed_seconds": duration,
+               **({"stage_attempt_token": stage_attempt_token} if stage_attempt_token else {})}
     atomic_json(local_receipt, receipt)
     history.update(consecutive_failures=failures + 1 if code or changed else 0,
                    elapsed_seconds=round(elapsed + duration, 3), evidence=receipt["evidence"],
@@ -163,9 +162,10 @@ def run_check(root: Path, feature: Path, ident: str, *, reuse: bool = False, sta
               "inputs_changed": changed, "reused": False, "elapsed_seconds": duration,
               "consecutive_failures": history["consecutive_failures"],
               "retry_limit_reached": history["consecutive_failures"] >= 2,
-              "evidence": receipt["evidence"]}
+              "evidence": receipt["evidence"],
+              **({"stage_attempt_token": stage_attempt_token} if stage_attempt_token else {})}
     if code:
-        diagnostics = safe_failure_diagnostics(evidence)
+        diagnostics = safe_failure_diagnostics(evidence, root)
         if diagnostics:
             result["failure_diagnostics"] = diagnostics
     print(json.dumps(result))

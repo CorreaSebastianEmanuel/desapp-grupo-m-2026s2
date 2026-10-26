@@ -10,6 +10,95 @@ MARKER = "AGENTFLOW_EVENT "
 STAGES = {"product", "product_challenge", "architecture", "tasks", "develop", "qa", "review", "unknown"}
 DIMENSIONS = ("input_tokens", "cached_input_tokens", "output_tokens", "reasoning_output_tokens", "cache_write_input_tokens")
 
+# Public failure records are assembled from these fixed values. Callers pass
+# identifiers and codes, never exception text, argv, environment or output.
+SAFE_DIAGNOSTICS = {
+    "prerequisite-missing": ("A required prerequisite is missing.", "Install or configure the named prerequisite, then rerun preflight."),
+    "prerequisite-incompatible": ("A prerequisite does not meet its required condition.", "Use the documented compatible version or setting, then rerun preflight."),
+    "prerequisite-unknown": ("A prerequisite could not be evaluated safely.", "Resolve the inspection issue and rerun preflight."),
+    "prerequisite-unavailable": ("A required service or executable is unavailable.", "Make the prerequisite available without changing workflow evidence, then rerun preflight."),
+    "check-failed": ("A required check failed.", "Inspect the protected evidence reference, repair the relevant input, and rerun the check."),
+    "interrupted": ("The check did not finish.", "Resume after inspecting the protected evidence reference."),
+    "dependency-blocked": ("The check was blocked by an unsafe or failed dependency.", "Repair the named dependency and rerun the required checks."),
+    "retry-limit": ("The unchanged-input retry limit was reached.", "Repair a relevant input or request a human decision before another attempt."),
+    "invalid-evidence": ("Required evidence is invalid or stale.", "Regenerate evidence by running the required check in this workspace."),
+    "configuration": ("The workflow configuration is invalid.", "Correct the named configuration field before launching checks."),
+}
+
+
+def write_partial_qa_report(root: Path, stage: str, cause: str):
+    """Ensure a provider exit cannot leave QA with a missing/success-looking report."""
+    if stage != "qa":
+        return None
+    try:
+        from .agentflow_verification import manifest
+        from .workflow_artifact_probe import active_feature
+    except ImportError:
+        from agentflow_verification import manifest
+        from workflow_artifact_probe import active_feature
+    feature = active_feature(root)
+    checks = manifest(feature)["checks"]
+    path = feature / "qa-report.md"
+    existing = path.read_text(encoding="utf-8") if path.is_file() else ""
+    # Preserve an existing machine inventory, while ensuring every manifest
+    # identity remains represented if the provider exits before batching.
+    if existing and all(f"`{check['id']}`" in existing for check in checks):
+        if "Verdict: PASS" in existing:
+            replacement = existing.replace("Verdict: PASS", "Verdict: FAIL")
+            temporary = path.with_suffix(".tmp")
+            temporary.write_text(replacement, encoding="utf-8")
+            temporary.replace(path)
+        return path
+    journal_path = root / ".agentflow/runs/checks/stage-journals" / feature.name / "qa.json"
+    try:
+        journal = json.loads(journal_path.read_text(encoding="utf-8"))
+        outcomes = {row.get("id"): row for row in journal.get("checks", [])}
+    except (OSError, ValueError, AttributeError):
+        outcomes = {}
+    rows = ["# Independent QA check outcomes", "",
+            "Provider ended before all required checks completed.", "",
+            "| Check | Outcome | Evidence |", "|---|---|---|"]
+    for check in checks:
+        row = outcomes.get(check["id"], {})
+        status = row.get("status", "unexecuted")
+        evidence = row.get("evidence") or "—"
+        rows.append(f"| `{check['id']}` | {status} | {evidence} |")
+    rows += ["", "Verdict: FAIL", ""]
+    temporary = path.with_suffix(".tmp")
+    temporary.write_text("\n".join(rows), encoding="utf-8")
+    temporary.replace(path)
+    return path
+
+
+def safe_diagnostic(*, task=None, feature=None, stage="unknown", check=None,
+                    category="configuration", expected="registered-condition",
+                    observed="unknown", elapsed_ms=None, evidence=None):
+    """Return a bounded diagnostic containing only safe catalog text and codes."""
+    if category not in SAFE_DIAGNOSTICS:
+        category = "configuration"
+    cause, action = SAFE_DIAGNOSTICS[category]
+    safe_label = lambda value: value if isinstance(value, str) and re.fullmatch(r"[A-Za-z0-9_.:/-]{1,160}", value) else None
+    expected_codes = {"registered-condition", "registered-check", "registered-version",
+                      "python-3", "executable", "provider-executable", "readable-directory",
+                      "setting-present", "setting-true", "file-readable", "service-ready", "service-available"}
+    observed_codes = {"unknown", "missing", "present", "readable", "version-mismatch",
+                      "probe-failed", "unavailable", "ready", "not-ready", "unsupported"}
+    evidence_ref = safe_label(evidence)
+    if not isinstance(evidence_ref, str) or not evidence_ref.startswith(".agentflow/runs/checks/"):
+        evidence_ref = None
+    task_id = task if isinstance(task, str) and re.fullmatch(r"TASK-\d{3}", task) else None
+    feature_id = feature if isinstance(feature, str) and re.fullmatch(r"\d{3}-[a-z0-9-]+", feature) else None
+    stage_id = stage if isinstance(stage, str) and stage in STAGES else "unknown"
+    check_id = check if isinstance(check, str) and re.fullmatch(r"[a-z][a-z0-9_-]{0,63}", check) else None
+    result = {"task": task_id, "feature": feature_id,
+              "stage": stage_id, "check": check_id,
+              "category": category, "cause": cause,
+              "expected": expected if isinstance(expected, str) and expected in expected_codes else "registered-condition",
+              "observed": observed if isinstance(observed, str) and observed in observed_codes else "unknown",
+              "elapsed_ms": elapsed_ms if type(elapsed_ms) is int and elapsed_ms >= 0 else None,
+              "evidence": evidence_ref, "action": action}
+    return result
+
 
 def stage_from_args(args: list[str]) -> str:
     matches = {match for arg in args for match in re.findall(r"(?m)(?:^|\s)Agentflow stage: ([a-z_]+)$", arg)}

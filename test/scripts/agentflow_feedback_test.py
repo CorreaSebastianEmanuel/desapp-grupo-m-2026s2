@@ -30,6 +30,35 @@ class FeedbackTest(DeliveryFixture):
         with self.assertRaisesRegex(RuntimeError,'pending|unclassified'):
             AGENTFLOW.guard_feedback(self.task)
 
+    def test_third_feedback_cycle_is_allowed_and_fourth_preserves_history(self):
+        for index in range(3):
+            AGENTFLOW.add_feedback(SimpleNamespace(task='TASK-003', message=f'Cycle {index+1}',
+                                                   stage=None, impact=['implementation']))
+        path=self.root/'backlog/feedback/TASK-003.md'
+        before=path.read_bytes()
+        with self.assertRaisesRegex(SystemExit, 'Feedback limit reached'):
+            AGENTFLOW.add_feedback(SimpleNamespace(task='TASK-003', message='Fourth cycle',
+                                                   stage=None, impact=['implementation']))
+        self.assertEqual(path.read_bytes(),before)
+        self.assertEqual(before.count(b'## Feedback '),3)
+
+    def test_preexisting_cycle_count_uses_configured_cap_without_resetting_history(self):
+        path=self.root/'backlog/feedback/TASK-003.md'
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text('# Feedback — TASK-003\n\n' +
+                        ''.join(f'## Feedback {index}\n\nPrior cycle {index}\n\n' for index in (1, 2)))
+        before=path.read_bytes()
+        with patch.object(AGENTFLOW, 'MAX_FEEDBACK_CYCLES', 2):
+            with self.assertRaisesRegex(SystemExit, 'Feedback limit reached'):
+                AGENTFLOW.add_feedback(SimpleNamespace(task='TASK-003', message='Must not reset cap',
+                                                       stage=None, impact=['implementation']))
+        self.assertEqual(path.read_bytes(), before)
+        config_path=self.root/'.agentflow/config.toml'
+        config_path.parent.mkdir(parents=True, exist_ok=True)
+        config_path.write_text('max_feedback_cycles = 3\n')
+        config=config_path.read_text()
+        self.assertIn('max_feedback_cycles = 3', config)
+
     def test_implementation_feedback_preserves_settled_artifacts(self):
         before=(self.feature/'spec.md').read_bytes()
         AGENTFLOW.add_feedback(SimpleNamespace(task='TASK-003',message='Fix cited parser regression',stage=None,impact=['implementation']))

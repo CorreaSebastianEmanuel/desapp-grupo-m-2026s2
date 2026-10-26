@@ -8,6 +8,7 @@ import re
 import socket
 import subprocess
 import sys
+import traceback
 import unittest
 import uuid
 
@@ -75,9 +76,10 @@ SERVICE_FILES = {'local_services_lifecycle_test.sh', 'local_services_failure_tes
                  'database_isolation_test.sh', 'infrastructure_verify_test.sh', 'redis_disposability_test.sh'}
 
 
-def event(file, case_id, state, runner):
+def event(file, case_id, state, runner, **details):
     with open(os.environ['PROFILE_EVENTS'], 'a') as stream:
-        stream.write(json.dumps(dict(nonce=os.environ.get('PROFILE_NONCE'), runner=runner, file=file, case_id=case_id, state=state)) + '\n')
+        stream.write(json.dumps(dict(nonce=os.environ.get('PROFILE_NONCE'), runner=runner, file=file,
+                                     case_id=case_id, state=state, **details)) + '\n')
 
 
 class EventResult(unittest.TestResult):
@@ -100,15 +102,22 @@ class EventResult(unittest.TestResult):
     def addSubTest(self, test, subtest, err):
         super().addSubTest(test, subtest, err)
         if err is not None:
-            self.report(test, 'failed')
+            self.report_failure(test, err, 'assertion')
+
+    def report_failure(self, test, err, cause):
+        file = Path(inspect.getfile(type(test))).resolve().relative_to(Path.cwd()).as_posix()
+        frames = traceback.extract_tb(err[2]) if err and len(err) > 2 else []
+        line = next((frame.lineno for frame in reversed(frames)
+                     if Path(frame.filename).resolve() == Path.cwd() / file), None)
+        event(file, test.id(), 'failed', 'python', cause=cause, failure_line=line)
 
     def addFailure(self, test, err):
         super().addFailure(test, err)
-        self.report(test, 'failed')
+        self.report_failure(test, err, 'assertion')
 
     def addError(self, test, err):
         super().addError(test, err)
-        self.report(test, 'failed')
+        self.report_failure(test, err, 'error')
 
 
 def run_python():

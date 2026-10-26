@@ -34,11 +34,29 @@ class ComponentsTest(unittest.TestCase):
         second.close.assert_called_once_with()
 
     def test_native_python_discovery_includes_own_case(self):
+        import json
+        import os
+        import sys
+        import tempfile
+        from pathlib import Path
+        from unittest.mock import patch
         adapter = load('test_profile_components')
         cases = adapter.python_cases()
         names = [case.id() for case in cases]
         self.assertEqual(len(names), len(set(names)))
         self.assertIn(self.id(), names)
+        with tempfile.TemporaryDirectory() as directory, patch.dict(os.environ, {
+                'PROFILE_EVENTS': str(Path(directory) / 'events.jsonl'), 'PROFILE_NONCE': 'nonce'}):
+            try:
+                raise AssertionError('private assertion canary')
+            except AssertionError:
+                adapter.EventResult().report_failure(self, sys.exc_info(), 'assertion')
+            event = json.loads(Path(directory, 'events.jsonl').read_text())
+            self.assertEqual(event['state'], 'failed')
+            self.assertEqual(event['cause'], 'assertion')
+            self.assertIsInstance(event['failure_line'], int)
+            self.assertGreater(event['failure_line'], 0)
+            self.assertNotIn('private assertion canary', json.dumps(event))
 
     def test_docker_wrapper_rewrites_only_owned_compose_targets(self):
         import json

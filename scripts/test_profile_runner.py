@@ -7,15 +7,106 @@ import os
 from pathlib import Path
 import re
 import signal
+import shutil
 import subprocess
 import sys
 import tempfile
 import time
 import uuid
-from test_inventory import check, entry, reconcile
+from test_inventory import (check, entry, reconcile_diagnostics, registered_extra_ids,
+                            registered_extra_sources)
 from test_profile_components import isolated_services, SERVICE_FILES
 
 child = None
+_BROWSER_CAUSES = {"node-unavailable", "node-incompatible", "playwright-missing",
+                   "bundled-chromium-missing", "chromium-launch-failed", "chromium-launch-timeout"}
+
+
+def emit_membership_diagnostic(profile, phase, reason, *, expected=0, observed=0,
+                               missing_started=0, missing_passed=0, extra=0,
+                               duplicate=0, invalid_state=0, wrong_nonce=0):
+    print("PROFILE_MEMBERSHIP_DIAGNOSTIC " + " ".join((
+        f"profile={profile}", f"phase={phase}", f"reason={reason}",
+        f"expected={expected}", f"observed={observed}",
+        f"missing_started={missing_started}", f"missing_passed={missing_passed}",
+        f"extra={extra}", f"duplicate={duplicate}", f"invalid_state={invalid_state}",
+        f"wrong_nonce={wrong_nonce}")), file=sys.stderr)
+
+
+def safe_case_id(value):
+    """Expose conventional test identifiers only; redact arbitrary labels."""
+    return value if isinstance(value, str) and re.fullmatch(r'test(?:\.[A-Za-z0-9_]+)+', value) else 'redacted'
+
+
+def failure_cause(runner_name, related, failed, skipped):
+    cause = next((event.get('cause') for event in related
+                  if event.get('state') == 'failed' and event.get('cause') in ('assertion', 'error')),
+                 None)
+    if cause:
+        return cause
+    if failed:
+        return 'error' if runner_name == 'exunit' else 'assertion'
+    return 'skipped' if skipped else 'incomplete'
+
+
+def emit_case_diagnostic(case, related):
+    failed = sum(event.get('state') == 'failed' for event in related)
+    skipped = sum(event.get('state') == 'skipped' for event in related)
+    started = sum(event.get('state') == 'started' for event in related)
+    passed = sum(event.get('state') == 'passed' for event in related)
+    state = 'failed' if failed else 'skipped' if skipped else 'incomplete'
+    cause = failure_cause(case['runner'], related, failed, skipped)
+    failure = next((event for event in related if event.get('state') == 'failed'), {})
+    line = failure.get('failure_line')
+    line_value = str(line) if type(line) is int and 0 < line <= 1000000 else '0'
+    # Keep the identity-only marker for structured QA parsing; publish details only through this closed schema.
+    print('PROFILE_DISCREPANCY id=' + case['id'] + ' line=' + line_value, file=sys.stderr)
+    print('PROFILE_CASE_DIAGNOSTIC id=' + case['id'] + ' runner=' + case['runner'] +
+          ' file=' + case['file'] + ' case=' + safe_case_id(case['case_id']) +
+          ' state=' + state + ' cause=' + cause + ' line=' + line_value +
+          ' started=' + str(started) + ' passed=' + str(passed) +
+          ' failed=' + str(failed) + ' skipped=' + str(skipped), file=sys.stderr)
+
+
+def browser_prerequisite(env, launch):
+    """Classify the integration browser smoke probe without exposing child output."""
+    node = shutil.which("node", path=env.get("PATH"))
+    if not node:
+        return "node-unavailable"
+    try:
+        result = subprocess.run([node, "--version"], env=env, stdin=subprocess.DEVNULL,
+                                stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                                text=True, timeout=5, check=False)
+    except (OSError, subprocess.TimeoutExpired):
+        return "node-unavailable"
+    if result.returncode or not re.fullmatch(r"v24\.\d+\.\d+", result.stdout.strip()):
+        return "node-incompatible"
+    module_probe = "require.resolve('playwright-core',{paths:['./tools/openapi']})"
+    try:
+        result = subprocess.run([node, "-e", module_probe], cwd=Path.cwd(), env=env,
+                                stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                                stderr=subprocess.DEVNULL, timeout=5, check=False)
+    except (OSError, subprocess.TimeoutExpired):
+        return "playwright-missing"
+    if result.returncode:
+        return "playwright-missing"
+    executable_probe = ("const fs=require('fs'),p=require('./tools/openapi/node_modules/playwright-core');"
+                        "process.exit(fs.existsSync(p.chromium.executablePath())?0:1)")
+    try:
+        result = subprocess.run([node, "-e", executable_probe], cwd=Path.cwd(), env=env,
+                                stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                                stderr=subprocess.DEVNULL, timeout=5, check=False)
+    except (OSError, subprocess.TimeoutExpired):
+        return "bundled-chromium-missing"
+    if result.returncode:
+        return "bundled-chromium-missing"
+    try:
+        launch([node, "-e", 'const {chromium}=require("./tools/openapi/node_modules/playwright-core");'
+                'chromium.launch({headless:true,args:["--no-sandbox"],timeout:10000})'
+                '.then(b=>b.close()).catch(()=>process.exit(1))'], env, 30)
+    except (OSError, ValueError, subprocess.SubprocessError) as error:
+        return "chromium-launch-timeout" if isinstance(error, ValueError) and str(error) == "timeout" else "chromium-launch-failed"
+    return None
 
 
 def terminate():
@@ -122,7 +213,18 @@ def execute_exunit(execute, profile, files, directory, nonce, postgres_port=None
              'Jason.encode!(FootballMarket.TestProfileAudit.audit!("integration").committed_files))'],
             {'PROFILE_COMMITTED_FILES': str(committed_path)})
     committed = json.loads(committed_path.read_text())
-    if not isinstance(committed, list) or len(committed) != len(set(committed)) or not set(committed) <= set(files):
+    if not isinstance(committed, list):
+        emit_membership_diagnostic(profile, 'committed-file-audit', 'invalid-shape', expected=len(files))
+        raise ValueError('execution-membership')
+    if len(committed) != len(set(committed)):
+        emit_membership_diagnostic(profile, 'committed-file-audit', 'duplicate-files',
+                                   expected=len(files), observed=len(committed),
+                                   duplicate=len(committed) - len(set(committed)))
+        raise ValueError('execution-membership')
+    if not set(committed) <= set(files):
+        emit_membership_diagnostic(profile, 'committed-file-audit', 'outside-profile',
+                                   expected=len(files), observed=len(committed),
+                                   extra=len(set(committed) - set(files)))
         raise ValueError('execution-membership')
     regular = [file for file in files if file not in committed]
     expected_partitions = ([dict(id='regular', selected_files=regular)] if regular else []) + [
@@ -167,6 +269,23 @@ def main(profile):
             env.pop('APPLICATION_COVERAGE_DIR', None)
             env.pop('APPLICATION_COVERAGE_RUN_ID', None)
             env.pop('APPLICATION_COVERAGE_SNAPSHOT', None)
+        def command_location(argv, extra):
+            extra = extra or {}
+            if len(argv) > 1 and argv[1] == 'test.prepare':
+                step = 'prepare'
+            elif len(argv) > 1 and argv[1] == 'test':
+                step = 'tests'
+            elif len(argv) > 1 and argv[1] == 'run':
+                step = 'audit' if 'PROFILE_COMMITTED_FILES' in extra else 'cleanup'
+            else:
+                step = 'component'
+            partition_value = extra.get('MIX_TEST_PARTITION')
+            if partition_value is None:
+                partition = 'regular'
+            else:
+                match = re.fullmatch(r'profile[a-f0-9]{32}_c([0-9]{1,3})', partition_value)
+                partition = 'committed-' + match.group(1) if match else 'unknown'
+            return step, partition
         def execute(argv, extra=None, timeout=ceiling):
             remaining = ceiling - (time.monotonic() - started)
             if remaining <= 0:
@@ -174,19 +293,26 @@ def main(profile):
             try:
                 run(argv, {**env, **(extra or {})}, min(timeout, remaining))
             except (OSError, ValueError, subprocess.SubprocessError) as error:
+                step, partition = command_location(argv, extra)
+                print(f'PROFILE_STEP_DIAGNOSTIC profile={profile} step={step} partition={partition}', file=sys.stderr)
                 observations = [json.loads(raw) for raw in events.read_text().splitlines()]
-                passed = {(e['runner'], e['file'], e['case_id']) for e in observations if e.get('state') == 'passed'}
-                for observed in observations:
-                    identity = (observed['runner'], observed['file'], observed['case_id'])
-                    if observed.get('state') in ('failed', 'skipped') or (observed.get('state') == 'started' and identity not in passed):
-                        opaque = entry(observed['runner'], observed['file'], observed['case_id'], profile)['id']
-                        print('PROFILE_DISCREPANCY id=' + opaque + ' line=' + str(observed.get('failure_line', 0)), file=sys.stderr)
-                category = 'browser-prerequisite' if argv[0] == 'node' else 'test-failure' if argv[0] == 'mix' else 'component-failure'
+                identities = {(item['runner'], item['file'], item['case_id']) for item in observations}
+                for runner_name, file_name, case_id in sorted(identities):
+                    related = [item for item in observations if (item['runner'], item['file'], item['case_id']) ==
+                               (runner_name, file_name, case_id)]
+                    states = {item.get('state') for item in related}
+                    if 'failed' in states or 'skipped' in states or ('started' in states and 'passed' not in states):
+                        case = entry(runner_name, file_name, case_id, profile)
+                        emit_case_diagnostic(case, related)
+                category = 'test-failure' if argv[0] == 'mix' else 'component-failure'
                 if isinstance(error, ValueError) and str(error) in ('timeout', 'resource-cleanup'):
                     category = str(error)
                 raise ValueError(category) from None
         if profile in ('integration', 'e2e'):
-            execute(['node', '-e', 'const {chromium}=require("./tools/openapi/node_modules/playwright-core");chromium.launch({headless:true,args:["--no-sandbox"],timeout:10000}).then(b=>b.close()).catch(()=>process.exit(1))'], timeout=30)
+            browser_cause = browser_prerequisite(env, run)
+            if browser_cause:
+                print(f'PROFILE_BROWSER_DIAGNOSTIC cause={browser_cause} stage={profile}', file=sys.stderr)
+                raise ValueError('browser-prerequisite')
         if profile == 'integration':
             service_dir = Path(directory) / 'services'
             service_dir.mkdir(mode=0o700)
@@ -217,16 +343,30 @@ def main(profile):
         for raw in events.read_text().splitlines():
             event = json.loads(raw)
             if event.get('nonce') != nonce:
-                raise ValueError('execution-membership')
+                continue
             opaque = entry(event['runner'], event['file'], event['case_id'], profile)['id']
-            mapped.append({'id': opaque, 'state': event['state']})
+            mapped.append({'id': opaque, 'state': event['state'],
+                           'runner': event['runner'], 'file': event['file']})
+        wrong_nonce = sum(json.loads(raw).get('nonce') != nonce for raw in events.read_text().splitlines())
+        if wrong_nonce:
+            emit_membership_diagnostic(profile, 'nonce-validation', 'nonce-mismatch',
+                                       expected=len(events.read_text().splitlines()),
+                                       observed=len(events.read_text().splitlines()), wrong_nonce=wrong_nonce)
+            raise ValueError('execution-membership')
         from collections import Counter
         observed = Counter((e['id'], e['state']) for e in mapped)
         for case in expected:
             opaque = case['id']
             if observed[(opaque, 'started')] != 1 or observed[(opaque, 'passed')] != 1:
                 print('PROFILE_DISCREPANCY id=' + opaque, file=sys.stderr)
-        reconcile(expected, mapped)
+        mismatch = reconcile_diagnostics(expected, mapped)
+        if mismatch:
+            for opaque in registered_extra_ids(expected, mapped, inventory['entries']):
+                print('PROFILE_DISCREPANCY id=' + opaque, file=sys.stderr)
+            for runner, file in registered_extra_sources(expected, mapped, inventory['entries']):
+                print(f'PROFILE_MEMBERSHIP_EXTRA profile={profile} runner={runner} file={file}', file=sys.stderr)
+            emit_membership_diagnostic(profile, 'event-reconciliation', mismatch.pop('reason'), **mismatch)
+            raise ValueError('execution-membership')
         count = len(expected)
         result = dict(schema_version=1, nonce=nonce, inventory_digest=digest, profile=profile,
                       audit_count=len(files), expected=count, discovered=count, executed=count,
@@ -243,10 +383,25 @@ def main(profile):
             observed_path = Path(os.environ['APPLICATION_COVERAGE_DIR']) / (profile + '-observed.json')
             expected_path = Path(os.environ['APPLICATION_COVERAGE_DIR']) / (profile + '-expected.json')
             if not observed_path.exists() or not expected_path.exists():
+                emit_membership_diagnostic(profile, 'coverage-audit', 'missing-sidecar',
+                                           expected=2, observed=int(observed_path.exists()) + int(expected_path.exists()))
                 raise ValueError('execution-membership')
             observed = json.loads(observed_path.read_text())
             expected = json.loads(expected_path.read_text())
-            if not observed or [(p['id'], p['selected_files']) for p in observed] != [(p['id'], p['selected_files']) for p in expected] or any(not (Path(os.environ['APPLICATION_COVERAGE_DIR']) / part['export']).is_file() for part in observed):
+            if not observed:
+                emit_membership_diagnostic(profile, 'coverage-audit', 'missing-partition',
+                                           expected=len(expected), observed=0)
+                raise ValueError('execution-membership')
+            if [(p['id'], p['selected_files']) for p in observed] != [(p['id'], p['selected_files']) for p in expected]:
+                emit_membership_diagnostic(profile, 'coverage-audit', 'partition-mismatch',
+                                           expected=len(expected), observed=len(observed))
+                raise ValueError('execution-membership')
+            missing_exports = sum(not (Path(os.environ['APPLICATION_COVERAGE_DIR']) / part['export']).is_file()
+                                  for part in observed)
+            if missing_exports:
+                emit_membership_diagnostic(profile, 'coverage-audit', 'missing-export',
+                                           expected=len(observed), observed=len(observed) - missing_exports,
+                                           extra=missing_exports)
                 raise ValueError('execution-membership')
             sealed = dict(schema_version=1, profile=profile, receipt_nonce=nonce,
                           receipt_sha256=hashlib.sha256((Path(receipt).read_bytes() if receipt else b'')).hexdigest(),

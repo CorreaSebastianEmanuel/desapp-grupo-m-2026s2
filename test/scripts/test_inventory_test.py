@@ -42,6 +42,26 @@ class InventoryTest(unittest.TestCase):
             with self.assertRaises(ValueError):
                 self.audit.reconcile([self.case], broken)
 
+    def test_extra_event_diagnostic_maps_only_registered_cross_profile_identity(self):
+        integration = self.audit.entry('exunit', 'test/fake_test.exs', 'Fake:test other', 'integration')
+        unregistered = {'id': 'f' * 24, 'state': 'started'}
+        extra_events = [{'id': integration['id'], 'state': 'started'},
+                        {'id': integration['id'], 'state': 'passed'}, unregistered]
+        mapped = self.audit.registered_extra_ids([self.case], extra_events,
+                                                  [self.case, integration])
+        self.assertEqual(mapped, [integration['id']])
+        self.assertNotIn(integration['case_id'], mapped)
+        self.assertNotIn(integration['file'], mapped)
+
+    def test_extra_source_diagnostic_maps_only_registered_runner_file_pairs(self):
+        integration = self.audit.entry('exunit', 'test/fake_test.exs', 'Fake:test other', 'integration')
+        events = [{'id': 'f' * 24, 'runner': 'exunit', 'file': integration['file']}]
+        self.assertEqual(self.audit.registered_extra_sources([self.case], events,
+                         [self.case, integration]), [('exunit', integration['file'])])
+        events.append({'id': 'e' * 24, 'runner': 'shell', 'file': 'test/private.sh'})
+        self.assertEqual(self.audit.registered_extra_sources([self.case], events,
+                         [self.case, integration]), [('exunit', integration['file'])])
+
     def test_updates_add_only_explicitly_selected_new_profile_cases(self):
         import contextlib
         import io

@@ -22,23 +22,23 @@ class CiBaselineGateTest(unittest.TestCase):
     def test_gate_shape(self):
         block = self.workflow.split('  - id: ci_baseline', 1)[1].split('  - id: ', 1)[0]
         self.assertIn('type: shell', block)
-        self.assertIn('timeout: 3600', block)
+        self.assertIn('timeout: 300', block)
         # Text output by design: the gate streams plain CI output instead of a JSON envelope.
         self.assertNotIn('output_format: json', block)
-        self.assertIn('MIX_ENV=test', block)
-        # No duplicated implementation: the gate invokes the CI script itself.
-        self.assertIn('scripts/ci_unit_tests.sh', block)
+        # The local gate compares obligations without executing native profiles.
+        self.assertIn('scripts/agentflow_stage_checks.py --ci-parity', block)
+        self.assertNotIn('MIX_ENV=test', block)
+        self.assertNotIn('scripts/ci_unit_tests.sh', block)
         self.assertNotIn('mix test', block)
 
-    def test_gate_command_matches_the_ci_unit_tests_job(self):
-        unit_step = self.ci.split('- name: Unit tests\n', 1)[1].split('\n      - name:', 1)[0]
-        ci_match = re.search(r'^\s*run: (\S+)\s*$', unit_step, re.M)
-        self.assertIsNotNone(ci_match)
+    def test_gate_command_invokes_read_only_wrapper_parity(self):
         gate = self.workflow.split('  - id: ci_baseline', 1)[1].split('  - id: ', 1)[0]
         run = re.search(r"run:\s*['\"]([^'\"]+)['\"]", gate)
         self.assertIsNotNone(run)
-        self.assertTrue(run.group(1).startswith('MIX_ENV=test '))
-        self.assertEqual(run.group(1)[len('MIX_ENV=test '):].strip(), ci_match.group(1).strip())
+        self.assertEqual(run.group(1), 'python3 scripts/agentflow_stage_checks.py --ci-parity')
+        parity_source = (ROOT/'scripts/agentflow_stage_checks.py').read_text()
+        self.assertIn('scripts/ci_unit_tests.sh', parity_source)
+        self.assertIn('quality-baseline.yml', parity_source)
 
     def test_completed_check_pipeline_is_untouched(self):
         from test.scripts.agentflow_branch_test import AGENTFLOW

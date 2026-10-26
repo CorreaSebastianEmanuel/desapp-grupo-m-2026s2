@@ -219,6 +219,16 @@ defmodule Mix.Tasks.Catalog.SeedProcessTest do
   alias FootballMarket.Catalog.{League, Player, Position, Season, Team}
   alias FootballMarket.Repo
 
+  @agentflow_profile_env ~w(
+    MIX_TEST_PARTITION
+    CP1_PROFILE
+    PROFILE_EVENTS
+    PROFILE_NONCE
+    APPLICATION_COVERAGE_DIR
+    APPLICATION_COVERAGE_RUN_ID
+    APPLICATION_COVERAGE_SNAPSHOT
+  )
+
   setup do
     owner = Sandbox.start_owner!(Repo, shared: false, sandbox: false)
     clear_catalog()
@@ -235,11 +245,7 @@ defmodule Mix.Tasks.Catalog.SeedProcessTest do
     database = Application.fetch_env!(:football_market, Repo) |> Keyword.fetch!(:database)
 
     {output, status} =
-      System.cmd("mix", ["catalog.seed"],
-        cd: File.cwd!(),
-        env: [{"MIX_ENV", "dev"}, {"POSTGRES_DB", database}],
-        stderr_to_stdout: true
-      )
+      run_mix_cli(["catalog.seed"], [{"MIX_ENV", "dev"}, {"POSTGRES_DB", database}])
 
     assert status == 0
     assert output =~ "catalog seed complete: total=44 created=44 reused=0"
@@ -253,11 +259,7 @@ defmodule Mix.Tasks.Catalog.SeedProcessTest do
 
   test "an unknown MIX_ENV fails with the capability error instead of a config file error" do
     {output, status} =
-      System.cmd("mix", ["catalog.seed"],
-        cd: File.cwd!(),
-        env: [{"MIX_ENV", "unknown"}],
-        stderr_to_stdout: true
-      )
+      run_mix_cli(["catalog.seed"], [{"MIX_ENV", "unknown"}])
 
     assert status != 0
     assert output =~ "category=disabled entity=seed identity=development-seed"
@@ -267,11 +269,7 @@ defmodule Mix.Tasks.Catalog.SeedProcessTest do
 
   test "production fails with the capability error before runtime secrets or database startup" do
     {output, status} =
-      System.cmd("mix", ["catalog.seed"],
-        cd: File.cwd!(),
-        env: [{"MIX_ENV", "prod"}],
-        stderr_to_stdout: true
-      )
+      run_mix_cli(["catalog.seed"], [{"MIX_ENV", "prod"}])
 
     assert status != 0
     assert output =~ "category=disabled entity=seed identity=development-seed"
@@ -281,17 +279,16 @@ defmodule Mix.Tasks.Catalog.SeedProcessTest do
 
   test "an unreachable database returns only a sanitized allowlisted Mix error" do
     {output, status} =
-      System.cmd("mix", ["catalog.seed"],
-        cd: File.cwd!(),
-        env: [
+      run_mix_cli(
+        ["catalog.seed"],
+        [
           {"MIX_ENV", "dev"},
           {"POSTGRES_HOST", "127.0.0.1"},
           {"POSTGRES_PORT", "1"},
           {"POSTGRES_USER", "sentinel-user"},
           {"POSTGRES_PASSWORD", "sentinel-password"},
           {"POSTGRES_DB", "sentinel-database"}
-        ],
-        stderr_to_stdout: true
+        ]
       )
 
     assert status != 0
@@ -323,17 +320,16 @@ defmodule Mix.Tasks.Catalog.SeedProcessTest do
     """
 
     {output, status} =
-      System.cmd("mix", ["run", "--no-start", "-e", script],
-        cd: File.cwd!(),
-        env: [
+      run_mix_cli(
+        ["run", "--no-start", "-e", script],
+        [
           {"MIX_ENV", "dev"},
           {"POSTGRES_HOST", "127.0.0.1"},
           {"POSTGRES_PORT", "1"},
           {"POSTGRES_USER", "sentinel-user"},
           {"POSTGRES_PASSWORD", "sentinel-password"},
           {"POSTGRES_DB", "sentinel-database"}
-        ],
-        stderr_to_stdout: true
+        ]
       )
 
     assert status != 0
@@ -354,5 +350,15 @@ defmodule Mix.Tasks.Catalog.SeedProcessTest do
     Repo.delete_all(Season)
     Repo.delete_all(Position)
     Repo.delete_all(League)
+  end
+
+  defp run_mix_cli(args, env) do
+    cleared = Enum.map(@agentflow_profile_env, &{&1, nil})
+
+    System.cmd("mix", args,
+      cd: File.cwd!(),
+      env: cleared ++ env,
+      stderr_to_stdout: true
+    )
   end
 end

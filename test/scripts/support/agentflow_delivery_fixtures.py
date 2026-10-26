@@ -21,6 +21,13 @@ class DeliveryFixture(unittest.TestCase):
                    json.dumps(applicability()) + '\n```\n')
         self.write('specs/003-example/tasks.md', '- [ ] T001 Build behavior\n')
         self.write('.gitignore', '.agentflow/runs/\n.specify/feature.json\n')
+        self.write('scripts/local_services.sh', '#!/bin/sh\n[ "$1" = ready ] && exit 0\nexit 0\n')
+        # Launcher behavior tests target state transitions and child dispatch.
+        # The effective host toolchain belongs to dedicated preflight tests.
+        from unittest.mock import patch
+        preflight = patch('scripts.agentflow_preflight.preflight_or_raise')
+        preflight.start()
+        self.addCleanup(preflight.stop)
 
     def git(self, *args):
         return subprocess.run(['git', *args], cwd=self.root, capture_output=True, text=True, check=True).stdout.strip()

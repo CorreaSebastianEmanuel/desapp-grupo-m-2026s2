@@ -109,6 +109,13 @@ defmodule FootballMarket.Synchronization.ScopeTest do
                ] =
                  plugins
 
+      "specs/068-agentflow-preflight-recovery" ->
+        assert [
+                 {Oban.Plugins.Cron,
+                  crontab: [{"* * * * *", FootballMarket.Workers.QuoteRecovery}]}
+               ] =
+                 plugins
+
       _ ->
         assert plugins == []
     end

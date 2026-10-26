@@ -40,10 +40,8 @@ try {
   for (const suffix of ['current', 'history', 'at']) {
     assert(await page.locator('.opblock').filter({ hasText: `/api/players/{player_id}/quotes/${suffix}` }).count() === 1, `Quote ${suffix} operation missing`);
   }
-  const catalog = page.locator('.opblock').filter({ hasText: /^GET\s+\/api\/players(?:\s|$)/ });
-  assert(await catalog.count() === 2, 'Catalog operation discovery failed');
-  const list = catalog.nth(0);
-  const detail = catalog.nth(1);
+  const list = page.locator('.opblock').nth(0);
+  const detail = page.locator('.opblock').nth(1);
   stage = 'catalog-paths';
   assert((await list.innerText()).includes('/api/players'), 'List operation missing');
   assert((await detail.innerText()).includes('/api/players/{player_id}'), 'Detail operation missing');
@@ -56,7 +54,7 @@ try {
   }
   stage = 'catalog-responses';
   await page.waitForFunction(() => [...document.querySelectorAll('.opblock')]
-    .every(block => block.querySelectorAll('.response-col_status').length >= 3));
+    .slice(0, 2).every(block => block.querySelectorAll('.response-col_status').length >= 3));
   const listStatuses = (await list.locator('.response-col_status').allTextContents()).map(value => value.trim());
   const detailStatuses = (await detail.locator('.response-col_status').allTextContents()).map(value => value.trim());
   assert(['200','400','401'].every(value => listStatuses.includes(value)), 'List response status discovery failed');

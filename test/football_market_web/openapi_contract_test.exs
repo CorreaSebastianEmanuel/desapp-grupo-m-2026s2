@@ -179,7 +179,7 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
     for {_path, item} <- doc["paths"],
         {_method, operation} <- item,
         {_, response} <- operation["responses"],
-        {_, example} <- get_in(response, ["content", "application/json", "examples"]) do
+        {_, example} <- get_in(response, ["content", "application/json", "examples"]) || [] do
       assert_schema!(doc, response["content"]["application/json"]["schema"], example["value"])
     end
   end
@@ -393,9 +393,6 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
                codes
     end
   end
-
-  defp catalog_operation_path?(path),
-    do: path == "/api/players" or String.starts_with?(path, "/api/players/")
 
   defp response_statuses("getPlayer"), do: ~w(200 401 404 503)
   defp response_statuses("listPlayers"), do: ~w(200 400 401)

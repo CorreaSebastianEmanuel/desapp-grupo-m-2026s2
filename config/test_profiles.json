@@ -198,6 +198,13 @@
       "profile": "integration"
     },
     {
+      "id": "067b2b8b0907aed48cceb13d",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/quote_controller_test.exs",
+      "case_id": "FootballMarketWeb.QuoteControllerTest:test both credentials access exact issuance and history representations",
+      "profile": "integration"
+    },
+    {
       "id": "06d34eb243e51e2e6a3e65d6",
       "runner": "exunit",
       "file": "test/football_market/catalog/player_pagination_test.exs",
@@ -287,6 +294,13 @@
       "file": "test/football_market/statistics/scope_test.exs",
       "case_id": "FootballMarket.Statistics.ScopeTest:test FR-013 context contract has no web provider cache or financial dependency",
       "profile": "unit"
+    },
+    {
+      "id": "0a25a635f48405a934655629",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/reader_test.exs",
+      "case_id": "FootballMarket.Quotes.ReaderTest:test issuance is current and history keeps its nullable original metadata",
+      "profile": "integration"
     },
     {
       "id": "0a63eb2756b93df9e4bca57b",
@@ -595,6 +609,13 @@
       "file": "test/scripts/agentflow_stage_checks_test.py",
       "case_id": "test.scripts.agentflow_stage_checks_test.ManifestContractTest.test_typed_prerequisites_reject_shell_like_targets",
       "profile": "unit"
+    },
+    {
+      "id": "153918dd684267a15a43e083",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/reader_test.exs",
+      "case_id": "FootballMarket.Quotes.ReaderTest:test unknown, malformed, unissued and other player reads have explicit outcomes",
+      "profile": "integration"
     },
     {
       "id": "1566b3368b9fd4b94a9a6722",
@@ -1141,6 +1162,13 @@
       "file": "test/scripts/agentflow_artifacts_test.py",
       "case_id": "test.scripts.agentflow_artifacts_test.ApplicabilityTest.test_justified_minimal_plan_passes",
       "profile": "unit"
+    },
+    {
+      "id": "27bbd70cf4cfd68524f72adb",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/quote_controller_test.exs",
+      "case_id": "FootballMarketWeb.QuoteControllerTest:test dated API carries forward exact quote metadata and never changes local state",
+      "profile": "integration"
     },
     {
       "id": "288430f11cb6b859fcaa5614",
@@ -1801,6 +1829,13 @@
       "profile": "unit"
     },
     {
+      "id": "400a1c7c30527d886a69c121",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/quote_controller_test.exs",
+      "case_id": "FootballMarketWeb.QuoteControllerTest:test authentication precedes validation and refuses invalid or mixed credentials",
+      "profile": "integration"
+    },
+    {
       "id": "40c7127cb580a0a4b56fc161",
       "runner": "exunit",
       "file": "test/football_market/synchronization/statistics_test.exs",
@@ -2242,6 +2277,13 @@
       "profile": "integration"
     },
     {
+      "id": "505f8b8ca628c69fe03fe3e1",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/quote_controller_test.exs",
+      "case_id": "FootballMarketWeb.QuoteControllerTest:test controller maps storage failure to a documented service unavailable response",
+      "profile": "integration"
+    },
+    {
       "id": "5076675e3141e86c08dbead0",
       "runner": "python",
       "file": "test/scripts/test_inventory_test.py",
@@ -2613,6 +2655,13 @@
       "profile": "unit"
     },
     {
+      "id": "5c9e98de04cc01511768e22f",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/quote_controller_test.exs",
+      "case_id": "FootballMarketWeb.QuoteControllerTest:test malformed binary-compatible UUID text cannot resolve an existing player",
+      "profile": "integration"
+    },
+    {
       "id": "5ca1c038ebf6cd9b2b660bda",
       "runner": "exunit",
       "file": "test/football_market/providers/ingestion_contract_test.exs",
@@ -2841,6 +2890,13 @@
       "runner": "exunit",
       "file": "test/football_market/valuation/position_aware/outcomes_test.exs",
       "case_id": "FootballMarket.Valuation.PositionAware.OutcomesTest:test US3.6 every group requirement set and shared reference union must exactly match",
+      "profile": "integration"
+    },
+    {
+      "id": "6628675e77002c4fab0f1414",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/quote_controller_test.exs",
+      "case_id": "FootballMarketWeb.QuoteControllerTest:test missing players and quotes distinguish empty history from missing single results",
       "profile": "integration"
     },
     {
@@ -4664,6 +4720,13 @@
       "profile": "integration"
     },
     {
+      "id": "a562efab472eccd664117371",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/reader_test.exs",
+      "case_id": "FootballMarket.Quotes.ReaderTest:test dated lookup includes the entire UTC day and carries through gaps and leap days",
+      "profile": "integration"
+    },
+    {
       "id": "a5b025e584494a8227ac474e",
       "runner": "python",
       "file": "test/scripts/sonar_checkpoint_gate_test.py",
@@ -5504,6 +5567,13 @@
       "profile": "unit"
     },
     {
+      "id": "c4a0d0fdd8e3be3e9c294083",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/quote_controller_test.exs",
+      "case_id": "FootballMarketWeb.QuoteControllerTest:test strict date parsing rejects ambiguous input before player lookup",
+      "profile": "integration"
+    },
+    {
       "id": "c4af718d32d60a9a30bdc262",
       "runner": "python",
       "file": "test/scripts/agentflow_stage_checks_test.py",
@@ -5669,6 +5739,13 @@
       "runner": "exunit",
       "file": "test/football_market/statistics/history_test.exs",
       "case_id": "FootballMarket.Statistics.HistoryTest:test empty absent unknown and malformed subjects stay distinct",
+      "profile": "integration"
+    },
+    {
+      "id": "c9c4312b604ac26351fa88c5",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/reader_test.exs",
+      "case_id": "FootballMarket.Quotes.ReaderTest:test same-time and same-price quotes remain distinct in authoritative sequence order",
       "profile": "integration"
     },
     {
@@ -6412,6 +6489,13 @@
       "file": "test/scripts/application_coverage_test.py",
       "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_same_source_line_in_multiple_modules_counts_once_and_zero_is_valid",
       "profile": "unit"
+    },
+    {
+      "id": "e0fc05f83bbe2fe45144f6c5",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/reader_test.exs",
+      "case_id": "FootballMarket.Quotes.ReaderTest:test storage failures are unavailable rather than missing quotes",
+      "profile": "integration"
     },
     {
       "id": "e105672b182c6987730c98a7",

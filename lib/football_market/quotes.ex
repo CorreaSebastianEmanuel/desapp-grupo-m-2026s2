@@ -701,46 +701,9 @@ defmodule FootballMarket.Quotes do
     _ -> {:error, :temporarily_unavailable}
   end
 
-  def list_history(player_id) do
-    case Ecto.UUID.cast(player_id) do
-      {:ok, id} ->
-        {:ok,
-         Repo.all(
-           from q in Quote,
-             where: q.player_id == ^id,
-             order_by: [
-               asc: fragment("COALESCE(?, 0)", q.performance_sequence),
-               asc: q.inserted_at,
-               asc: q.id
-             ]
-         )}
-
-      _ ->
-        {:error, :invalid_player}
-    end
-  rescue
-    _ -> {:error, :temporarily_unavailable}
-  end
-
-  def latest(player_id) do
-    with {:ok, player_id} <- Ecto.UUID.cast(player_id),
-         %Quote{} = quote <-
-           Repo.one(
-             from q in Quote,
-               where: q.player_id == ^player_id,
-               order_by: [
-                 desc: fragment("COALESCE(?, 0)", q.performance_sequence),
-                 desc: q.effective_at
-               ],
-               limit: 1
-           ) do
-      {:ok, quote}
-    else
-      _ -> {:error, :not_found}
-    end
-  rescue
-    _ -> {:error, :temporarily_unavailable}
-  end
+  defdelegate list_history(player_id), to: FootballMarket.Quotes.Reader
+  defdelegate latest(player_id), to: FootballMarket.Quotes.Reader
+  defdelegate at_date(player_id, date), to: FootballMarket.Quotes.Reader
 
   def pending_evaluations do
     now = Store.database_now!()

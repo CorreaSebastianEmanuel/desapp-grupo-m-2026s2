@@ -176,7 +176,8 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
              "next_cursor" => nil
            }
 
-    for operation <- [list, detail],
+    for {_path, item} <- doc["paths"],
+        {_method, operation} <- item,
         {_, response} <- operation["responses"],
         {_, example} <- get_in(response, ["content", "application/json", "examples"]) do
       assert_schema!(doc, response["content"]["application/json"]["schema"], example["value"])
@@ -315,8 +316,7 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
     for {_path, item} <- doc["paths"], {_method, op} <- item do
       assert op["security"] == [%{"BearerAuth" => []}, %{"ApiKeyAuth" => []}]
 
-      assert Map.keys(op["responses"]) |> Enum.sort() ==
-               if(op["operationId"] == "listPlayers", do: ~w(200 400 401), else: ~w(200 401 404))
+      assert Map.keys(op["responses"]) |> Enum.sort() == response_statuses(op["operationId"])
 
       for {_status, response} <- op["responses"] do
         assert Map.keys(response["content"]) == ["application/json"]
@@ -406,6 +406,14 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
                codes
     end
   end
+
+  defp response_statuses("listPlayers"), do: ~w(200 400 401)
+  defp response_statuses("getQuoteAtDate"), do: ~w(200 400 401 404 503)
+
+  defp response_statuses(quote) when quote in ["getCurrentQuote", "getQuoteHistory"],
+    do: ~w(200 401 404 503)
+
+  defp response_statuses(_), do: ~w(200 401 404)
 
   defp assert_schema!(doc, %{"$ref" => ref}, value) do
     assert_schema!(

@@ -59,9 +59,9 @@ The first run reports `total=44 created=44 reused=0` with 5 leagues, 5 seasons, 
 
 This command is enabled only by checked-in development and test configuration. It is never called by application startup, `mix setup`, Ecto aliases, migrations, releases, or deployment, and production/unknown environments fail before database access. Failures are nonzero and expose only the categories `disabled`, `validation`, `conflict`, and `persistence`; the causes `invalid_manifest`, `alternate_identity`, `misplaced_relationship`, `attribute_mismatch`, `relationship_mismatch`, `database`, `write_failed`, `concurrent_write`, and `database_unavailable`; an allowlisted entity; and a manifest-owned identity. Any unknown internal failure becomes the generic `persistence/write_failed` result. Resolve conflicts in the named local record; retry a `concurrent_write` after the other seed run finishes; investigate local PostgreSQL for `database` or `database_unavailable` failures. The complete isolated-database and timing procedure is in [`specs/006-development-seed-data/quickstart.md`](specs/006-development-seed-data/quickstart.md).
 
-### CP1 API documentation
+### API documentation
 
-With Phoenix running (`mix phx.server`), open [the interactive API documentation](http://127.0.0.1:4000/docs) or retrieve [the OpenAPI 3 JSON description](http://127.0.0.1:4000/openapi.json). Both are public. The page documents only `GET /api/players` and `GET /api/players/{player_id}`; executing either route requires one valid credential.
+With Phoenix running (`mix phx.server`), open [the interactive API documentation](http://127.0.0.1:4000/docs) or retrieve [the OpenAPI 3 JSON description](http://127.0.0.1:4000/openapi.json). Both are public. The page documents the two catalog routes and three quote routes; executing any operation requires one valid credential.
 
 In `/docs`, choose **Bearer JWT** or **API key**, enter your own credential in the masked field, open an operation, and select **Try it out** then **Execute**. The page sends `Authorization: Bearer <JWT>` or `X-API-Key: <key>` for the selected method. Switching methods clears the field. Leave it empty to see the generic 401 and `WWW-Authenticate: Bearer realm="api"`. The credential is not part of the documentation URL or saved in browser storage. These placeholders are not functional credentials; there is no public login or key-issuance HTTP route.
 
@@ -74,7 +74,21 @@ npm test --prefix tools/openapi
 MIX_ENV=test mix test test/football_market_web/openapi_contract_test.exs test/football_market_web/openapi_browser_test.exs
 ```
 
-The browser test starts an isolated loopback server, discovers both operations and all five list parameters within three minutes, executes JWT → API key → JWT requests, verifies 401 with no credential, and closes Chromium and the server. It reports header presence and status without printing credential values. See the [TASK-013 quickstart](specs/013-openapi-cp1-contracts/quickstart.md) for the full check sequence.
+The browser test starts an isolated loopback server, discovers all five catalog and quote operations and all five list parameters within three minutes, executes JWT → API key → JWT requests, verifies 401 with no credential, and closes Chromium and the server. It reports header presence and status without printing credential values. See the [TASK-013 quickstart](specs/013-openapi-cp1-contracts/quickstart.md) for the full check sequence.
+
+### Player quote reads
+
+The protected quote API accepts the same JWT or API-key authentication as the catalog:
+
+| GET path | Result |
+| --- | --- |
+| `/api/players/:player_id/quotes/current` | Current persisted quote |
+| `/api/players/:player_id/quotes/history` | Complete immutable history, oldest sequence first, including issuance |
+| `/api/players/:player_id/quotes/at?date=YYYY-MM-DD` | Last quote effective through the end of that UTC date |
+
+Single results use `{"data": quote}`; history uses `{"data": [quote, ...]}` without pagination. Prices are exact decimal strings with two places. Each quote retains its original UTC timestamp and strategy/configuration/calculation identities; initial issuance has nullable performance metadata. Dated reads carry the prior quote through gaps, return `quote_not_found` before issuance, and accept future dates. No read calculates quotes or contacts providers.
+
+Authentication errors return 401. Invalid or ambiguous dates return 400 `invalid_date` before player lookup. Malformed or unknown players return 404 `player_not_found`; existing players without a quote return an empty history or 404 `quote_not_found` for a single result. Storage failures return 503 `temporarily_unavailable`. See `/docs` for complete schemas and examples.
 
 ### Prepare, compile, and test
 

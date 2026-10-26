@@ -5,6 +5,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import sys
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -21,6 +22,9 @@ def result(returncode=0,stdout='',stderr=''):
 class DeliveryFixture(Fixture):
     def setUp(self):
         super().setUp()
+        # These tests exercise workflow state/ownership with fake repositories;
+        # host toolchain readiness has its own focused contract tests.
+        p=patch('scripts.agentflow_preflight.preflight_or_raise');p.start();self.addCleanup(p.stop)
         for name,value in {'ROOT':self.root,'BACKLOG':self.root/'backlog','FEEDBACK':self.root/'backlog/feedback','RUNS':self.root/'tmp'}.items():
             p=patch.object(AGENTFLOW,name,value);p.start();self.addCleanup(p.stop)
         AGENTFLOW.RUNS.mkdir()
@@ -262,13 +266,17 @@ class RealStartPreproductTest(Fixture):
             self.make_task('TASK-099','Other',extra=claim+'\n')
         session=self.root/'.specify/feature.json';session.parent.mkdir()
         if pointer:session.write_text('{"feature_directory":"specs/055-football-data-api-adapter"}')
-        (self.root/'.gitignore').write_text('.specify/\n')
+        (self.root/'.gitignore').write_text('.specify/\nprerequisite-bin/\n')
         def git(*args):return subprocess.run(['git',*args],cwd=self.root,text=True,capture_output=True,check=True)
         git('init','-q','-b','main');git('add','.');git('-c','user.name=Fixture','-c','user.email=fixture@example.test','commit','-qm','Fixture')
         unchanged={p:p.read_bytes() for p in self.root.rglob('*.md') if p!=self.task}
         before=self.task.read_bytes();pointer_before=session.read_bytes() if session.exists() else None
         args=SimpleNamespace(task='TASK-055',agent='auto',dry_run=False,no_pr=True)
-        with patch.object(AGENTFLOW,'ROOT',self.root),patch.object(AGENTFLOW,'BACKLOG',self.root/'backlog'),patch.object(AGENTFLOW,'FEEDBACK',self.root/'backlog/feedback'),patch.object(AGENTFLOW.shutil,'which',return_value='/captured/tool'),patch.object(AGENTFLOW,'monitor_process',return_value=(130,'captured-run')) as launch:
+        prerequisites = self.root/'prerequisite-bin'; prerequisites.mkdir()
+        specify = prerequisites/'specify'; specify.write_text('#!/bin/sh\nexit 0\n'); specify.chmod(0o700)
+        test_path = str(prerequisites) + os.pathsep + os.environ.get('PATH', '')
+        real_which=AGENTFLOW.shutil.which;fixture_shutil=SimpleNamespace(which=lambda name,*args,**kwargs:'/fixture/specify' if name=='specify' else real_which(name,*args,**kwargs))
+        with patch.dict(os.environ,{'SPECKIT_INTEGRATION_CODEX_EXECUTABLE':sys.executable, 'PATH':test_path}),patch.object(AGENTFLOW,'shutil',fixture_shutil),patch.object(fixture_shutil,'which',side_effect=lambda name,*args,**kwargs:'/fixture/specify' if name=='specify' else real_which(name,*args,**kwargs)),patch.object(AGENTFLOW,'agent',return_value='codex'),patch.object(AGENTFLOW,'ROOT',self.root),patch.object(AGENTFLOW,'BACKLOG',self.root/'backlog'),patch.object(AGENTFLOW,'FEEDBACK',self.root/'backlog/feedback'),patch('scripts.agentflow_preflight.preflight_or_raise'),patch.object(AGENTFLOW,'monitor_process',return_value=(130,'captured-run')) as launch:
             if invalid and invalid!='headerless':
                 with self.assertRaises((ValueError,SystemExit)):AGENTFLOW.start(args)
                 launch.assert_not_called();self.assertEqual(self.task.read_bytes(),before)

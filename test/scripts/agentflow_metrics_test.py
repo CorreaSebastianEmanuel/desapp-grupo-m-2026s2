@@ -74,8 +74,11 @@ class MetricsTest(DeliveryFixture):
         fake.chmod(0o755)
         path = self.root/'metrics.jsonl'
         env = {key: value for key, value in os.environ.items() if not key.startswith('AGENTFLOW_')}
+        prerequisites = self.root/'prerequisite-bin'; prerequisites.mkdir()
+        specify = prerequisites/'specify'; specify.write_text('#!/bin/sh\nexit 0\n'); specify.chmod(0o700)
         env.update(AGENTFLOW_CODEX_REAL=str(fake), AGENTFLOW_TASK_ID='TASK-003',
-                   AGENTFLOW_METRICS_FILE=str(path))
+                   AGENTFLOW_METRICS_FILE=str(path),
+                   PATH=str(prerequisites) + os.pathsep + os.environ.get('PATH', ''))
         for args in (['exec'], ['exec', 'resume', '--last']):
             result = subprocess.run([sys.executable, str(root/'scripts/agentflow_codex.py'),
                                      *args, 'Agentflow stage: develop'], cwd=self.root,

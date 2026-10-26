@@ -1,0 +1,556 @@
+{
+  "schema_version": 1,
+  "runtime_required": false,
+  "checks": [
+    {
+      "id": "plan-artifacts",
+      "argv": [
+        "python3",
+        "scripts/agentflow_artifacts.py",
+        "specs/068-agentflow-preflight-recovery"
+      ],
+      "depends_on": [],
+      "isolation": "isolated",
+      "state_reads": [],
+      "state_writes": [],
+      "execution_class": "static"
+    },
+    {
+      "id": "ci-parity",
+      "argv": [
+        "python3",
+        "scripts/agentflow_stage_checks.py",
+        "--ci-parity"
+      ],
+      "depends_on": [],
+      "isolation": "isolated",
+      "state_reads": [],
+      "state_writes": [],
+      "execution_class": "static",
+      "retry_inputs": [
+        "scripts/agentflow_stage_checks.py",
+        "scripts/ci_unit_tests.sh",
+        "scripts/test_profile.sh",
+        "test/scripts/ci_unit_tests_test.sh",
+        ".agentflow/workflow.yml",
+        ".specify/workflows/desapp-delivery/workflow.yml",
+        ".github/workflows/quality-baseline.yml"
+      ]
+    },
+    {
+      "id": "services",
+      "argv": [
+        "sh",
+        "scripts/local_services.sh",
+        "ready"
+      ],
+      "depends_on": [],
+      "isolation": "isolated",
+      "state_reads": [],
+      "state_writes": [],
+      "reuse": false
+    },
+    {
+      "id": "launch-preflight",
+      "argv": [
+        "python3",
+        "scripts/agentflow_preflight.py",
+        "--stage",
+        "develop",
+        "--provider",
+        "codex"
+      ],
+      "depends_on": [],
+      "isolation": "isolated",
+      "state_reads": [],
+      "state_writes": [],
+      "reuse": false,
+      "retry_inputs": [
+        "scripts/agentflow_preflight.py",
+        ".tool-versions",
+        ".github/workflows/quality-baseline.yml"
+      ]
+    },
+    {
+      "id": "toolchain",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "sh",
+        "scripts/check_toolchain.sh"
+      ],
+      "depends_on": [],
+      "isolation": "isolated",
+      "state_reads": [],
+      "state_writes": []
+    },
+    {
+      "id": "format",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "mix",
+        "format",
+        "--check-formatted"
+      ],
+      "depends_on": [],
+      "isolation": "isolated",
+      "state_reads": [],
+      "state_writes": []
+    },
+    {
+      "id": "compile",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "mix",
+        "compile",
+        "--warnings-as-errors"
+      ],
+      "depends_on": [
+        "toolchain"
+      ],
+      "isolation": "shared",
+      "state_reads": [],
+      "state_writes": [
+        "build"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "credo",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "mise",
+        "exec",
+        "--",
+        "sh",
+        "scripts/credo_ci.sh"
+      ],
+      "depends_on": [
+        "compile"
+      ],
+      "isolation": "shared",
+      "state_reads": [
+        "build"
+      ],
+      "state_writes": [
+        "build",
+        "credo"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "assets",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "mix",
+        "assets.build"
+      ],
+      "depends_on": [
+        "compile"
+      ],
+      "isolation": "shared",
+      "state_reads": [
+        "build"
+      ],
+      "state_writes": [
+        "build",
+        "assets"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "database",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "mix",
+        "test.prepare"
+      ],
+      "depends_on": [
+        "services",
+        "compile"
+      ],
+      "isolation": "shared",
+      "state_reads": [
+        "build"
+      ],
+      "state_writes": [
+        "test-db"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "reuse": false
+    },
+    {
+      "id": "preflight-tests",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "test/scripts/agentflow_preflight_test.py"
+      ],
+      "depends_on": [],
+      "isolation": "isolated",
+      "state_reads": [],
+      "state_writes": [],
+      "retry_inputs": [
+        "agentflow",
+        "scripts/agentflow*.py",
+        "scripts/workflow_artifact_probe.py",
+        "test/scripts/agentflow_preflight_test.py",
+        "test/scripts/support/*",
+        ".agentflow/config.toml",
+        ".agentflow/workflow.yml",
+        ".specify/workflows/desapp-delivery/workflow.yml",
+        ".tool-versions"
+      ]
+    },
+    {
+      "id": "provider-tests",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "test.scripts.agentflow_providers_test.ShimTest.test_preflight_refusal_precedes_provider_spawn_and_checks_final_context"
+      ],
+      "depends_on": [],
+      "isolation": "isolated",
+      "state_reads": [],
+      "state_writes": [],
+      "retry_inputs": [
+        "scripts/agentflow_preflight.py",
+        "scripts/agentflow_codex.py",
+        "scripts/agentflow_opencode.py",
+        "test/scripts/agentflow_providers_test.py",
+        "test/scripts/support/*"
+      ]
+    },
+    {
+      "id": "continuation-tests",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "test/scripts/agentflow_stage_checks_test.py"
+      ],
+      "depends_on": [],
+      "isolation": "isolated",
+      "state_reads": [],
+      "state_writes": [],
+      "retry_inputs": [
+        "agentflow",
+        "scripts/agentflow*.py",
+        "scripts/workflow_artifact_probe.py",
+        "test/scripts/agentflow_stage_checks_test.py",
+        "test/scripts/support/*",
+        ".agentflow/config.toml",
+        ".agentflow/workflow.yml",
+        ".specify/workflows/desapp-delivery/workflow.yml"
+      ]
+    },
+    {
+      "id": "evidence-tests",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "test.scripts.agentflow_evidence_test.EvidenceTest.test_provider_early_exit_writes_complete_nonpass_qa_inventory"
+      ],
+      "depends_on": [],
+      "isolation": "isolated",
+      "state_reads": [],
+      "state_writes": [],
+      "retry_inputs": [
+        "scripts/agentflow_runtime.py",
+        "scripts/agentflow_verification.py",
+        "test/scripts/agentflow_evidence_test.py",
+        "test/scripts/support/*"
+      ]
+    },
+    {
+      "id": "recovery-tests",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "test/scripts/agentflow_recovery_test.py"
+      ],
+      "depends_on": [],
+      "isolation": "isolated",
+      "state_reads": [],
+      "state_writes": [],
+      "retry_inputs": [
+        "agentflow",
+        "scripts/agentflow*.py",
+        "scripts/workflow_artifact_probe.py",
+        "test/scripts/agentflow_recovery_test.py",
+        "test/scripts/support/*",
+        ".agentflow/config.toml",
+        ".agentflow/workflow.yml",
+        ".specify/workflows/desapp-delivery/workflow.yml"
+      ]
+    },
+    {
+      "id": "feedback-tests",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "test.scripts.agentflow_feedback_test.FeedbackTest.test_third_feedback_cycle_is_allowed_and_fourth_preserves_history"
+      ],
+      "depends_on": [],
+      "isolation": "isolated",
+      "state_reads": [],
+      "state_writes": [],
+      "retry_inputs": [
+        "agentflow",
+        ".agentflow/config.toml",
+        "test/scripts/agentflow_feedback_test.py",
+        "test/scripts/support/*"
+      ]
+    },
+    {
+      "id": "dedup-tests",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "test/scripts/agentflow_dedup_test.py"
+      ],
+      "depends_on": [],
+      "isolation": "isolated",
+      "state_reads": [],
+      "state_writes": [],
+      "retry_inputs": [
+        "agentflow",
+        "scripts/agentflow*.py",
+        "scripts/workflow_artifact_probe.py",
+        "test/scripts/agentflow_dedup_test.py",
+        "test/scripts/support/*",
+        ".agentflow/config.toml",
+        ".agentflow/workflow.yml",
+        ".specify/workflows/desapp-delivery/workflow.yml"
+      ]
+    },
+    {
+      "id": "policy-tests",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "test/scripts/agentflow_policy_test.py"
+      ],
+      "depends_on": [],
+      "isolation": "isolated",
+      "state_reads": [],
+      "state_writes": [],
+      "retry_inputs": [
+        "docs/WORKFLOW_SPEED.md",
+        "test/scripts/agentflow_policy_test.py",
+        "agentflow"
+      ]
+    },
+    {
+      "id": "legacy-tests",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_agentflow*.py"
+      ],
+      "depends_on": [],
+      "isolation": "isolated",
+      "state_reads": [],
+      "state_writes": []
+    },
+    {
+      "id": "inventory",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "mise",
+        "exec",
+        "--",
+        "python3",
+        "scripts/test_inventory.py",
+        "check"
+      ],
+      "depends_on": [
+        "compile"
+      ],
+      "isolation": "shared",
+      "state_reads": [
+        "build"
+      ],
+      "state_writes": [],
+      "env": {
+        "MIX_ENV": "test"
+      }
+    },
+    {
+      "id": "ci_profiles",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "scripts/ci_unit_tests.sh"
+      ],
+      "depends_on": [
+        "services",
+        "toolchain",
+        "compile",
+        "assets",
+        "database",
+        "inventory"
+      ],
+      "isolation": "shared",
+      "state_reads": [
+        "build",
+        "assets",
+        "test-db"
+      ],
+      "state_writes": [
+        "build",
+        "test-db",
+        "profile-services"
+      ],
+      "env": {
+        "MIX_ENV": "test"
+      },
+      "retry_inputs": [
+        "agentflow",
+        "lib/*",
+        "test/*",
+        "tests/*",
+        "config/*",
+        "priv/*",
+        "scripts/*",
+        "tools/openapi/*",
+        "mix.exs",
+        "mix.lock",
+        ".agentflow/*",
+        ".specify/workflows/desapp-delivery/workflow.yml",
+        ".github/workflows/*"
+      ]
+    }
+  ],
+  "coverage": {
+    "FR-001": [
+      "launch-preflight",
+      "preflight-tests",
+      "provider-tests"
+    ],
+    "FR-002": [
+      "preflight-tests"
+    ],
+    "FR-003": [
+      "preflight-tests",
+      "provider-tests"
+    ],
+    "FR-004": [
+      "preflight-tests",
+      "continuation-tests",
+      "recovery-tests"
+    ],
+    "FR-005": [
+      "continuation-tests",
+      "evidence-tests"
+    ],
+    "FR-006": [
+      "continuation-tests"
+    ],
+    "FR-007": [
+      "recovery-tests"
+    ],
+    "FR-008": [
+      "recovery-tests",
+      "feedback-tests",
+      "legacy-tests"
+    ],
+    "FR-009": [
+      "dedup-tests",
+      "ci-parity"
+    ],
+    "FR-010": [
+      "dedup-tests",
+      "continuation-tests"
+    ],
+    "FR-011": [
+      "dedup-tests",
+      "legacy-tests",
+      "ci_profiles",
+      "ci-parity"
+    ],
+    "FR-012": [
+      "preflight-tests",
+      "continuation-tests",
+      "recovery-tests",
+      "dedup-tests",
+      "policy-tests",
+      "ci_profiles"
+    ],
+    "FR-013": [
+      "dedup-tests",
+      "policy-tests",
+      "ci_profiles"
+    ],
+    "SC-001": [
+      "preflight-tests"
+    ],
+    "SC-002": [
+      "preflight-tests",
+      "continuation-tests",
+      "recovery-tests"
+    ],
+    "SC-003": [
+      "continuation-tests",
+      "evidence-tests"
+    ],
+    "SC-004": [
+      "recovery-tests"
+    ],
+    "SC-005": [
+      "recovery-tests",
+      "feedback-tests"
+    ],
+    "SC-006": [
+      "dedup-tests",
+      "ci-parity"
+    ],
+    "SC-007": [
+      "preflight-tests",
+      "continuation-tests",
+      "recovery-tests",
+      "dedup-tests",
+      "policy-tests",
+      "ci_profiles"
+    ]
+  },
+  "task_stages": {
+    "T030": "qa",
+    "T031": "review"
+  },
+  "toolchain_required": true
+}

@@ -41,10 +41,54 @@ def validate(expected, discovered):
 
 
 def reconcile(expected, events):
+    if reconcile_diagnostics(expected, events) is not None:
+        raise ValueError('execution-membership')
+
+
+def reconcile_diagnostics(expected, events):
+    """Return bounded aggregate mismatch counts without exposing case IDs."""
     wanted = {case['id'] for case in expected}
     states = Counter((event['id'], event['state']) for event in events)
-    if not wanted or states != Counter({(i, s): 1 for i in wanted for s in ('started', 'passed')}):
-        raise ValueError('execution-membership')
+    expected_states = Counter({(ident, state): 1 for ident in wanted for state in ('started', 'passed')})
+    extra = sum(count for (ident, _state), count in states.items() if ident not in wanted)
+    invalid_state = sum(count for (_ident, state), count in states.items() if state not in ('started', 'passed'))
+    missing_started = sum(states[(ident, 'started')] == 0 for ident in wanted)
+    missing_passed = sum(states[(ident, 'passed')] == 0 for ident in wanted)
+    duplicate = sum(max(0, count - 1) for _key, count in states.items())
+    if not wanted:
+        reason = 'empty-expected'
+    elif extra:
+        reason = 'extra-events'
+    elif invalid_state:
+        reason = 'unexpected-state'
+    elif missing_started or missing_passed:
+        reason = 'missing-events'
+    elif duplicate:
+        reason = 'duplicate-events'
+    elif states != expected_states:
+        reason = 'unexpected-state'
+    else:
+        return None
+    return {'reason': reason, 'expected': len(wanted), 'observed': len(events),
+            'missing_started': missing_started, 'missing_passed': missing_passed,
+            'extra': extra, 'duplicate': duplicate, 'invalid_state': invalid_state}
+
+
+def registered_extra_ids(expected, events, registered):
+    """Return opaque IDs for extra events only when they belong to the full inventory."""
+    expected_ids = {case['id'] for case in expected}
+    registered_ids = {case['id'] for case in registered}
+    return sorted({event['id'] for event in events
+                   if event['id'] not in expected_ids and event['id'] in registered_ids})
+
+
+def registered_extra_sources(expected, events, registered):
+    """Map extra events to registered runner/file pairs without exposing case IDs."""
+    expected_ids = {case['id'] for case in expected}
+    registered_sources = {(case['runner'], case['file']) for case in registered}
+    return sorted({(event['runner'], event['file']) for event in events
+                   if event['id'] not in expected_ids and
+                   (event.get('runner'), event.get('file')) in registered_sources})
 
 
 def capture(argv, env=None, timeout=120):

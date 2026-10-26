@@ -67,6 +67,7 @@ defmodule FootballMarket.TestProfileAuditTest do
       "test/football_market/statistics/ingestion/recovery_test.exs",
       "test/football_market/quotes/concurrency_test.exs",
       "test/football_market/quotes/replay_test.exs",
+      "test/football_market/quotes/outcomes_test.exs",
       "test/football_market/synchronization/concurrency_test.exs",
       "test/football_market/synchronization/statistics_test.exs",
       "test/mix/tasks/catalog.seed_test.exs",

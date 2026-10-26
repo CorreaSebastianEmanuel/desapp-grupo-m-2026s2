@@ -13,9 +13,15 @@ from unittest.mock import patch
 
 from scripts.agentflow_check import run_check
 from scripts.agentflow_runtime import Console, DIMENSIONS, MARKER, metrics_summary, numeric_usage, stage_from_args, usage_delta
-from scripts.agentflow_verification import manifest, readiness
+from scripts.agentflow_verification import manifest, readiness, receipt_path
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def fixture_plan(label="Plan"):
+    policy = {"schema_version": 1, **{key: {"required": False, "reason": "fixture decision"}
+              for key in ("research", "data_model", "contracts", "quickstart")}}
+    return label + "\n```json artifact-applicability\n" + json.dumps(policy) + "\n```\n"
 
 
 class CoverageSnapshotTest(unittest.TestCase):
@@ -61,7 +67,8 @@ class VerificationTest(unittest.TestCase):
         self.feature = self.root / "specs/001-test"
         self.feature.mkdir(parents=True)
         (self.feature / "spec.md").write_text("FR-001: observable behavior\nSC-001: success criterion\n")
-        (self.feature / "plan.md").write_text("Plan\n")
+        (self.feature / "plan.md").write_text(fixture_plan())
+        (self.feature / "handoffs").mkdir()
         (self.feature / "tasks.md").write_text("- [X] T001 Implement behavior\n")
         self.data = {"schema_version": 1, "runtime_required": False,
                      "coverage": {"FR-001": ["unit"], "SC-001": ["unit"]},
@@ -99,7 +106,7 @@ class VerificationTest(unittest.TestCase):
 
     def test_inputs_and_output_hashes_are_bound(self):
         self.check()
-        (self.feature / "plan.md").write_text("Changed plan")
+        (self.feature / "plan.md").write_text(fixture_plan("Changed plan"))
         with self.assertRaisesRegex(RuntimeError, "Stale"):
             readiness(self.root, self.feature)
 
@@ -121,7 +128,7 @@ class VerificationTest(unittest.TestCase):
         (self.feature / "qa-report.md").write_text("QA output is not a design input")
         self.assertTrue(readiness(self.root, self.feature)["ready"])
         self.check()
-        log = next((self.root / ".agentflow/runs/checks").glob("*.log"))
+        log = next((self.root / ".agentflow/runs/checks").rglob("*.log"))
         # Corrupt all possible receipt outputs, including the most recent one.
         for log in log.parent.glob("*.log"):
             log.write_text("altered")
@@ -144,12 +151,13 @@ class VerificationTest(unittest.TestCase):
                 self.assertEqual(0, run_check(self.root, self.feature, "unit", reuse=True))
             execute.assert_not_called()
             self.assertTrue(json.loads(output.getvalue())["reused"])
-        receipt = json.loads((self.feature / "handoffs/check-unit.json").read_text())
+        check = manifest(self.feature)["checks"][0]
+        receipt = json.loads(receipt_path(self.root, self.feature, check).read_text())
         (self.root / receipt["evidence"]).write_text("corrupted")
         with redirect_stdout(StringIO()) as output:
             self.assertEqual(0, run_check(self.root, self.feature, "unit", reuse=True))
         self.assertFalse(json.loads(output.getvalue())["reused"])
-        (self.feature / "plan.md").write_text("Changed plan")
+        (self.feature / "plan.md").write_text(fixture_plan("Changed plan"))
         with redirect_stdout(StringIO()) as output:
             self.assertEqual(0, run_check(self.root, self.feature, "unit", reuse=True))
         self.assertFalse(json.loads(output.getvalue())["reused"])
@@ -203,7 +211,7 @@ class VerificationTest(unittest.TestCase):
         self.data["checks"][0]["argv"] = [sys.executable, "-c", "from pathlib import Path; Path('src.py').write_text('changed')"]
         self.write_manifest()
         self.assertEqual(1, self.check())
-        with self.assertRaisesRegex(RuntimeError, "Stale"):
+        with self.assertRaisesRegex(RuntimeError, "Stale|failed"):
             readiness(self.root, self.feature)
 
     def test_missing_or_unexecutable_check_is_not_ready(self):
@@ -297,8 +305,12 @@ class RuntimeTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory).resolve()
             (root / "scripts").mkdir()
-            for name in ("agentflow_codex.py", "agentflow_runtime.py"):
+            (root / "scripts" / "local_services.sh").write_text("#!/bin/sh\n[ \"$1\" = ready ]\n")
+            for name in ("agentflow_codex.py", "agentflow_runtime.py", "agentflow_preflight.py",
+                         "agentflow_models.py", "agentflow_verification.py", "agentflow_providers.py",
+                         "agentflow_feature.py", "workflow_artifact_probe.py"):
                 shutil.copy2(ROOT / "scripts" / name, root / "scripts" / name)
+            (root / "scripts" / "__init__.py").write_text("")
             fake = root / "codex"
             fake.write_text("#!" + sys.executable + "\nimport json,sys\n"
                             "assert sys.stdin.read() == ''\n"
@@ -319,12 +331,13 @@ class RuntimeTest(unittest.TestCase):
                                f"api=runpy.run_path({str(ROOT / 'agentflow')!r})\ng=api['monitor_process'].__globals__\n"
                                f"root=Path({str(root)!r})\ng.update(ROOT=root,RUNS=root/'.agentflow/runs',SPEC_RUNS=root/'.specify/workflows/runs')\n"
                                f"code,_=api['monitor_process']([sys.executable,{str(runner)!r}],root/'task.md')\nraise SystemExit(code)\n")
-            env = {**os.environ, "PATH": str(root) + os.pathsep + os.environ["PATH"]}
+            env = {key: value for key, value in os.environ.items() if not key.startswith("AGENTFLOW_")}
+            env["PATH"] = str(root) + os.pathsep + os.environ["PATH"]
             env.pop("SPECKIT_INTEGRATION_CODEX_EXECUTABLE", None)
             env.pop("AGENTFLOW_CONSOLE", None)
             result = subprocess.run([sys.executable, str(harness)], input="approve\n", text=True,
                                     capture_output=True, env=env, timeout=15)
-            self.assertEqual(3, result.returncode, result.stderr)
+            self.assertEqual(3, result.returncode, result.stdout + result.stderr)
             self.assertIn("Human gate: ¿aprobar? [approve/reject]: CHOICE_RECEIVED=approve", result.stdout)
             self.assertNotIn("PRIVATE_SENTINEL", result.stdout)
             self.assertEqual(120, metrics_summary(root / ".agentflow/runs/TASK-001.metrics.jsonl")["measured_input_plus_output"])
@@ -379,10 +392,12 @@ class RuntimeTest(unittest.TestCase):
                             "print(json.dumps({'type':'turn.completed','usage':{'input_tokens':100,'cached_input_tokens':80,'output_tokens':20}}))\n")
             fake.chmod(0o755)
             metrics = root / "TASK-001.metrics.jsonl"
-            env = {**os.environ, "AGENTFLOW_CODEX_REAL": str(fake), "AGENTFLOW_TASK_ID": "TASK-001", "AGENTFLOW_METRICS_FILE": str(metrics)}
+            env = {key: value for key, value in os.environ.items() if not key.startswith("AGENTFLOW_")}
+            env.update({"AGENTFLOW_CODEX_REAL": str(fake), "AGENTFLOW_TASK_ID": "TASK-001",
+                        "AGENTFLOW_METRICS_FILE": str(metrics)})
             command = [sys.executable, str(ROOT / "scripts/agentflow_codex.py"), "exec", "Agentflow stage: develop\nWork", "--model", "fixture-model"]
             result = subprocess.run(command, env=env, input="approve\n", text=True, capture_output=True)
-            self.assertEqual(0, result.returncode, result.stderr)
+            self.assertEqual(0, result.returncode, result.stdout + result.stderr)
             console = Console()
             self.assertNotIn("PRIVATE_SENTINEL", console.feed(result.stdout, final=True))
             self.assertEqual(120, metrics_summary(metrics)["measured_input_plus_output"])

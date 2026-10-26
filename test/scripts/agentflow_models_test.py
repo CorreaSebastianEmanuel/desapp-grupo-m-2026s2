@@ -19,10 +19,13 @@ class ModelTest(DeliveryFixture):
                        if not key.startswith('AGENTFLOW_')}
         fake = self.write('fake-codex', '#!/bin/sh\necho \'{"type":"error","message":"selected model unavailable"}\'\nexit 0\n')
         fake.chmod(0o755)
+        prerequisites = self.root/'prerequisite-bin'; prerequisites.mkdir()
+        specify = prerequisites/'specify'; specify.write_text('#!/bin/sh\nexit 0\n'); specify.chmod(0o700)
         result = subprocess.run([sys.executable, str(ROOT/'scripts/agentflow_codex.py'), 'exec',
                                  'Agentflow stage: develop'], cwd=self.root, capture_output=True, text=True,
                                 env={**environment, 'AGENTFLOW_CODEX_REAL': str(fake), 'AGENTFLOW_TASK_ID': 'TASK-003',
-                                     'AGENTFLOW_METRICS_FILE': str(self.root/'events.jsonl')})
+                                     'AGENTFLOW_METRICS_FILE': str(self.root/'events.jsonl'),
+                                     'PATH': str(prerequisites) + os.pathsep + os.environ.get('PATH', '')})
         self.assertNotEqual(result.returncode, 0)
         events = [json.loads(line) for line in (self.root/'events.jsonl').read_text().splitlines()]
         self.assertEqual(sum(e['event']=='agent_started' for e in events), 1)
@@ -72,10 +75,13 @@ class LauncherTest(DeliveryFixture):
         super().setUp()
         import shutil
         shutil.copy2(ROOT/'agentflow',self.root/'agentflow')
-        shutil.copytree(ROOT/'scripts',self.root/'scripts',ignore=shutil.ignore_patterns('__pycache__'))
+        shutil.copytree(ROOT/'scripts',self.root/'scripts',dirs_exist_ok=True,ignore=shutil.ignore_patterns('__pycache__'))
+        self.write('scripts/local_services.sh','#!/bin/sh\n[ "$1" = ready ] && exit 0\nexit 0\n')
         self.write('.agentflow/models.json',(ROOT/'.agentflow/models.json').read_text())
         from test.scripts.support.agentflow_delivery_fixtures import verification
-        self.json('specs/003-example/verification.json',verification([sys.executable,'-c',"print('fixture')"]))
+        manifest=verification([sys.executable,'-c',"print('fixture')"])
+        manifest['toolchain_required']=False
+        self.json('specs/003-example/verification.json',manifest)
         self.write('.agentflow/workflow.yml','steps:\n'+''.join(f'  - id: {stage}\n' for stage in ('product','architecture','develop','qa','review')))
         self.write('.gitignore','.agentflow/runs/\n.specify/feature.json\n.specify/workflows/runs/\n__pycache__/\n')
         task=self.root/'backlog/TASK-003-example.md'

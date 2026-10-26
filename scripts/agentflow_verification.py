@@ -12,6 +12,17 @@ from pathlib import Path
 REQUIREMENT = re.compile(r"\b(?:FR|AC|SC)-\d+\b")
 TASK = re.compile(r"^\s*- \[([ xX])\]\s+(T\d+)\b(.*)$", re.M)
 LABEL = re.compile(r"[a-z][a-z0-9_-]{0,63}")
+PREREQUISITE_KINDS = {"executable", "setting", "file", "service"}
+PREREQUISITE_EXPECTATIONS = {
+    "executable": {"executable"},
+    "setting": {"setting-present", "setting-true"},
+    "file": {"file-readable"},
+    "service": {"service-ready"},
+}
+STATIC_COMMANDS = {
+    ("python3", "scripts/agentflow_artifacts.py", "specs/068-agentflow-preflight-recovery"),
+    ("python3", "scripts/agentflow_stage_checks.py", "--ci-parity"),
+}
 
 
 def digest(value: bytes) -> str:
@@ -67,12 +78,17 @@ def manifest(feature: Path) -> dict:
     if not isinstance(data, dict) or type(data.get("schema_version")) is not int or data["schema_version"] != 1:
         raise RuntimeError("verification.json requires schema_version 1")
     checks = data.get("checks")
+    if "toolchain_required" in data and type(data["toolchain_required"]) is not bool:
+        raise RuntimeError("toolchain_required must be a boolean when present")
     if not isinstance(checks, list) or not checks:
         raise RuntimeError("Manifest requires concrete checks")
     ids = set()
+    declared_ids = {check.get("id") for check in checks if isinstance(check, dict)}
+    positions = {}
     for check in checks:
         if not isinstance(check, dict) or not isinstance(check.get("id"), str) or not LABEL.fullmatch(check["id"]) or check["id"] in ids:
             raise RuntimeError("Invalid or duplicate check ID")
+        positions[check["id"]] = len(positions)
         ids.add(check["id"])
         argv = check.get("argv")
         if not isinstance(argv, list) or not argv or not all(isinstance(a, str) and a and "\0" not in a for a in argv):
@@ -95,6 +111,63 @@ def manifest(feature: Path) -> dict:
             raise RuntimeError("Runtime checks require expected status/body assertions")
         if check.get("runtime") and not check["expectation"].strip():
             raise RuntimeError("Runtime checks require expected status/body assertions")
+        if "depends_on" in check:
+            deps = check["depends_on"]
+            if (not isinstance(deps, list) or
+                    not all(isinstance(dep, str) for dep in deps) or
+                    len(deps) != len(set(deps)) or not all(dep in declared_ids for dep in deps)):
+                raise RuntimeError("Unknown or duplicate check dependency")
+        if "isolation" in check and (not isinstance(check["isolation"], str) or check["isolation"] not in ("isolated", "shared")):
+            raise RuntimeError("Invalid check isolation")
+        for field in ("state_reads", "state_writes"):
+            if field in check:
+                values = check[field]
+                if (not isinstance(values, list) or
+                        not all(isinstance(value, str) and LABEL.fullmatch(value) for value in values) or
+                        len(values) != len(set(values))):
+                    raise RuntimeError("Invalid check state effects")
+        if "prerequisites" in check:
+            prereqs = check["prerequisites"]
+            if not isinstance(prereqs, list):
+                raise RuntimeError("Invalid check prerequisites")
+            seen = set()
+            for item in prereqs:
+                if (not isinstance(item, dict) or set(item) != {"id", "kind", "target", "expected", "recovery"} or
+                        not isinstance(item.get("id"), str) or not LABEL.fullmatch(item["id"]) or
+                        item["id"] in seen or not isinstance(item.get("kind"), str) or
+                        item["kind"] not in PREREQUISITE_KINDS or
+                        not all(isinstance(item.get(key), str) and item[key] for key in ("target", "expected", "recovery")) or
+                        item.get("expected") not in PREREQUISITE_EXPECTATIONS.get(item.get("kind"), set()) or
+                        (item.get("kind") == "setting" and not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", item.get("target", ""))) or
+                        (item.get("kind") == "file" and (Path(item.get("target", "")).is_absolute() or ".." in Path(item.get("target", "")).parts)) or
+                        (item.get("kind") == "service" and item.get("target") not in {"postgres", "redis"})):
+                    raise RuntimeError("Invalid typed prerequisite declaration")
+                seen.add(item["id"])
+        if "execution_class" in check:
+            if check["execution_class"] != "static" or tuple(argv) not in STATIC_COMMANDS:
+                raise RuntimeError("Unregistered static check command")
+            if check.get("isolation") != "isolated" or check.get("state_reads") != [] or check.get("state_writes") != []:
+                raise RuntimeError("Static checks require explicit isolated empty state effects")
+
+    # A cycle cannot be hidden behind a forward edge; this explicit traversal
+    # also protects future manifest formats if declaration-order rules change.
+    graph = {check["id"]: check.get("depends_on", []) for check in checks}
+    visiting, visited = set(), set()
+    def visit(ident):
+        if ident in visiting:
+            raise RuntimeError("Check dependency cycle")
+        if ident in visited:
+            return
+        visiting.add(ident)
+        for dependency in graph[ident]:
+            visit(dependency)
+        visiting.remove(ident)
+        visited.add(ident)
+    for ident in graph:
+        visit(ident)
+    for check in checks:
+        if any(positions[dep] >= positions[check["id"]] for dep in check.get("depends_on", [])):
+            raise RuntimeError("Forward check dependency")
     requirements = set(REQUIREMENT.findall((feature / "spec.md").read_text()))
     coverage = data.get("coverage")
     if not requirements or not isinstance(coverage, dict) or set(coverage) != requirements:
@@ -148,16 +221,16 @@ def source_fingerprint(root: Path) -> str:
         name = os.fsdecode(raw)
         if name.startswith(("tmp/", ".agentflow/runs/", ".specify/workflows/runs/")) or name == ".specify/feature.json":
             continue
-        # Agentflow tooling changes the harness itself, not the product
-        # behavior that checks measure, so editing it must never invalidate
-        # product receipts. Everything else (lib/**, config, migrations, tests,
-        # check scripts, specs, manifest files) stays bound to the fingerprint.
-        if name == "agentflow" or name in (
-                ".agentflow/config.toml", ".agentflow/workflow.yml", ".agentflow/providers.json",
-                "scripts/workflow_artifact_probe.py", "scripts/product_decision_probe.py"):
+        # Agentflow launch and verification tooling does not alter the product
+        # inputs a completed application check examined. Keep workflow edits
+        # from invalidating those receipts; product support scripts remain bound.
+        if (name == "agentflow" or name.startswith(".agentflow/") or
+                name.startswith("scripts/agentflow_") or
+                name in {"scripts/workflow_artifact_probe.py", "scripts/product_decision_probe.py"}):
             continue
-        if name.startswith("scripts/agentflow_") and name.endswith((".py", ".cmd")):
-            continue
+        # Workflow behavior is part of the feature's current source identity.
+        # Bind Agentflow entrypoints, wrappers and policies too; a tooling change
+        # can alter launch, retry, report or check semantics without touching app code.
         if re.fullmatch(r'specs/[^/]+/(?:qa-report\.md|review-report\.md|evidence-summary\.json|handoffs/(?:develop|qa|review)\.md|handoffs/check-[a-z0-9_-]+\.json)', name):
             continue
         if name.startswith('backlog/') and not name.startswith('backlog/feedback/'):
@@ -238,6 +311,9 @@ def current_receipt(root: Path, feature: Path, check: dict, source: str, inputs:
     receipt = load_json(receipt_path(root, feature, check, stage))
     if receipt.get('schema_version') != 2 or receipt.get('workspace') != workspace(root) or receipt.get('feature') != feature.name or receipt.get('stage') != stage:
         raise RuntimeError('Wrong workspace, feature or stage evidence')
+    attempt_token = receipt.get('stage_attempt_token')
+    if attempt_token is not None and (not isinstance(attempt_token, str) or not re.fullmatch(r'[a-f0-9]{32}', attempt_token)):
+        raise RuntimeError('Invalid full-stage attempt evidence')
     if receipt.get('state') != 'passed' or type(receipt.get('exit_code')) is not int or receipt['exit_code'] != 0:
         raise RuntimeError(f"Required check failed or is incomplete: {check['id']}")
     if receipt.get('check_identity') != check_identity(check) or receipt.get('source_before') != source or receipt.get('source_after') != source or receipt.get('inputs') != inputs:

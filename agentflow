@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse, glob, json, os, re, shutil, signal, subprocess, sys, threading, time
+import argparse, json, os, re, shutil, signal, subprocess, sys, threading, time
 sys.dont_write_bytecode=True
 from scripts.agentflow_runtime import Console, metrics_summary
 from scripts import agentflow_models as models
@@ -183,6 +183,28 @@ def status(a):
 def feature_for_task(task, allow_missing=False):
     association=resolve_feature(ROOT,task,allow_missing=allow_missing)
     return association.feature if association else None
+
+def task_requires_toolchain(task):
+    metadata=meta(task)
+    if str(metadata.get('type','')).lower() in ('docs','docs-only','documentation'):
+        return False
+    try:
+        feature=feature_for_task(task,allow_missing=True)
+    except (OSError,RuntimeError,ValueError):
+        # Isolated launcher fixtures and legacy task files may not be
+        # feature-bound; enforce pins when this repository declares them.
+        return (ROOT/'.tool-versions').is_file()
+    verification=feature/'verification.json' if feature else None
+    if verification and verification.is_file():
+        try:
+            required=json.loads(verification.read_text(encoding='utf-8')).get('toolchain_required')
+            if type(required) is bool: return required
+        except (OSError,ValueError,AttributeError):
+            pass
+    # Legacy/test fixtures without a project pin cannot declare an effective
+    # toolchain requirement. Current application tasks opt in through their
+    # verification manifest; pinned legacy workspaces inherit the repository pin.
+    return (ROOT/'.tool-versions').is_file()
 
 def session_feature(task, head_ref=None, allow_missing=False):
     association=resolve_feature(ROOT,task,head_ref=head_ref,allow_missing=allow_missing)
@@ -422,30 +444,14 @@ def history(a):
 
 def node24_path(root=None):
     """Resolve a Node v24 install from nvm when the inherited PATH lacks one."""
-    candidates = sorted(glob.glob(str(Path.home() / ".nvm/versions/node/v24*/bin")), reverse=True)
-    hit = next((entry for entry in candidates if Path(entry, "node").is_file()), None)
-    if not hit:
-        return None
-    current = shutil.which("node")
-    if current:
-        try:
-            probe = subprocess.run([current, "--version"], capture_output=True, text=True, timeout=5)
-            if (probe.stdout or "").strip().startswith("v24"):
-                return None
-        except OSError:
-            pass
-    return hit
+    from scripts.agentflow_preflight import node24_path as resolve_node24_path
+    return resolve_node24_path(os.environ.get("PATH"))
 
 
 def monitor_process(cmd, task, run_hint=None, assignment=None, new_session=False, provider=providers.DEFAULT_PROVIDER):
     """Run with inherited stdin, live output, durable logs, stage updates, and heartbeat."""
     provider=providers.normalize(provider)
     task_id=meta(task)["id"]
-    RUNS.mkdir(parents=True,exist_ok=True)
-    transcript=RUNS/f"{task_id}.live.log"
-    before=run_ids()
-    started=time.monotonic(); last_heartbeat=started; shown_step=None; run=run_hint
-    print(f"Live log: {transcript.relative_to(ROOT)}",flush=True)
     child_env=os.environ.copy()
     # Sandbox-safe defaults for local Mix/Node toolchains so spawned agents
     # do not inherit a broken environment.
@@ -458,6 +464,7 @@ def monitor_process(cmd, task, run_hint=None, assignment=None, new_session=False
     # gates and metrics stay identical across providers.
     providers.env_overrides(child_env,provider,ROOT)
     child_env["AGENTFLOW_TASK_ID"]=task_id
+    child_env["AGENTFLOW_TOOLCHAIN_REQUIRED"]="true" if task_requires_toolchain(task) else "false"
     child_env["AGENTFLOW_METRICS_FILE"]=str(RUNS/f"{task_id}.metrics.jsonl")
     if new_session: child_env['AGENTFLOW_NEW_SESSION']='1'
     if assignment is not None:
@@ -469,6 +476,15 @@ def monitor_process(cmd, task, run_hint=None, assignment=None, new_session=False
             child_env['AGENTFLOW_RUN_ID'] = run_hint
         else:
             child_env['AGENTFLOW_ASSIGNMENT_PENDING'] = '1'
+    from scripts.agentflow_preflight import build_context, preflight_or_raise
+    state=read_run_state(run_hint) if run_hint else None
+    stage=state.get('current_step_id','product') if state else 'product'
+    preflight_or_raise(build_context(stage,provider,cmd,root=ROOT,cwd=ROOT,env=child_env))
+    RUNS.mkdir(parents=True,exist_ok=True)
+    transcript=RUNS/f"{task_id}.live.log"
+    before=run_ids()
+    started=time.monotonic(); last_heartbeat=started; shown_step=None; run=run_hint
+    print(f"Live log: {transcript.relative_to(ROOT)}",flush=True)
     process=subprocess.Popen(cmd,cwd=ROOT,stdin=None,stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,text=True,bufsize=1,env=child_env,
         start_new_session=os.name=="posix",
@@ -620,6 +636,17 @@ def start(a):
     print(f"{m['id']} — {m['title']}\nAgent: {selected}\nFlow: product → challenge → conditional human check → architecture/tasks synthesis → development → QA → review → PR")
     print(json.dumps(selection,indent=2))
     if a.dry_run: print(f"Dry run passed; no agent invoked. PR creation: {'disabled' if a.no_pr else 'enabled'}"); return 0
+    # Validate the effective outer child context before branch, assignment or
+    # workflow state is created. monitor_process repeats this against its final
+    # launch context immediately before Popen.
+    from scripts.agentflow_preflight import build_context, preflight_or_raise
+    outer_env=os.environ.copy(); outer_env.setdefault("MIX_OS_CONCURRENCY_LOCK","0")
+    outer_env["AGENTFLOW_TASK_ID"]=m['id']
+    outer_env["AGENTFLOW_TOOLCHAIN_REQUIRED"]="true" if task_requires_toolchain(task) else "false"
+    extra_path=node24_path(ROOT)
+    if extra_path: outer_env["PATH"]=extra_path+os.pathsep+outer_env.get("PATH","")
+    providers.env_overrides(outer_env,selected,ROOT)
+    preflight_or_raise(build_context("product",selected,["specify","workflow","run"],root=ROOT,cwd=ROOT,env=outer_env))
     if git("status","--porcelain").stdout.strip(): raise SystemExit("Start requires a clean worktree; commit or stash existing changes")
     if git("branch","--show-current").stdout.strip() not in ("main","master"): raise SystemExit("Start from an up-to-date main branch so Spec Kit can create an isolated feature branch")
     if not a.no_pr:
@@ -700,6 +727,16 @@ def resume(a):
     selected=resolved_resume_provider(selection,a)
     print(json.dumps(selection,indent=2))
     if getattr(a,'dry_run',False): return 0
+    # Check before adoption, rewind, status mutation or assignment writes.
+    from scripts.agentflow_preflight import build_context, preflight_or_raise
+    outer_env=os.environ.copy(); outer_env.setdefault("MIX_OS_CONCURRENCY_LOCK","0")
+    outer_env["AGENTFLOW_TASK_ID"]=meta(task)['id']
+    outer_env["AGENTFLOW_TOOLCHAIN_REQUIRED"]="true" if task_requires_toolchain(task) else "false"
+    extra_path=node24_path(ROOT)
+    if extra_path: outer_env["PATH"]=extra_path+os.pathsep+outer_env.get("PATH","")
+    providers.env_overrides(outer_env,selected,ROOT)
+    preflight_or_raise(build_context(state.get('current_step_id','unknown') if state else 'unknown',
+                                    selected,["specify","workflow","resume",run],root=ROOT,cwd=ROOT,env=outer_env))
     try: branch=ensure_feature_branch(task)
     except RuntimeError as error: raise SystemExit(str(error)) from error
     print(f"Feature branch: {branch}")

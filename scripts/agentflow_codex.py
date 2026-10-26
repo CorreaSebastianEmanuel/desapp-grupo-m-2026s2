@@ -110,6 +110,17 @@ def main(args: list[str]) -> int:
         arg == "--sandbox" or arg.startswith(("-s", "--sandbox=")) for arg in args
     ):
         args = [args[0], "-c", "sandbox_workspace_write.network_access=true", *args[1:]]
+    try:
+        from .agentflow_preflight import build_context, evaluate
+    except ImportError:
+        from agentflow_preflight import build_context, evaluate
+    final_context = build_context(stage, "codex", [real, *args], cwd=Path.cwd(), env=os.environ)
+    preflight = evaluate(final_context)
+    if not preflight["ready"]:
+        emit("agent_failed", cause="launch prerequisite failed; inspect safe preflight result")
+        print(json.dumps(preflight, sort_keys=True))
+        emit("agent_ended", exit_code=2)
+        return 2
     emit("agent_started")
     # Gates belong to Spec Kit. An agent must not consume piped gate answers.
     try:
@@ -174,6 +185,20 @@ def main(args: list[str]) -> int:
                 child.wait()
         code = 130
     code = code or (1 if provider_failed else 0)
+    if stage == "qa":
+        try:
+            from .agentflow_runtime import write_partial_qa_report
+            from .workflow_artifact_probe import active_feature
+        except ImportError:
+            from agentflow_runtime import write_partial_qa_report
+            from workflow_artifact_probe import active_feature
+        if code or not (active_feature(Path.cwd()) / "qa-report.md").is_file():
+            try:
+                write_partial_qa_report(Path.cwd().resolve(), stage, "provider-ended")
+                if code == 0:
+                    code = 1
+            except (OSError, RuntimeError):
+                code = code or 1
     if code == 0 and stage in ('qa','review'):
         try:
             try:

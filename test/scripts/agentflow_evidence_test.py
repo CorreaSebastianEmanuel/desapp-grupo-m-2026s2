@@ -1,5 +1,7 @@
 """Real subprocess receipt lifecycle, integrity, retry and stage isolation."""
 import json
+import os
+import signal
 import sys
 from unittest.mock import patch
 from scripts.agentflow_check import run_check, safe_failure_diagnostics
@@ -14,6 +16,87 @@ class EvidenceTest(DeliveryFixture):
         self.data = verification([sys.executable, '-c', "print('fixture check')"])
         self.json('specs/003-example/verification.json', self.data)
         self.baseline()
+
+    def test_provider_early_exit_writes_complete_nonpass_qa_inventory(self):
+        from scripts.agentflow_runtime import write_partial_qa_report
+        with patch('scripts.workflow_artifact_probe.active_feature', return_value=self.feature):
+            report = write_partial_qa_report(self.root, 'qa', 'provider-ended')
+        text = report.read_text()
+        self.assertIn('Verdict: FAIL', text)
+        self.assertIn('`fixture` | unexecuted', text)
+
+    def test_early_exit_lists_every_manifest_check_without_reflecting_private_cause(self):
+        from scripts.agentflow_runtime import write_partial_qa_report
+        self.data['checks'].append({**self.data['checks'][0], 'id': 'second-fixture'})
+        self.data['coverage'] = {'FR-001': ['fixture', 'second-fixture'],
+                                 'SC-001': ['fixture', 'second-fixture']}
+        self.json('specs/003-example/verification.json', self.data)
+        with patch('scripts.workflow_artifact_probe.active_feature', return_value=self.feature):
+            report = write_partial_qa_report(self.root, 'qa', 'private-token-never-print')
+        text = report.read_text()
+        self.assertIn('`fixture` | unexecuted', text)
+        self.assertIn('`second-fixture` | unexecuted', text)
+        self.assertIn('Verdict: FAIL', text)
+        self.assertNotIn('private-token-never-print', text)
+
+    def test_abrupt_qa_exit_projects_partial_journal_as_nonpass_once(self):
+        from scripts.agentflow_runtime import write_partial_qa_report
+        self.data['checks'].append({**self.data['checks'][0], 'id': 'second-fixture'})
+        self.data['coverage'] = {'FR-001': ['fixture', 'second-fixture'],
+                                 'SC-001': ['fixture', 'second-fixture']}
+        self.json('specs/003-example/verification.json', self.data)
+        journal = self.root/'.agentflow/runs/checks/stage-journals/003-example/qa.json'
+        journal.parent.mkdir(parents=True)
+        journal.write_text(json.dumps({'checks': [
+            {'id': 'fixture', 'status': 'passed', 'evidence': '.agentflow/runs/checks/fixture.log'},
+            {'id': 'second-fixture', 'status': 'running', 'evidence': None}]}))
+        with patch('scripts.workflow_artifact_probe.active_feature', return_value=self.feature):
+            report = write_partial_qa_report(self.root, 'qa', 'secret-abrupt-token')
+        text = report.read_text()
+        self.assertIn('`fixture` | passed', text)
+        self.assertIn('`second-fixture` | running', text)
+        self.assertIn('Verdict: FAIL', text)
+        self.assertNotIn('secret-abrupt-token', text)
+
+    def test_handled_signal_inventory_stays_nonpass_and_retains_completed_rows(self):
+        from scripts.agentflow_runtime import write_partial_qa_report
+        self.data['checks'].append({**self.data['checks'][0], 'id': 'second-fixture'})
+        self.data['coverage'] = {'FR-001': ['fixture', 'second-fixture'],
+                                 'SC-001': ['fixture', 'second-fixture']}
+        self.json('specs/003-example/verification.json', self.data)
+        journal = self.root/'.agentflow/runs/checks/stage-journals/003-example/qa.json'
+        journal.parent.mkdir(parents=True)
+        journal.write_text(json.dumps({'checks': [
+            {'id': 'fixture', 'status': 'passed', 'evidence': '.agentflow/runs/checks/fixture.log'},
+            {'id': 'second-fixture', 'status': 'interrupted', 'evidence': None}]}))
+        with patch('scripts.workflow_artifact_probe.active_feature', return_value=self.feature):
+            report = write_partial_qa_report(self.root, 'qa', 'signal-private-data')
+        text = report.read_text()
+        self.assertIn('`fixture` | passed', text)
+        self.assertIn('`second-fixture` | interrupted', text)
+        self.assertIn('Verdict: FAIL', text)
+        self.assertNotIn('signal-private-data', text)
+
+    def test_sigkill_recovery_demotes_historical_qa_pass(self):
+        import subprocess
+        if os.name != 'posix':
+            self.skipTest('SIGKILL process fixtures require POSIX')
+        from scripts.agentflow_runtime import write_partial_qa_report
+        report = self.feature/'qa-report.md'
+        report.write_text('# QA\n\n| Check | Outcome | Evidence |\n|---|---|---|\n'
+                          '| `fixture` | passed | old.log |\n\nVerdict: PASS\n')
+        child = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(30)'])
+        try:
+            os.kill(child.pid, signal.SIGKILL)
+            self.assertEqual(child.wait(timeout=5), -signal.SIGKILL)
+        finally:
+            if child.poll() is None:
+                child.kill(); child.wait(timeout=5)
+        with patch('scripts.workflow_artifact_probe.active_feature', return_value=self.feature):
+            recovered = write_partial_qa_report(self.root, 'qa', 'kill-private-detail')
+        text = recovered.read_text()
+        self.assertIn('Verdict: FAIL', text)
+        self.assertNotIn('Verdict: PASS', text)
 
     def test_failure_diagnostics_expose_only_allowlisted_profile_locations(self):
         evidence = self.root/'profile.log'
@@ -94,6 +177,12 @@ class EvidenceTest(DeliveryFixture):
         self.assertEqual(self.receipt()['schema_version'], 2)
         self.assertFalse((self.feature/'handoffs/check-fixture.json').exists())
 
+    def test_stage_attempt_token_is_bound_to_check_receipt(self):
+        token = 'a' * 32
+        with patch.dict('os.environ', {'AGENTFLOW_STAGE_ATTEMPT_TOKEN': token}):
+            self.assertEqual(run_check(self.root, self.feature, 'fixture'), 0)
+        self.assertEqual(self.receipt()['stage_attempt_token'], token)
+
     def test_required_artifacts_block_real_receipt_resume_and_finalization(self):
         from contextlib import ExitStack
         from types import SimpleNamespace
@@ -132,6 +221,7 @@ class EvidenceTest(DeliveryFixture):
                 stack.enter_context(patch.object(AGENTFLOW.models, 'resume_selection', return_value=({}, False)))
                 stack.enter_context(patch.object(AGENTFLOW.models, 'save', return_value=self.root/'assignment.json'))
                 stack.enter_context(patch.object(AGENTFLOW.models, 'bind'))
+                stack.enter_context(patch('scripts.agentflow_preflight.preflight_or_raise'))
                 monitor = stack.enter_context(patch.object(AGENTFLOW, 'monitor_process'))
                 with self.assertRaisesRegex(RuntimeError, 'research.md'):
                     AGENTFLOW.resume(SimpleNamespace(task='TASK-003', dry_run=False))

@@ -2,9 +2,9 @@
   "schema_version": 1,
   "task": "TASK-029",
   "feature": "068-atomic-idempotent-token-purchase",
-  "base_revision": "d379221299d9744f07f242708aa18a757e915017",
-  "verified_source": "99049593a54eb35957d9fa7cb64a8c5ba5048a385b933dce719929d37117baa6",
-  "canonical_inputs": "18eb149b6efc53ade83cf7cdf4500446d81e9fd21e2058b7fdda45879b57e4a1",
+  "base_revision": "4c0a5527eebaadc0ff880f0bb4ef69d1f278d849",
+  "verified_source": "59994ff51981daac6f8145a11501e46dc5550a41aeee7e5da16720eece3a4612",
+  "canonical_inputs": "be1e859a6b4845bebcb2bf1eddda80578cb3ffa4a32f68685ef89ab1fcc2ea29",
   "manifest_sha256": "3f3c1e4c9cecfa432f4a104b67965b72ab009ad9e382c029d53d077a6a067fdd",
   "ci": {},
   "checks": [
@@ -13,11 +13,11 @@
       "stage": "develop",
       "status": "passed",
       "command_identity": "fd020102db247c22f2a2e23259aadd1659a85f78da4ea205042d3dabbfec1e49",
-      "elapsed_seconds": 1.029,
+      "elapsed_seconds": 1.346,
       "output_sha256": "d26f020c67adf23d872b7c3b9beda3e56501e34de2e830cf1a8ec814bd1a2e65",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/develop/toolchain/440f389c5f5f49b58c2672e6d4a2d267.log"
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/develop/toolchain/aba96f5f5fc34271b3fcebbad9dce667.log"
       },
       "environment": {
         "MIX_ENV": "test",
@@ -32,11 +32,11 @@
       "stage": "develop",
       "status": "passed",
       "command_identity": "8afc29fa10990822f91b26bc5fa7a88dd4ff7d718382769f09379c84fc0fc753",
-      "elapsed_seconds": 1.547,
-      "output_sha256": "e4495cf99481dd8420c7976cc9a9335cc16e09cc2dc56d605d0bf96a8f9c1998",
+      "elapsed_seconds": 11.676,
+      "output_sha256": "f0d05c6d63a8856c9ce9488aae4469c61f482cb14605410e7af63b6131b84875",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/develop/prepare/7fbea178eaef4a359296693c398603d7.log"
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/develop/prepare/a43b9ea4f05247a4807e4c4d1b9a3612.log"
       },
       "environment": {
         "MIX_ENV": "test",
@@ -50,11 +50,11 @@
       "stage": "develop",
       "status": "passed",
       "command_identity": "98e521f7e4e417393f8804e7ae374b61a86227f0a9649066e247ffe524216769",
-      "elapsed_seconds": 1.344,
-      "output_sha256": "7bd0d87b4e143a5f7312e7605b6fa59558e71afc6aef197eb57c65354e5d4f2d",
+      "elapsed_seconds": 1.354,
+      "output_sha256": "715c7661d11488b2c2c441a9428350f671f5903c283037838f875ad259fee6bb",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/develop/services/b47f55beeb81475383f82c61a44a4b49.log"
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/develop/services/11108b972972404aab88331a2c4fe551.log"
       },
       "environment": {
         "MIX_ENV": "test",
@@ -68,11 +68,11 @@
       "stage": "develop",
       "status": "passed",
       "command_identity": "74e2cca9aa789ed6a1b890d5dc25ac71a8f6c551f29830399b4ae8dd69803c90",
-      "elapsed_seconds": 1.417,
+      "elapsed_seconds": 1.357,
       "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/develop/format/f1e2a8cfc98344deaa320e6dede172ce.log"
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/develop/format/378fbbd4d12849bcacd4302b5f36b61e.log"
       },
       "environment": {
         "MIX_ENV": "test",
@@ -86,11 +86,11 @@
       "stage": "develop",
       "status": "passed",
       "command_identity": "dc8c62daa976865687daad49df21a98b2c5b8956024eed8ae82efd4493d5241b",
-      "elapsed_seconds": 0.729,
+      "elapsed_seconds": 0.665,
       "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/develop/compile/6cd0f3d98b9f44de86ad963677b5e2d1.log"
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/develop/compile/771bffcdad5e4869bc769c1677f8869c.log"
       },
       "environment": {
         "MIX_ENV": "test",
@@ -104,11 +104,11 @@
       "stage": "develop",
       "status": "passed",
       "command_identity": "5ed19a679cc136828562500cf572c56645d2b19e99fbcfbe3aeac5143b4baa11",
-      "elapsed_seconds": 17.995,
-      "output_sha256": "b5a39c8ed628def45004d060b0c7f8d006cdb804c4f85e86950b5f584761a567",
+      "elapsed_seconds": 17.624,
+      "output_sha256": "cdcac6a846d0375daedfa1d340ffe06a2662a4ec49334203c53c392c2e0b74bb",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/develop/credo/1b93c91dc0db480bb33c701fea18d51c.log"
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/develop/credo/a73d890ce560433bb35874402f39ee01.log"
       },
       "environment": {
         "MIX_ENV": "test",
@@ -122,11 +122,11 @@
       "stage": "develop",
       "status": "passed",
       "command_identity": "13d207fc9ba25bd7a251951c575c75a33af57d82902a2a4a33f5b36f466fb8d1",
-      "elapsed_seconds": 0.758,
+      "elapsed_seconds": 0.749,
       "output_sha256": "8475d9724f69fde9c55e3d695e7623dce342858772e647629a513b89f86a8ccb",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/develop/openapi/3af724f989294f899ee4806168b66210.log"
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/develop/openapi/4ac08d23b8444264b2fa4d5e803a710f.log"
       },
       "environment": {
         "MIX_ENV": "test",
@@ -142,11 +142,11 @@
       "stage": "develop",
       "status": "passed",
       "command_identity": "5307f42f1e4dbdf55ff46e26d2069a66da0821129e7d91d4d1975feb1dcc6a7a",
-      "elapsed_seconds": 50.054,
-      "output_sha256": "5afe22bdf81164896b17274f93be9e3259f1d7449b193e4232fd88eadef41ae2",
+      "elapsed_seconds": 53.695,
+      "output_sha256": "8eca6a150005d928e18b9c6c355cd8f6e6a3e3194e0ade77e58f5a0e0b195052",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/develop/inventory/687c0df8abbd4a129a198cc3159c7340.log"
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/develop/inventory/bcf2caa58bcd4075b23ee7a6c21a7af0.log"
       },
       "environment": {
         "MIX_ENV": "test",
@@ -162,11 +162,11 @@
       "stage": "develop",
       "status": "passed",
       "command_identity": "fb6aa463d26515bc917019926d851f3f8367c29dbddbe7b6a4034a164a39687c",
-      "elapsed_seconds": 277.493,
-      "output_sha256": "f41c4245b5efc475db74b2c0afa0bece582a9c2fd99dc76d3e52f6c0f208fea6",
+      "elapsed_seconds": 279.983,
+      "output_sha256": "952fd9e1be95e430dd5473fb042729ecb136291df6df6e81033d3967a4340286",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/develop/unit/4a05bcd943e547aa9b9154c4e1bd2d16.log"
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/develop/unit/790b96338a1047fa9d18464c5bf9745d.log"
       },
       "environment": {
         "MIX_ENV": "test",
@@ -187,11 +187,11 @@
       "stage": "develop",
       "status": "passed",
       "command_identity": "96c51269e2e96ccedb386c9ca1bf33bbb3a17be7c72ecf67f0bc864f62ca21fc",
-      "elapsed_seconds": 959.375,
-      "output_sha256": "d2541622efd3c06e7ada6c92d3c0b03c033694e31572a31824eba689128cd048",
+      "elapsed_seconds": 1158.357,
+      "output_sha256": "ee293087242db8b3f4a8f7a118dc0b5f2568fc46230c44545c1eecf7984f3ad5",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/develop/integration/101fdc520ea24591a2b5111208d43b5c.log"
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/develop/integration/18977779e03542799cf2940d8911cf27.log"
       },
       "environment": {
         "MIX_ENV": "test",
@@ -227,11 +227,11 @@
       "stage": "develop",
       "status": "passed",
       "command_identity": "6212521620ea760f392164e4484ad9c08bf5c3be7a57b0a64f3bd21b16197e2f",
-      "elapsed_seconds": 10.16,
-      "output_sha256": "96b5f11eb9b6328d9df6bcf74604133ac28053ae693023db31570e8b94c8d603",
+      "elapsed_seconds": 7.33,
+      "output_sha256": "fff7ccca606e8e983ed5f622ee2b2a7aaf3bcd10f61bbe4a6c01c0f3b79cecdb",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/develop/assets/a2d9ac873c9f4ad2846ff6c5dfbf51f1.log"
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/develop/assets/e9201207b9414c54abd1a25686525e5e.log"
       },
       "environment": {
         "MIX_ENV": "test",
@@ -245,11 +245,11 @@
       "stage": "develop",
       "status": "passed",
       "command_identity": "c88ad342657be4486903cf33eee775164b14a2510510495aec7f34e04ee76f77",
-      "elapsed_seconds": 74.119,
-      "output_sha256": "5b96c500b870a64f95404eac816751799aca4b2b7efea68dc5a01708c6e2d068",
+      "elapsed_seconds": 88.693,
+      "output_sha256": "46faacde536f7124a2739f6e740146d50ebd9ff99213e9c6744fdf95ddfb2579",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/develop/e2e/d76a0635f83642cab0d933f863cc6186.log"
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/develop/e2e/72d4a4dfd606453ea8b46ade589469b5.log"
       },
       "environment": {
         "MIX_ENV": "test",
@@ -263,11 +263,11 @@
       "stage": "develop",
       "status": "passed",
       "command_identity": "fa46637202ca4ffac0c7104ed185e065ab42308a1c060fc5eee2a9aaed46f570",
-      "elapsed_seconds": 6.108,
+      "elapsed_seconds": 6.815,
       "output_sha256": "1bcaed344d170b948c29b6f894f824575cad597c61cbd2f467e8a8152fe7d346",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/develop/purchase-runtime/4c9b1a86e13a43de993042522447712e.log"
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/develop/purchase-runtime/cdadc7fa45494fca8b7614e6c306a5c5.log"
       },
       "environment": {
         "MIX_ENV": "test",
@@ -302,11 +302,11 @@
       "stage": "qa",
       "status": "passed",
       "command_identity": "fd020102db247c22f2a2e23259aadd1659a85f78da4ea205042d3dabbfec1e49",
-      "elapsed_seconds": 1.384,
+      "elapsed_seconds": 1.225,
       "output_sha256": "d26f020c67adf23d872b7c3b9beda3e56501e34de2e830cf1a8ec814bd1a2e65",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/qa/toolchain/fabc1768ddf64e62a2ffa8c6bc5e660b.log"
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/qa/toolchain/1a78d30ac8b34fa2bc855f6f59c40d23.log"
       },
       "environment": {
         "MIX_ENV": "test",
@@ -321,11 +321,11 @@
       "stage": "qa",
       "status": "passed",
       "command_identity": "8afc29fa10990822f91b26bc5fa7a88dd4ff7d718382769f09379c84fc0fc753",
-      "elapsed_seconds": 1.491,
-      "output_sha256": "c648c7b9647423fbec8ed2148224ebd932ed8ab7f40316ca07fffa46e8dca39e",
+      "elapsed_seconds": 1.587,
+      "output_sha256": "32b4dcb05b480c08b1d7e1eb9e1b150c53b98a8bacc6a6fa1aa4052d752a435b",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/qa/prepare/20304b9371704ecfaf31265da7bceeaa.log"
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/qa/prepare/7ebc75a929ef4ff2a6b6f2680bf69868.log"
       },
       "environment": {
         "MIX_ENV": "test",
@@ -339,11 +339,11 @@
       "stage": "qa",
       "status": "passed",
       "command_identity": "98e521f7e4e417393f8804e7ae374b61a86227f0a9649066e247ffe524216769",
-      "elapsed_seconds": 1.345,
-      "output_sha256": "af5de0d1d854afec24c2a188d462480ce696429837730dda51b7a2d39610923b",
+      "elapsed_seconds": 1.294,
+      "output_sha256": "24426e260c1eeade6f0f88f291625ed8d88cdc45f8cba5c7f894e358421ecf74",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/qa/services/c37a3dcaa0a4484189517725d37627b5.log"
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/qa/services/b5e9f5be552448e9ba511debb6ed3049.log"
       },
       "environment": {
         "MIX_ENV": "test",
@@ -357,11 +357,11 @@
       "stage": "qa",
       "status": "passed",
       "command_identity": "74e2cca9aa789ed6a1b890d5dc25ac71a8f6c551f29830399b4ae8dd69803c90",
-      "elapsed_seconds": 1.391,
+      "elapsed_seconds": 1.46,
       "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/qa/format/bfad0a43211d46ab8e722b64fdb63c8c.log"
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/qa/format/3ca44910432e422dbbe15c32f5279966.log"
       },
       "environment": {
         "MIX_ENV": "test",
@@ -375,11 +375,11 @@
       "stage": "qa",
       "status": "passed",
       "command_identity": "dc8c62daa976865687daad49df21a98b2c5b8956024eed8ae82efd4493d5241b",
-      "elapsed_seconds": 0.656,
+      "elapsed_seconds": 0.671,
       "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/qa/compile/7d3366ee2ee64e29b35f8decdc991e7f.log"
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/qa/compile/cfa77f254f5d42578a7ab4fb910a172a.log"
       },
       "environment": {
         "MIX_ENV": "test",
@@ -393,11 +393,11 @@
       "stage": "qa",
       "status": "passed",
       "command_identity": "5ed19a679cc136828562500cf572c56645d2b19e99fbcfbe3aeac5143b4baa11",
-      "elapsed_seconds": 18.119,
-      "output_sha256": "b5a39c8ed628def45004d060b0c7f8d006cdb804c4f85e86950b5f584761a567",
+      "elapsed_seconds": 17.567,
+      "output_sha256": "cdcac6a846d0375daedfa1d340ffe06a2662a4ec49334203c53c392c2e0b74bb",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/qa/credo/9c0559ccdb2b4e1182f666f199e13af9.log"
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/qa/credo/83fbd44129b2499b815e5d49962ebe4a.log"
       },
       "environment": {
         "MIX_ENV": "test",
@@ -411,11 +411,11 @@
       "stage": "qa",
       "status": "passed",
       "command_identity": "13d207fc9ba25bd7a251951c575c75a33af57d82902a2a4a33f5b36f466fb8d1",
-      "elapsed_seconds": 0.612,
+      "elapsed_seconds": 0.717,
       "output_sha256": "8475d9724f69fde9c55e3d695e7623dce342858772e647629a513b89f86a8ccb",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/qa/openapi/114309055d8143d48e948ad98518c3a8.log"
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/qa/openapi/de462988f74e475fa5bb5298720d7783.log"
       },
       "environment": {
         "MIX_ENV": "test",
@@ -431,11 +431,11 @@
       "stage": "qa",
       "status": "passed",
       "command_identity": "5307f42f1e4dbdf55ff46e26d2069a66da0821129e7d91d4d1975feb1dcc6a7a",
-      "elapsed_seconds": 50.015,
-      "output_sha256": "5afe22bdf81164896b17274f93be9e3259f1d7449b193e4232fd88eadef41ae2",
+      "elapsed_seconds": 53.54,
+      "output_sha256": "8eca6a150005d928e18b9c6c355cd8f6e6a3e3194e0ade77e58f5a0e0b195052",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/qa/inventory/917aff6499fe488aa86e11448ba15ac0.log"
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/qa/inventory/5360e39df9f94aea8e6479d6c0cb05cf.log"
       },
       "environment": {
         "MIX_ENV": "test",
@@ -451,11 +451,11 @@
       "stage": "qa",
       "status": "passed",
       "command_identity": "fb6aa463d26515bc917019926d851f3f8367c29dbddbe7b6a4034a164a39687c",
-      "elapsed_seconds": 276.195,
-      "output_sha256": "f41c4245b5efc475db74b2c0afa0bece582a9c2fd99dc76d3e52f6c0f208fea6",
+      "elapsed_seconds": 281.231,
+      "output_sha256": "952fd9e1be95e430dd5473fb042729ecb136291df6df6e81033d3967a4340286",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/qa/unit/9cf5d7285e904a22a2af436bdc9c2c5a.log"
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/qa/unit/553390ef397748f581c8506d1f8e4405.log"
       },
       "environment": {
         "MIX_ENV": "test",
@@ -476,11 +476,11 @@
       "stage": "qa",
       "status": "passed",
       "command_identity": "96c51269e2e96ccedb386c9ca1bf33bbb3a17be7c72ecf67f0bc864f62ca21fc",
-      "elapsed_seconds": 980.051,
-      "output_sha256": "d2541622efd3c06e7ada6c92d3c0b03c033694e31572a31824eba689128cd048",
+      "elapsed_seconds": 1111.213,
+      "output_sha256": "ee293087242db8b3f4a8f7a118dc0b5f2568fc46230c44545c1eecf7984f3ad5",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/qa/integration/23c2e72a97cc4560b50d8aa23e3781bd.log"
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/qa/integration/c09f7e65675b465aae66d7a2fda91e96.log"
       },
       "environment": {
         "MIX_ENV": "test",
@@ -516,11 +516,11 @@
       "stage": "qa",
       "status": "passed",
       "command_identity": "6212521620ea760f392164e4484ad9c08bf5c3be7a57b0a64f3bd21b16197e2f",
-      "elapsed_seconds": 7.772,
-      "output_sha256": "9ddd08227a804d17670abc62c49527115f9ee0cb856c22721a4b58d973a1234e",
+      "elapsed_seconds": 7.678,
+      "output_sha256": "7cdce096ef845f6c7d77cdadfb02521af27705220afedafe30a4b025b125537b",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/qa/assets/68ef9fe11136465f83ec5e099433cf64.log"
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/qa/assets/f0731a617351412db49aff6c29017bab.log"
       },
       "environment": {
         "MIX_ENV": "test",
@@ -534,11 +534,11 @@
       "stage": "qa",
       "status": "passed",
       "command_identity": "c88ad342657be4486903cf33eee775164b14a2510510495aec7f34e04ee76f77",
-      "elapsed_seconds": 79.189,
-      "output_sha256": "5b96c500b870a64f95404eac816751799aca4b2b7efea68dc5a01708c6e2d068",
+      "elapsed_seconds": 97.899,
+      "output_sha256": "46faacde536f7124a2739f6e740146d50ebd9ff99213e9c6744fdf95ddfb2579",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/qa/e2e/1ddb5accb6ee42199dc76ecc97456c84.log"
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/qa/e2e/40e5f1105dcf4ae6b436361261bfaa97.log"
       },
       "environment": {
         "MIX_ENV": "test",
@@ -552,11 +552,11 @@
       "stage": "qa",
       "status": "passed",
       "command_identity": "fa46637202ca4ffac0c7104ed185e065ab42308a1c060fc5eee2a9aaed46f570",
-      "elapsed_seconds": 6.275,
+      "elapsed_seconds": 5.991,
       "output_sha256": "1bcaed344d170b948c29b6f894f824575cad597c61cbd2f467e8a8152fe7d346",
       "evidence": {
         "availability": "workspace-local; absent in another checkout",
-        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/qa/purchase-runtime/a4da46d2936348abb3f656e609613650.log"
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/qa/purchase-runtime/f181107540e1414ea732efd6e895007b.log"
       },
       "environment": {
         "MIX_ENV": "test",
@@ -683,16 +683,16 @@
   "independent_reports": {
     "qa-report.md": {
       "verdict": "PASS",
-      "sha256": "65e08bcdebca4989e39ac09dcdbc76956266030ee69305b2ddd912a3cd67501a"
+      "sha256": "6b3490f9b80e7c46ebb822b3619f2f0c2c06f240d3ebb8913a4e773e1f4e2897"
     },
     "review-report.md": {
       "verdict": "PASS",
-      "sha256": "fb1bf221494a5f9aa8dfe762bd481d1bd3cce5a438e6d5aed994c03d084e0afa"
+      "sha256": "9c03a1ac29d6615fd307a2370a2e466ca8b843438ba3a52f1e2e4c18f54c838b"
     }
   },
   "complete": true,
   "limitations": [
     "Portable summary does not authorize workspace reuse; run local checks."
   ],
-  "finalized_at": "2026-10-26T21:14:43.834555+00:00"
+  "finalized_at": "2026-10-26T23:50:46.264619+00:00"
 }

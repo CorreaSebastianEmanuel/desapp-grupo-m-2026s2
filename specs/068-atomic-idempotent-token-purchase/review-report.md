@@ -1,29 +1,31 @@
 # Final independent review — TASK-029
 
-2026-10-26. Reviewed the canonical specification, plan, tasks, manifest, contracts, current human feedback, architecture/development handoffs, fresh QA report, combined staged/unstaged diff and implementation directly. No implementation or backlog files were changed.
+2026-10-26, after the main-branch integration and fresh QA round. Reviewed PRODUCT, ARCHITECTURE, CHECKPOINTS, WORKFLOW_LESSONS, the constitution, spec, plan, tasks, contracts, feedback 1–11, development/QA handoffs, branch diff against github/main, local artifact deltas, implementation and acceptance tests. No blocking findings. This review changes only review-report.md and handoffs/review.md.
 
-## Evidence and acceptance
+## Current evidence
 
-`python3 scripts/agentflow_stage_checks.py --stage qa --summary` confirms all 13 required checks passed, with zero failed or blocked obligations. `python3 scripts/workflow_artifact_probe.py qa` independently returned `valid: true` for this workspace. This supports the current QA evidence rather than relying on the report's prose alone. The complete native suites were not repeated during review.
+- `python3 scripts/agentflow_stage_checks.py --stage qa --summary`: all 13 required checks passed; none failed, blocked or unexecuted.
+- `python3 scripts/workflow_artifact_probe.py qa`: `valid: true`.
+- Independently called `current_receipt(..., stage="qa")` for all 13 manifest checks with the current source/input fingerprints and documented system `CHROMIUM_PATH`. All validated workspace/stage, successful completion, command/environment identity, before/after source, canonical inputs and output hashes. The current session mode is danger-full-access. This validates fresh QA evidence rather than developer or portable-summary evidence; no historical run directories were manually inspected.
+- `python3 scripts/agentflow_stage_checks.py --ci-parity`: workflow copies match, wrapper contract passed, zero additional native profile runs.
+- Fresh targeted unittest selection: **8 passed**. Exact selectors: `test.scripts.agentflow_models_test.LauncherTest.{test_sandbox_cli_and_config_disagreement_refuses,test_ambiguous_sandbox_policy_refuses_before_spawn_without_leaking_config,test_approval_policy_resolution_requires_never_for_full_access_preset_removal}`; `test.scripts.application_coverage_test.CoverageAccountingTest.test_unsafe_paths_and_incomplete_partitions_are_rejected`; both tests in `test.scripts.profile_safe_diagnostics_test`; `test.scripts.agentflow_stage_checks_test.StageSummaryTest.{test_safe_command_and_stage_summary_preserve_complete_profile_details,test_stage_summary_recovers_registered_event_summary_from_safe_evidence}`. Executed with `mise exec -- python3 -m unittest` and fully qualified selectors. An initial selection used the wrong stage-summary class name and produced a loader error; the corrected complete selection passed.
 
-The purchase boundary derives the buyer from the authenticated actor and rejects financial authority overrides, malformed UUIDs, invalid quantities and unsupported request-key bytes before persistence. The protected controller delegates rules and returns safe categories; retained money is serialized as decimal strings.
+The complete native suites and live HTTP probe were not repeated during final review; their current independent QA receipts were validated above.
 
-PurchaseStore owns its transaction and requires READ COMMITTED isolation. Buyer/key serialization precedes completed-result lookup, preserving replay and conflict semantics after market conditions change. New purchases acquire the player lock before sorted participant/account locks and select the current quote afterward. The separate-connection tests explicitly establish both competing quote orders. PostgreSQL NUMERIC calculates totals and balance changes, including the tested 1e40 balances, without Decimal context truncation.
+## Acceptance and architecture
 
-Debit, credit, holdings, purchase, transfer and paired ledger evidence commit together. The migration enforces participant/quote linkage, exact totals and complete retained evidence at commit; immutable triggers cover UPDATE, DELETE and TRUNCATE. Reviewed rejection, rollback, race and retrieval coverage supports the specification's financial invariants. Funding, ordinary-user sales, partial fills and presentation remain outside this feature.
+US1 / FR-001–009 / SC-001,004,005: the protected adapter derives buyer identity from authentication, refuses authority overrides and delegates financial rules to Market. Player locking precedes sorted participant/account locking and current-quote selection. Separate committed-connection tests explicitly prove both quote-first and purchase-first orders. PostgreSQL NUMERIC performs exact multiplication and balance changes, including the 1e40 buyer/recipient regressions. Transfers preserve existing supply and credits; the retained quote/version facts identify the actual price. No funding is added.
 
-## Targeted security checks
+US2 / FR-010–011,013 / SC-002: buyer/key advisory serialization and database uniqueness prevent duplicate completion. Lookup precedes mutable eligibility, returning original immutable evidence on matching replay and key_conflict on changed player/quantity. Tests cover concurrent identical/conflicting requests, independent buyers, lost acknowledgement, later activity and fresh-process retrieval. Failed requests retain no key reservation.
 
-The recovery changes cross launcher and publication boundaries, so review specifically reran six tests: three launcher tests for conflicting/ambiguous sandbox declarations and approval-policy restrictions, the publication containment regression, and both safe-diagnostic tests. All six passed through `python3 -m unittest` with their fully qualified test names. These challenge safe refusal, symlink-root/descendant rejection, legitimate external symlink ancestors, registered diagnostic identities and private-output rejection.
+US3 / FR-006–008,012–014 / SC-003,006: validation rejects malformed UUIDs, quantities, Unicode key overflow and NUL before persistence. Rejection snapshots, immediate/deferred fault injection across all mutated tables, nested-transaction refusal and committed inventory/account races challenge partial effects and overspending. Database constraints and deferred triggers enforce exact linked purchase/transfer/ledger evidence; UPDATE/DELETE/TRUNCATE guards protect retained history. Real HTTP QA asserts readiness, exact JSON money, success/replay/conflict, malformed input, insufficient funds, authentication challenge and persisted conserved state.
 
-`python3 scripts/agentflow_stage_checks.py --ci-parity` also passed: workflow copies match and the existing unit/integration wrapper contract passes, with zero native profile runs. Exact-path scope assertions and the manifest retain the approved feedback-11 containment changes without adding a coverage profile or weakening browser gates.
+FR-014–015: all 15 FR and six SC identifiers map to executable checks. Reviewed the merged source-role inventory reconciliation and OpenAPI compatibility changes. Authorized tooling repairs retain real browser acceptance, closed diagnostic fields, retry limits, exact scope assertions and publication containment. Targeted tests independently challenge conflicting sandbox declarations, restricted preset removal, symlink publication refusal, diagnostic privacy and summary recovery. No new coverage profile or bypass is introduced.
 
-## Decision
+## Decision and limits
 
-No blocking correctness, security, maintainability, architecture or CP2 acceptance issue was found. Shared recipient-account serialization is the documented CP2 tradeoff; future financial writers must preserve ADR-0032's lock order. Throughput and deferred product features are not claimed by this verdict. T034/T035 checkbox reconciliation and compact evidence finalization remain workflow-owned bookkeeping; human merge authority is unchanged.
+No blocking correctness, security, architecture, maintainability or CP2 acceptance issue found. Shared recipient-account serialization is the documented CP2 tradeoff; future financial writers must preserve the purchase ADR-0032 lock order. No throughput SLA is claimed. Sales, funding, charts and conditional orders remain with their owning tasks.
 
-Backlog impact: none — this implements the existing purchase contract and authorized verification repairs; it introduces no new requirement, dependency or scope change for downstream tasks.
-
-Ready for human merge after normal workflow evidence finalization.
+Backlog impact: none; no new requirement or dependency identified. T034/T035 checkbox reconciliation and compact evidence/provenance finalization remain workflow-owned. This verdict does not certify the historical evidence-summary.json as current. Ready for normal workflow finalization and human merge review; no publication or merge performed.
 
 Verdict: PASS

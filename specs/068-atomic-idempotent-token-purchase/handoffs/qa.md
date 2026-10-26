@@ -1,7 +1,7 @@
 # QA handoff — TASK-029
 
-Blockers: none. No additional residual risk beyond the report's documented lock-order obligation was identified.
+No blocking acceptance findings. Current ordered QA evidence is 13/13 passed; strict receipt validation confirms current source, canonical inputs, effective check identity and output hashes. Additional semantic-session execution passed 29 purchase/HTTP cases, eight focused tooling controls and CI parity. See qa-report.md for exact commands, acceptance findings and evidence references.
 
-Reviewer guidance: inspect the combined staged and unstaged feature changes; this workspace contains both. QA deliberately left T034's checkbox and all inventories untouched because this session was authorized to write only the report and this handoff. Reconcile stage/task state through normal gate tooling. T035 remains an independent final-review obligation; this QA verdict does not authorize merge.
+Final reviewer: independently assess T035, including the shared player lock, sorted account/balance locks, completed-only key lookup and exact NUMERIC balance updates. Future financial writers must retain ADR-0032 lock ordering. No implementation edits or task-checkbox changes were made by QA; existing owner/workspace changes remain untouched. Final review and human merge remain pending.
 
 Verdict: PASS

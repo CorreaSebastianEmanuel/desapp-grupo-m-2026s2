@@ -253,6 +253,8 @@ Task frontmatter uses unindented lowercase scalar keys immediately followed by `
 
 Publication and completion require the resolved feature's contained QA and final review reports, each ending on its final nonempty line with exactly `Verdict: PASS`. Invoke `complete` after human review or merge for a task in `review`; it validates both reports before atomically setting `status: done` and `active_run: none`. Dependency reconciliation uses the same guard only for listed reviewed dependencies after GitHub confirms their PR was merged. Post-merge retries for an already completed task are unchanged no-ops after validating task and full branch identity. TASK-054's separate tooling correction must merge before provider PR #28.
 
+Manual deliveries of TASK-027 and TASK-056 are reconciled through explicit retrospective records and fresh independent acceptance; see [manual-delivery reconciliation](docs/AGENTFLOW_MANUAL_DELIVERIES.md) before continuing an existing branch.
+
 `next` considers only `todo` tasks with no unfinished dependencies. It recommends deterministically by earliest checkpoint, then `critical`/`high`/`medium`/`low` priority, then task ID, and lists any other tasks that can be started in parallel.
 
 Agentflow prints every stage, a heartbeat every 20 seconds, and concise agent/check/usage outcomes. Agent payloads remain in local logs; human gates retain interactive stdin and prompt fragments. Use `AGENTFLOW_CONSOLE=full` for explicit full console diagnostics. Noninteractive Codex agents cannot consume piped gate answers. Runtime output is saved to `.agentflow/runs/TASK-NNN.live.log`; `status` reports the current stage and last activity. If interrupted with `Ctrl+C`, continue the preserved Spec Kit run with `./agentflow resume TASK-NNN`.

@@ -23,7 +23,25 @@ defmodule FootballMarket.Application do
     # See https://elixir.hexdocs.pm/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: FootballMarket.Supervisor]
-    Supervisor.start_link(children, opts)
+
+    case Supervisor.start_link(children, opts) do
+      {:ok, _} = started ->
+        # Startup is a durable wake only; cron repairs a transient enqueue failure.
+        enqueue_order_recovery()
+        started
+
+      error ->
+        error
+    end
+  end
+
+  defp enqueue_order_recovery do
+    options = Application.get_env(:football_market, FootballMarket.Market.OrderEvaluation, [])
+    if Keyword.get(options, :startup, true), do: FootballMarket.Market.OrderEvaluation.startup()
+  rescue
+    _ -> :ok
+  catch
+    :exit, _ -> :ok
   end
 
   # Tell Phoenix to update the endpoint configuration

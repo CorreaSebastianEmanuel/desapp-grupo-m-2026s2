@@ -344,6 +344,36 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/market/issuance.ex."
     },
     {
+      "path": "lib/football_market/market/order_evaluation.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Conditional evaluation application source: lib/football_market/market/order_evaluation.ex."
+    },
+    {
+      "path": "lib/football_market/market/order_evaluation_member.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Conditional evaluation application source: lib/football_market/market/order_evaluation_member.ex."
+    },
+    {
+      "path": "lib/football_market/market/order_evaluation_pass.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Conditional evaluation application source: lib/football_market/market/order_evaluation_pass.ex."
+    },
+    {
+      "path": "lib/football_market/market/order_evaluation_store.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Conditional evaluation application source: lib/football_market/market/order_evaluation_store.ex."
+    },
+    {
+      "path": "lib/football_market/market/order_notifications.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Conditional evaluation application source: lib/football_market/market/order_notifications.ex."
+    },
+    {
       "path": "lib/football_market/market/purchase.ex",
       "role": "application",
       "disposition": "include",
@@ -998,6 +1028,18 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/workers/catalog_sync.ex."
     },
     {
+      "path": "lib/football_market/workers/conditional_order_evaluation.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Conditional evaluation application source: lib/football_market/workers/conditional_order_evaluation.ex."
+    },
+    {
+      "path": "lib/football_market/workers/conditional_order_recovery.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Conditional evaluation application source: lib/football_market/workers/conditional_order_recovery.ex."
+    },
+    {
       "path": "lib/football_market/workers/quote_calculation.ex",
       "role": "application",
       "disposition": "include",
@@ -1440,6 +1482,12 @@
       "role": "migration",
       "disposition": "exclude",
       "reason": "Conditional buy order migration source: priv/repo/migrations/20261027000000_create_conditional_buy_orders.exs."
+    },
+    {
+      "path": "priv/repo/migrations/20261027000100_add_conditional_order_evaluation_passes.exs",
+      "role": "migration",
+      "disposition": "exclude",
+      "reason": "Conditional evaluation migration source: priv/repo/migrations/20261027000100_add_conditional_order_evaluation_passes.exs."
     },
     {
       "path": "scripts/application_coverage_native.exs",
@@ -2184,6 +2232,54 @@
       "role": "test",
       "disposition": "exclude",
       "reason": "Test code, not application behavior: test/football_market/market/issuance_test.exs."
+    },
+    {
+      "path": "test/football_market/market/order_evaluation/contention_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Conditional evaluation test source: test/football_market/market/order_evaluation/contention_test.exs."
+    },
+    {
+      "path": "test/football_market/market/order_evaluation/delivery_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Conditional evaluation test source: test/football_market/market/order_evaluation/delivery_test.exs."
+    },
+    {
+      "path": "test/football_market/market/order_evaluation/eligibility_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Conditional evaluation test source: test/football_market/market/order_evaluation/eligibility_test.exs."
+    },
+    {
+      "path": "test/football_market/market/order_evaluation/notifications_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Conditional evaluation test source: test/football_market/market/order_evaluation/notifications_test.exs."
+    },
+    {
+      "path": "test/football_market/market/order_evaluation/ordering_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Conditional evaluation test source: test/football_market/market/order_evaluation/ordering_test.exs."
+    },
+    {
+      "path": "test/football_market/market/order_evaluation/recovery_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Conditional evaluation test source: test/football_market/market/order_evaluation/recovery_test.exs."
+    },
+    {
+      "path": "test/football_market/market/order_evaluation/retry_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Conditional evaluation test source: test/football_market/market/order_evaluation/retry_test.exs."
+    },
+    {
+      "path": "test/football_market/market/order_evaluation/scope_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Conditional evaluation test source: test/football_market/market/order_evaluation/scope_test.exs."
     },
     {
       "path": "test/football_market/market/purchases/concurrency_test.exs",
@@ -2978,6 +3074,12 @@
       "reason": "Test code, not application behavior: test/football_market/valuation/week_test.exs."
     },
     {
+      "path": "test/football_market/workers/conditional_order_evaluation_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Conditional evaluation test source: test/football_market/workers/conditional_order_evaluation_test.exs."
+    },
+    {
       "path": "test/football_market_web/api_authentication_performance_test.exs",
       "role": "test",
       "disposition": "exclude",
@@ -3164,6 +3266,12 @@
       "reason": "Conditional buy order test source: test/runtime/conditional_orders_http.exs."
     },
     {
+      "path": "test/runtime/order_evaluation_http.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Conditional evaluation test source: test/runtime/order_evaluation_http.exs."
+    },
+    {
       "path": "test/runtime/purchase_http.exs",
       "role": "test",
       "disposition": "exclude",
@@ -3306,6 +3414,18 @@
       "role": "test-support",
       "disposition": "exclude",
       "reason": "Test harness or fixture support, not application behavior: test/support/openapi_case.ex."
+    },
+    {
+      "path": "test/support/order_evaluation/case.ex",
+      "role": "test-support",
+      "disposition": "exclude",
+      "reason": "Conditional evaluation test-support source: test/support/order_evaluation/case.ex."
+    },
+    {
+      "path": "test/support/order_evaluation/runtime_probe.ex",
+      "role": "test-support",
+      "disposition": "exclude",
+      "reason": "Conditional evaluation test-support source: test/support/order_evaluation/runtime_probe.ex."
     },
     {
       "path": "test/support/player_catalog_probe.ex",

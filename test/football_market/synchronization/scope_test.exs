@@ -102,7 +102,11 @@ defmodule FootballMarket.Synchronization.ScopeTest do
     plugins = Application.fetch_env!(:football_market, Oban)[:plugins]
 
     assert [
-             {Oban.Plugins.Cron, crontab: [{"* * * * *", FootballMarket.Workers.QuoteRecovery}]}
+             {Oban.Plugins.Cron,
+              crontab: [
+                {"* * * * *", FootballMarket.Workers.QuoteRecovery},
+                {"* * * * *", FootballMarket.Workers.ConditionalOrderRecovery}
+              ]}
            ] = plugins
 
     assert File.read!("config/synchronization.exs") =~ "enabled: false"

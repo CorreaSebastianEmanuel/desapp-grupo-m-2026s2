@@ -5,7 +5,7 @@ type: task
 checkpoint: CP1
 priority: critical
 workflow: thinflow-v1
-status: review
+status: done
 depends_on: none
 active_run: none
 ---

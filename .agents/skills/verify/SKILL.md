@@ -7,6 +7,6 @@ description: Independently verify an Agentflow task against its specification, t
 
 Run `./agentflow verify $ARGUMENTS` on POSIX or `.\agentflow.ps1 verify $ARGUMENTS` on Windows. Do not implement fixes during independent verification.
 
-QA executes independently without developer receipt reuse. New receipts are ignored schema-2 workspace/stage evidence. Review uses fresh QA and targeted risk checks. Both exact terminal PASS reports and post-review compact evidence finalization precede publication. Missing local evidence requires execution; a portable summary cannot grant readiness. Stop after two unchanged relevant-input failures.
+For ThinFlow, one fresh evaluator reads the outcome contract, diff, implementation, selected risk, and current local receipts; it writes only `evaluation.md`. It runs targeted checks only for a concrete discrepancy or uncovered risk. Exact terminal `Verdict: PASS` is required. Missing, stale, failed, skipped, empty, or interrupted evidence cannot grant readiness.
 
-Use the ordered stage runner for QA/review manifests. It validates dependency and state metadata before execution, continues only proven-independent checks, and keeps every failed, blocked, interrupted or unexecuted QA obligation in a non-PASS partial report. Machine completion still requires independent semantic acceptance and provenance checks.
+Legacy Agentflow 2.3 tasks retain their QA and final-review reports and ordered manifest runner. Never convert historical evidence to the ThinFlow format implicitly.

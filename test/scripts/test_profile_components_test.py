@@ -44,7 +44,9 @@ class ComponentsTest(unittest.TestCase):
         cases = adapter.python_cases()
         names = [case.id() for case in cases]
         self.assertEqual(len(names), len(set(names)))
-        self.assertIn(self.id(), names)
+        # Discovery may load tests through the package-qualified module while
+        # this assertion itself was launched from a discovery root.
+        self.assertTrue(any(name.endswith(self.id()) for name in names))
         with tempfile.TemporaryDirectory() as directory, patch.dict(os.environ, {
                 'PROFILE_EVENTS': str(Path(directory) / 'events.jsonl'), 'PROFILE_NONCE': 'nonce'}):
             try:

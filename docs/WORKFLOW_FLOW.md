@@ -1,70 +1,45 @@
-# Flujo de desarrollo (vista completa)
+# Flujo de desarrollo
 
-Vista consolidada del flujo Agentflow v2.3 + ledger de lecciones. El detalle
-normativo vive en [METODOLOGIA_AGENTICA.md](METODOLOGIA_AGENTICA.md) y las
-optimizaciones de etapas en [WORKFLOW_OPTIMIZATIONS.md](WORKFLOW_OPTIMIZATIONS.md).
+ThinFlow 3.0 es el default para tareas nuevas. El contrato operativo completo
+está en [THINFLOW.md](THINFLOW.md).
 
 ```mermaid
-flowchart TD
-    LS[(docs/WORKFLOW_LESSONS.md<br/>ledger de lecciones)]
-
-    IN([Siguiente tarea del backlog]) -->|el flujo LEE el ledger<br/>regla 2 de AGENTS.md| START[Selección de tarea<br/>click en dependencias ready]
-
-    subgraph SES["Sesiones 1-2 · Producto"]
-        P[Agente de producto<br/>spec.md] --> C[Critico independiente<br/>product-challenge]
-        C --> H{Decisión material<br/>humana?}
+flowchart TB
+    subgraph OLD["ANTES · Agentflow 2.3"]
+        direction LR
+        O0[Tarea] --> O1["1 · Producto<br/>spec + handoff"]
+        O1 --> O2["2 · Crítico<br/>challenge + decisión"]
+        O2 --> O3["3 · Arquitectura<br/>plan + tasks + manifest"]
+        O3 --> O4["4 · Desarrollo<br/>código + receipts + handoff"]
+        O4 --> O5["5 · QA<br/>repite checks + report"]
+        O5 --> O6["6 · Review<br/>otro report"]
+        O6 --> O7[PR]
+        O5 -.->|"FAIL · rebobina etapas<br/>hasta 3 ciclos"| O1
+        O6 -.->|"FAIL · nuevo ciclo"| O4
     end
 
-    START --> P
-
-    subgraph SES3["Sesión 3 · Arquitectura"]
-        A[Arquitecto: arquitectura + plan + tasks<br/>en una sesión]
+    subgraph NEW["AHORA · ThinFlow 3.0"]
+        direction LR
+        N0["Tarea con outcome"] --> N1["spec.md compacto"]
+        N1 --> N2["1 · Builder único"]
+        N2 --> N3{"Riesgo + checks<br/>determinísticos"}
+        N3 -->|PASS| N4["2 · Evaluador<br/>contexto fresco"]
+        N4 -->|PASS| N5[Un PR]
+        N5 --> N6{"ThinFlow required<br/>Quality + E2E + Sonar"}
+        N6 -->|PASS exact head| N7[Merge humano]
+        N3 -.->|FAIL| NR["Una reparación<br/>agrupada"]
+        N4 -.->|"Sólo blocker<br/>con evidencia"| NR
+        NR -.-> N2
     end
 
-    H -->|sí: aprueba| A
-    H -->|no: ajusta| P
-
-    A -->|plan.md + tasks.md + verification.json| G1[Gate de artefactos y readiness]
-    G1 --> DEV[Implementador<br/>código + tests + docs]
-    DEV --> GV[Gate de frescura, cobertura<br/>y checks con receipts]
-    GV --> Q[QA independiente adversarial]
-    Q --> GQ{PASS?}
-    GQ -->|no| FB
-    Q -->|sí| R[Review final independiente]
-    R --> GR{PASS?}
-
-    GR -->|sí| PR[Agentflow: commit + push + PR]
-    PR --> HM{Merge humano}
-    HM -->|aprueba| DONE([Tarea completada])
-    HM -->|solicita cambios| FB[Feedback versionado<br/>máximo 3 ciclos]
-    GR -->|no| BLOCK[BLOCKED con evidencia]
-    BLOCK --> FB
-
-    FB -->|rebobina a la etapa más<br/>temprana afectada| P
-    FB --> WR
-    DONE --> WR[Append ≤ 3 líneas al ledger<br/>regla 11]
-    WR --> IN
-
-    LS -.lectura al iniciar.-> START
-    WR -.escritura.-> LS
-
-    classDef ledger fill:#FDE68A,stroke:#92400E,color:#451A03,stroke-width:2px;
-    classDef gate fill:#EDE9FE,stroke:#7E22CE,color:#3B0764;
-    classDef human fill:#FDBA74,stroke:#9A3412,color:#431407;
-    class LS,WR ledger;
-    class G1,GQ,GR gate;
-    class H,HM human;
+    O7 --> OC["CI + merge humano"]
 ```
 
-## Puntos clave
+Puntos de control:
 
-- **Seis sesiones independientes**: producto, crítico, arquitectura (arquitectura +
-  plan + tasks en una sesión), implementación, QA y review final.
-- **Dos PASS independientes** (QA y review) son condición para el PR; el merge
-  siempre es humano.
-- **Feedback versionado** rebobina a la etapa más temprana afectada; los
-  artefactos ya aprobados se conservan intactos.
-- **Ledger de lecciones**: la única memoria cross-task del flujo. Se lee al
-  iniciar toda tarea y se escribe (máximo tres líneas) al completar o grabar
-  feedback. Los archivos `backlog/feedback/` por tarea quedan intactos y son
-  la fuente canónica.
+- El diff real determina el riesgo; rutas desconocidas fallan cerradas.
+- El builder itera con pruebas enfocadas. La regresión completa corre una vez
+  en CI y no se duplica entre agentes.
+- Existe un solo dictamen independiente, `evaluation.md`.
+- Un segundo bloqueo requiere decisión humana o dividir la tarea.
+- Los runs 2.3 guardados continúan con su snapshot original.

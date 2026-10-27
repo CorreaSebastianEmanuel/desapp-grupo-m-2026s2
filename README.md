@@ -171,7 +171,7 @@ jq 'select(.correlation_id == "11111111-1111-4111-8111-111111111111")' applicati
 
 ### Continuous integration quality baseline
 
-GitHub Actions runs the stable `Quality baseline` job for pull requests targeting `main` and pushes to `main`. It uses only locked, non-secret build dependencies and an ephemeral PostgreSQL test database and Redis service using the pinned local images. The job retains formatting, warnings-as-errors compilation, and the complete unit test suite, and independently requires Credo source-inventory reconciliation. SonarCloud remains a separate workflow. The baseline does not enforce coverage, releases, or deployments.
+GitHub Actions runs Quality baseline, End-to-end profile, and SonarCloud for pull requests targeting `main` and pushes to `main`. The always-reporting `ThinFlow required` job aggregates those three results and passes only when every constituent succeeds. Configure that stable job as the required status for the latest PR head; merge remains human-controlled. The jobs use locked build dependencies plus ephemeral PostgreSQL and Redis services and do not enforce releases or deployments.
 
 To reproduce the job locally, use Elixir 1.20.3 with Erlang/OTP 29.0.6, make PostgreSQL and Redis available with the test defaults documented above (ports 5432 and 6379), prepare the locked dependencies, and run:
 
@@ -272,7 +272,7 @@ The complete workflow diagram and presentation notes are available in [`docs/MET
 ./agentflow                         # menu
 ./agentflow backlog
 ./agentflow next                    # recommend the next dependency-ready task
-./agentflow create "Task title" --checkpoint CP1
+./agentflow create "Task title" --outcome "Observable result" --checkpoint CP1
 ./agentflow start TASK-001
 ./agentflow status TASK-001
 ./agentflow metrics TASK-001          # usage by stage, without raw logs
@@ -283,13 +283,26 @@ The complete workflow diagram and presentation notes are available in [`docs/MET
 ./agentflow complete TASK-001       # manual completion for local-only runs
 ```
 
-`start` runs six fresh-agent stages: product specification, an independent product challenge, combined architecture/task planning, implementation, adversarial QA, and final review. Planning produces both canonical artifacts in one session and keeps both artifact gates. A required verification manifest maps requirement IDs to executable checks; current successful receipts and source/output hashes must pass the development readiness gate before QA. Between product challenge and architecture, an automated decision probe pauses for a human check only when an unresolved choice materially affects product behavior, business rules, scope, permissions, security, data integrity, or a difficult-to-reverse technical decision. Routine and reversible choices continue automatically. Multiple perspectives are used at decision and verification boundaries; implementation keeps one owner to avoid conflicting edits. When both verification gates pass it commits the generated feature branch, pushes it, and creates a GitHub PR. A failed or rejected gate leaves the task blocked so feedback can rewind it to the affected stage. Merge remains human-controlled. After a verified Agentflow PR is merged into `main`, the `Finalize merged Agentflow task` workflow validates both terminal PASS verdicts and commits the task's `done` state automatically. Reviewed dependencies no longer block later tasks while that reconciliation runs. Use `complete` only for manual or local-only completion. Use `--no-pr` for a local-only run. Start from a clean, up-to-date `main` branch.
+New tasks default to ThinFlow: a compact outcome `spec.md`, one accountable
+builder, deterministic checks selected from the actual diff, and one fresh
+independent evaluator. Plans, task breakdowns, handoffs, and duplicate reports
+are optional rather than readiness gates. `start` creates the task branch and,
+after current local receipts plus terminal `evaluation.md` PASS, commits, pushes,
+and opens one PR. The exact PR head must still pass `ThinFlow required` and a
+person decides whether to merge. Use `--no-pr` only for an explicitly local run,
+and start from a clean, current `main` branch.
 
 Agentflow associates tasks with versioned feature ownership, independently of directory numbers. An exact `**Feature Branch**` declaration in the canonical specification is sufficient; optional backlog frontmatter `feature_directory: specs/055-example` must name an immediate child of `specs/` and agree with that declaration. Duplicate, malformed, conflicting, missing or escaping associations are refused. Declaration-free legacy layouts work only with exactly one equal-number candidate and no contradictory ownership. Session pointers and directory timestamps do not establish ownership. Equal-number specifications with a validated branch belonging to another task are excluded from legacy candidates. A new task with no own feature can still begin its product stage; later verification, publication and completion require its own feature.
 
 Task frontmatter uses unindented lowercase scalar keys immediately followed by `:`. Values may be balanced single/double quoted; blank lines, full-line comments and unknown scalar fields are supported. Unsupported forms such as `feature_directory : specs/099-other`, `Status: blocked`, indented/quoted keys, structured YAML and duplicate keys refuse every ownership/state operation before changing backlog or session state. The same parser guards dependency reads and already-done completion retries.
 
-Publication and completion require the resolved feature's contained QA and final review reports, each ending on its final nonempty line with exactly `Verdict: PASS`. Invoke `complete` after human review or merge for a task in `review`; it validates both reports before atomically setting `status: done` and `active_run: none`. Dependency reconciliation uses the same guard only for listed reviewed dependencies after GitHub confirms their PR was merged. Post-merge retries for an already completed task are unchanged no-ops after validating task and full branch identity. TASK-054's separate tooling correction must merge before provider PR #28.
+ThinFlow publication and completion require the resolved feature's contained
+`evaluation.md` to end on its final nonempty line with exactly `Verdict: PASS`.
+Invoke `complete` only after human review or merge and after the exact PR head
+passes `ThinFlow required`; completion atomically sets `status: done` and
+`active_run: none`. Saved Agentflow 2.3 tasks retain their two-report contract.
+Dependency reconciliation and already-completed retries use the same validated
+task/branch ownership boundary.
 
 Manual deliveries of TASK-027 and TASK-056 are reconciled through explicit retrospective records and fresh independent acceptance; see [manual-delivery reconciliation](docs/AGENTFLOW_MANUAL_DELIVERIES.md) before continuing an existing branch.
 
@@ -297,15 +310,24 @@ Manual deliveries of TASK-027 and TASK-056 are reconciled through explicit retro
 
 Agentflow prints every stage, a heartbeat every 20 seconds, and concise agent/check/usage outcomes. Agent payloads remain in local logs; human gates retain interactive stdin and prompt fragments. Use `AGENTFLOW_CONSOLE=full` for explicit full console diagnostics. Noninteractive Codex agents cannot consume piped gate answers. Runtime output is saved to `.agentflow/runs/TASK-NNN.live.log`; `status` reports the current stage and last activity. If interrupted with `Ctrl+C`, continue the preserved Spec Kit run with `./agentflow resume TASK-NNN`.
 
-Agents exchange structured handoffs under the active feature's `handoffs/` directory. Human feedback is versioned in `backlog/feedback/TASK-NNN.md`; adding feedback rewinds according to the saved workflow step order without upgrading its snapshot. Unaffected prior approvals are kept; product feedback invalidates its active approval. `history` shows feedback, handoffs, and stage results. A task accepts at most three feedback cycles before it must be resolved or split, preventing unbounded autonomous loops. Effective-child preflight runs before launch, and check batches continue only declared-independent work while preserving partial QA outcomes; two unchanged failures remain the separate stage/check retry limit.
+Human feedback is versioned in `backlog/feedback/TASK-NNN.md`. ThinFlow routes
+one classified, grouped repair to the same builder and then regenerates checks
+and the independent evaluation; another blocker requires a human decision, a
+different approach, or a task split. Two check failures with the same material
+digest refuse a third attempt. `history` shows feedback and saved stage results.
+Legacy 2.3 snapshots keep their original stage order, artifacts, and three-cycle
+feedback policy; `resume` never upgrades a captured run.
 
-See [applied workflow optimizations](docs/WORKFLOW_OPTIMIZATIONS.md) and the [verification manifest](docs/AGENT_VERIFICATION.md) for usage, adoption, and compatibility with existing runs.
+See [ThinFlow](docs/THINFLOW.md) and [verification](docs/AGENT_VERIFICATION.md)
+for the executable policy and compatibility with saved 2.3 runs.
 
-Each agent receives only the canonical artifacts and handoffs required by its role. Handoffs are short, delta-only records rather than copies of specifications, plans, tasks, or reports. Agents do not inspect workflow/live logs during delivery; Agentflow checks canonical plan, task, development, and QA artifacts with token-free probes before dispatching the next agent. A failed QA verdict stops the flow before final review. QA remains exhaustive, while final review validates passing QA evidence and reruns only targeted checks needed for an uncovered risk or discrepancy.
-
-Final review also records a lightweight `Backlog impact:` assessment from the evidence already in scope. It does not scan the full backlog by default. The reviewer inspects directly related future tasks only when the completed work reveals a concrete change to requirements, architecture, dependencies, priority, or scope; isolated changes without downstream effects record `none`. Review recommends follow-up but never edits backlog tasks automatically.
-
-QA executes applicable checks rather than only inspecting code. When a task exposes or changes HTTP endpoints, QA must start the application and exercise the affected endpoints with real HTTP requests (such as `curl`), including specified success and failure cases. An unavailable runtime is reported as a blocker, not skipped.
+The builder reads the compact contract and uses focused tests while iterating.
+The repository policy then runs the selected checks once the candidate is
+stable. The evaluator reads the contract, diff, implementation, risk selection,
+and named receipts directly; it runs only targeted evidence needed for a
+concrete discrepancy or uncovered risk. For changed HTTP behavior that can mean
+real requests against the application. Missing runtime or evidence is a blocker,
+never an implicit skip.
 
 ### Windows PowerShell
 

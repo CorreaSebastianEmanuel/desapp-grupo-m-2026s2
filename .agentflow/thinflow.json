@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "base_ref": "origin/main",
+  "checks": {
+    "fast-lane": {
+      "argv": ["python3", "scripts/fast_lane_check.py", "--base", "{base}"],
+      "timeout_seconds": 60
+    },
+    "harness-tests": {
+      "argv": ["python3", "-m", "unittest", "discover", "-s", "test/scripts", "-p", "*_test.py"],
+      "timeout_seconds": 1200
+    },
+    "ci-contracts": {
+      "argv": ["mix", "test", "test/ci/sonarcloud_contract_test.exs", "test/ci/quality_baseline_contract_test.exs", "test/ci/credo_ci_contract_test.exs", "test/ci/test_profiles_quality_contract_test.exs"],
+      "env": {"MIX_ENV": "test"},
+      "timeout_seconds": 600
+    },
+    "format": {
+      "argv": ["mix", "format", "--check-formatted"],
+      "timeout_seconds": 120
+    },
+    "compile": {
+      "argv": ["mix", "compile", "--warnings-as-errors"],
+      "env": {"MIX_ENV": "test"},
+      "timeout_seconds": 600
+    },
+    "unit-profile": {
+      "argv": ["sh", "scripts/test_profile.sh", "unit"],
+      "env": {"MIX_ENV": "test"},
+      "timeout_seconds": 1200
+    }
+  },
+  "rules": [
+    {
+      "id": "delivery-docs",
+      "patterns": ["AGENTS.md", "CLAUDE.md", "README.md", "REVIEW.md", "docs/**", "backlog/**", "specs/**", ".agents/**", ".opencode/**"],
+      "tier": "low",
+      "checks": ["fast-lane"]
+    },
+    {
+      "id": "delivery-harness",
+      "patterns": ["agentflow", "agentflow.ps1", ".agentflow/**", ".specify/**", ".github/**", "scripts/**", "test/scripts/**", "config/test_profiles.json", "config/application_coverage_inventory.json", "config/credo_inventory.json"],
+      "tier": "high",
+      "checks": ["ci-contracts", "harness-tests"]
+    },
+    {
+      "id": "application",
+      "patterns": ["lib/**", "test/football_market/**", "test/football_market_web/**", "test/ci/**", "test/support/**", "config/*.exs", "config/**/*.exs", "priv/**", "assets/**", "mix.exs", "mix.lock", ".formatter.exs", ".credo.exs"],
+      "tier": "high",
+      "checks": ["format", "compile", "unit-profile"]
+    },
+    {
+      "id": "runtime-and-toolchain",
+      "patterns": ["Dockerfile", "docker-compose.yml", ".tool-versions", "setup", "setup.ps1", "rel/**", "tools/**"],
+      "tier": "high",
+      "checks": ["harness-tests", "format", "compile"]
+    }
+  ]
+}

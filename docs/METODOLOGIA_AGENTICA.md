@@ -1,101 +1,35 @@
-# Metodología de trabajo: SDD deliberativo con verificación independiente
+# Metodología de trabajo: ThinFlow
 
-La metodología combina desarrollo guiado por especificaciones (SDD), deliberación entre agentes con responsabilidades distintas, evidencia ejecutable y aprobación humana final. Cada tarea del backlog recorre seis sesiones independientes y deja decisiones y resultados trazables en el repositorio.
+La metodología conserva SDD donde aporta valor: un contrato de resultado
+pequeño, un dueño de implementación, sensores determinísticos y una mirada
+independiente antes del merge. Evita usar agentes para producir documentos o
+handoffs que no cambian una decisión.
 
-> El diagrama consolidado del flujo (incluido el ciclo del ledger de lecciones) está en [WORKFLOW_FLOW.md](WORKFLOW_FLOW.md).
+## Principios
 
-```mermaid
-flowchart LR
-    IN([Tarea priorizada<br/>del backlog])
+1. `spec.md` expresa Outcome, Acceptance, Scope, Non-goals, Risk y decisiones
+   materiales. Es comportamiento, no un diseño prescriptivo.
+2. Un builder mantiene el contexto desde el contrato hasta el candidato.
+3. `.agentflow/thinflow.json` selecciona checks por rutas y máxima severidad.
+   Lo desconocido no obtiene un PASS por inferencia.
+4. Un evaluador no-builder revisa aceptación, riesgo, arquitectura, seguridad,
+   regresión y evidencia. No modifica la implementación.
+5. La reparación es agrupada: vuelve al builder una vez. La recurrencia exige
+   decisión humana o una tarea más pequeña.
+6. `ThinFlow required` agrega Quality, E2E y Sonar para el SHA publicado. El
+   merge sigue siendo humano.
 
-    subgraph DEL[1 · Deliberación y diseño]
-        direction TB
-        P[Agente de producto<br/><b>Especifica el comportamiento</b>]
-        PC[Crítico independiente<br/><b>Cuestiona supuestos y alternativas</b>]
-        ARQ[Arquitecto y planificador<br/><b>Diseña y ordena tareas en una sesión</b>]
+## Artefactos
 
-        P -->|spec.md + product.md| PC
-        PC -->|product-challenge.md| ARQ
-    end
+| Artefacto | Cuándo existe |
+|---|---|
+| Backlog task | Intención y prioridad |
+| `spec.md` | Siempre; contrato compacto |
+| Código y tests | Cuando el outcome lo requiere |
+| ADR o contrato | Sólo para una decisión o interfaz durable |
+| `evaluation.md` | Un dictamen independiente |
+| Recibos locales | Siempre que corre un check; nunca versionados |
 
-    subgraph DEV[2 · Construcción]
-        direction TB
-        IMP[Implementador único<br/><b>Código, tests y documentación</b>]
-        EV[(Evidencia<br/>comandos y resultados)]
-        IMP --> EV
-    end
-
-    subgraph VER[3 · Verificación independiente]
-        direction TB
-        QA[QA adversarial<br/><b>Prueba criterios de aceptación</b>]
-        REAL[Pruebas reales<br/>tests · compilación · curl · servicios]
-        REV[Revisor final<br/><b>Arquitectura, seguridad y mantenibilidad</b>]
-        GATE{¿QA y Review terminan<br/>exactamente en PASS?}
-
-        QA --> REAL
-        REAL --> REV
-        REV --> GATE
-    end
-
-    PUB[Agentflow<br/><b>Commit + Push + Pull Request</b>]
-    HUMAN{Revisión humana}
-    DONE([Merge y tarea completada])
-    BLOCK[Estado BLOCKED<br/>con evidencia]
-    FB[Feedback versionado<br/>máximo 3 ciclos]
-
-    IN --> P
-    ARQ -->|plan.md + tasks.md + verification.json| IMP
-    EV -->|develop.md + diff| QA
-    GATE -->|Sí| PUB
-    PUB --> HUMAN
-    HUMAN -->|Aprobar| DONE
-    HUMAN -->|Solicitar cambios| FB
-    GATE -->|No| BLOCK
-    BLOCK --> FB
-    FB -.->|Rebobina al punto afectado| P
-    FB -.->|Producto o arquitectura| ARQ
-    FB -.->|Implementación| IMP
-
-    classDef human fill:#FDE68A,stroke:#92400E,color:#451A03,stroke-width:2px;
-    classDef deliberation fill:#DBEAFE,stroke:#1D4ED8,color:#172554;
-    classDef execution fill:#DCFCE7,stroke:#15803D,color:#052E16;
-    classDef verification fill:#EDE9FE,stroke:#7E22CE,color:#3B0764;
-    classDef failure fill:#FEE2E2,stroke:#B91C1C,color:#450A0A;
-    classDef automation fill:#E0F2FE,stroke:#0369A1,color:#082F49;
-
-    class IN,HUMAN,DONE human;
-    class P,PC,ARQ deliberation;
-    class IMP,EV execution;
-    class QA,REAL,REV,GATE verification;
-    class BLOCK,FB failure;
-    class PUB automation;
-```
-
-## Principios de la metodología
-
-1. **Primero se acuerda qué construir.** La especificación es la fuente de verdad del comportamiento y sus criterios deben poder probarse.
-2. **La pluralidad se usa donde agrega valor.** Producto propone, un crítico independiente busca puntos ciegos y arquitectura sintetiza una decisión explícita. No se duplican agentes en tareas mecánicas.
-3. **La implementación tiene un solo dueño.** Esto evita cambios simultáneos incompatibles y mantiene clara la responsabilidad sobre el código.
-4. **Los controles no confían en resúmenes.** QA y revisión leen los artefactos y el diff directamente, ejecutan comprobaciones y registran evidencia propia.
-5. **QA prueba el sistema en funcionamiento.** Si se crean o modifican endpoints HTTP, debe levantar la aplicación y probar casos exitosos y fallidos mediante solicitudes reales, por ejemplo con `curl`. Los tests internos no reemplazan esa comprobación.
-6. **Los fallos son visibles.** Si falta evidencia, un servicio no puede iniciarse o un criterio no se cumple, la tarea queda bloqueada; no se declara éxito parcial.
-7. **La automatización publica, las personas deciden.** Agentflow puede crear el commit, subir la rama y abrir el pull request únicamente después de los dos `PASS`. El merge permanece bajo control humano.
-8. **El backlog evoluciona con evidencia y en forma proporcional.** La revisión final evalúa brevemente si el trabajo cambia requisitos, arquitectura, dependencias, prioridad o alcance futuro. No recorre todo el backlog por defecto: solo inspecciona tareas directamente relacionadas cuando existe un impacto concreto y recomienda el seguimiento sin modificarlas automáticamente.
-
-## Artefactos y responsables
-
-| Etapa | Responsabilidad | Evidencia principal |
-|---|---|---|
-| Producto | Definir alcance y criterios observables | `spec.md`, `handoffs/product.md` |
-| Crítica | Buscar ambigüedades, riesgos y alternativas | `handoffs/product-challenge.md` |
-| Arquitectura | Sintetizar el debate y justificar decisiones | `plan.md`, `handoffs/architecture.md`, ADR cuando aplica |
-| Tareas | Validar consistencia y ordenar el trabajo | `tasks.md`, `handoffs/tasks.md` |
-| Desarrollo | Implementar con tests y ejecutar checks | Código, tests, `handoffs/develop.md` |
-| QA | Validar cada criterio con evidencia independiente | `qa-report.md`, `handoffs/qa.md` |
-| Revisión | Evaluar calidad integral, preparación para merge e impacto concreto sobre trabajo futuro | `review-report.md` con `Backlog impact:`, `handoffs/review.md` |
-
-## Mensaje breve para una presentación
-
-> No usamos muchos agentes para producir más texto: asignamos perspectivas independientes en los puntos donde una sola mirada puede equivocarse. Una persona propone, otra cuestiona, una tercera sintetiza, un único responsable implementa y dos controles independientes exigen evidencia real antes de que un humano autorice el merge.
-
-El workflow 2.3.0 agrega recibos ejecutados y hashes de vigencia antes de QA, métricas por etapa y consola resumida. Los runs existentes conservan su snapshot. Véase [ajustes aplicados](WORKFLOW_OPTIMIZATIONS.md).
+`plan.md`, `tasks.md`, research, data-model, quickstart y handoffs no son
+obligatorios en ThinFlow. El workflow 2.3 se conserva únicamente para reanudar
+runs históricos. Véase [THINFLOW.md](THINFLOW.md).

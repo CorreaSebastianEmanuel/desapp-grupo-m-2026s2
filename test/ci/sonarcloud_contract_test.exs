@@ -42,11 +42,12 @@ defmodule FootballMarket.SonarCloudContractTest do
 
   test "workflow covers every internal PR revision and main with least privilege" do
     workflow = File.read!(@workflow)
+    baseline = File.read!(@baseline)
 
-    assert workflow =~
-             ~r/pull_request:\s*\n\s*branches: \[main\]\s*\n\s*types: \[opened, synchronize, reopened, ready_for_review\]/
-
-    assert workflow =~ ~r/push:\s*\n\s*branches: \[main\]/
+    assert workflow =~ ~r/on:\s*\n\s*workflow_call:\s*\n\s*workflow_dispatch:/
+    assert baseline =~ ~r/pull_request:\s*\n\s*branches: \[main\]/
+    assert baseline =~ ~r/push:\s*\n\s*branches: \[main\]/
+    assert baseline =~ "uses: ./.github/workflows/sonarcloud.yml"
     refute workflow =~ "pull_request_target"
     assert workflow =~ "permissions:\n  contents: read"
     assert workflow =~ "github.event.pull_request.head.sha || github.sha"

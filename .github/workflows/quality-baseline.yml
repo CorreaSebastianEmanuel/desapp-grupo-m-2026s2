@@ -224,3 +224,27 @@ jobs:
       - name: Safe runtime outcome
         if: always()
         run: echo 'E2E runtime check finished; inspect the profile outcome above'
+
+  sonarcloud:
+    name: SonarCloud
+    uses: ./.github/workflows/sonarcloud.yml
+    secrets: inherit
+
+  thinflow-required:
+    name: ThinFlow required
+    if: always()
+    needs: [quality-baseline, end-to-end, sonarcloud]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require every constituent gate
+        env:
+          QUALITY_RESULT: ${{ needs.quality-baseline.result }}
+          E2E_RESULT: ${{ needs.end-to-end.result }}
+          SONAR_RESULT: ${{ needs.sonarcloud.result }}
+        shell: bash
+        run: |
+          printf 'Quality baseline: %s\nEnd-to-end profile: %s\nSonarCloud: %s\n' \
+            "$QUALITY_RESULT" "$E2E_RESULT" "$SONAR_RESULT"
+          [[ "$QUALITY_RESULT" == success ]]
+          [[ "$E2E_RESULT" == success ]]
+          [[ "$SONAR_RESULT" == success ]]

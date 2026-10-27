@@ -7,7 +7,8 @@ import re
 from pathlib import Path
 
 MARKER = "AGENTFLOW_EVENT "
-STAGES = {"product", "product_challenge", "architecture", "tasks", "develop", "qa", "review", "unknown"}
+STAGES = {"outcome_ready", "product", "product_challenge", "architecture", "tasks", "develop",
+          "candidate_ready", "qa", "review", "unknown"}
 DIMENSIONS = ("input_tokens", "cached_input_tokens", "output_tokens", "reasoning_output_tokens", "cache_write_input_tokens")
 
 # Public failure records are assembled from these fixed values. Callers pass
@@ -26,6 +27,20 @@ SAFE_DIAGNOSTICS = {
 }
 
 
+def independent_report_name(root: Path, stage: str) -> str:
+    """Select the report contract without consulting mutable run state."""
+    if stage != "qa":
+        return "review-report.md"
+    try:
+        from .agentflow_feature import metadata, task_for_id, task_id_from_head
+    except ImportError:
+        from agentflow_feature import metadata, task_for_id, task_id_from_head
+    import subprocess
+    head = subprocess.check_output(["git", "branch", "--show-current"], cwd=root, text=True).strip()
+    task = task_for_id(root, task_id_from_head(head))
+    return "evaluation.md" if metadata(task).get("workflow") == "thinflow-v1" else "qa-report.md"
+
+
 def write_partial_qa_report(root: Path, stage: str, cause: str):
     """Ensure a provider exit cannot leave QA with a missing/success-looking report."""
     if stage != "qa":
@@ -37,6 +52,17 @@ def write_partial_qa_report(root: Path, stage: str, cause: str):
         from agentflow_verification import manifest
         from workflow_artifact_probe import active_feature
     feature = active_feature(root)
+    if independent_report_name(root, stage) == "evaluation.md":
+        path = feature / "evaluation.md"
+        existing = path.read_text(encoding="utf-8") if path.is_file() else ""
+        if "Verdict: PASS" in existing:
+            existing = existing.replace("Verdict: PASS", "Verdict: FAIL")
+        if not existing.strip():
+            existing = "# Independent evaluation\n\nEvaluator ended before a passing verdict.\n\nVerdict: FAIL\n"
+        temporary = path.with_suffix(".tmp")
+        temporary.write_text(existing, encoding="utf-8")
+        temporary.replace(path)
+        return path
     checks = manifest(feature)["checks"]
     path = feature / "qa-report.md"
     existing = path.read_text(encoding="utf-8") if path.is_file() else ""

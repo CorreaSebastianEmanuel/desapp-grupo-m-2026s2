@@ -4,7 +4,8 @@ title: Migrate Agentflow 2.3 to ThinFlow
 type: task
 checkpoint: CP1
 priority: critical
-status: todo
+workflow: thinflow-v1
+status: review
 depends_on: none
 active_run: none
 ---

@@ -5,4 +5,4 @@ description: Mark an independently verified Agentflow task as done after human r
 
 # Complete task
 
-Confirm the user intends to accept the reviewed task. Run `./agentflow complete $ARGUMENTS` on POSIX or `.\agentflow.ps1 complete $ARGUMENTS` on Windows. Never force-complete a task outside `review`.
+Confirm the user intends to accept the reviewed task and that the PR's exact head passed `ThinFlow required`. Run `./agentflow complete $ARGUMENTS` on POSIX or `.\agentflow.ps1 complete $ARGUMENTS` on Windows. Never force-complete a task outside `review`; never merge automatically.

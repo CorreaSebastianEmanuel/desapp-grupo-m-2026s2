@@ -286,7 +286,7 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
       FootballMarketWeb.Router
       |> Phoenix.Router.routes()
       |> Enum.filter(
-        &(&1.path == "/api/purchases" or &1.path == "/api/players" or
+        &(&1.path in ["/api/purchases", "/api/sales", "/api/players"] or
             String.starts_with?(&1.path, "/api/players/"))
       )
 
@@ -398,6 +398,7 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
   defp response_statuses("listPlayers"), do: ~w(200 400 401)
   defp response_statuses("getQuoteAtDate"), do: ~w(200 400 401 404 503)
   defp response_statuses("purchaseTokens"), do: ~w(200 400 401 404 409 503)
+  defp response_statuses("sellTokens"), do: ~w(200 400 401 404 409 503)
 
   defp response_statuses(quote) when quote in ["getCurrentQuote", "getQuoteHistory"],
     do: ~w(200 401 404 503)
@@ -407,6 +408,11 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
   defp assert_auth_failure_contract!(%{"operationId" => "purchaseTokens"} = op) do
     assert get_in(op, ["responses", "401", "content", "application/json", "schema", "$ref"]) ==
              "#/components/schemas/PurchaseError"
+  end
+
+  defp assert_auth_failure_contract!(%{"operationId" => "sellTokens"} = op) do
+    assert get_in(op, ["responses", "401", "content", "application/json", "schema", "$ref"]) ==
+             "#/components/schemas/SaleError"
   end
 
   defp assert_auth_failure_contract!(op) do

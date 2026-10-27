@@ -1,6 +1,6 @@
 defmodule PurchaseHTTP do
   import ExUnit.Assertions
-  alias FootballMarket.{Repo, Market, MarketCase, PurchasesCase}
+  alias FootballMarket.{Market, MarketCase, PurchasesCase, Repo, SalesCase}
   alias FootballMarket.Infrastructure.{Configuration, Redis}
   alias FootballMarket.Quotes.RuntimeProbe
 
@@ -41,6 +41,7 @@ defmodule PurchaseHTTP do
       try do
         {:ok, {_, port}} = ThousandIsland.listener_info(server)
         url = ~c"http://127.0.0.1:#{port}/api/purchases"
+        sale_url = ~c"http://127.0.0.1:#{port}/api/sales"
 
         RuntimeProbe.await(fn ->
           case :httpc.request(:get, {url, []}, [timeout: 500], []) do
@@ -88,9 +89,47 @@ defmodule PurchaseHTTP do
         assert Repo.query!("SELECT count(*) FROM market_token_transfers").rows == [[1]]
         assert Repo.query!("SELECT count(*) FROM market_credit_entries").rows == [[2]]
 
-        IO.puts(
-          "PURCHASE_HTTP_PASS: real HTTP status/header/body and persisted financial assertions"
-        )
+        sale_payload = SalesCase.request(f, "sale-http-key", 2)
+        sale = request(sale_url, key.secret, sale_payload, 200)
+        assert sale["data"]["seller_id"] == f.buyer.id
+        assert sale["data"]["recipient_id"] == f.owner.id
+        assert sale["data"]["unit_price"] == "1.00"
+        assert sale["data"]["total"] == "2.00"
+        assert request(sale_url, key.secret, sale_payload, 200) == sale
+
+        assert request(sale_url, key.secret, %{sale_payload | quantity: 1}, 409) == %{
+                 "error" => %{"code" => "key_conflict"}
+               }
+
+        sale_before = SalesCase.snapshot()
+
+        assert request(sale_url, key.secret, %{sale_payload | request_key: "sale\0key"}, 400) ==
+                 %{"error" => %{"code" => "invalid_request"}}
+
+        assert request(sale_url, key.secret, "{", 400) == %{
+                 "error" => %{"code" => "invalid_request"}
+               }
+
+        assert request(sale_url, nil, sale_payload, 401) == %{
+                 "error" => %{"code" => "unauthenticated"}
+               }
+
+        assert sale_before == SalesCase.snapshot()
+        assert Repo.query!("SELECT sum(quantity) FROM market_holdings").rows == [[100]]
+
+        assert Repo.query!("SELECT amount FROM market_credit_balances WHERE user_id=$1", [
+                 Ecto.UUID.dump!(f.buyer.id)
+               ]).rows == [[Decimal.new("9.25")]]
+
+        assert Repo.query!("SELECT amount FROM market_credit_balances WHERE user_id=$1", [
+                 Ecto.UUID.dump!(f.owner.id)
+               ]).rows == [[Decimal.new("1")]]
+
+        assert Repo.query!("SELECT count(*) FROM market_sales").rows == [[1]]
+        assert Repo.query!("SELECT count(*) FROM market_sale_token_transfers").rows == [[1]]
+        assert Repo.query!("SELECT count(*) FROM market_sale_credit_entries").rows == [[2]]
+
+        IO.puts("PURCHASE_HTTP_PASS: real purchase/sale HTTP and persisted financial assertions")
       after
         Supervisor.stop(server)
       end

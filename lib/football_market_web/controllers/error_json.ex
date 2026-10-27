@@ -15,8 +15,9 @@ defmodule FootballMarketWeb.ErrorJSON do
   # By default, Phoenix returns the status message from
   # the template name. For example, "404.json" becomes
   # "Not Found".
-  def render("400.json", %{conn: %{request_path: "/api/purchases"}}),
-    do: %{error: %{code: "invalid_request"}}
+  def render("400.json", %{conn: %{request_path: path}})
+      when path in ["/api/purchases", "/api/sales"],
+      do: %{error: %{code: "invalid_request"}}
 
   def render(template, _assigns) do
     %{errors: %{detail: Phoenix.Controller.status_message_from_template(template)}}

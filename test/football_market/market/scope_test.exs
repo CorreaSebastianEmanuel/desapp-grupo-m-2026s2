@@ -94,15 +94,15 @@ defmodule FootballMarket.Market.ScopeTest do
              get_initial_issuance: 1,
              initialize_player: 1,
              initialize_player: 2,
-             purchase: 2
+             purchase: 2,
+             sell: 2
            ]
 
     issuance_paths =
-      ["lib/football_market/market.ex"] ++
-        Enum.map(
-          ~w(input consistency error store initialization_lock initial_recipient holding quote issuance),
-          &"lib/football_market/market/#{&1}.ex"
-        )
+      Enum.map(
+        ~w(input consistency error store initialization_lock initial_recipient holding quote issuance),
+        &"lib/football_market/market/#{&1}.ex"
+      )
 
     for path <- issuance_paths do
       source = File.read!(path)
@@ -112,12 +112,12 @@ defmodule FootballMarket.Market.ScopeTest do
 
       refute source =~ ~r/password|credential|balance|\bsale\b|\bfloat\b/
 
-      if path == "lib/football_market/market.ex" do
-        assert source =~ "defdelegate purchase(actor, input), to: FootballMarket.Market.Purchases"
-      else
-        refute source =~ "purchase"
-      end
+      refute source =~ "purchase"
     end
+
+    facade = File.read!("lib/football_market/market.ex")
+    assert facade =~ "defdelegate purchase(actor, input), to: FootballMarket.Market.Purchases"
+    assert facade =~ "defdelegate sell(actor, input), to: FootballMarket.Market.Sales"
 
     store = File.read!("lib/football_market/market/store.ex")
 

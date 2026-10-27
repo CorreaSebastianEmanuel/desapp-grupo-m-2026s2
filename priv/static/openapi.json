@@ -478,6 +478,92 @@
         }
       }
     },
+    "/api/sales": {
+      "post": {
+        "summary": "Sell owned tokens at the current quote",
+        "operationId": "sellTokens",
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaleRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Completed sale or identical replay",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SaleSuccess"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SaleError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SaleError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Player not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SaleError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Business refusal or key conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SaleError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporarily unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SaleError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/players/{player_id}/quotes/current": {
       "get": {
         "summary": "Get current player quote",
@@ -1392,6 +1478,162 @@
                   "insufficient_inventory",
                   "key_conflict",
                   "self_purchase",
+                  "inconsistent_state",
+                  "temporarily_unavailable"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "SaleRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "player_id",
+          "quantity",
+          "request_key"
+        ],
+        "properties": {
+          "player_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "request_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "\\S"
+          }
+        }
+      },
+      "Sale": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "seller_id",
+          "recipient_id",
+          "player_id",
+          "quote_id",
+          "request_key",
+          "unit_price",
+          "total",
+          "rule_id",
+          "rule_version",
+          "quote_effective_at",
+          "completed_at",
+          "configuration_version_id",
+          "mapping_id",
+          "quantity",
+          "performance_sequence"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "seller_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "recipient_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "player_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "quote_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "unit_price": {
+            "type": "string",
+            "pattern": "^[0-9]+\\.[0-9]{2}$"
+          },
+          "total": {
+            "type": "string",
+            "pattern": "^[0-9]+\\.[0-9]{2}$"
+          },
+          "rule_id": {
+            "type": "string"
+          },
+          "rule_version": {
+            "type": "string"
+          },
+          "quote_effective_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "completed_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "configuration_version_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "mapping_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "performance_sequence": {
+            "type": "integer",
+            "nullable": true
+          }
+        }
+      },
+      "SaleSuccess": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Sale"
+          }
+        }
+      },
+      "SaleError": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "object",
+            "required": [
+              "code"
+            ],
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "unauthenticated",
+                  "invalid_request",
+                  "player_not_found",
+                  "not_initialized",
+                  "quote_unavailable",
+                  "insufficient_tokens",
+                  "insufficient_market_funds",
+                  "key_conflict",
+                  "self_sale",
                   "inconsistent_state",
                   "temporarily_unavailable"
                 ]

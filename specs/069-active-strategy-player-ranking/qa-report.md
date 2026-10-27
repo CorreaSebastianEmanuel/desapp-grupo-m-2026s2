@@ -45,3 +45,29 @@ Blockers:
 - **B2 — Runtime obligation overstated.** `scripts/verify_ranking_runtime.exs:199–229` asserts one entry and only the configuration UUID. It cannot prove multi-player numeric/UUID ordering and does not assert strategy/formula identity, despite T008 and the manifest expectation. H independently passes these behaviors; it does not repair the delivered mandatory runtime check.
 
 Verdict: FAIL
+
+## Independent direct-completion QA — 2026-10-27
+
+Fresh acceptance against the existing specification and the user-authorized direct-completion plan, with origin/main through `62175ea` integrated. No Agentflow orchestration, extra feedback cycle, implementation edits or duplicate full-profile run. Earlier findings and failures above remain historical.
+
+QA executed the twelve prerequisite/quality/runtime checks. A child approval/exec-handle interruption prevented reliable control of the following full-run command, so the parent executed the single CI wrapper, receipt verifier, E2E and whitespace check; QA independently inspected their actual evidence and validated every receipt against the current inventory. Evidence: `tmp/task033-finalqa-20261027/{cheap-results.json,full-results.json,independent-qa-audit.json}` and adjacent bounded logs/receipts.
+
+| Checks | Fresh result |
+| --- | --- |
+| Exact toolchain, PostgreSQL/Redis, test preparation | PASS |
+| Formatting, warnings-as-errors compilation, strict Credo | PASS |
+| OpenAPI validation, test inventory, application source inventory | PASS; 1216 assigned cases, 553 source entries |
+| Asset build and workspace JavaScript coverage | PASS; JavaScript 100% |
+| Four-player real TCP ranking assertions | PASS |
+| Single complete unit/integration CI wrapper | PASS; 961.190 seconds |
+| Independent native-receipt validation | PASS; unit 618/618, integration 595/595 |
+| End-to-end profile | PASS; 3/3, 51.680 seconds |
+| Whitespace check and source stability | PASS; all 678 bound execution-input files unchanged |
+
+Acceptance: all 27 ranking cases are assigned to and passed in integration. Selection tests now prove retained cross-season history, effective-time precedence over sequence and TASK-027's current-quote lookup, and a real failed calculation without an eligible quote, resolving **B1**. The actual TCP probe asserts the complete active configuration and four-player body, numeric price order, canonical UUID ties, consecutive positions and identical repeated reads, resolving **B2**.
+
+Both committed snapshot schedules and enclosing-transaction refusal pass. Active-empty 200, absent-configuration 409, sanitized storage/configuration-integrity 503 and existing credential-refusal 401 contracts remain distinct. Exact decimal/timestamp serialization, no-store/JSON headers, read-only SQL, unchanged quote/selection/financial/audit/job snapshots and zero provider calls pass. Seven-operation OpenAPI/browser guards preserve the merged quote, freshness and purchase contracts. Source inspection confirms no ranking-owned migration, cache, worker, strategy formula, provider or trading behavior was added.
+
+No local acceptance blocker remains. Hosted GitHub CI and SonarCloud were not executed because pushing/opening a PR was not authorized; their existing required gates remain in place. The feature is ready for human PR preparation and remains subject to those hosted checks and human merge authority.
+
+Verdict: PASS

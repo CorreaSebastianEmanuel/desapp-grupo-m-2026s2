@@ -4342,6 +4342,13 @@
       "profile": "integration"
     },
     {
+      "id": "86ecbca0582f760ae0bec012",
+      "runner": "exunit",
+      "file": "test/football_market/ranking/safety_test.exs",
+      "case_id": "FootballMarket.Ranking.SafetyTest:test invalid stored active rules remain a sanitized storage failure",
+      "profile": "integration"
+    },
+    {
       "id": "86ecd1578b081b7ed8e702ac",
       "runner": "exunit",
       "file": "test/football_market/statistics/freshness/context_test.exs",
@@ -6558,6 +6565,13 @@
       "runner": "exunit",
       "file": "test/football_market/statistics/history_test.exs",
       "case_id": "FootballMarket.Statistics.HistoryTest:test empty absent unknown and malformed subjects stay distinct",
+      "profile": "integration"
+    },
+    {
+      "id": "c9b925d46ed02dd43119aece",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/ranking_controller_test.exs",
+      "case_id": "FootballMarketWeb.RankingControllerTest:test invalid stored active rules return the safe 503 contract",
       "profile": "integration"
     },
     {

@@ -5,7 +5,7 @@
 
 ## Direct completion — 2026-10-27
 
-The user authorized completion on the existing branch without Agentflow orchestration or another feedback cycle. Preserve the original decisions and historical evidence; run the existing checks directly, one stable full CI pass, independent QA and a fresh final review. Main is integrated through `d1a0d76` (including TASK-027, TASK-056 and TASK-036). The inherited API guards now cover six operations and TASK-056's player-detail response. Remaining changes close QA B1/B2 using existing confirmed-quote helpers and the ranking-owned HTTP probe; no application redesign or scope expansion.
+The user authorized completion on the existing branch without Agentflow orchestration or another feedback cycle. Preserve the original decisions and historical evidence; run the existing checks directly, one stable full CI pass, independent QA and a fresh final review. Main is integrated through `62175ea` (including TASK-027, TASK-056, TASK-036 and TASK-029). The inherited API guards now cover seven operations and TASK-056's player-detail response. Remaining changes close QA B1/B2 using existing confirmed-quote helpers and the ranking-owned HTTP probe; Known stored-configuration integrity errors return the existing safe 503 contract; no application redesign or scope expansion.
 
 ## Summary
 

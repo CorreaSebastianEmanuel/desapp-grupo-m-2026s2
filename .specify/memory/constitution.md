@@ -18,16 +18,16 @@ Prefer a modular monolith and the smallest design satisfying the active checkpoi
 
 Behavioral changes require automated tests. Formatting, compilation, tests, static analysis, architecture checks, and checkpoint-specific evidence must be executed rather than asserted. External sources use deterministic fixtures in tests.
 
-### V. Independent verification
+### V. Proportional independent verification
 
-Product specification receives an independent challenge before architecture synthesizes a decision. The workflow requests a human product check only for unresolved decisions that materially affect observable behavior, business rules, scope, permissions, security, data integrity, or a costly and difficult-to-reverse technical choice. Human feedback is authoritative. Routine and reversible implementation choices do not pause delivery. Implementation, QA, and final review run in fresh agent sessions. Implementation has one code owner; QA and final review do not modify implementation. A task reaches `review` only when QA and review reports both end exactly in `Verdict: PASS`; humans retain merge authority.
+One accountable builder owns the settled outcome through implementation. A separate evaluator challenges acceptance, risk classification, architecture, security, regression scope, and current evidence without modifying implementation. Human feedback is authoritative. Only unresolved decisions that materially affect behavior, business rules, scope, permissions, security, data integrity, or a costly irreversible design pause delivery. A task reaches `review` only when risk-selected local checks pass and `evaluation.md` ends exactly in `Verdict: PASS`; the exact PR head must then pass the aggregate hosted gate before human merge. Saved Agentflow 2.3 runs retain their captured gates and are never silently rewritten.
 
 ## Safety and delivery
 
-Agents do not push, merge, expose secrets, weaken checks, or execute destructive operations without explicit human approval. Runs are local and logs stay under `.agentflow/runs/`. Failure produces a visible `blocked` state and evidence rather than a false completion.
+`agentflow start` is explicit approval to commit, push its task branch, and create one PR after local readiness. Agents never merge, expose secrets, weaken checks, or execute destructive operations without explicit human approval. Operational evidence stays under `.agentflow/runs/`. Failure produces a visible blocked state rather than false completion.
 
 ## Governance
 
 This constitution governs generated specs and plans. `docs/CHECKPOINTS.md` defines delivery obligations; `docs/PRODUCT.md` defines domain truth; `docs/ARCHITECTURE.md` defines the technical baseline. Amendments require an explicit reviewed change.
 
-**Version**: 1.0.0 | **Ratified**: 2026-09-06 | **Last Amended**: 2026-09-06
+**Version**: 2.0.0 | **Ratified**: 2026-09-06 | **Last Amended**: 2026-10-27

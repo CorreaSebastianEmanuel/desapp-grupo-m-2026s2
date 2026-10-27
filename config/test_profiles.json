@@ -135,6 +135,13 @@
       "profile": "unit"
     },
     {
+      "id": "0481f9203dcd82e891f52727",
+      "runner": "python",
+      "file": "test/scripts/thinflow_ci_test.py",
+      "case_id": "test.scripts.thinflow_ci_test.ThinFlowCIContractTest.test_sonar_runs_inside_the_aggregate_dependency_graph",
+      "profile": "unit"
+    },
+    {
       "id": "04860aae0961c7cc257d2690",
       "runner": "shell",
       "file": "test/scripts/verify_foundation_test.sh",
@@ -769,6 +776,13 @@
       "runner": "exunit",
       "file": "test/football_market/statistics/input_test.exs",
       "case_id": "FootballMarket.Statistics.InputTest:test instants retain microseconds normalize offsets and reject excess precision",
+      "profile": "unit"
+    },
+    {
+      "id": "16469319766d41a01adbcdca",
+      "runner": "python",
+      "file": "test/scripts/agentflow_workflow_gate_test.py",
+      "case_id": "test.scripts.agentflow_workflow_gate_test.VersionedWorkflowTest.test_workflows_are_explicitly_versioned_and_not_synchronized",
       "profile": "unit"
     },
     {
@@ -1577,6 +1591,13 @@
       "profile": "unit"
     },
     {
+      "id": "2ef6af06f3f13bfc8224be97",
+      "runner": "exunit",
+      "file": "test/ci/quality_baseline_contract_test.exs",
+      "case_id": "FootballMarket.QualityBaselineContractTest:test workflow gates every pull request and main pushes in least-privilege jobs",
+      "profile": "unit"
+    },
+    {
       "id": "2f1d78b2b73949fbf7049b52",
       "runner": "python",
       "file": "test/scripts/agentflow_branch_test.py",
@@ -1609,6 +1630,13 @@
       "runner": "python",
       "file": "test/scripts/agentflow_ci_check_test.py",
       "case_id": "test.scripts.agentflow_ci_check_test.CollectionTest.test_empty_or_missing_discovery_fails",
+      "profile": "unit"
+    },
+    {
+      "id": "2fcf18df8bf0687a48ec070e",
+      "runner": "python",
+      "file": "test/scripts/thinflow_test.py",
+      "case_id": "test.scripts.thinflow_test.PolicyTest.test_invalid_policy_is_rejected",
       "profile": "unit"
     },
     {
@@ -1665,13 +1693,6 @@
       "runner": "python",
       "file": "test/scripts/agentflow_completion_test.py",
       "case_id": "test.scripts.agentflow_completion_test.AgentflowCompletionTest.test_invalid_update_metadata_and_unreadable_reports_have_no_partial_write",
-      "profile": "unit"
-    },
-    {
-      "id": "317dadaeea368d04a4b0ba3a",
-      "runner": "python",
-      "file": "test/scripts/agentflow_workflow_gate_test.py",
-      "case_id": "test.scripts.agentflow_workflow_gate_test.CiBaselineGateTest.test_gate_shape",
       "profile": "unit"
     },
     {
@@ -2501,6 +2522,13 @@
       "profile": "integration"
     },
     {
+      "id": "495ac726daf506072ad5d3f6",
+      "runner": "python",
+      "file": "test/scripts/thinflow_test.py",
+      "case_id": "test.scripts.thinflow_test.CandidateTest.test_timed_out_checks_are_recorded_and_third_unchanged_attempt_is_refused",
+      "profile": "unit"
+    },
+    {
       "id": "4995f9e283c8cd6ce07ac16d",
       "runner": "exunit",
       "file": "test/football_market/market/conditional_orders/cancellation_test.exs",
@@ -2520,13 +2548,6 @@
       "file": "test/football_market/statistics/ingestion/provenance_test.exs",
       "case_id": "FootballMarket.Statistics.Ingestion.ProvenanceTest:test unadmitted fixture references fail safely without retaining arbitrary diagnostics",
       "profile": "integration"
-    },
-    {
-      "id": "4a04bc71843bc4203dace3d4",
-      "runner": "python",
-      "file": "test/scripts/agentflow_workflow_gate_test.py",
-      "case_id": "test.scripts.agentflow_workflow_gate_test.CiBaselineGateTest.test_completed_check_pipeline_is_untouched",
-      "profile": "unit"
     },
     {
       "id": "4a4416f0ae46f9ce252244e3",
@@ -3061,6 +3082,13 @@
       "profile": "integration"
     },
     {
+      "id": "592852ac100c7656669c3774",
+      "runner": "python",
+      "file": "test/scripts/thinflow_test.py",
+      "case_id": "test.scripts.thinflow_test.CandidateTest.test_evaluation_requires_exact_terminal_pass",
+      "profile": "unit"
+    },
+    {
       "id": "5981b836a5ac4a1fbac0367a",
       "runner": "exunit",
       "file": "test/football_market/quotes/lifecycle_test.exs",
@@ -3128,13 +3156,6 @@
       "runner": "python",
       "file": "test/scripts/agentflow_feature_test.py",
       "case_id": "test.scripts.agentflow_feature_test.IdentityAndResolutionTest.test_metadata_only_agreement_and_legacy",
-      "profile": "unit"
-    },
-    {
-      "id": "5b7c68c006c4298bcfd9e077",
-      "runner": "exunit",
-      "file": "test/ci/quality_baseline_contract_test.exs",
-      "case_id": "FootballMarket.QualityBaselineContractTest:test workflow gates main pull requests and pushes in least-privilege jobs",
       "profile": "unit"
     },
     {
@@ -3360,6 +3381,13 @@
       "file": "test/football_market/valuation/configurations/scope_test.exs",
       "case_id": "FootballMarket.Valuation.Configurations.ScopeTest:test SQL and provider/event/external/job boundaries permit only own lifecycle inserts",
       "profile": "integration"
+    },
+    {
+      "id": "62050e7cfa79bef8501ed5f2",
+      "runner": "python",
+      "file": "test/scripts/agentflow_branch_test.py",
+      "case_id": "test.scripts.agentflow_branch_test.AgentflowBranchTest.test_explicit_base_refuses_start_from_another_branch",
+      "profile": "unit"
     },
     {
       "id": "6273ea564d0e21da76eb9adf",
@@ -3866,6 +3894,13 @@
       "profile": "unit"
     },
     {
+      "id": "751c6d048f034d4cc6b61e45",
+      "runner": "python",
+      "file": "test/scripts/thinflow_test.py",
+      "case_id": "test.scripts.thinflow_test.CandidateTest.test_third_unchanged_failure_is_refused",
+      "profile": "unit"
+    },
+    {
       "id": "75354d2a86ba2b13dbbfe443",
       "runner": "python",
       "file": "test/scripts/agentflow_dedup_test.py",
@@ -3906,6 +3941,13 @@
       "file": "test/football_market/statistics/freshness/context_test.exs",
       "case_id": "FootballMarket.Statistics.Freshness.ContextTest:test a completed check in one season does not freshen another season",
       "profile": "integration"
+    },
+    {
+      "id": "761a0e9abd321ab2bc09c1cd",
+      "runner": "python",
+      "file": "test/scripts/agentflow_workflow_gate_test.py",
+      "case_id": "test.scripts.agentflow_workflow_gate_test.VersionedWorkflowTest.test_default_has_one_builder_one_evaluator_and_deterministic_gates",
+      "profile": "unit"
     },
     {
       "id": "7648489ec058d4d68c8db83e",
@@ -4398,6 +4440,13 @@
       "profile": "unit"
     },
     {
+      "id": "84efc35724bb95cf58a54b10",
+      "runner": "python",
+      "file": "test/scripts/thinflow_test.py",
+      "case_id": "test.scripts.thinflow_test.CandidateTest.test_prepare_check_evaluate_and_freshness",
+      "profile": "unit"
+    },
+    {
       "id": "8508ccd62f908db155b39113",
       "runner": "exunit",
       "file": "test/football_market/valuation/balanced/arithmetic_test.exs",
@@ -4790,13 +4839,6 @@
       "profile": "integration"
     },
     {
-      "id": "8f5c3adbb2e16099d61012e9",
-      "runner": "python",
-      "file": "test/scripts/agentflow_workflow_gate_test.py",
-      "case_id": "test.scripts.agentflow_workflow_gate_test.CiBaselineGateTest.test_gate_command_invokes_read_only_wrapper_parity",
-      "profile": "unit"
-    },
-    {
       "id": "8f82cc577a539c59ab60c6ad",
       "runner": "shell",
       "file": "test/scripts/ci_unit_tests_test.sh",
@@ -5159,6 +5201,13 @@
       "file": "test/football_market/catalog/development_seed_test.exs",
       "case_id": "FootballMarket.Catalog.DevelopmentSeedTest:test manifest rejects invalid per-team allocation and per-season position coverage",
       "profile": "integration"
+    },
+    {
+      "id": "9b766ddad7114b20b9272411",
+      "runner": "python",
+      "file": "test/scripts/agentflow_workflow_gate_test.py",
+      "case_id": "test.scripts.agentflow_workflow_gate_test.VersionedWorkflowTest.test_legacy_snapshot_retains_full_agentflow_23_order",
+      "profile": "unit"
     },
     {
       "id": "9b9ccd77971eb26413045641",
@@ -6337,6 +6386,13 @@
       "profile": "unit"
     },
     {
+      "id": "be760e92f034da7184f39ca4",
+      "runner": "python",
+      "file": "test/scripts/thinflow_ci_test.py",
+      "case_id": "test.scripts.thinflow_ci_test.ThinFlowCIContractTest.test_one_always_reporting_gate_aggregates_every_required_job",
+      "profile": "unit"
+    },
+    {
       "id": "bec09c00b8d68e0e0665bab7",
       "runner": "exunit",
       "file": "test/football_market/valuation/position_aware/formula_test.exs",
@@ -6684,13 +6740,6 @@
       "runner": "exunit",
       "file": "test/football_market/valuation/configurations/rules_test.exs",
       "case_id": "FootballMarket.Valuation.Configurations.RulesTest:test each group's metric union is explicit, zero entries required and omission meaningful",
-      "profile": "unit"
-    },
-    {
-      "id": "c81ea2f026f4f4afbeec376f",
-      "runner": "python",
-      "file": "test/scripts/agentflow_workflow_gate_test.py",
-      "case_id": "test.scripts.agentflow_workflow_gate_test.CiBaselineGateTest.test_gate_sits_between_develop_ready_and_qa",
       "profile": "unit"
     },
     {
@@ -7611,6 +7660,13 @@
       "profile": "integration"
     },
     {
+      "id": "e0ab1a9bd10322a3ab2ae04d",
+      "runner": "python",
+      "file": "test/scripts/thinflow_test.py",
+      "case_id": "test.scripts.thinflow_test.CandidateTest.test_provider_failure_uses_thinflow_evaluation_not_legacy_manifest",
+      "profile": "unit"
+    },
+    {
       "id": "e0bd48fb46e60f9ad3de37ec",
       "runner": "exunit",
       "file": "test/football_market/accounts/browser_sessions_test.exs",
@@ -8395,6 +8451,13 @@
       "profile": "integration"
     },
     {
+      "id": "f75ab9a8814c11f0189d140c",
+      "runner": "python",
+      "file": "test/scripts/agentflow_branch_test.py",
+      "case_id": "test.scripts.agentflow_branch_test.AgentflowBranchTest.test_explicit_base_accepts_stacked_start_and_publication",
+      "profile": "unit"
+    },
+    {
       "id": "f7c1739c1f09e9d2c11824c3",
       "runner": "python",
       "file": "test/scripts/agentflow_models_test.py",
@@ -8687,6 +8750,13 @@
       "file": "test/football_market/catalog/ingestion/retention_test.exs",
       "case_id": "FootballMarket.Catalog.Ingestion.RetentionTest:test accepted empty teams and seasons return relationship errors on deletion",
       "profile": "integration"
+    },
+    {
+      "id": "fe68a3894e1c9f5d69898917",
+      "runner": "python",
+      "file": "test/scripts/thinflow_test.py",
+      "case_id": "test.scripts.thinflow_test.PolicyTest.test_selection_is_deterministic_and_unmapped_paths_fail_closed",
+      "profile": "unit"
     },
     {
       "id": "fe731a771948700ed2f3c142",

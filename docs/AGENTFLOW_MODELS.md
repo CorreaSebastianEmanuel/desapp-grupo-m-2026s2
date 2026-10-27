@@ -2,6 +2,10 @@
 
 `.agentflow/models.json` owns schema-1 defaults. The shared resolver validates both approved models (`gpt-6-luna`, `gpt-6.1-sol`) with low/medium/high effort. This matrix is local policy, not a provider availability guarantee.
 
+ThinFlow launches only `develop` (builder) and `qa` (independent evaluator).
+The remaining rows are retained so saved Agentflow 2.3 assignments can resume
+without relabeling historical sessions.
+
 | Stage | Model | Effort |
 | --- | --- | --- |
 | product | gpt-6-luna | high |
@@ -28,4 +32,4 @@ Normal `./agentflow resume TASK-NNN --dry-run` inspects saved assignments. Repos
 
 For a legacy run lacking structured launch settings, absent fields are unknown. Supply each missing field explicitly with adoption, for example `--adopt-models --model gpt-6.1-sol --effort medium`. This chooses future launches and does not recover historical observations. Generation files and bindings remain ignored locally; never edit them manually. Active processes must be interrupted before adoption.
 
-Frozen run `72789de8` may continue its original settings. This delivery does not claim that run exercised the new defaults. Configured and resolved values are distinct from provider-observed identity; unavailable observations remain null. Product challenge, separate development/QA/review sessions, required checks and both terminal PASS gates remain mandatory. Provider rejection or spawn failure produces one failed launch, with no hidden retry escalation.
+Frozen run `72789de8` may continue its original settings. This delivery does not claim that run exercised the new defaults. Configured and resolved values are distinct from provider-observed identity; unavailable observations remain null. Agentflow 2.3 keeps its product challenge and separate development/QA/review sessions; ThinFlow uses only builder and evaluator. Provider rejection or spawn failure produces one failed launch, with no hidden retry escalation.

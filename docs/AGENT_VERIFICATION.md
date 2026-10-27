@@ -1,114 +1,34 @@
-# Verification before independent QA
+# ThinFlow verification
 
-The architecture session creates `verification.json` alongside `plan.md` and
-`tasks.md`. This executable acceptance map is required only by workflow 2.3.0 or
-newer. Legacy snapshots keep their original requirements.
+ThinFlow uses a repository-owned mapping instead of a generated
+`verification.json` per feature. `.agentflow/thinflow.json` defines finite path
+rules, maximum-severity risk tiers, argument-array commands, bounded timeouts,
+and prerequisites expressed by the command itself.
 
-```json
-{
-  "schema_version": 1,
-  "runtime_required": false,
-  "checks": [
-    {
-      "id": "unit",
-      "argv": ["mix", "test", "test/example_test.exs"],
-      "env": {"MIX_ENV": "test"}
-    }
-  ],
-  "coverage": {"FR-001": ["unit"], "SC-001": ["unit"]},
-  "task_stages": {"T010": "qa", "T011": "review"}
-}
-```
+`python3 scripts/thinflow.py check TASK-NNN`:
 
-Use actual commands, paths and requirement IDs from the active feature. Every
-FR/AC/SC identifier in `spec.md` must map to one or more existing check IDs. Include
-all applicable formatting, compilation, tests and checkpoint checks. Checks execute
-as argument arrays without implicit shell expansion. Use an explicit shell only
-when the real check requires it; keep secrets out of arguments, manifests and
-evidence. Environment overrides may not repurpose HOME or CODEX_HOME.
+1. diffs the candidate from the configured base plus working-tree inputs;
+2. refuses empty or unmapped change sets;
+3. chooses the highest tier and unions checks from matching rules at that tier;
+4. executes each check without an implicit shell;
+5. records bounded local logs, hashes, elapsed time, and material digest;
+6. refuses a third failed attempt for an unchanged digest.
 
-For CP2, do not add the historical CP1 coverage report merely because it exists:
-it repeats both test profiles. Preserve coverage infrastructure and CI; include
-the report locally only for a concrete affected obligation or explicit request.
-Record user-authorized changes to required checks in current feedback and align
-the spec, plan, tasks and manifest rather than bypassing a failed gate silently.
+`python3 scripts/thinflow.py evaluate TASK-NNN` revalidates selection, source
+freshness, complete passing checks, and the exact terminal evaluator verdict.
+Failed, missing, stale, skipped, empty, interrupted, or inconclusive evidence
+never counts as passing. Evaluator output is downstream evidence and is excluded
+from the candidate digest; current feedback, spec, policy, code, tests, and CI
+definitions remain material.
 
-For affected HTTP endpoints, include an executable runtime check with
-`"runtime": true` and an `"expectation"` describing status/header/body assertions.
-The gate independently detects method/route declarations (case-insensitive) and
-route mappings in OpenAPI JSON, YAML/YML and RAML contracts, including root routes
-and referenced path items. YAML detection is conservative: a route-shaped mapping
-requires runtime evidence even when its operations are defined elsewhere. Invalid
-JSON contracts fail validation.
-Spec and contract declarations such as `GET /api/players` independently trigger
-this obligation. A bare request without assertions is insufficient. Include service
-readiness in the executable check itself; unavailable services must cause failure.
-QA still starts the runtime and exercises endpoints independently.
+The hosted `ThinFlow required` job reports only after Quality baseline,
+End-to-end profile, and SonarCloud finish, and passes only when all three report
+success. Repository protection must require this stable name for the latest PR
+head.
 
-Only downstream tasks with titles beginning `Independent QA` or `Final review`
-may stay unchecked, explicitly tagged `[gate:qa]`/`[gate:review]` and mapped in
-`task_stages`. Implementation and applicable developer checks must complete.
-Preserve the standard task syntax and use unique IDs.
+## Agentflow 2.3 compatibility
 
-After implementation, run each check:
-
-```bash
-python3 scripts/agentflow_check.py unit
-```
-
-Finish source/design edits before running final checks. Within development, use
-`python3 scripts/agentflow_check.py unit --reuse` to avoid repeating an unchanged
-passing check. Reuse validates the same fingerprints and output hash as readiness;
-missing, stale, failed or corrupted evidence triggers execution. Reuse is never
-implicit and cannot reuse QA evidence. Runtime assertion checks always execute;
-set `"reuse": false` for other checks requiring fresh service/environment state. QA executes commands independently or uses
-`python3 scripts/agentflow_check.py unit --stage qa` without `--reuse`; review may
-use `--stage review` for targeted checks.
-
-After two failed executions in a stage with unchanged command/source/design inputs,
-the helper refuses a third execution. Stop and diagnose; do not rerun commands
-directly or change irrelevant inputs to evade the limit. Corrective input changes
-start a new attempt scope; independent stages have separate counters. The summary
-includes elapsed check time, failure count and evidence. Do not infer token usage
-from test runtime; use Agentflow metrics for recorded model usage.
-
-Batch execution uses `python3 scripts/agentflow_stage_checks.py --stage develop|qa|review`.
-The manifest is fully validated before execution; only checks with declared,
-proven independence may continue after a failure. Development may pass `--reuse`;
-QA and review must execute fresh checks. QA's incremental report records every
-failed, blocked and unexecuted obligation and remains non-PASS until an independent
-semantic assessment accepts a complete fresh run.
-
-The helper captures complete output under ignored `.agentflow/runs/checks/` and
-prints only the check ID, exit code, freshness status and evidence path. Inspect
-bounded failure excerpts when needed. It invalidates the previous receipt before
-starting, so failure or interruption cannot reuse an older passing result. New schema-2 receipts and journals live under ignored `.agentflow/runs/checks/WORKSPACE/FEATURE/STAGE/CHECK_ID/`. Historical tracked receipts remain intact and cannot substitute for current workspace proof.
-
-Readiness validates source fingerprints before and after execution, the current
-spec/plan/tasks/manifest, command identity, exit status and output hashes. Source
-fingerprints include git-listed tracked and untracked files and deletion markers;
-run outputs, feature reports, backlog state and disposable `tmp/` are excluded.
-Task text is bound while checkbox completion is normalized: recording a passing
-task after its check does not invalidate receipts. Current checklist state is
-validated separately. Any other source or canonical input change requires rerunning
-affected manifest checks; readiness conservatively requires all receipts to match
-the current source set.
-
-The planning and task gates validate the manifest before implementation. The
-development gate uses `--readiness` to stop missing, failed, stale or uncovered
-evidence before launching QA. This is structural and reproducible preparation,
-not proof that the chosen tests fully cover the behavior: independent QA must
-challenge mappings and verify every acceptance criterion. QA and final review
-still require their own terminal PASS verdicts.
-
-Receipts are local to a workspace: another checkout has to run its checks, since
-full output files are intentionally not published. Do not manufacture receipts,
-replace checks with trivial successes or weaken the manifest to bypass a blocker.
-
-Retry budgets bind check/stage/command, canonical/current feedback inputs, declared retry_inputs, and explicitly declared nonsecret retry_env values. Declare only environment values that can materially change check execution; values are hashed into check identity and never stored in receipts. Unrelated edits cannot reset a stopped obligation. Reuse binds the complete current source. Interrupted running receipts recover as failures once. After both independent PASS reports Agentflow finalizes the bounded schema-1 evidence-summary.json. This portable review record cannot authorize local execution reuse.
-
-For Codex-launched browser checks, bind the launcher-resolved sandbox mode in `retry_env`; network access alone does not identify or widen that sandbox. Codex CLI's `--approve-for-me` selects workspace-write and conflicts with explicit sandbox selection, so the Agentflow wrapper removes that preset only when it forwards the user's resolved danger-full-access mode.
-
-The direct `./agentflow verify` entry point uses the same resolver before starting its independent verifier, so QA inherits the user's effective sandbox instead of being silently restricted by `--approve-for-me`.
-
-For checks that declare `AGENTFLOW_CODEX_SANDBOX_MODE` in `retry_env`, the launcher must first resolve the user's effective Codex sandbox policy and overwrite inherited child metadata with that closed value. The check helper accepts only `read-only`, `workspace-write` or `danger-full-access` and refuses missing/invalid metadata before spawning the check. Do not set a guessed mode to obtain a new retry scope; a mode change is meaningful only when the selected execution policy actually changed. The launcher records only the resolved enum, and the helper hashes it without storing the raw value in receipts.
+Saved 2.3 runs keep their captured `verification.json`, schema-2 receipts,
+ordered development/QA stages, and two terminal reports. The legacy definition
+lives at `.specify/workflows/desapp-delivery/workflow.yml`. Do not relax or
+convert those artifacts while resuming historical work.

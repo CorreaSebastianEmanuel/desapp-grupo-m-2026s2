@@ -37,7 +37,9 @@ class DeliveryFixture(Fixture):
             m=AGENTFLOW.meta(self.task);return result(stdout=f"Implement {m['id']}: {m['title']}\n")
         return result()
     def args(self,**kwargs):
-        return SimpleNamespace(task=AGENTFLOW.meta(self.task)['id'],agent='auto',dry_run=False,no_pr=False,**kwargs)
+        values=dict(task=AGENTFLOW.meta(self.task)['id'],agent='auto',dry_run=False,no_pr=False,base=None)
+        values.update(kwargs)
+        return SimpleNamespace(**values)
 class AgentflowBranchTest(DeliveryFixture):
     def test_task_branch_and_switching(self):
         self.assertEqual(AGENTFLOW.task_branch(self.task),self.branch)
@@ -47,6 +49,26 @@ class AgentflowBranchTest(DeliveryFixture):
         self.assertIn(('switch','-c','017-football-data-api-adapter'),self.calls)
         self.calls.clear();AGENTFLOW.ensure_feature_branch(self.task)
         self.assertIn(('switch','017-football-data-api-adapter'),self.calls)
+    def test_explicit_base_accepts_stacked_start_and_publication(self):
+        self.branch='071-migrate-agentflow-2-3-to-thinflow'
+        with patch.object(AGENTFLOW.shutil,'which',return_value='/captured/tool'),patch.object(AGENTFLOW,'monitor_process',return_value=(130,'run')) as monitor,patch.object(AGENTFLOW,'reconcile_merged_dependencies'):
+            args=self.args(base=self.branch,no_pr=True)
+            self.assertEqual(AGENTFLOW.start(args),130)
+        monitor.assert_called_once()
+        self.assertEqual((AGENTFLOW.RUNS/'TASK-017.base').read_text().strip(),self.branch)
+        self.assertEqual(AGENTFLOW.delivery_base(self.task),self.branch)
+        self.branch='017-football-data-api-adapter'
+        with patch.object(AGENTFLOW.subprocess,'run',return_value=result(stdout='https://example.test/pr/stacked\n')) as gh:
+            AGENTFLOW.publish(self.task,AGENTFLOW.meta(self.task),self.feature,'071-migrate-agentflow-2-3-to-thinflow')
+        argv=gh.call_args.args[0]
+        self.assertEqual(argv[argv.index('--base')+1],'071-migrate-agentflow-2-3-to-thinflow')
+
+    def test_explicit_base_refuses_start_from_another_branch(self):
+        self.branch='main'
+        args=self.args(base='071-migrate-agentflow-2-3-to-thinflow',no_pr=True)
+        with patch.object(AGENTFLOW.shutil,'which',return_value='/captured/tool'):
+            with self.assertRaisesRegex(SystemExit,'Start from a clean, up-to-date 071-migrate'):
+                AGENTFLOW.start(args)
     def test_discovery_unequal_examples_legacy_pointer_and_mtime(self):
         distraction=self.make_feature('017-incidental','099-other')
         os.utime(distraction,(2000000000,2000000000))
@@ -103,7 +125,7 @@ class AgentflowBranchTest(DeliveryFixture):
             with patch.object(AGENTFLOW.subprocess,'run') as gh:
                 with self.assertRaises(RuntimeError):AGENTFLOW.publish(self.task,AGENTFLOW.meta(self.task),feature)
                 gh.assert_not_called()
-            self.assertEqual(self.calls,[('branch','--show-current')])
+            self.assertEqual(self.calls,[('check-ref-format','--branch','main'),('branch','--show-current')])
 
 class ConsumerRejectionTest(DeliveryFixture):
     def test_same_association_matrix_blocks_verifier_and_publication(self):

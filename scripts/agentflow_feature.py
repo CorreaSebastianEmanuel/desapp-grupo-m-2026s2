@@ -219,7 +219,8 @@ def terminal_verdict(path):
     return lines[-1] if lines else ''
 
 def require_reports(association):
-    for name in ('qa-report.md', 'review-report.md'):
+    names = ('evaluation.md',) if metadata(association.task).get('workflow') == 'thinflow-v1' else ('qa-report.md', 'review-report.md')
+    for name in names:
         try:
             path = contained_file(association.feature, name)
             if terminal_verdict(path) != 'Verdict: PASS':

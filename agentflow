@@ -17,12 +17,14 @@ FEEDBACK = ROOT / "backlog" / "feedback"
 WORKFLOW = ROOT / ".agentflow" / "workflow.yml"
 SPEC_RUNS = ROOT / ".specify" / "workflows" / "runs"
 STEP_LABELS = {
+    "outcome_ready": "ThinFlow outcome contract",
     "product": "Product specification", "product_challenge": "Independent product challenge",
     "product_decision": "Product decision detection", "product_check": "Conditional human check",
     "architecture": "Architecture synthesis", "plan_ready": "Plan artifact gate",
     "tasks": "Validated implementation tasks", "tasks_ready": "Tasks artifact gate",
     "develop": "Development", "develop_ready": "Development artifact gate",
-    "qa": "Independent QA", "qa_ready": "QA verdict gate", "review": "Final review",
+    "candidate_ready": "Risk-selected local checks",
+    "qa": "Independent evaluation", "qa_ready": "Evaluation verdict gate", "review": "Final review",
 }
 STEP_ORDER = tuple(STEP_LABELS)
 STAGE_ALIASES = {"product":"product","architecture":"architecture","development":"develop","develop":"develop","qa":"qa","review":"review"}
@@ -142,7 +144,8 @@ def create(a):
     nums = [int(meta(p)["id"].split("-")[1]) for p in files()]
     ident = f"TASK-{max(nums, default=0)+1:03d}"
     path = BACKLOG / f"{ident}-{slug(title)}.md"
-    path.write_text(f"---\nid: {ident}\ntitle: {title}\ntype: task\ncheckpoint: {a.checkpoint}\npriority: {a.priority}\nstatus: todo\ndepends_on: none\nactive_run: none\n---\n\n## Outcome\n\n{outcome or title}\n", encoding="utf-8")
+    workflow="agentflow-2.3" if getattr(a,"legacy",False) else "thinflow-v1"
+    path.write_text(f"---\nid: {ident}\ntitle: {title}\ntype: task\ncheckpoint: {a.checkpoint}\npriority: {a.priority}\nworkflow: {workflow}\nstatus: todo\ndepends_on: none\nactive_run: none\n---\n\n## Outcome\n\n{outcome or title}\n", encoding="utf-8")
     print(f"Created {ident}: {path.relative_to(ROOT)}")
 def backlog(_):
     print(f"{'ID':<10} {'STATE':<9} {'CP':<4} {'PRIORITY':<9} TITLE\n" + "-"*76)
@@ -164,7 +167,7 @@ def next_task(_):
     return 0
 def status(a):
     path=find(a.task); m=meta(path)
-    for k in ("id","title","checkpoint","priority","status","depends_on","active_run"): print(f"{k}: {m.get(k,'unknown')}")
+    for k in ("id","title","checkpoint","priority","workflow","status","depends_on","active_run"): print(f"{k}: {m.get(k,'unknown')}")
     blockers=dependency_blockers(path)
     print(f"ready: {'yes' if not blockers and m.get('status')=='todo' else 'no'}")
     if blockers: print("blocked_by: "+", ".join(blockers))
@@ -217,25 +220,60 @@ def session_feature(task, head_ref=None, allow_missing=False):
         pointer.write_text(json.dumps({"feature_directory":association.feature.relative_to(ROOT).as_posix()})+"\n",encoding="utf-8")
     return association
 
+def workflow_kind(task):
+    return meta(task).get("workflow", "agentflow-2.3")
+
+
+def is_thinflow(task):
+    return workflow_kind(task) == "thinflow-v1"
+
+
 def delivery_association(task, feature=None):
     branch=git("branch","--show-current").stdout.strip()
     association=resolve_feature(ROOT,task,head_ref=branch)
     if feature is not None and feature.resolve()!=association.feature:
         raise RuntimeError(f"Refusing caller feature {feature}; expected {association.feature}")
-    for name in ("spec.md","plan.md","tasks.md"):
-        contained_file(association.feature,name)
-    require_reports(association)
+    if is_thinflow(task):
+        contained_file(association.feature,"spec.md")
+        contained_file(association.feature,"evaluation.md")
+        from scripts.thinflow import readiness
+        readiness(ROOT,meta(task)["id"])
+    else:
+        for name in ("spec.md","plan.md","tasks.md"):
+            contained_file(association.feature,name)
+        require_reports(association)
     return association
 
 def git(*args, capture=True):
     return subprocess.run(["git",*args],cwd=ROOT,text=True,capture_output=capture)
 
-def ensure_feature_branch(task):
+def validate_base_branch(base):
+    if not isinstance(base,str) or not base or git("check-ref-format","--branch",base).returncode:
+        raise RuntimeError(f"Invalid base branch {base!r}")
+    return base
+
+def base_marker(task):
+    return RUNS/f"{meta(task)['id']}.base"
+
+def remember_base(task, base):
+    validate_base_branch(base)
+    RUNS.mkdir(parents=True,exist_ok=True)
+    base_marker(task).write_text(base+"\n",encoding="utf-8")
+
+def delivery_base(task, requested=None):
+    if requested is not None:
+        return validate_base_branch(requested)
+    try: saved=base_marker(task).read_text(encoding="utf-8").strip()
+    except OSError: saved="main"
+    return validate_base_branch(saved or "main")
+
+def ensure_feature_branch(task, base="main"):
+    validate_base_branch(base)
     expected=task_branch(task)
     current=git("branch","--show-current").stdout.strip()
     if current==expected: return expected
-    if current not in ("main","master"):
-        raise RuntimeError(f"Expected feature branch {expected}, found {current or 'detached HEAD'}")
+    if current!=base:
+        raise RuntimeError(f"Expected base branch {base} or feature branch {expected}, found {current or 'detached HEAD'}")
     exists=git("show-ref","--verify","--quiet",f"refs/heads/{expected}").returncode==0
     switched=git("switch",expected) if exists else git("switch","-c",expected)
     if switched.returncode:
@@ -391,6 +429,11 @@ def add_feedback(a):
     task=find(a.task); m=meta(task)
     impacts=getattr(a,'impact',[]) or []
     stage=feedback_stage(impacts,a.stage)
+    if is_thinflow(task) and stage is not None:
+        # ThinFlow has one repair owner. Material decisions are recorded in the
+        # compact spec and independently challenged by the evaluator; it never
+        # reconstructs the retired product/architecture/review session chain.
+        stage='develop'
     # Repeated --checks values are upper-cased by the parser; direct callers
     # get the same validation here, then one de-duplicated ordered list.
     checks=[]
@@ -411,7 +454,8 @@ def add_feedback(a):
     path=feedback_path(task); path.parent.mkdir(parents=True,exist_ok=True)
     existing=path.read_text(encoding="utf-8") if path.exists() else f"# Feedback — {m['id']}\n\n"
     count=existing.count("## Feedback ")
-    if count>=MAX_FEEDBACK_CYCLES: raise SystemExit(f"Feedback limit reached ({MAX_FEEDBACK_CYCLES}); resolve or split the task before another cycle")
+    limit=1 if is_thinflow(task) else MAX_FEEDBACK_CYCLES
+    if count>=limit: raise SystemExit(f"Feedback limit reached ({limit}); resolve with a human decision or split the task before another cycle")
     stamp=datetime.now(timezone.utc).isoformat(timespec="seconds")
     author=os.environ.get("USER") or os.environ.get("USERNAME") or "human"
     scope=f"\n- Checks: {", ".join(checks)}" if checks else ""
@@ -563,7 +607,8 @@ def monitor_process(cmd, task, run_hint=None, assignment=None, new_session=False
     if run: field(task,"active_run",run)
     if assignment is not None and run: models.bind(ROOT,assignment,run)
     return process.returncode,run
-def publish(task, task_meta, feature):
+def publish(task, task_meta, feature, base="main"):
+    validate_base_branch(base)
     association=delivery_association(task,feature)
     feature=association.feature
     branch=association.branch
@@ -585,21 +630,31 @@ def publish(task, task_meta, feature):
     if pushed.returncode: raise RuntimeError(pushed.stderr.strip() or "git push failed")
     RUNS.mkdir(parents=True,exist_ok=True)
     body=RUNS/f"{task_meta['id']}-pr.md"
-    body.write_text(
-        f"## Agentflow delivery\n\nCloses the implementation work for `{task_meta['id']}`.\n\n"
-        f"- Specification: `{feature.relative_to(ROOT)}/spec.md`\n"
-        f"- Plan: `{feature.relative_to(ROOT)}/plan.md`\n"
-        f"- Tasks: `{feature.relative_to(ROOT)}/tasks.md`\n"
-        f"- QA: `{feature.relative_to(ROOT)}/qa-report.md` — PASS\n"
-        f"- Final review: `{feature.relative_to(ROOT)}/review-report.md` — PASS\n\n"
-        "The PR was created automatically after independent QA and final review. Merge remains human-controlled.\n\n"
-        + task.read_text(encoding="utf-8").split("## Outcome",1)[-1].strip() + "\n",
-        encoding="utf-8")
-    pr=subprocess.run(["gh","pr","create","--base","main","--head",branch,"--title",f"{task_meta['id']}: {task_meta['title']}","--body-file",str(body)],cwd=ROOT,text=True,capture_output=True)
+    if is_thinflow(task):
+        delivery=(
+            f"## ThinFlow delivery\n\nCloses the implementation work for `{task_meta['id']}`.\n\n"
+            f"- Outcome contract: `{feature.relative_to(ROOT)}/spec.md`\n"
+            f"- Independent evaluation: `{feature.relative_to(ROOT)}/evaluation.md` — PASS\n"
+            "- Required hosted gate: `ThinFlow required` — pending for this exact PR head\n\n"
+            "The local risk-selected checks and one independent evaluation passed. "
+            "Merge remains human-controlled and requires the hosted aggregate gate.\n\n"
+        )
+    else:
+        delivery=(
+            f"## Agentflow delivery\n\nCloses the implementation work for `{task_meta['id']}`.\n\n"
+            f"- Specification: `{feature.relative_to(ROOT)}/spec.md`\n"
+            f"- Plan: `{feature.relative_to(ROOT)}/plan.md`\n"
+            f"- Tasks: `{feature.relative_to(ROOT)}/tasks.md`\n"
+            f"- QA: `{feature.relative_to(ROOT)}/qa-report.md` — PASS\n"
+            f"- Final review: `{feature.relative_to(ROOT)}/review-report.md` — PASS\n\n"
+            "The PR was created automatically after independent QA and final review. Merge remains human-controlled.\n\n"
+        )
+    body.write_text(delivery + task.read_text(encoding="utf-8").split("## Outcome",1)[-1].strip() + "\n", encoding="utf-8")
+    pr=subprocess.run(["gh","pr","create","--base",base,"--head",branch,"--title",f"{task_meta['id']}: {task_meta['title']}","--body-file",str(body)],cwd=ROOT,text=True,capture_output=True)
     if pr.returncode: raise RuntimeError(pr.stderr.strip() or "gh pr create failed")
     return pr.stdout.strip()
 
-def finalize(task, task_meta, code, no_pr=False):
+def finalize(task, task_meta, code, no_pr=False, base="main"):
     # Invalid metadata cannot authorize even the automatic blocked transition.
     task_meta=meta(task)
     task_for_id(ROOT,task_meta.get("id",""))
@@ -607,7 +662,7 @@ def finalize(task, task_meta, code, no_pr=False):
     try:
         if code: raise RuntimeError(f"Workflow exited {code}")
         feature=delivery_association(task).feature
-        if (feature/'verification.json').exists():
+        if not is_thinflow(task) and (feature/'verification.json').exists():
             from scripts.agentflow_evidence import finalize as finalize_evidence
             finalize_evidence(ROOT,task_meta['id'])
     except RuntimeError as error:
@@ -616,11 +671,11 @@ def finalize(task, task_meta, code, no_pr=False):
         return code or 1
     if no_pr:
         field(task,"status","review")
-        print("QA and review passed. PR creation was disabled with --no-pr.")
+        print(("Independent evaluation passed" if is_thinflow(task) else "QA and review passed") + ". PR creation was disabled with --no-pr.")
         return 0
     try:
-        url=publish(task,task_meta,feature)
-        print(f"QA and review passed. Pull request created: {url}")
+        url=publish(task,task_meta,feature,base)
+        print(("Independent evaluation passed" if is_thinflow(task) else "QA and review passed") + f". Pull request created: {url}")
         return 0
     except RuntimeError as error:
         field(task,"status","blocked")
@@ -634,9 +689,13 @@ def start(a):
     selection=models.resolve(ROOT,task,a,provider=selected)
     blockers=dependency_blockers(task)
     if blockers: raise SystemExit("Unfinished dependencies: "+", ".join(blockers))
-    print(f"{m['id']} — {m['title']}\nAgent: {selected}\nFlow: product → challenge → conditional human check → architecture/tasks synthesis → development → QA → review → PR")
+    thin=is_thinflow(task)
+    flow=("outcome contract → one builder → risk-selected checks → one independent evaluator → PR → required CI → human merge"
+          if thin else "product → challenge → conditional human check → architecture/tasks synthesis → development → QA → review → PR")
+    print(f"{m['id']} — {m['title']}\nAgent: {selected}\nFlow: {flow}")
     print(json.dumps(selection,indent=2))
-    if a.dry_run: print(f"Dry run passed; no agent invoked. PR creation: {'disabled' if a.no_pr else 'enabled'}"); return 0
+    base=delivery_base(task,getattr(a,'base',None) or "main")
+    if a.dry_run: print(f"Dry run passed; no agent invoked. PR creation: {'disabled' if a.no_pr else 'enabled'}; base: {base}"); return 0
     # Validate the effective outer child context before branch, assignment or
     # workflow state is created. monitor_process repeats this against its final
     # launch context immediately before Popen.
@@ -647,25 +706,32 @@ def start(a):
     extra_path=node24_path(ROOT)
     if extra_path: outer_env["PATH"]=extra_path+os.pathsep+outer_env.get("PATH","")
     providers.env_overrides(outer_env,selected,ROOT)
-    preflight_or_raise(build_context("product",selected,["specify","workflow","run"],root=ROOT,cwd=ROOT,env=outer_env))
-    if git("status","--porcelain").stdout.strip(): raise SystemExit("Start requires a clean worktree; commit or stash existing changes")
-    if git("branch","--show-current").stdout.strip() not in ("main","master"): raise SystemExit("Start from an up-to-date main branch so Spec Kit can create an isolated feature branch")
+    preflight_or_raise(build_context("develop" if thin else "product",selected,["specify","workflow","run"],root=ROOT,cwd=ROOT,env=outer_env))
+    dirty=git("status","--porcelain").stdout.splitlines()
+    if dirty:
+        allowed=task.relative_to(ROOT).as_posix()
+        dirty_paths={line[3:] for line in dirty if len(line)>=4}
+        if not thin or dirty_paths != {allowed}:
+            raise SystemExit("Start requires a clean worktree; a new ThinFlow task file is the only allowed bootstrap change")
+    if git("branch","--show-current").stdout.strip()!=base: raise SystemExit(f"Start from a clean, up-to-date {base} branch so Spec Kit can create an isolated feature branch")
     if not a.no_pr:
         if not shutil.which("gh"): raise SystemExit("GitHub CLI is required for automatic PR creation; install gh or use --no-pr")
         auth=subprocess.run(["gh","auth","status"],cwd=ROOT,text=True,capture_output=True)
         if auth.returncode: raise SystemExit("GitHub CLI is not authenticated; run `gh auth login` or use --no-pr")
-    try: branch=ensure_feature_branch(task)
+    try: branch=ensure_feature_branch(task,base)
     except RuntimeError as error: raise SystemExit(str(error)) from error
+    remember_base(task,base)
     print(f"Feature branch: {branch}")
     session_feature(task,head_ref=branch,allow_missing=True)
     reconcile_merged_dependencies(task)
     field(task,"status","wip")
     context=task_context(task)
-    cmd=["specify","workflow","run",str(WORKFLOW),"--input",f"integration={selected}","--input",f"spec={context}"]
+    workflow=WORKFLOW if thin else ROOT/".specify"/"workflows"/"desapp-delivery"/"workflow.yml"
+    cmd=["specify","workflow","run",str(workflow),"--input",f"integration={selected}","--input",f"spec={context}"]
     assignment=models.save(ROOT,selection)
     code,run=monitor_process(cmd,task,assignment=assignment,provider=selected)
     if code==130: return code
-    return finalize(task,m,code,a.no_pr)
+    return finalize(task,m,code,a.no_pr,base)
 def bound_run_integration(run):
     """Integration recorded when the run was last started or adopted."""
     try:
@@ -738,7 +804,8 @@ def resume(a):
     providers.env_overrides(outer_env,selected,ROOT)
     preflight_or_raise(build_context(state.get('current_step_id','unknown') if state else 'unknown',
                                     selected,["specify","workflow","resume",run],root=ROOT,cwd=ROOT,env=outer_env))
-    try: branch=ensure_feature_branch(task)
+    base=delivery_base(task,getattr(a,'base',None))
+    try: branch=ensure_feature_branch(task,base)
     except RuntimeError as error: raise SystemExit(str(error)) from error
     print(f"Feature branch: {branch}")
     bind_run_provider(run,selected,adopting)
@@ -750,7 +817,7 @@ def resume(a):
     state=read_run_state(run)
     if state and state.get("status")=="completed":
         print("Workflow already completed; retrying verified publication only.")
-        return finalize(task,meta(task),0)
+        return finalize(task,meta(task),0,base=base)
     if not adopting and selection.get('assignment_id'):
         assignment=models.directory(ROOT)/(selection['assignment_id']+'.json')
     else:
@@ -766,15 +833,19 @@ def resume(a):
             rewind_run(task,run,stage)
     feature=feature_for_task(task,allow_missing=True)
     if feature and state and state.get('current_step_id') in ('qa','qa_ready','review'):
-        from scripts.agentflow_verification import readiness
-        readiness(ROOT,feature)
+        if is_thinflow(task):
+            from scripts.thinflow import readiness
+            readiness(ROOT,meta(task)['id'],require_evaluation=False)
+        else:
+            from scripts.agentflow_verification import readiness
+            readiness(ROOT,feature)
     code,_=monitor_process(["specify","workflow","resume",run],task,run,assignment=assignment,new_session=adopting,provider=selected)
     if code==130: return code
     if code:
         field(task,"status","blocked")
         print(f"Resume failed. Inspect {(SPEC_RUNS/run/'state.json').relative_to(ROOT)}",file=sys.stderr)
         return code
-    return finalize(task,meta(task),code)
+    return finalize(task,meta(task),code,base=base)
 def complete(a):
     # The explicit command is the existing human acceptance boundary.
     task=find(a.task)
@@ -795,14 +866,26 @@ def verify(a):
     selected=provider_for(a)
     config=providers.provider_config(ROOT,selected)
     verify_model=(config or {}).get('verify_model')
-    prompt=(
-        f"You are the delegated independent verifier for {a.task}. Do not invoke "
-        "`./agentflow verify`, the verify skill, or another agent session: that would recurse. "
-        f"Inspect the canonical artifacts in {feature.relative_to(ROOT) if feature else 'specs/'}, "
-        "run the applicable checks, and update only qa-report.md and review-report.md. "
-        "Do not change implementation code. End each report exactly with `Verdict: PASS` only "
-        "when its gate passes; otherwise end it with `Verdict: FAIL`."
-    )
+    if is_thinflow(task):
+        prompt=(
+            f"You are the one independent evaluator for {a.task}. Do not invoke `./agentflow verify`, "
+            "another skill, or another agent session. Inspect the compact outcome spec, task, diff, "
+            "REVIEW.md, implementation and local ThinFlow candidate evidence. Do not change "
+            "implementation code. Validate findings against code or runnable evidence; only findings "
+            "classified as blocking may fail the change. On re-review, inspect the repair delta and "
+            "affected surfaces without repeating resolved or pre-existing findings. Update only "
+            "evaluation.md and end it exactly with `Verdict: PASS` when ready for CI and human merge; "
+            "otherwise end with `Verdict: FAIL`."
+        )
+    else:
+        prompt=(
+            f"You are the delegated independent verifier for {a.task}. Do not invoke "
+            "`./agentflow verify`, the verify skill, or another agent session: that would recurse. "
+            f"Inspect the canonical artifacts in {feature.relative_to(ROOT) if feature else 'specs/'}, "
+            "run the applicable checks, and update only qa-report.md and review-report.md. "
+            "Do not change implementation code. End each report exactly with `Verdict: PASS` only "
+            "when its gate passes; otherwise end it with `Verdict: FAIL`."
+        )
     if a.dry_run: print(f"Would verify {a.task} with {selected}"); return 0
     cmd=providers.command(selected,ROOT,prompt,model=verify_model)
     if selected == "codex":
@@ -812,7 +895,7 @@ def verify(a):
     code=subprocess.run(cmd,cwd=ROOT).returncode
     if verification_passed(task,feature,code):
         field(task,"status","review")
-        print(f"Independent QA and final review passed for {a.task.upper()}.")
+        print(("Independent evaluation" if is_thinflow(task) else "Independent QA and final review") + f" passed for {a.task.upper()}.")
         return 0
     field(task,"status","blocked")
     print(f"Independent verification failed for {a.task.upper()}.",file=sys.stderr)
@@ -847,7 +930,7 @@ def model_flags(parser, resume=False):
 
 def parser():
     p=argparse.ArgumentParser(description="Local multi-agent SDD workflow"); s=p.add_subparsers()
-    c=s.add_parser("create"); c.add_argument("title",nargs="?"); c.add_argument("--outcome"); c.add_argument("--checkpoint",choices=["CP1","CP2","CP3"],default="CP1"); c.add_argument("--priority",choices=["low","medium","high","critical"],default="medium"); c.set_defaults(func=create)
+    c=s.add_parser("create"); c.add_argument("title",nargs="?"); c.add_argument("--outcome"); c.add_argument("--checkpoint",choices=["CP1","CP2","CP3"],default="CP1"); c.add_argument("--priority",choices=["low","medium","high","critical"],default="medium"); c.add_argument("--legacy",action="store_true",help="create an Agentflow 2.3 task instead of the ThinFlow default"); c.set_defaults(func=create)
     b=s.add_parser("backlog"); b.set_defaults(func=backlog)
     n=s.add_parser("next",help="recommend the next task whose dependencies are satisfied"); n.set_defaults(func=next_task)
     q=s.add_parser("status"); q.add_argument("task"); q.set_defaults(func=status)
@@ -860,8 +943,9 @@ def parser():
         q.add_argument("--dry-run",action="store_true")
         if name=="start": model_flags(q)
         if name=="start": q.add_argument("--no-pr",action="store_true",help="leave verified changes local without commit, push, or PR")
+        if name=="start": q.add_argument("--base",help="base branch for an explicitly stacked canary PR (default: main)")
         q.set_defaults(func=fn)
-    q=s.add_parser("resume"); q.add_argument("task"); q.add_argument('--provider',action=Once,choices=providers.PROVIDERS); model_flags(q,resume=True); q.set_defaults(func=resume)
+    q=s.add_parser("resume"); q.add_argument("task"); q.add_argument('--provider',action=Once,choices=providers.PROVIDERS); q.add_argument('--base',help="override the saved PR base for this run"); model_flags(q,resume=True); q.set_defaults(func=resume)
     q=s.add_parser("complete"); q.add_argument("task"); q.set_defaults(func=complete)
     q=s.add_parser("feedback"); q.add_argument("task"); q.add_argument("message",nargs="?"); q.add_argument("--stage",choices=sorted(STAGE_ALIASES)); q.add_argument("--impact",choices=sorted(IMPACT_STAGE),action="append",default=[]); q.add_argument("--checks",action="append",default=[],type=check_id,help="manifest check id whose remediation this feedback scopes (repeatable)"); q.set_defaults(func=add_feedback)
     q=s.add_parser("history"); q.add_argument("task"); q.set_defaults(func=history)

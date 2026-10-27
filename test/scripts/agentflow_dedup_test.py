@@ -112,8 +112,8 @@ class DedupTest(unittest.TestCase):
 
     def test_vibecode_procedure_has_explicit_high_risk_exclusions(self):
         text = Path("docs/WORKFLOW_SPEED.md").read_text()
-        for value in ("Vibecode", "preflight", "CI", "QA", "review", "finanzas",
-                      "integridad de datos", "workflow/gates/herramientas", "TASK-070"):
+        for value in ("ThinFlow", ".agentflow/thinflow.json", "CI", "finanzas",
+                      "persistencia", "harness", "decisión humana"):
             self.assertIn(value, text)
 
 

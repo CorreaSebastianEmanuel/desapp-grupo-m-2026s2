@@ -498,6 +498,54 @@ defmodule FootballMarket.WorkflowScope do
     ]
   end
 
+  def paths("specs/071-agentflow-thinflow") do
+    [
+      ".agentflow/thinflow.json",
+      ".agentflow/workflow.yml",
+      ".agents/skills/complete/SKILL.md",
+      ".agents/skills/create/SKILL.md",
+      ".agents/skills/feedback/SKILL.md",
+      ".agents/skills/resume/SKILL.md",
+      ".agents/skills/start/SKILL.md",
+      ".agents/skills/verify/SKILL.md",
+      ".github/workflows/quality-baseline.yml",
+      ".github/workflows/sonarcloud.yml",
+      ".specify/memory/constitution.md",
+      "AGENTS.md",
+      "README.md",
+      "REVIEW.md",
+      "agentflow",
+      "backlog/TASK-071-migrate-agentflow-2-3-to-thinflow.md",
+      "config/test_profiles.json",
+      "docs/AGENTFLOW_MODELS.md",
+      "docs/AGENT_CONTEXT_POLICY.md",
+      "docs/AGENT_VERIFICATION.md",
+      "docs/METODOLOGIA_AGENTICA.md",
+      "docs/THINFLOW.md",
+      "docs/WORKFLOW_FLOW.md",
+      "docs/WORKFLOW_LESSONS.md",
+      "docs/WORKFLOW_SPEED.md",
+      "docs/adr/0037-thinflow-versioned-delivery.md",
+      "scripts/agentflow_codex.py",
+      "scripts/agentflow_feature.py",
+      "scripts/agentflow_opencode.py",
+      "scripts/agentflow_runtime.py",
+      "scripts/thinflow.py",
+      "specs/071-agentflow-thinflow/",
+      "test/ci/fixtures/quality-baseline.sha256",
+      "test/ci/quality_baseline_contract_test.exs",
+      "test/ci/sonarcloud_contract_test.exs",
+      "test/scripts/agentflow_dedup_test.py",
+      "test/scripts/agentflow_branch_test.py",
+      "test/scripts/agentflow_policy_test.py",
+      "test/scripts/agentflow_workflow_gate_test.py",
+      "test/scripts/test_profile_components_test.py",
+      "test/scripts/thinflow_ci_test.py",
+      "test/scripts/thinflow_test.py",
+      "test/support/workflow_scope.ex"
+    ]
+  end
+
   def paths("specs/070-conditional-buy-orders") do
     [
       "config/application_coverage_inventory.json",

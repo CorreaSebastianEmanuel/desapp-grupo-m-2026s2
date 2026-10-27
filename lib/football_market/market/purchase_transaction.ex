@@ -6,16 +6,16 @@ defmodule FootballMarket.Market.PurchaseTransaction do
   alias FootballMarket.Catalog.Player
 
   alias FootballMarket.Market.{
-    Error,
-    Purchase,
     CreditBalance,
+    Purchase,
     CreditEntry,
     TokenTransfer,
     Holding,
     Issuance,
     InitialRecipient,
     Quote,
-    Consistency
+    Consistency,
+    Settlement
   }
 
   def complete(i) do
@@ -25,13 +25,13 @@ defmodule FootballMarket.Market.PurchaseTransaction do
 
     case resources do
       {:ok, prepared} -> write!(i, issue, holdings, quote, prepared, DateTime.utc_now())
-      {:error, kind} -> reject(kind)
+      {:error, kind} -> Settlement.reject(kind)
     end
   end
 
   def write!(i, issue, holdings, quote, {buyer, seller, source, total}, now) do
-    debit!(buyer, total, now)
-    credit!(seller, issue.recipient_id, total, now)
+    Settlement.debit!(buyer, total, now)
+    Settlement.credit!(seller, issue.recipient_id, total, now)
     Repo.update!(Ecto.Changeset.change(source, quantity: source.quantity - i.quantity))
     receive_tokens!(holdings, i)
     p = insert_purchase!(i, issue, quote, total, now)
@@ -60,14 +60,14 @@ defmodule FootballMarket.Market.PurchaseTransaction do
 
   def lock_resources!(i) do
     if is_nil(Repo.one(from p in Player, where: p.id == ^i.player_id, lock: "FOR UPDATE")),
-      do: reject(:player_not_found)
+      do: Settlement.reject(:player_not_found)
 
     issue = Repo.one(from s in Issuance, where: s.player_id == ^i.player_id)
-    if is_nil(issue), do: reject(:not_initialized)
-    if issue.recipient_id == i.buyer_id, do: reject(:self_purchase)
+    if is_nil(issue), do: Settlement.reject(:not_initialized)
+    if issue.recipient_id == i.buyer_id, do: Settlement.reject(:self_purchase)
     ids = Enum.sort([i.buyer_id, issue.recipient_id])
     users = Repo.all(from u in User, where: u.id in ^ids, order_by: u.id, lock: "FOR UPDATE")
-    if length(users) != 2, do: reject(:inconsistent_state)
+    if length(users) != 2, do: Settlement.reject(:inconsistent_state)
 
     balances =
       Repo.all(
@@ -81,8 +81,8 @@ defmodule FootballMarket.Market.PurchaseTransaction do
 
   def current_quote!(player_id) do
     case Quotes.latest(player_id) do
-      {:ok, q} -> if exact_positive?(q.unit_price), do: q, else: nil
-      {:error, :temporarily_unavailable} -> reject(:temporarily_unavailable)
+      {:ok, q} -> if Settlement.exact_positive?(q.unit_price), do: q, else: nil
+      {:error, :temporarily_unavailable} -> Settlement.reject(:temporarily_unavailable)
       _ -> nil
     end
   end
@@ -91,7 +91,7 @@ defmodule FootballMarket.Market.PurchaseTransaction do
 
   def eligible(i, issue, balances, holdings, quote) do
     coherent!(i.player_id, issue, holdings)
-    total = exact_total!(quote.unit_price, i.quantity)
+    total = Settlement.exact_total!(quote.unit_price, i.quantity)
     buyer = Enum.find(balances, &(&1.user_id == i.buyer_id))
     seller = Enum.find(balances, &(&1.user_id == issue.recipient_id))
 
@@ -118,38 +118,8 @@ defmodule FootballMarket.Market.PurchaseTransaction do
       user_ids: Repo.all(from u in User, select: u.id)
     }
 
-    unless Consistency.validate(state) == {:ok, :issued}, do: reject(:inconsistent_state)
-  end
-
-  defp exact_positive?(%Decimal{coef: c, sign: 1} = n) when is_integer(c) and c > 0,
-    do: Decimal.equal?(n, Decimal.round(n, 2))
-
-  defp exact_positive?(_), do: false
-
-  defp exact_total!(unit_price, quantity) do
-    case Repo.query!("SELECT $1::numeric * $2::numeric", [unit_price, quantity]).rows do
-      [[%Decimal{} = total]] -> total
-      _ -> reject(:inconsistent_state)
-    end
-  end
-
-  defp debit!(buyer, total, now),
-    do: adjust_balance!(buyer, Decimal.negate(total), now)
-
-  defp credit!(nil, id, total, now),
-    do: Repo.insert!(%CreditBalance{user_id: id, amount: total, updated_at: now})
-
-  defp credit!(seller, _, total, now),
-    do: adjust_balance!(seller, total, now)
-
-  defp adjust_balance!(balance, delta, now) do
-    case Repo.query!(
-           "UPDATE market_credit_balances SET amount = amount + $1::numeric, updated_at = $2 WHERE user_id = $3",
-           [delta, now, Ecto.UUID.dump!(balance.user_id)]
-         ).num_rows do
-      1 -> :ok
-      0 -> reject(:inconsistent_state)
-    end
+    unless Consistency.validate(state) == {:ok, :issued},
+      do: Settlement.reject(:inconsistent_state)
   end
 
   defp receive_tokens!(holdings, i) do
@@ -193,6 +163,4 @@ defmodule FootballMarket.Market.PurchaseTransaction do
       Repo.all(from e in CreditEntry, where: e.purchase_id == ^p.id, order_by: e.side)
     )
   end
-
-  defp reject(kind), do: Repo.rollback(%Error{kind: kind, reason: kind})
 end

@@ -67,6 +67,44 @@ defmodule FootballMarket.WorkflowScope do
     ]
   end
 
+  def paths("specs/030-atomic-idempotent-token-sale") do
+    [
+      "config/application_coverage_inventory.json",
+      "config/credo_inventory.json",
+      "config/test_profiles.json",
+      "lib/football_market/market.ex",
+      "lib/football_market/market/credit_entry.ex",
+      "lib/football_market/market/purchase.ex",
+      "lib/football_market/market/purchase_transaction.ex",
+      "lib/football_market/market/sale.ex",
+      "lib/football_market/market/sale_input.ex",
+      "lib/football_market/market/sale_store.ex",
+      "lib/football_market/market/sale_transaction.ex",
+      "lib/football_market/market/sales.ex",
+      "lib/football_market/market/settlement.ex",
+      "lib/football_market/market/token_transfer.ex",
+      "lib/football_market_web/controllers/error_json.ex",
+      "lib/football_market_web/controllers/sale_controller.ex",
+      "lib/football_market_web/controllers/sale_json.ex",
+      "lib/football_market_web/router.ex",
+      "priv/repo/migrations/20261027010000_create_market_sales.exs",
+      "priv/static/openapi.json",
+      "test/football_market/market/scope_test.exs",
+      "test/football_market/market/sales/duplicate_race_test.exs",
+      "test/football_market/market/sales/idempotency_test.exs",
+      "test/football_market/market/sales/input_test.exs",
+      "test/football_market/market/sales/quote_order_test.exs",
+      "test/football_market/market/sales/rejection_test.exs",
+      "test/football_market/market/sales/transfer_test.exs",
+      "test/football_market/market/conditional_orders/storage_test.exs",
+      "test/football_market_web/controllers/sale_controller_test.exs",
+      "test/football_market_web/openapi_contract_test.exs",
+      "test/support/sales/case.ex",
+      "test/support/workflow_scope.ex",
+      "tools/openapi/browser.mjs"
+    ]
+  end
+
   def paths("specs/068-agentflow-preflight-recovery") do
     [
       "test/scripts/agentflow_artifacts_test.py",

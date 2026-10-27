@@ -3,6 +3,10 @@
 **Branch**: `033-active-strategy-player-ranking` | **Date**: 2026-10-26 | **Spec**: [spec.md](spec.md)
 **Task**: TASK-033 | **Checkpoint**: CP2
 
+## Direct completion — 2026-10-27
+
+The user authorized completion on the existing branch without Agentflow orchestration or another feedback cycle. Preserve the original decisions and historical evidence; run the existing checks directly, one stable full CI pass, independent QA and a fresh final review. Main is integrated through `d1a0d76` (including TASK-027, TASK-056 and TASK-036). The inherited API guards now cover six operations and TASK-056's player-detail response. Remaining changes close QA B1/B2 using existing confirmed-quote helpers and the ranking-owned HTTP probe; no application redesign or scope expansion.
+
 ## Summary
 
 Expose one authenticated local ranking read through `FootballMarket.Ranking.read/0` and `GET /api/ranking`. Select each issued player's latest successful performance quote for the exact active saved configuration, then sort price descending and canonical UUID ascending. Return configuration identity and consecutive positions. Preserve sparse results and distinguish absent activation from infrastructure failure.

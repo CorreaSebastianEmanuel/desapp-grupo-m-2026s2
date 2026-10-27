@@ -120,7 +120,7 @@ defmodule FootballMarket.Ranking.SelectionTest do
     assert {:ok, %{calculation: calculation}} =
              FootballMarket.Quotes.request_membership(
                f.subject,
-               :active,
+               {:version, f.configuration.id},
                f.mapping.id,
                [missing],
                Ecto.UUID.generate()

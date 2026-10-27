@@ -24,7 +24,8 @@ defmodule RankingRuntimeAssertions do
   def assert!(_, message), do: raise("ranking runtime assertion failed: #{message}")
 
   def request(port, path, token \\ nil) do
-    headers = if token, do: [{'authorization', String.to_charlist("Bearer " <> token)}], else: []
+    headers =
+      if token, do: [{~c"authorization", String.to_charlist("Bearer " <> token)}], else: []
 
     response =
       :httpc.request(
@@ -68,11 +69,17 @@ defmodule RankingRuntimeAssertions do
     Repo.put_dynamic_repo(repo)
 
     try do
-      Ecto.Migrator.run(Repo, "priv/repo/migrations", :up,
-        all: true,
-        prefix: schema,
-        log: false
-      )
+      previous_compiler = Code.compiler_options(ignore_module_conflict: true)
+
+      try do
+        Ecto.Migrator.run(Repo, "priv/repo/migrations", :up,
+          all: true,
+          prefix: schema,
+          log: false
+        )
+      after
+        Code.compiler_options(previous_compiler)
+      end
 
       %{schema: schema, repo: repo, previous: original}
     rescue
@@ -92,7 +99,7 @@ defmodule RankingRuntimeAssertions do
   end
 
   def fixture(%{repo: repo, schema: schema}) do
-    alias FootballMarket.{Accounts, Market, Quotes, Repo, Valuation, ValuationCase}
+    alias FootballMarket.{Accounts, Market, Quotes, Repo, ValuationCase}
     alias FootballMarket.Valuation.Configurations
 
     Repo.put_dynamic_repo(repo)

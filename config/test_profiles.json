@@ -408,6 +408,13 @@
       "profile": "unit"
     },
     {
+      "id": "0d07d1526fa0f9582ef7d391",
+      "runner": "exunit",
+      "file": "test/football_market/ranking/selection_test.exs",
+      "case_id": "FootballMarket.Ranking.SelectionTest:test a failed calculation under the active configuration never creates a ranking entry",
+      "profile": "integration"
+    },
+    {
       "id": "0d3c22579adac46445562862",
       "runner": "exunit",
       "file": "test/football_market/synchronization/request_test.exs",
@@ -2788,19 +2795,18 @@
       "profile": "integration"
     },
     {
-<<<<<<< HEAD
-      "id": "5b575ec439d706484b7e7e52",
-      "runner": "exunit",
-      "file": "test/football_market_web/controllers/ranking_controller_test.exs",
-      "case_id": "FootballMarketWeb.RankingControllerTest:test authentication is enforced before ranking access",
-      "profile": "integration"
-=======
       "id": "5aa84c34a8762603295ddd2e",
       "runner": "exunit",
       "file": "test/football_market/observability/context_test.exs",
       "case_id": "FootballMarket.Observability.ContextTest:test provider coordinator and worker receive only approved caller context",
       "profile": "unit"
->>>>>>> origin/main
+    },
+    {
+      "id": "5b575ec439d706484b7e7e52",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/ranking_controller_test.exs",
+      "case_id": "FootballMarketWeb.RankingControllerTest:test authentication is enforced before ranking access",
+      "profile": "integration"
     },
     {
       "id": "5b57f092dbd6f927931679cc",
@@ -5407,6 +5413,13 @@
       "profile": "integration"
     },
     {
+      "id": "ae9939406271398e66720653",
+      "runner": "exunit",
+      "file": "test/football_market/ranking/selection_test.exs",
+      "case_id": "FootballMarket.Ranking.SelectionTest:test selection spans retained seasons rather than filtering to the player's current season",
+      "profile": "integration"
+    },
+    {
       "id": "aeb951c59758010dc7f21a0f",
       "runner": "python",
       "file": "test/scripts/agentflow_ci_check_test.py",
@@ -7143,6 +7156,13 @@
       "profile": "unit"
     },
     {
+      "id": "e43076e9b6293acf6ede51d0",
+      "runner": "exunit",
+      "file": "test/football_market/ranking/selection_test.exs",
+      "case_id": "FootballMarket.Ranking.SelectionTest:test effective time takes priority over sequence and the individual current quote",
+      "profile": "integration"
+    },
+    {
       "id": "e435b3e6e83a704a348c50b5",
       "runner": "python",
       "file": "test/scripts/agentflow_feature_test.py",
@@ -8119,11 +8139,8 @@
     "test/support/quotes/fixtures.ex": true,
     "test/support/quotes/case.ex": true,
     "test/support/freshness_case.ex": "Shared deterministic freshness fixtures; executed by registered integration tests.",
-<<<<<<< HEAD
+    "test/support/observability_worker.ex": "Test-only raising endpoint and timed-out Oban worker, exercised by registered HTTP integration and real-runtime E2E cases.",
     "test/support/ranking_case.ex": "Fixture/support helper; ranking cases own the active configuration and successful quote setup."
-=======
-    "test/support/observability_worker.ex": "Test-only raising endpoint and timed-out Oban worker, exercised by registered HTTP integration and real-runtime E2E cases."
->>>>>>> origin/main
   },
   "excluded_roots": [
     "tools/openapi/node_modules",

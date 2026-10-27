@@ -46,6 +46,15 @@ defmodule FootballMarket.Ranking.SafetyTest do
     assert {:error, :storage_unavailable} = FootballMarket.Ranking.read()
   end
 
+  test "invalid stored active rules remain a sanitized storage failure" do
+    f = FootballMarket.RankingCase.fixture(quote: false)
+    FootballMarket.RankingCase.select_invalid_configuration(f)
+    before = FootballMarket.RankingCase.protected_snapshot()
+
+    assert {:error, :storage_unavailable} = FootballMarket.Ranking.read()
+    assert FootballMarket.RankingCase.protected_snapshot() == before
+  end
+
   defp collect_queries(acc) do
     receive do
       {:ranking_sql, query} when is_binary(query) -> collect_queries([query | acc])

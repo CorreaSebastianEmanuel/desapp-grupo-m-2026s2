@@ -14,7 +14,11 @@ defmodule FootballMarket.Ranking.Reader do
       {:error, :storage_unavailable}
 
     error in RuntimeError ->
-      if Exception.message(error) == "valuation serialization anchor missing",
+      if Exception.message(error) in [
+           "valuation serialization anchor missing",
+           "valuation rule storage integrity failure",
+           "valuation selection integrity failure"
+         ],
         do: {:error, :storage_unavailable},
         else: reraise(error, __STACKTRACE__)
   end

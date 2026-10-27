@@ -153,6 +153,22 @@ defmodule FootballMarket.RankingCase do
 
   def rules(fixture), do: FootballMarket.QuotesCase.rules(fixture.base)
 
+  def select_invalid_configuration(fixture) do
+    version =
+      Repo.insert!(%FootballMarket.Valuation.Configurations.Version{
+        strategy_id: "balanced",
+        formula_version: "1",
+        rules: %{}
+      })
+
+    Repo.insert!(%FootballMarket.Valuation.Configurations.SelectionChange{
+      previous_version_id: fixture.configuration.id,
+      new_version_id: version.id
+    })
+
+    version
+  end
+
   def protected_snapshot do
     Map.new(
       ~w(market_initial_recipients market_quotes market_holdings market_issuances

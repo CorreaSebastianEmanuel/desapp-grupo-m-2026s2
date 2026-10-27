@@ -187,8 +187,16 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
     for {_path, item} <- doc["paths"],
         {_method, operation} <- item,
         {_, response} <- operation["responses"],
-        {_, example} <- get_in(response, ["content", "application/json", "examples"]) do
+        {_, example} <- get_in(response, ["content", "application/json", "examples"]) || %{} do
       assert_schema!(doc, response["content"]["application/json"]["schema"], example["value"])
+    end
+
+    for {_path, item} <- doc["paths"],
+        {_method, operation} <- item,
+        {_, response} <- operation["responses"],
+        content = response["content"]["application/json"],
+        Map.has_key?(content, "example") do
+      assert_schema!(doc, content["schema"], content["example"])
     end
   end
 

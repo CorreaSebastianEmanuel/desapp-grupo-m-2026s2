@@ -135,4 +135,18 @@ defmodule FootballMarketWeb.RankingControllerTest do
     assert get_resp_header(conn, "cache-control") == ["no-store"]
     assert json_response(conn, 503) == %{"error" => %{"code" => "storage_unavailable"}}
   end
+
+  test "invalid stored active rules return the safe 503 contract" do
+    f = FootballMarket.RankingCase.fixture(quote: false)
+    FootballMarket.RankingCase.select_invalid_configuration(f)
+    {:ok, token} = FootballMarket.Accounts.Authentication.issue(f.user.id)
+
+    conn =
+      build_conn()
+      |> put_req_header("authorization", "Bearer " <> token)
+      |> get("/api/ranking")
+
+    assert get_resp_header(conn, "cache-control") == ["no-store"]
+    assert json_response(conn, 503) == %{"error" => %{"code" => "storage_unavailable"}}
+  end
 end

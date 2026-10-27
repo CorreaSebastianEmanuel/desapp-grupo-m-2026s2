@@ -5,6 +5,7 @@ type: task
 checkpoint: CP3
 priority: critical
 status: todo
+workflow: thinflow-v1
 depends_on: TASK-013, TASK-030, TASK-046
 active_run: none
 ---

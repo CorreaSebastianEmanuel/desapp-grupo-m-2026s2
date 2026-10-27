@@ -4,9 +4,9 @@ title: Active strategy player ranking
 type: task
 checkpoint: CP2
 priority: high
-status: review
+status: done
 depends_on: TASK-026
-active_run: d199bcdb
+active_run: none
 ---
 
 ## Outcome

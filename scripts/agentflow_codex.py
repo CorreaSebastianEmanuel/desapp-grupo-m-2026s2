@@ -10,9 +10,187 @@ import subprocess
 import sys
 import time
 import uuid
+import tomllib
 from datetime import datetime, timezone
 from glob import glob
 from pathlib import Path
+
+
+SANDBOX_MODES = frozenset(("read-only", "workspace-write", "danger-full-access"))
+
+
+def _sandbox_mode(value: object) -> str:
+    if not isinstance(value, str) or value not in SANDBOX_MODES:
+        raise RuntimeError("Unable to resolve sandbox policy")
+    return value
+
+
+def _config_policy_values(args: list[str], key: str) -> tuple[list[str], list[str]]:
+    explicit = []
+    configured = []
+    index = 0
+    while index < len(args):
+        arg = args[index]
+        if key == "sandbox_mode" and arg in ("--sandbox", "-s"):
+            if index + 1 >= len(args):
+                raise RuntimeError("Unable to resolve sandbox policy")
+            explicit.append(args[index + 1])
+            index += 2
+            continue
+        if key == "sandbox_mode" and arg.startswith("--sandbox="):
+            explicit.append(arg.split("=", 1)[1])
+            index += 1
+            continue
+        if key == "sandbox_mode" and arg.startswith("-s") and arg != "-s":
+            explicit.append(arg[2:])
+            index += 1
+            continue
+        if key == "sandbox_mode" and (arg in ("-p", "--profile") or arg.startswith("--profile=")):
+            # A selected profile may introduce another sandbox policy. The
+            # frozen Agentflow assignment does not own profile resolution.
+            raise RuntimeError("Unable to resolve sandbox policy")
+        if key == "sandbox_mode" and arg in ("--full-auto", "--yolo", "--dangerously-bypass-approvals-and-sandbox"):
+            raise RuntimeError("Unable to resolve sandbox policy")
+        config_value = None
+        if arg in ("-c", "--config"):
+            if index + 1 >= len(args):
+                raise RuntimeError("Unable to resolve sandbox policy")
+            config_value = args[index + 1]
+            index += 2
+        elif arg.startswith("--config="):
+            config_value = arg.split("=", 1)[1]
+            index += 1
+        elif arg.startswith("-c") and arg != "-c":
+            config_value = arg[2:]
+            index += 1
+        else:
+            index += 1
+        if config_value is not None and config_value.lstrip().startswith(key):
+            try:
+                parsed = tomllib.loads(config_value)
+            except (tomllib.TOMLDecodeError, ValueError):
+                raise RuntimeError("Unable to resolve sandbox policy") from None
+            if set(parsed) != {key}:
+                raise RuntimeError("Unable to resolve sandbox policy")
+            configured.append(_sandbox_mode(parsed[key]) if key == "sandbox_mode" else parsed[key])
+    if len(explicit) > 1 or len(configured) > 1:
+        raise RuntimeError("Unable to resolve sandbox policy")
+    return explicit, configured
+
+
+def resolve_approval_policy(args: list[str], *, env=None, root: Path | None = None,
+                            config_path: Path | None = None) -> str | None:
+    environment = os.environ if env is None else env
+    explicit, invocation = _config_policy_values(args, "approval_policy")
+    if len(invocation) > 1:
+        raise RuntimeError("Unable to resolve approval policy")
+    if explicit:
+        raise RuntimeError("Unable to resolve approval policy")
+    if config_path is None:
+        config_home = environment.get("CODEX_HOME")
+        config_path = (Path(config_home).expanduser() if config_home else Path.home() / ".codex") / "config.toml"
+    if config_path.exists():
+        try:
+            policy = tomllib.loads(config_path.read_text(encoding="utf-8")).get("approval_policy")
+        except (OSError, UnicodeError, tomllib.TOMLDecodeError, ValueError):
+            raise RuntimeError("Unable to resolve approval policy") from None
+        if policy is not None:
+            if policy not in ("never", "on-request", "untrusted"):
+                raise RuntimeError("Unable to resolve approval policy")
+            if invocation and invocation[0] != policy:
+                raise RuntimeError("Unable to resolve approval policy")
+            return policy
+    if invocation:
+        if invocation[0] not in ("never", "on-request", "untrusted"):
+            raise RuntimeError("Unable to resolve approval policy")
+        return invocation[0]
+    return None
+
+
+def _root_sandbox_mode(config_path: Path, root: Path) -> str | None:
+    if not config_path.exists():
+        return None
+    try:
+        data = tomllib.loads(config_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, tomllib.TOMLDecodeError, ValueError):
+        raise RuntimeError("Unable to resolve sandbox policy") from None
+    projects = data.get("projects", {})
+    if not isinstance(projects, dict):
+        raise RuntimeError("Unable to resolve sandbox policy")
+    for project_path, policy in projects.items():
+        if not isinstance(project_path, str) or not isinstance(policy, dict):
+            raise RuntimeError("Unable to resolve sandbox policy")
+        if "sandbox_mode" not in policy:
+            continue
+        try:
+            configured_root = Path(project_path).expanduser().resolve()
+            if root == configured_root or root.is_relative_to(configured_root):
+                raise RuntimeError("Unable to resolve sandbox policy")
+        except (OSError, RuntimeError):
+            raise RuntimeError("Unable to resolve sandbox policy") from None
+    if "default_profile" in data:
+        raise RuntimeError("Unable to resolve sandbox policy")
+    mode = data.get("sandbox_mode")
+    return _sandbox_mode(mode) if mode is not None else None
+
+
+def resolve_sandbox_mode(args: list[str], *, env=None, root: Path | None = None,
+                         config_path: Path | None = None) -> str:
+    """Resolve the effective closed policy without trusting inherited labels."""
+    environment = os.environ if env is None else env
+    root = (root or Path.cwd()).resolve()
+    explicit, invocation = _config_policy_values(args, "sandbox_mode")
+    local_config = root / ".codex" / "config.toml"
+    if local_config.exists():
+        try:
+            local = tomllib.loads(local_config.read_text(encoding="utf-8"))
+        except (OSError, UnicodeError, tomllib.TOMLDecodeError, ValueError):
+            raise RuntimeError("Unable to resolve sandbox policy") from None
+        if "sandbox_mode" in local or "profiles" in local or "default_profile" in local:
+            raise RuntimeError("Unable to resolve sandbox policy")
+    if config_path is None:
+        config_home = environment.get("CODEX_HOME")
+        config_path = (Path(config_home).expanduser() if config_home else Path.home() / ".codex") / "config.toml"
+    configured = _root_sandbox_mode(config_path, root)
+    if explicit:
+        if invocation and invocation[0] != _sandbox_mode(explicit[0]):
+            raise RuntimeError("Unable to resolve sandbox policy")
+        return _sandbox_mode(explicit[0])
+    if invocation:
+        return invocation[0]
+    return configured or "workspace-write"
+
+
+def sandbox_launch_args(args: list[str], mode: str, approval_policy: str | None = None) -> list[str]:
+    """Remove policy declarations and forward one normalized explicit mode."""
+    mode = _sandbox_mode(mode)
+    clean = []
+    index = 0
+    while index < len(args):
+        arg = args[index]
+        if arg in ("--sandbox", "-s"):
+            index += 2
+        elif arg.startswith("--sandbox=") or (arg.startswith("-s") and arg != "-s"):
+            index += 1
+        elif arg == "--approve-for-me" and mode == "danger-full-access":
+            if approval_policy != "never":
+                raise RuntimeError("Unable to resolve approval policy")
+            index += 1
+        elif arg in ("-c", "--config") and index + 1 < len(args):
+            value = args[index + 1]
+            if value.lstrip().startswith("sandbox_mode"):
+                index += 2
+            else:
+                clean.extend((arg, value))
+                index += 2
+        elif arg.startswith("--config=") and arg.split("=", 1)[1].lstrip().startswith("sandbox_mode"):
+            index += 1
+        elif arg.startswith("-c") and arg != "-c" and arg[2:].lstrip().startswith("sandbox_mode"):
+            index += 1
+        else:
+            clean.append(arg)
+            index += 1
+    return [*clean, "--sandbox", mode]
 
 try:
     from .agentflow_runtime import DIMENSIONS, MARKER, numeric_usage, read_metrics, stage_from_args, usage_delta
@@ -81,10 +259,14 @@ def main(args: list[str]) -> int:
             args=fresh_session_args(args)
         args = launch_args(args, selection, stage)
         assignment_id = generation['assignment_id']
+    sandbox_mode = resolve_sandbox_mode(args)
+    approval_policy = resolve_approval_policy(args)
+    args = sandbox_launch_args(args, sandbox_mode, approval_policy)
     base = {"schema_version": 1, "task": task, "stage": stage, "attempt": attempt,
             "assignment_id": assignment_id, "configured": selection.get('configured') if selection else None,
             "resolved": {key: selection[key] for key in ('model','effort')} if selection else None,
             "selection_sources": selection.get('sources') if selection else None,
+            "sandbox_mode": sandbox_mode,
             "observed_model": None, "observed_effort": None, "observed_source": None,
             "unknown_reason": 'execution identity not reported'}
     sequence = 0
@@ -103,12 +285,9 @@ def main(args: list[str]) -> int:
     if "--json" not in args:
         args = [*args, "--json"]
     # Local checks (database/Redis preflight, profiles and helpers) require
-    # outbound loopback traffic, which the default workspace-write sandbox
-    # denies. Grant network access without widening filesystem permissions,
-    # unless the locked stage selection already chose an explicit sandbox.
-    if args and args[0] == "exec" and not any(
-        arg == "--sandbox" or arg.startswith(("-s", "--sandbox=")) for arg in args
-    ):
+    # loopback access under workspace-write. Keep this network setting separate
+    # from sandbox selection and preserve other explicitly selected modes.
+    if args and args[0] == "exec" and sandbox_mode == "workspace-write":
         args = [args[0], "-c", "sandbox_workspace_write.network_access=true", *args[1:]]
     try:
         from .agentflow_preflight import build_context, evaluate
@@ -124,7 +303,9 @@ def main(args: list[str]) -> int:
     emit("agent_started")
     # Gates belong to Spec Kit. An agent must not consume piped gate answers.
     try:
-        child = subprocess.Popen([real, *args], stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+        child_env = dict(os.environ)
+        child_env['AGENTFLOW_CODEX_SANDBOX_MODE'] = sandbox_mode
+        child = subprocess.Popen([real, *args], env=child_env, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
                                  stderr=subprocess.STDOUT, text=True, encoding="utf-8", errors="replace")
     except OSError:
         emit('agent_failed', cause='selected executable unavailable; no fallback')

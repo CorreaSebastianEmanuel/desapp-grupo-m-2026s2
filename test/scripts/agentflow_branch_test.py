@@ -58,9 +58,13 @@ class AgentflowBranchTest(DeliveryFixture):
         (expected/'spec.md').write_text('legacy\n');expected.rename(expected.with_name('020-legacy'))
         self.assertEqual(AGENTFLOW.feature_for_task(self.task),self.root/'specs/020-legacy')
     def test_verify_resolves_before_dispatch_and_does_not_recurse(self):
-        with patch.object(AGENTFLOW,'agent',return_value='codex'),patch.object(AGENTFLOW.subprocess,'run',return_value=result()) as dispatch:
+        with patch.object(AGENTFLOW,'agent',return_value='codex'),patch.object(AGENTFLOW.codex_launcher,'resolve_sandbox_mode',return_value='danger-full-access'),patch.object(AGENTFLOW.codex_launcher,'resolve_approval_policy',return_value='never'),patch.object(AGENTFLOW.subprocess,'run',return_value=result()) as dispatch:
             self.assertEqual(AGENTFLOW.verify(self.args()),0)
-        prompt=dispatch.call_args.args[0][-1]
+        argv=dispatch.call_args.args[0]
+        self.assertIn('--sandbox',argv)
+        self.assertEqual(argv[argv.index('--sandbox')+1],'danger-full-access')
+        self.assertNotIn('--approve-for-me',argv)
+        prompt=next(arg for arg in argv if 'You are the delegated independent verifier' in arg)
         self.assertIn('specs/055-football-data-api-adapter',prompt)
         self.assertIn('Do not invoke `./agentflow verify`',prompt)
         self.assertEqual(AGENTFLOW.meta(self.task)['status'],'review')

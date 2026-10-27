@@ -1,11 +1,14 @@
 """Real subprocess receipt lifecycle, integrity, retry and stage isolation."""
 import json
+import hashlib
 import os
 import signal
 import sys
+from pathlib import Path
 from unittest.mock import patch
 from scripts.agentflow_check import run_check, safe_failure_diagnostics
 from scripts import agentflow_verification as v
+from scripts.agentflow_verification import check_identity
 from test.scripts.support.agentflow_delivery_fixtures import DeliveryFixture, applicability, verification
 
 
@@ -103,6 +106,8 @@ class EvidenceTest(DeliveryFixture):
             'CP1_PROFILE_STAGE committed-fixture:test/example_test.exs\n'
             'CP1_PROFILE_FAILURES count=2\n'
             'CP1_PROFILE_FAILURE_LOCATION test/example_test.exs:41\n'
+            'PROFILE_DISCREPANCY id=0123456789abcdef01234567 line=41\n'
+            'PROFILE_DISCREPANCY id=0123456789abcdef01234567 line=41 secret=sentinel\n'
             'expected secret payload and exception details\n'
         )
 
@@ -110,7 +115,181 @@ class EvidenceTest(DeliveryFixture):
             'stages': ['committed-fixture:test/example_test.exs'],
             'failure_counts': ['2'],
             'locations': ['test/example_test.exs:41'],
+            'profile_discrepancies': [{'id': '0123456789abcdef01234567', 'line': 41}],
         })
+
+    def test_declared_retry_environment_changes_hashed_check_identity_without_leaking_value(self):
+        check = {'argv': [sys.executable, '-c', 'pass'], 'env': {}, 'retry_env': ['CHROMIUM_PATH']}
+        first_path = '/private/browser/one'
+        second_path = '/private/browser/two'
+        with patch.dict('os.environ', {'CHROMIUM_PATH': first_path}):
+            first = check_identity(check)
+        with patch.dict('os.environ', {'CHROMIUM_PATH': second_path}):
+            second = check_identity(check)
+        self.assertNotEqual(first, second)
+        self.assertNotIn(first_path, first)
+        self.assertNotIn(second_path, second)
+
+    def test_sandbox_mode_changes_hashed_identity_without_exposing_value(self):
+        check = {'argv': [sys.executable, '-c', 'pass'], 'env': {},
+                 'retry_env': ['CHROMIUM_PATH', 'AGENTFLOW_CODEX_SANDBOX_MODE']}
+        with patch.dict('os.environ', {'CHROMIUM_PATH': '/private/browser/chrome',
+                                       'AGENTFLOW_CODEX_SANDBOX_MODE': 'workspace-write'}):
+            workspace_write = check_identity(check)
+        with patch.dict('os.environ', {'CHROMIUM_PATH': '/private/browser/chrome',
+                                       'AGENTFLOW_CODEX_SANDBOX_MODE': 'danger-full-access'}):
+            danger_full = check_identity(check)
+        self.assertNotEqual(workspace_write, danger_full)
+        self.assertNotIn('workspace-write', workspace_write)
+        self.assertNotIn('danger-full-access', danger_full)
+
+    def test_sandbox_mode_is_required_and_closed_before_profile_spawn(self):
+        self.data['checks'][0]['retry_env'] = ['AGENTFLOW_CODEX_SANDBOX_MODE']
+        self.json('specs/003-example/verification.json', self.data)
+        for selected in (None, 'arbitrary-secret-value'):
+            with self.subTest(selected=selected), patch.dict('os.environ', {}, clear=True):
+                if selected is not None:
+                    import os
+                    os.environ['AGENTFLOW_CODEX_SANDBOX_MODE'] = selected
+                with patch('scripts.agentflow_check.execute_check', return_value=0) as execute:
+                    with self.assertRaisesRegex(RuntimeError, 'sandbox mode'):
+                        run_check(self.root, self.feature, 'fixture')
+                    execute.assert_not_called()
+
+    def test_sandbox_mode_change_starts_new_retry_scope_but_same_mode_stays_blocked(self):
+        import os
+        self.data['checks'][0].update(
+            argv=[sys.executable, '-c', 'raise SystemExit(9)'],
+            retry_env=['AGENTFLOW_CODEX_SANDBOX_MODE'])
+        self.json('specs/003-example/verification.json', self.data)
+        with patch.dict('os.environ', {'AGENTFLOW_CODEX_SANDBOX_MODE': 'workspace-write'}):
+            self.assertEqual(run_check(self.root, self.feature, 'fixture'), 9)
+            self.assertEqual(run_check(self.root, self.feature, 'fixture'), 9)
+            with patch.dict('os.environ', {'UNRELATED_SANDBOX_NOTE': 'cannot-reset'}):
+                self.assertEqual(run_check(self.root, self.feature, 'fixture'), 2)
+        with patch.dict('os.environ', {'AGENTFLOW_CODEX_SANDBOX_MODE': 'danger-full-access'}):
+            self.assertEqual(run_check(self.root, self.feature, 'fixture'), 9)
+
+    def test_manifest_rejects_invalid_retry_environment_names(self):
+        self.data['checks'][0]['retry_env'] = ['CHROMIUM-PATH']
+        self.json('specs/003-example/verification.json', self.data)
+        with self.assertRaisesRegex(RuntimeError, 'retry_env'):
+            v.manifest(self.feature)
+
+    def test_safe_diagnostics_accept_only_closed_browser_cause_records(self):
+        evidence = self.root/'browser.log'
+        evidence.write_text(
+            'PROFILE_SAFE_DIAGNOSTIC category=browser-prerequisite cause=executable-missing\n'
+            'PROFILE_SAFE_DIAGNOSTIC category=browser-prerequisite cause=dependency-missing\n'
+            'PROFILE_SAFE_DIAGNOSTIC category=browser-prerequisite cause=permission-denied\n'
+            'PROFILE_SAFE_DIAGNOSTIC category=browser-prerequisite cause=launch-timeout\n'
+            'PROFILE_SAFE_DIAGNOSTIC category=browser-prerequisite cause=launch-failed\n'
+            'PROFILE_SAFE_DIAGNOSTIC category=browser-prerequisite cause=launch-failed secret=sentinel\n'
+            'PROFILE_SAFE_DIAGNOSTIC category=browser-prerequisite cause=forged\n'
+            'PROFILE_SAFE_DIAGNOSTIC category=browser-prerequisite cause=launch-failed\x1b[31m\n'
+            'secret-sentinel /private/browser/path\n'
+        )
+
+        self.assertEqual(safe_failure_diagnostics(evidence), {
+            'browser_prerequisite_causes': [
+                'executable-missing', 'dependency-missing', 'permission-denied',
+                'launch-timeout', 'launch-failed'
+            ]
+        })
+
+    def test_profile_discrepancy_is_reported_without_legacy_profile_markers(self):
+        from scripts.test_inventory import entry
+        case_id = 'test.scripts.application_coverage_test.CoverageAccountingTest.test_fixture'
+        case = entry('python', 'test/scripts/application_coverage_test.py', case_id, 'unit')
+        self.json('config/test_profiles.json', {'schema_version': 1, 'entries': [case],
+                                                'helpers': {}, 'excluded_roots': []})
+        evidence = self.root/'.agentflow/runs/checks/discrepancy.log'
+        evidence.parent.mkdir(parents=True)
+        evidence.write_text(
+            f'PROFILE_DISCREPANCY id={case["id"]} line=41\n'
+            f'PROFILE_CASE_DIAGNOSTIC id={case["id"]} runner=python '
+            'file=test/scripts/application_coverage_test.py '
+            f'case={case_id} state=failed cause=assertion line=41 started=1 passed=0 failed=1 skipped=0\n'
+            f'PROFILE_CASE_DIAGNOSTIC id={case["id"]} runner=python '
+            'file=test/scripts/application_coverage_test.py case=invalid secret=sentinel\n'
+        )
+        self.assertEqual(safe_failure_diagnostics(evidence, self.root), {
+            'profile_discrepancies': [{
+                **case,
+                'runner': 'python',
+                'file': 'test/scripts/application_coverage_test.py',
+                'state': 'failed',
+                'cause': 'assertion',
+                'failure_line': 41,
+                'started': 1,
+                'passed': 0,
+                'failed': 1,
+                'skipped': 0,
+            }],
+        })
+
+    def test_profile_event_summary_accepts_only_bounded_aggregate_counts(self):
+        evidence = self.root/'.agentflow/runs/checks/events.log'
+        evidence.parent.mkdir(parents=True)
+        evidence.write_text(
+            'PROFILE_EVENT_SUMMARY profile=integration step=tests started=21 passed=20 failed=1 skipped=0\n'
+            'PROFILE_EVENT_SUMMARY profile=integration step=tests started=21 passed=20 failed=1 skipped=0 secret=sentinel\n'
+            'PROFILE_EVENT_SUMMARY profile=integration step=tests started=1000001 passed=0 failed=0 skipped=0\n'
+            'PROFILE_EVENT_SUMMARY profile=other step=tests started=1 passed=0 failed=1 skipped=0\n'
+            'secret-sentinel /private/test/path\n'
+        )
+        self.assertEqual(safe_failure_diagnostics(evidence, self.root), {
+            'profile_event_summaries': [{
+                'profile': 'integration', 'step': 'tests',
+                'started': 21, 'passed': 20, 'failed': 1, 'skipped': 0,
+            }]
+        })
+
+    def test_safe_consumer_redacts_registered_nonconventional_case_id(self):
+        from scripts.profile_safe_diagnostics import parse_profile_diagnostics
+
+        label = 'unusual synthetic QA sentinel'
+        case = {
+            'runner': 'python',
+            'file': 'test/qa_probe.py',
+            'case_id': label,
+            'profile': 'unit',
+        }
+        case['id'] = hashlib.sha256(
+            '\0'.join((case['runner'], case['file'], label)).encode()
+        ).hexdigest()[:24]
+        self.json('config/test_profiles.json', {'schema_version': 1, 'entries': [case]})
+        evidence = self.root / '.agentflow/runs/checks/profile-diagnostic.log'
+        evidence.parent.mkdir(parents=True, exist_ok=True)
+        evidence.write_text(
+            f"PROFILE_CASE_DIAGNOSTIC id={case['id']} runner=python "
+            "file=test/qa_probe.py case=redacted state=failed cause=assertion "
+            "line=1 started=1 passed=0 failed=1 skipped=0\n"
+        )
+
+        result = parse_profile_diagnostics(self.root, evidence)
+
+        self.assertNotIn(label, json.dumps(result))
+        self.assertEqual(result['profile_discrepancies'][0]['case_id'], 'redacted')
+
+    def test_safe_consumer_preserves_aggregate_summary_step(self):
+        from scripts.profile_safe_diagnostics import parse_profile_diagnostics
+
+        self.json('config/test_profiles.json', {'schema_version': 1, 'entries': []})
+        evidence = self.root / '.agentflow/runs/checks/profile-summary.log'
+        evidence.parent.mkdir(parents=True, exist_ok=True)
+        evidence.write_text(
+            'PROFILE_EVENT_SUMMARY profile=integration step=tests started=2 '
+            'passed=1 failed=1 skipped=0\n'
+        )
+
+        result = parse_profile_diagnostics(self.root, evidence)
+
+        self.assertEqual(
+            result['profile_event_summaries'],
+            [{'profile': 'integration', 'step': 'tests', 'started': 2,
+              'passed': 1, 'failed': 1, 'skipped': 0}],
+        )
 
     def receipt(self, stage='develop'):
         return v.current_receipt(self.root, self.feature, self.data['checks'][0],

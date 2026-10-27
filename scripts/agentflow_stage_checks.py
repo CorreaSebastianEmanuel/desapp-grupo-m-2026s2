@@ -60,19 +60,10 @@ def _safe_command(check, root, stage, reuse, stage_attempt_token=None):
         if isinstance(diagnostics, dict):
             # Copy only the identity fields produced by the strict inventory mapper.
             cases = diagnostics.get("profile_discrepancies")
-            if isinstance(cases, list) and len(cases) <= 100 and all(
-                isinstance(case, dict) and set(case).issubset({"id", "runner", "file", "case_id", "profile", "failure_line"})
-                and {"id", "runner", "file", "case_id", "profile"}.issubset(case)
-                and isinstance(case.get("id"), str) and re.fullmatch(r"[0-9a-f]{24}", case["id"])
-                and case.get("runner") in {"exunit", "python", "node", "shell"}
-                and case.get("profile") in {"unit", "integration", "e2e"}
-                and isinstance(case.get("file"), str) and re.fullmatch(r"(?:test|tools)/[A-Za-z0-9_./-]{1,220}", case["file"])
-                and ".." not in Path(case["file"]).parts
-                and isinstance(case.get("case_id"), str) and 1 <= len(case["case_id"]) <= 500
-                and ("failure_line" not in case or type(case["failure_line"]) is int and 1 <= case["failure_line"] <= 10000000)
-                for case in cases
-            ) and cases:
-                profile_details["profile_discrepancies"] = cases
+            if isinstance(cases, list) and len(cases) <= 100:
+                safe_cases = [dict(case) for case in cases if _safe_profile_discrepancy(case)]
+                if safe_cases:
+                    profile_details["profile_discrepancies"] = safe_cases
                 categories = details.get("failure_diagnostics", {}).get("profile_categories")
                 if isinstance(categories, list) and len(categories) <= 10 and all(
                     value in {"usage", "timeout", "resource-cleanup", "browser-prerequisite", "test-failure",
@@ -80,12 +71,17 @@ def _safe_command(check, root, stage, reuse, stage_attempt_token=None):
                               "inventory-or-service-prerequisite", "profile"} for value in categories
                 ):
                     profile_details["profile_categories"] = categories
+            summaries = diagnostics.get("profile_event_summaries")
+            if isinstance(summaries, list) and len(summaries) <= 10:
+                safe_summaries = [dict(item) for item in summaries
+                                  if _safe_profile_event_summaries([item])]
+                if safe_summaries:
+                    profile_details["profile_event_summaries"] = safe_summaries
             browsers = diagnostics.get("profile_browser_diagnostics")
             if isinstance(browsers, list) and len(browsers) <= 10 and all(
                 isinstance(item, dict) and set(item) == {"cause", "stage"}
-                and item.get("cause") in {"node-unavailable", "node-incompatible", "playwright-missing",
-                                           "bundled-chromium-missing", "chromium-launch-failed",
-                                           "chromium-launch-timeout"}
+                and item.get("cause") in {"executable-missing", "dependency-missing", "permission-denied",
+                                           "launch-timeout", "launch-failed"}
                 and item.get("stage") in {"integration", "e2e"}
                 for item in browsers
             ):
@@ -123,6 +119,42 @@ def _safe_membership_diagnostic(item):
             item.get("phase") in reasons and item.get("reason") in reasons[item["phase"]] and
             all(type(item.get(key)) is int and 0 <= item[key] <= 10000000
                 for key in keys - {"profile", "phase", "reason"}))
+
+
+def _safe_profile_discrepancy(case):
+    identity = {"id", "runner", "file", "case_id", "profile"}
+    detail = identity | {"state", "cause", "failure_line", "started", "passed", "failed", "skipped"}
+    if not isinstance(case, dict):
+        return False
+    keys = set(case)
+    if keys not in (identity, identity | {"failure_line"}, detail):
+        return False
+    if (not isinstance(case.get("id"), str) or not re.fullmatch(r"[0-9a-f]{24}", case["id"]) or
+            case.get("runner") not in {"exunit", "python", "node", "shell"} or
+            case.get("profile") not in {"unit", "integration", "e2e"} or
+            not isinstance(case.get("file"), str) or
+            not re.fullmatch(r"(?:test|tools)/[A-Za-z0-9_./-]{1,220}", case["file"]) or
+            ".." in Path(case["file"]).parts or
+            not isinstance(case.get("case_id"), str) or
+            not re.fullmatch(r"(?:test(?:\.[A-Za-z0-9_]+)+|redacted)", case["case_id"])):
+        return False
+    if "failure_line" in case and case["failure_line"] is not None and (
+            type(case["failure_line"]) is not int or not 1 <= case["failure_line"] <= 1_000_000):
+        return False
+    if keys == detail:
+        return (case["state"] in {"failed", "skipped", "incomplete"} and
+                case["cause"] in {"assertion", "error", "skipped", "incomplete"} and
+                all(type(case[key]) is int and 0 <= case[key] <= 1_000_000
+                    for key in ("started", "passed", "failed", "skipped")))
+    return True
+
+
+def _safe_profile_event_summaries(items):
+    return (isinstance(items, list) and 1 <= len(items) <= 10 and all(
+        isinstance(item, dict) and set(item) == {"profile", "step", "started", "passed", "failed", "skipped"} and
+        item["profile"] in {"unit", "integration", "e2e"} and item["step"] == "tests" and
+        all(type(item[key]) is int and 0 <= item[key] <= 1_000_000
+            for key in ("started", "passed", "failed", "skipped")) for item in items))
 
 
 def _safe_membership_extra_source(item):
@@ -425,13 +457,19 @@ def ci_parity(root: Path):
     wrapper = (root / "scripts/ci_unit_tests.sh").read_text(encoding="utf-8")
     ci = (root / ".github/workflows/quality-baseline.yml").read_text(encoding="utf-8")
     feature = active_feature(root)
-    ci_check = next((check for check in manifest(feature)["checks"] if check["id"] == "ci_profiles"), None)
-    profile_argv = ci_check.get("argv", []) if ci_check else []
-    if profile_argv[:3] == ["mise", "exec", "--"]:
-        profile_argv = profile_argv[3:]
-    if (ci_check is None or profile_argv != ["scripts/ci_unit_tests.sh"] or
-            ci_check.get("env", {}).get("MIX_ENV") != "test" or
-            "scripts/ci_unit_tests.sh" not in ci or "for profile in unit integration" not in wrapper):
+    checks = {check["id"]: check for check in manifest(feature)["checks"]}
+    expected_profiles = {
+        "unit": ["mix", "test.unit"],
+        "integration": ["mix", "test.integration"],
+    }
+    profiles_match = all(
+        name in checks and checks[name].get("env", {}).get("MIX_ENV") == "test" and
+        checks[name].get("argv", [])[3:] == argv and
+        checks[name].get("argv", [])[:3] == ["mise", "exec", "--"]
+        for name, argv in expected_profiles.items()
+    )
+    if (not profiles_match or "scripts/ci_unit_tests.sh" not in ci or
+            "for profile in unit integration" not in wrapper):
         raise RuntimeError("CI wrapper/profile obligation is missing or mismatched")
     result = subprocess.run(["sh", "test/scripts/ci_unit_tests_test.sh"], cwd=root,
                             stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True, check=False)
@@ -488,7 +526,12 @@ def summarize_stage(root: Path, feature: Path, stage: str) -> dict:
                 from profile_safe_diagnostics import parse_profile_diagnostics
             safe_cases = parse_profile_diagnostics(root, root / row["evidence"]).get("profile_discrepancies")
         if isinstance(safe_cases, list) and safe_cases:
-            row["profile_discrepancies"] = safe_cases
+            safe_cases = [dict(case) for case in safe_cases if _safe_profile_discrepancy(case)]
+            if safe_cases:
+                row["profile_discrepancies"] = safe_cases
+        event_summaries = source.get("profile_event_summaries")
+        if _safe_profile_event_summaries(event_summaries):
+            row["profile_event_summaries"] = [dict(item) for item in event_summaries]
         if row["evidence"]:
             try:
                 from .profile_safe_diagnostics import parse_profile_diagnostics
@@ -497,6 +540,9 @@ def summarize_stage(root: Path, feature: Path, stage: str) -> dict:
             profile_details = parse_profile_diagnostics(root, root / row["evidence"])
             if not row.get("profile_discrepancies") and profile_details.get("profile_discrepancies"):
                 row["profile_discrepancies"] = profile_details["profile_discrepancies"]
+            if not row.get("profile_event_summaries") and _safe_profile_event_summaries(
+                    profile_details.get("profile_event_summaries")):
+                row["profile_event_summaries"] = profile_details["profile_event_summaries"]
             if profile_details.get("profile_categories"):
                 row["profile_categories"] = profile_details["profile_categories"]
             if profile_details.get("profile_browser_diagnostics"):

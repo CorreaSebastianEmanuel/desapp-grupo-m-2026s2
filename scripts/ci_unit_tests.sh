@@ -43,13 +43,16 @@ import sys
 profile = sys.argv[2]
 
 for line in pathlib.Path(sys.argv[1]).read_text(errors="replace").splitlines():
-    if re.fullmatch(r"PROFILE_DISCREPANCY id=[0-9a-f]{24}(?: line=[0-9]+)?", line):
+    discrepancy = re.fullmatch(r"PROFILE_DISCREPANCY id=[0-9a-f]{24}(?: line=([0-9]{1,8}))?", line)
+    if discrepancy and (discrepancy.group(1) is None or int(discrepancy.group(1)) <= 1000000):
         print(line, file=sys.stderr)
-    elif re.fullmatch(r"PROFILE_CASE_DIAGNOSTIC id=[0-9a-f]{24} runner=(?:python|node|shell|exunit) file=test/[A-Za-z0-9_./-]{1,220} case=(?:test(?:\.[A-Za-z0-9_]+)+|redacted) state=(?:failed|skipped|incomplete) cause=(?:assertion|error|skipped|incomplete) line=[0-9]{1,8} started=[0-9]{1,8} passed=[0-9]{1,8} failed=[0-9]{1,8} skipped=[0-9]{1,8}", line) and '..' not in pathlib.PurePosixPath(line.split(' file=', 1)[1].split(' case=', 1)[0]).parts:
+    elif (case := re.fullmatch(r"PROFILE_CASE_DIAGNOSTIC id=[0-9a-f]{24} runner=(?:python|node|shell|exunit) file=test/[A-Za-z0-9_./-]{1,220} case=(?:test(?:\.[A-Za-z0-9_]+)+|redacted) state=(?:failed|skipped|incomplete) cause=(?:assertion|error|skipped|incomplete) line=([0-9]{1,8}) started=([0-9]{1,8}) passed=([0-9]{1,8}) failed=([0-9]{1,8}) skipped=([0-9]{1,8})", line)) and '..' not in pathlib.PurePosixPath(line.split(' file=', 1)[1].split(' case=', 1)[0]).parts and all(int(value) <= 1000000 for value in case.groups()):
         print(line, file=sys.stderr)
     elif re.fullmatch(r"PROFILE_SAFE_DIAGNOSTIC category=openapi-browser stage=[a-z-]+", line):
         print(line, file=sys.stderr)
-    elif re.fullmatch(r"PROFILE_BROWSER_DIAGNOSTIC cause=(?:node-unavailable|node-incompatible|playwright-missing|bundled-chromium-missing|chromium-launch-failed|chromium-launch-timeout) stage=(?:integration|e2e)", line):
+    elif re.fullmatch(r"PROFILE_SAFE_DIAGNOSTIC category=browser-prerequisite cause=(?:executable-missing|dependency-missing|permission-denied|launch-timeout|launch-failed)", line):
+        print(line, file=sys.stderr)
+    elif re.fullmatch(r"PROFILE_BROWSER_DIAGNOSTIC cause=(?:executable-missing|dependency-missing|permission-denied|launch-timeout|launch-failed) stage=(?:integration|e2e)", line):
         print(line, file=sys.stderr)
     elif re.fullmatch(r"PROFILE_MEMBERSHIP_DIAGNOSTIC profile=(?:unit|integration|e2e) phase=(?:committed-file-audit|nonce-validation|event-reconciliation|coverage-audit) reason=(?:invalid-shape|duplicate-files|outside-profile|nonce-mismatch|empty-expected|extra-events|unexpected-state|missing-events|duplicate-events|missing-sidecar|missing-partition|partition-mismatch|missing-export) expected=[0-9]{1,8} observed=[0-9]{1,8} missing_started=[0-9]{1,8} missing_passed=[0-9]{1,8} extra=[0-9]{1,8} duplicate=[0-9]{1,8} invalid_state=[0-9]{1,8} wrong_nonce=[0-9]{1,8}", line):
         print(line, file=sys.stderr)

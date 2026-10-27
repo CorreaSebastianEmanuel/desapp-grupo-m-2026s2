@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "Football Market Catalog and Quote API",
+    "title": "Football Market Catalog, Quote, and Token Purchase API",
     "version": "1.2.0",
     "description": "Protected local catalog and immutable quote read APIs. Account registration, login and key issuance are not public HTTP operations. Use one reader-supplied credential in the interactive page."
   },
@@ -385,6 +385,92 @@
                       }
                     }
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/purchases": {
+      "post": {
+        "summary": "Buy available tokens using provisioned credits",
+        "operationId": "purchaseTokens",
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PurchaseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Completed purchase or identical replay",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchaseSuccess"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchaseError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchaseError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Player not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchaseError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Business refusal or key conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchaseError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporarily unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchaseError"
                 }
               }
             }
@@ -1152,6 +1238,162 @@
                 "type": "string",
                 "enum": [
                   "player_not_found"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "PurchaseRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "player_id",
+          "quantity",
+          "request_key"
+        ],
+        "properties": {
+          "player_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "request_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "\\S"
+          }
+        }
+      },
+      "Purchase": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "buyer_id",
+          "recipient_id",
+          "player_id",
+          "quote_id",
+          "request_key",
+          "unit_price",
+          "total",
+          "rule_id",
+          "rule_version",
+          "quote_effective_at",
+          "completed_at",
+          "configuration_version_id",
+          "mapping_id",
+          "quantity",
+          "performance_sequence"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "buyer_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "recipient_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "player_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "quote_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "unit_price": {
+            "type": "string",
+            "pattern": "^[0-9]+\\.[0-9]{2}$"
+          },
+          "total": {
+            "type": "string",
+            "pattern": "^[0-9]+\\.[0-9]{2}$"
+          },
+          "rule_id": {
+            "type": "string"
+          },
+          "rule_version": {
+            "type": "string"
+          },
+          "quote_effective_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "completed_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "configuration_version_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "mapping_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "performance_sequence": {
+            "type": "integer",
+            "nullable": true
+          }
+        }
+      },
+      "PurchaseSuccess": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Purchase"
+          }
+        }
+      },
+      "PurchaseError": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "object",
+            "required": [
+              "code"
+            ],
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "unauthenticated",
+                  "invalid_request",
+                  "player_not_found",
+                  "not_initialized",
+                  "quote_unavailable",
+                  "insufficient_funds",
+                  "insufficient_inventory",
+                  "key_conflict",
+                  "self_purchase",
+                  "inconsistent_state",
+                  "temporarily_unavailable"
                 ]
               }
             }

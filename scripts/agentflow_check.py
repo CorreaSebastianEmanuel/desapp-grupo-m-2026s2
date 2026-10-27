@@ -61,6 +61,9 @@ def safe_failure_diagnostics(evidence: Path, root: Path | None = None) -> dict:
     stages = []
     failures = []
     locations = []
+    browser_causes = []
+    discrepancies = []
+    event_summaries = []
     for line in evidence.read_text(encoding="utf-8", errors="replace").splitlines():
         line = line.strip()
         if re.fullmatch(r"CP1_PROFILE_STAGE (?:transactional|committed-fixture:[A-Za-z0-9_./-]+)", line):
@@ -69,11 +72,39 @@ def safe_failure_diagnostics(evidence: Path, root: Path | None = None) -> dict:
             failures.append(line.removeprefix("CP1_PROFILE_FAILURES count="))
         elif re.fullmatch(r"CP1_PROFILE_FAILURE_LOCATION (?:test/[A-Za-z0-9_./-]+\.exs:[0-9]+|unavailable)", line):
             locations.append(line.removeprefix("CP1_PROFILE_FAILURE_LOCATION "))
+        browser = re.fullmatch(
+            r"PROFILE_SAFE_DIAGNOSTIC category=browser-prerequisite cause=(executable-missing|dependency-missing|permission-denied|launch-timeout|launch-failed)",
+            line,
+        )
+        if browser:
+            browser_causes.append(browser.group(1))
+        discrepancy = re.fullmatch(r"PROFILE_DISCREPANCY id=([0-9a-f]{24})(?: line=([0-9]{1,8}))?", line)
+        if discrepancy:
+            line_number = int(discrepancy.group(2)) if discrepancy.group(2) else None
+            if line_number is None or line_number <= 1000000:
+                discrepancies.append({"id": discrepancy.group(1), "line": line_number})
+        event_summary = re.fullmatch(
+            r"PROFILE_EVENT_SUMMARY profile=(unit|integration|e2e) step=tests "
+            r"started=([0-9]{1,7}) passed=([0-9]{1,7}) failed=([0-9]{1,7}) skipped=([0-9]{1,7})",
+            line,
+        )
+        if event_summary:
+            profile, *raw_counts = event_summary.groups()
+            counts = [int(value) for value in raw_counts]
+            if all(value <= 1_000_000 for value in counts):
+                event_summaries.append(dict(profile=profile, step='tests', started=counts[0], passed=counts[1],
+                                            failed=counts[2], skipped=counts[3]))
     result = {
         "stages": stages,
         "failure_counts": failures,
         "locations": locations,
     }
+    if browser_causes:
+        result["browser_prerequisite_causes"] = browser_causes
+    if discrepancies:
+        result["profile_discrepancies"] = discrepancies
+    if event_summaries:
+        result["profile_event_summaries"] = event_summaries
     if root is not None:
         try:
             from .profile_safe_diagnostics import parse_profile_diagnostics
@@ -92,6 +123,10 @@ def run_check(root: Path, feature: Path, ident: str, *, reuse: bool = False, sta
     check = next((c for c in data["checks"] if c["id"] == ident), None)
     if check is None:
         raise RuntimeError("Unknown required check")
+    if "AGENTFLOW_CODEX_SANDBOX_MODE" in check.get("retry_env", []):
+        sandbox_mode = os.environ.get("AGENTFLOW_CODEX_SANDBOX_MODE")
+        if sandbox_mode not in ("read-only", "workspace-write", "danger-full-access"):
+            raise RuntimeError("Required sandbox mode is missing or invalid")
     stage_attempt_token = os.environ.get("AGENTFLOW_STAGE_ATTEMPT_TOKEN")
     if stage_attempt_token is not None and not re.fullmatch(r"[a-f0-9]{32}", stage_attempt_token):
         raise RuntimeError("Invalid full-stage attempt token")

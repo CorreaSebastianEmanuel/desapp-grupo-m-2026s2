@@ -221,6 +221,7 @@ defmodule Mix.Tasks.Catalog.SeedProcessTest do
 
   @agentflow_profile_env ~w(
     MIX_TEST_PARTITION
+    MIX_BUILD_PATH
     CP1_PROFILE
     PROFILE_EVENTS
     PROFILE_NONCE
@@ -321,7 +322,7 @@ defmodule Mix.Tasks.Catalog.SeedProcessTest do
 
     {output, status} =
       run_mix_cli(
-        ["run", "--no-start", "-e", script],
+        ["run", "--no-start", "--no-compile", "--no-deps-check", "-e", script],
         [
           {"MIX_ENV", "dev"},
           {"POSTGRES_HOST", "127.0.0.1"},
@@ -344,6 +345,26 @@ defmodule Mix.Tasks.Catalog.SeedProcessTest do
     refute output =~ "Postgrex"
   end
 
+  test "nested Mix invocations use the resolved executable and clear parent profile paths" do
+    script = ~S"""
+    IO.write(
+      System.get_env("MIX_ENV") <> "|" <>
+        (System.get_env("MIX_TEST_PARTITION") || "unset") <> "|" <>
+        (System.get_env("MIX_BUILD_PATH") || "unset")
+    )
+    """
+
+    {output, status} =
+      run_mix_cli(
+        ["run", "--no-start", "--no-compile", "--no-deps-check", "-e", script],
+        [{"MIX_ENV", "dev"}],
+        [{"MIX_TEST_PARTITION", "qa-parent-partition"}, {"MIX_BUILD_PATH", "qa-parent-build"}]
+      )
+
+    assert status == 0
+    assert String.ends_with?(String.trim(output), "dev|unset|unset")
+  end
+
   defp clear_catalog do
     Repo.delete_all(Player)
     Repo.delete_all(Team)
@@ -352,12 +373,24 @@ defmodule Mix.Tasks.Catalog.SeedProcessTest do
     Repo.delete_all(League)
   end
 
-  defp run_mix_cli(args, env) do
+  defp run_mix_cli(args, env, parent_env \\ []) do
+    executable = System.find_executable("mix") || raise "mix executable unavailable"
+    override_names = MapSet.new(Enum.map(env, &elem(&1, 0)))
+
+    stable_env =
+      [
+        {"MIX_ENV", nil},
+        {"MIX_TEST_PARTITION", nil},
+        {"ERL_FLAGS", "+S 4:4"},
+        {"MIX_OS_CONCURRENCY_LOCK", "0"}
+      ]
+      |> Enum.reject(fn {name, _value} -> MapSet.member?(override_names, name) end)
+
     cleared = Enum.map(@agentflow_profile_env, &{&1, nil})
 
-    System.cmd("mix", args,
+    System.cmd(executable, args,
       cd: File.cwd!(),
-      env: cleared ++ env,
+      env: stable_env ++ parent_env ++ cleared ++ env,
       stderr_to_stdout: true
     )
   end

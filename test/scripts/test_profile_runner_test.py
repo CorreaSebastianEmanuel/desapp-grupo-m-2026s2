@@ -1,4 +1,5 @@
 import contextlib
+import errno
 import importlib.util
 import io
 import json
@@ -17,6 +18,13 @@ from test_inventory import entry
 
 
 class RunnerTest(unittest.TestCase):
+    def test_profile_timeout_ceilings_allow_full_integration_without_widening_other_profiles(self):
+        self.assertEqual(runner.profile_timeout_ceiling('unit'), 600)
+        self.assertEqual(runner.profile_timeout_ceiling('integration'), 1800)
+        self.assertEqual(runner.profile_timeout_ceiling('e2e'), 180)
+        with self.assertRaisesRegex(ValueError, 'usage'):
+            runner.profile_timeout_ceiling('unknown')
+
     def test_resource_cleanup_runs_after_child_exit_and_failure_propagates(self):
         import re
         code = "import os;from pathlib import Path;Path(os.environ['PROFILE_RESOURCES']).write_text('[]');print('cleanup-secret-sentinel')"
@@ -85,29 +93,124 @@ class RunnerTest(unittest.TestCase):
             runner.run(['/definitely-missing-profile-runner'], os.environ.copy(), .1)
         self.assertIsNone(runner.child)
 
-    def test_browser_prerequisite_reports_only_closed_causes(self):
+    def test_browser_preflight_classifies_only_closed_causes_and_keeps_raw_errors_private(self):
         def completed(code=0, stdout='v24.1.0'):
             return subprocess.CompletedProcess([], code, stdout, '')
         with patch.object(runner.shutil, 'which', return_value=None):
-            self.assertEqual(runner.browser_prerequisite({'PATH': ''}, lambda *_: None), 'node-unavailable')
+            self.assertEqual(runner.browser_prerequisite({'PATH': ''}, lambda *_: None), 'executable-missing')
         with patch.object(runner.shutil, 'which', return_value='/node'), \
                 patch.object(runner.subprocess, 'run', return_value=completed(stdout='v20.1.0')):
-            self.assertEqual(runner.browser_prerequisite({'PATH': '/bin'}, lambda *_: None), 'node-incompatible')
+            self.assertEqual(runner.browser_prerequisite({'PATH': '/bin'}, lambda *_: None), 'launch-failed')
         for cause, results in (
-            ('playwright-missing', [completed(), completed(code=1, stdout='')]),
-            ('bundled-chromium-missing', [completed(), completed(), completed(code=1, stdout='')]),
+            ('dependency-missing', [completed(), completed(code=1, stdout='')]),
+            ('executable-missing', [completed(), completed(), completed(code=1, stdout='')]),
         ):
             with self.subTest(cause=cause), patch.object(runner.shutil, 'which', return_value='/node'), \
                     patch.object(runner.subprocess, 'run', side_effect=results):
                 self.assertEqual(runner.browser_prerequisite({'PATH': '/bin'}, lambda *_: None), cause)
+        for error, cause in ((OSError(errno.ENOENT, 'private-path-sentinel'), 'executable-missing'),
+                             (OSError(errno.EACCES, 'private-path-sentinel'), 'permission-denied'),
+                             (ValueError('timeout'), 'launch-timeout'),
+                             (ValueError('private-error-sentinel'), 'launch-failed')):
+            with self.subTest(cause=cause), patch.object(runner.shutil, 'which', return_value='/node'), \
+                    patch.object(runner.subprocess, 'run', side_effect=[completed(), completed(), completed()]):
+                self.assertEqual(runner.browser_prerequisite(
+                    {'PATH': '/bin'}, lambda *_args, error=error: (_ for _ in ()).throw(error)), cause)
         with patch.object(runner.shutil, 'which', return_value='/node'), \
                 patch.object(runner.subprocess, 'run', side_effect=[completed(), completed(), completed()]):
             self.assertEqual(runner.browser_prerequisite(
                 {'PATH': '/bin'}, lambda *_: (_ for _ in ()).throw(ValueError('child-failure'))),
-                'chromium-launch-failed')
+                'launch-failed')
         with patch.object(runner.shutil, 'which', return_value='/node'), \
                 patch.object(runner.subprocess, 'run', side_effect=[completed(), completed(), completed()]):
             self.assertIsNone(runner.browser_prerequisite({'PATH': '/bin'}, lambda *_: None))
+
+    def test_browser_prerequisite_uses_configured_chromium_and_default_when_unset(self):
+        completed = subprocess.CompletedProcess([], 0, 'v24.1.0', '')
+        for env in ({'PATH': '/bin', 'CHROMIUM_PATH': '/verified/chrome/chrome'}, {'PATH': '/bin'}):
+            launched = []
+            def launch(argv, child_env, _timeout):
+                launched.append((argv, child_env))
+            with self.subTest(configured='CHROMIUM_PATH' in env), \
+                    patch.object(runner.shutil, 'which', return_value='/node'), \
+                    patch.object(runner.subprocess, 'run', side_effect=[completed, completed, completed]):
+                self.assertIsNone(runner.browser_prerequisite(env, launch))
+            argv, child_env = launched[0]
+            script = argv[2]
+            self.assertIn('process.env.CHROMIUM_PATH', script)
+            self.assertEqual(child_env.get('CHROMIUM_PATH'), env.get('CHROMIUM_PATH'))
+
+    def test_browser_preflight_supervisor_timeout_emits_safe_timeout_cause(self):
+        captured = io.StringIO()
+        with patch.object(runner, 'check', return_value={'entries': []}), \
+                patch.object(runner, 'browser_prerequisite', return_value='launch-timeout'), \
+                contextlib.redirect_stderr(captured), self.assertRaisesRegex(ValueError, 'browser-prerequisite'):
+            runner.main('e2e')
+        self.assertEqual(captured.getvalue().splitlines(), [
+            'PROFILE_SAFE_DIAGNOSTIC category=browser-prerequisite cause=launch-timeout',
+            'PROFILE_BROWSER_DIAGNOSTIC cause=launch-timeout stage=e2e'])
+        self.assertNotIn('private', captured.getvalue())
+
+    def test_generated_playwright_probe_preserves_only_closed_launch_causes(self):
+        node = runner.shutil.which('node')
+        if not node:
+            self.skipTest('Node is required by the profile runner')
+        cases = (
+            ('Timeout 10000ms exceeded', None, 'launch-timeout'),
+            ('spawn chromium EACCES permission denied', 'EACCES', 'permission-denied'),
+            ('Cannot find module private-package', 'MODULE_NOT_FOUND', 'dependency-missing'),
+            ('error while loading shared libraries: libExample.so: cannot open shared object file',
+             None, 'dependency-missing'),
+            ('spawn chromium ENOENT no such file or directory', 'ENOENT', 'executable-missing'),
+            ("Executable doesn't exist at /private/browser", None, 'executable-missing'),
+            ('Host system is missing dependencies to run browsers.', None, 'dependency-missing'),
+            ('private-launch-sentinel', None, 'launch-failed'),
+        )
+        source = runner.browser_launch_probe_script()
+        for message, code, cause in cases:
+            with self.subTest(cause=cause, message=message):
+                wrapper = (
+                    "const vm=require('vm'), real=process, source=" + json.dumps(source) + ";"
+                    "const error=Object.assign(new Error(" + json.dumps(message) + ")," +
+                    json.dumps({'code': code}) + ");"
+                    "const child={env:{},stderr:real.stderr,set exitCode(value){real.exitCode=value}};"
+                    "vm.runInNewContext(source,{require:()=>({chromium:{launch:()=>Promise.reject(error)}}),process:child});"
+                    "setTimeout(()=>real.exit(real.exitCode||0),0);"
+                )
+                output = io.StringIO()
+                with contextlib.redirect_stderr(output), self.assertRaises(runner.BrowserLaunchFailure) as raised:
+                    runner.run([node, '-e', wrapper], os.environ.copy(), 5)
+                self.assertEqual(raised.exception.cause, cause)
+                self.assertNotIn('private-launch-sentinel', output.getvalue())
+                self.assertNotIn(message, output.getvalue())
+
+    def test_python_browser_probe_exceptions_map_only_closed_causes(self):
+        for error, cause in (
+            (TimeoutError('private timeout text'), 'launch-timeout'),
+            (PermissionError('private permission denied path'), 'permission-denied'),
+            (FileNotFoundError('private no such file path'), 'executable-missing'),
+            (ModuleNotFoundError('private dependency'), 'dependency-missing'),
+            (RuntimeError("Executable doesn't exist at /private/browser"), 'executable-missing'),
+            (RuntimeError('Host system is missing dependencies to run browsers.'), 'dependency-missing'),
+            (OSError('private unknown error'), 'launch-failed'),
+        ):
+            with self.subTest(cause=cause):
+                self.assertEqual(runner._browser_probe_error(error, 'launch-failed'), cause)
+
+    def test_supervisor_forwards_only_complete_safe_browser_records(self):
+        from pathlib import Path
+        evidence = io.BytesIO(b'PROFILE_SAFE_DIAGNOSTIC category=browser-prerequisite cause=launch-failed\n'
+                              b'PROFILE_SAFE_DIAGNOSTIC category=browser-prerequisite cause=launch-failed secret=x\n'
+                              b'PROFILE_SAFE_DIAGNOSTIC category=browser-prerequisite cause=private\n'
+                              b'PROFILE_BROWSER_DIAGNOSTIC cause=launch-failed stage=integration\n'
+                              b'BROWSER-RAW-CANARY private-path-sentinel\n')
+        captured = io.StringIO()
+        with contextlib.redirect_stderr(captured):
+            runner._forward_safe_browser_diagnostics(evidence)
+        self.assertEqual(captured.getvalue().splitlines(), [
+            'PROFILE_SAFE_DIAGNOSTIC category=browser-prerequisite cause=launch-failed',
+            'PROFILE_BROWSER_DIAGNOSTIC cause=launch-failed stage=integration'])
+        self.assertNotIn('CANARY', captured.getvalue())
 
     def test_hard_kill_cannot_retain_a_previous_complete_receipt(self):
         import time
@@ -140,7 +243,7 @@ class RunnerTest(unittest.TestCase):
             Path(env['PROFILE_EVENTS']).write_text(''.join(json.dumps(value)+'\n' for value in events))
             raise ValueError('child-failure')
         captured = io.StringIO()
-        with patch.object(runner, 'check', return_value={'entries':[case]}), patch.object(runner, 'run', side_effect=fake), contextlib.redirect_stderr(captured):
+        with patch.object(runner, 'check', return_value={'entries':[case]}), patch.object(runner, 'browser_prerequisite', return_value=None), patch.object(runner, 'run', side_effect=fake), contextlib.redirect_stderr(captured):
             with self.assertRaises(ValueError):
                 runner.main('unit')
         output = captured.getvalue()
@@ -150,6 +253,60 @@ class RunnerTest(unittest.TestCase):
         self.assertNotIn(case['case_id'], captured.getvalue())
         self.assertEqual(runner.failure_cause('exunit', [{'state': 'failed'}], 1, 0), 'error')
         self.assertEqual(runner.failure_cause('python', [{'state': 'failed'}], 1, 0), 'assertion')
+
+    def test_unregistered_failure_event_never_emits_case_identity(self):
+        expected = entry('python', 'test/scripts/expected_test.py', 'test.expected.Case.test_known', 'unit')
+        exunit = entry('exunit', 'test/expected_test.exs', 'Expected:test known', 'unit')
+        unregistered_id = 'test.scripts.unregistered_test.Case.test_private_marker'
+        unregistered = entry('python', 'test/scripts/unregistered_test.py', unregistered_id, 'unit')
+        def fake(argv, env, _timeout):
+            if argv[0] != 'mix':
+                return
+            events = [dict(nonce=env['PROFILE_NONCE'], runner=unregistered['runner'],
+                           file=unregistered['file'], case_id=unregistered['case_id'], state='started'),
+                      dict(nonce=env['PROFILE_NONCE'], runner=unregistered['runner'],
+                           file=unregistered['file'], case_id=unregistered['case_id'], state='failed',
+                           cause='assertion', failure_line=17)]
+            Path(env['PROFILE_EVENTS']).write_text(''.join(json.dumps(value)+'\n' for value in events))
+            raise ValueError('child-failure')
+        captured = io.StringIO()
+        with patch.object(runner, 'check', return_value={'entries':[expected, exunit]}), \
+                patch.object(runner, 'run', side_effect=fake), contextlib.redirect_stderr(captured):
+            with self.assertRaises(ValueError):
+                runner.main('unit')
+        self.assertNotIn(unregistered_id, captured.getvalue())
+        self.assertNotIn('PROFILE_CASE_DIAGNOSTIC', captured.getvalue())
+
+    def test_mix_test_failure_emits_only_aggregate_lifecycle_counts(self):
+        case = entry('exunit', 'test/fake_test.exs', 'Fake:test secret_case_name', 'unit')
+        def fake(argv, env, timeout):
+            if argv[0] != 'mix':
+                return
+            events = [
+                dict(nonce=env['PROFILE_NONCE'], runner='exunit', file=case['file'], case_id=case['case_id'], state='started'),
+                dict(nonce=env['PROFILE_NONCE'], runner='exunit', file=case['file'], case_id=case['case_id'], state='failed', error='secret assertion'),
+            ]
+            Path(env['PROFILE_EVENTS']).write_text(''.join(json.dumps(value)+'\n' for value in events))
+            raise ValueError('child-failure')
+        captured = io.StringIO()
+        with patch.object(runner, 'check', return_value={'entries':[case]}), patch.object(runner, 'run', side_effect=fake), contextlib.redirect_stderr(captured):
+            with self.assertRaises(ValueError):
+                runner.main('unit')
+        output = captured.getvalue()
+        self.assertIn('PROFILE_EVENT_SUMMARY profile=unit step=tests started=1 passed=0 failed=1 skipped=0', output)
+        self.assertNotIn('secret_case_name', output)
+        self.assertNotIn('secret assertion', output)
+
+    def test_mix_failure_before_any_test_event_emits_zero_summary(self):
+        case = entry('exunit', 'test/fake_test.exs', 'Fake:test case', 'unit')
+        def fake(argv, _env, _timeout):
+            if argv[0] == 'mix':
+                raise ValueError('child-failure')
+        captured = io.StringIO()
+        with patch.object(runner, 'check', return_value={'entries':[case]}), patch.object(runner, 'run', side_effect=fake), contextlib.redirect_stderr(captured):
+            with self.assertRaises(ValueError):
+                runner.main('unit')
+        self.assertIn('PROFILE_EVENT_SUMMARY profile=unit step=tests started=0 passed=0 failed=0 skipped=0', captured.getvalue())
 
     def test_membership_diagnostic_is_aggregate_and_never_prints_case_ids(self):
         from test_inventory import reconcile_diagnostics
@@ -184,7 +341,7 @@ class RunnerTest(unittest.TestCase):
             tests = [(argv, env) for argv, env in calls if argv[:2] == ['mix', 'test']]
             self.assertEqual(len(tests), 2)
             self.assertEqual(tests[0][0][-1], files[0])
-            self.assertEqual(tests[0][1], None)
+            self.assertEqual(tests[0][1]['POSTGRES_PORT'], '55435')
             self.assertEqual(tests[1][0][-1], files[1])
             self.assertRegex(tests[1][1]['MIX_TEST_PARTITION'], r'^profile[a-f0-9]{32}_c0$')
             self.assertEqual(tests[1][1]['POSTGRES_PORT'], '55435')

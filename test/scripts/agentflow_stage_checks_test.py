@@ -465,6 +465,73 @@ except RuntimeError as error:
 
 
 class StageSummaryTest(unittest.TestCase):
+    def test_safe_command_and_stage_summary_preserve_complete_profile_details(self):
+        import subprocess as subprocess_module
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp); feature = root / 'feature'; feature.mkdir()
+            (feature / 'spec.md').write_text('FR-001\n')
+            (feature / 'verification.json').write_text(json.dumps({
+                'schema_version': 1, 'runtime_required': False,
+                'checks': [{'id': 'ci_profiles', 'argv': ['true']}],
+                'coverage': {'FR-001': ['ci_profiles']},
+            }))
+            detail = {'id': 'a' * 24, 'runner': 'python', 'file': 'test/scripts/example_test.py',
+                      'case_id': 'redacted', 'profile': 'unit', 'state': 'failed', 'cause': 'assertion',
+                      'failure_line': 41, 'started': 1, 'passed': 0, 'failed': 1, 'skipped': 0}
+            summary = {'profile': 'unit', 'step': 'tests', 'started': 12, 'passed': 10,
+                       'failed': 1, 'skipped': 1}
+            payload = {'check': 'ci_profiles', 'exit_code': 1,
+                       'evidence': '.agentflow/runs/checks/feature/failure.log',
+                       'failure_diagnostics': {'profile_discrepancies': [detail,
+                           {'id': 'b' * 24, 'runner': 'python', 'file': 'test/private_test.py',
+                            'case_id': 'private-case', 'profile': 'unit', 'state': 'secret',
+                            'cause': 'private', 'failure_line': 1, 'started': 1, 'passed': 0,
+                            'failed': 1, 'skipped': 0}],
+                           'profile_event_summaries': [summary,
+                               {'profile': 'unit', 'step': 'private', 'started': 1, 'passed': 0,
+                                'failed': 1, 'skipped': 0}],
+                           'raw': 'PROFILE-DETAIL-SECRET-CANARY'}}
+            completed = subprocess_module.CompletedProcess([], 1, json.dumps(payload) + '\n', '')
+            with patch.object(stage_checks.subprocess, 'run', return_value=completed):
+                command = stage_checks._safe_command({'id': 'ci_profiles'}, root, 'develop', False)
+            self.assertEqual(command['profile_discrepancies'], [detail])
+            self.assertEqual(command['profile_event_summaries'], [summary])
+            self.assertNotIn('PROFILE-DETAIL-SECRET-CANARY', json.dumps(command))
+            journal = root / '.agentflow/runs/checks/stage-journals/feature/develop.json'
+            journal.parent.mkdir(parents=True)
+            journal.write_text(json.dumps({'stage': 'develop', 'checks': [
+                {'id': 'ci_profiles', **command}]}))
+            row = stage_checks.summarize_stage(root, feature, 'develop')['checks'][0]
+            self.assertEqual(row['profile_discrepancies'], [detail])
+            self.assertEqual(row['profile_event_summaries'], [summary])
+            self.assertNotIn('PROFILE-DETAIL-SECRET-CANARY', json.dumps(row))
+
+    def test_stage_summary_recovers_registered_event_summary_from_safe_evidence(self):
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp); feature = root / 'feature'; feature.mkdir()
+            (feature / 'spec.md').write_text('FR-001\n')
+            (feature / 'verification.json').write_text(json.dumps({
+                'schema_version': 1, 'runtime_required': False,
+                'checks': [{'id': 'ci_profiles', 'argv': ['true']}],
+                'coverage': {'FR-001': ['ci_profiles']},
+            }))
+            inventory = root / 'config/test_profiles.json'; inventory.parent.mkdir()
+            inventory.write_text(json.dumps({'schema_version': 1, 'entries': []}))
+            evidence = root / '.agentflow/runs/checks/feature/failure.log'; evidence.parent.mkdir(parents=True)
+            evidence.write_text('PROFILE_EVENT_SUMMARY profile=integration step=tests started=4 passed=3 failed=1 skipped=0\n'
+                                'PROFILE_EVENT_SUMMARY profile=unit step=private started=99 passed=99 failed=0 skipped=0\n')
+            journal = root / '.agentflow/runs/checks/stage-journals/feature/develop.json'
+            journal.parent.mkdir(parents=True)
+            journal.write_text(json.dumps({'stage': 'develop', 'checks': [
+                {'id': 'ci_profiles', 'status': 'failed',
+                 'evidence': '.agentflow/runs/checks/feature/failure.log'}]}))
+            row = stage_checks.summarize_stage(root, feature, 'develop')['checks'][0]
+            self.assertEqual(row['profile_event_summaries'], [
+                {'profile': 'integration', 'step': 'tests', 'started': 4, 'passed': 3,
+                 'failed': 1, 'skipped': 0}])
+
     def test_summary_maps_only_registered_profile_case_and_safe_category(self):
         import hashlib
         with tempfile.TemporaryDirectory() as temp:
@@ -475,15 +542,21 @@ class StageSummaryTest(unittest.TestCase):
                 "checks": [{"id": "ci_profiles", "argv": ["true"]}],
                 "coverage": {"FR-001": ["ci_profiles"]},
             }))
-            runner, file, case_id, profile = "python", "test/scripts/example_test.py", "Example.test_case", "unit"
+            runner, file, case_id, profile = "python", "test/scripts/example_test.py", "test.scripts.example_test.Example.test_case", "unit"
             ident = hashlib.sha256("\0".join((runner, file, case_id)).encode()).hexdigest()[:24]
+            oversized_case = "test.scripts.example_test.Example.test_oversized_line"
+            oversized_ident = hashlib.sha256("\0".join((runner, file, oversized_case)).encode()).hexdigest()[:24]
             inventory = root / "config/test_profiles.json"; inventory.parent.mkdir()
             inventory.write_text(json.dumps({"schema_version": 1, "entries": [
-                {"id": ident, "runner": runner, "file": file, "case_id": case_id, "profile": profile}]}))
+                {"id": ident, "runner": runner, "file": file, "case_id": case_id, "profile": profile},
+                {"id": oversized_ident, "runner": runner, "file": file,
+                 "case_id": oversized_case, "profile": profile}]}))
             evidence = root / ".agentflow/runs/checks/feature/failure.log"; evidence.parent.mkdir(parents=True)
             evidence.write_text(f"PROFILE_DISCREPANCY id={ident} line=41\n"
+                                f"PROFILE_DISCREPANCY id={ident} line=1000001\n"
+                                f"PROFILE_DISCREPANCY id={oversized_ident} line=1000001\n"
                                 "PROFILE_DISCREPANCY id=aaaaaaaaaaaaaaaaaaaaaaaa line=91\n"
-                                "PROFILE_BROWSER_DIAGNOSTIC cause=playwright-missing stage=integration\n"
+                                "PROFILE_BROWSER_DIAGNOSTIC cause=dependency-missing stage=integration\n"
                                 "PROFILE_BROWSER_DIAGNOSTIC cause=secret-canary stage=integration\n"
                                 "PROFILE_MEMBERSHIP_DIAGNOSTIC profile=unit phase=nonce-validation reason=nonce-mismatch expected=9 observed=9 missing_started=0 missing_passed=0 extra=0 duplicate=0 invalid_state=0 wrong_nonce=2\n"
                                 "PROFILE_MEMBERSHIP_DIAGNOSTIC profile=unit phase=nonce-validation reason=secret-canary expected=9 observed=9 missing_started=0 missing_passed=0 extra=0 duplicate=0 invalid_state=0 wrong_nonce=2\n"
@@ -501,7 +574,7 @@ class StageSummaryTest(unittest.TestCase):
                 "file": file, "case_id": case_id, "profile": profile, "failure_line": 41}])
             self.assertEqual(row["profile_categories"], ["test-failure"])
             self.assertEqual(row["profile_browser_diagnostics"],
-                             [{"cause": "playwright-missing", "stage": "integration"}])
+                             [{"cause": "dependency-missing", "stage": "integration"}])
             self.assertEqual(row["profile_membership_diagnostics"], [{"profile": "unit",
                 "phase": "nonce-validation", "reason": "nonce-mismatch", "expected": 9, "observed": 9,
                 "missing_started": 0, "missing_passed": 0, "extra": 0, "duplicate": 0,
@@ -510,6 +583,7 @@ class StageSummaryTest(unittest.TestCase):
                 "runner": "python", "file": "test/scripts/example_test.py"}])
             self.assertNotIn("RAW-TRACE-CANARY", json.dumps(row))
             self.assertNotIn("aaaaaaaaaaaaaaaaaaaaaaaa", json.dumps(row))
+            self.assertNotIn(oversized_ident, json.dumps(row))
 
     def test_safe_command_preserves_only_allowlisted_browser_cause(self):
         import subprocess as subprocess_module
@@ -518,13 +592,13 @@ class StageSummaryTest(unittest.TestCase):
             payload = {"check": "ci_profiles", "exit_code": 1,
                 "evidence": ".agentflow/runs/checks/feature/failure.log",
                 "failure_diagnostics": {"profile_browser_diagnostics": [
-                    {"cause": "chromium-launch-failed", "stage": "integration"}],
+                    {"cause": "launch-failed", "stage": "integration"}],
                     "raw": "RAW-DETAIL-CANARY"}}
             completed = subprocess_module.CompletedProcess([], 1, json.dumps(payload) + "\n", "")
             with patch.object(stage_checks.subprocess, "run", return_value=completed):
                 result = stage_checks._safe_command({"id": "ci_profiles"}, root, "develop", False)
             self.assertEqual(result["profile_browser_diagnostics"],
-                             [{"cause": "chromium-launch-failed", "stage": "integration"}])
+                             [{"cause": "launch-failed", "stage": "integration"}])
             self.assertNotIn("RAW-DETAIL-CANARY", json.dumps(result))
 
     def test_summary_exposes_only_registered_ids_and_safe_allowlisted_fields(self):
@@ -552,6 +626,40 @@ class StageSummaryTest(unittest.TestCase):
                 "evidence": ".agentflow/runs/checks/feature/failure.log"}])
             self.assertNotIn("CANARY-DO-NOT-LEAK", encoded)
             self.assertNotIn("unregistered-secret-id", encoded)
+
+
+class CiParityTest(unittest.TestCase):
+    def test_ci_parity_accepts_unit_and_integration_profile_pair_and_rejects_mismatch(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            feature = root / "feature"
+            feature.mkdir()
+            (feature / "spec.md").write_text("FR-001\n")
+            (root / ".agentflow").mkdir()
+            (root / ".specify/workflows/desapp-delivery").mkdir(parents=True)
+            workflow = ('- id: ci_baseline\n  run: "python3 scripts/agentflow_stage_checks.py --ci-parity"\n')
+            (root / ".agentflow/workflow.yml").write_text(workflow)
+            (root / ".specify/workflows/desapp-delivery/workflow.yml").write_text(workflow)
+            (root / ".github/workflows").mkdir(parents=True)
+            (root / ".github/workflows/quality-baseline.yml").write_text("run: scripts/ci_unit_tests.sh\n")
+            (root / "scripts").mkdir()
+            (root / "scripts/ci_unit_tests.sh").write_text("for profile in unit integration; do :; done\n")
+            fixture = root / "test/scripts"
+            fixture.mkdir(parents=True)
+            (fixture / "ci_unit_tests_test.sh").write_text("#!/bin/sh\nexit 0\n")
+            data = {"schema_version": 1, "runtime_required": False, "checks": [
+                {"id": "unit", "argv": ["mise", "exec", "--", "mix", "test.unit"],
+                 "env": {"MIX_ENV": "test"}},
+                {"id": "integration", "argv": ["mise", "exec", "--", "mix", "test.integration"],
+                 "env": {"MIX_ENV": "test"}},
+            ], "coverage": {"FR-001": ["unit", "integration"]}}
+            (feature / "verification.json").write_text(json.dumps(data))
+            with patch.object(stage_checks, "active_feature", return_value=feature):
+                self.assertEqual(stage_checks.ci_parity(root)["profiles"], ["unit", "integration"])
+                data["checks"][1]["argv"] = ["mise", "exec", "--", "mix", "test.unit"]
+                (feature / "verification.json").write_text(json.dumps(data))
+                with self.assertRaisesRegex(RuntimeError, "wrapper/profile obligation"):
+                    stage_checks.ci_parity(root)
 
     def test_summary_fails_closed_for_bad_status_category_and_evidence(self):
         with tempfile.TemporaryDirectory() as temp:

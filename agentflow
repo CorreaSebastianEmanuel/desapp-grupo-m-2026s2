@@ -5,6 +5,7 @@ sys.dont_write_bytecode=True
 from scripts.agentflow_runtime import Console, metrics_summary
 from scripts import agentflow_models as models
 from scripts import agentflow_providers as providers
+from scripts import agentflow_codex as codex_launcher
 from scripts.agentflow_feature import (expected_branch, resolve_feature, contained_file, require_reports, complete_reviewed_task, task_for_id, metadata as task_metadata, parsed_metadata)
 from datetime import datetime, timezone
 from pathlib import Path
@@ -804,6 +805,10 @@ def verify(a):
     )
     if a.dry_run: print(f"Would verify {a.task} with {selected}"); return 0
     cmd=providers.command(selected,ROOT,prompt,model=verify_model)
+    if selected == "codex":
+        sandbox_mode = codex_launcher.resolve_sandbox_mode(cmd, root=ROOT)
+        approval_policy = codex_launcher.resolve_approval_policy(cmd)
+        cmd = codex_launcher.sandbox_launch_args(cmd, sandbox_mode, approval_policy)
     code=subprocess.run(cmd,cwd=ROOT).returncode
     if verification_passed(task,feature,code):
         field(task,"status","review")

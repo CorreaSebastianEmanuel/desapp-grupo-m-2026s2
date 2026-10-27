@@ -91,8 +91,10 @@ class LauncherTest(DeliveryFixture):
         fake.chmod(0o755)
         specify=self.write('fixture-bin/specify', '#!'+sys.executable+'\nimport os,subprocess,sys\ncode=subprocess.call([os.environ["SPECKIT_INTEGRATION_CODEX_EXECUTABLE"],"exec","Agentflow stage: develop"])\nsys.exit(code)\n')
         specify.chmod(0o755)
-        self.environment={**os.environ,'PATH':str(fake.parent)+os.pathsep+os.environ['PATH'],'CAPTURE':str(self.capture),
-                          'AGENTFLOW_CODEX_REAL':str(fake)}
+        base_environment={key:value for key,value in os.environ.items() if not key.startswith('AGENTFLOW_')}
+        self.environment={**base_environment,'PATH':str(fake.parent)+os.pathsep+os.environ['PATH'],'CAPTURE':str(self.capture),
+                          'AGENTFLOW_CODEX_REAL':str(fake),
+                          'CODEX_HOME':str(self.root/'codex-home')}
         self.baseline()
 
     def invoke(self,*args):
@@ -137,6 +139,8 @@ class LauncherTest(DeliveryFixture):
     def test_each_stage_materializes_approved_pair_in_actual_child_argv(self):
         import hashlib
         from scripts.agentflow_models import resolve,save,STAGES
+        self.assertEqual({key for key in self.environment if key.startswith('AGENTFLOW_')},
+                         {'AGENTFLOW_CODEX_REAL'})
         task=self.root/'backlog/TASK-003-example.md'
         selection=resolve(self.root,task,SimpleNamespace())
         path=save(self.root,selection)
@@ -194,3 +198,153 @@ class LauncherTest(DeliveryFixture):
         for args in (['exec','--profile','ambient'],['exec','--model','unsupported'],['exec','-c','model="other"'],['exec','-c','model_reasoning_effort="low"']):
             with self.subTest(args=args),self.assertRaises(RuntimeError):
                 launch_args(args,{'model':'gpt-6-luna','effort':'high'},'develop')
+
+    def test_sandbox_resolution_uses_configured_default_and_normalizes_explicit_selection(self):
+        from scripts.agentflow_codex import resolve_approval_policy, resolve_sandbox_mode, sandbox_launch_args
+        config_home = self.root/'codex-home'
+        config_home.mkdir()
+        config = config_home/'config.toml'
+        config.write_text('sandbox_mode = "danger-full-access"\napproval_policy = "never"\n')
+        env = {'CODEX_HOME': str(config_home), 'AGENTFLOW_CODEX_SANDBOX_MODE': 'stale'}
+        self.assertEqual(resolve_sandbox_mode(['exec'], env=env, root=self.root), 'danger-full-access')
+        cases = [
+            (['exec', '--sandbox', 'read-only'], 'read-only'),
+            (['exec', '--sandbox=workspace-write'], 'workspace-write'),
+            (['exec', '-s', 'danger-full-access'], 'danger-full-access'),
+            (['exec', '-sdanger-full-access'], 'danger-full-access'),
+            (['exec', '-c', 'sandbox_mode="read-only"'], 'read-only'),
+            (['exec', '--config=sandbox_mode="read-only"'], 'read-only'),
+        ]
+        for args, expected in cases:
+            with self.subTest(args=args):
+                self.assertEqual(resolve_sandbox_mode(args, env=env, root=self.root), expected)
+                shaped = sandbox_launch_args(args, expected)
+                self.assertEqual(sum(arg == '--sandbox' for arg in shaped), 1)
+                self.assertEqual(shaped[shaped.index('--sandbox') + 1], expected)
+                self.assertFalse(any(arg.startswith('-c') and 'sandbox_mode' in arg for arg in shaped))
+
+        self.assertEqual(resolve_approval_policy(['exec'], env=env, root=self.root), 'never')
+        full_access = sandbox_launch_args(['exec', '--approve-for-me', '--json'], 'danger-full-access', 'never')
+        self.assertNotIn('--approve-for-me', full_access)
+        self.assertEqual(full_access[full_access.index('--sandbox') + 1], 'danger-full-access')
+        workspace_write = sandbox_launch_args(['exec', '--approve-for-me', '--json'], 'workspace-write', 'never')
+        self.assertIn('--approve-for-me', workspace_write)
+        for approval in ('on-request', 'untrusted', None):
+            with self.subTest(approval=approval), self.assertRaisesRegex(RuntimeError, 'approval policy'):
+                sandbox_launch_args(['exec', '--approve-for-me'], 'danger-full-access', approval)
+        for approval in ('on-request', 'untrusted'):
+            with self.subTest(preserved_approval=approval):
+                shaped = sandbox_launch_args(['exec', '--approve-for-me'], 'workspace-write', approval)
+                self.assertIn('--approve-for-me', shaped)
+
+    def test_sandbox_cli_and_config_disagreement_refuses(self):
+        from scripts.agentflow_codex import resolve_sandbox_mode
+        conflicting = [
+            ['exec', '--sandbox', 'danger-full-access', '-c', 'sandbox_mode="workspace-write"'],
+            ['exec', '-sworkspace-write', '--config=sandbox_mode="read-only"'],
+        ]
+        for args in conflicting:
+            with self.subTest(args=args), self.assertRaisesRegex(RuntimeError, 'sandbox policy'):
+                resolve_sandbox_mode(args, env={}, root=self.root,
+                                     config_path=self.root/'missing-config.toml')
+
+    def test_sandbox_resolution_defaults_to_workspace_write_only_when_unconfigured(self):
+        from scripts.agentflow_codex import resolve_sandbox_mode
+        self.assertEqual(resolve_sandbox_mode(['exec'], env={}, root=self.root,
+                                              config_path=self.root/'missing-config.toml'), 'workspace-write')
+
+    def test_ambiguous_sandbox_policy_refuses_before_spawn_without_leaking_config(self):
+        from scripts.agentflow_codex import resolve_sandbox_mode
+        invalid = [
+            ['exec', '--sandbox', 'workspace-write', '--sandbox', 'read-only'],
+            ['exec', '--sandbox', 'workspace-write', '-s', 'read-only'],
+            ['exec', '-c', 'sandbox_mode="workspace-write"', '-c', 'sandbox_mode="read-only"'],
+            ['exec', '--sandbox', 'danger-full-access', '-c', 'sandbox_mode="workspace-write"'],
+            ['exec', '--sandbox', 'unknown-secret-value'],
+            ['exec', '-c', 'sandbox_mode = ["secret-sentinel"]'],
+            ['exec', '--full-auto'],
+            ['exec', '--dangerously-bypass-approvals-and-sandbox'],
+        ]
+        for args in invalid:
+            with self.subTest(args=args), self.assertRaises(RuntimeError) as caught:
+                resolve_sandbox_mode(args, env={}, root=self.root)
+            self.assertNotIn('secret-sentinel', str(caught.exception))
+        self.write('.codex/config.toml', 'sandbox_mode = "read-only"\n')
+        with self.assertRaisesRegex(RuntimeError, 'Unable to resolve sandbox policy'):
+            resolve_sandbox_mode(['exec'], env={}, root=self.root,
+                                 config_path=self.root/'missing-config.toml')
+
+    def test_approval_policy_resolution_requires_never_for_full_access_preset_removal(self):
+        from scripts.agentflow_codex import resolve_approval_policy
+        config = self.root/'approval.toml'
+        for policy in ('never', 'on-request', 'untrusted'):
+            config.write_text(f'approval_policy = "{policy}"\n')
+            self.assertEqual(resolve_approval_policy(['exec'], env={}, root=self.root, config_path=config), policy)
+        config.write_text('approval_policy = "on-request"\n')
+        with self.assertRaisesRegex(RuntimeError, 'approval policy'):
+            resolve_approval_policy(['exec', '-c', 'approval_policy="never"'], env={}, root=self.root,
+                                    config_path=config)
+
+    def test_launcher_forwards_resolved_mode_and_safe_metadata_overwrites_inherited_value(self):
+        import os
+        from unittest.mock import patch
+        from scripts.agentflow_codex import main
+        fake = self.root/'fake-codex'
+        fake.write_text('#!/bin/sh\nexit 0\n')
+        fake.chmod(0o755)
+        metrics = self.root/'metrics.jsonl'
+        config_home = self.root/'codex-home'
+        config_home.mkdir()
+        (config_home/'config.toml').write_text('approval_policy = "never"\n')
+        env = {'AGENTFLOW_CODEX_REAL': str(fake), 'AGENTFLOW_TASK_ID': 'TASK-003',
+               'CODEX_HOME': str(config_home),
+               'AGENTFLOW_METRICS_FILE': str(metrics), 'AGENTFLOW_CODEX_SANDBOX_MODE': 'raw-secret'}
+        captured = {}
+        class Child:
+            stdout = []
+            def wait(self): return 0
+        def popen(argv, **kwargs):
+            captured.update(argv=argv, env=kwargs.get('env'))
+            return Child()
+        with patch.dict(os.environ, env, clear=True), \
+                patch('scripts.agentflow_preflight.evaluate', return_value={'ready': True, 'prerequisites': []}), \
+                patch('scripts.agentflow_codex.subprocess.Popen', side_effect=popen):
+            self.assertEqual(main(['exec', '--approve-for-me', '-c', 'sandbox_mode="danger-full-access"']), 0)
+        self.assertEqual(captured['env']['AGENTFLOW_CODEX_SANDBOX_MODE'], 'danger-full-access')
+        self.assertEqual(captured['argv'].count('--sandbox'), 1)
+        self.assertNotIn('--approve-for-me', captured['argv'])
+        events = [json.loads(line) for line in metrics.read_text().splitlines()]
+        self.assertEqual(events[0]['sandbox_mode'], 'danger-full-access')
+        self.assertNotIn('raw-secret', metrics.read_text())
+
+    def test_workspace_write_keeps_loopback_network_and_model_options(self):
+        import os
+        from unittest.mock import patch
+        from scripts.agentflow_codex import main
+        fake = self.root/'fake-codex'
+        fake.write_text('#!/bin/sh\nexit 0\n')
+        fake.chmod(0o755)
+        metrics = self.root/'metrics.jsonl'
+        captured = {}
+        class Child:
+            stdout = []
+            def wait(self): return 0
+        def popen(argv, **kwargs):
+            captured.update(argv=argv, env=kwargs.get('env'))
+            return Child()
+        env = {'AGENTFLOW_CODEX_REAL': str(fake), 'AGENTFLOW_TASK_ID': 'TASK-003',
+               'AGENTFLOW_METRICS_FILE': str(metrics), 'HOME': str(self.root),
+               'CODEX_HOME': str(self.root/'empty-codex-home')}
+        with patch.dict(os.environ, env, clear=True), \
+                patch('scripts.agentflow_preflight.evaluate', return_value={'ready': True, 'prerequisites': []}), \
+                patch('scripts.agentflow_codex.subprocess.Popen', side_effect=popen):
+            self.assertEqual(main(['exec', '--model', 'gpt-6-luna', '-c',
+                                   'model_reasoning_effort="high"', '-c',
+                                   'sandbox_mode="workspace-write"']), 0)
+        args = captured['argv']
+        self.assertIn('sandbox_workspace_write.network_access=true', args)
+        self.assertIn('--sandbox', args)
+        self.assertEqual(args[args.index('--sandbox') + 1], 'workspace-write')
+        self.assertIn('--model', args)
+        self.assertEqual(args[args.index('--model') + 1], 'gpt-6-luna')
+        self.assertIn('model_reasoning_effort="high"', args)

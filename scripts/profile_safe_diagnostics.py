@@ -7,17 +7,29 @@ import re
 from pathlib import Path
 
 _MARKER = re.compile(r"^PROFILE_DISCREPANCY id=([0-9a-f]{24})(?: line=([0-9]{1,8}))?$")
+_CASE_DIAGNOSTIC = re.compile(
+    r"^PROFILE_CASE_DIAGNOSTIC id=([0-9a-f]{24}) runner=(exunit|python|node|shell) "
+    r"file=((?:test|tools)/[A-Za-z0-9_./-]{1,220}) case=([A-Za-z0-9_.:-]+|redacted) "
+    r"state=(failed|skipped|incomplete) cause=(assertion|error|skipped|incomplete) "
+    r"line=([0-9]{1,8}) started=([0-9]{1,8}) passed=([0-9]{1,8}) "
+    r"failed=([0-9]{1,8}) skipped=([0-9]{1,8})$"
+)
 _RUNNERS = {"exunit", "python", "node", "shell"}
 _PROFILES = {"unit", "integration", "e2e"}
+_CONVENTIONAL_CASE_ID = re.compile(r"test(?:\.[A-Za-z0-9_]+)+$")
 _CATEGORIES = {"usage", "timeout", "resource-cleanup", "browser-prerequisite", "test-failure",
                "component-failure", "docker-prerequisite", "execution-membership",
                "inventory-or-service-prerequisite", "profile"}
 _SAFE_CATEGORY = re.compile(r"^(?:PROFILE_SAFE_DIAGNOSTIC category=openapi-browser stage=[a-z-]+|CP1_PROFILE_OUTCOME status=failed category=[a-z-]+|CI_PROFILE status=failed category=profile)$")
 _PROFILE_FAILURE = re.compile(r"^CI_PROFILE_DIAGNOSTIC profile=(unit|integration) category=(" + "|".join(sorted(_CATEGORIES)) + r")$")
 _PROFILE_STEP = re.compile(r"^PROFILE_STEP_DIAGNOSTIC profile=(unit|integration|e2e) step=(prepare|tests|audit|cleanup|component) partition=(regular|committed-[0-9]{1,3}|unknown)$")
+_PROFILE_EVENT_SUMMARY = re.compile(
+    r"^PROFILE_EVENT_SUMMARY profile=(unit|integration|e2e) step=tests "
+    r"started=([0-9]{1,7}) passed=([0-9]{1,7}) failed=([0-9]{1,7}) skipped=([0-9]{1,7})$"
+)
 _BROWSER_DIAGNOSTIC = re.compile(
-    r"^PROFILE_BROWSER_DIAGNOSTIC cause=(node-unavailable|node-incompatible|playwright-missing|"
-    r"bundled-chromium-missing|chromium-launch-failed|chromium-launch-timeout) stage=(integration|e2e)$")
+    r"^PROFILE_BROWSER_DIAGNOSTIC cause=(executable-missing|dependency-missing|permission-denied|"
+    r"launch-timeout|launch-failed) stage=(integration|e2e)$")
 _MEMBERSHIP_DIAGNOSTIC = re.compile(
     r"^PROFILE_MEMBERSHIP_DIAGNOSTIC profile=(unit|integration|e2e) "
     r"phase=(committed-file-audit|nonce-validation|event-reconciliation|coverage-audit) "
@@ -51,7 +63,8 @@ def registered_profiles(root: Path) -> dict[str, dict]:
         calculated = hashlib.sha256("\0".join((runner, file, case_id)).encode()).hexdigest()[:24]
         if ident == calculated and ident not in result:
             result[ident] = {"id": ident, "runner": runner, "file": file,
-                             "case_id": case_id, "profile": profile}
+                             "case_id": case_id if _CONVENTIONAL_CASE_ID.fullmatch(case_id) else "redacted",
+                             "profile": profile}
     return result
 
 
@@ -71,6 +84,7 @@ def parse_profile_diagnostics(root: Path, evidence: Path) -> dict:
         membership_extra_sources = set()
         profile_failures = set()
         profile_steps = set()
+        profile_event_summaries = set()
         with resolved.open("r", encoding="utf-8", errors="replace") as stream:
             for line in stream:
                 value = line.rstrip("\r\n")
@@ -85,6 +99,12 @@ def parse_profile_diagnostics(root: Path, evidence: Path) -> dict:
                 profile_step = _PROFILE_STEP.fullmatch(value)
                 if profile_step:
                     profile_steps.add(profile_step.groups())
+                event_summary = _PROFILE_EVENT_SUMMARY.fullmatch(value)
+                if event_summary:
+                    fields = event_summary.groups()
+                    counts = tuple(int(item) for item in fields[1:])
+                    if all(count <= 1_000_000 for count in counts):
+                        profile_event_summaries.add((fields[0], "tests", *counts))
                 browser = _BROWSER_DIAGNOSTIC.fullmatch(value)
                 if browser:
                     browser_diagnostics.add((browser.group(1), browser.group(2)))
@@ -99,13 +119,29 @@ def parse_profile_diagnostics(root: Path, evidence: Path) -> dict:
                     if any((item["runner"], item["file"]) == source[1:] for item in registered.values()):
                         membership_extra_sources.add(source)
                 match = _MARKER.fullmatch(value)
-                if match and match.group(1) in registered:
+                if (match and match.group(1) in registered and
+                        (match.group(2) is None or int(match.group(2)) <= 1_000_000)):
                     identity = dict(registered[match.group(1)])
                     if match.group(2) and int(match.group(2)) > 0:
                         identity["failure_line"] = int(match.group(2))
                     found[match.group(1)] = identity
                     if len(found) >= 100:
                         break
+                case = _CASE_DIAGNOSTIC.fullmatch(value)
+                if case:
+                    fields = case.groups()
+                    identity = registered.get(fields[0])
+                    numeric = [int(item) for item in fields[6:]]
+                    if (identity and identity["runner"] == fields[1] and identity["file"] == fields[2]
+                        and fields[3] in (identity["case_id"], "redacted")
+                        and ".." not in Path(fields[2]).parts and all(item <= 1000000 for item in numeric)):
+                        found[fields[0]] = {
+                            **identity, "state": fields[4], "cause": fields[5],
+                            "failure_line": numeric[0] or None, "started": numeric[1],
+                            "passed": numeric[2], "failed": numeric[3], "skipped": numeric[4],
+                        }
+                        if len(found) >= 100:
+                            break
         result = {}
         if found:
             result["profile_discrepancies"] = [found[key] for key in sorted(found)]
@@ -117,6 +153,10 @@ def parse_profile_diagnostics(root: Path, evidence: Path) -> dict:
         if profile_steps:
             result["profile_steps"] = [dict(profile=profile, step=step, partition=partition)
                                        for profile, step, partition in sorted(profile_steps)]
+        if profile_event_summaries:
+            result["profile_event_summaries"] = [
+                dict(profile=profile, step=step, started=started, passed=passed, failed=failed, skipped=skipped)
+                for profile, step, started, passed, failed, skipped in sorted(profile_event_summaries)]
         if browser_diagnostics:
             result["profile_browser_diagnostics"] = [
                 {"cause": cause, "stage": stage} for cause, stage in sorted(browser_diagnostics)]

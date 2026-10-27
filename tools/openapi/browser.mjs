@@ -34,22 +34,27 @@ try {
   stage = 'docs-ready';
   await page.waitForFunction(() => document.documentElement.dataset.docsReady === 'true');
   stage = 'docs-content';
+  stage = 'catalog-discovery';
   assert(await page.locator('#docs-error').isHidden(), 'Documentation load error');
-  assert(await page.locator('.opblock').count() === 5, 'API operation discovery failed');
+  assert(await page.locator('.opblock').count() === 6, 'API operation discovery failed');
   for (const suffix of ['current', 'history', 'at']) {
     assert(await page.locator('.opblock').filter({ hasText: `/api/players/{player_id}/quotes/${suffix}` }).count() === 1, `Quote ${suffix} operation missing`);
   }
   const list = page.locator('.opblock').nth(0);
   const detail = page.locator('.opblock').nth(1);
+  stage = 'catalog-paths';
   assert((await list.innerText()).includes('/api/players'), 'List operation missing');
   assert((await detail.innerText()).includes('/api/players/{player_id}'), 'Detail operation missing');
+  stage = 'catalog-parameters';
   await list.locator('.opblock-summary').click();
   await detail.locator('.opblock-summary').click();
   await page.waitForFunction(() => document.querySelector('.opblock')?.textContent.includes('page_size'));
   for (const name of ['page_size','cursor','league_id','team_id','position_id']) {
     assert((await list.innerText()).includes(name), `Missing parameter ${name}`);
   }
-  await page.waitForFunction(() => [...document.querySelectorAll('.opblock')].slice(0, 2).every(block => block.querySelectorAll('.response-col_status').length >= 3));
+  stage = 'catalog-responses';
+  await page.waitForFunction(() => [...document.querySelectorAll('.opblock')]
+    .slice(0, 2).every(block => block.querySelectorAll('.response-col_status').length >= 3));
   const listStatuses = (await list.locator('.response-col_status').allTextContents()).map(value => value.trim());
   const detailStatuses = (await detail.locator('.response-col_status').allTextContents()).map(value => value.trim());
   assert(['200','400','401'].every(value => listStatuses.includes(value)), 'List response status discovery failed');

@@ -560,6 +560,18 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/quotes/store.ex."
     },
     {
+      "path": "lib/football_market/ranking.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/ranking.ex."
+    },
+    {
+      "path": "lib/football_market/ranking/reader.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/ranking/reader.ex."
+    },
+    {
       "path": "lib/football_market/repo.ex",
       "role": "application",
       "disposition": "include",
@@ -1058,6 +1070,18 @@
       "reason": "Maintained first-party application implementation source: lib/football_market_web/controllers/quote_json.ex."
     },
     {
+      "path": "lib/football_market_web/controllers/ranking_controller.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market_web/controllers/ranking_controller.ex."
+    },
+    {
+      "path": "lib/football_market_web/controllers/ranking_json.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market_web/controllers/ranking_json.ex."
+    },
+    {
       "path": "lib/football_market_web/controllers/session_controller.ex",
       "role": "application",
       "disposition": "include",
@@ -1386,6 +1410,12 @@
       "role": "script",
       "disposition": "exclude",
       "reason": "Script source, not application implementation: scripts/verify_quote_runtime.exs."
+    },
+    {
+      "path": "scripts/verify_ranking_runtime.exs",
+      "role": "script",
+      "disposition": "exclude",
+      "reason": "Verification script, not application implementation: scripts/verify_ranking_runtime.exs."
     },
     {
       "path": "specs/026-quote-recalculation-and-immutable-history/qa-evidence/20261021-independent/conflict_test.exs",
@@ -2336,6 +2366,30 @@
       "reason": "Test source, not application implementation: test/football_market/quotes/storage_test.exs."
     },
     {
+      "path": "test/football_market/ranking/order_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Automated test, not application implementation: test/football_market/ranking/order_test.exs."
+    },
+    {
+      "path": "test/football_market/ranking/safety_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Automated test, not application implementation: test/football_market/ranking/safety_test.exs."
+    },
+    {
+      "path": "test/football_market/ranking/selection_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Automated test, not application implementation: test/football_market/ranking/selection_test.exs."
+    },
+    {
+      "path": "test/football_market/ranking/snapshot_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Automated test, not application implementation: test/football_market/ranking/snapshot_test.exs."
+    },
+    {
       "path": "test/football_market/statistics/concurrency_test.exs",
       "role": "test",
       "disposition": "exclude",
@@ -2876,6 +2930,12 @@
       "reason": "Maintained automated test source, not application implementation: test/football_market_web/controllers/quote_controller_test.exs."
     },
     {
+      "path": "test/football_market_web/controllers/ranking_controller_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Automated test, not application implementation: test/football_market_web/controllers/ranking_controller_test.exs."
+    },
+    {
       "path": "test/football_market_web/controllers/session_controller_test.exs",
       "role": "test",
       "disposition": "exclude",
@@ -3162,6 +3222,12 @@
       "role": "test-support",
       "disposition": "exclude",
       "reason": "Test-support source, not application implementation: test/support/quotes/runtime_probe.ex."
+    },
+    {
+      "path": "test/support/ranking_case.ex",
+      "role": "test-support",
+      "disposition": "exclude",
+      "reason": "Test support helper, not application implementation: test/support/ranking_case.ex."
     },
     {
       "path": "test/support/statistics_case.ex",

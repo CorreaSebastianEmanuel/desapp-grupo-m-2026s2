@@ -2,6 +2,13 @@
   "schema_version": 1,
   "entries": [
     {
+      "id": "0013c9dbdf8ea8dc9a3bfb26",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/ranking_controller_test.exs",
+      "case_id": "FootballMarketWeb.RankingControllerTest:test invalid credentials keep the existing challenge and error contract",
+      "profile": "integration"
+    },
+    {
       "id": "00a1d64cd98ac8c6dd412791",
       "runner": "exunit",
       "file": "test/football_market_web/router_authentication_policy_test.exs",
@@ -226,6 +233,13 @@
       "profile": "integration"
     },
     {
+      "id": "068be9a48d94a58c790d008e",
+      "runner": "exunit",
+      "file": "test/football_market/ranking/snapshot_test.exs",
+      "case_id": "FootballMarket.Ranking.SnapshotTest:test activation committed after snapshot acquisition leaves the complete old result",
+      "profile": "integration"
+    },
+    {
       "id": "06d34eb243e51e2e6a3e65d6",
       "runner": "exunit",
       "file": "test/football_market/catalog/player_pagination_test.exs",
@@ -427,6 +441,13 @@
       "file": "test/football_market/valuation/configurations/rules_test.exs",
       "case_id": "FootballMarket.Valuation.Configurations.RulesTest:test malformed, extra, duplicate, empty and coercible values fail ordinarily",
       "profile": "unit"
+    },
+    {
+      "id": "0d07d1526fa0f9582ef7d391",
+      "runner": "exunit",
+      "file": "test/football_market/ranking/selection_test.exs",
+      "case_id": "FootballMarket.Ranking.SelectionTest:test a failed calculation under the active configuration never creates a ranking entry",
+      "profile": "integration"
     },
     {
       "id": "0d11a13e2a7c6058bf73b005",
@@ -1045,6 +1066,13 @@
       "profile": "integration"
     },
     {
+      "id": "1f3a542bc4c7d0c3b43b807e",
+      "runner": "exunit",
+      "file": "test/football_market/ranking/selection_test.exs",
+      "case_id": "FootballMarket.Ranking.SelectionTest:test a later successful quote for an inactive same-name version cannot displace active history",
+      "profile": "integration"
+    },
+    {
       "id": "1f6a38bb74593b0e42a77173",
       "runner": "exunit",
       "file": "test/football_market/infrastructure/configuration_test.exs",
@@ -1252,6 +1280,13 @@
       "runner": "exunit",
       "file": "test/football_market/valuation/position_groups_test.exs",
       "case_id": "FootballMarket.Valuation.PositionGroupsTest:test group-specific missing metrics, all four groups and independent caps",
+      "profile": "integration"
+    },
+    {
+      "id": "2557fec8346abe0d05a039c1",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/ranking_controller_test.exs",
+      "case_id": "FootballMarketWeb.RankingControllerTest:test a missing selection anchor returns a sanitized storage-unavailable response",
       "profile": "integration"
     },
     {
@@ -1946,6 +1981,13 @@
       "file": "test/scripts/test_profile_runner_test.py",
       "case_id": "test.scripts.test_profile_runner_test.RunnerTest.test_browser_preflight_classifies_only_closed_causes_and_keeps_raw_errors_private",
       "profile": "unit"
+    },
+    {
+      "id": "3b870052cb6ed9b4fe976fdb",
+      "runner": "exunit",
+      "file": "test/football_market/ranking/selection_test.exs",
+      "case_id": "FootballMarket.Ranking.SelectionTest:test an active configuration with no successful performance quotes is a valid empty ranking",
+      "profile": "integration"
     },
     {
       "id": "3b992ece657a2e3e861a4cbf",
@@ -2788,6 +2830,13 @@
       "profile": "integration"
     },
     {
+      "id": "552f2104050c0b34dce8cdb2",
+      "runner": "exunit",
+      "file": "test/football_market/ranking/selection_test.exs",
+      "case_id": "FootballMarket.Ranking.SelectionTest:test equal effective times choose the greater per-player sequence and pending delivery remains eligible",
+      "profile": "integration"
+    },
+    {
       "id": "5560df37468dbdb1930bfc94",
       "runner": "python",
       "file": "test/scripts/agentflow_providers_test.py",
@@ -2977,6 +3026,13 @@
       "profile": "unit"
     },
     {
+      "id": "5b575ec439d706484b7e7e52",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/ranking_controller_test.exs",
+      "case_id": "FootballMarketWeb.RankingControllerTest:test authentication is enforced before ranking access",
+      "profile": "integration"
+    },
+    {
       "id": "5b57f092dbd6f927931679cc",
       "runner": "exunit",
       "file": "test/football_market/catalog/development_seed_test.exs",
@@ -3128,6 +3184,13 @@
       "runner": "exunit",
       "file": "test/football_market/accounts/persistence_test.exs",
       "case_id": "FootballMarket.Accounts.PersistenceTest:test creates the named normalized-email functional index",
+      "profile": "integration"
+    },
+    {
+      "id": "5ff1d3530fa7335c21abe4d9",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/ranking_controller_test.exs",
+      "case_id": "FootballMarketWeb.RankingControllerTest:test an absent active configuration returns a distinct safe conflict",
       "profile": "integration"
     },
     {
@@ -3345,6 +3408,13 @@
       "runner": "exunit",
       "file": "test/football_market_web/openapi_contract_test.exs",
       "case_id": "FootballMarketWeb.OpenAPIContractTest:test public publication and complete operation contract",
+      "profile": "integration"
+    },
+    {
+      "id": "6782124ab4af5c75b9087510",
+      "runner": "exunit",
+      "file": "test/football_market/ranking/snapshot_test.exs",
+      "case_id": "FootballMarket.Ranking.SnapshotTest:test a configuration committed before the first read is visible",
       "profile": "integration"
     },
     {
@@ -4167,6 +4237,13 @@
       "profile": "unit"
     },
     {
+      "id": "838fffb1644b52b05f4fdf59",
+      "runner": "exunit",
+      "file": "test/football_market/ranking/selection_test.exs",
+      "case_id": "FootballMarket.Ranking.SelectionTest:test the latest successful quote for the active version is selected",
+      "profile": "integration"
+    },
+    {
       "id": "83b8650991f58a61e3e5af4c",
       "runner": "python",
       "file": "test/scripts/test_inventory_test.py",
@@ -4262,6 +4339,13 @@
       "runner": "exunit",
       "file": "test/football_market/valuation/position_aware/formula_test.exs",
       "case_id": "FootballMarket.Valuation.PositionAware.FormulaTest:test US1.4 minutes zero, normal and extra-time leave the formula identical",
+      "profile": "integration"
+    },
+    {
+      "id": "86ecbca0582f760ae0bec012",
+      "runner": "exunit",
+      "file": "test/football_market/ranking/safety_test.exs",
+      "case_id": "FootballMarket.Ranking.SafetyTest:test invalid stored active rules remain a sanitized storage failure",
       "profile": "integration"
     },
     {
@@ -4823,6 +4907,13 @@
       "file": "test/scripts/agentflow_stage_budget_test.py",
       "case_id": "test.scripts.agentflow_stage_budget_test.StageBudgetTest.test_clock_resets_when_a_new_stage_appears",
       "profile": "unit"
+    },
+    {
+      "id": "983e639234e39fc33211dcfa",
+      "runner": "exunit",
+      "file": "test/football_market/ranking/order_test.exs",
+      "case_id": "FootballMarket.Ranking.OrderTest:test a single entry has a consecutive one-based position and retains exact price and time",
+      "profile": "integration"
     },
     {
       "id": "984d7b0d070a91af13dbd049",
@@ -5574,6 +5665,13 @@
       "profile": "unit"
     },
     {
+      "id": "ac574d097522c4d577d2e0c2",
+      "runner": "exunit",
+      "file": "test/ci/workflow_scope_test.exs",
+      "case_id": "FootballMarket.WorkflowScopeTest:test active strategy ranking allowance matches its bounded implementation plan",
+      "profile": "unit"
+    },
+    {
       "id": "ac6d2f656fcb1ad696a96683",
       "runner": "exunit",
       "file": "test/football_market/catalog/ingestion/identity_test.exs",
@@ -5637,10 +5735,24 @@
       "profile": "unit"
     },
     {
+      "id": "ae3382badd3b15c2cc151f3f",
+      "runner": "exunit",
+      "file": "test/football_market/ranking/selection_test.exs",
+      "case_id": "FootballMarket.Ranking.SelectionTest:test initial-only, no-quote and no-history issued players are omitted exactly",
+      "profile": "integration"
+    },
+    {
       "id": "ae3a0eda14ab80c9f4bb839b",
       "runner": "exunit",
       "file": "test/football_market/synchronization/inspection_test.exs",
       "case_id": "FootballMarket.Synchronization.InspectionTest:test inspection exposes durable original and coalesced triggers without raw source state",
+      "profile": "integration"
+    },
+    {
+      "id": "ae9939406271398e66720653",
+      "runner": "exunit",
+      "file": "test/football_market/ranking/selection_test.exs",
+      "case_id": "FootballMarket.Ranking.SelectionTest:test selection spans retained seasons rather than filtering to the player's current season",
       "profile": "integration"
     },
     {
@@ -6034,6 +6146,13 @@
       "file": "test/scripts/task_feature_binding_acceptance_test.py",
       "case_id": "test.scripts.task_feature_binding_acceptance_test.WorkflowScopeTest.test_changed_file_allowlist_and_readme_boundary",
       "profile": "unit"
+    },
+    {
+      "id": "be3477d705ce35735f8f5300",
+      "runner": "exunit",
+      "file": "test/football_market/ranking/selection_test.exs",
+      "case_id": "FootballMarket.Ranking.SelectionTest:test only successful performance quotes for the active saved configuration are returned",
+      "profile": "integration"
     },
     {
       "id": "be44d3c9be5effc908d04131",
@@ -6449,6 +6568,13 @@
       "profile": "integration"
     },
     {
+      "id": "c9b925d46ed02dd43119aece",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/ranking_controller_test.exs",
+      "case_id": "FootballMarketWeb.RankingControllerTest:test invalid stored active rules return the safe 503 contract",
+      "profile": "integration"
+    },
+    {
       "id": "c9c4312b604ac26351fa88c5",
       "runner": "exunit",
       "file": "test/football_market/quotes/reader_test.exs",
@@ -6460,6 +6586,13 @@
       "runner": "exunit",
       "file": "test/football_market/catalog/player_catalog_index_test.exs",
       "case_id": "FootballMarket.Catalog.PlayerCatalogIndexTest:test catalog ordering index exists with the normalized expression",
+      "profile": "integration"
+    },
+    {
+      "id": "ca6e31a384dbe7bdb34fb958",
+      "runner": "exunit",
+      "file": "test/football_market/ranking/selection_test.exs",
+      "case_id": "FootballMarket.Ranking.SelectionTest:test no active configuration is distinct from an empty active ranking",
       "profile": "integration"
     },
     {
@@ -6558,6 +6691,13 @@
       "runner": "exunit",
       "file": "test/football_market/statistics/freshness/context_test.exs",
       "case_id": "FootballMarket.Statistics.Freshness.ContextTest:test transient exhaustion observes cooldown, provider wait and exact eligibility",
+      "profile": "integration"
+    },
+    {
+      "id": "cdcba1010c63aea4319a53f0",
+      "runner": "exunit",
+      "file": "test/football_market/ranking/safety_test.exs",
+      "case_id": "FootballMarket.Ranking.SafetyTest:test ranking reads leave persisted quote and selection rows unchanged",
       "profile": "integration"
     },
     {
@@ -6750,6 +6890,13 @@
       "profile": "integration"
     },
     {
+      "id": "d330a00eae23a6f6cc9f4faa",
+      "runner": "exunit",
+      "file": "test/football_market/ranking/order_test.exs",
+      "case_id": "FootballMarket.Ranking.OrderTest:test zero entries have no positions and UTC timestamps preserve microseconds",
+      "profile": "integration"
+    },
+    {
       "id": "d3aa0ae43acbeba18875dea3",
       "runner": "exunit",
       "file": "test/football_market/catalog/constraints_test.exs",
@@ -6811,6 +6958,13 @@
       "file": "test/football_market/providers/scraping/equivalence_test.exs",
       "case_id": "FootballMarket.Providers.ScrapingEquivalenceTest:test existing consumer reads equivalent facts with separate qualified provenance",
       "profile": "unit"
+    },
+    {
+      "id": "d4d9539c53f032387f2d8010",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/ranking_controller_test.exs",
+      "case_id": "FootballMarketWeb.RankingControllerTest:test an active configuration with no eligible quotes returns the exact empty contract",
+      "profile": "integration"
     },
     {
       "id": "d4d9a4efb40e86bb3e729653",
@@ -7114,6 +7268,13 @@
       "profile": "integration"
     },
     {
+      "id": "dc9724b75dab04261ac0d0c5",
+      "runner": "exunit",
+      "file": "test/football_market/ranking/safety_test.exs",
+      "case_id": "FootballMarket.Ranking.SafetyTest:test a missing selection anchor remains a storage failure rather than an empty success",
+      "profile": "integration"
+    },
+    {
       "id": "dc9c81b6857ecace05bc8ed1",
       "runner": "exunit",
       "file": "test/ci/test_profiles_quality_contract_test.exs",
@@ -7147,6 +7308,13 @@
       "file": "test/football_market/synchronization/policy_test.exs",
       "case_id": "FootballMarket.Synchronization.PolicyTest:test invalid and unbounded policies fail before admission",
       "profile": "unit"
+    },
+    {
+      "id": "dd5ca360269e288c6d715cf8",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/ranking_controller_test.exs",
+      "case_id": "FootballMarketWeb.RankingControllerTest:test authenticated request returns exact active configuration and ranked quote",
+      "profile": "integration"
     },
     {
       "id": "dd8157b5dd2125b8d3ba658d",
@@ -7387,6 +7555,13 @@
       "profile": "unit"
     },
     {
+      "id": "e43076e9b6293acf6ede51d0",
+      "runner": "exunit",
+      "file": "test/football_market/ranking/selection_test.exs",
+      "case_id": "FootballMarket.Ranking.SelectionTest:test effective time takes priority over sequence and the individual current quote",
+      "profile": "integration"
+    },
+    {
       "id": "e435b3e6e83a704a348c50b5",
       "runner": "python",
       "file": "test/scripts/agentflow_feature_test.py",
@@ -7566,6 +7741,13 @@
       "runner": "exunit",
       "file": "test/football_market/valuation/position_groups_test.exs",
       "case_id": "FootballMarket.Valuation.PositionGroupsTest:test mixed historical groups, explicit CB/fullback mapping and current-position independence",
+      "profile": "integration"
+    },
+    {
+      "id": "ea046a2b48be4198517f4131",
+      "runner": "exunit",
+      "file": "test/football_market/ranking/order_test.exs",
+      "case_id": "FootballMarket.Ranking.OrderTest:test repeated reads preserve selected quote identity and order",
       "profile": "integration"
     },
     {
@@ -7889,6 +8071,13 @@
       "file": "test/scripts/agentflow_models_test.py",
       "case_id": "test.scripts.agentflow_models_test.LauncherTest.test_sandbox_cli_and_config_disagreement_refuses",
       "profile": "unit"
+    },
+    {
+      "id": "f4e9e7cc26a043a649788b2b",
+      "runner": "exunit",
+      "file": "test/football_market/ranking/order_test.exs",
+      "case_id": "FootballMarket.Ranking.OrderTest:test numeric prices sort descending and equal prices use canonical player UUID order",
+      "profile": "integration"
     },
     {
       "id": "f536357d7d094dea32596bcb",
@@ -8311,6 +8500,13 @@
       "profile": "integration"
     },
     {
+      "id": "ff980250e8e2ead74bb45f86",
+      "runner": "exunit",
+      "file": "test/football_market/ranking/snapshot_test.exs",
+      "case_id": "FootballMarket.Ranking.SnapshotTest:test ranking rejects an enclosing transaction rather than using an incompatible snapshot",
+      "profile": "integration"
+    },
+    {
       "id": "fff3b2f53a6cad97abaa6919",
       "runner": "exunit",
       "file": "test/football_market/quotes/calculation_test.exs",
@@ -8394,7 +8590,8 @@
     "test/support/purchases/runtime_probe.ex": "Committed independent-connection barriers and owned-store helpers.",
     "test/runtime/purchase_http.exs": "Standalone real HTTP assertion runner executed explicitly by purchase-runtime in verification.json.",
     "test/support/freshness_case.ex": "Shared deterministic freshness fixtures; executed by registered integration tests.",
-    "test/support/observability_worker.ex": "Test-only raising endpoint and timed-out Oban worker, exercised by registered HTTP integration and real-runtime E2E cases."
+    "test/support/observability_worker.ex": "Test-only raising endpoint and timed-out Oban worker, exercised by registered HTTP integration and real-runtime E2E cases.",
+    "test/support/ranking_case.ex": "Fixture/support helper; ranking cases own the active configuration and successful quote setup."
   },
   "excluded_roots": [
     ".agentflow",

@@ -133,6 +133,35 @@ defmodule FootballMarket.WorkflowScopeTest do
     end
   end
 
+  test "active strategy ranking allowance matches its bounded implementation plan" do
+    feature = "specs/069-active-strategy-player-ranking"
+    paths = WorkflowScope.paths(feature)
+
+    assert length(paths) == length(Enum.uniq(paths))
+
+    for path <- [
+          "lib/football_market/ranking/reader.ex",
+          "lib/football_market_web/controllers/ranking_controller.ex",
+          "priv/static/openapi.json",
+          "scripts/verify_ranking_runtime.exs",
+          "test/football_market/ranking/selection_test.exs",
+          "test/support/ranking_case.ex"
+        ] do
+      assert WorkflowScope.allows_path?(feature, path)
+    end
+
+    for path <- [
+          "test/football_market_web/openapi_contract_test.exs",
+          "tools/openapi/browser.mjs",
+          "test/football_market/synchronization/scope_test.exs"
+        ] do
+      assert WorkflowScope.allows_path?(feature, path)
+    end
+
+    refute WorkflowScope.allows_path?(feature, "priv/repo/migrations/unplanned.exs")
+    refute WorkflowScope.allows_path?(feature, "lib/football_market/unplanned.ex")
+  end
+
   test "Credo cleanup allowance is finite and rejects unknown production and CI paths" do
     feature = "specs/066-credo-remediation"
     paths = WorkflowScope.paths(feature)

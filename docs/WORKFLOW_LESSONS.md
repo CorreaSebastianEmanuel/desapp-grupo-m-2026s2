@@ -47,6 +47,10 @@ list passes the checkpoint hygiene review.
 - 2026-10-21 — Producer and consumer validation drifted while incomplete positive fixtures passed — reconstruct shared evidence identities from owner oracles and bracket coherent mutation matrices with genuine nonempty native controls — TASK-067
 - 2026-10-21 — Human feedback changes verification fingerprints and invalidates older receipts — finish canonical edits before the authorized round, regenerate development evidence, and stop at a concrete blocker without launching another full cycle — TASK-067
 - 2026-10-21 — A formatter failure location may refer to a dependency stack frame — preserve the case identity and distinguish observed failure from an unproven assertion or performance cause before changing code — TASK-067
+- 2026-10-26 — Planning declared separate profiles while the updated baseline required the CI wrapper — validate the actual CI parity contract during planning, before costly profiles, and repair manifest mappings through classified feedback — TASK-033
+- 2026-10-26 — A workflow-only forced toolchain flag leaked into disposable launcher fixtures — restore contextual toolchain detection for profile subprocesses and prove both real pinned workspaces and unpinned fixtures retain their intended prerequisites — TASK-033
+- 2026-10-26 — A new API exposed catalog-only contract assumptions and branch-specific merged-configuration guards — run affected contract, query and real HTTP controls before full profiles, extending exact expectations without weakening inherited checks — TASK-033
+
 - 2026-10-23 — Trading specs can rely on spendable balances without defining how credits enter the account — decide explicitly whether provisioning is an existing input or separate product scope before implementation — TASK-029
 - 2026-10-23 — Browser prerequisites can fail before tests while profile output exposes only a coarse category — reproduce the pinned runtime and report an allowlisted launch cause before retries; keep raw browser output private — TASK-029
 - 2026-10-23 — A quote-first sequential test does not prove a concurrent quote-first order — add separate-connection barriers for both serial orders and assert which committed quote the purchase observes — TASK-029
@@ -59,3 +63,4 @@ list passes the checkpoint hygiene review.
 - 2026-10-26 — Restoring absent application configuration as an explicit nil contaminates later tests — preserve absence with fetch_env/delete_env during fixture cleanup — TASK-027
 - 2026-10-26 — Manual deliveries leave dependency and ownership records behind — reconcile canonical retrospective artifacts through fresh independent acceptance and normal completion without inventing workflow runs — TASK-027, TASK-056
 - 2026-10-26 — New Elixir files can pass lint while coverage or helper inventories reject delivery — reconcile source roles, helper classifications and exact compatibility guards before full profiles — TASK-036
+- 2026-10-27 — A green whole-suite result can miss required scenarios — confirm each acceptance scenario has an explicit delivered assertion before full verification — TASK-033

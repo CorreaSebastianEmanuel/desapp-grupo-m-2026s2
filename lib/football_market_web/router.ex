@@ -52,6 +52,8 @@ defmodule FootballMarketWeb.Router do
   scope "/api", FootballMarketWeb do
     pipe_through :api_protected
 
+    get "/ranking", RankingController, :index, metadata: %{authentication_policy: :api_protected}
+
     post "/purchases", PurchaseController, :create,
       metadata: %{authentication_policy: :api_protected}
 

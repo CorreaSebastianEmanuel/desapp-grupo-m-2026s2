@@ -916,6 +916,114 @@
           }
         }
       }
+    },
+    "/api/ranking": {
+      "get": {
+        "summary": "Read the active strategy player ranking",
+        "description": "Returns locally retained successful quotes for the exact active saved configuration. This read uses a consistent read-only snapshot, does not call football providers, and never recalculates quotes. Results are ordered by unit price descending, then canonical player UUID ascending, with consecutive positions. The response is not cached.",
+        "operationId": "getActiveStrategyRanking",
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ranking for the identified active saved configuration; data may be empty.",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always no-store.",
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ranking"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid authentication.",
+            "headers": {
+              "WWW-Authenticate": {
+                "description": "Bearer authentication challenge.",
+                "schema": {
+                  "type": "string"
+                },
+                "example": "Bearer realm=\"api\""
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthenticatedError"
+                },
+                "examples": {
+                  "unauthenticated": {
+                    "value": {
+                      "error": {
+                        "code": "unauthenticated"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "No strategy configuration is active.",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always no-store.",
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RankingError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The active selection or quote store is unavailable.",
+            "headers": {
+              "Cache-Control": {
+                "description": "Always no-store.",
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RankingError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1773,6 +1881,106 @@
           }
         },
         "additionalProperties": false
+      },
+      "Ranking": {
+        "type": "object",
+        "required": [
+          "configuration",
+          "data"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "configuration": {
+            "$ref": "#/components/schemas/RankingConfiguration"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RankingEntry"
+            }
+          }
+        }
+      },
+      "RankingConfiguration": {
+        "type": "object",
+        "required": [
+          "configuration_version_id",
+          "strategy_id",
+          "formula_version"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "configuration_version_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "strategy_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "formula_version": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "RankingEntry": {
+        "type": "object",
+        "required": [
+          "position",
+          "player_id",
+          "quote_id",
+          "unit_price",
+          "effective_at"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "position": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "player_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "quote_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "unit_price": {
+            "type": "string",
+            "pattern": "^[0-9]+\\.[0-9]{2}$"
+          },
+          "effective_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "RankingError": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "error": {
+            "type": "object",
+            "required": [
+              "code"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "no_active_configuration",
+                  "storage_unavailable"
+                ]
+              }
+            }
+          }
+        }
       }
     }
   }

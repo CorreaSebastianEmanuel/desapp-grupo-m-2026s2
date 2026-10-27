@@ -8,6 +8,15 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
 
   @endpoint FootballMarketWeb.Endpoint
   @codes ~w(invalid_page_size invalid_league_id invalid_team_id invalid_position_id invalid_cursor)
+  @expected_statuses %{
+    "listPlayers" => ~w(200 400 401),
+    "getPlayer" => ~w(200 401 404 503),
+    "getCurrentQuote" => ~w(200 401 404 503),
+    "getQuoteHistory" => ~w(200 401 404 503),
+    "getQuoteAtDate" => ~w(200 400 401 404 503),
+    "purchaseTokens" => ~w(200 400 401 404 409 503),
+    "getActiveStrategyRanking" => ~w(200 401 409 503)
+  }
 
   setup do
     fixture!()
@@ -179,8 +188,16 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
     for {_path, item} <- doc["paths"],
         {_method, operation} <- item,
         {_, response} <- operation["responses"],
-        {_, example} <- get_in(response, ["content", "application/json", "examples"]) || [] do
+        {_, example} <- get_in(response, ["content", "application/json", "examples"]) || %{} do
       assert_schema!(doc, response["content"]["application/json"]["schema"], example["value"])
+    end
+
+    for {_path, item} <- doc["paths"],
+        {_method, operation} <- item,
+        {_, response} <- operation["responses"],
+        content = response["content"]["application/json"],
+        Map.has_key?(content, "example") do
+      assert_schema!(doc, content["schema"], content["example"])
     end
   end
 
@@ -286,7 +303,7 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
       FootballMarketWeb.Router
       |> Phoenix.Router.routes()
       |> Enum.filter(
-        &(&1.path == "/api/purchases" or &1.path == "/api/players" or
+        &(&1.path in ["/api/ranking", "/api/purchases", "/api/players"] or
             String.starts_with?(&1.path, "/api/players/"))
       )
 
@@ -317,10 +334,12 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
     for {_path, item} <- doc["paths"], {_method, op} <- item do
       assert op["security"] == [%{"BearerAuth" => []}, %{"ApiKeyAuth" => []}]
 
-      assert Map.keys(op["responses"]) |> Enum.sort() == response_statuses(op["operationId"])
+      assert Map.has_key?(@expected_statuses, op["operationId"])
+      assert Map.keys(op["responses"]) |> Enum.sort() == @expected_statuses[op["operationId"]]
 
-      for {_status, response} <- op["responses"] do
+      for {status, response} <- op["responses"] do
         assert Map.keys(response["content"]) == ["application/json"]
+        assert_ranking_cache_header!(op, status, response)
       end
 
       assert_auth_failure_contract!(op)
@@ -394,15 +413,19 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
     end
   end
 
-  defp response_statuses("getPlayer"), do: ~w(200 401 404 503)
-  defp response_statuses("listPlayers"), do: ~w(200 400 401)
-  defp response_statuses("getQuoteAtDate"), do: ~w(200 400 401 404 503)
-  defp response_statuses("purchaseTokens"), do: ~w(200 400 401 404 409 503)
+  defp assert_ranking_cache_header!(
+         %{"operationId" => "getActiveStrategyRanking"},
+         status,
+         response
+       )
+       when status in ["200", "409", "503"] do
+    assert response["headers"]["Cache-Control"]["schema"] == %{
+             "type" => "string",
+             "enum" => ["no-store"]
+           }
+  end
 
-  defp response_statuses(quote) when quote in ["getCurrentQuote", "getQuoteHistory"],
-    do: ~w(200 401 404 503)
-
-  defp response_statuses(_), do: ~w(200 401 404)
+  defp assert_ranking_cache_header!(_operation, _status, _response), do: :ok
 
   defp assert_auth_failure_contract!(%{"operationId" => "purchaseTokens"} = op) do
     assert get_in(op, ["responses", "401", "content", "application/json", "schema", "$ref"]) ==

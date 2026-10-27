@@ -23,7 +23,7 @@ try {
   page.on('request', request => {
     const url = new URL(request.url());
     if (url.origin !== base) requests.push({ foreign: true });
-    if (url.pathname === '/api/players' || /^\/api\/players\/[^/]+$/.test(url.pathname)) {
+    if (url.pathname === '/api/players' || /^\/api\/players\/[^/]+$/.test(url.pathname) || url.pathname === '/api/ranking') {
       const names = Object.keys(request.headers()).map(name => name.toLowerCase());
       requests.push({ jwt: names.includes('authorization'), key: names.includes('x-api-key'), safeUrl: !request.url().includes(jwt) && !request.url().includes(key), queryKeys: [...url.searchParams.keys()] });
     }
@@ -36,30 +36,65 @@ try {
   stage = 'docs-content';
   stage = 'catalog-discovery';
   assert(await page.locator('#docs-error').isHidden(), 'Documentation load error');
-  assert(await page.locator('.opblock').count() === 6, 'API operation discovery failed');
+  stage = 'operation-count';
+  assert(await page.locator('.opblock').count() === 7, 'Protected operation discovery failed');
+  stage = 'operation-locators';
+  stage = 'operation-summary-read';
+  const operations = await page.locator('.opblock').evaluateAll(blocks => blocks.map(block => ({
+    method: block.querySelector('.opblock-summary-method')?.textContent.trim().toLowerCase(),
+    path: block.querySelector('.opblock-summary-path')?.textContent.trim()
+  })));
+  const operation = (path, method = 'get') => {
+    stage = `operation-${path === '/api/players' ? 'list' : path === '/api/ranking' ? 'ranking' : 'detail'}`;
+    const index = operations.findIndex(item => item.method === method && item.path === path);
+    assert(index >= 0, `Operation missing: ${method.toUpperCase()} ${path}`);
+    return page.locator('.opblock').nth(index);
+  };
+  const list = operation('/api/players');
+  const detail = operation('/api/players/{player_id}');
+  const ranking = operation('/api/ranking');
+  operation('/api/purchases', 'post');
   for (const suffix of ['current', 'history', 'at']) {
-    assert(await page.locator('.opblock').filter({ hasText: `/api/players/{player_id}/quotes/${suffix}` }).count() === 1, `Quote ${suffix} operation missing`);
+    operation(`/api/players/{player_id}/quotes/${suffix}`);
   }
-  const list = page.locator('.opblock').nth(0);
-  const detail = page.locator('.opblock').nth(1);
-  stage = 'catalog-paths';
-  assert((await list.innerText()).includes('/api/players'), 'List operation missing');
-  assert((await detail.innerText()).includes('/api/players/{player_id}'), 'Detail operation missing');
-  stage = 'catalog-parameters';
+  stage = 'operation-set-check';
+  assert(operations.length === 7 && new Set(operations.map(item => `${item.method} ${item.path}`)).size === 7, 'Exact protected operation set mismatch');
+  stage = 'expand-catalog-operations';
+  stage = 'expand-list';
   await list.locator('.opblock-summary').click();
+  stage = 'expand-detail';
   await detail.locator('.opblock-summary').click();
-  await page.waitForFunction(() => document.querySelector('.opblock')?.textContent.includes('page_size'));
+  stage = 'expand-ranking';
+  await ranking.locator('.opblock-summary').click();
+  stage = 'wait-list-parameters';
+  await page.waitForFunction(() => [...document.querySelectorAll('.opblock')].find(block => block.querySelector('.opblock-summary-path')?.textContent.trim() === '/api/players')?.textContent.includes('page_size'));
   for (const name of ['page_size','cursor','league_id','team_id','position_id']) {
     assert((await list.innerText()).includes(name), `Missing parameter ${name}`);
   }
-  stage = 'catalog-responses';
-  await page.waitForFunction(() => [...document.querySelectorAll('.opblock')]
-    .slice(0, 2).every(block => block.querySelectorAll('.response-col_status').length >= 3));
+  stage = 'wait-list-statuses';
+  await page.waitForFunction(() => [...document.querySelectorAll('.opblock')].find(block => block.querySelector('.opblock-summary-path')?.textContent.trim() === '/api/players')?.querySelectorAll('.response-col_status').length >= 3);
+  stage = 'wait-detail-statuses';
+  await page.waitForFunction(() => [...document.querySelectorAll('.opblock')].find(block => block.querySelector('.opblock-summary-path')?.textContent.trim() === '/api/players/{player_id}')?.querySelectorAll('.response-col_status').length >= 4);
+  stage = 'ranking-contract-statuses';
+  const rankingContract = await page.evaluate(async () => {
+    const response = await fetch('/openapi.json');
+    return (await response.json()).paths['/api/ranking'].get;
+  });
+  const rankingStatusCodes = Object.keys(rankingContract.responses ?? {}).sort();
+  for (const status of ['200','401','409','503']) {
+    stage = `ranking-status-${status}`;
+    assert(rankingStatusCodes.includes(status), `Ranking response status ${status} missing`);
+  }
+  stage = 'ranking-status-exactness';
+  assert(rankingStatusCodes.length === 4, 'Ranking response status set contains an unknown status');
   const listStatuses = (await list.locator('.response-col_status').allTextContents()).map(value => value.trim());
   const detailStatuses = (await detail.locator('.response-col_status').allTextContents()).map(value => value.trim());
+  stage = 'catalog-statuses';
   assert(['200','400','401'].every(value => listStatuses.includes(value)), 'List response status discovery failed');
-  assert(['200','401','404'].every(value => detailStatuses.includes(value)), 'Detail response status discovery failed');
+  assert(['200','401','404','503'].every(value => detailStatuses.includes(value)), 'Detail response status discovery failed');
+  stage = 'catalog-example';
   assert(await list.getByText('Example Value').count() > 0, 'Response example discovery failed');
+  stage = 'credential-controls';
   assert(await page.locator('#credential-mode option').count() === 2, 'Credential choice discovery failed');
   const discoveryMs = Date.now() - started;
   assert(discoveryMs < 180000, 'Discovery exceeded three minutes');
@@ -69,7 +104,7 @@ try {
     await block.locator('.try-out__btn').click();
     const responsePromise = page.waitForResponse(response => {
       const path = new URL(response.url()).pathname;
-      return path === '/api/players' || /^\/api\/players\/[^/]+$/.test(path);
+      return path === '/api/players' || /^\/api\/players\/[^/]+$/.test(path) || path === '/api/ranking';
     });
     await block.locator('.execute').click();
     const response = await responsePromise;

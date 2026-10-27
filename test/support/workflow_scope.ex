@@ -536,6 +536,7 @@ defmodule FootballMarket.WorkflowScope do
       "test/ci/quality_baseline_contract_test.exs",
       "test/ci/sonarcloud_contract_test.exs",
       "test/scripts/agentflow_dedup_test.py",
+      "test/scripts/agentflow_branch_test.py",
       "test/scripts/agentflow_policy_test.py",
       "test/scripts/agentflow_workflow_gate_test.py",
       "test/scripts/test_profile_components_test.py",

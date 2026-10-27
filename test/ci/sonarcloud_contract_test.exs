@@ -45,7 +45,7 @@ defmodule FootballMarket.SonarCloudContractTest do
     baseline = File.read!(@baseline)
 
     assert workflow =~ ~r/on:\s*\n\s*workflow_call:\s*\n\s*workflow_dispatch:/
-    assert baseline =~ ~r/pull_request:\s*\n\s*branches: \[main\]/
+    assert baseline =~ "pull_request: {}"
     assert baseline =~ ~r/push:\s*\n\s*branches: \[main\]/
     assert baseline =~ "uses: ./.github/workflows/sonarcloud.yml"
     refute workflow =~ "pull_request_target"

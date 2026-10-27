@@ -61,6 +61,21 @@ End-to-end profile, and SonarCloud. Configure that single status as required on
 `main`; keep existing required statuses until it has been observed on a PR.
 Only the exact PR head may authorize human merge.
 
+## Pre-merge canary
+
+To exercise ThinFlow before its migration PR merges, start one explicitly
+stacked task from the clean migration branch:
+
+```sh
+./agentflow start TASK-030 --provider opencode --base 071-migrate-agentflow-2-3-to-thinflow
+```
+
+The task receives its own feature branch and PR, with the migration branch as
+its temporary base. ThinFlow remembers that base for resume and publication,
+and CI runs on pull requests targeting any branch. Do not add product commits
+to the migration branch. After the migration merges, retarget the canary PR to
+`main` and require the exact retargeted head to pass `ThinFlow required` again.
+
 ## Learning from misses
 
 An escaped defect or revert is feedback about the system, not a reason to add

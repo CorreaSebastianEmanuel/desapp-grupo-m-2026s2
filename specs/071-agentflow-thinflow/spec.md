@@ -27,6 +27,9 @@ human merge. Historical Agentflow 2.3 runs remain resumable without conversion.
   re-review is delta-focused, and one grouped repair cycle is the maximum.
 - [ ] GitHub exposes one always-reporting `ThinFlow required` result that fails
   unless Quality baseline, End-to-end profile, and SonarCloud all succeed.
+- [ ] An explicit `--base BRANCH` canary starts from a clean migration branch,
+  creates a separate stacked task PR, remembers its base across resume, and
+  receives the same hosted gate before the migration is merged.
 - [ ] Application runtime and business behavior do not read workflow metadata.
 - [ ] Saved 2.3 workflow snapshots retain their original stage and report gates.
 - [ ] Operator docs, repository rules, skills, and automated harness tests agree
@@ -58,4 +61,6 @@ human merge. Historical Agentflow 2.3 runs remain resumable without conversion.
 - Operational receipts stay ignored under `.agentflow/runs/thinflow/`.
 - The aggregate hosted gate is configured in code; maintainers enable its
   branch-protection requirement only after observing it on this PR.
+- Pre-merge product canaries are explicit stacked PRs, never commits added to
+  the migration branch; they are retargeted and revalidated after migration.
 - Versioning and compatibility rationale is recorded in ADR-0037.

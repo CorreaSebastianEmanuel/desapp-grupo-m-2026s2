@@ -247,12 +247,33 @@ def delivery_association(task, feature=None):
 def git(*args, capture=True):
     return subprocess.run(["git",*args],cwd=ROOT,text=True,capture_output=capture)
 
-def ensure_feature_branch(task):
+def validate_base_branch(base):
+    if not isinstance(base,str) or not base or git("check-ref-format","--branch",base).returncode:
+        raise RuntimeError(f"Invalid base branch {base!r}")
+    return base
+
+def base_marker(task):
+    return RUNS/f"{meta(task)['id']}.base"
+
+def remember_base(task, base):
+    validate_base_branch(base)
+    RUNS.mkdir(parents=True,exist_ok=True)
+    base_marker(task).write_text(base+"\n",encoding="utf-8")
+
+def delivery_base(task, requested=None):
+    if requested is not None:
+        return validate_base_branch(requested)
+    try: saved=base_marker(task).read_text(encoding="utf-8").strip()
+    except OSError: saved="main"
+    return validate_base_branch(saved or "main")
+
+def ensure_feature_branch(task, base="main"):
+    validate_base_branch(base)
     expected=task_branch(task)
     current=git("branch","--show-current").stdout.strip()
     if current==expected: return expected
-    if current not in ("main","master"):
-        raise RuntimeError(f"Expected feature branch {expected}, found {current or 'detached HEAD'}")
+    if current!=base:
+        raise RuntimeError(f"Expected base branch {base} or feature branch {expected}, found {current or 'detached HEAD'}")
     exists=git("show-ref","--verify","--quiet",f"refs/heads/{expected}").returncode==0
     switched=git("switch",expected) if exists else git("switch","-c",expected)
     if switched.returncode:
@@ -586,7 +607,8 @@ def monitor_process(cmd, task, run_hint=None, assignment=None, new_session=False
     if run: field(task,"active_run",run)
     if assignment is not None and run: models.bind(ROOT,assignment,run)
     return process.returncode,run
-def publish(task, task_meta, feature):
+def publish(task, task_meta, feature, base="main"):
+    validate_base_branch(base)
     association=delivery_association(task,feature)
     feature=association.feature
     branch=association.branch
@@ -628,11 +650,11 @@ def publish(task, task_meta, feature):
             "The PR was created automatically after independent QA and final review. Merge remains human-controlled.\n\n"
         )
     body.write_text(delivery + task.read_text(encoding="utf-8").split("## Outcome",1)[-1].strip() + "\n", encoding="utf-8")
-    pr=subprocess.run(["gh","pr","create","--base","main","--head",branch,"--title",f"{task_meta['id']}: {task_meta['title']}","--body-file",str(body)],cwd=ROOT,text=True,capture_output=True)
+    pr=subprocess.run(["gh","pr","create","--base",base,"--head",branch,"--title",f"{task_meta['id']}: {task_meta['title']}","--body-file",str(body)],cwd=ROOT,text=True,capture_output=True)
     if pr.returncode: raise RuntimeError(pr.stderr.strip() or "gh pr create failed")
     return pr.stdout.strip()
 
-def finalize(task, task_meta, code, no_pr=False):
+def finalize(task, task_meta, code, no_pr=False, base="main"):
     # Invalid metadata cannot authorize even the automatic blocked transition.
     task_meta=meta(task)
     task_for_id(ROOT,task_meta.get("id",""))
@@ -652,7 +674,7 @@ def finalize(task, task_meta, code, no_pr=False):
         print(("Independent evaluation passed" if is_thinflow(task) else "QA and review passed") + ". PR creation was disabled with --no-pr.")
         return 0
     try:
-        url=publish(task,task_meta,feature)
+        url=publish(task,task_meta,feature,base)
         print(("Independent evaluation passed" if is_thinflow(task) else "QA and review passed") + f". Pull request created: {url}")
         return 0
     except RuntimeError as error:
@@ -672,7 +694,8 @@ def start(a):
           if thin else "product → challenge → conditional human check → architecture/tasks synthesis → development → QA → review → PR")
     print(f"{m['id']} — {m['title']}\nAgent: {selected}\nFlow: {flow}")
     print(json.dumps(selection,indent=2))
-    if a.dry_run: print(f"Dry run passed; no agent invoked. PR creation: {'disabled' if a.no_pr else 'enabled'}"); return 0
+    base=delivery_base(task,getattr(a,'base',None) or "main")
+    if a.dry_run: print(f"Dry run passed; no agent invoked. PR creation: {'disabled' if a.no_pr else 'enabled'}; base: {base}"); return 0
     # Validate the effective outer child context before branch, assignment or
     # workflow state is created. monitor_process repeats this against its final
     # launch context immediately before Popen.
@@ -690,13 +713,14 @@ def start(a):
         dirty_paths={line[3:] for line in dirty if len(line)>=4}
         if not thin or dirty_paths != {allowed}:
             raise SystemExit("Start requires a clean worktree; a new ThinFlow task file is the only allowed bootstrap change")
-    if git("branch","--show-current").stdout.strip() not in ("main","master"): raise SystemExit("Start from an up-to-date main branch so Spec Kit can create an isolated feature branch")
+    if git("branch","--show-current").stdout.strip()!=base: raise SystemExit(f"Start from a clean, up-to-date {base} branch so Spec Kit can create an isolated feature branch")
     if not a.no_pr:
         if not shutil.which("gh"): raise SystemExit("GitHub CLI is required for automatic PR creation; install gh or use --no-pr")
         auth=subprocess.run(["gh","auth","status"],cwd=ROOT,text=True,capture_output=True)
         if auth.returncode: raise SystemExit("GitHub CLI is not authenticated; run `gh auth login` or use --no-pr")
-    try: branch=ensure_feature_branch(task)
+    try: branch=ensure_feature_branch(task,base)
     except RuntimeError as error: raise SystemExit(str(error)) from error
+    remember_base(task,base)
     print(f"Feature branch: {branch}")
     session_feature(task,head_ref=branch,allow_missing=True)
     reconcile_merged_dependencies(task)
@@ -707,7 +731,7 @@ def start(a):
     assignment=models.save(ROOT,selection)
     code,run=monitor_process(cmd,task,assignment=assignment,provider=selected)
     if code==130: return code
-    return finalize(task,m,code,a.no_pr)
+    return finalize(task,m,code,a.no_pr,base)
 def bound_run_integration(run):
     """Integration recorded when the run was last started or adopted."""
     try:
@@ -780,7 +804,8 @@ def resume(a):
     providers.env_overrides(outer_env,selected,ROOT)
     preflight_or_raise(build_context(state.get('current_step_id','unknown') if state else 'unknown',
                                     selected,["specify","workflow","resume",run],root=ROOT,cwd=ROOT,env=outer_env))
-    try: branch=ensure_feature_branch(task)
+    base=delivery_base(task,getattr(a,'base',None))
+    try: branch=ensure_feature_branch(task,base)
     except RuntimeError as error: raise SystemExit(str(error)) from error
     print(f"Feature branch: {branch}")
     bind_run_provider(run,selected,adopting)
@@ -792,7 +817,7 @@ def resume(a):
     state=read_run_state(run)
     if state and state.get("status")=="completed":
         print("Workflow already completed; retrying verified publication only.")
-        return finalize(task,meta(task),0)
+        return finalize(task,meta(task),0,base=base)
     if not adopting and selection.get('assignment_id'):
         assignment=models.directory(ROOT)/(selection['assignment_id']+'.json')
     else:
@@ -820,7 +845,7 @@ def resume(a):
         field(task,"status","blocked")
         print(f"Resume failed. Inspect {(SPEC_RUNS/run/'state.json').relative_to(ROOT)}",file=sys.stderr)
         return code
-    return finalize(task,meta(task),code)
+    return finalize(task,meta(task),code,base=base)
 def complete(a):
     # The explicit command is the existing human acceptance boundary.
     task=find(a.task)
@@ -918,8 +943,9 @@ def parser():
         q.add_argument("--dry-run",action="store_true")
         if name=="start": model_flags(q)
         if name=="start": q.add_argument("--no-pr",action="store_true",help="leave verified changes local without commit, push, or PR")
+        if name=="start": q.add_argument("--base",help="base branch for an explicitly stacked canary PR (default: main)")
         q.set_defaults(func=fn)
-    q=s.add_parser("resume"); q.add_argument("task"); q.add_argument('--provider',action=Once,choices=providers.PROVIDERS); model_flags(q,resume=True); q.set_defaults(func=resume)
+    q=s.add_parser("resume"); q.add_argument("task"); q.add_argument('--provider',action=Once,choices=providers.PROVIDERS); q.add_argument('--base',help="override the saved PR base for this run"); model_flags(q,resume=True); q.set_defaults(func=resume)
     q=s.add_parser("complete"); q.add_argument("task"); q.set_defaults(func=complete)
     q=s.add_parser("feedback"); q.add_argument("task"); q.add_argument("message",nargs="?"); q.add_argument("--stage",choices=sorted(STAGE_ALIASES)); q.add_argument("--impact",choices=sorted(IMPACT_STAGE),action="append",default=[]); q.add_argument("--checks",action="append",default=[],type=check_id,help="manifest check id whose remediation this feedback scopes (repeatable)"); q.set_defaults(func=add_feedback)
     q=s.add_parser("history"); q.add_argument("task"); q.set_defaults(func=history)

@@ -1591,6 +1591,13 @@
       "profile": "unit"
     },
     {
+      "id": "2ef6af06f3f13bfc8224be97",
+      "runner": "exunit",
+      "file": "test/ci/quality_baseline_contract_test.exs",
+      "case_id": "FootballMarket.QualityBaselineContractTest:test workflow gates every pull request and main pushes in least-privilege jobs",
+      "profile": "unit"
+    },
+    {
       "id": "2f1d78b2b73949fbf7049b52",
       "runner": "python",
       "file": "test/scripts/agentflow_branch_test.py",
@@ -3152,13 +3159,6 @@
       "profile": "unit"
     },
     {
-      "id": "5b7c68c006c4298bcfd9e077",
-      "runner": "exunit",
-      "file": "test/ci/quality_baseline_contract_test.exs",
-      "case_id": "FootballMarket.QualityBaselineContractTest:test workflow gates main pull requests and pushes in least-privilege jobs",
-      "profile": "unit"
-    },
-    {
       "id": "5bb2c22a6eb4dff466120acb",
       "runner": "python",
       "file": "test/scripts/agentflow_preflight_test.py",
@@ -3381,6 +3381,13 @@
       "file": "test/football_market/valuation/configurations/scope_test.exs",
       "case_id": "FootballMarket.Valuation.Configurations.ScopeTest:test SQL and provider/event/external/job boundaries permit only own lifecycle inserts",
       "profile": "integration"
+    },
+    {
+      "id": "62050e7cfa79bef8501ed5f2",
+      "runner": "python",
+      "file": "test/scripts/agentflow_branch_test.py",
+      "case_id": "test.scripts.agentflow_branch_test.AgentflowBranchTest.test_explicit_base_refuses_start_from_another_branch",
+      "profile": "unit"
     },
     {
       "id": "6273ea564d0e21da76eb9adf",
@@ -8442,6 +8449,13 @@
       "file": "test/football_market/synchronization/recovery_test.exs",
       "case_id": "FootballMarket.Synchronization.RecoveryTest:test orphaned begun attempt is interrupted and cannot fabricate success",
       "profile": "integration"
+    },
+    {
+      "id": "f75ab9a8814c11f0189d140c",
+      "runner": "python",
+      "file": "test/scripts/agentflow_branch_test.py",
+      "case_id": "test.scripts.agentflow_branch_test.AgentflowBranchTest.test_explicit_base_accepts_stacked_start_and_publication",
+      "profile": "unit"
     },
     {
       "id": "f7c1739c1f09e9d2c11824c3",

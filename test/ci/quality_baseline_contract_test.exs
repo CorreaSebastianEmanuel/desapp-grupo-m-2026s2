@@ -55,11 +55,11 @@ defmodule FootballMarket.QualityBaselineContractTest do
            ]
   end
 
-  test "workflow gates main pull requests and pushes in least-privilege jobs", context do
+  test "workflow gates every pull request and main pushes in least-privilege jobs", context do
     workflow = File.read!(@workflow)
     document = context.workflow_document
 
-    assert document["on"]["pull_request"]["branches"] == ["main"]
+    assert document["on"]["pull_request"] == %{}
     assert document["on"]["push"]["branches"] == ["main"]
     assert document["permissions"] == %{"contents" => "read"}
 

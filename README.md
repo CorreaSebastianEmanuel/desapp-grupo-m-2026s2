@@ -292,6 +292,11 @@ and opens one PR. The exact PR head must still pass `ThinFlow required` and a
 person decides whether to merge. Use `--no-pr` only for an explicitly local run,
 and start from a clean, current `main` branch.
 
+For an explicit pre-merge canary, keep the migration branch clean and run
+`./agentflow start TASK-NNN --base BRANCH`. The task receives a separate stacked
+PR targeting that branch. After the migration merges, retarget the canary PR to
+`main` and revalidate its exact head before merge.
+
 Agentflow associates tasks with versioned feature ownership, independently of directory numbers. An exact `**Feature Branch**` declaration in the canonical specification is sufficient; optional backlog frontmatter `feature_directory: specs/055-example` must name an immediate child of `specs/` and agree with that declaration. Duplicate, malformed, conflicting, missing or escaping associations are refused. Declaration-free legacy layouts work only with exactly one equal-number candidate and no contradictory ownership. Session pointers and directory timestamps do not establish ownership. Equal-number specifications with a validated branch belonging to another task are excluded from legacy candidates. A new task with no own feature can still begin its product stage; later verification, publication and completion require its own feature.
 
 Task frontmatter uses unindented lowercase scalar keys immediately followed by `:`. Values may be balanced single/double quoted; blank lines, full-line comments and unknown scalar fields are supported. Unsupported forms such as `feature_directory : specs/099-other`, `Status: blocked`, indented/quoted keys, structured YAML and duplicate keys refuse every ownership/state operation before changing backlog or session state. The same parser guards dependency reads and already-done completion retries.

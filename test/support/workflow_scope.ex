@@ -498,6 +498,57 @@ defmodule FootballMarket.WorkflowScope do
     ]
   end
 
+  def paths("specs/070-conditional-buy-orders") do
+    [
+      "config/application_coverage_inventory.json",
+      "config/credo_inventory.json",
+      "config/test_profiles.json",
+      "lib/football_market/market.ex",
+      "lib/football_market/market/conditional_order.ex",
+      "lib/football_market/market/conditional_order_input.ex",
+      "lib/football_market/market/conditional_order_projection.ex",
+      "lib/football_market/market/conditional_order_store.ex",
+      "lib/football_market/market/conditional_orders.ex",
+      "lib/football_market/market/purchase.ex",
+      "lib/football_market/market/purchase_store.ex",
+      "lib/football_market/market/purchase_transaction.ex",
+      "lib/football_market_web/controllers/error_json.ex",
+      "lib/football_market_web/controllers/conditional_order_controller.ex",
+      "lib/football_market_web/controllers/conditional_order_json.ex",
+      "lib/football_market_web/router.ex",
+      "priv/repo/migrations/20261027000000_create_conditional_buy_orders.exs",
+      "priv/static/openapi.json",
+      "scripts/verify_conditional_orders_preflight.exs",
+      "test/football_market/market/conditional_orders/cancellation_race_test.exs",
+      "test/football_market/market/conditional_orders/cancellation_test.exs",
+      "test/football_market/market/conditional_orders/concurrency_test.exs",
+      "test/football_market/market/conditional_orders/contention_test.exs",
+      "test/football_market/market/conditional_orders/creation_test.exs",
+      "test/football_market/market/conditional_orders/evaluation_test.exs",
+      "test/football_market/market/conditional_orders/handoff_test.exs",
+      "test/football_market/market/conditional_orders/input_test.exs",
+      "test/football_market/market/conditional_orders/projection_test.exs",
+      "test/football_market/market/conditional_orders/quote_order_test.exs",
+      "test/football_market/market/conditional_orders/reads_test.exs",
+      "test/football_market/market/conditional_orders/rollback_test.exs",
+      "test/football_market/market/conditional_orders/scope_test.exs",
+      "test/football_market/market/conditional_orders/storage_test.exs",
+      "test/football_market/market/purchases/idempotency_test.exs",
+      "test/football_market/market/purchases/quote_order_test.exs",
+      "test/football_market/market/purchases/rollback_test.exs",
+      "test/football_market/market/purchases/storage_test.exs",
+      "test/football_market/market/scope_test.exs",
+      "test/football_market_web/controllers/conditional_order_controller_test.exs",
+      "test/football_market_web/openapi_contract_test.exs",
+      "test/football_market_web/router_authentication_policy_test.exs",
+      "test/runtime/conditional_orders_http.exs",
+      "test/support/conditional_orders/case.ex",
+      "test/support/conditional_orders/runtime_probe.ex",
+      "test/support/workflow_scope.ex",
+      "tools/openapi/browser.mjs"
+    ]
+  end
+
   def paths(_), do: []
 
   def allows_path?(feature, path) do

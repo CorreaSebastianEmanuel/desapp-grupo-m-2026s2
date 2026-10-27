@@ -12,7 +12,7 @@ defmodule FootballMarket.Market.Purchases.RollbackTest do
   test "nested transaction cannot return a premature completion", f do
     before = PurchasesCase.snapshot()
 
-    assert {:ok, {:error, %{kind: :invalid_request}}} =
+    assert {:ok, {:error, %{kind: :invalid_request, reason: :transaction_in_progress}}} =
              Repo.transaction(fn -> PurchasesCase.purchase(f) end)
 
     assert before == PurchasesCase.snapshot()

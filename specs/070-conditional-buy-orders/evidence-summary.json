@@ -1,0 +1,928 @@
+{
+  "schema_version": 1,
+  "task": "TASK-059",
+  "feature": "070-conditional-buy-orders",
+  "base_revision": "2ee77c3610f8fb7236d1855ef1da91d159544ed4",
+  "verified_source": "5edab50e9f7f7cca096b477d3398a35f98d3f81c0bb0d6afde1c2b1213fabbc7",
+  "canonical_inputs": "15e433867d15775ec502ef0093706eccf0800c72d0429ce3378c5e3adf575afd",
+  "manifest_sha256": "da1049621b4c35ef2f2611e992b07b71074438f9ce824db93e206512137150d0",
+  "ci": {},
+  "checks": [
+    {
+      "id": "toolchain",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "5294d9295c9803fe53aa2ecdfdfd453a3bb2d9f7e43291224a43171d565d1a85",
+      "elapsed_seconds": 1.271,
+      "output_sha256": "d26f020c67adf23d872b7c3b9beda3e56501e34de2e830cf1a8ec814bd1a2e65",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/develop/toolchain/baa3fcab569144929e6ef668bb8dde53.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "coverage": []
+    },
+    {
+      "id": "preflight",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "718853c68b9fdcdbc60cc5a7899ed2e66a26b69cab0b7ff5cb2134fb7c9ac432",
+      "elapsed_seconds": 1.826,
+      "output_sha256": "15eb46ab29bf5d2b5bc7f73f426e189d10d0446d0cbe73877ae75c5b91b70c9c",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/develop/preflight/68c8ed6da86d4e68aa690cb83226878e.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "coverage": []
+    },
+    {
+      "id": "format",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "7af31bf2a172f5e7abf63175405019b425eb083cb00280e6a830f89696418263",
+      "elapsed_seconds": 1.261,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/develop/format/a533dd95dedb42dbaffd243a66e7669e.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "coverage": []
+    },
+    {
+      "id": "compile",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "1cae4ce9b3a61da9d5a51d38dcda78cb684b0f8670db2408609b0df295dc76cb",
+      "elapsed_seconds": 0.962,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/develop/compile/80d9f9ffffbf4d738d0339802746b4ad.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "coverage": []
+    },
+    {
+      "id": "credo",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "9db7c1a04eba438f0d4cdf668192c23f7b00be7f827e12d0f751952115f11aa2",
+      "elapsed_seconds": 12.132,
+      "output_sha256": "0c47c16bdf393874e6aaf272d4aa2e14cb6dc1979aa8d935e75eeebfae910ee8",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/develop/credo/4d3ee8f42a114511b1f03bab302555db.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "coverage": []
+    },
+    {
+      "id": "openapi",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "e967d77a31850bf65467d39976b9d3510d8ab02c054d99cde00b1b19280d0fcd",
+      "elapsed_seconds": 0.394,
+      "output_sha256": "8475d9724f69fde9c55e3d695e7623dce342858772e647629a513b89f86a8ccb",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/develop/openapi/7a3c7277498b47a1855159f1032a8565.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "coverage": []
+    },
+    {
+      "id": "inventory",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "077e9a679a8a9da9cf6524dce55734171205233e38fd53db44bde48eccdd7b52",
+      "elapsed_seconds": 30.12,
+      "output_sha256": "630f4e3a85dde1e81a4c35a7658ad16545c1d5b9b0db2e4da020a8e8621b5bc3",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/develop/inventory/83f81c328dba44adacf4eb1223df3d60.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "coverage": []
+    },
+    {
+      "id": "ci-parity",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "e45653272165b669015d86e10129aaadc1ede383c9773d9dc218e1ceb8e2a8e8",
+      "elapsed_seconds": 1.639,
+      "output_sha256": "67df14ab4cfe64dcd5b549d4a90e91a038b1cad1a0076aec09ab9db0d7358ee4",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/develop/ci-parity/99cf64219bb44ba68d94d55d34f06854.log"
+      },
+      "environment": {},
+      "coverage": []
+    },
+    {
+      "id": "handoff-contract",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "6396fa0c158ac943359d5697ff8a05ae9a66511ef5118f4ff3a23032b3ae93eb",
+      "elapsed_seconds": 0.034,
+      "output_sha256": "2414ec76a9bfdbacfb6fb7816a77f7ed3fa9add02727b74e4e76d55c989452be",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/develop/handoff-contract/f039cbe9b0dc49f58b92a99d914141f4.log"
+      },
+      "environment": {},
+      "coverage": [
+        "FR-004",
+        "FR-021"
+      ]
+    },
+    {
+      "id": "unit",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "688b7d9cb2acba8c12ff6bdf109d397e9b9727349bdc243c3e3023ad6b20736d",
+      "elapsed_seconds": 182.232,
+      "output_sha256": "fccf436e77f3916cc9e4631b18722d8c6c0a00f8a5f4f901f11e16596e322ddf",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/develop/unit/4c048c1e71b74766adaceaf142f8f24b.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "coverage": [
+        "FR-001",
+        "FR-015",
+        "FR-017",
+        "FR-019",
+        "SC-007"
+      ]
+    },
+    {
+      "id": "integration",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "de0b1bebc3d7ca32d588be17d44db1867b2f0faf5eada3f8f1b01453ae9fe132",
+      "elapsed_seconds": 849.82,
+      "output_sha256": "146da846857829f1350ff3810885456f30bc8854bc8d64e2dcbdeb680f6b2977",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/develop/integration/5b26d5f298c545af823d8265be5dc910.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "coverage": [
+        "FR-001",
+        "FR-002",
+        "FR-003",
+        "FR-004",
+        "FR-005",
+        "FR-006",
+        "FR-007",
+        "FR-008",
+        "FR-009",
+        "FR-010",
+        "FR-011",
+        "FR-012",
+        "FR-013",
+        "FR-014",
+        "FR-015",
+        "FR-016",
+        "FR-018",
+        "FR-019",
+        "FR-020",
+        "FR-021",
+        "FR-022",
+        "SC-001",
+        "SC-002",
+        "SC-003",
+        "SC-004",
+        "SC-005",
+        "SC-006",
+        "SC-007",
+        "SC-008"
+      ]
+    },
+    {
+      "id": "assets",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "ed6befc2a32261370432b8bd613cb78a704c19a1f405962c83fb16e08fa1182f",
+      "elapsed_seconds": 1.427,
+      "output_sha256": "1cee8d655b3b8c8af758ddd18c7400b747b6d7f5aa20b51ba5bc51dfb8c27734",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/develop/assets/45d285ce74e34b1f8416da86bc0a3d3a.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "coverage": []
+    },
+    {
+      "id": "e2e",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "26377a8573f35eb487b5eeae47f4ea82d84d364e6c91dd6c705fbd64211b3481",
+      "elapsed_seconds": 56.63,
+      "output_sha256": "46faacde536f7124a2739f6e740146d50ebd9ff99213e9c6744fdf95ddfb2579",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/develop/e2e/08564d8a6d834e88bd0477c3050779e6.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "coverage": []
+    },
+    {
+      "id": "http",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "92a0d7b696cd24520c6090d00e8264b7a42072cd0d8a1bf6c10039c9cb42ec98",
+      "elapsed_seconds": 6.083,
+      "output_sha256": "c83f484e6dc9de5981b34279b3f65ebede48043bc8cb37b9776dd8a59078a47a",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/develop/http/cdd50056d5d04a26b361625a143b3813.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "coverage": [
+        "FR-001",
+        "FR-002",
+        "FR-013",
+        "FR-014",
+        "FR-015",
+        "FR-019",
+        "FR-022",
+        "SC-005",
+        "SC-007"
+      ]
+    },
+    {
+      "id": "purchase-focused",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "02a9bcc9c3c7d116adc0e414b7a048f653a3b43a18caaed50326a48e7df945e4",
+      "elapsed_seconds": 26.461,
+      "output_sha256": "fb735334abd1fd7d9b5103ef77691854af427ee578ed5b353ea8f228ab2f8dec",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/develop/purchase-focused/7a02a49885cf446a80de093f48b61d0b.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "coverage": []
+    },
+    {
+      "id": "orders-unit-focused",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "7b5d03f8b5bd39fd2f05f6361aeeb27d7a68c1923ef24d891419ab0710a8e202",
+      "elapsed_seconds": 1.975,
+      "output_sha256": "6235561314df52b0916c7eb0f4160a0f313d320ebecbe328d04d4cc7d25a3cb9",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/develop/orders-unit-focused/b879f353fd7143b4953059f3a383fe4c.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "coverage": []
+    },
+    {
+      "id": "orders-focused",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "0b837f5d85368347a5a66daa88a7d2b8a93cb392acf5aeab50313f5baa093110",
+      "elapsed_seconds": 44.801,
+      "output_sha256": "4be8a2b9033d2334e9009c2b508b60cb72b4dd4aa9e4966e3da3ec1c0842e358",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/develop/orders-focused/77b58e1009af44349c7dee878e80a55a.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "coverage": []
+    },
+    {
+      "id": "evaluator-focused",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "fc92342a5b6b1f97c80dc9a9a8d4e8c795bb57c68f08a96dd372e6bbb0f2e5c5",
+      "elapsed_seconds": 34.682,
+      "output_sha256": "508fd352d9dc3ed867154b522b6300d5b338ebedfae3d110492619c7386aff26",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/develop/evaluator-focused/f32d6735190b48a8938f730bc02d3447.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "coverage": []
+    },
+    {
+      "id": "cancel-focused",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "52c8afff7a0da323901ccc1b75a2837528322c995174bd1142aba2fad3ab7faf",
+      "elapsed_seconds": 27.997,
+      "output_sha256": "12dac168d79dde702354b3a7a57ec93de0fd237f9e48964dea4f13a8ec039e80",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/develop/cancel-focused/c1dcb89aaffd40fb944e948b068c63b9.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "coverage": []
+    },
+    {
+      "id": "scope-focused",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "0f43403eee9a91a1a440a9cb8b7fb2aa8eb3519933012321492e8ef53fd073da",
+      "elapsed_seconds": 1.965,
+      "output_sha256": "517ea871faa87e3235d8a41d89573dd06ca1c0a62be3d30eff474afc5bed03e4",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/develop/scope-focused/701273d4af824134ba1aa01f36db81b3.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "coverage": []
+    },
+    {
+      "id": "artifacts",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "7bdd1e0277cff6b80392e9bc351cc0a816e743b6d6b5db032563d92c1eecca69",
+      "elapsed_seconds": 0.063,
+      "output_sha256": "ce6ef8aad11d270a0c01f55fbe34dca128bb71886c02989303600f6c39ace087",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/develop/artifacts/af105c25580d4553ae48c3a0dca6a17a.log"
+      },
+      "environment": {},
+      "coverage": []
+    },
+    {
+      "id": "toolchain",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "5294d9295c9803fe53aa2ecdfdfd453a3bb2d9f7e43291224a43171d565d1a85",
+      "elapsed_seconds": 1.268,
+      "output_sha256": "d26f020c67adf23d872b7c3b9beda3e56501e34de2e830cf1a8ec814bd1a2e65",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/qa/toolchain/909c26d86fe44373a67ec31984fcceb5.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "coverage": []
+    },
+    {
+      "id": "preflight",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "718853c68b9fdcdbc60cc5a7899ed2e66a26b69cab0b7ff5cb2134fb7c9ac432",
+      "elapsed_seconds": 1.691,
+      "output_sha256": "15eb46ab29bf5d2b5bc7f73f426e189d10d0446d0cbe73877ae75c5b91b70c9c",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/qa/preflight/5760ca162c8b4f57a95841ab48aa8f97.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "coverage": []
+    },
+    {
+      "id": "format",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "7af31bf2a172f5e7abf63175405019b425eb083cb00280e6a830f89696418263",
+      "elapsed_seconds": 1.186,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/qa/format/3f8f550bbc9c46128a72c633ca91dd94.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "coverage": []
+    },
+    {
+      "id": "compile",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "1cae4ce9b3a61da9d5a51d38dcda78cb684b0f8670db2408609b0df295dc76cb",
+      "elapsed_seconds": 0.913,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/qa/compile/7df3e5a1ba1843729f83a214543fcdd4.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "coverage": []
+    },
+    {
+      "id": "credo",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "9db7c1a04eba438f0d4cdf668192c23f7b00be7f827e12d0f751952115f11aa2",
+      "elapsed_seconds": 11.69,
+      "output_sha256": "0c47c16bdf393874e6aaf272d4aa2e14cb6dc1979aa8d935e75eeebfae910ee8",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/qa/credo/27265e056a1b48aa913b038c4331e470.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "coverage": []
+    },
+    {
+      "id": "openapi",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "e967d77a31850bf65467d39976b9d3510d8ab02c054d99cde00b1b19280d0fcd",
+      "elapsed_seconds": 0.427,
+      "output_sha256": "8475d9724f69fde9c55e3d695e7623dce342858772e647629a513b89f86a8ccb",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/qa/openapi/817469c6ae9e4d1c984217c77d967f85.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "coverage": []
+    },
+    {
+      "id": "inventory",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "077e9a679a8a9da9cf6524dce55734171205233e38fd53db44bde48eccdd7b52",
+      "elapsed_seconds": 30.396,
+      "output_sha256": "630f4e3a85dde1e81a4c35a7658ad16545c1d5b9b0db2e4da020a8e8621b5bc3",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/qa/inventory/c31e257b4821434fbbbadaa50bc06352.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "coverage": []
+    },
+    {
+      "id": "ci-parity",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "e45653272165b669015d86e10129aaadc1ede383c9773d9dc218e1ceb8e2a8e8",
+      "elapsed_seconds": 1.731,
+      "output_sha256": "67df14ab4cfe64dcd5b549d4a90e91a038b1cad1a0076aec09ab9db0d7358ee4",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/qa/ci-parity/cf4956c59a5c445e8e8e70b478819185.log"
+      },
+      "environment": {},
+      "coverage": []
+    },
+    {
+      "id": "handoff-contract",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "6396fa0c158ac943359d5697ff8a05ae9a66511ef5118f4ff3a23032b3ae93eb",
+      "elapsed_seconds": 0.063,
+      "output_sha256": "2414ec76a9bfdbacfb6fb7816a77f7ed3fa9add02727b74e4e76d55c989452be",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/qa/handoff-contract/ce2434435b4748a2a58144dd2cc49548.log"
+      },
+      "environment": {},
+      "coverage": [
+        "FR-004",
+        "FR-021"
+      ]
+    },
+    {
+      "id": "unit",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "688b7d9cb2acba8c12ff6bdf109d397e9b9727349bdc243c3e3023ad6b20736d",
+      "elapsed_seconds": 184.953,
+      "output_sha256": "fccf436e77f3916cc9e4631b18722d8c6c0a00f8a5f4f901f11e16596e322ddf",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/qa/unit/21eb2c85820a4e0ca4226ef208d81191.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "coverage": [
+        "FR-001",
+        "FR-015",
+        "FR-017",
+        "FR-019",
+        "SC-007"
+      ]
+    },
+    {
+      "id": "integration",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "de0b1bebc3d7ca32d588be17d44db1867b2f0faf5eada3f8f1b01453ae9fe132",
+      "elapsed_seconds": 694.567,
+      "output_sha256": "146da846857829f1350ff3810885456f30bc8854bc8d64e2dcbdeb680f6b2977",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/qa/integration/91efe397719b4414afe6551b193a64e9.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "coverage": [
+        "FR-001",
+        "FR-002",
+        "FR-003",
+        "FR-004",
+        "FR-005",
+        "FR-006",
+        "FR-007",
+        "FR-008",
+        "FR-009",
+        "FR-010",
+        "FR-011",
+        "FR-012",
+        "FR-013",
+        "FR-014",
+        "FR-015",
+        "FR-016",
+        "FR-018",
+        "FR-019",
+        "FR-020",
+        "FR-021",
+        "FR-022",
+        "SC-001",
+        "SC-002",
+        "SC-003",
+        "SC-004",
+        "SC-005",
+        "SC-006",
+        "SC-007",
+        "SC-008"
+      ]
+    },
+    {
+      "id": "assets",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "ed6befc2a32261370432b8bd613cb78a704c19a1f405962c83fb16e08fa1182f",
+      "elapsed_seconds": 1.237,
+      "output_sha256": "09cd043758c95161e93b3784a7a0a052530e2b24f1e9475bfcb2613feec52876",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/qa/assets/f040a3ea63174bf285d9c326fd055406.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "coverage": []
+    },
+    {
+      "id": "e2e",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "26377a8573f35eb487b5eeae47f4ea82d84d364e6c91dd6c705fbd64211b3481",
+      "elapsed_seconds": 46.798,
+      "output_sha256": "46faacde536f7124a2739f6e740146d50ebd9ff99213e9c6744fdf95ddfb2579",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/qa/e2e/162ca251366f4a76b328e3077c8f67ef.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "coverage": []
+    },
+    {
+      "id": "http",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "92a0d7b696cd24520c6090d00e8264b7a42072cd0d8a1bf6c10039c9cb42ec98",
+      "elapsed_seconds": 4.604,
+      "output_sha256": "91561b97331c15bb3612f536cbe5baeda1b9451fdffc514aff625309b4c12cbb",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/qa/http/84ad4c226513481487ad1eb79e8c4fd4.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "coverage": [
+        "FR-001",
+        "FR-002",
+        "FR-013",
+        "FR-014",
+        "FR-015",
+        "FR-019",
+        "FR-022",
+        "SC-005",
+        "SC-007"
+      ]
+    },
+    {
+      "id": "purchase-focused",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "02a9bcc9c3c7d116adc0e414b7a048f653a3b43a18caaed50326a48e7df945e4",
+      "elapsed_seconds": 20.252,
+      "output_sha256": "f82bce2edc5db134db07bddd98b23dab8dc627f9d22b3fd505dec97329cc8ee3",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/qa/purchase-focused/27ded91ab8024f5cb6610fddebfafad8.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "coverage": []
+    },
+    {
+      "id": "orders-unit-focused",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "7b5d03f8b5bd39fd2f05f6361aeeb27d7a68c1923ef24d891419ab0710a8e202",
+      "elapsed_seconds": 1.546,
+      "output_sha256": "546add5d3776c4f37e952eef30907f2a7f67d6b2349c8e5559bc3bb5c9a09172",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/qa/orders-unit-focused/ea892fecdb604332acdb899b96c70eec.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "coverage": []
+    },
+    {
+      "id": "orders-focused",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "0b837f5d85368347a5a66daa88a7d2b8a93cb392acf5aeab50313f5baa093110",
+      "elapsed_seconds": 31.631,
+      "output_sha256": "d55d58ea7970923b1f3bc3bfb10ce115e852d0503ea5d4a326040aaa2b06e77a",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/qa/orders-focused/e4cd470688fa42f09cb09982efa459fc.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "coverage": []
+    },
+    {
+      "id": "evaluator-focused",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "fc92342a5b6b1f97c80dc9a9a8d4e8c795bb57c68f08a96dd372e6bbb0f2e5c5",
+      "elapsed_seconds": 29.531,
+      "output_sha256": "a075438ce5a747e6b022f317b9847228b2d7092f8dc3dd2e2548faa2c84f4149",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/qa/evaluator-focused/3bd49a29bd9e4208a62e328b58ec31e4.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "coverage": []
+    },
+    {
+      "id": "cancel-focused",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "52c8afff7a0da323901ccc1b75a2837528322c995174bd1142aba2fad3ab7faf",
+      "elapsed_seconds": 23.978,
+      "output_sha256": "ca23bf015ff0fe1976ceff2261ce66c0be949cfb71ad83490fa39eeec2111e4a",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/qa/cancel-focused/38a996aef4a343ec9245c12c3b98c5a0.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "coverage": []
+    },
+    {
+      "id": "scope-focused",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "0f43403eee9a91a1a440a9cb8b7fb2aa8eb3519933012321492e8ef53fd073da",
+      "elapsed_seconds": 1.614,
+      "output_sha256": "00e7fa01884fdfc1dd9fb48163701ea88e65faa6b2eb63000ec8e35d7a4592f0",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/qa/scope-focused/34456ac3d09643c9a70d924c26b2d53d.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "coverage": []
+    },
+    {
+      "id": "artifacts",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "7bdd1e0277cff6b80392e9bc351cc0a816e743b6d6b5db032563d92c1eecca69",
+      "elapsed_seconds": 0.055,
+      "output_sha256": "ce6ef8aad11d270a0c01f55fbe34dca128bb71886c02989303600f6c39ace087",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/42ea911aef6f40bba377c566b3ced82a/070-conditional-buy-orders/qa/artifacts/00cba3009b71408f8168e9ed37dfdff4.log"
+      },
+      "environment": {},
+      "coverage": []
+    }
+  ],
+  "coverage": {
+    "FR-001": [
+      "unit",
+      "integration",
+      "http"
+    ],
+    "FR-002": [
+      "integration",
+      "http"
+    ],
+    "FR-003": [
+      "integration"
+    ],
+    "FR-004": [
+      "integration",
+      "handoff-contract"
+    ],
+    "FR-005": [
+      "integration"
+    ],
+    "FR-006": [
+      "integration"
+    ],
+    "FR-007": [
+      "integration"
+    ],
+    "FR-008": [
+      "integration"
+    ],
+    "FR-009": [
+      "integration"
+    ],
+    "FR-010": [
+      "integration"
+    ],
+    "FR-011": [
+      "integration"
+    ],
+    "FR-012": [
+      "integration"
+    ],
+    "FR-013": [
+      "integration",
+      "http"
+    ],
+    "FR-014": [
+      "integration",
+      "http"
+    ],
+    "FR-015": [
+      "unit",
+      "integration",
+      "http"
+    ],
+    "FR-016": [
+      "integration"
+    ],
+    "FR-017": [
+      "unit"
+    ],
+    "FR-018": [
+      "integration"
+    ],
+    "FR-019": [
+      "unit",
+      "integration",
+      "http"
+    ],
+    "FR-020": [
+      "integration"
+    ],
+    "FR-021": [
+      "integration",
+      "handoff-contract"
+    ],
+    "FR-022": [
+      "integration",
+      "http"
+    ],
+    "SC-001": [
+      "integration"
+    ],
+    "SC-002": [
+      "integration"
+    ],
+    "SC-003": [
+      "integration"
+    ],
+    "SC-004": [
+      "integration"
+    ],
+    "SC-005": [
+      "integration",
+      "http"
+    ],
+    "SC-006": [
+      "integration"
+    ],
+    "SC-007": [
+      "unit",
+      "integration",
+      "http"
+    ],
+    "SC-008": [
+      "integration"
+    ]
+  },
+  "independent_reports": {
+    "qa-report.md": {
+      "verdict": "PASS",
+      "sha256": "572106df90ef34faa52240fa185550b66b747e4a1fcf5ef4d55a63e5ddb9c6f9"
+    },
+    "review-report.md": {
+      "verdict": "PASS",
+      "sha256": "7264c8812a74edf0f4b33b548c283766474b52abcadc69eefac1147f090e3b85"
+    }
+  },
+  "complete": true,
+  "limitations": [
+    "Portable summary does not authorize workspace reuse; run local checks."
+  ],
+  "finalized_at": "2026-10-27T15:09:29.690166+00:00"
+}

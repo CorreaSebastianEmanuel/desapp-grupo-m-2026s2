@@ -1,0 +1,656 @@
+{
+  "schema_version": 1,
+  "toolchain_required": true,
+  "runtime_required": true,
+  "checks": [
+    {
+      "id": "toolchain",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "sh",
+        "scripts/check_toolchain.sh"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "depends_on": [],
+      "isolation": "shared",
+      "state_reads": [
+        "workspace"
+      ],
+      "state_writes": [
+        "build",
+        "test-state"
+      ]
+    },
+    {
+      "id": "preflight",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "mix",
+        "run",
+        "--no-start",
+        "scripts/verify_conditional_orders_preflight.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "depends_on": [
+        "toolchain"
+      ],
+      "isolation": "shared",
+      "state_reads": [
+        "workspace"
+      ],
+      "state_writes": [
+        "build",
+        "test-state"
+      ],
+      "reuse": false
+    },
+    {
+      "id": "format",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "mix",
+        "format",
+        "--check-formatted"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "depends_on": [
+        "toolchain"
+      ],
+      "isolation": "shared",
+      "state_reads": [
+        "workspace"
+      ],
+      "state_writes": [
+        "build",
+        "test-state"
+      ]
+    },
+    {
+      "id": "compile",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "mix",
+        "compile",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "depends_on": [
+        "toolchain"
+      ],
+      "isolation": "shared",
+      "state_reads": [
+        "workspace"
+      ],
+      "state_writes": [
+        "build",
+        "test-state"
+      ]
+    },
+    {
+      "id": "credo",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "sh",
+        "scripts/credo_ci.sh"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "depends_on": [
+        "compile"
+      ],
+      "isolation": "shared",
+      "state_reads": [
+        "workspace"
+      ],
+      "state_writes": [
+        "build",
+        "test-state"
+      ]
+    },
+    {
+      "id": "openapi",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "node",
+        "tools/openapi/validate.mjs",
+        "priv/static/openapi.json"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "depends_on": [
+        "toolchain"
+      ],
+      "isolation": "shared",
+      "state_reads": [
+        "workspace"
+      ],
+      "state_writes": [
+        "build",
+        "test-state"
+      ]
+    },
+    {
+      "id": "inventory",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "python3",
+        "scripts/test_inventory.py",
+        "check"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "depends_on": [
+        "preflight",
+        "compile"
+      ],
+      "isolation": "shared",
+      "state_reads": [
+        "workspace"
+      ],
+      "state_writes": [
+        "build",
+        "test-state"
+      ]
+    },
+    {
+      "id": "ci-parity",
+      "argv": [
+        "python3",
+        "scripts/agentflow_stage_checks.py",
+        "--ci-parity"
+      ],
+      "env": {},
+      "depends_on": [],
+      "isolation": "isolated",
+      "state_reads": [],
+      "state_writes": [],
+      "execution_class": "static"
+    },
+    {
+      "id": "handoff-contract",
+      "argv": [
+        "python3",
+        "-c",
+        "import json\nfrom pathlib import Path\np=Path('specs/070-conditional-buy-orders/contracts/task060-handoff.json')\nd=json.loads(p.read_text())\nassert d['schema_version']==1 and d['owner']=='TASK-060'\nassert d['implementation_in_task059'] is False and d['timing_sla'] is None and d['read_triggered_recovery'] is False\nassert set(d['required_integration_scenarios'])=={'create_and_work_atomic_commit_or_rollback','quote_and_work_atomic_commit_or_replay','interrupted_delivery_after_quote_commit_recovered','missed_delivery_revisits_pending_orders','due_expiry_without_quote_recovered','repeated_delivery_no_duplicate_purchase'}\nassert set(d['task059_seams'])=={'transaction_local_create','pending_candidates_include_due','evaluate_by_id_no_event_price'}\nprint('TASK-060 contract retained; durable worker behavior requires TASK-060 implementation and independent integration tests')"
+      ],
+      "env": {},
+      "depends_on": [],
+      "isolation": "isolated",
+      "state_reads": [
+        "workspace"
+      ],
+      "state_writes": []
+    },
+    {
+      "id": "unit",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "mix",
+        "test.unit"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "depends_on": [
+        "preflight",
+        "compile",
+        "inventory",
+        "openapi"
+      ],
+      "isolation": "shared",
+      "state_reads": [
+        "workspace"
+      ],
+      "state_writes": [
+        "build",
+        "test-state"
+      ]
+    },
+    {
+      "id": "integration",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "mix",
+        "test.integration"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "depends_on": [
+        "preflight",
+        "compile",
+        "inventory",
+        "openapi",
+        "unit"
+      ],
+      "isolation": "shared",
+      "state_reads": [
+        "workspace"
+      ],
+      "state_writes": [
+        "build",
+        "test-state"
+      ]
+    },
+    {
+      "id": "assets",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "mix",
+        "assets.build"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "depends_on": [
+        "compile"
+      ],
+      "isolation": "shared",
+      "state_reads": [
+        "workspace"
+      ],
+      "state_writes": [
+        "build",
+        "test-state"
+      ]
+    },
+    {
+      "id": "e2e",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "mix",
+        "test.e2e"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "depends_on": [
+        "preflight",
+        "assets",
+        "integration"
+      ],
+      "isolation": "shared",
+      "state_reads": [
+        "workspace"
+      ],
+      "state_writes": [
+        "build",
+        "test-state"
+      ],
+      "retry_env": [
+        "AGENTFLOW_CODEX_SANDBOX_MODE"
+      ]
+    },
+    {
+      "id": "http",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "mix",
+        "run",
+        "test/runtime/conditional_orders_http.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "depends_on": [
+        "preflight",
+        "compile",
+        "integration"
+      ],
+      "isolation": "shared",
+      "state_reads": [
+        "workspace"
+      ],
+      "state_writes": [
+        "build",
+        "test-state"
+      ],
+      "runtime": true,
+      "reuse": false,
+      "expectation": "Owned-schema real Endpoint/Bandit HTTP with bounded PostgreSQL SELECT 1, Redis PONG and listener readiness. Assert create 201/Location, list/detail/cancel 200 JSON, invalid terms 400, absent/malformed/foreign IDs 404, uninitialized/self purchase 409, unauthenticated 401 and WWW-Authenticate, application/json on all responses, expiry projections and zero GET/list mutations/job inserts, executed/rejected outcome data, conserved 100 tokens, exact balanced amounts and one purchase per order; services or assertions failing must exit nonzero."
+    },
+    {
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "depends_on": [
+        "preflight"
+      ],
+      "isolation": "shared",
+      "state_reads": [
+        "workspace"
+      ],
+      "state_writes": [
+        "build",
+        "test-state"
+      ],
+      "id": "purchase-focused",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "mix",
+        "test",
+        "test/football_market/market/purchases/idempotency_test.exs",
+        "test/football_market/market/purchases/rollback_test.exs",
+        "test/football_market/market/purchases/quote_order_test.exs"
+      ]
+    },
+    {
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "depends_on": [
+        "preflight"
+      ],
+      "isolation": "shared",
+      "state_reads": [
+        "workspace"
+      ],
+      "state_writes": [
+        "build",
+        "test-state"
+      ],
+      "id": "orders-unit-focused",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "mix",
+        "test",
+        "test/football_market/market/conditional_orders/input_test.exs",
+        "test/football_market/market/conditional_orders/projection_test.exs"
+      ]
+    },
+    {
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "depends_on": [
+        "preflight"
+      ],
+      "isolation": "shared",
+      "state_reads": [
+        "workspace"
+      ],
+      "state_writes": [
+        "build",
+        "test-state"
+      ],
+      "id": "orders-focused",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "mix",
+        "test",
+        "test/football_market/market/conditional_orders/creation_test.exs",
+        "test/football_market/market/conditional_orders/reads_test.exs",
+        "test/football_market/market/conditional_orders/storage_test.exs",
+        "test/football_market/market/conditional_orders/handoff_test.exs",
+        "test/football_market_web/controllers/conditional_order_controller_test.exs"
+      ]
+    },
+    {
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "depends_on": [
+        "preflight"
+      ],
+      "isolation": "shared",
+      "state_reads": [
+        "workspace"
+      ],
+      "state_writes": [
+        "build",
+        "test-state"
+      ],
+      "id": "evaluator-focused",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "mix",
+        "test",
+        "test/football_market/market/conditional_orders/evaluation_test.exs",
+        "test/football_market/market/conditional_orders/rollback_test.exs",
+        "test/football_market/market/conditional_orders/concurrency_test.exs",
+        "test/football_market/market/conditional_orders/contention_test.exs",
+        "test/football_market/market/conditional_orders/quote_order_test.exs"
+      ]
+    },
+    {
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "depends_on": [
+        "preflight"
+      ],
+      "isolation": "shared",
+      "state_reads": [
+        "workspace"
+      ],
+      "state_writes": [
+        "build",
+        "test-state"
+      ],
+      "id": "cancel-focused",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "mix",
+        "test",
+        "test/football_market/market/conditional_orders/cancellation_test.exs",
+        "test/football_market/market/conditional_orders/cancellation_race_test.exs",
+        "test/football_market_web/controllers/conditional_order_controller_test.exs",
+        "test/football_market/market/conditional_orders/reads_test.exs"
+      ]
+    },
+    {
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "depends_on": [
+        "preflight"
+      ],
+      "isolation": "shared",
+      "state_reads": [
+        "workspace"
+      ],
+      "state_writes": [
+        "build",
+        "test-state"
+      ],
+      "id": "scope-focused",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "mix",
+        "test",
+        "test/football_market/market/conditional_orders/scope_test.exs"
+      ]
+    },
+    {
+      "id": "artifacts",
+      "argv": [
+        "python3",
+        "scripts/agentflow_artifacts.py",
+        "specs/070-conditional-buy-orders"
+      ],
+      "env": {},
+      "depends_on": [],
+      "isolation": "isolated",
+      "state_reads": [
+        "workspace"
+      ],
+      "state_writes": []
+    }
+  ],
+  "coverage": {
+    "FR-001": [
+      "unit",
+      "integration",
+      "http"
+    ],
+    "FR-002": [
+      "integration",
+      "http"
+    ],
+    "FR-003": [
+      "integration"
+    ],
+    "FR-004": [
+      "integration",
+      "handoff-contract"
+    ],
+    "FR-005": [
+      "integration"
+    ],
+    "FR-006": [
+      "integration"
+    ],
+    "FR-007": [
+      "integration"
+    ],
+    "FR-008": [
+      "integration"
+    ],
+    "FR-009": [
+      "integration"
+    ],
+    "FR-010": [
+      "integration"
+    ],
+    "FR-011": [
+      "integration"
+    ],
+    "FR-012": [
+      "integration"
+    ],
+    "FR-013": [
+      "integration",
+      "http"
+    ],
+    "FR-014": [
+      "integration",
+      "http"
+    ],
+    "FR-015": [
+      "unit",
+      "integration",
+      "http"
+    ],
+    "FR-016": [
+      "integration"
+    ],
+    "FR-017": [
+      "unit"
+    ],
+    "FR-018": [
+      "integration"
+    ],
+    "FR-019": [
+      "unit",
+      "integration",
+      "http"
+    ],
+    "FR-020": [
+      "integration"
+    ],
+    "FR-021": [
+      "integration",
+      "handoff-contract"
+    ],
+    "FR-022": [
+      "integration",
+      "http"
+    ],
+    "SC-001": [
+      "integration"
+    ],
+    "SC-002": [
+      "integration"
+    ],
+    "SC-003": [
+      "integration"
+    ],
+    "SC-004": [
+      "integration"
+    ],
+    "SC-005": [
+      "integration",
+      "http"
+    ],
+    "SC-006": [
+      "integration"
+    ],
+    "SC-007": [
+      "unit",
+      "integration",
+      "http"
+    ],
+    "SC-008": [
+      "integration"
+    ]
+  },
+  "task_stages": {
+    "T032": "qa",
+    "T033": "review"
+  }
+}

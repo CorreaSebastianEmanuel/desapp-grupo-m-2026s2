@@ -1,4 +1,4 @@
-# ADR-0036: Versioned outcome-first ThinFlow delivery
+# ADR-0037: Versioned outcome-first ThinFlow delivery
 
 - Status: Accepted
 - Date: 2026-10-27

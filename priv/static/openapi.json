@@ -1024,6 +1024,404 @@
           }
         }
       }
+    },
+    "/api/conditional-orders": {
+      "post": {
+        "operationId": "createConditionalOrder",
+        "summary": "Create an owned conditional buy instruction without reservations",
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Pending instruction retained",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConditionalOrderSuccess"
+                }
+              }
+            },
+            "headers": {
+              "Location": {
+                "description": "Owned order resource path",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid immutable terms or unsupported query",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConditionalOrderError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No usable credential; authentication precedes validation and catalog access.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthenticatedError"
+                },
+                "examples": {
+                  "unauthenticated": {
+                    "value": {
+                      "error": {
+                        "code": "unauthenticated"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "WWW-Authenticate": {
+                "description": "Bearer challenge",
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "Bearer realm=\"api\""
+                  ]
+                },
+                "example": "Bearer realm=\"api\""
+              }
+            }
+          },
+          "404": {
+            "description": "Resource unavailable to authenticated actor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConditionalOrderError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Uninitialized player or self purchase",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConditionalOrderError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Retryable storage failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConditionalOrderError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConditionalOrderRequest"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "operationId": "listConditionalOrders",
+        "summary": "List persisted owned instructions with derived expiry",
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Owned persisted outcome; expiry is derived",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConditionalOrderList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid immutable terms or unsupported query",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConditionalOrderError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No usable credential; authentication precedes validation and catalog access.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthenticatedError"
+                },
+                "examples": {
+                  "unauthenticated": {
+                    "value": {
+                      "error": {
+                        "code": "unauthenticated"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "WWW-Authenticate": {
+                "description": "Bearer challenge",
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "Bearer realm=\"api\""
+                  ]
+                },
+                "example": "Bearer realm=\"api\""
+              }
+            }
+          },
+          "503": {
+            "description": "Retryable storage failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConditionalOrderError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/conditional-orders/{id}": {
+      "get": {
+        "operationId": "getConditionalOrder",
+        "summary": "Read persisted owned instruction without evaluation",
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Owned persisted outcome; expiry is derived",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConditionalOrderSuccess"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid immutable terms or unsupported query",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConditionalOrderError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No usable credential; authentication precedes validation and catalog access.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthenticatedError"
+                },
+                "examples": {
+                  "unauthenticated": {
+                    "value": {
+                      "error": {
+                        "code": "unauthenticated"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "WWW-Authenticate": {
+                "description": "Bearer challenge",
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "Bearer realm=\"api\""
+                  ]
+                },
+                "example": "Bearer realm=\"api\""
+              }
+            }
+          },
+          "404": {
+            "description": "Resource unavailable to authenticated actor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConditionalOrderError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Retryable storage failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConditionalOrderError"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      }
+    },
+    "/api/conditional-orders/{id}/cancel": {
+      "post": {
+        "operationId": "cancelConditionalOrder",
+        "summary": "Cancel a pending owned instruction or return its terminal outcome",
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Owned persisted outcome; expiry is derived",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConditionalOrderSuccess"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid immutable terms or unsupported query",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConditionalOrderError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No usable credential; authentication precedes validation and catalog access.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthenticatedError"
+                },
+                "examples": {
+                  "unauthenticated": {
+                    "value": {
+                      "error": {
+                        "code": "unauthenticated"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "WWW-Authenticate": {
+                "description": "Bearer challenge",
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "Bearer realm=\"api\""
+                  ]
+                },
+                "example": "Bearer realm=\"api\""
+              }
+            }
+          },
+          "404": {
+            "description": "Resource unavailable to authenticated actor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConditionalOrderError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Retryable storage failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConditionalOrderError"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {}
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1976,6 +2374,199 @@
                 "enum": [
                   "no_active_configuration",
                   "storage_unavailable"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "ConditionalOrderRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "player_id",
+          "quantity",
+          "maximum_unit_price",
+          "expires_at"
+        ],
+        "properties": {
+          "player_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "maximum_unit_price": {
+            "type": "string",
+            "description": "Finite positive decimal string representing exact cents, without rounding."
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d(?:\\.\\d{1,6})?(?:Z|\\+00:00)$"
+          }
+        }
+      },
+      "ConditionalOrder": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "player_id",
+          "quantity",
+          "maximum_unit_price",
+          "expires_at",
+          "created_at",
+          "status",
+          "expiry_reached",
+          "completed_at",
+          "rejection_reason",
+          "execution"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "player_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "maximum_unit_price": {
+            "type": "string",
+            "pattern": "^[0-9]+\\.[0-9]{2}$"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d(?:\\.\\d{1,6})?Z$"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "executed",
+              "cancelled",
+              "expired",
+              "rejected"
+            ]
+          },
+          "expiry_reached": {
+            "type": "boolean"
+          },
+          "completed_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "rejection_reason": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "insufficient_funds",
+              "insufficient_inventory",
+              null
+            ]
+          },
+          "execution": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "purchase_id",
+              "quote_id",
+              "unit_price",
+              "total",
+              "completed_at"
+            ],
+            "properties": {
+              "purchase_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "quote_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "unit_price": {
+                "type": "string",
+                "pattern": "^[0-9]+\\.[0-9]{2}$"
+              },
+              "total": {
+                "type": "string",
+                "pattern": "^[0-9]+\\.[0-9]{2}$"
+              },
+              "completed_at": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "nullable": true
+          }
+        }
+      },
+      "ConditionalOrderSuccess": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ConditionalOrder"
+          }
+        }
+      },
+      "ConditionalOrderList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConditionalOrder"
+            }
+          }
+        }
+      },
+      "ConditionalOrderError": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "code"
+            ],
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "unauthenticated",
+                  "invalid_request",
+                  "player_not_found",
+                  "not_found",
+                  "not_initialized",
+                  "self_purchase",
+                  "temporarily_unavailable"
                 ]
               }
             }

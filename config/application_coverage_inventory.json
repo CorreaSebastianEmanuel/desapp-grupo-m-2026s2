@@ -260,6 +260,36 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/market.ex."
     },
     {
+      "path": "lib/football_market/market/conditional_order.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Conditional buy order application source: lib/football_market/market/conditional_order.ex."
+    },
+    {
+      "path": "lib/football_market/market/conditional_order_input.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Conditional buy order application source: lib/football_market/market/conditional_order_input.ex."
+    },
+    {
+      "path": "lib/football_market/market/conditional_order_projection.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Conditional buy order application source: lib/football_market/market/conditional_order_projection.ex."
+    },
+    {
+      "path": "lib/football_market/market/conditional_order_store.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Conditional buy order application source: lib/football_market/market/conditional_order_store.ex."
+    },
+    {
+      "path": "lib/football_market/market/conditional_orders.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Conditional buy order application source: lib/football_market/market/conditional_orders.ex."
+    },
+    {
       "path": "lib/football_market/market/consistency.ex",
       "role": "application",
       "disposition": "include",
@@ -330,6 +360,12 @@
       "role": "application",
       "disposition": "include",
       "reason": "Maintained first-party application implementation source: lib/football_market/market/purchase_store.ex."
+    },
+    {
+      "path": "lib/football_market/market/purchase_transaction.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Conditional buy order application source: lib/football_market/market/purchase_transaction.ex."
     },
     {
       "path": "lib/football_market/market/purchases.ex",
@@ -1010,6 +1046,18 @@
       "reason": "Maintained first-party application implementation source: lib/football_market_web/controllers/api_docs_html.ex."
     },
     {
+      "path": "lib/football_market_web/controllers/conditional_order_controller.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Conditional buy order application source: lib/football_market_web/controllers/conditional_order_controller.ex."
+    },
+    {
+      "path": "lib/football_market_web/controllers/conditional_order_json.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Conditional buy order application source: lib/football_market_web/controllers/conditional_order_json.ex."
+    },
+    {
       "path": "lib/football_market_web/controllers/error_html.ex",
       "role": "application",
       "disposition": "include",
@@ -1388,6 +1436,12 @@
       "reason": "Database schema migration, not runtime application behavior: priv/repo/migrations/20261026000100_add_synchronization_correlation.exs."
     },
     {
+      "path": "priv/repo/migrations/20261027000000_create_conditional_buy_orders.exs",
+      "role": "migration",
+      "disposition": "exclude",
+      "reason": "Conditional buy order migration source: priv/repo/migrations/20261027000000_create_conditional_buy_orders.exs."
+    },
+    {
       "path": "scripts/application_coverage_native.exs",
       "role": "script",
       "disposition": "exclude",
@@ -1404,6 +1458,12 @@
       "role": "script",
       "disposition": "exclude",
       "reason": "Development or verification script, not application implementation: scripts/test_profile_discovery.exs."
+    },
+    {
+      "path": "scripts/verify_conditional_orders_preflight.exs",
+      "role": "script",
+      "disposition": "exclude",
+      "reason": "Conditional buy order script source: scripts/verify_conditional_orders_preflight.exs."
     },
     {
       "path": "scripts/verify_quote_runtime.exs",
@@ -2016,6 +2076,90 @@
       "role": "test",
       "disposition": "exclude",
       "reason": "Test code, not application behavior: test/football_market/market/concurrency_test.exs."
+    },
+    {
+      "path": "test/football_market/market/conditional_orders/cancellation_race_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Conditional buy order test source: test/football_market/market/conditional_orders/cancellation_race_test.exs."
+    },
+    {
+      "path": "test/football_market/market/conditional_orders/cancellation_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Conditional buy order test source: test/football_market/market/conditional_orders/cancellation_test.exs."
+    },
+    {
+      "path": "test/football_market/market/conditional_orders/concurrency_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Conditional buy order test source: test/football_market/market/conditional_orders/concurrency_test.exs."
+    },
+    {
+      "path": "test/football_market/market/conditional_orders/contention_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Conditional buy order test source: test/football_market/market/conditional_orders/contention_test.exs."
+    },
+    {
+      "path": "test/football_market/market/conditional_orders/creation_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Conditional buy order test source: test/football_market/market/conditional_orders/creation_test.exs."
+    },
+    {
+      "path": "test/football_market/market/conditional_orders/evaluation_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Conditional buy order test source: test/football_market/market/conditional_orders/evaluation_test.exs."
+    },
+    {
+      "path": "test/football_market/market/conditional_orders/handoff_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Conditional buy order test source: test/football_market/market/conditional_orders/handoff_test.exs."
+    },
+    {
+      "path": "test/football_market/market/conditional_orders/input_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Conditional buy order test source: test/football_market/market/conditional_orders/input_test.exs."
+    },
+    {
+      "path": "test/football_market/market/conditional_orders/projection_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Conditional buy order test source: test/football_market/market/conditional_orders/projection_test.exs."
+    },
+    {
+      "path": "test/football_market/market/conditional_orders/quote_order_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Conditional buy order test source: test/football_market/market/conditional_orders/quote_order_test.exs."
+    },
+    {
+      "path": "test/football_market/market/conditional_orders/reads_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Conditional buy order test source: test/football_market/market/conditional_orders/reads_test.exs."
+    },
+    {
+      "path": "test/football_market/market/conditional_orders/rollback_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Conditional buy order test source: test/football_market/market/conditional_orders/rollback_test.exs."
+    },
+    {
+      "path": "test/football_market/market/conditional_orders/scope_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Conditional buy order test source: test/football_market/market/conditional_orders/scope_test.exs."
+    },
+    {
+      "path": "test/football_market/market/conditional_orders/storage_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Conditional buy order test source: test/football_market/market/conditional_orders/storage_test.exs."
     },
     {
       "path": "test/football_market/market/consistency_test.exs",
@@ -2864,6 +3008,12 @@
       "reason": "Test code, not application behavior: test/football_market_web/browser_return_test.exs."
     },
     {
+      "path": "test/football_market_web/controllers/conditional_order_controller_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Conditional buy order test source: test/football_market_web/controllers/conditional_order_controller_test.exs."
+    },
+    {
       "path": "test/football_market_web/controllers/error_html_test.exs",
       "role": "test",
       "disposition": "exclude",
@@ -3008,6 +3158,12 @@
       "reason": "Test code, not application behavior: test/provider_contract_offline.exs."
     },
     {
+      "path": "test/runtime/conditional_orders_http.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Conditional buy order test source: test/runtime/conditional_orders_http.exs."
+    },
+    {
       "path": "test/runtime/purchase_http.exs",
       "role": "test",
       "disposition": "exclude",
@@ -3060,6 +3216,18 @@
       "role": "test-support",
       "disposition": "exclude",
       "reason": "Test harness or fixture support, not application behavior: test/support/catalog_filter_case.ex."
+    },
+    {
+      "path": "test/support/conditional_orders/case.ex",
+      "role": "test-support",
+      "disposition": "exclude",
+      "reason": "Conditional buy order test-support source: test/support/conditional_orders/case.ex."
+    },
+    {
+      "path": "test/support/conditional_orders/runtime_probe.ex",
+      "role": "test-support",
+      "disposition": "exclude",
+      "reason": "Conditional buy order test-support source: test/support/conditional_orders/runtime_probe.ex."
     },
     {
       "path": "test/support/conn_case.ex",

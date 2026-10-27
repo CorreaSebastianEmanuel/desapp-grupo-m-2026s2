@@ -58,4 +58,4 @@ human merge. Historical Agentflow 2.3 runs remain resumable without conversion.
 - Operational receipts stay ignored under `.agentflow/runs/thinflow/`.
 - The aggregate hosted gate is configured in code; maintainers enable its
   branch-protection requirement only after observing it on this PR.
-- Versioning and compatibility rationale is recorded in ADR-0036.
+- Versioning and compatibility rationale is recorded in ADR-0037.

@@ -10,6 +10,25 @@ defmodule FootballMarket.Market.Purchases.IdempotencyTest do
     f
   end
 
+  test "arbitrary direct keys including order-shaped identities replay without new evidence", f do
+    for key <- [
+          "conditional:" <> Ecto.UUID.generate(),
+          Ecto.UUID.generate(),
+          "arbitrary / unicode ñ"
+        ] do
+      assert {:ok, purchase} = PurchasesCase.purchase(f, key, 1)
+      before = PurchasesCase.snapshot()
+      assert {:ok, ^purchase} = PurchasesCase.purchase(f, key, 1)
+      assert before == PurchasesCase.snapshot()
+      assert {:error, %{kind: :key_conflict}} = PurchasesCase.purchase(f, key, 2)
+      assert before == PurchasesCase.snapshot()
+    end
+
+    assert Repo.query!("SELECT count(*) FROM market_purchases").rows == [[3]]
+    assert Repo.query!("SELECT count(*) FROM market_credit_entries").rows == [[6]]
+    assert Repo.query!("SELECT count(*) FROM market_token_transfers").rows == [[3]]
+  end
+
   test "lost acknowledgement replay returns original after balance and inventory change", f do
     assert {:ok, original} = PurchasesCase.purchase(f)
     before = PurchasesCase.snapshot()

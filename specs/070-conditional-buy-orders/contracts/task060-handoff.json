@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "owner": "TASK-060",
+  "implementation_in_task059": false,
+  "timing_sla": null,
+  "read_triggered_recovery": false,
+  "required_integration_scenarios": [
+    "create_and_work_atomic_commit_or_rollback",
+    "quote_and_work_atomic_commit_or_replay",
+    "interrupted_delivery_after_quote_commit_recovered",
+    "missed_delivery_revisits_pending_orders",
+    "due_expiry_without_quote_recovered",
+    "repeated_delivery_no_duplicate_purchase"
+  ],
+  "task059_seams": [
+    "transaction_local_create",
+    "pending_candidates_include_due",
+    "evaluate_by_id_no_event_price"
+  ]
+}

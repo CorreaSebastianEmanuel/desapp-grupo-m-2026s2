@@ -1,0 +1,698 @@
+{
+  "schema_version": 1,
+  "task": "TASK-029",
+  "feature": "068-atomic-idempotent-token-purchase",
+  "base_revision": "4c0a5527eebaadc0ff880f0bb4ef69d1f278d849",
+  "verified_source": "59994ff51981daac6f8145a11501e46dc5550a41aeee7e5da16720eece3a4612",
+  "canonical_inputs": "be1e859a6b4845bebcb2bf1eddda80578cb3ffa4a32f68685ef89ab1fcc2ea29",
+  "manifest_sha256": "3f3c1e4c9cecfa432f4a104b67965b72ab009ad9e382c029d53d077a6a067fdd",
+  "ci": {},
+  "checks": [
+    {
+      "id": "toolchain",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "fd020102db247c22f2a2e23259aadd1659a85f78da4ea205042d3dabbfec1e49",
+      "elapsed_seconds": 1.346,
+      "output_sha256": "d26f020c67adf23d872b7c3b9beda3e56501e34de2e830cf1a8ec814bd1a2e65",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/develop/toolchain/aba96f5f5fc34271b3fcebbad9dce667.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "MIX_BUILD_PATH": "_build",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "coverage": []
+    },
+    {
+      "id": "prepare",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "8afc29fa10990822f91b26bc5fa7a88dd4ff7d718382769f09379c84fc0fc753",
+      "elapsed_seconds": 11.676,
+      "output_sha256": "f0d05c6d63a8856c9ce9488aae4469c61f482cb14605410e7af63b6131b84875",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/develop/prepare/a43b9ea4f05247a4807e4c4d1b9a3612.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "coverage": []
+    },
+    {
+      "id": "services",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "98e521f7e4e417393f8804e7ae374b61a86227f0a9649066e247ffe524216769",
+      "elapsed_seconds": 1.354,
+      "output_sha256": "715c7661d11488b2c2c441a9428350f671f5903c283037838f875ad259fee6bb",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/develop/services/11108b972972404aab88331a2c4fe551.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "coverage": []
+    },
+    {
+      "id": "format",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "74e2cca9aa789ed6a1b890d5dc25ac71a8f6c551f29830399b4ae8dd69803c90",
+      "elapsed_seconds": 1.357,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/develop/format/378fbbd4d12849bcacd4302b5f36b61e.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "coverage": []
+    },
+    {
+      "id": "compile",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "dc8c62daa976865687daad49df21a98b2c5b8956024eed8ae82efd4493d5241b",
+      "elapsed_seconds": 0.665,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/develop/compile/771bffcdad5e4869bc769c1677f8869c.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "coverage": []
+    },
+    {
+      "id": "credo",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "5ed19a679cc136828562500cf572c56645d2b19e99fbcfbe3aeac5143b4baa11",
+      "elapsed_seconds": 17.624,
+      "output_sha256": "cdcac6a846d0375daedfa1d340ffe06a2662a4ec49334203c53c392c2e0b74bb",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/develop/credo/a73d890ce560433bb35874402f39ee01.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "coverage": []
+    },
+    {
+      "id": "openapi",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "13d207fc9ba25bd7a251951c575c75a33af57d82902a2a4a33f5b36f466fb8d1",
+      "elapsed_seconds": 0.749,
+      "output_sha256": "8475d9724f69fde9c55e3d695e7623dce342858772e647629a513b89f86a8ccb",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/develop/openapi/4ac08d23b8444264b2fa4d5e803a710f.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "coverage": [
+        "FR-015"
+      ]
+    },
+    {
+      "id": "inventory",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "5307f42f1e4dbdf55ff46e26d2069a66da0821129e7d91d4d1975feb1dcc6a7a",
+      "elapsed_seconds": 53.695,
+      "output_sha256": "8eca6a150005d928e18b9c6c355cd8f6e6a3e3194e0ade77e58f5a0e0b195052",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/develop/inventory/bcf2caa58bcd4075b23ee7a6c21a7af0.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "coverage": [
+        "FR-014"
+      ]
+    },
+    {
+      "id": "unit",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "fb6aa463d26515bc917019926d851f3f8367c29dbddbe7b6a4034a164a39687c",
+      "elapsed_seconds": 279.983,
+      "output_sha256": "952fd9e1be95e430dd5473fb042729ecb136291df6df6e81033d3967a4340286",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/develop/unit/790b96338a1047fa9d18464c5bf9745d.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "coverage": [
+        "FR-001",
+        "FR-004",
+        "FR-012",
+        "FR-013",
+        "FR-014",
+        "FR-015"
+      ]
+    },
+    {
+      "id": "integration",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "96c51269e2e96ccedb386c9ca1bf33bbb3a17be7c72ecf67f0bc864f62ca21fc",
+      "elapsed_seconds": 1158.357,
+      "output_sha256": "ee293087242db8b3f4a8f7a118dc0b5f2568fc46230c44545c1eecf7984f3ad5",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/develop/integration/18977779e03542799cf2940d8911cf27.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "coverage": [
+        "FR-001",
+        "FR-002",
+        "FR-003",
+        "FR-004",
+        "FR-005",
+        "FR-006",
+        "FR-007",
+        "FR-008",
+        "FR-009",
+        "FR-010",
+        "FR-011",
+        "FR-012",
+        "FR-013",
+        "FR-014",
+        "FR-015",
+        "SC-001",
+        "SC-002",
+        "SC-003",
+        "SC-004",
+        "SC-005",
+        "SC-006"
+      ]
+    },
+    {
+      "id": "assets",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "6212521620ea760f392164e4484ad9c08bf5c3be7a57b0a64f3bd21b16197e2f",
+      "elapsed_seconds": 7.33,
+      "output_sha256": "fff7ccca606e8e983ed5f622ee2b2a7aaf3bcd10f61bbe4a6c01c0f3b79cecdb",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/develop/assets/e9201207b9414c54abd1a25686525e5e.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "coverage": []
+    },
+    {
+      "id": "e2e",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "c88ad342657be4486903cf33eee775164b14a2510510495aec7f34e04ee76f77",
+      "elapsed_seconds": 88.693,
+      "output_sha256": "46faacde536f7124a2739f6e740146d50ebd9ff99213e9c6744fdf95ddfb2579",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/develop/e2e/72d4a4dfd606453ea8b46ade589469b5.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "coverage": []
+    },
+    {
+      "id": "purchase-runtime",
+      "stage": "develop",
+      "status": "passed",
+      "command_identity": "fa46637202ca4ffac0c7104ed185e065ab42308a1c060fc5eee2a9aaed46f570",
+      "elapsed_seconds": 6.815,
+      "output_sha256": "1bcaed344d170b948c29b6f894f824575cad597c61cbd2f467e8a8152fe7d346",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/develop/purchase-runtime/cdadc7fa45494fca8b7614e6c306a5c5.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "coverage": [
+        "FR-001",
+        "FR-002",
+        "FR-003",
+        "FR-004",
+        "FR-005",
+        "FR-006",
+        "FR-007",
+        "FR-008",
+        "FR-009",
+        "FR-010",
+        "FR-011",
+        "FR-012",
+        "FR-013",
+        "FR-014",
+        "SC-001",
+        "SC-002",
+        "SC-003",
+        "SC-004",
+        "SC-005",
+        "SC-006"
+      ]
+    },
+    {
+      "id": "toolchain",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "fd020102db247c22f2a2e23259aadd1659a85f78da4ea205042d3dabbfec1e49",
+      "elapsed_seconds": 1.225,
+      "output_sha256": "d26f020c67adf23d872b7c3b9beda3e56501e34de2e830cf1a8ec814bd1a2e65",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/qa/toolchain/1a78d30ac8b34fa2bc855f6f59c40d23.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "MIX_BUILD_PATH": "_build",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "coverage": []
+    },
+    {
+      "id": "prepare",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "8afc29fa10990822f91b26bc5fa7a88dd4ff7d718382769f09379c84fc0fc753",
+      "elapsed_seconds": 1.587,
+      "output_sha256": "32b4dcb05b480c08b1d7e1eb9e1b150c53b98a8bacc6a6fa1aa4052d752a435b",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/qa/prepare/7ebc75a929ef4ff2a6b6f2680bf69868.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "coverage": []
+    },
+    {
+      "id": "services",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "98e521f7e4e417393f8804e7ae374b61a86227f0a9649066e247ffe524216769",
+      "elapsed_seconds": 1.294,
+      "output_sha256": "24426e260c1eeade6f0f88f291625ed8d88cdc45f8cba5c7f894e358421ecf74",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/qa/services/b5e9f5be552448e9ba511debb6ed3049.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "coverage": []
+    },
+    {
+      "id": "format",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "74e2cca9aa789ed6a1b890d5dc25ac71a8f6c551f29830399b4ae8dd69803c90",
+      "elapsed_seconds": 1.46,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/qa/format/3ca44910432e422dbbe15c32f5279966.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "coverage": []
+    },
+    {
+      "id": "compile",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "dc8c62daa976865687daad49df21a98b2c5b8956024eed8ae82efd4493d5241b",
+      "elapsed_seconds": 0.671,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/qa/compile/cfa77f254f5d42578a7ab4fb910a172a.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "coverage": []
+    },
+    {
+      "id": "credo",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "5ed19a679cc136828562500cf572c56645d2b19e99fbcfbe3aeac5143b4baa11",
+      "elapsed_seconds": 17.567,
+      "output_sha256": "cdcac6a846d0375daedfa1d340ffe06a2662a4ec49334203c53c392c2e0b74bb",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/qa/credo/83fbd44129b2499b815e5d49962ebe4a.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "coverage": []
+    },
+    {
+      "id": "openapi",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "13d207fc9ba25bd7a251951c575c75a33af57d82902a2a4a33f5b36f466fb8d1",
+      "elapsed_seconds": 0.717,
+      "output_sha256": "8475d9724f69fde9c55e3d695e7623dce342858772e647629a513b89f86a8ccb",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/qa/openapi/de462988f74e475fa5bb5298720d7783.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "coverage": [
+        "FR-015"
+      ]
+    },
+    {
+      "id": "inventory",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "5307f42f1e4dbdf55ff46e26d2069a66da0821129e7d91d4d1975feb1dcc6a7a",
+      "elapsed_seconds": 53.54,
+      "output_sha256": "8eca6a150005d928e18b9c6c355cd8f6e6a3e3194e0ade77e58f5a0e0b195052",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/qa/inventory/5360e39df9f94aea8e6479d6c0cb05cf.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "coverage": [
+        "FR-014"
+      ]
+    },
+    {
+      "id": "unit",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "fb6aa463d26515bc917019926d851f3f8367c29dbddbe7b6a4034a164a39687c",
+      "elapsed_seconds": 281.231,
+      "output_sha256": "952fd9e1be95e430dd5473fb042729ecb136291df6df6e81033d3967a4340286",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/qa/unit/553390ef397748f581c8506d1f8e4405.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "coverage": [
+        "FR-001",
+        "FR-004",
+        "FR-012",
+        "FR-013",
+        "FR-014",
+        "FR-015"
+      ]
+    },
+    {
+      "id": "integration",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "96c51269e2e96ccedb386c9ca1bf33bbb3a17be7c72ecf67f0bc864f62ca21fc",
+      "elapsed_seconds": 1111.213,
+      "output_sha256": "ee293087242db8b3f4a8f7a118dc0b5f2568fc46230c44545c1eecf7984f3ad5",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/qa/integration/c09f7e65675b465aae66d7a2fda91e96.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "coverage": [
+        "FR-001",
+        "FR-002",
+        "FR-003",
+        "FR-004",
+        "FR-005",
+        "FR-006",
+        "FR-007",
+        "FR-008",
+        "FR-009",
+        "FR-010",
+        "FR-011",
+        "FR-012",
+        "FR-013",
+        "FR-014",
+        "FR-015",
+        "SC-001",
+        "SC-002",
+        "SC-003",
+        "SC-004",
+        "SC-005",
+        "SC-006"
+      ]
+    },
+    {
+      "id": "assets",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "6212521620ea760f392164e4484ad9c08bf5c3be7a57b0a64f3bd21b16197e2f",
+      "elapsed_seconds": 7.678,
+      "output_sha256": "7cdce096ef845f6c7d77cdadfb02521af27705220afedafe30a4b025b125537b",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/qa/assets/f0731a617351412db49aff6c29017bab.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "coverage": []
+    },
+    {
+      "id": "e2e",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "c88ad342657be4486903cf33eee775164b14a2510510495aec7f34e04ee76f77",
+      "elapsed_seconds": 97.899,
+      "output_sha256": "46faacde536f7124a2739f6e740146d50ebd9ff99213e9c6744fdf95ddfb2579",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/qa/e2e/40e5f1105dcf4ae6b436361261bfaa97.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "coverage": []
+    },
+    {
+      "id": "purchase-runtime",
+      "stage": "qa",
+      "status": "passed",
+      "command_identity": "fa46637202ca4ffac0c7104ed185e065ab42308a1c060fc5eee2a9aaed46f570",
+      "elapsed_seconds": 5.991,
+      "output_sha256": "1bcaed344d170b948c29b6f894f824575cad597c61cbd2f467e8a8152fe7d346",
+      "evidence": {
+        "availability": "workspace-local; absent in another checkout",
+        "reference": ".agentflow/runs/checks/e55955bcc8c8461d893ab47334e43451/068-atomic-idempotent-token-purchase/qa/purchase-runtime/f181107540e1414ea732efd6e895007b.log"
+      },
+      "environment": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "coverage": [
+        "FR-001",
+        "FR-002",
+        "FR-003",
+        "FR-004",
+        "FR-005",
+        "FR-006",
+        "FR-007",
+        "FR-008",
+        "FR-009",
+        "FR-010",
+        "FR-011",
+        "FR-012",
+        "FR-013",
+        "FR-014",
+        "SC-001",
+        "SC-002",
+        "SC-003",
+        "SC-004",
+        "SC-005",
+        "SC-006"
+      ]
+    }
+  ],
+  "coverage": {
+    "FR-001": [
+      "unit",
+      "integration",
+      "purchase-runtime"
+    ],
+    "FR-002": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "FR-003": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "FR-004": [
+      "unit",
+      "integration",
+      "purchase-runtime"
+    ],
+    "FR-005": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "FR-006": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "FR-007": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "FR-008": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "FR-009": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "FR-010": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "FR-011": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "FR-012": [
+      "unit",
+      "integration",
+      "purchase-runtime"
+    ],
+    "FR-013": [
+      "unit",
+      "integration",
+      "purchase-runtime"
+    ],
+    "FR-014": [
+      "unit",
+      "integration",
+      "inventory",
+      "purchase-runtime"
+    ],
+    "FR-015": [
+      "unit",
+      "integration",
+      "openapi"
+    ],
+    "SC-001": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "SC-002": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "SC-003": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "SC-004": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "SC-005": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "SC-006": [
+      "integration",
+      "purchase-runtime"
+    ]
+  },
+  "independent_reports": {
+    "qa-report.md": {
+      "verdict": "PASS",
+      "sha256": "6b3490f9b80e7c46ebb822b3619f2f0c2c06f240d3ebb8913a4e773e1f4e2897"
+    },
+    "review-report.md": {
+      "verdict": "PASS",
+      "sha256": "9c03a1ac29d6615fd307a2370a2e466ca8b843438ba3a52f1e2e4c18f54c838b"
+    }
+  },
+  "complete": true,
+  "limitations": [
+    "Portable summary does not authorize workspace reuse; run local checks."
+  ],
+  "finalized_at": "2026-10-26T23:50:46.264619+00:00"
+}

@@ -14,6 +14,7 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
     "getCurrentQuote" => ~w(200 401 404 503),
     "getQuoteHistory" => ~w(200 401 404 503),
     "getQuoteAtDate" => ~w(200 400 401 404 503),
+    "purchaseTokens" => ~w(200 400 401 404 409 503),
     "getActiveStrategyRanking" => ~w(200 401 409 503)
   }
 
@@ -302,7 +303,7 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
       FootballMarketWeb.Router
       |> Phoenix.Router.routes()
       |> Enum.filter(
-        &(&1.path == "/api/ranking" or &1.path == "/api/players" or
+        &(&1.path in ["/api/ranking", "/api/purchases", "/api/players"] or
             String.starts_with?(&1.path, "/api/players/"))
       )
 
@@ -341,21 +342,7 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
         assert_ranking_cache_header!(op, status, response)
       end
 
-      assert get_in(op, ["responses", "401", "headers", "WWW-Authenticate", "example"]) ==
-               "Bearer realm=\"api\""
-
-      assert get_in(op, ["responses", "401", "content", "application/json", "schema", "$ref"]) ==
-               "#/components/schemas/UnauthenticatedError"
-
-      assert get_in(op, [
-               "responses",
-               "401",
-               "content",
-               "application/json",
-               "examples",
-               "unauthenticated",
-               "value"
-             ]) == %{"error" => %{"code" => "unauthenticated"}}
+      assert_auth_failure_contract!(op)
     end
 
     list = get_in(doc, ["paths", "/api/players", "get"])
@@ -439,6 +426,29 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
   end
 
   defp assert_ranking_cache_header!(_operation, _status, _response), do: :ok
+
+  defp assert_auth_failure_contract!(%{"operationId" => "purchaseTokens"} = op) do
+    assert get_in(op, ["responses", "401", "content", "application/json", "schema", "$ref"]) ==
+             "#/components/schemas/PurchaseError"
+  end
+
+  defp assert_auth_failure_contract!(op) do
+    assert get_in(op, ["responses", "401", "headers", "WWW-Authenticate", "example"]) ==
+             "Bearer realm=\"api\""
+
+    assert get_in(op, ["responses", "401", "content", "application/json", "schema", "$ref"]) ==
+             "#/components/schemas/UnauthenticatedError"
+
+    assert get_in(op, [
+             "responses",
+             "401",
+             "content",
+             "application/json",
+             "examples",
+             "unauthenticated",
+             "value"
+           ]) == %{"error" => %{"code" => "unauthenticated"}}
+  end
 
   defp assert_schema!(doc, %{"$ref" => ref}, value) do
     assert_schema!(

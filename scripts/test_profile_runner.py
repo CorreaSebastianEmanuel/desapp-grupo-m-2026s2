@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Fail-closed profile supervisor; raw child output is never retained or published."""
 import contextlib
+import errno
 import hashlib
 import json
 import os
@@ -18,10 +19,6 @@ from test_inventory import (check, entry, reconcile_diagnostics, registered_extr
 from test_profile_components import isolated_services, SERVICE_FILES
 
 child = None
-_BROWSER_CAUSES = {"node-unavailable", "node-incompatible", "playwright-missing",
-                   "bundled-chromium-missing", "chromium-launch-failed", "chromium-launch-timeout"}
-
-
 def emit_membership_diagnostic(profile, phase, reason, *, expected=0, observed=0,
                                missing_started=0, missing_passed=0, extra=0,
                                duplicate=0, invalid_state=0, wrong_nonce=0):
@@ -36,6 +33,54 @@ def emit_membership_diagnostic(profile, phase, reason, *, expected=0, observed=0
 def safe_case_id(value):
     """Expose conventional test identifiers only; redact arbitrary labels."""
     return value if isinstance(value, str) and re.fullmatch(r'test(?:\.[A-Za-z0-9_]+)+', value) else 'redacted'
+
+
+def _browser_probe_error(error, fallback):
+    if isinstance(error, (subprocess.TimeoutExpired, TimeoutError)):
+        return 'launch-timeout'
+    if isinstance(error, PermissionError) or (isinstance(error, OSError) and error.errno in (errno.EACCES, errno.EPERM)):
+        return 'permission-denied'
+    if isinstance(error, FileNotFoundError) or (isinstance(error, OSError) and error.errno == errno.ENOENT):
+        return 'executable-missing'
+    if isinstance(error, (ImportError, ModuleNotFoundError)):
+        return 'dependency-missing'
+    message = str(error).lower()
+    if any(value in message for value in ('timed out', 'timeout')):
+        return 'launch-timeout'
+    if 'permission denied' in message:
+        return 'permission-denied'
+    if any(value in message for value in ('cannot find module', 'cannot open shared object',
+                                         'shared libraries', 'module_not_found',
+                                         'host system is missing dependencies')):
+        return 'dependency-missing'
+    if any(value in message for value in ('no such file', "executable doesn't exist",
+                                         'executable does not exist')):
+        return 'executable-missing'
+    return fallback
+
+
+class BrowserLaunchFailure(ValueError):
+    def __init__(self, cause):
+        super().__init__('browser-launch')
+        self.cause = cause
+
+
+def browser_launch_probe_script():
+    """Classify the Playwright error privately and emit only a closed cause marker."""
+    return (
+        'const {chromium}=require("./tools/openapi/node_modules/playwright-core");'
+        'const options={headless:true,args:["--no-sandbox"],timeout:10000};'
+        'if(process.env.CHROMIUM_PATH) options.executablePath=process.env.CHROMIUM_PATH;'
+        'const classify=e=>{const c=e&&e.code,m=String(e&&e.message||"").toLowerCase();'
+        'if(c==="ETIMEDOUT"||/timeout|timed out/.test(m)) return "launch-timeout";'
+        'if(c==="EACCES"||c==="EPERM"||/permission denied/.test(m)) return "permission-denied";'
+        'if(c==="MODULE_NOT_FOUND"||/cannot find module|cannot open shared object|shared libraries|host system is missing dependencies/.test(m)) return "dependency-missing";'
+        'if(c==="ENOENT"||/no such file|executable doesn.t exist|executable does not exist/.test(m)) return "executable-missing";'
+        'return "launch-failed"};'
+        'chromium.launch(options).then(b=>b.close()).catch(e=>{'
+        'process.stderr.write("PROFILE_BROWSER_LAUNCH_FAILURE cause="+classify(e)+"\\n");'
+        'process.exitCode=1})'
+    )
 
 
 def failure_cause(runner_name, related, failed, skipped):
@@ -72,41 +117,58 @@ def browser_prerequisite(env, launch):
     """Classify the integration browser smoke probe without exposing child output."""
     node = shutil.which("node", path=env.get("PATH"))
     if not node:
-        return "node-unavailable"
+        return "executable-missing"
     try:
         result = subprocess.run([node, "--version"], env=env, stdin=subprocess.DEVNULL,
                                 stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
                                 text=True, timeout=5, check=False)
-    except (OSError, subprocess.TimeoutExpired):
-        return "node-unavailable"
+    except (OSError, subprocess.TimeoutExpired) as error:
+        return _browser_probe_error(error, "executable-missing")
     if result.returncode or not re.fullmatch(r"v24\.\d+\.\d+", result.stdout.strip()):
-        return "node-incompatible"
+        return "launch-failed"
     module_probe = "require.resolve('playwright-core',{paths:['./tools/openapi']})"
     try:
         result = subprocess.run([node, "-e", module_probe], cwd=Path.cwd(), env=env,
                                 stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
                                 stderr=subprocess.DEVNULL, timeout=5, check=False)
-    except (OSError, subprocess.TimeoutExpired):
-        return "playwright-missing"
+    except (OSError, subprocess.TimeoutExpired) as error:
+        return _browser_probe_error(error, "dependency-missing")
     if result.returncode:
-        return "playwright-missing"
+        return "dependency-missing"
     executable_probe = ("const fs=require('fs'),p=require('./tools/openapi/node_modules/playwright-core');"
-                        "process.exit(fs.existsSync(p.chromium.executablePath())?0:1)")
+                        "const executable=process.env.CHROMIUM_PATH||p.chromium.executablePath();"
+                        "process.exit(fs.existsSync(executable)?0:1)")
     try:
         result = subprocess.run([node, "-e", executable_probe], cwd=Path.cwd(), env=env,
                                 stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
                                 stderr=subprocess.DEVNULL, timeout=5, check=False)
-    except (OSError, subprocess.TimeoutExpired):
-        return "bundled-chromium-missing"
+    except (OSError, subprocess.TimeoutExpired) as error:
+        return _browser_probe_error(error, "executable-missing")
     if result.returncode:
-        return "bundled-chromium-missing"
+        return "executable-missing"
     try:
-        launch([node, "-e", 'const {chromium}=require("./tools/openapi/node_modules/playwright-core");'
-                'chromium.launch({headless:true,args:["--no-sandbox"],timeout:10000})'
-                '.then(b=>b.close()).catch(()=>process.exit(1))'], env, 30)
+        launch([node, "-e", browser_launch_probe_script()], env, 30)
+    except BrowserLaunchFailure as error:
+        return error.cause
     except (OSError, ValueError, subprocess.SubprocessError) as error:
-        return "chromium-launch-timeout" if isinstance(error, ValueError) and str(error) == "timeout" else "chromium-launch-failed"
+        if isinstance(error, ValueError) and str(error) == "timeout":
+            return "launch-timeout"
+        return _browser_probe_error(error, "launch-failed")
     return None
+
+
+def _forward_safe_browser_diagnostics(stream):
+    """Forward only closed browser diagnostics from a private child capture."""
+    stream.seek(0)
+    for raw in stream:
+        line = raw.decode(errors='replace').rstrip('\r\n') if isinstance(raw, bytes) else raw.rstrip('\r\n')
+        if re.fullmatch(r'PROFILE_SAFE_DIAGNOSTIC category=browser-prerequisite cause='
+                        r'(?:executable-missing|dependency-missing|permission-denied|launch-timeout|launch-failed)', line):
+            print(line, file=sys.stderr)
+        elif re.fullmatch(r'PROFILE_BROWSER_DIAGNOSTIC cause='
+                          r'(?:executable-missing|dependency-missing|permission-denied|launch-timeout|launch-failed) '
+                          r'stage=(?:integration|e2e)', line):
+            print(line, file=sys.stderr)
 
 
 def terminate():
@@ -136,10 +198,19 @@ def run(argv, env, timeout):
             status = child.wait(timeout=timeout)
             if status:
                 output.seek(0)
+                browser_failure = None
                 for raw in output:
                     line = raw.decode(errors='replace').rstrip('\r\n')
+                    match = re.fullmatch(
+                        r'PROFILE_BROWSER_LAUNCH_FAILURE cause=(executable-missing|dependency-missing|'
+                        r'permission-denied|launch-timeout|launch-failed)', line)
+                    if match:
+                        browser_failure = match.group(1)
                     if re.fullmatch(r'PROFILE_SAFE_DIAGNOSTIC category=openapi-browser stage=[a-z-]+', line):
                         print(line, file=sys.stderr)
+                if browser_failure:
+                    raise BrowserLaunchFailure(browser_failure)
+                _forward_safe_browser_diagnostics(output)
                 raise ValueError('child-failure')
         except subprocess.TimeoutExpired:
             raise ValueError('timeout') from None
@@ -232,7 +303,8 @@ def execute_exunit(execute, profile, files, directory, nonce, postgres_port=None
     if application_dir:
         Path(application_dir, profile + '-expected.json').write_text(json.dumps(expected_partitions) + '\n')
     if regular:
-        invoke('regular', regular)
+        partition = {'POSTGRES_PORT': postgres_port} if postgres_port is not None else None
+        invoke('regular', regular, partition)
     for index, file in enumerate(committed):
         partition = {'MIX_TEST_PARTITION': 'profile' + nonce + '_c' + str(index)}
         if postgres_port is not None:
@@ -241,6 +313,15 @@ def execute_exunit(execute, profile, files, directory, nonce, postgres_port=None
         invoke('committed_' + str(index), [file], partition)
     if application_dir:
         Path(application_dir, profile + '-observed.json').write_text(json.dumps(observed) + '\n')
+
+
+def profile_timeout_ceiling(profile):
+    """Bound full profile execution while allowing the complete integration inventory to finish."""
+    ceilings = {'unit': 600, 'integration': 1800, 'e2e': 180}
+    try:
+        return ceilings[profile]
+    except KeyError:
+        raise ValueError('usage') from None
 
 
 def main(profile):
@@ -254,7 +335,7 @@ def main(profile):
     inventory = check()
     expected = [c for c in inventory['entries'] if c['profile'] == profile]
     digest = hashlib.sha256(Path('config/test_profiles.json').read_bytes()).hexdigest()
-    ceiling = 1200 if profile == 'integration' else 180 if profile == 'e2e' else 600
+    ceiling = profile_timeout_ceiling(profile)
     with tempfile.TemporaryDirectory(prefix='profile-') as directory, contextlib.ExitStack() as resources:
         os.chmod(directory, 0o700)
         events = Path(directory) / 'events.jsonl'
@@ -296,14 +377,26 @@ def main(profile):
                 step, partition = command_location(argv, extra)
                 print(f'PROFILE_STEP_DIAGNOSTIC profile={profile} step={step} partition={partition}', file=sys.stderr)
                 observations = [json.loads(raw) for raw in events.read_text().splitlines()]
+                if argv and argv[0] == 'mix' and step == 'tests':
+                    lifecycle = {state: 0 for state in ('started', 'passed', 'failed', 'skipped')}
+                    for item in observations:
+                        state = item.get('state')
+                        if state in lifecycle:
+                            lifecycle[state] = min(1_000_000, lifecycle[state] + 1)
+                    print('PROFILE_EVENT_SUMMARY profile=' + profile + ' step=tests ' +
+                          ' '.join(f'{state}={lifecycle[state]}' for state in lifecycle), file=sys.stderr)
+                registered_cases = {
+                    (case['runner'], case['file'], case['case_id']): case for case in expected
+                }
                 identities = {(item['runner'], item['file'], item['case_id']) for item in observations}
                 for runner_name, file_name, case_id in sorted(identities):
                     related = [item for item in observations if (item['runner'], item['file'], item['case_id']) ==
                                (runner_name, file_name, case_id)]
                     states = {item.get('state') for item in related}
                     if 'failed' in states or 'skipped' in states or ('started' in states and 'passed' not in states):
-                        case = entry(runner_name, file_name, case_id, profile)
-                        emit_case_diagnostic(case, related)
+                        case = registered_cases.get((runner_name, file_name, case_id))
+                        if case is not None:
+                            emit_case_diagnostic(case, related)
                 category = 'test-failure' if argv[0] == 'mix' else 'component-failure'
                 if isinstance(error, ValueError) and str(error) in ('timeout', 'resource-cleanup'):
                     category = str(error)
@@ -311,6 +404,8 @@ def main(profile):
         if profile in ('integration', 'e2e'):
             browser_cause = browser_prerequisite(env, run)
             if browser_cause:
+                print('PROFILE_SAFE_DIAGNOSTIC category=browser-prerequisite cause=' + browser_cause,
+                      file=sys.stderr)
                 print(f'PROFILE_BROWSER_DIAGNOSTIC cause={browser_cause} stage={profile}', file=sys.stderr)
                 raise ValueError('browser-prerequisite')
         if profile == 'integration':

@@ -172,6 +172,7 @@ defmodule FootballMarket.RankingCase do
   def protected_snapshot do
     Map.new(
       ~w(market_initial_recipients market_quotes market_holdings market_issuances
+         market_credit_balances market_purchases market_credit_entries market_token_transfers
          users password_credentials api_keys matches player_match_performances
          valuation_configuration_versions valuation_selection_changes
          quote_conversion_mappings quote_calculations quote_calculation_requests

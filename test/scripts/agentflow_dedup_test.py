@@ -27,9 +27,13 @@ class DedupTest(unittest.TestCase):
             (feature / "spec.md").write_text("FR-001\n")
             (feature / "verification.json").write_text(json.dumps({
                 "schema_version": 1, "runtime_required": False,
-                "checks": [{"id": "ci_profiles", "argv": ["mise", "exec", "--", "scripts/ci_unit_tests.sh"],
-                            "env": {"MIX_ENV": "test"}}],
-                "coverage": {"FR-001": ["ci_profiles"]},
+                "checks": [
+                    {"id": "unit", "argv": ["mise", "exec", "--", "mix", "test.unit"],
+                     "env": {"MIX_ENV": "test"}},
+                    {"id": "integration", "argv": ["mise", "exec", "--", "mix", "test.integration"],
+                     "env": {"MIX_ENV": "test"}},
+                ],
+                "coverage": {"FR-001": ["unit", "integration"]},
             }))
             workflow = '  - id: ci_baseline\n    run: "python3 scripts/agentflow_stage_checks.py --ci-parity"\n'
             for name in (".agentflow/workflow.yml", ".specify/workflows/desapp-delivery/workflow.yml"):

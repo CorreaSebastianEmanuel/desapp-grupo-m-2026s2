@@ -34,29 +34,31 @@ try {
   stage = 'docs-ready';
   await page.waitForFunction(() => document.documentElement.dataset.docsReady === 'true');
   stage = 'docs-content';
+  stage = 'catalog-discovery';
   assert(await page.locator('#docs-error').isHidden(), 'Documentation load error');
   stage = 'operation-count';
-  assert(await page.locator('.opblock').count() === 6, 'Protected operation discovery failed');
+  assert(await page.locator('.opblock').count() === 7, 'Protected operation discovery failed');
   stage = 'operation-locators';
   stage = 'operation-summary-read';
   const operations = await page.locator('.opblock').evaluateAll(blocks => blocks.map(block => ({
     method: block.querySelector('.opblock-summary-method')?.textContent.trim().toLowerCase(),
     path: block.querySelector('.opblock-summary-path')?.textContent.trim()
   })));
-  const operation = path => {
+  const operation = (path, method = 'get') => {
     stage = `operation-${path === '/api/players' ? 'list' : path === '/api/ranking' ? 'ranking' : 'detail'}`;
-    const index = operations.findIndex(item => item.method === 'get' && item.path === path);
-    assert(index >= 0, `Operation missing: GET ${path}`);
+    const index = operations.findIndex(item => item.method === method && item.path === path);
+    assert(index >= 0, `Operation missing: ${method.toUpperCase()} ${path}`);
     return page.locator('.opblock').nth(index);
   };
   const list = operation('/api/players');
   const detail = operation('/api/players/{player_id}');
   const ranking = operation('/api/ranking');
+  operation('/api/purchases', 'post');
   for (const suffix of ['current', 'history', 'at']) {
     operation(`/api/players/{player_id}/quotes/${suffix}`);
   }
   stage = 'operation-set-check';
-  assert(operations.length === 6 && new Set(operations.map(item => `${item.method} ${item.path}`)).size === 6, 'Exact protected operation set mismatch');
+  assert(operations.length === 7 && new Set(operations.map(item => `${item.method} ${item.path}`)).size === 7, 'Exact protected operation set mismatch');
   stage = 'expand-catalog-operations';
   stage = 'expand-list';
   await list.locator('.opblock-summary').click();

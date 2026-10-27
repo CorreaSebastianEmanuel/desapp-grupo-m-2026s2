@@ -1,0 +1,352 @@
+{
+  "schema_version": 1,
+  "runtime_required": true,
+  "checks": [
+    {
+      "id": "toolchain",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "sh",
+        "scripts/check_toolchain.sh"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "MIX_BUILD_PATH": "_build",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      }
+    },
+    {
+      "id": "prepare",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "mix",
+        "test.prepare"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "reuse": false,
+      "retry_env": [
+        "MIX_BUILD_PATH"
+      ]
+    },
+    {
+      "id": "services",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "mix",
+        "infrastructure.verify"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "reuse": false,
+      "retry_env": [
+        "MIX_BUILD_PATH"
+      ]
+    },
+    {
+      "id": "format",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "mix",
+        "format",
+        "--check-formatted"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "retry_env": [
+        "MIX_BUILD_PATH"
+      ]
+    },
+    {
+      "id": "compile",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "mix",
+        "compile",
+        "--warnings-as-errors"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "retry_env": [
+        "MIX_BUILD_PATH"
+      ]
+    },
+    {
+      "id": "credo",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "sh",
+        "scripts/credo_ci.sh"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "retry_env": [
+        "MIX_BUILD_PATH"
+      ]
+    },
+    {
+      "id": "openapi",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "node",
+        "tools/openapi/validate.mjs",
+        "priv/static/openapi.json"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "retry_env": [
+        "MIX_BUILD_PATH"
+      ]
+    },
+    {
+      "id": "inventory",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "python3",
+        "scripts/test_inventory.py",
+        "check"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "retry_env": [
+        "MIX_BUILD_PATH"
+      ]
+    },
+    {
+      "id": "unit",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "mix",
+        "test.unit"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "expectation": "Existing complete unit profile includes native test/scripts/test_profile_runner_test.py and test/scripts/agentflow_evidence_test.py: test_browser_preflight_classifies_only_closed_causes_and_keeps_raw_errors_private covers all five causes, including Cannot find module and MODULE_NOT_FOUND as dependency-missing, launch success without diagnostics, unset CHROMIUM_PATH preserving Playwright defaults, and configured CHROMIUM_PATH forwarded exactly; test_supervisor_forwards_only_complete_safe_browser_records and test_browser_preflight_supervisor_timeout_emits_safe_timeout_cause cover forwarding and timeout; test_safe_diagnostics_accept_only_closed_browser_cause_records and test_profile_discrepancy_is_reported_without_legacy_profile_markers cover safe output. CI parity checks require the manifest unit/integration pair and exact wrapper obligation. PurchaseInput tests reject NUL request keys before persistence. Existing cases cover resource cleanup, receipt invalidation and unchanged two-failure retry guards. Inventory must include all added cases. Retry_env identity regressions: test_declared_retry_environment_changes_hashed_check_identity_without_leaking_value and test_manifest_rejects_invalid_retry_environment_names. Feedback 7 adds fake-child regressions in test/scripts/agentflow_models_test.py for configured/default/explicit sandbox resolution (including long, short and attached flags), normalized child argv including removal of --approve-for-me only under danger-full-access and preservation for other modes, child environment equality, stale metadata overwrite, malformed/duplicate/conflicting and policy-bypass refusal, safe enum-only metadata, and preserved workspace-write network plus model/effort forwarding and --approve-for-me compatibility. test/scripts/agentflow_evidence_test.py proves changed sandbox changes hashed integration/E2E identity, missing/invalid mode refuses before spawn, unrelated environment cannot reset budget and same-mode third failure stays blocked. All additions belong to this one unit profile. Feedback 10 regressions additionally verify assertion-only source locations, registered-case discrepancy identity, strict detail allowlisting, preservation of --approve-for-me for on-request/untrusted policies, and refusal of contradictory CLI/config sandbox modes. Feedback 11 path-containment regressions in test/scripts/application_coverage_test.py reject symlinked output roots and unsafe ancestors and validate report publication containment; this remains an existing unit-owned test, not a new profile. Feedback 11 keeps the main-branch path-containment behavior: test_unsafe_paths_and_incomplete_partitions_are_rejected and test_duplicate_json_keys_and_unsafe_report_paths_are_rejected cover unsafe publication paths in the existing unit-owned module; this is not a new profile. T043 also runs test/scripts/agentflow_branch_test.py: test_verify_resolves_before_dispatch_and_does_not_recurse asserts the exact user-resolved sandbox argv and removes --approve-for-me only under the configured danger-full-access/never policy. T045 adds test_safe_consumer_redacts_registered_nonconventional_case_id and test_safe_consumer_preserves_aggregate_summary_step in test/scripts/agentflow_evidence_test.py for the upstream safe diagnostics mapper; test_each_stage_materializes_approved_pair_in_actual_child_argv runs with an isolated empty CODEX_HOME and a filtered AGENTFLOW_* environment so argv expectations do not depend on host policy or the invoking task. T046 extends only the exact TASK-029 path allowlist with test/scripts/agentflow_stage_checks_test.py and test/scripts/profile_safe_diagnostics_test.py; neighboring unplanned paths remain refused. TASK-029 T048-T050 regressions exercise the generated Playwright rejection producer for all five closed causes through private child capture, then validate that _safe_command and summarize_stage preserve registered discrepancy state/cause/counts and profile_event_summaries while rejecting malformed fields and secret sentinels. test_profile_runner_test.py and agentflow_stage_checks_test.py remain in the existing unit inventory and exact scope list.",
+      "retry_env": [
+        "MIX_BUILD_PATH"
+      ]
+    },
+    {
+      "id": "integration",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "mix",
+        "test.integration"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "expectation": "Existing full profile must complete its real Chromium launch preflight and all registered cases within the bounded 30-minute integration ceiling; unavailable prerequisites fail nonzero with allowlisted causes only. No raw Playwright output or passing receipt on failure. The regular and committed integration ExUnit partitions both receive the invocation-owned PostgreSQL port. Integration includes committed purchase races, HTTP contract tests, and protected-controller NUL-key rejection with unchanged snapshots; quote_order_test.exs proves both quote-first (purchase waits, then uses the newly committed quote) and purchase-first orderings. test/mix/tasks/catalog.seed_test.exs pins nested Mix to the resolved executable, clears inherited MIX_TEST_PARTITION and MIX_BUILD_PATH, and retains its disabled/production checks. E2E preserves existing browser acceptance. Require a valid launcher-resolved AGENTFLOW_CODEX_SANDBOX_MODE before spawning; bind it and CHROMIUM_PATH to retry identity. Preserve real launch and unchanged two-failure limits; historical mode is unknown. T044 adds test_large_accepted_buyer_balance_is_debited_exactly and test_large_accepted_recipient_balance_is_credited_exactly in test/football_market/market/purchases/transfer_test.exs; each verifies persisted values with PostgreSQL NUMERIC arithmetic at 1e40.",
+      "retry_env": [
+        "CHROMIUM_PATH",
+        "AGENTFLOW_CODEX_SANDBOX_MODE",
+        "MIX_BUILD_PATH"
+      ]
+    },
+    {
+      "id": "assets",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "mix",
+        "assets.build"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "retry_env": [
+        "MIX_BUILD_PATH"
+      ]
+    },
+    {
+      "id": "e2e",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "mix",
+        "test.e2e"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "expectation": "Existing browser E2E profile must pass real Chromium preflight and registered browser acceptance; unavailable prerequisites fail nonzero with allowlisted causes only, no raw launch output or passing receipt. Require a valid launcher-resolved AGENTFLOW_CODEX_SANDBOX_MODE before spawning; bind it and CHROMIUM_PATH to retry identity. Preserve real launch and unchanged two-failure limits; historical mode is unknown.",
+      "retry_env": [
+        "CHROMIUM_PATH",
+        "AGENTFLOW_CODEX_SANDBOX_MODE",
+        "MIX_BUILD_PATH"
+      ]
+    },
+    {
+      "id": "purchase-runtime",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "mix",
+        "run",
+        "test/runtime/purchase_http.exs"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4",
+        "MIX_TEST_PARTITION": "_task029_20261023"
+      },
+      "runtime": true,
+      "reuse": false,
+      "expectation": "Fail unless PostgreSQL SELECT 1, Redis PING and bounded real Endpoint readiness succeed. Real loopback POST /api/purchases: 200 JSON exact Decimal strings and trusted actor; identical retry 200 same body/operation; changed details 409 key_conflict; NUL request key 400 invalid_request with unchanged snapshots; insufficient funds 409 unchanged state; missing credential 401 JSON unauthenticated and WWW-Authenticate challenge. Assert conserved supply, exact buyer/recipient balances and exactly one purchase, transfer and paired ledger in isolated committed store. Startup/service/request/assertion failures exit nonzero; clean only owned resources.",
+      "retry_env": [
+        "MIX_BUILD_PATH"
+      ]
+    }
+  ],
+  "coverage": {
+    "FR-001": [
+      "unit",
+      "integration",
+      "purchase-runtime"
+    ],
+    "FR-002": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "FR-003": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "FR-004": [
+      "unit",
+      "integration",
+      "purchase-runtime"
+    ],
+    "FR-005": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "FR-006": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "FR-007": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "FR-008": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "FR-009": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "FR-010": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "FR-011": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "FR-012": [
+      "unit",
+      "integration",
+      "purchase-runtime"
+    ],
+    "FR-013": [
+      "unit",
+      "integration",
+      "purchase-runtime"
+    ],
+    "FR-014": [
+      "unit",
+      "integration",
+      "inventory",
+      "purchase-runtime"
+    ],
+    "FR-015": [
+      "unit",
+      "integration",
+      "openapi"
+    ],
+    "SC-001": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "SC-002": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "SC-003": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "SC-004": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "SC-005": [
+      "integration",
+      "purchase-runtime"
+    ],
+    "SC-006": [
+      "integration",
+      "purchase-runtime"
+    ]
+  },
+  "task_stages": {
+    "T034": "qa",
+    "T035": "review"
+  }
+}

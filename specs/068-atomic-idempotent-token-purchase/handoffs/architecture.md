@@ -1,0 +1,9 @@
+# Architecture delta — TASK-029 feedback 7
+
+Preserve spec.md, the approved self-purchase rejection/funding boundary and ADR-0032 transaction design. The critic's quote-order finding remains resolved by shared player locking and separate committed-connection barriers in both orders. The historical product-decision handoff still requests approval; this session's instruction and ADR-0032 record that approval. No product decision is reopened.
+
+ADR-0035 adds deterministic sandbox resolution/forwarding and launcher-owned AGENTFLOW_CODEX_SANDBOX_MODE; contracts/profile-diagnostics.md defines precedence, closed modes, refusal and privacy. Current launcher inspection shows no effective-mode binding. Default resolution respects explicit user configuration; no automatic permission widening or configuration edits. Historical mode remains unknown.
+
+verification.json adds mode to integration/E2E retry_env alongside CHROMIUM_PATH, retaining existing checks, all 21 FR/SC mappings, service preflight and fresh live HTTP assertions. Owner must first add meaningful failing launcher/identity tests, implement the relevant source correction and exact scope/inventory updates, freeze inputs, execute required checks through Agentflow and reach development readiness. Planning changes alone do not justify a retry. Missing/invalid mode refuses before profile spawn; unchanged-mode budgets remain enforced. A remaining real Chromium failure must be reported safely, never bypassed.
+
+Reuse the existing unit profile for native regressions; do not add CP1/application coverage or duplicate full profiles. QA reruns independently under its actual mode. No extensions.yml exists; no before_plan/after_plan hooks are registered. Architecture validation is structural; application checks and publication are outside this session.

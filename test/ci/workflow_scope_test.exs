@@ -62,7 +62,8 @@ defmodule FootballMarket.WorkflowScopeTest do
 
     for feature <- [
           "specs/065-separate-unit-and-end-to-end-test-profiles",
-          "specs/065-statistics-ingestion-pipeline"
+          "specs/065-statistics-ingestion-pipeline",
+          "specs/068-atomic-idempotent-token-purchase"
         ] do
       assert WorkflowScope.allows_path?(feature, "test/support/workflow_scope.ex")
     end
@@ -76,6 +77,60 @@ defmodule FootballMarket.WorkflowScopeTest do
              "specs/065-separate-unit-and-end-to-end-test-profiles",
              "lib/football_market/statistics/ingestion/publisher.ex"
            )
+  end
+
+  test "TASK-029 verification recovery and compatibility allowance is limited to named paths" do
+    feature = "specs/068-atomic-idempotent-token-purchase"
+
+    for path <- [
+          "scripts/test_profile_runner.py",
+          "scripts/agentflow_check.py",
+          "scripts/agentflow_stage_checks.py",
+          "scripts/agentflow_verification.py",
+          "docs/AGENT_VERIFICATION.md",
+          "docs/WORKFLOW_LESSONS.md",
+          "docs/adr/0034-check-environment-retry-identity.md",
+          "test/scripts/test_profile_runner_test.py",
+          "test/scripts/agentflow_evidence_test.py",
+          "scripts/agentflow_codex.py",
+          "scripts/ci_unit_tests.sh",
+          "scripts/profile_safe_diagnostics.py",
+          "scripts/application_coverage.py",
+          "scripts/test_profile_components.py",
+          "test/scripts/application_coverage_test.py",
+          "test/scripts/agentflow_models_test.py",
+          "test/scripts/agentflow_branch_test.py",
+          "test/scripts/agentflow_stage_checks_test.py",
+          "test/scripts/agentflow_dedup_test.py",
+          "test/scripts/ci_unit_tests_test.sh",
+          "test/scripts/profile_safe_diagnostics_test.py",
+          "agentflow",
+          "docs/adr/0035-effective-sandbox-check-identity.md",
+          "test/football_market/market/scope_test.exs",
+          "test/football_market/synchronization/scope_test.exs",
+          "test/football_market_web/openapi_browser_test.exs",
+          "test/football_market_web/openapi_contract_test.exs",
+          "test/mix/tasks/catalog.seed_test.exs",
+          "tools/openapi/browser.mjs"
+        ] do
+      assert WorkflowScope.allows_path?(feature, path), "expected authorized path #{path}"
+    end
+
+    for path <- [
+          "scripts/test_inventory.py",
+          "scripts/application_coverage_native.exs",
+          "scripts/agentflow_unknown.py",
+          "docs/adr/0036-unplanned.md",
+          "test/scripts/unplanned_test.py",
+          "test/scripts/unplanned_stage_checks_test.py",
+          "test/scripts/unplanned_profile_safe_diagnostics_test.py",
+          "test/scripts/unplanned_coverage_test.py",
+          "test/mix/tasks/unplanned_test.exs",
+          "lib/football_market/not_planned.ex",
+          "priv/repo/migrations/unplanned.exs"
+        ] do
+      refute WorkflowScope.allows_path?(feature, path), "unexpected path allowance #{path}"
+    end
   end
 
   test "active strategy ranking allowance matches its bounded implementation plan" do

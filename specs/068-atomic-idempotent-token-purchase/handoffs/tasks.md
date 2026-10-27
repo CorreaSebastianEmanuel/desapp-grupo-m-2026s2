@@ -1,0 +1,9 @@
+# Task-generation delta — TASK-029 feedback 7
+
+51 tasks: setup/foundation 5, US1 6, US2 4, US3 5, cross-cutting owner work 29, independent gates 2. Preserve inherited completion without certifying current evidence. Normalize order: previous T031/T032 become T027/T028; old final owner checks become T032/T033; gates remain T034/T035, matching verification.json. T051 reconciles exact application-coverage source roles for purchase files after the latest main integration.
+
+New T029 writes failing fake-launcher and environment-identity/refusal regressions; T030 implements deterministic mode forwarding plus helper validation; T031 adds exact workflow allowances, registers native unit cases and freezes canonical/source inputs. These shared-file tasks are sequential. T032 executes the manifest through Agentflow; T033 requires owner readiness before independent QA. A relevant source correction, actual resolved mode and normal retry limits are required; planning edits alone never authorize bypass.
+
+US1 proves exact transfer/supply/isolation and both quote orders; US2 proves one immutable result for sequential/concurrent/lost-ack retries; US3 proves unchanged rejection snapshots and later same-key recovery. US1 is the development MVP; all three remain required. Existing [P] opportunities remain T006–008, T012–013 and T016–018, with red tests before dependent implementation.
+
+No new full-profile check: native additions run in existing unit; integration/E2E retain browser preflight and bind sandbox plus CHROMIUM_PATH. Services and assertion-based live HTTP remain owner obligations; no historical CP1 coverage gate. Only T034/T035 are downstream gates. Reused unchanged plan context. No extensions.yml exists, so no before_tasks/after_tasks hooks are registered. No implementation or publication occurred.

@@ -19,8 +19,8 @@ defmodule FootballMarket.Ranking.Reader do
            "valuation rule storage integrity failure",
            "valuation selection integrity failure"
          ],
-        do: {:error, :storage_unavailable},
-        else: reraise(error, __STACKTRACE__)
+         do: {:error, :storage_unavailable},
+         else: reraise(error, __STACKTRACE__)
   end
 
   defp read_snapshot do

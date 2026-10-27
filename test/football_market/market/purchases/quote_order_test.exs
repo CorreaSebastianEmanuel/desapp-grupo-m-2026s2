@@ -33,6 +33,8 @@ defmodule FootballMarket.Market.Purchases.QuoteOrderTest do
     assert Decimal.equal?(p.unit_price, "1.25")
     assert Decimal.equal?(p.total, "3.75")
     assert p.mapping_id == f.mapping.id
+    assert Repo.query!("SELECT count(*) FROM market_purchases").rows == [[1]]
+    assert Repo.query!("SELECT count(*) FROM market_credit_entries").rows == [[2]]
     Repo.query!("ALTER TABLE market_quotes DISABLE TRIGGER ALL")
     Repo.query!("ALTER TABLE market_quotes DROP CONSTRAINT market_quote_canonical")
 

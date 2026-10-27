@@ -14,6 +14,10 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
     "getCurrentQuote" => ~w(200 401 404 503),
     "getQuoteHistory" => ~w(200 401 404 503),
     "getQuoteAtDate" => ~w(200 400 401 404 503),
+    "createConditionalOrder" => ~w(201 400 401 404 409 503),
+    "listConditionalOrders" => ~w(200 400 401 503),
+    "getConditionalOrder" => ~w(200 400 401 404 503),
+    "cancelConditionalOrder" => ~w(200 400 401 404 503),
     "purchaseTokens" => ~w(200 400 401 404 409 503),
     "getActiveStrategyRanking" => ~w(200 401 409 503)
   }
@@ -304,7 +308,8 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
       |> Phoenix.Router.routes()
       |> Enum.filter(
         &(&1.path in ["/api/ranking", "/api/purchases", "/api/players"] or
-            String.starts_with?(&1.path, "/api/players/"))
+            String.starts_with?(&1.path, "/api/players/") or
+            String.starts_with?(&1.path, "/api/conditional-orders"))
       )
 
     assert Enum.all?(routes, &(&1.metadata[:authentication_policy] == :api_protected))
@@ -312,7 +317,9 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
     route_set =
       MapSet.new(routes, fn route ->
         {route.verb |> to_string() |> String.downcase(),
-         String.replace(route.path, ":player_id", "{player_id}")}
+         route.path
+         |> String.replace(":player_id", "{player_id}")
+         |> String.replace(":id", "{id}")}
       end)
 
     documented =

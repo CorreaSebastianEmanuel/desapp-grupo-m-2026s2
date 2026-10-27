@@ -37,6 +37,13 @@
       "profile": "integration"
     },
     {
+      "id": "0160f2646e54540d793a541c",
+      "runner": "exunit",
+      "file": "test/football_market/market/conditional_orders/quote_order_test.exs",
+      "case_id": "FootballMarket.Market.ConditionalOrders.QuoteOrderTest:test player lock wait crossing expiry uses wall clock after locks",
+      "profile": "integration"
+    },
+    {
       "id": "0171e4ec7d27cc600c509ee0",
       "runner": "exunit",
       "file": "test/football_market/catalog/ingestion/concurrency_test.exs",
@@ -324,6 +331,13 @@
       "profile": "unit"
     },
     {
+      "id": "091b184c86447eede09f9241",
+      "runner": "exunit",
+      "file": "test/football_market/market/conditional_orders/storage_test.exs",
+      "case_id": "FootballMarket.Market.ConditionalOrders.StorageTest:test terminal outcomes are immutable and reciprocal purchase origin is required at commit",
+      "profile": "integration"
+    },
+    {
       "id": "093db44d0ad85b83126fea7f",
       "runner": "exunit",
       "file": "test/football_market/catalog/ingestion/publication_test.exs",
@@ -489,6 +503,13 @@
       "runner": "exunit",
       "file": "test/football_market/market/purchases/quote_order_test.exs",
       "case_id": "FootballMarket.Market.Purchases.QuoteOrderTest:test quote committed first prices exactly three times 1.25",
+      "profile": "integration"
+    },
+    {
+      "id": "0e173bd00521347b539aaedc",
+      "runner": "exunit",
+      "file": "test/football_market/market/conditional_orders/evaluation_test.exs",
+      "case_id": "FootballMarket.Market.ConditionalOrders.EvaluationTest:test high absent invalid and nonpositive quotes cannot execute; expiry dominates all",
       "profile": "integration"
     },
     {
@@ -818,6 +839,13 @@
       "runner": "exunit",
       "file": "test/football_market/catalog/ingestion/delivery_receipt_test.exs",
       "case_id": "FootballMarket.Catalog.Ingestion.DeliveryReceiptTest:test scope mismatch and malformed contexts reject without publishing",
+      "profile": "integration"
+    },
+    {
+      "id": "189be024aeef40f11e91b767",
+      "runner": "exunit",
+      "file": "test/football_market/market/conditional_orders/quote_order_test.exs",
+      "case_id": "FootballMarket.Market.ConditionalOrders.QuoteOrderTest:test evaluation decision excludes quote confirmation until purchase commit",
       "profile": "integration"
     },
     {
@@ -1269,6 +1297,13 @@
       "profile": "unit"
     },
     {
+      "id": "24ef5b02a29564b8e888f94d",
+      "runner": "exunit",
+      "file": "test/football_market/market/conditional_orders/reads_test.exs",
+      "case_id": "FootballMarket.Market.ConditionalOrders.ReadsTest:test persisted expiry execution and rejection expose stable terminal facts with pure reads",
+      "profile": "integration"
+    },
+    {
       "id": "24fb1299bd1a877ec5ea94bb",
       "runner": "exunit",
       "file": "test/football_market_web/controllers/player_controller_test.exs",
@@ -1364,6 +1399,13 @@
       "runner": "exunit",
       "file": "test/football_market/valuation/configurations/canonical_test.exs",
       "case_id": "FootballMarket.Valuation.Configurations.CanonicalTest:test 24 group/metric/mapping entry permutations produce identical complete evidence and distinct UUIDs",
+      "profile": "integration"
+    },
+    {
+      "id": "28a57a57d26c22d5728d4265",
+      "runner": "exunit",
+      "file": "test/football_market/market/conditional_orders/creation_test.exs",
+      "case_id": "FootballMarket.Market.ConditionalOrders.CreationTest:test creates exact owned pending terms without reserving resources",
       "profile": "integration"
     },
     {
@@ -1490,6 +1532,13 @@
       "runner": "python",
       "file": "test/scripts/agentflow_providers_test.py",
       "case_id": "test.scripts.agentflow_providers_test.EnvTest.test_each_provider_interposes_only_its_own_shim",
+      "profile": "unit"
+    },
+    {
+      "id": "2da2bbc39a36a38454b4b992",
+      "runner": "exunit",
+      "file": "test/football_market/market/conditional_orders/scope_test.exs",
+      "case_id": "FootballMarket.Market.ConditionalOrders.ScopeTest:test conditional feature allowance is exact and excludes workers UI and unrelated trades",
       "profile": "unit"
     },
     {
@@ -1875,6 +1924,13 @@
       "runner": "exunit",
       "file": "test/football_market/statistics/integrity_test.exs",
       "case_id": "FootballMarket.Statistics.IntegrityTest:test all missing and inconsistent relationships identify their field",
+      "profile": "integration"
+    },
+    {
+      "id": "3895a0c5f079f23e7fa54939",
+      "runner": "exunit",
+      "file": "test/football_market/market/conditional_orders/creation_test.exs",
+      "case_id": "FootballMarket.Market.ConditionalOrders.CreationTest:test invalid identity lifetime or initialized-player terms never persist",
       "profile": "integration"
     },
     {
@@ -2354,6 +2410,13 @@
       "profile": "unit"
     },
     {
+      "id": "45f812b8a3b0909da22f98e4",
+      "runner": "exunit",
+      "file": "test/football_market/market/conditional_orders/cancellation_test.exs",
+      "case_id": "FootballMarket.Market.ConditionalOrders.CancellationTest:test all terminal cancellations preserve original outcome and pure financial evidence",
+      "profile": "integration"
+    },
+    {
       "id": "464b4121f667fe33e073ce3a",
       "runner": "exunit",
       "file": "test/football_market/catalog/development_seed_test.exs",
@@ -2435,6 +2498,13 @@
       "runner": "exunit",
       "file": "test/football_market/market/scope_test.exs",
       "case_id": "FootballMarket.Market.ScopeTest:test configuration boundary rejects changes outside the approved fail-closed default",
+      "profile": "integration"
+    },
+    {
+      "id": "4995f9e283c8cd6ce07ac16d",
+      "runner": "exunit",
+      "file": "test/football_market/market/conditional_orders/cancellation_test.exs",
+      "case_id": "FootballMarket.Market.ConditionalOrders.CancellationTest:test foreign absent malformed and unauthenticated attempts disclose and change nothing",
       "profile": "integration"
     },
     {
@@ -2739,6 +2809,13 @@
       "profile": "integration"
     },
     {
+      "id": "51fc6ac792c33043da828b7f",
+      "runner": "exunit",
+      "file": "test/football_market/market/conditional_orders/cancellation_race_test.exs",
+      "case_id": "FootballMarket.Market.ConditionalOrders.CancellationRaceTest:test committed connections force either cancellation or execution to win exclusively",
+      "profile": "integration"
+    },
+    {
       "id": "5211cf8682ae24ce1c4c12d3",
       "runner": "python",
       "file": "test/scripts/agentflow_recovery_test.py",
@@ -2919,6 +2996,13 @@
       "file": "test/scripts/agentflow_stage_checks_test.py",
       "case_id": "test.scripts.agentflow_stage_checks_test.ManifestContractTest.test_legacy_manifest_remains_valid_with_unknown_independence",
       "profile": "unit"
+    },
+    {
+      "id": "57a5665069ce9d0d01fcf153",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/conditional_order_controller_test.exs",
+      "case_id": "FootballMarketWeb.ConditionalOrderControllerTest:test safe validation authentication anti enumeration and unavailable storage",
+      "profile": "integration"
     },
     {
       "id": "57ca73277407f41ac1b3014e",
@@ -3145,6 +3229,13 @@
       "profile": "unit"
     },
     {
+      "id": "5da018d1bf9683e4e099d7a1",
+      "runner": "exunit",
+      "file": "test/football_market/market/conditional_orders/concurrency_test.exs",
+      "case_id": "FootballMarket.Market.ConditionalOrders.ConcurrencyTest:test concurrent and ambiguous deliveries execute once despite preoccupied direct identities",
+      "profile": "integration"
+    },
+    {
       "id": "5dc91e2da24cd197eef83b44",
       "runner": "exunit",
       "file": "test/football_market/statistics/ingestion/positions_test.exs",
@@ -3341,6 +3432,13 @@
       "profile": "integration"
     },
     {
+      "id": "64d177178ba2ad98238b826b",
+      "runner": "exunit",
+      "file": "test/football_market/market/conditional_orders/evaluation_test.exs",
+      "case_id": "FootballMarket.Market.ConditionalOrders.EvaluationTest:test equal and below limits execute entirely at the single current quote once",
+      "profile": "integration"
+    },
+    {
       "id": "64d369d2a55259ed22c6462f",
       "runner": "exunit",
       "file": "test/football_market/statistics/freshness/context_test.exs",
@@ -3366,6 +3464,13 @@
       "runner": "exunit",
       "file": "test/football_market/statistics/integrity_test.exs",
       "case_id": "FootballMarket.Statistics.IntegrityTest:test database protects append-only facts and catalog meaning",
+      "profile": "integration"
+    },
+    {
+      "id": "65ca41c7fe01bc84bb64c9bb",
+      "runner": "exunit",
+      "file": "test/football_market/market/conditional_orders/reads_test.exs",
+      "case_id": "FootballMarket.Market.ConditionalOrders.ReadsTest:test owned reads list persisted status across expiry without updates or jobs",
       "profile": "integration"
     },
     {
@@ -4230,6 +4335,13 @@
       "profile": "unit"
     },
     {
+      "id": "8344e215272edec7d9471526",
+      "runner": "exunit",
+      "file": "test/football_market/market/conditional_orders/contention_test.exs",
+      "case_id": "FootballMarket.Market.ConditionalOrders.ContentionTest:test different player locks still serialize a shared buyer balance",
+      "profile": "integration"
+    },
+    {
       "id": "835e6f30d9562d1be69c1e40",
       "runner": "exunit",
       "file": "test/ci/test_profiles_quality_contract_test.exs",
@@ -4375,6 +4487,13 @@
       "file": "test/scripts/agentflow_providers_test.py",
       "case_id": "test.scripts.agentflow_providers_test.OuterLaunchTest.test_legacy_ci_baseline_resume_uses_saved_workflow_once_without_snapshot_write",
       "profile": "unit"
+    },
+    {
+      "id": "87a2d39ca7c35a4882c55774",
+      "runner": "exunit",
+      "file": "test/football_market/market/conditional_orders/cancellation_test.exs",
+      "case_id": "FootballMarket.Market.ConditionalOrders.CancellationTest:test owner cancels before expiry and due cancellation persists expired with no purchase",
+      "profile": "integration"
     },
     {
       "id": "880cd2c745195337add70c7f",
@@ -4762,6 +4881,13 @@
       "profile": "integration"
     },
     {
+      "id": "91f5dbd53191c33ca528d8ab",
+      "runner": "exunit",
+      "file": "test/football_market/market/conditional_orders/input_test.exs",
+      "case_id": "FootballMarket.Market.ConditionalOrders.InputTest:test exact finite cents and whole quantities with immutable allowlist and UTC expiry",
+      "profile": "unit"
+    },
+    {
       "id": "9203c115357d798eee827576",
       "runner": "python",
       "file": "test/scripts/test_profile_runner_test.py",
@@ -4850,6 +4976,13 @@
       "runner": "exunit",
       "file": "test/football_market/valuation/replay_test.exs",
       "case_id": "FootballMarket.Valuation.ReplayTest:test deleted struct fields and malformed nested evidence fail ordinarily",
+      "profile": "integration"
+    },
+    {
+      "id": "959aa24277df742f17ba3982",
+      "runner": "exunit",
+      "file": "test/football_market/market/conditional_orders/handoff_test.exs",
+      "case_id": "FootballMarket.Market.ConditionalOrders.HandoffTest:test transaction participant rolls back and pending cursor includes due no-quote rows",
       "profile": "integration"
     },
     {
@@ -5525,6 +5658,13 @@
       "profile": "unit"
     },
     {
+      "id": "a8b54142d5a07c41266b54b2",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/conditional_order_controller_test.exs",
+      "case_id": "FootballMarketWeb.ConditionalOrderControllerTest:test authenticated create list detail exact terms location and pure owner reads",
+      "profile": "integration"
+    },
+    {
       "id": "a9121ae69bfcb99690fd55f4",
       "runner": "exunit",
       "file": "test/mix/tasks/catalog.seed_test.exs",
@@ -5707,6 +5847,13 @@
       "profile": "unit"
     },
     {
+      "id": "acceb4ab95a5f4fbbcab6aed",
+      "runner": "exunit",
+      "file": "test/football_market/market/conditional_orders/scope_test.exs",
+      "case_id": "FootballMarket.Market.ConditionalOrders.ScopeTest:test web delegates persistence and domain input and projection stay pure",
+      "profile": "unit"
+    },
+    {
       "id": "ad231030bfca130d2d7c7e1b",
       "runner": "python",
       "file": "test/scripts/agentflow_feature_test.py",
@@ -5746,6 +5893,13 @@
       "runner": "exunit",
       "file": "test/football_market/synchronization/inspection_test.exs",
       "case_id": "FootballMarket.Synchronization.InspectionTest:test inspection exposes durable original and coalesced triggers without raw source state",
+      "profile": "integration"
+    },
+    {
+      "id": "ae8394f59a8ac7c6f0c0c7fd",
+      "runner": "exunit",
+      "file": "test/football_market/market/conditional_orders/evaluation_test.exs",
+      "case_id": "FootballMarket.Market.ConditionalOrders.EvaluationTest:test qualifying insufficiencies reject distinctly without partial effects",
       "profile": "integration"
     },
     {
@@ -5924,6 +6078,13 @@
       "profile": "unit"
     },
     {
+      "id": "b446b0941ad6aece22b775e0",
+      "runner": "exunit",
+      "file": "test/football_market/market/conditional_orders/storage_test.exs",
+      "case_id": "FootballMarket.Market.ConditionalOrders.StorageTest:test database enforces terms ownership and immutable pending instructions",
+      "profile": "integration"
+    },
+    {
       "id": "b47b38ca806ead58600c1ee3",
       "runner": "exunit",
       "file": "test/football_market/valuation/missing_data_test.exs",
@@ -6083,6 +6244,13 @@
       "file": "test/scripts/task_feature_binding_acceptance_test.py",
       "case_id": "test.scripts.task_feature_binding_acceptance_test.ActualProviderFixtureTest.test_tools_and_exact_provenance",
       "profile": "unit"
+    },
+    {
+      "id": "bbd48f5fa9b2510f3c53370c",
+      "runner": "exunit",
+      "file": "test/football_market/market/conditional_orders/storage_test.exs",
+      "case_id": "FootballMarket.Market.ConditionalOrders.StorageTest:test migration upgrades committed direct purchases without rewriting append-only evidence",
+      "profile": "integration"
     },
     {
       "id": "bbf4e31c491bbff3b2eb45f9",
@@ -6435,6 +6603,13 @@
       "profile": "integration"
     },
     {
+      "id": "c6235fb12efaf1be2018649a",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/conditional_order_controller_test.exs",
+      "case_id": "FootballMarketWeb.ConditionalOrderControllerTest:test cancel owner terminal repeat expiry ownership authentication terms and storage failure",
+      "profile": "integration"
+    },
+    {
       "id": "c67e628c5d991ac21b4b1e44",
       "runner": "python",
       "file": "test/scripts/fast_lane_check_test.py",
@@ -6475,6 +6650,13 @@
       "file": "test/scripts/agentflow_completion_test.py",
       "case_id": "test.scripts.agentflow_completion_test.StrictDependentMetadataTest.test_invalid_dependent_task_refuses_before_enumeration_or_completion",
       "profile": "unit"
+    },
+    {
+      "id": "c778068e06d7efffc704b106",
+      "runner": "exunit",
+      "file": "test/football_market/market/conditional_orders/quote_order_test.exs",
+      "case_id": "FootballMarket.Market.ConditionalOrders.QuoteOrderTest:test quote committed first prevents stale cheap authorization while evaluation waits",
+      "profile": "integration"
     },
     {
       "id": "c79c5923614d4a16719b7246",
@@ -7093,6 +7275,13 @@
       "profile": "unit"
     },
     {
+      "id": "d886c806a2f12d1b4161461c",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/conditional_order_controller_test.exs",
+      "case_id": "FootballMarketWeb.ConditionalOrderControllerTest:test GET terminal expiry execution and rejection retains immutable linked facts",
+      "profile": "integration"
+    },
+    {
       "id": "d8db1891e3e0df8a25e9b19e",
       "runner": "python",
       "file": "test/scripts/agentflow_ci_check_test.py",
@@ -7401,6 +7590,13 @@
       "profile": "integration"
     },
     {
+      "id": "e061b2f963dbc6b8ec9b3710",
+      "runner": "exunit",
+      "file": "test/football_market/market/conditional_orders/projection_test.exs",
+      "case_id": "FootballMarket.Market.ConditionalOrders.ProjectionTest:test before equal and after expiry preserve every persisted status without side effects",
+      "profile": "unit"
+    },
+    {
       "id": "e06ba740e114e6e99d1d057b",
       "runner": "exunit",
       "file": "test/integration/infrastructure_migration_test.exs",
@@ -7702,6 +7898,13 @@
       "profile": "unit"
     },
     {
+      "id": "e81166fa7747a6055a8410dd",
+      "runner": "exunit",
+      "file": "test/football_market/market/purchases/idempotency_test.exs",
+      "case_id": "FootballMarket.Market.Purchases.IdempotencyTest:test arbitrary direct keys including order-shaped identities replay without new evidence",
+      "profile": "integration"
+    },
+    {
       "id": "e8322d9c97ee9602f7d6ace5",
       "runner": "exunit",
       "file": "test/football_market/synchronization/input_test.exs",
@@ -7870,6 +8073,13 @@
       "profile": "integration"
     },
     {
+      "id": "ef022cd4eb1918ab16cc1ac5",
+      "runner": "exunit",
+      "file": "test/football_market/market/conditional_orders/contention_test.exs",
+      "case_id": "FootballMarket.Market.ConditionalOrders.ContentionTest:test competing orders and direct trades cannot overspend or exceed inventory",
+      "profile": "integration"
+    },
+    {
       "id": "ef2c9aa5efcfb1f3f6539c01",
       "runner": "exunit",
       "file": "test/football_market/statistics/count_test.exs",
@@ -8035,6 +8245,13 @@
       "runner": "exunit",
       "file": "test/football_market/valuation/scope_test.exs",
       "case_id": "FootballMarket.Valuation.ScopeTest:test legacy allowances are exact and active-feature-only",
+      "profile": "integration"
+    },
+    {
+      "id": "f3a4d1d43fae4b879b36bec2",
+      "runner": "exunit",
+      "file": "test/football_market/market/conditional_orders/rollback_test.exs",
+      "case_id": "FootballMarket.Market.ConditionalOrders.RollbackTest:test every financial and order write including deferred commit rolls back and safely retries",
       "profile": "integration"
     },
     {
@@ -8591,7 +8808,10 @@
     "test/runtime/purchase_http.exs": "Standalone real HTTP assertion runner executed explicitly by purchase-runtime in verification.json.",
     "test/support/freshness_case.ex": "Shared deterministic freshness fixtures; executed by registered integration tests.",
     "test/support/observability_worker.ex": "Test-only raising endpoint and timed-out Oban worker, exercised by registered HTTP integration and real-runtime E2E cases.",
-    "test/support/ranking_case.ex": "Fixture/support helper; ranking cases own the active configuration and successful quote setup."
+    "test/support/ranking_case.ex": "Fixture/support helper; ranking cases own the active configuration and successful quote setup.",
+    "test/support/conditional_orders/case.ex": "Isolated conditional-order fixtures, pure snapshots and financial invariant assertions.",
+    "test/support/conditional_orders/runtime_probe.ex": "Independent committed connections and owned runtime store/readiness helpers.",
+    "test/runtime/conditional_orders_http.exs": "Explicit real HTTP assertion runner; executed by the feature manifest rather than ExUnit discovery."
   },
   "excluded_roots": [
     ".agentflow",

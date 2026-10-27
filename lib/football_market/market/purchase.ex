@@ -4,6 +4,7 @@ defmodule FootballMarket.Market.Purchase do
   import Ecto.Changeset
   @primary_key {:id, :binary_id, autogenerate: true}
   schema "market_purchases" do
+    field :conditional_order_id, :binary_id
     field :buyer_id, :binary_id
     field :recipient_id, :binary_id
     field :player_id, :binary_id
@@ -24,6 +25,7 @@ defmodule FootballMarket.Market.Purchase do
   def changeset(record, attrs) do
     changeset =
       cast(record, attrs, [
+        :conditional_order_id,
         :buyer_id,
         :recipient_id,
         :player_id,

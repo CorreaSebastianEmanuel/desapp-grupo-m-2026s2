@@ -24,6 +24,7 @@ defmodule FootballMarket.Market.Purchases.StorageTest do
   test "successful financial evidence is immutable for ordinary update delete and truncate", f do
     PurchasesCase.fund(f.buyer, "100")
     assert {:ok, _} = PurchasesCase.purchase(f)
+    assert Repo.query!("SELECT conditional_order_id FROM market_purchases").rows == [[nil]]
     before = PurchasesCase.snapshot()
 
     for table <- ~w(market_purchases market_credit_entries market_token_transfers),

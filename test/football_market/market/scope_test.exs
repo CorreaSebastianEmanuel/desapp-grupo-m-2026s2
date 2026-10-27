@@ -91,9 +91,14 @@ defmodule FootballMarket.Market.ScopeTest do
     functions = FootballMarket.Market.__info__(:functions)
 
     assert Enum.sort(functions) == [
+             cancel_conditional_order: 2,
+             create_conditional_order: 2,
+             evaluate_conditional_order: 1,
+             get_conditional_order: 2,
              get_initial_issuance: 1,
              initialize_player: 1,
              initialize_player: 2,
+             list_conditional_orders: 1,
              purchase: 2
            ]
 

@@ -9,6 +9,16 @@ defmodule FootballMarketWeb.RouterAuthenticationPolicyTest do
       |> Phoenix.Router.routes()
       |> Enum.filter(&(&1.path == "/api" or String.starts_with?(&1.path, "/api/")))
 
+    orders = Enum.filter(api_routes, &String.starts_with?(&1.path, "/api/conditional-orders"))
+
+    assert MapSet.new(orders, &{&1.verb, &1.path}) ==
+             MapSet.new([
+               {:post, "/api/conditional-orders"},
+               {:get, "/api/conditional-orders"},
+               {:get, "/api/conditional-orders/:id"},
+               {:post, "/api/conditional-orders/:id/cancel"}
+             ])
+
     public_allowlist = MapSet.new()
 
     Enum.each(api_routes, fn route ->

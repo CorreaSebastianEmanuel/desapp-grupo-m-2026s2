@@ -4,9 +4,9 @@ title: Conditional buy order domain and API
 type: task
 checkpoint: CP2
 priority: critical
-status: todo
+status: review
 depends_on: TASK-027, TASK-029
-active_run: none
+active_run: 0f3ecc44
 ---
 
 ## Outcome

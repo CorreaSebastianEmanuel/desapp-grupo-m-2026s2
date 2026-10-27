@@ -18,6 +18,12 @@ defmodule FootballMarketWeb.ErrorJSON do
   def render("400.json", %{conn: %{request_path: "/api/purchases"}}),
     do: %{error: %{code: "invalid_request"}}
 
+  def render("400.json", %{conn: %{request_path: "/api/conditional-orders"}}),
+    do: %{error: %{code: "invalid_request"}}
+
+  def render("400.json", %{conn: %{request_path: "/api/conditional-orders/" <> _}}),
+    do: %{error: %{code: "invalid_request"}}
+
   def render(template, _assigns) do
     %{errors: %{detail: Phoenix.Controller.status_message_from_template(template)}}
   end

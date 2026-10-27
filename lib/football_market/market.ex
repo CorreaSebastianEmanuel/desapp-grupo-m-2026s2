@@ -4,6 +4,26 @@ defmodule FootballMarket.Market do
 
   defdelegate purchase(actor, input), to: FootballMarket.Market.Purchases
 
+  defdelegate create_conditional_order(actor, terms),
+    to: FootballMarket.Market.ConditionalOrders,
+    as: :create
+
+  defdelegate list_conditional_orders(actor),
+    to: FootballMarket.Market.ConditionalOrders,
+    as: :list
+
+  defdelegate get_conditional_order(actor, id),
+    to: FootballMarket.Market.ConditionalOrders,
+    as: :get
+
+  defdelegate cancel_conditional_order(actor, id),
+    to: FootballMarket.Market.ConditionalOrders,
+    as: :cancel
+
+  defdelegate evaluate_conditional_order(id),
+    to: FootballMarket.Market.ConditionalOrders,
+    as: :evaluate
+
   def initialize_player(player_id, assertions \\ %{}) do
     designation = Application.get_env(:football_market, :initial_issuance_recipients, [])
 

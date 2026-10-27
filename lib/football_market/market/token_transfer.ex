@@ -5,6 +5,7 @@ defmodule FootballMarket.Market.TokenTransfer do
   @primary_key {:id, :binary_id, autogenerate: true}
   schema "market_token_transfers" do
     field :purchase_id, :binary_id
+    field :sale_id, :binary_id
     field :player_id, :binary_id
     field :from_user_id, :binary_id
     field :to_user_id, :binary_id
@@ -15,6 +16,7 @@ defmodule FootballMarket.Market.TokenTransfer do
   def changeset(record, attrs) do
     cast(record, attrs, [
       :purchase_id,
+      :sale_id,
       :player_id,
       :from_user_id,
       :to_user_id,

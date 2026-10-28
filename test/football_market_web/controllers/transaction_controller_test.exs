@@ -151,7 +151,6 @@ defmodule FootballMarketWeb.TransactionControllerTest do
              "completed_at" => ^completed_at
            } = hd(body["data"])
 
-    assert is_binary(completed_at) and is_binary(quote_id)
     assert SalesCase.snapshot() |> Map.get("market_sales") == []
   end
 

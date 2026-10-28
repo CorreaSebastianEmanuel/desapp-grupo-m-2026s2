@@ -3,7 +3,7 @@ defmodule FootballMarketWeb.WorkspaceLive do
   import FootballMarketWeb.WorkspaceComponents
 
   alias FootballMarket.Accounts.AuthenticatedActor
-  alias FootballMarket.Market.ConditionalOrders
+  alias FootballMarket.Market.{ConditionalOrders, Portfolio}
 
   def mount(_, _, socket) do
     if connected?(socket) and socket.assigns.actor do
@@ -18,6 +18,8 @@ defmodule FootballMarketWeb.WorkspaceLive do
        destination: nil,
        heading: nil,
        orders: [],
+       positions: [],
+       portfolio_unavailable: false,
        order_form: empty_form(),
        order_error: nil,
        order_notice: nil,
@@ -29,7 +31,12 @@ defmodule FootballMarketWeb.WorkspaceLive do
     destination = URI.parse(uri).path
     heading = if destination == "/conditional-orders", do: "Conditional orders", else: "Portfolio"
     socket = assign(socket, destination: destination, heading: heading)
-    {:noreply, if(destination == "/conditional-orders", do: reload_orders(socket), else: socket)}
+
+    {:noreply,
+     if(destination == "/conditional-orders",
+       do: reload_orders(socket),
+       else: reload_portfolio(socket)
+     )}
   end
 
   def handle_event("create_order", params, socket) do
@@ -170,7 +177,39 @@ defmodule FootballMarketWeb.WorkspaceLive do
           </ul>
         </section>
       <% else %>
-        <.unavailable heading={@heading} />
+        <section id="portfolio">
+          <h1>Portfolio</h1>
+          <p :if={@portfolio_unavailable} id="portfolio-unavailable" role="alert">
+            Portfolio data is temporarily unavailable. Try again shortly.
+          </p>
+          <p :if={@positions == [] && !@portfolio_unavailable} id="no-positions">
+            You do not currently own any player tokens.
+          </p>
+          <table :if={@positions != []} id="portfolio-positions">
+            <thead>
+              <tr>
+                <th scope="col">Player</th>
+                <th scope="col">Quantity</th>
+                <th scope="col">Average unit cost</th>
+                <th scope="col">Current quote</th>
+                <th scope="col">Current value</th>
+                <th scope="col">Realized profit/loss</th>
+                <th scope="col">Unrealized profit/loss</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr :for={position <- @positions} id={"portfolio-position-#{position.player_id}"}>
+                <th scope="row">{position.player_name}</th>
+                <td>{position.quantity}</td>
+                <td>{exact_money(position.average_unit_cost)}</td>
+                <td>{exact_money(position.current_quote)}</td>
+                <td>{exact_money(position.current_value)}</td>
+                <td>{exact_money(position.realized_profit_loss)}</td>
+                <td>{exact_money(position.unrealized_profit_loss)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
       <% end %>
     </.shell>
     """
@@ -180,6 +219,13 @@ defmodule FootballMarketWeb.WorkspaceLive do
     case ConditionalOrders.list(domain_actor(socket.assigns.actor)) do
       {:ok, orders} -> assign(socket, orders: orders, orders_unavailable: false)
       {:error, _} -> assign(socket, orders: [], orders_unavailable: true)
+    end
+  end
+
+  defp reload_portfolio(socket) do
+    case Portfolio.list(domain_actor(socket.assigns.actor)) do
+      {:ok, positions} -> assign(socket, positions: positions, portfolio_unavailable: false)
+      {:error, _} -> assign(socket, positions: [], portfolio_unavailable: true)
     end
   end
 
@@ -228,6 +274,7 @@ defmodule FootballMarketWeb.WorkspaceLive do
   defp error_message(_), do: "The order could not be completed. Check the terms and try again."
 
   defp money(value), do: value |> Decimal.round(2) |> Decimal.to_string(:normal)
+  defp exact_money(value), do: value |> Decimal.normalize() |> Decimal.to_string(:normal)
   defp timestamp(value), do: Calendar.strftime(value, "%Y-%m-%d %H:%M:%S UTC")
   defp readable_reason(nil), do: "not available"
   defp readable_reason(reason), do: reason |> String.replace("_", " ")

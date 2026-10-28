@@ -374,6 +374,18 @@
       "reason": "Conditional evaluation application source: lib/football_market/market/order_notifications.ex."
     },
     {
+      "path": "lib/football_market/market/portfolio.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "portfolio domain module"
+    },
+    {
+      "path": "lib/football_market/market/portfolio_store.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "portfolio domain module"
+    },
+    {
       "path": "lib/football_market/market/purchase.ex",
       "role": "application",
       "disposition": "include",
@@ -2366,6 +2378,24 @@
       "reason": "Conditional evaluation test source: test/football_market/market/order_evaluation/scope_test.exs."
     },
     {
+      "path": "test/football_market/market/portfolio/calculation_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "unit calculation suite for weighted-average portfolio math"
+    },
+    {
+      "path": "test/football_market/market/portfolio/positions_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "integration portfolio positions and profitability domain cases"
+    },
+    {
+      "path": "test/football_market/market/portfolio/quote_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "integration quote valuation cases for portfolio positions"
+    },
+    {
       "path": "test/football_market/market/purchases/concurrency_test.exs",
       "role": "test",
       "disposition": "exclude",
@@ -3336,6 +3366,12 @@
       "role": "test",
       "disposition": "exclude",
       "reason": "Test code, not application behavior: test/football_market_web/live/conditional_orders_live_test.exs."
+    },
+    {
+      "path": "test/football_market_web/live/portfolio_live_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "integration LiveView portfolio presentation cases"
     },
     {
       "path": "test/football_market_web/live/workspace_navigation_test.exs",

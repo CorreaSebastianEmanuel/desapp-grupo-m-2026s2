@@ -711,6 +711,29 @@ defmodule FootballMarket.WorkflowScope do
     ]
   end
 
+  def paths("specs/032-portfolio-positions-and-profitability") do
+    [
+      "backlog/TASK-032-portfolio-positions-and-profitability.md",
+      "backlog/feedback/TASK-032.md",
+      "config/application_coverage_inventory.json",
+      "config/credo_inventory.json",
+      "config/test_profiles.json",
+      "lib/football_market/market.ex",
+      "lib/football_market/market/portfolio.ex",
+      "lib/football_market/market/portfolio_store.ex",
+      "lib/football_market_web/live/workspace_live.ex",
+      "specs/032-portfolio-positions-and-profitability/",
+      "test/football_market/market/portfolio/calculation_test.exs",
+      "test/football_market/market/portfolio/positions_test.exs",
+      "test/football_market/market/portfolio/quote_test.exs",
+      "test/football_market/market/scope_test.exs",
+      "test/football_market_web/live/portfolio_live_test.exs",
+      "test/football_market_web/live/workspace_navigation_test.exs",
+      "test/support/purchases/case.ex",
+      "test/support/workflow_scope.ex"
+    ]
+  end
+
   def paths(_), do: []
 
   def allows_path?(feature, path) do

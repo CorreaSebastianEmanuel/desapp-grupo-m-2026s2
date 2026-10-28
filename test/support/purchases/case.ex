@@ -20,9 +20,11 @@ defmodule FootballMarket.PurchasesCase do
   end
 
   def fund(user, amount) do
+    {funded, ""} = Decimal.parse(amount, max_digits: :infinity)
+
     Repo.query!(
       "INSERT INTO market_credit_balances(user_id,amount,updated_at) VALUES($1,$2,now()) ON CONFLICT(user_id) DO UPDATE SET amount=excluded.amount",
-      [Ecto.UUID.dump!(user.id), Decimal.new(amount)]
+      [Ecto.UUID.dump!(user.id), funded]
     )
   end
 

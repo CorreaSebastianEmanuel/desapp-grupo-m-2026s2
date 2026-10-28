@@ -6,38 +6,42 @@ defmodule FootballMarket.Market.TransactionHistoryStore do
 
   def list(owner, %{page_size: size, cursor: cursor}) do
     with {:ok, anchor} <- anchor(cursor, owner) do
-      safely(fn ->
-        rows =
-          (purchases(owner, anchor, size + 1) ++ sales(owner, anchor, size + 1))
-          |> Enum.sort_by(fn row ->
-            {-DateTime.to_unix(row.completed_at, :microsecond), row.type, row.id}
-          end)
-
-        has_more = length(rows) > size
-        data = Enum.take(rows, size)
-
-        next =
-          if has_more,
-            do:
-              data
-              |> List.last()
-              |> Map.take([:completed_at, :type, :id])
-              |> Map.put(:owner, owner)
-              |> TransactionHistoryCursor.encode(),
-            else: nil
-
-        {:ok,
-         %{
-           data: data,
-           pagination: %{
-             page_size: size,
-             returned_count: length(data),
-             has_more: has_more,
-             next_cursor: next
-           }
-         }}
-      end)
+      safely(fn -> page(owner, size, anchor) end)
     end
+  end
+
+  defp page(owner, size, anchor) do
+    rows =
+      (purchases(owner, anchor, size + 1) ++ sales(owner, anchor, size + 1))
+      |> Enum.sort_by(&order_key/1)
+
+    has_more = length(rows) > size
+    data = Enum.take(rows, size)
+
+    next = continuation(data, owner, has_more)
+
+    {:ok,
+     %{
+       data: data,
+       pagination: %{
+         page_size: size,
+         returned_count: length(data),
+         has_more: has_more,
+         next_cursor: next
+       }
+     }}
+  end
+
+  defp order_key(row), do: {-DateTime.to_unix(row.completed_at, :microsecond), row.type, row.id}
+
+  defp continuation(_data, _owner, false), do: nil
+
+  defp continuation(data, owner, true) do
+    data
+    |> List.last()
+    |> Map.take([:completed_at, :type, :id])
+    |> Map.put(:owner, owner)
+    |> TransactionHistoryCursor.encode()
   end
 
   defp purchases(owner, anchor, limit) do

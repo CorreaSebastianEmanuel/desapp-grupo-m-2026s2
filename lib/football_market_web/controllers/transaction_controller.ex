@@ -32,15 +32,25 @@ defmodule FootballMarketWeb.TransactionController do
   end
 
   defp value(pairs, key, error) do
-    if Enum.any?(pairs, fn {candidate, _} -> String.starts_with?(candidate, key <> "[") end) do
-      {:error, error}
-    else
-      case for({^key, v} <- pairs, do: v) do
-        [] -> {:ok, nil}
-        [v] -> {:ok, v}
-        _ -> {:error, error}
-      end
+    case values(pairs, key) do
+      {:ok, value} -> structured(pairs, key, value, error)
+      :error -> {:error, error}
     end
+  end
+
+  defp values(pairs, key) do
+    case for({candidate, v} <- pairs, candidate == key, do: v) do
+      [] -> {:ok, nil}
+      [v] -> {:ok, v}
+      _ -> :error
+    end
+  end
+
+  defp structured(pairs, key, value, error) do
+    repeats =
+      Enum.any?(pairs, fn {candidate, _} -> String.starts_with?(candidate, key <> "[") end)
+
+    if repeats, do: {:error, error}, else: {:ok, value}
   end
 
   defp page_size(nil), do: {:ok, 25}

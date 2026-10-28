@@ -4,10 +4,10 @@ title: Conditional orders LiveView UI
 type: task
 checkpoint: CP2
 priority: high
-status: review
+status: done
 workflow: thinflow-v1
 depends_on: TASK-046, TASK-059, TASK-060
-active_run: e9751ddb
+active_run: none
 ---
 
 ## Outcome

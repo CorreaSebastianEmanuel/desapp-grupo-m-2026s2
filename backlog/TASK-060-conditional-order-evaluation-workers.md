@@ -4,9 +4,9 @@ title: Conditional order evaluation workers
 type: task
 checkpoint: CP2
 priority: critical
-status: review
+status: done
 depends_on: TASK-019, TASK-026, TASK-059
-active_run: 254b0a20
+active_run: none
 ---
 
 ## Outcome

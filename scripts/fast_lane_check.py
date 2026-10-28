@@ -14,8 +14,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-ALLOWED_TOP_FILES = frozenset({"AGENTS.md", "CLAUDE.md", "README.md"})
-ALLOWED_PREFIXES = ("docs/", "backlog/", ".agents/", ".opencode/")
+ALLOWED_TOP_FILES = frozenset({"AGENTS.md", "CLAUDE.md", "README.md", "REVIEW.md"})
+ALLOWED_PREFIXES = ("docs/", "backlog/", "specs/", ".agents/", ".opencode/")
 
 
 def run_git(root: Path, *args: str) -> str:

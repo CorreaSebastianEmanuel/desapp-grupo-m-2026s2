@@ -5,6 +5,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from scripts import thinflow
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = REPO_ROOT / "scripts" / "fast_lane_check.py"
 
@@ -51,13 +53,25 @@ class FastLaneCheckTest(unittest.TestCase):
         commit(self.root, "base")
 
     def test_all_no_behavior_paths_are_allowed(self):
-        write(self.root, "docs/SPEED_NOTE.md")
-        write(self.root, "AGENTS.md", "updated\n")
+        paths = [
+            "docs/SPEED_NOTE.md",
+            "AGENTS.md",
+            "REVIEW.md",
+            "specs/900-docs/spec.md",
+            "specs/900-docs/assessment.md",
+            "specs/900-docs/evaluation.md",
+        ]
+        selection = thinflow.select(REPO_ROOT, paths)
+        self.assertEqual(selection["tier"], "low")
+        self.assertEqual(selection["checks"], ["fast-lane"])
+        for path in paths:
+            write(self.root, path)
         commit(self.root, "docs only")
         result = run_guard(self.root, "HEAD~1")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("fast lane allowed", result.stdout)
-        self.assertIn("docs/SPEED_NOTE.md", result.stdout)
+        for path in paths:
+            self.assertIn(path, result.stdout)
 
     def test_untracked_no_behavior_files_are_checked_without_commit(self):
         write(self.root, "backlog/feedback/TASK-900.md")
@@ -67,6 +81,7 @@ class FastLaneCheckTest(unittest.TestCase):
 
     def test_application_paths_are_denied(self):
         write(self.root, "docs/CHANGES.md")
+        write(self.root, "specs/900-docs/spec.md")
         write(self.root, "lib/football_market/domain/model.ex", "defmodule Changed\n")
         write(self.root, "config/test.exs", "import Config\n")
         commit(self.root, "mixed change")

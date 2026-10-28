@@ -9,9 +9,9 @@ defmodule FootballMarketWeb.WorkspaceNavigationTest do
     {:ok, anon} = BrowserSessions.create_anonymous()
     {:ok, handle} = BrowserSessions.authenticate(anon, user.id)
 
-    for {path, heading} <- [
-          {"/portfolio", "Portfolio"},
-          {"/conditional-orders", "Conditional orders"}
+    for {path, heading, expectation} <- [
+          {"/portfolio", "Portfolio", :placeholder},
+          {"/conditional-orders", "Conditional orders", :page}
         ] do
       conn =
         build_conn()
@@ -28,7 +28,15 @@ defmodule FootballMarketWeb.WorkspaceNavigationTest do
       assert length(view |> element("nav") |> render() |> String.split("aria-current=\"page\"")) ==
                2
 
-      assert html =~ "not available yet"
+      case expectation do
+        :page ->
+          assert has_element?(view, "#conditional-order-form")
+          refute html =~ "not available yet"
+
+        :placeholder ->
+          assert html =~ "not available yet"
+      end
+
       refute html =~ "Buy"
       refute html =~ handle
     end

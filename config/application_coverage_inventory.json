@@ -3332,6 +3332,12 @@
       "reason": "Test code, not application behavior: test/football_market_web/live/browser_session_lifecycle_test.exs."
     },
     {
+      "path": "test/football_market_web/live/conditional_orders_live_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Test code, not application behavior: test/football_market_web/live/conditional_orders_live_test.exs."
+    },
+    {
       "path": "test/football_market_web/live/workspace_navigation_test.exs",
       "role": "test",
       "disposition": "exclude",

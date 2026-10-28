@@ -548,6 +548,13 @@
       "profile": "integration"
     },
     {
+      "id": "0def6eb8552d1562ff68f637",
+      "runner": "exunit",
+      "file": "test/football_market_web/live/conditional_orders_live_test.exs",
+      "case_id": "FootballMarketWeb.ConditionalOrdersLiveTest:test creates, lists, and cancels the signed-in user's order",
+      "profile": "integration"
+    },
+    {
       "id": "0e173bd00521347b539aaedc",
       "runner": "exunit",
       "file": "test/football_market/market/conditional_orders/evaluation_test.exs",
@@ -1518,6 +1525,13 @@
       "runner": "exunit",
       "file": "test/football_market/valuation/position_aware/replay_test.exs",
       "case_id": "FootballMarket.Valuation.PositionAware.ReplayTest:test US4.7 24 multi-group multi-metric fact rule and mapping permutations are canonical",
+      "profile": "integration"
+    },
+    {
+      "id": "29ab5c143272f9d6d00ebb71",
+      "runner": "exunit",
+      "file": "test/football_market_web/live/conditional_orders_live_test.exs",
+      "case_id": "FootballMarketWeb.ConditionalOrdersLiveTest:test reload hints and reconnect recover committed owner-scoped states and outcomes",
       "profile": "integration"
     },
     {
@@ -8469,6 +8483,13 @@
       "runner": "exunit",
       "file": "test/football_market/statistics/ingestion/acceptance_test.exs",
       "case_id": "FootballMarket.Statistics.Ingestion.AcceptanceTest:test source replay is idempotent and changed immutable metric content rolls back",
+      "profile": "integration"
+    },
+    {
+      "id": "ed70973c49e2e6d07562bc4f",
+      "runner": "exunit",
+      "file": "test/football_market_web/live/conditional_orders_live_test.exs",
+      "case_id": "FootballMarketWeb.ConditionalOrdersLiveTest:test shows expiry reached before the persisted transition and the expired outcome after reload",
       "profile": "integration"
     },
     {

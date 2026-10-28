@@ -697,6 +697,20 @@ defmodule FootballMarket.WorkflowScope do
     ]
   end
 
+  def paths("specs/061-conditional-orders-liveview-ui") do
+    [
+      "backlog/TASK-061-conditional-orders-liveview-ui.md",
+      "config/application_coverage_inventory.json",
+      "config/credo_inventory.json",
+      "config/test_profiles.json",
+      "lib/football_market_web/live/workspace_live.ex",
+      "specs/061-conditional-orders-liveview-ui/",
+      "test/football_market_web/live/conditional_orders_live_test.exs",
+      "test/football_market_web/live/workspace_navigation_test.exs",
+      "test/support/workflow_scope.ex"
+    ]
+  end
+
   def paths(_), do: []
 
   def allows_path?(feature, path) do

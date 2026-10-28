@@ -141,6 +141,92 @@ defmodule FootballMarket.Quotes.FollowupTest do
     end
   end
 
+  test "quote and event-ID wake commit together or enqueue failure rolls everything back", f do
+    assert {:ok, _} = Configurations.activate(f.configuration.id, nil)
+    before = Repo.aggregate(FootballMarket.Market.Quote, :count)
+    FootballMarket.OrderEvaluationCase.fail_jobs!()
+    assert {:error, _} = Quotes.request(f.subject, :active, f.mapping.id)
+    FootballMarket.OrderEvaluationCase.repair_jobs!()
+    assert Repo.aggregate(FootballMarket.Market.Quote, :count) == before
+    assert {:ok, []} = Quotes.pending_evaluations()
+    assert {:ok, _} = Quotes.request(f.subject, :active, f.mapping.id, Ecto.UUID.generate())
+    assert {:ok, [event]} = Quotes.pending_evaluations()
+
+    assert [%{args: %{"source" => "quote", "event_id" => id}}] =
+             FootballMarket.OrderEvaluationCase.jobs()
+
+    assert id == event.id
+  end
+
+  test "fenced acceptance plus wake is atomic; repeat receipt has one effective delivery", f do
+    alias FootballMarket.Market.OrderEvaluation
+    assert {:ok, _} = Configurations.activate(f.configuration.id, nil)
+    assert {:ok, _} = Quotes.request(f.subject, :active, f.mapping.id)
+    assert {:ok, [event]} = Quotes.pending_evaluations()
+    before = length(FootballMarket.OrderEvaluationCase.jobs())
+    FootballMarket.OrderEvaluationCase.fail_jobs!()
+    assert {:error, _} = OrderEvaluation.accept_event(event.id)
+    FootballMarket.OrderEvaluationCase.repair_jobs!()
+    stored = Repo.get!(FootballMarket.Quotes.Evaluation, event.id)
+    assert stored.state == "pending" and stored.lease_fence == 0
+    assert {:ok, :ok} = OrderEvaluation.accept_event(event.id)
+    assert {:ok, :ok} = OrderEvaluation.accept_event(event.id)
+    assert length(FootballMarket.OrderEvaluationCase.jobs()) == before + 1
+    stored = Repo.get!(FootballMarket.Quotes.Evaluation, event.id)
+    assert stored.consumer_receipt == "conditional-evaluation:" <> event.id
+    assert stored.state == "acknowledged"
+
+    assert {:error, :receipt_conflict} =
+             Quotes.acknowledge_evaluation(event.id, stored.lease_fence, "another-consumer")
+  end
+
+  test "recovery accepts an expired fenced event and acknowledged lost jobs remain repairable",
+       f do
+    assert {:ok, _} = Configurations.activate(f.configuration.id, nil)
+    assert {:ok, _} = Quotes.request(f.subject, :active, f.mapping.id)
+    assert {:ok, [event]} = Quotes.pending_evaluations()
+    assert {:ok, claim} = Quotes.claim_evaluation(event.id, 1)
+
+    Repo.query!(
+      "UPDATE quote_evaluation_requests SET lease_until=clock_timestamp()-interval '1 second' WHERE id=$1",
+      [Ecto.UUID.dump!(event.id)]
+    )
+
+    assert :ok = FootballMarket.Market.OrderEvaluation.recover(nil)
+    stored = Repo.get!(FootballMarket.Quotes.Evaluation, event.id)
+    assert stored.state == "acknowledged" and stored.lease_fence > claim.fence
+
+    assert {:error, :receipt_conflict} =
+             Quotes.acknowledge_evaluation(event.id, claim.fence, "stale")
+
+    Repo.query!("DELETE FROM oban_jobs")
+    assert :ok = FootballMarket.Market.OrderEvaluation.recover(nil)
+    assert [%{args: %{"source" => "continuation"}}] = FootballMarket.OrderEvaluationCase.jobs()
+  end
+
+  test "equal-time event pages persist a stable continuation and consume all events", f do
+    now = DateTime.utc_now()
+    for _ <- 1..101, do: QuotesCase.dated_quote(f, now)
+    assert :ok = FootballMarket.Market.OrderEvaluation.recover(nil)
+
+    assert Repo.query!(
+             "SELECT count(*) FROM quote_evaluation_requests WHERE state='acknowledged'"
+           ).rows == [[100]]
+
+    [[args]] =
+      Repo.query!(
+        "SELECT args FROM oban_jobs WHERE worker='FootballMarket.Workers.ConditionalOrderRecovery'"
+      ).rows
+
+    assert %{"after" => id} = args
+    assert {:ok, _} = Ecto.UUID.cast(id)
+    assert :ok = FootballMarket.Workers.ConditionalOrderRecovery.perform(%Oban.Job{args: args})
+
+    assert Repo.query!(
+             "SELECT count(*) FROM quote_evaluation_requests WHERE state='acknowledged'"
+           ).rows == [[101]]
+  end
+
   defp await_blocked(_backend, 0), do: flunk("acknowledgement did not block on the event lock")
 
   defp await_blocked(backend, remaining) do

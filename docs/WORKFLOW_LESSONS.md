@@ -69,4 +69,5 @@ list passes the checkpoint hygiene review.
 - 2026-10-27 — Time-based lifecycle specs left query side effects ambiguous — define transition ownership, read projections and execution deadlines separately before planning — TASK-059
 - 2026-10-27 — Generated feature numbers were mistaken for backlog task IDs — resolve task identity from the active task and exact branch declaration before selecting feedback or raising scope questions — TASK-054, TASK-059
 - 2026-10-27 — Browser presence checks missed launch restrictions — prove a bounded headless launch in the effective child context before declaring browser-test readiness — TASK-029, TASK-059
+- 2026-10-27 — Supplemental QA output changed the source fingerprint after passing development checks — store QA evidence in an excluded output namespace and verify source/input identities stay stable through report finalization — TASK-060
 - 2026-10-27 — Three-digit maintenance-branch names collided with task-branch detection and broke scope resolution in CI quality baseline — name non-task maintenance branches without a leading `NNN-` task prefix — TASK-030, TASK-055

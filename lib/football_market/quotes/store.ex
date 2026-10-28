@@ -41,14 +41,18 @@ defmodule FootballMarket.Quotes.Store do
 
     Repo.insert!(Quote.changeset(quote, Map.from_struct(quote)))
 
-    Repo.insert!(%Evaluation{
-      id: Ecto.UUID.generate(),
-      quote_id: quote_id,
-      calculation_id: calculation.id,
-      player_id: player.id,
-      idempotency_key: "quote-evaluation:" <> quote_id,
-      state: "pending",
-      inserted_at: effective_at
-    })
+    event =
+      Repo.insert!(%Evaluation{
+        id: Ecto.UUID.generate(),
+        quote_id: quote_id,
+        calculation_id: calculation.id,
+        player_id: player.id,
+        idempotency_key: "quote-evaluation:" <> quote_id,
+        state: "pending",
+        inserted_at: effective_at
+      })
+
+    FootballMarket.Market.OrderEvaluation.enqueue!(%{"source" => "quote", "event_id" => event.id})
+    event
   end
 end

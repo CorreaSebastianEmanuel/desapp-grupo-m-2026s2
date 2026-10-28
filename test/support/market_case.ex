@@ -57,6 +57,7 @@ defmodule FootballMarket.MarketCase do
       if Process.alive?(pid), do: Supervisor.stop(pid)
     end)
 
+    FootballMarket.OrderEvaluationCase.isolate_oban(schema)
     %{schema: schema, repo: pid}
   end
 

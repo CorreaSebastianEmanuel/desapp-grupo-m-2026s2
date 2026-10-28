@@ -449,9 +449,19 @@ def _run_stage_locked(root: Path, feature: Path, stage: str, data: dict, *, reus
 
 def ci_parity(root: Path):
     files = [root / ".agentflow/workflow.yml", root / ".specify/workflows/desapp-delivery/workflow.yml"]
-    if any(not path.is_file() for path in files) or files[0].read_bytes() != files[1].read_bytes():
+    if any(not path.is_file() for path in files):
         raise RuntimeError("Delivery workflow copies differ; reconcile them before continuing")
-    workflow = files[0].read_text(encoding="utf-8")
+    default = files[0].read_text(encoding="utf-8")
+    workflow = files[1].read_text(encoding="utf-8")
+    # ThinFlow owns new runs; saved 2.3 tasks still validate their installed
+    # legacy workflow and the current CI wrapper/profile obligations below.
+    thinflow_default = all(marker in default for marker in (
+        'id: "desapp-thinflow"',
+        'run: "python3 scripts/thinflow.py check $AGENTFLOW_TASK_ID"',
+        'run: "python3 scripts/thinflow.py evaluate $AGENTFLOW_TASK_ID"',
+    ))
+    if default != workflow and not thinflow_default:
+        raise RuntimeError("Delivery workflow copies differ; reconcile them before continuing")
     if 'id: ci_baseline' not in workflow or 'run: "python3 scripts/agentflow_stage_checks.py --ci-parity"' not in workflow:
         raise RuntimeError("Local baseline is not the required wrapper parity check")
     wrapper = (root / "scripts/ci_unit_tests.sh").read_text(encoding="utf-8")
@@ -475,7 +485,7 @@ def ci_parity(root: Path):
                             stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True, check=False)
     if result.returncode:
         raise RuntimeError("CI wrapper contract fixtures failed; inspect their local test evidence")
-    return {"workflow_copies": "match", "profiles": ["unit", "integration"],
+    return {"workflow_copies": "legacy-preserved" if thinflow_default else "match", "profiles": ["unit", "integration"],
             "native_profile_runs": 0, "wrapper_contract": "passed"}
 
 

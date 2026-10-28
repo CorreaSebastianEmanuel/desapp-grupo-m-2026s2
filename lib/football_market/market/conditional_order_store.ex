@@ -13,7 +13,18 @@ defmodule FootballMarket.Market.ConditionalOrderStore do
     PurchaseTransaction
   }
 
-  def create(terms), do: command(fn -> create_in_transaction!(terms) end)
+  def create(terms) do
+    command(fn ->
+      order = create_in_transaction!(terms)
+
+      FootballMarket.Market.OrderEvaluation.enqueue!(%{
+        "source" => "order",
+        "order_id" => order.id
+      })
+
+      order
+    end)
+  end
 
   @doc "Internal transaction participant for TASK-060; caller owns commit."
   def create_in_transaction!(terms) do
@@ -30,7 +41,12 @@ defmodule FootballMarket.Market.ConditionalOrderStore do
     project(order, now)
   end
 
-  def cancel(owner, id), do: command(fn -> cancel_locked(owned(owner, id, true)) end)
+  def cancel(owner, id) do
+    transition_command(fn ->
+      order = owned(owner, id, true)
+      {cancel_locked(order), order && order.status == "pending"}
+    end)
+  end
 
   defp cancel_locked(nil), do: Repo.rollback(:not_found)
 
@@ -42,12 +58,38 @@ defmodule FootballMarket.Market.ConditionalOrderStore do
 
   defp cancel_locked(order), do: project(order, clock())
 
-  def evaluate(id) do
-    command(fn ->
-      order = Repo.one(from o in ConditionalOrder, where: o.id == ^id, lock: "FOR UPDATE")
-      if is_nil(order), do: Repo.rollback(:not_found)
-      if order.status == "pending", do: decide(order), else: project(order, clock())
-    end)
+  def evaluate(id), do: transition_command(fn -> evaluate_in_transaction!(id) end)
+
+  @doc "Internal Market transaction participant; the caller owns commit and notifications."
+  def evaluate_in_transaction!(id) do
+    unless Repo.in_transaction?(), do: raise(ArgumentError, "transaction required")
+    order = Repo.one(from o in ConditionalOrder, where: o.id == ^id, lock: "FOR UPDATE")
+
+    case order do
+      nil ->
+        {nil, false}
+
+      %{status: "pending"} ->
+        result = decide(order)
+        {result, result.status != "pending"}
+
+      _ ->
+        {project(order, clock()), false}
+    end
+  end
+
+  defp transition_command(fun) do
+    case command(fun) do
+      {:ok, {nil, _}} ->
+        {:error, :not_found}
+
+      {:ok, {result, changed}} ->
+        if changed, do: FootballMarket.Market.OrderNotifications.changed(result.id)
+        {:ok, result}
+
+      error ->
+        error
+    end
   end
 
   defp decide(order) do

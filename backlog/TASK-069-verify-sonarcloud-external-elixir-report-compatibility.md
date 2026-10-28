@@ -4,10 +4,10 @@ title: Verify SonarCloud external Elixir report compatibility
 type: task
 checkpoint: CP2
 priority: low
-status: todo
+status: review
 workflow: thinflow-v1
 depends_on: TASK-065, TASK-067
-active_run: none
+active_run: a6bef082
 ---
 
 ## Outcome

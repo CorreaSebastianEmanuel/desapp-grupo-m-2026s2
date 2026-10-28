@@ -43,6 +43,7 @@ defmodule FootballMarket.WorkflowScope do
       "priv/static/openapi.json",
       "specs/031-immutable-transaction-history-api/spec.md",
       "test/football_market_web/controllers/transaction_controller_test.exs",
+      "test/football_market/market/scope_test.exs",
       "test/football_market_web/openapi_contract_test.exs",
       "test/support/workflow_scope.ex",
       "tools/openapi/browser.mjs"

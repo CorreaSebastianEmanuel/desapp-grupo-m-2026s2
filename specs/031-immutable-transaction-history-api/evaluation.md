@@ -50,3 +50,38 @@ Full suite, hosted CI (`ThinFlow required` on the exact PR head) and human merge
 The superseding delta delivers, and the delivered tests exercise, every Feedback-1 requirement: execution-bound conditional-order purchase evidence, same-type equal-completed-at ID ties split across `page_size=1` boundaries with the exact ordered unique sequence to the terminal page, an anchored continuation unchanged across a between-page append, and structured/repeated/blank plus boundary pagination inputs. Implementation matches the assertions.
 
 Verdict: PASS
+
+## Repair delta re-evaluation (2026-10-27)
+
+After CI rejected Credo findings (function nesting too deep), one small repair commit was
+delivered refining the pagination/filter predicate helpers. This fresh re-evaluation covered
+only the delta between the post-CI-refactor pair of commits (8500193 and 890dea3, timestamps
+23:22 and 23:36 respectively; note the extraction is the later commit 890dea3, which is HEAD
+and the commit Credo's evidence revision cites):
+
+- `lib/football_market/market/transaction_history_store.ex` — `page`/`order_key`/`continuation`
+  helpers extracted from `list`'s inner closure; layout-inlined and re-extracted logic verified
+  line-equivalent (same sort key, `size + 1` lookahead, `Map.take([:completed_at, :type, :id])`
+  cursor fields, `nil` continuation when `has_more` is false).
+- `lib/football_market_web/controllers/transaction_controller.ex` — `value`/`values`/`structured`
+  helpers re-established covering the same parameter semantics: structured `?cursor[]=x` /
+  `?page_size[]=5` rejected via the `key <> "["` prefix scan, repeated values (`cursor=a&cursor=b`,
+  `page_size=1&page_size=2`) hit the non-exhaustive comprehension clause yielding
+  `{:error, error}`, blank `?cursor=` passes `values` (empty string is a value) and is rejected by
+  `valid_cursor("")`, blank `?page_size=` is rejected by the `page_size/1` regex, missing keys
+  default to `nil` (25 default page size). The two evaluation orders (prefix-check-first vs
+  comprehension-first) produce identical results for every pair in the input space here because
+  both conditions yield the same error atom.
+
+Verification performed: targeted test run
+`MIX_ENV=test mix test test/football_market_web/controllers/transaction_controller_test.exs`
+→ 6 passed, 0 failed (the delivered file contains exactly 6 test blocks; the earlier estimate of
+12 was incorrect). `sh scripts/credo_ci.sh` → `CREDO_EVIDENCE status=passed complete=true`,
+exit 0 at revision 890dea3. The ThinFlow receipt `.agentflow/runs/thinflow/TASK-031/candidate.json`
+is current for the final attempt (digest 3c73a9a4…, all five checks passed with attached evidence
+hashes); `attempts.json` records the attempt history including intermediate failures, and the
+final attempt is within the attempt budget. The diff touches only the two named files with no
+speculative cleanup; parsing predicates stay in the web layer and pagination/sort/cursor logic in
+the persistence store — boundaries preserved.
+
+Verdict: PASS

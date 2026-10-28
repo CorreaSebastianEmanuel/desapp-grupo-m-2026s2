@@ -4,10 +4,10 @@ title: Immutable transaction history API
 type: task
 checkpoint: CP2
 priority: high
-status: todo
+status: review
 workflow: thinflow-v1
 depends_on: TASK-029, TASK-030
-active_run: none
+active_run: 6fe5dee0
 ---
 
 ## Outcome

@@ -410,6 +410,42 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/market/quote.ex."
     },
     {
+      "path": "lib/football_market/market/sale.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/market/sale.ex."
+    },
+    {
+      "path": "lib/football_market/market/sale_input.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/market/sale_input.ex."
+    },
+    {
+      "path": "lib/football_market/market/sale_store.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/market/sale_store.ex."
+    },
+    {
+      "path": "lib/football_market/market/sale_transaction.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/market/sale_transaction.ex."
+    },
+    {
+      "path": "lib/football_market/market/sales.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/market/sales.ex."
+    },
+    {
+      "path": "lib/football_market/market/settlement.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/market/settlement.ex."
+    },
+    {
       "path": "lib/football_market/market/store.ex",
       "role": "application",
       "disposition": "include",
@@ -420,6 +456,24 @@
       "role": "application",
       "disposition": "include",
       "reason": "Maintained first-party application implementation source: lib/football_market/market/token_transfer.ex."
+    },
+    {
+      "path": "lib/football_market/market/transaction_history.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Player transaction history feature (TASK-031)."
+    },
+    {
+      "path": "lib/football_market/market/transaction_history_cursor.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Player transaction history feature (TASK-031)."
+    },
+    {
+      "path": "lib/football_market/market/transaction_history_store.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Player transaction history feature (TASK-031)."
     },
     {
       "path": "lib/football_market/observability.ex",
@@ -1172,6 +1226,18 @@
       "reason": "Maintained first-party application implementation source: lib/football_market_web/controllers/ranking_json.ex."
     },
     {
+      "path": "lib/football_market_web/controllers/sale_controller.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market_web/controllers/sale_controller.ex."
+    },
+    {
+      "path": "lib/football_market_web/controllers/sale_json.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market_web/controllers/sale_json.ex."
+    },
+    {
       "path": "lib/football_market_web/controllers/session_controller.ex",
       "role": "application",
       "disposition": "include",
@@ -1182,6 +1248,18 @@
       "role": "application",
       "disposition": "include",
       "reason": "Maintained first-party application implementation source: lib/football_market_web/controllers/session_html.ex."
+    },
+    {
+      "path": "lib/football_market_web/controllers/transaction_controller.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Player transaction history feature (TASK-031)."
+    },
+    {
+      "path": "lib/football_market_web/controllers/transaction_json.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Player transaction history feature (TASK-031)."
     },
     {
       "path": "lib/football_market_web/endpoint.ex",
@@ -1488,6 +1566,12 @@
       "role": "migration",
       "disposition": "exclude",
       "reason": "Conditional evaluation migration source: priv/repo/migrations/20261027000100_add_conditional_order_evaluation_passes.exs."
+    },
+    {
+      "path": "priv/repo/migrations/20261027010000_create_market_sales.exs",
+      "role": "migration",
+      "disposition": "exclude",
+      "reason": "Database migration source, not maintained application implementation: priv/repo/migrations/20261027010000_create_market_sales.exs."
     },
     {
       "path": "scripts/application_coverage_native.exs",
@@ -2354,6 +2438,42 @@
       "reason": "Test code, not application behavior: test/football_market/market/rollback_test.exs."
     },
     {
+      "path": "test/football_market/market/sales/duplicate_race_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Automated compatibility test, not application implementation: test/football_market/market/sales/duplicate_race_test.exs."
+    },
+    {
+      "path": "test/football_market/market/sales/idempotency_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Automated compatibility test, not application implementation: test/football_market/market/sales/idempotency_test.exs."
+    },
+    {
+      "path": "test/football_market/market/sales/input_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Automated compatibility test, not application implementation: test/football_market/market/sales/input_test.exs."
+    },
+    {
+      "path": "test/football_market/market/sales/quote_order_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Automated compatibility test, not application implementation: test/football_market/market/sales/quote_order_test.exs."
+    },
+    {
+      "path": "test/football_market/market/sales/rejection_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Automated compatibility test, not application implementation: test/football_market/market/sales/rejection_test.exs."
+    },
+    {
+      "path": "test/football_market/market/sales/transfer_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Automated compatibility test, not application implementation: test/football_market/market/sales/transfer_test.exs."
+    },
+    {
       "path": "test/football_market/market/scope_test.exs",
       "role": "test",
       "disposition": "exclude",
@@ -3188,10 +3308,22 @@
       "reason": "Automated test, not application implementation: test/football_market_web/controllers/ranking_controller_test.exs."
     },
     {
+      "path": "test/football_market_web/controllers/sale_controller_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Automated compatibility test, not application implementation: test/football_market_web/controllers/sale_controller_test.exs."
+    },
+    {
       "path": "test/football_market_web/controllers/session_controller_test.exs",
       "role": "test",
       "disposition": "exclude",
       "reason": "Test code, not application behavior: test/football_market_web/controllers/session_controller_test.exs."
+    },
+    {
+      "path": "test/football_market_web/controllers/transaction_controller_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Focused Task-031 controller acceptance test."
     },
     {
       "path": "test/football_market_web/live/browser_session_lifecycle_test.exs",
@@ -3518,6 +3650,12 @@
       "reason": "Test support helper, not application implementation: test/support/ranking_case.ex."
     },
     {
+      "path": "test/support/sales/case.ex",
+      "role": "test-support",
+      "disposition": "exclude",
+      "reason": "Test harness or fixture support, not application behavior: test/support/sales/case.ex."
+    },
+    {
       "path": "test/support/statistics_case.ex",
       "role": "test-support",
       "disposition": "exclude",
@@ -3606,108 +3744,6 @@
       "role": "test",
       "disposition": "exclude",
       "reason": "Test code, not application behavior: test/test_helper.exs."
-    },
-    {
-      "path": "lib/football_market/market/sale.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/market/sale.ex."
-    },
-    {
-      "path": "lib/football_market/market/sale_input.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/market/sale_input.ex."
-    },
-    {
-      "path": "lib/football_market/market/sale_store.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/market/sale_store.ex."
-    },
-    {
-      "path": "lib/football_market/market/sale_transaction.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/market/sale_transaction.ex."
-    },
-    {
-      "path": "lib/football_market/market/sales.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/market/sales.ex."
-    },
-    {
-      "path": "lib/football_market/market/settlement.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/market/settlement.ex."
-    },
-    {
-      "path": "lib/football_market_web/controllers/sale_controller.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market_web/controllers/sale_controller.ex."
-    },
-    {
-      "path": "lib/football_market_web/controllers/sale_json.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market_web/controllers/sale_json.ex."
-    },
-    {
-      "path": "test/football_market/market/sales/duplicate_race_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated compatibility test, not application implementation: test/football_market/market/sales/duplicate_race_test.exs."
-    },
-    {
-      "path": "test/football_market/market/sales/idempotency_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated compatibility test, not application implementation: test/football_market/market/sales/idempotency_test.exs."
-    },
-    {
-      "path": "test/football_market/market/sales/input_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated compatibility test, not application implementation: test/football_market/market/sales/input_test.exs."
-    },
-    {
-      "path": "test/football_market/market/sales/quote_order_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated compatibility test, not application implementation: test/football_market/market/sales/quote_order_test.exs."
-    },
-    {
-      "path": "test/football_market/market/sales/rejection_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated compatibility test, not application implementation: test/football_market/market/sales/rejection_test.exs."
-    },
-    {
-      "path": "test/football_market/market/sales/transfer_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated compatibility test, not application implementation: test/football_market/market/sales/transfer_test.exs."
-    },
-    {
-      "path": "test/football_market_web/controllers/sale_controller_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated compatibility test, not application implementation: test/football_market_web/controllers/sale_controller_test.exs."
-    },
-    {
-      "path": "test/support/sales/case.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test harness or fixture support, not application behavior: test/support/sales/case.ex."
-    },
-    {
-      "path": "priv/repo/migrations/20261027010000_create_market_sales.exs",
-      "role": "migration",
-      "disposition": "exclude",
-      "reason": "Database migration source, not maintained application implementation: priv/repo/migrations/20261027010000_create_market_sales.exs."
     }
   ]
 }

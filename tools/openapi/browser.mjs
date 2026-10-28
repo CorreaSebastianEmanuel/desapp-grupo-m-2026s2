@@ -37,7 +37,7 @@ try {
   stage = 'catalog-discovery';
   assert(await page.locator('#docs-error').isHidden(), 'Documentation load error');
   stage = 'operation-count';
-  assert(await page.locator('.opblock').count() === 12, 'Protected operation discovery failed');
+  assert(await page.locator('.opblock').count() === 13, 'Protected operation discovery failed');
   stage = 'operation-locators';
   stage = 'operation-summary-read';
   const operations = await page.locator('.opblock').evaluateAll(blocks => blocks.map(block => ({
@@ -55,6 +55,7 @@ try {
   const ranking = operation('/api/ranking');
   operation('/api/purchases', 'post');
   operation('/api/sales', 'post');
+  operation('/api/transactions');
   operation('/api/conditional-orders', 'post');
   operation('/api/conditional-orders');
   operation('/api/conditional-orders/{id}');
@@ -63,7 +64,7 @@ try {
     operation(`/api/players/{player_id}/quotes/${suffix}`);
   }
   stage = 'operation-set-check';
-  assert(operations.length === 12 && new Set(operations.map(item => `${item.method} ${item.path}`)).size === 12, 'Exact protected operation set mismatch');
+  assert(operations.length === 13 && new Set(operations.map(item => `${item.method} ${item.path}`)).size === 13, 'Exact protected operation set mismatch');
   stage = 'expand-catalog-operations';
   stage = 'expand-list';
   await list.locator('.opblock-summary').click();

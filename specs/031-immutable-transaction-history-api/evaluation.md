@@ -85,3 +85,64 @@ speculative cleanup; parsing predicates stay in the web layer and pagination/sor
 the persistence store — boundaries preserved.
 
 Verdict: PASS
+
+## Final delta re-evaluation (2026-10-28)
+
+After hosted CI rejected the integration profile on the previously accepted head, the fix
+commit b70e99e (delta `git diff 890dea3..b70e99e`) delivered exactly three mechanical,
+test-only changes, all verified line-by-line by this fresh evaluator:
+
+1. `tools/openapi/browser.mjs` — the exact-set guard is preserved: both the `.opblock`
+   count assertion and the length + `Set` size assertion were tightened from `12` to `13`
+   (asserting an exact count and an exact unique `method path` set, not loosened to "no
+   check"), and a `operation('/api/transactions')` locator was added for the new GET
+   endpoint. The exact-set check remains strict.
+2. `test/football_market/market/scope_test.exs` — the facade function list assertion is
+   additive-only: `transaction_history: 2` was inserted into the existing exact
+   `assert ... == [...]` list, strengthening the facade contract to cover the new function
+   rather than removing any assertion.
+3. `test/support/workflow_scope.ex` — a single allowlist entry
+   `test/football_market/market/scope_test.exs` added to the
+   `paths("specs/031-immutable-transaction-history-api")` list, matching the file the
+   scope assertion legitimately extends. The diff contains no other hunk: no other
+   feature's allowlist (e.g. specs/036) was touched or weakened.
+
+Verification performed this session:
+`MIX_ENV=test mix test test/football_market/market/scope_test.exs
+test/football_market_web/openapi_browser_test.exs --include integration` → **4 passed**,
+0 failures. No production code changed in the delta, so the previously accepted
+implementation behavior (12 focused history tests, full profile) is unaffected; scope
+discipline holds — the delta is confined to the two named test modules and allowlist
+bookkeeping.
+
+Verdict: PASS
+
+## CI repair delta re-evaluation (2026-10-28, second)
+
+Root cause of the hosted CI failure on b70e99e: `mix test --warnings-as-errors` forces
+exit code 1 whenever test compilation emits a warning, even with a fully green suite.
+`transaction_controller_test.exs:154` duplicated `is_binary(completed_at)` after the
+line 141 assertion plus the `^completed_at` pin match — statically always-true (the
+prior advisory flagged this exact duplication as harmless noise). Hosted CI ran the
+complete integration suite with zero case diagnostics on that head; only the forced
+exit code failed the profile. Local targeted runs never saw the warning because the
+file was already compiled (warnings surface only on fresh compilation).
+
+Delta `git diff b70e99e..73ed790`: single-line deletion of that redundant assertion
+(test-only; no behavioral change — the value is still pinned and type-checked at
+line 141). No production code, allowlist, or inventory changes.
+
+Verification performed this session: targeted run
+`MIX_ENV=test mix test test/football_market_web/controllers/transaction_controller_test.exs
+test/football_market_web/openapi_contract_test.exs test/football_market/market/scope_test.exs
+--include integration` → **15 passed**, 0 failures. Standalone `elixirc
+--warnings-as-errors` sweep across every inventoried exunit test file emitted no
+diagnostics for the repaired file (the only remaining diagnostic is a
+standalone-compilation false positive on `credo_remediation_contract_test.exs`, whose
+`MixProject` reference resolves under `mix test`). `mix format --check-formatted` and
+`sh scripts/credo_ci.sh` passed at revision 73ed790. Three local full-profile attempts
+in this environment hit unrelated infrastructure flakiness (catalog subprocess errors,
+service prerequisite) on a constrained local Docker VM; hosted CI remains the binding
+gate and had already executed the full integration suite green on the prior head.
+
+Verdict: PASS

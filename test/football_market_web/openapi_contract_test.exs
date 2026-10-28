@@ -20,6 +20,7 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
     "cancelConditionalOrder" => ~w(200 400 401 404 503),
     "purchaseTokens" => ~w(200 400 401 404 409 503),
     "saleTokens" => ~w(200 400 401 404 409 503),
+    "listTransactions" => ~w(200 400 401 503),
     "getActiveStrategyRanking" => ~w(200 401 409 503)
   }
 
@@ -308,7 +309,13 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
       FootballMarketWeb.Router
       |> Phoenix.Router.routes()
       |> Enum.filter(
-        &(&1.path in ["/api/ranking", "/api/purchases", "/api/sales", "/api/players"] or
+        &(&1.path in [
+            "/api/ranking",
+            "/api/purchases",
+            "/api/sales",
+            "/api/transactions",
+            "/api/players"
+          ] or
             String.starts_with?(&1.path, "/api/players/") or
             String.starts_with?(&1.path, "/api/conditional-orders"))
       )

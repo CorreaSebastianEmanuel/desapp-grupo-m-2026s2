@@ -408,6 +408,13 @@
       "profile": "unit"
     },
     {
+      "id": "0ae917207e0b82860a26a629",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/transaction_controller_test.exs",
+      "case_id": "FootballMarketWeb.TransactionControllerTest:test authenticated history combines purchase and sale evidence in anchored cursor pages",
+      "profile": "integration"
+    },
+    {
       "id": "0b2bd293e079fa8f1bd0a3da",
       "runner": "exunit",
       "file": "test/football_market/synchronization/scheduler_test.exs",
@@ -1357,6 +1364,13 @@
       "runner": "exunit",
       "file": "test/football_market_web/controllers/ranking_controller_test.exs",
       "case_id": "FootballMarketWeb.RankingControllerTest:test a missing selection anchor returns a sanitized storage-unavailable response",
+      "profile": "integration"
+    },
+    {
+      "id": "255cdd1ddc2823cb31176bfe",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/transaction_controller_test.exs",
+      "case_id": "FootballMarketWeb.TransactionControllerTest:test published OpenAPI includes protected history contract",
       "profile": "integration"
     },
     {
@@ -3873,6 +3887,13 @@
       "profile": "unit"
     },
     {
+      "id": "72555a6d33cc9491747abfdc",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/transaction_controller_test.exs",
+      "case_id": "FootballMarketWeb.TransactionControllerTest:test conditional-order purchases appear exactly once with complete row evidence",
+      "profile": "integration"
+    },
+    {
       "id": "72a4e0930be17cc4011db750",
       "runner": "exunit",
       "file": "test/football_market/synchronization/recovery_test.exs",
@@ -5595,6 +5616,13 @@
       "profile": "unit"
     },
     {
+      "id": "a2cdfb35cdedd75179019fd8",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/transaction_controller_test.exs",
+      "case_id": "FootballMarketWeb.TransactionControllerTest:test structured, repeated and blank pagination inputs reject before any history access",
+      "profile": "integration"
+    },
+    {
       "id": "a2e381488f13cbc5545bba7c",
       "runner": "python",
       "file": "test/scripts/reconcile_merged_task_test.py",
@@ -7093,6 +7121,13 @@
       "profile": "unit"
     },
     {
+      "id": "cf545e22dffa9df15d4f6f25",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/transaction_controller_test.exs",
+      "case_id": "FootballMarketWeb.TransactionControllerTest:test same-instant operations keep deterministic type and id order across pages",
+      "profile": "integration"
+    },
+    {
       "id": "cf751e9c73cf394ffd7e39ed",
       "runner": "exunit",
       "file": "test/football_market/statistics/ingestion/calculation_test.exs",
@@ -7860,6 +7895,13 @@
       "runner": "exunit",
       "file": "test/football_market/quotes/recovery_test.exs",
       "case_id": "FootballMarket.Quotes.RecoveryTest:test expired delivery lease is recovered with a higher fence and stale acknowledgement fails",
+      "profile": "integration"
+    },
+    {
+      "id": "e2852973dfbb5b163d17ad46",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/transaction_controller_test.exs",
+      "case_id": "FootballMarketWeb.TransactionControllerTest:test history is actor-scoped, empty pages are complete, and malformed pagination rejects",
       "profile": "integration"
     },
     {

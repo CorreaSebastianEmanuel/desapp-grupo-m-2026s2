@@ -27,6 +27,28 @@ defmodule FootballMarket.WorkflowScope do
     end
   end
 
+  def paths("specs/031-immutable-transaction-history-api") do
+    [
+      "backlog/TASK-031-immutable-transaction-history-api.md",
+      "config/application_coverage_inventory.json",
+      "config/credo_inventory.json",
+      "config/test_profiles.json",
+      "lib/football_market/market.ex",
+      "lib/football_market/market/transaction_history.ex",
+      "lib/football_market/market/transaction_history_cursor.ex",
+      "lib/football_market/market/transaction_history_store.ex",
+      "lib/football_market_web/controllers/transaction_controller.ex",
+      "lib/football_market_web/controllers/transaction_json.ex",
+      "lib/football_market_web/router.ex",
+      "priv/static/openapi.json",
+      "specs/031-immutable-transaction-history-api/spec.md",
+      "test/football_market_web/controllers/transaction_controller_test.exs",
+      "test/football_market_web/openapi_contract_test.exs",
+      "test/support/workflow_scope.ex",
+      "tools/openapi/browser.mjs"
+    ]
+  end
+
   def paths("specs/036-correlation-ids-and-structured-logging") do
     [
       "README.md",

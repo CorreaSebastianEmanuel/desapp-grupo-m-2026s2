@@ -6,6 +6,10 @@ defmodule FootballMarket.Market do
 
   defdelegate sale(actor, input), to: FootballMarket.Market.Sales
 
+  defdelegate transaction_history(actor, options),
+    to: FootballMarket.Market.TransactionHistory,
+    as: :list
+
   defdelegate create_conditional_order(actor, terms),
     to: FootballMarket.Market.ConditionalOrders,
     as: :create

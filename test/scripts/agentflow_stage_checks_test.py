@@ -656,6 +656,19 @@ class CiParityTest(unittest.TestCase):
             (feature / "verification.json").write_text(json.dumps(data))
             with patch.object(stage_checks, "active_feature", return_value=feature):
                 self.assertEqual(stage_checks.ci_parity(root)["profiles"], ["unit", "integration"])
+                default_path = root / ".agentflow/workflow.yml"
+                thinflow = (ROOT / ".agentflow/workflow.yml").read_text()
+                default_path.write_text(thinflow)
+                self.assertEqual(stage_checks.ci_parity(root)["profiles"], ["unit", "integration"])
+                default_path.write_text(thinflow.replace("scripts/thinflow.py evaluate", "scripts/unregistered.py evaluate"))
+                with self.assertRaisesRegex(RuntimeError, "workflow copies differ"):
+                    stage_checks.ci_parity(root)
+                default_path.write_text(thinflow)
+                legacy_path = root / ".specify/workflows/desapp-delivery/workflow.yml"
+                legacy_path.write_text("invalid legacy baseline")
+                with self.assertRaisesRegex(RuntimeError, "required wrapper parity"):
+                    stage_checks.ci_parity(root)
+                legacy_path.write_text(workflow)
                 data["checks"][1]["argv"] = ["mise", "exec", "--", "mix", "test.unit"]
                 (feature / "verification.json").write_text(json.dumps(data))
                 with self.assertRaisesRegex(RuntimeError, "wrapper/profile obligation"):

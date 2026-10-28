@@ -635,6 +635,45 @@ defmodule FootballMarket.WorkflowScope do
     ]
   end
 
+  def paths("specs/071-conditional-order-evaluation-workers") do
+    [
+      "scripts/agentflow_stage_checks.py",
+      "test/scripts/agentflow_stage_checks_test.py",
+      "config/application_coverage_inventory.json",
+      "config/credo_inventory.json",
+      "config/synchronization.exs",
+      "config/test_profiles.json",
+      "lib/football_market/application.ex",
+      "lib/football_market/market/conditional_order_store.ex",
+      "lib/football_market/market/order_evaluation.ex",
+      "lib/football_market/market/order_evaluation_member.ex",
+      "lib/football_market/market/order_evaluation_pass.ex",
+      "lib/football_market/market/order_evaluation_store.ex",
+      "lib/football_market/market/order_notifications.ex",
+      "lib/football_market/quotes/store.ex",
+      "lib/football_market/workers/conditional_order_evaluation.ex",
+      "lib/football_market/workers/conditional_order_recovery.ex",
+      "priv/repo/migrations/20261027000100_add_conditional_order_evaluation_passes.exs",
+      "test/football_market/market/order_evaluation/contention_test.exs",
+      "test/football_market/market/order_evaluation/delivery_test.exs",
+      "test/football_market/market/order_evaluation/eligibility_test.exs",
+      "test/football_market/market/order_evaluation/notifications_test.exs",
+      "test/football_market/market/order_evaluation/ordering_test.exs",
+      "test/football_market/market/order_evaluation/recovery_test.exs",
+      "test/football_market/market/order_evaluation/retry_test.exs",
+      "test/football_market/market/order_evaluation/scope_test.exs",
+      "test/football_market/quotes/followup_test.exs",
+      "test/football_market/synchronization/scope_test.exs",
+      "test/football_market/workers/conditional_order_evaluation_test.exs",
+      "test/runtime/order_evaluation_http.exs",
+      "test/support/market_case.ex",
+      "test/support/order_evaluation/case.ex",
+      "test/support/order_evaluation/runtime_probe.ex",
+      "test/support/valuation_configuration_case.ex",
+      "test/support/workflow_scope.ex"
+    ]
+  end
+
   def paths(_), do: []
 
   def allows_path?(feature, path) do

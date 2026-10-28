@@ -4,10 +4,9 @@ title: Conditional order evaluation workers
 type: task
 checkpoint: CP2
 priority: critical
-status: todo
-workflow: thinflow-v1
+status: review
 depends_on: TASK-019, TASK-026, TASK-059
-active_run: none
+active_run: 254b0a20
 ---
 
 ## Outcome

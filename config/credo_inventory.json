@@ -669,6 +669,7 @@
     "test/football_market_web/controllers/session_controller_test.exs",
     "test/football_market_web/controllers/transaction_controller_test.exs",
     "test/football_market_web/live/browser_session_lifecycle_test.exs",
+    "test/football_market_web/live/conditional_orders_live_test.exs",
     "test/football_market_web/live/workspace_navigation_test.exs",
     "test/football_market_web/openapi_browser_test.exs",
     "test/football_market_web/openapi_contract_test.exs",

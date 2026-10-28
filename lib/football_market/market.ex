@@ -4,6 +4,8 @@ defmodule FootballMarket.Market do
 
   defdelegate purchase(actor, input), to: FootballMarket.Market.Purchases
 
+  defdelegate sale(actor, input), to: FootballMarket.Market.Sales
+
   defdelegate create_conditional_order(actor, terms),
     to: FootballMarket.Market.ConditionalOrders,
     as: :create

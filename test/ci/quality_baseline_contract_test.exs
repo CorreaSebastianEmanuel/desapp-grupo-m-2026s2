@@ -55,15 +55,31 @@ defmodule FootballMarket.QualityBaselineContractTest do
            ]
   end
 
-  test "workflow gates main pull requests and pushes in least-privilege jobs", context do
+  test "workflow gates every pull request and main pushes in least-privilege jobs", context do
     workflow = File.read!(@workflow)
     document = context.workflow_document
 
-    assert document["on"]["pull_request"]["branches"] == ["main"]
+    assert document["on"]["pull_request"] == %{}
     assert document["on"]["push"]["branches"] == ["main"]
     assert document["permissions"] == %{"contents" => "read"}
-    assert map_size(document["jobs"]) == 2
+
+    assert Enum.sort(Map.keys(document["jobs"])) == [
+             "end-to-end",
+             "quality-baseline",
+             "sonarcloud",
+             "thinflow-required"
+           ]
+
     assert document["jobs"]["quality-baseline"]["runs-on"] == "ubuntu-24.04"
+    assert document["jobs"]["sonarcloud"]["uses"] == "./.github/workflows/sonarcloud.yml"
+
+    assert Enum.sort(document["jobs"]["thinflow-required"]["needs"]) == [
+             "end-to-end",
+             "quality-baseline",
+             "sonarcloud"
+           ]
+
+    assert document["jobs"]["thinflow-required"]["if"] == "always()"
 
     assert Enum.count(
              document["jobs"]["quality-baseline"]["steps"],

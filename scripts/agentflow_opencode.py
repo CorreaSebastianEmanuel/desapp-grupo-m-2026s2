@@ -218,19 +218,20 @@ def main(args: list[str]) -> int:
     code = code or (1 if provider_failed else 0)
     if stage == "qa":
         try:
-            from .agentflow_runtime import write_partial_qa_report
+            from .agentflow_runtime import independent_report_name, write_partial_qa_report
             from .workflow_artifact_probe import active_feature
         except ImportError:
-            from agentflow_runtime import write_partial_qa_report
+            from agentflow_runtime import independent_report_name, write_partial_qa_report
             from workflow_artifact_probe import active_feature
-        if code or not (active_feature(Path.cwd()) / "qa-report.md").is_file():
+        report_name=independent_report_name(Path.cwd(),stage)
+        if code or not (active_feature(Path.cwd()) / report_name).is_file():
             try:
                 write_partial_qa_report(Path.cwd().resolve(), stage, "provider-ended")
                 if code == 0:
                     code = 1
             except (OSError, RuntimeError):
                 code = code or 1
-    if code == 0 and stage in ('qa','review'):
+    if code == 0 and (stage == 'review' or (stage == 'qa' and independent_report_name(Path.cwd(),stage) != 'evaluation.md')):
         try:
             try:
                 from .workflow_artifact_probe import active_feature

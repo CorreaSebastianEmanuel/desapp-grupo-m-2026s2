@@ -19,6 +19,7 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
     "getConditionalOrder" => ~w(200 400 401 404 503),
     "cancelConditionalOrder" => ~w(200 400 401 404 503),
     "purchaseTokens" => ~w(200 400 401 404 409 503),
+    "saleTokens" => ~w(200 400 401 404 409 503),
     "getActiveStrategyRanking" => ~w(200 401 409 503)
   }
 
@@ -307,7 +308,7 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
       FootballMarketWeb.Router
       |> Phoenix.Router.routes()
       |> Enum.filter(
-        &(&1.path in ["/api/ranking", "/api/purchases", "/api/players"] or
+        &(&1.path in ["/api/ranking", "/api/purchases", "/api/sales", "/api/players"] or
             String.starts_with?(&1.path, "/api/players/") or
             String.starts_with?(&1.path, "/api/conditional-orders"))
       )
@@ -434,9 +435,16 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
 
   defp assert_ranking_cache_header!(_operation, _status, _response), do: :ok
 
-  defp assert_auth_failure_contract!(%{"operationId" => "purchaseTokens"} = op) do
-    assert get_in(op, ["responses", "401", "content", "application/json", "schema", "$ref"]) ==
-             "#/components/schemas/PurchaseError"
+  defp assert_auth_failure_contract!(%{"operationId" => op} = rec)
+       when op in ["saleTokens", "purchaseTokens"] do
+    refund =
+      case op do
+        "saleTokens" -> "#/components/schemas/SaleError"
+        _ -> "#/components/schemas/PurchaseError"
+      end
+
+    assert get_in(rec, ["responses", "401", "content", "application/json", "schema", "$ref"]) ==
+             refund
   end
 
   defp assert_auth_failure_contract!(op) do

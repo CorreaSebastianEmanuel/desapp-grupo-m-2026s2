@@ -109,15 +109,33 @@ defmodule FootballMarket.Market.ConditionalOrders.StorageTest do
           })
         end)
 
-      p = FootballMarket.Market.PurchaseTransaction.evidence(row)
-      before = PurchasesCase.snapshot()
+      # Explicit financial projections stay stable across later market upgrades.
+      financial = fn ->
+        %{
+          purchases:
+            Repo.query!(
+              "SELECT p.id::text,p.buyer_id::text,p.recipient_id::text,p.player_id::text,p.quote_id::text,p.request_key,p.quantity,p.unit_price::text,p.total::text,p.quote_effective_at,p.rule_id,p.rule_version,p.completed_at FROM market_purchases p ORDER BY p.id"
+            ).rows,
+          entries:
+            Repo.query!(
+              "SELECT e.purchase_id::text,e.user_id::text,e.side,e.amount::text,e.inserted_at FROM market_credit_entries e ORDER BY e.id"
+            ).rows,
+          transfers:
+            Repo.query!(
+              "SELECT t.purchase_id::text,t.player_id::text,t.from_user_id::text,t.to_user_id::text,t.quantity,t.inserted_at FROM market_token_transfers t ORDER BY t.id"
+            ).rows
+        }
+      end
+
+      before = financial.()
       Ecto.Migrator.run(Repo, "priv/repo/migrations", :up, all: true, prefix: schema, log: false)
-      after_upgrade = PurchasesCase.snapshot()
+      assert before == financial.()
+      upgraded = FootballMarket.Market.PurchaseTransaction.evidence(row)
+      assert {:ok, in_place} = PurchasesCase.purchase(f)
+      assert Map.delete(in_place, :sale_id) == upgraded
+      assert upgraded.transfer.from_user_id == f.owner.id
+      assert upgraded.ledger |> length() == 2
 
-      assert Map.delete(before, "market_purchases") ==
-               Map.delete(after_upgrade, "market_purchases")
-
-      assert {:ok, ^p} = PurchasesCase.purchase(f)
       assert Repo.query!("SELECT conditional_order_id FROM market_purchases").rows == [[nil]]
     end)
   end

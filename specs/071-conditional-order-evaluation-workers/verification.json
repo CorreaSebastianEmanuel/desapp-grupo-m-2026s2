@@ -27,6 +27,32 @@
       ]
     },
     {
+      "id": "database-prepare",
+      "argv": [
+        "mise",
+        "exec",
+        "--",
+        "mix",
+        "test.prepare"
+      ],
+      "env": {
+        "MIX_ENV": "test",
+        "ERL_FLAGS": "+S 4:4"
+      },
+      "depends_on": [
+        "toolchain"
+      ],
+      "isolation": "shared",
+      "state_reads": [
+        "workspace"
+      ],
+      "state_writes": [
+        "build",
+        "test-state"
+      ],
+      "reuse": false
+    },
+    {
       "id": "preflight",
       "argv": [
         "mise",
@@ -42,7 +68,7 @@
         "ERL_FLAGS": "+S 4:4"
       },
       "depends_on": [
-        "toolchain"
+        "database-prepare"
       ],
       "isolation": "shared",
       "state_reads": [
@@ -402,13 +428,13 @@
       ]
     },
     {
-      "id": "integration",
+      "id": "assets",
       "argv": [
         "mise",
         "exec",
         "--",
         "mix",
-        "test.integration"
+        "assets.build"
       ],
       "env": {
         "MIX_ENV": "test",
@@ -424,26 +450,23 @@
       "state_writes": [
         "build",
         "test-state"
-      ],
-      "retry_env": [
-        "AGENTFLOW_CODEX_SANDBOX_MODE"
       ]
     },
     {
-      "id": "assets",
+      "id": "integration",
       "argv": [
         "mise",
         "exec",
         "--",
         "mix",
-        "assets.build"
+        "test.integration"
       ],
       "env": {
         "MIX_ENV": "test",
         "ERL_FLAGS": "+S 4:4"
       },
       "depends_on": [
-        "integration"
+        "assets"
       ],
       "isolation": "shared",
       "state_reads": [
@@ -452,6 +475,9 @@
       "state_writes": [
         "build",
         "test-state"
+      ],
+      "retry_env": [
+        "AGENTFLOW_CODEX_SANDBOX_MODE"
       ]
     },
     {
@@ -468,7 +494,7 @@
         "ERL_FLAGS": "+S 4:4"
       },
       "depends_on": [
-        "assets"
+        "integration"
       ],
       "isolation": "shared",
       "state_reads": [

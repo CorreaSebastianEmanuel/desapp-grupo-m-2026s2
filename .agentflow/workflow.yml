@@ -1,10 +1,10 @@
 schema_version: "1.0"
 workflow:
-  id: "desapp-delivery"
-  name: "DesApp deliberative SDD delivery"
-  version: "2.3.0"
+  id: "desapp-thinflow"
+  name: "DesApp ThinFlow delivery"
+  version: "3.0.0"
   author: "Alquimistas"
-  description: "Specify, challenge, synthesize, implement, and independently verify one task"
+  description: "Prepare one outcome contract, build once, check by risk, evaluate once, and publish"
 requires:
   speckit_version: ">=1.0.0"
   integrations:
@@ -13,111 +13,42 @@ inputs:
   spec: {type: string, required: true}
   integration: {type: string, default: "auto"}
 steps:
-  - id: product
-    command: speckit.specify
-    integration: "{{ inputs.integration }}"
-    input:
-      args: "Agentflow stage: product\nFollow docs/AGENT_CONTEXT_POLICY.md. {{ inputs.spec }}\n\nWrite the canonical spec.md as the complete behavioral source of truth. Then create handoffs/product.md with only decisions, unresolved assumptions, and guidance not already stated in spec.md; do not duplicate the specification and keep the handoff under 300 words. Do not inspect .agentflow/runs or .specify/workflows/runs unless explicitly diagnosing the workflow runner."
-
-  - id: product_challenge
-    type: prompt
-    integration: "{{ inputs.integration }}"
-    timeout: 2400
-    prompt: |
-      Agentflow stage: product_challenge
-      Follow docs/AGENT_CONTEXT_POLICY.md.
-      Act as an independent product and requirements critic. Do not modify spec.md,
-      implementation code, or existing handoffs. Locate the active feature and read
-      the backlog task, current human feedback, docs/PRODUCT.md, docs/CHECKPOINTS.md,
-      the constitution, spec.md, and handoffs/product.md. Do not read unrelated feature
-      artifacts or workflow/live logs.
-      Challenge assumptions; identify ambiguous or untestable acceptance criteria,
-      boundary cases, scope creep, security concerns, and checkpoint gaps. Present
-      credible alternatives where tradeoffs exist. Write only
-      handoffs/product-challenge.md with only material findings, evidence, and explicit
-      recommendations for the architect. This is a dissenting view, not a second
-      specification: do not restate accepted requirements and keep it under 500 words.
-
-      Also write handoffs/product-decision.md. Its first line must be exactly
-      `human_check_required: true` or `human_check_required: false`. Set it to true
-      only when documentation and evidence cannot resolve a decision that materially
-      changes observable product behavior, a business rule, scope, permissions,
-      privacy, security, data integrity, or a costly and difficult-to-reverse technical
-      choice. Do not request human input for routine, internal, or reversible choices.
-      When true, include: the precise decision needed, why it matters, concrete options
-      and consequences, and one recommended option. When false, briefly explain why
-      the specification is sufficiently determined. Keep this file under 300 words.
-      Never invent a preference merely to force a human check.
-
-  - id: product_decision
+  - id: outcome_ready
     type: shell
-    run: "python3 scripts/product_decision_probe.py"
-    output_format: json
-
-  - id: product_check
-    type: if
-    condition: "{{ steps.product_decision.output.data.required }}"
-    then:
-      - id: human_product_check
-        type: gate
-        message: "A material product or critical technical decision requires human confirmation. Review the analysis below. Approve the recommended behavior, or reject and record the chosen behavior with ./agentflow feedback TASK-NNN \"decision\" --stage product before resuming."
-        show_file: "{{ steps.product_decision.output.data.file }}"
-        options: [approve, reject]
-        on_reject: abort
-
-  - id: architecture
-    type: prompt
-    integration: "{{ inputs.integration }}"
-    timeout: 1800
-    prompt: |
-      Agentflow stage: architecture
-      Follow docs/AGENT_CONTEXT_POLICY.md. In this single session use $speckit-plan
-      then $speckit-tasks; reuse unchanged context between the two skills. Do not
-      launch a separate planning session or research agents for settled technology.
-      Read spec.md, product-challenge.md, product-decision.md and current feedback.
-      Resolve the critic's material findings and record durable deviations as ADRs.
-      Produce complete plan.md and tasks.md, all required supporting artifacts, and
-      concise handoffs/architecture.md (under 400 words) and handoffs/tasks.md (under
-      300 words) with deltas only. Required human decisions were approved; recorded
-      feedback remains authoritative. Verify spec/plan/tasks alignment, test-first
-      ordering, product invariants and checkpoint coverage. Research only concrete
-      unknowns that could change this feature; cite existing decisions elsewhere.
-      Create verification.json using docs/AGENT_VERIFICATION.md: map every FR/AC/SC
-      identifier in spec.md to concrete executable checks, include service preflight
-      and assertion-based runtime checks for HTTP endpoints. Do not add a historical
-      CP1 coverage report as a default extra CP2 gate; follow current human feedback
-      and avoid duplicate full-profile executions. The implementation
-      owner executes these checks before QA; QA reruns independently. Mark only
-      downstream QA/review tasks with [gate:qa] or [gate:review] and map them in
-      task_stages; all implementation and applicable test tasks must complete first.
-      Invoke both skills' required hooks. Do not implement or publish changes.
-
-  - id: plan_ready
-    type: shell
-    run: "python3 scripts/workflow_artifact_probe.py plan --readiness"
-    output_format: json
-
-  - id: tasks_ready
-    type: shell
-    run: "python3 scripts/workflow_artifact_probe.py tasks --readiness"
+    run: "python3 scripts/thinflow.py prepare $AGENTFLOW_TASK_ID"
     output_format: json
 
   - id: develop
-    command: speckit.implement
+    type: prompt
     integration: "{{ inputs.integration }}"
-    input:
-      args: "Agentflow stage: develop\nFollow docs/AGENT_CONTEXT_POLICY.md. Read only spec.md, plan.md, tasks.md, handoffs/architecture.md, handoffs/tasks.md, and current human feedback before coding. Do not read product debate, stale QA/review artifacts, unrelated feature artifacts, or workflow/live logs. You are the sole implementation owner. Read verification.json and docs/AGENT_VERIFICATION.md. Implement and run all applicable checks through python3 scripts/agentflow_check.py CHECK_ID --reuse, including preflight and assertion-based runtime checks. Finish source/design edits before final checks. Reuse applies only to intact current development receipts. Stop and report after two failures with unchanged inputs; do not bypass the helper or change irrelevant inputs to reset the limit. Report elapsed check time and evidence. Keep the coverage mapping current; never replace a required check with a trivial success command. Complete named artifacts before marking their tasks done; record successful check tasks only after execution. The readiness gate independently validates current checklist state, receipts, output hashes and source freshness. Before marking a task complete, create every artifact that task explicitly requires; before handoff, reconcile every [X] task against its named files and leave any unsatisfied task unchecked. Create one handoff, handoffs/develop.md, with concise changes, decisions, command outcomes, residual risks, and exact QA guidance; reference files instead of pasting output, do not create a second evidence handoff unless tasks.md explicitly requires it, and keep it under 400 words. Do not commit, push, create a PR, or merge; Agentflow publishes only after verification."
+    timeout: 3600
+    prompt: |
+      Agentflow stage: develop
+      You are the single accountable builder for $AGENTFLOW_TASK_ID. Read the
+      active backlog task, its compact spec.md, current human feedback,
+      AGENTS.md, docs/PRODUCT.md, docs/ARCHITECTURE.md, docs/CHECKPOINTS.md,
+      docs/WORKFLOW_LESSONS.md, and the constitution. Do not inspect workflow
+      run directories or unrelated feature artifacts.
 
-  - id: develop_ready
+      First make the compact outcome spec concrete: keep only Outcome,
+      Acceptance, Scope, Non-goals, Risk, and material Decisions. If an
+      unresolved choice materially changes behavior, scope, permissions,
+      security, data integrity, or an expensive irreversible design, stop with
+      a precise question; do not invent a decision. Otherwise implement the
+      smallest coherent slice, including tests for every behavior change.
+      Keep domain, web, persistence, and external adapters separated.
+
+      Use focused tests while iterating. Do not run the full regression suite,
+      create plan.md/tasks.md/research/data-model/quickstart/handoffs, change
+      workflow policy to make a product check pass, commit, push, open a PR, or
+      merge. ThinFlow deterministically selects and runs required local checks
+      after this session. Finish with the workspace in a reviewable state.
+
+  - id: candidate_ready
     type: shell
-    run: "python3 scripts/workflow_artifact_probe.py develop --readiness"
+    timeout: 3600
+    run: "python3 scripts/thinflow.py check $AGENTFLOW_TASK_ID"
     output_format: json
-
-  # Fast wrapper/profile parity only; it never executes native test profiles.
-  - id: ci_baseline
-    type: shell
-    timeout: 300
-    run: "python3 scripts/agentflow_stage_checks.py --ci-parity"
 
   - id: qa
     type: prompt
@@ -125,66 +56,26 @@ steps:
     timeout: 2400
     prompt: |
       Agentflow stage: qa
-      Follow docs/AGENT_CONTEXT_POLICY.md.
-      Act as independent QA and adversarial acceptance tester. Do not invoke agentflow,
-      its verify skill, or another agent. Do not trust summaries or modify implementation
-      code. Locate the active feature; read spec.md, plan.md, tasks.md,
-      handoffs/architecture.md, handoffs/develop.md, current human feedback, and the
-      diff, and verification.json. Use the manifest to find checks, then independently
-      rerun them and challenge the coverage against spec.md; developer receipts do
-      not replace acceptance evidence. Use the ordered stage runner so proven-independent
-      checks continue after isolated failures and every outcome is reported. Do not read product debate, stale QA/review reports, unrelated artifacts,
-      or workflow/live logs. Run applicable checks directly or through agentflow_check.py CHECK_ID --stage qa
-      without --reuse. Stop and report after two failures with unchanged inputs; do
-      not bypass retry limits. Verify every
-      acceptance criterion with evidence. When the task exposes or changes HTTP endpoints,
-      start the application and exercise every affected endpoint through real HTTP requests
-      (for example, curl), covering the specified success and failure cases and recording
-      status, relevant headers, and response evidence. Internal tests do not replace this
-      runtime check. If the required runtime or service cannot be started, report a blocker
-      instead of silently skipping it. Write qa-report.md as a compact evidence matrix,
-      referencing commands and relevant excerpts rather than pasting complete output;
-      keep it under 900 words. Write handoffs/qa.md with only the verdict, blockers or
-      residual risks, and reviewer guidance absent from the report; keep it under 250
-      words. End exactly with `Verdict: PASS` only if everything passes;
-      otherwise end exactly with `Verdict: FAIL` and list blockers. A failure returns
-      to development through Agentflow feedback; do not remediate it yourself.
+      Act as the one independent evaluator for $AGENTFLOW_TASK_ID. You did not
+      implement the candidate. Read the compact spec.md, task, current feedback,
+      REVIEW.md, diff, implementation, and the local ThinFlow selection/check
+      receipt. Do not inspect workflow logs, trust summaries, modify
+      implementation, invoke another agent, or rerun the full suite by default.
+
+      Evaluate every acceptance item, the selected risk tier, architecture and
+      security boundaries, regression scope, and the integrity of deterministic
+      check evidence. Run only a targeted check needed to resolve a concrete
+      discrepancy or uncovered risk and explain it. Validate each surprising
+      finding against code or runnable evidence before reporting it. On a repair
+      pass, review the repair delta and affected surfaces; do not repeat resolved
+      or pre-existing findings. Write evaluation.md in the active feature with a
+      concise acceptance/evidence matrix, blocking findings, advisory findings,
+      and residual risks. Only blocking findings may produce `Verdict: FAIL`.
+      End exactly with `Verdict: PASS` only when the candidate is ready for CI
+      and human merge; otherwise end exactly with `Verdict: FAIL` and actionable
+      findings grouped by root-cause class.
 
   - id: qa_ready
     type: shell
-    run: "python3 scripts/workflow_artifact_probe.py qa"
-    output_format: json
-
-  - id: review
-    type: prompt
-    integration: "{{ inputs.integration }}"
-    timeout: 2400
-    prompt: |
-      Agentflow stage: review
-      Follow docs/AGENT_CONTEXT_POLICY.md.
-      Act as the final independent reviewer and second verification perspective. Do not
-      invoke agentflow, its verify skill, or another agent, and do not modify implementation
-      code. Do not merely repeat QA. Read spec.md, plan.md, tasks.md,
-      handoffs/architecture.md, handoffs/develop.md, current human feedback, qa-report.md,
-      the diff, and implementation code directly. Do not read product debate, unrelated
-      artifacts, stale review reports, or workflow/live logs. Inspect design quality,
-      maintainability, architecture, security, checkpoint coverage, and QA evidence.
-      Treat fresh reproducible QA evidence as evidence: do not rerun the full suite by
-      default; execute only targeted checks needed to resolve a discrepancy or uncovered
-      risk, and explain why. From the evidence already reviewed, make a lightweight
-      backlog-impact assessment. Do not inspect the whole backlog by default. Only when
-      this task reveals a concrete change to future requirements, architecture,
-      dependencies, priority, or scope, inspect the directly related backlog tasks and
-      identify their TASK IDs and the recommended follow-up. Routine or isolated changes
-      with no downstream effect, such as a self-contained CI/CD adjustment, require no
-      broader backlog review. Include exactly one concise `Backlog impact:` entry in
-      review-report.md: `none` with a reason, or the affected TASK IDs with the reason and
-      recommendation. Do not edit backlog tasks during review. Write review-report.md
-      under 600 words and handoffs/review.md under 250 words, without duplicating either
-      QA or the report. End exactly with `Verdict: PASS` only when ready for human merge;
-      otherwise end exactly with `Verdict: FAIL` and list blockers.
-
-  - id: evidence_ready
-    type: shell
-    run: "python3 scripts/agentflow_evidence.py finalize $AGENTFLOW_TASK_ID"
+    run: "python3 scripts/thinflow.py evaluate $AGENTFLOW_TASK_ID"
     output_format: json

@@ -67,6 +67,44 @@ defmodule FootballMarket.WorkflowScope do
     ]
   end
 
+  def paths("specs/030-atomic-idempotent-token-sale") do
+    [
+      "config/application_coverage_inventory.json",
+      "config/credo_inventory.json",
+      "config/test_profiles.json",
+      "lib/football_market/market.ex",
+      "lib/football_market/market/credit_entry.ex",
+      "lib/football_market/market/purchase.ex",
+      "lib/football_market/market/purchase_transaction.ex",
+      "lib/football_market/market/sale.ex",
+      "lib/football_market/market/sale_input.ex",
+      "lib/football_market/market/sale_store.ex",
+      "lib/football_market/market/sale_transaction.ex",
+      "lib/football_market/market/sales.ex",
+      "lib/football_market/market/settlement.ex",
+      "lib/football_market/market/token_transfer.ex",
+      "lib/football_market_web/controllers/error_json.ex",
+      "lib/football_market_web/controllers/sale_controller.ex",
+      "lib/football_market_web/controllers/sale_json.ex",
+      "lib/football_market_web/router.ex",
+      "priv/repo/migrations/20261027010000_create_market_sales.exs",
+      "priv/static/openapi.json",
+      "test/football_market/market/scope_test.exs",
+      "test/football_market/market/sales/duplicate_race_test.exs",
+      "test/football_market/market/sales/idempotency_test.exs",
+      "test/football_market/market/sales/input_test.exs",
+      "test/football_market/market/sales/quote_order_test.exs",
+      "test/football_market/market/sales/rejection_test.exs",
+      "test/football_market/market/sales/transfer_test.exs",
+      "test/football_market/market/conditional_orders/storage_test.exs",
+      "test/football_market_web/controllers/sale_controller_test.exs",
+      "test/football_market_web/openapi_contract_test.exs",
+      "test/support/sales/case.ex",
+      "test/support/workflow_scope.ex",
+      "tools/openapi/browser.mjs"
+    ]
+  end
+
   def paths("specs/068-agentflow-preflight-recovery") do
     [
       "test/scripts/agentflow_artifacts_test.py",
@@ -498,6 +536,54 @@ defmodule FootballMarket.WorkflowScope do
     ]
   end
 
+  def paths("specs/071-agentflow-thinflow") do
+    [
+      ".agentflow/thinflow.json",
+      ".agentflow/workflow.yml",
+      ".agents/skills/complete/SKILL.md",
+      ".agents/skills/create/SKILL.md",
+      ".agents/skills/feedback/SKILL.md",
+      ".agents/skills/resume/SKILL.md",
+      ".agents/skills/start/SKILL.md",
+      ".agents/skills/verify/SKILL.md",
+      ".github/workflows/quality-baseline.yml",
+      ".github/workflows/sonarcloud.yml",
+      ".specify/memory/constitution.md",
+      "AGENTS.md",
+      "README.md",
+      "REVIEW.md",
+      "agentflow",
+      "backlog/TASK-071-migrate-agentflow-2-3-to-thinflow.md",
+      "config/test_profiles.json",
+      "docs/AGENTFLOW_MODELS.md",
+      "docs/AGENT_CONTEXT_POLICY.md",
+      "docs/AGENT_VERIFICATION.md",
+      "docs/METODOLOGIA_AGENTICA.md",
+      "docs/THINFLOW.md",
+      "docs/WORKFLOW_FLOW.md",
+      "docs/WORKFLOW_LESSONS.md",
+      "docs/WORKFLOW_SPEED.md",
+      "docs/adr/0037-thinflow-versioned-delivery.md",
+      "scripts/agentflow_codex.py",
+      "scripts/agentflow_feature.py",
+      "scripts/agentflow_opencode.py",
+      "scripts/agentflow_runtime.py",
+      "scripts/thinflow.py",
+      "specs/071-agentflow-thinflow/",
+      "test/ci/fixtures/quality-baseline.sha256",
+      "test/ci/quality_baseline_contract_test.exs",
+      "test/ci/sonarcloud_contract_test.exs",
+      "test/scripts/agentflow_dedup_test.py",
+      "test/scripts/agentflow_branch_test.py",
+      "test/scripts/agentflow_policy_test.py",
+      "test/scripts/agentflow_workflow_gate_test.py",
+      "test/scripts/test_profile_components_test.py",
+      "test/scripts/thinflow_ci_test.py",
+      "test/scripts/thinflow_test.py",
+      "test/support/workflow_scope.ex"
+    ]
+  end
+
   def paths("specs/070-conditional-buy-orders") do
     [
       "config/application_coverage_inventory.json",
@@ -551,6 +637,8 @@ defmodule FootballMarket.WorkflowScope do
 
   def paths("specs/071-conditional-order-evaluation-workers") do
     [
+      "scripts/agentflow_stage_checks.py",
+      "test/scripts/agentflow_stage_checks_test.py",
       "config/application_coverage_inventory.json",
       "config/credo_inventory.json",
       "config/synchronization.exs",

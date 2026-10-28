@@ -90,3 +90,11 @@ Before QA writes outputs, capture `source_fingerprint(root)` and `input_fingerpr
 ## Complexity Tracking
 
 No constitution violation. ADR-0037 records the necessary shared cursor, membership and Market transaction participant. Per-player queues cannot order cross-player shared balances; a multi-order financial transaction would violate the established one-player lock discipline. Durable membership costs storage proportional to one pending-order snapshot; delete only completed scheduler membership, never order, quote or financial evidence.
+
+## Integration with current main
+
+Preserve this saved Agentflow 2.3 task and its two historical gates. The default workflow on main is now ThinFlow; the legacy CI-parity check recognizes that default while still validating the installed legacy CI-baseline step, current CI wrapper and distinct unit/integration manifest profiles. Invalid or incomplete defaults and missing legacy/profile obligations remain failures. Reconcile both branches' inventories without dropping test cases, helpers or migrations. Historical reports describe the original candidate; refresh verification for the merge candidate.
+
+Prepare the task-owned test database with `mix test.prepare` after toolchain validation and before service preflight. This adds a cold-start prerequisite to the existing ordered checks; no existing gate is removed or skipped. Dependency caches are disposable and rebuilt locally when incomplete.
+
+Build browser assets before the integration profile because its runtime lifecycle contract opens a real sign-in page. Preserve both integration and E2E checks after that prerequisite.

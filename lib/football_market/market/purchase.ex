@@ -1,7 +1,6 @@
 defmodule FootballMarket.Market.Purchase do
   @moduledoc false
   use Ecto.Schema
-  import Ecto.Changeset
   @primary_key {:id, :binary_id, autogenerate: true}
   schema "market_purchases" do
     field :conditional_order_id, :binary_id
@@ -22,46 +21,29 @@ defmodule FootballMarket.Market.Purchase do
     field :completed_at, :utc_datetime_usec
   end
 
-  def changeset(record, attrs) do
-    changeset =
-      cast(record, attrs, [
-        :conditional_order_id,
-        :buyer_id,
-        :recipient_id,
-        :player_id,
-        :quote_id,
-        :configuration_version_id,
-        :mapping_id,
-        :request_key,
-        :rule_id,
-        :rule_version,
-        :quantity,
+  @cast_fields [
+    :conditional_order_id,
+    :buyer_id,
+    :recipient_id,
+    :player_id,
+    :quote_id,
+    :configuration_version_id,
+    :mapping_id,
+    :request_key,
+    :rule_id,
+    :rule_version,
+    :quantity,
+    :unit_price,
+    :total,
+    :quote_effective_at,
+    :performance_sequence,
+    :completed_at
+  ]
+
+  def changeset(record, attrs),
+    do:
+      FootballMarket.Market.Settlement.exact_money_changeset(record, attrs, @cast_fields, [
         :unit_price,
-        :total,
-        :quote_effective_at,
-        :performance_sequence,
-        :completed_at
+        :total
       ])
-
-    Enum.reduce([:unit_price, :total], changeset, fn field, acc ->
-      raw = Map.get(attrs, field, Map.get(attrs, Atom.to_string(field)))
-      value = get_field(acc, field)
-
-      valid =
-        case value do
-          %Decimal{coef: coef, sign: sign} when is_integer(coef) ->
-            (sign == 1 or coef == 0) and Decimal.equal?(value, Decimal.round(value, 2))
-
-          nil ->
-            true
-
-          _ ->
-            false
-        end
-
-      if is_float(raw) or not valid,
-        do: add_error(acc, field, "must be exact finite cents"),
-        else: acc
-    end)
-  end
 end

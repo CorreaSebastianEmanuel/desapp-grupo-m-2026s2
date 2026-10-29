@@ -8,7 +8,7 @@ An anonymous read on 2026-10-28 returned HTTP 200 for the project and measures a
 
 No generic report properties are enabled in normal analysis. Existing JavaScript LCOV import, SonarCloud quality checks, and independent Credo enforcement remain in place.
 
-On 2026-10-29, [the first authenticated experiment](https://github.com/CorreaSebastianEmanuel/desapp-grupo-m-2026s2/actions/runs/40793559253) ran at `a4f780a008f4344b5c96cd74a33bb7b412f684c6`. Fresh coverage and report validation succeeded. The control and issue-only scanners passed their gates; the issue scanner reported `Imported 1 issue in 1 file` for the synthetic report on `lib/football_market/accounts.ex:13`. The observation CLI then failed because its baseline argument was a string rather than a `Path`, so coverage-only analysis was skipped. The CLI path conversion and an actual subprocess regression cover that defect. The [input/control artifact](https://github.com/CorreaSebastianEmanuel/desapp-grupo-m-2026s2/actions/runs/40793559253/artifacts/12865260081) preserves revision/hash evidence; this partial execution establishes scanner acceptance only, not issue visibility or metric changes. A complete rerun remains required.
+On 2026-10-29, [the first authenticated experiment](https://github.com/CorreaSebastianEmanuel/desapp-grupo-m-2026s2/actions/runs/40793559253) ran at `a4f780a008f4344b5c96cd74a33bb7b412f684c6`. Fresh coverage and report validation succeeded. The control and issue-only scanners passed their gates; the issue scanner reported `Imported 1 issue in 1 file` for the synthetic report on `lib/football_market/accounts.ex:13`. The observation CLI then failed because its baseline argument was a string rather than a `Path`, so coverage-only analysis was skipped. The CLI path conversion and an actual subprocess regression cover that defect. The [input/control artifact](https://github.com/CorreaSebastianEmanuel/desapp-grupo-m-2026s2/actions/runs/40793559253/artifacts/12865260081) preserves revision/hash evidence; this partial execution establishes scanner acceptance only, not issue visibility or metric changes. Complete-run outcomes, exact revisions and artifacts are recorded in [PR #67](https://github.com/CorreaSebastianEmanuel/desapp-grupo-m-2026s2/pull/67).
 
 ## Bounded dispatch
 
@@ -39,7 +39,9 @@ The artifact is named `task-069-sonarcloud-probe-<run id>` and retained for 14 d
 
 Analysis identity uses the CE task from the scanner report, the current PR task from `api/ce/component`, and the commit SHA returned by `api/project_pull_requests/list`. Current analysis and revision are checked again after all measure and issue reads; if replaced or unavailable, all collected values and comparisons are marked unverified. The public API contract does not define a PR selector for `api/project_analyses/search`, so that branch-history endpoint is not used for PR revision verification. Each metric is requested separately; one unavailable metric does not erase other observations. Comparisons require a verified control from the same PR and revision.
 
-## Project result matrix
+## Pre-dispatch project result matrix
+
+This table records the baseline before the controlled runs. Consult [PR #67](https://github.com/CorreaSebastianEmanuel/desapp-grupo-m-2026s2/pull/67) and its linked revision-bound artifacts for the current observations of each completed experiment.
 
 | Probe | Current result | Evidence required to change status |
 | --- | --- | --- |

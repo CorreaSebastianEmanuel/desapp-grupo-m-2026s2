@@ -11,6 +11,7 @@ Deliver a minimal player card, immediate buy/sell actions, and read-only active-
 - [ ] Successful trades refresh the signed-in user's positions immediately. Workspace reload hints and reconnects reload authoritative, owner-scoped data, including purchases executed by conditional orders.
 - [ ] Users can open a ranking view showing the active strategy label and entries in the exact order returned by the existing ranking context. Empty, unconfigured and unavailable results have explicit states.
 - [ ] Preserve the catalog-to-conditional-order journey. Focused automated tests cover player details and missing data, trading errors and retry safety, owner-scoped position reloads, ranking order/strategy, and unauthenticated redirects. Actual browser E2E coverage demonstrates search-to-order-to-purchase visibility, selling owned tokens, and active-strategy ranking.
+- [ ] Portfolio and trading UI tests restore the exact prior initial-issuance configuration after each test, preserving absent settings. A module-completion assertion detects configuration leaks without weakening the market's fail-closed default check.
 
 ## Scope
 

@@ -9,6 +9,30 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
 
   @endpoint FootballMarketWeb.Endpoint
 
+  setup_all do
+    previous = Application.fetch_env(:football_market, :initial_issuance_recipients)
+
+    on_exit(fn ->
+      assert Application.fetch_env(:football_market, :initial_issuance_recipients) == previous,
+             "portfolio tests leaked initial issuance configuration after module cleanup"
+    end)
+
+    :ok
+  end
+
+  setup do
+    previous = Application.fetch_env(:football_market, :initial_issuance_recipients)
+
+    on_exit(fn ->
+      case previous do
+        {:ok, value} -> Application.put_env(:football_market, :initial_issuance_recipients, value)
+        :error -> Application.delete_env(:football_market, :initial_issuance_recipients)
+      end
+    end)
+
+    :ok
+  end
+
   test "authenticated portfolio displays the user's current positions and exact values" do
     buyer = account("portfolio-ui-buyer@example.com")
     owner = account("portfolio-ui-owner@example.com")
@@ -16,15 +40,7 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
     {:ok, position} = Catalog.create_position(FootballMarket.CatalogCase.position_attrs())
     {:ok, player} = Catalog.create_player(FootballMarket.CatalogCase.player_attrs(team, position))
 
-    previous = Application.fetch_env(:football_market, :initial_issuance_recipients)
     Application.put_env(:football_market, :initial_issuance_recipients, [owner.id])
-
-    ExUnit.Callbacks.on_exit(fn ->
-      case previous do
-        {:ok, value} -> Application.put_env(:football_market, :initial_issuance_recipients, value)
-        :error -> Application.delete_env(:football_market, :initial_issuance_recipients)
-      end
-    end)
 
     assert {:ok, _} = Market.initialize_player(player.id)
     PurchasesCase.fund(buyer, "100")

@@ -1,33 +1,41 @@
 # Independent evaluation — TASK-077
 
-Reviewed the compact spec, task, current product feedback, REVIEW.md, repository baseline/constitution, complete candidate diff, affected implementation, tests and local ThinFlow check evidence. No implementation changes or additional agents were used.
+Repair-pass evaluation against feedback 2, the compact spec, task, REVIEW.md, repository baseline and constitution. Reviewed the repair diff against HEAD `5a6725294139943f3133ff619465c994eaba05ca`, original feature diff and affected implementation/tests. No implementation changes, delegation or full-suite reruns. Previous evaluator conclusions were not treated as executable evidence.
 
 ## Acceptance and evidence
 
-| Acceptance | Evidence | Result |
+| Acceptance | Reviewed evidence | Assessment |
 | --- | --- | --- |
-| Authenticated catalog search and player identity/card | Workspace routes and shared card render name, position, club, league and season; LiveView and real browser search/card assertions. | PASS |
-| Authoritative quote/time, missing data, freshness and valuation | Card uses `Quotes.latest/1`, the same reader used by settlement; missing quote is explicit. API and LiveView share `Catalog.player_card/1` and existing freshness interface; existing freshness/controller tests passed. | PASS |
-| Shared recorded statistics with explicit unknowns | `Statistics.recorded_summary/1` queries the player's catalog season through `Statistics.Query`; totals require every recorded metric to be an integer. Domain test proves no facts, explicit zero, complete sums, partial unknowns and player isolation; controller proves shared API projection. Local/incomplete coverage is labeled in UI and OpenAPI. | PASS |
-| Atomic idempotent buy/sell, safe errors and confirmation | LiveView delegates to unchanged purchase/sale contexts, derives actor server-side, checks its request key and locks retry terms. LiveView tests cover malformed input, business errors, identical retry without duplicate quantity, changed-term refusal and explicit new trade; browser proves sale. | PASS |
-| Immediate authoritative owner-scoped reloads and reconnect | Successful trades reload `Portfolio.list/1` and publish on the signed-in account topic. Conditional-order hints reload using the authenticated actor, ignoring the hinted ID as authority. LiveView tests cover another account, repeated hints and reconnect; browser proves conditional purchase and sale updates in an already open portfolio tab. | PASS |
-| Active strategy ranking and explicit states | `Ranking.read/0` result is rendered without reordering. Component tests cover ordered entries, strategy, empty, unavailable and unconfigured states; Chromium compares rendered IDs with the actual ranking context result. | PASS |
-| Preserved order journey, focused tests, browser E2E and authentication | Existing catalog/order links retained. New browser scenario executes an actual worker-backed order, observes purchase visibility, sells owned tokens and checks ranking. HTTP/LiveView authentication assertions cover protected destinations. Required test inventory and bounded workflow scope registrations are present. | PASS |
+| Authenticated local search and player identity | Existing workspace search; card renders position, club, league and season; focused LiveView search/card assertions passed. | Met; unchanged by repair. |
+| Authoritative quote/time, missing state, freshness and valuation | `load_card/2` reads `Quotes.latest/1`; shared `Catalog.player_card/1` exposes existing freshness interface. Missing card/quote and freshness assertions passed. | Met; unchanged by repair. |
+| Shared recorded season statistics and unknowns | API and LiveView use `Catalog.player_card/1`; `Statistics.recorded_summary/1` queries player/season facts and sums only complete integer metrics. Domain assertions cover absent facts, explicit zero, partial unknowns and player isolation. UI labels incomplete local coverage. | Met by implementation and delivered assertions; unchanged tests inspected, not rerun. |
+| Atomic idempotent buy/sell, safe outcomes/errors | Server-derived actor, retained request key and immutable submitted terms delegate to existing financial contexts. Focused tests exercised malformed inputs, purchase retry without duplicate quantity, changed-term refusal, sale and business failures. | Met; current targeted checks passed. |
+| Immediate owner-scoped reloads, reconnect and conditional-order hints | `Portfolio.list/1` receives the authenticated actor; notification payloads grant no authority. Current tests exercised open portfolio reload, reconnect, repeated reload hints and another owner. | Met; current targeted checks passed. |
+| Active ranking strategy, order and explicit states | Rendering preserves `Ranking.read/0` entry order. Current component tests exercised strategy/order, empty, unconfigured and unavailable presentations; protected routes redirect. | Met; current targeted checks passed. |
+| Preserved order journey, focused coverage and actual browser coverage | Existing order links retained. Registered Playwright case performs real search/card/order, worker-backed purchase visibility, sale and ranking comparison; fixture also verifies persisted holdings. Browser scenario and API assertions are unchanged by this repair. | Coverage retained; browser execution not repeated on this repair pass. |
+| Exact issuance-configuration restoration and module leak assertion | Per-test setup uses `fetch_env`, restoring the previous value or deleting an originally absent key. `setup_all` checks state after test cleanup. Both configured and absent-state post-module probes passed. Market fail-closed assertion remains unchanged and passed. | Met; repair independently verified. |
 
-## Risk, architecture and deterministic evidence
+## Risk, architecture and check integrity
 
-- **High risk is appropriate.** Actual paths match application, delivery documentation, delivery harness and runtime/toolchain rules. No unmapped paths or policy weakening. Changes remain within the approved CP2 slice and recorded-statistics feedback.
-- Web code orchestrates domain calls and presentation; statistics persistence queries stay in the domain query module. No provider HTTP calls, new valuation rules, financial persistence writes, token-supply changes, floating-point money or client-authoritative prices were introduced. Existing browser hooks revalidate sessions before events; holdings and notifications remain account-scoped.
-- Independently called `thinflow.readiness(Path.cwd(), "TASK-077", require_evaluation=False)`: ready, high tier. This recomputed selection and material digest and verified required check membership, statuses and evidence hashes against current files. Candidate digest: `aa581d6d573e13bdba89be07352139e8d3220350c758867bd7dc47d170737f4b`.
-- Inspected the named deterministic evidence: format and compile completed successfully with empty output; unit profile reconciled 660 expected/discovered/executed/passed cases; CI contracts reported 26 passed; harness tests reported 363 tests, OK. These receipts do not establish integration or E2E execution.
+High risk is appropriate for the complete feature: financial UI, application code, test-profile registration and browser tooling. The bounded repair changes test lifecycle cleanup only; it adds no product behavior or permissions. Domain queries remain outside LiveView; financial writes still use existing atomic contexts. Browser hooks revalidate sessions, and positions use server-derived account identity. No provider transport, floating-point money or client-authoritative execution price was introduced.
+
+Independently recomputed `thinflow.readiness(Path.cwd(), "TASK-077", require_evaluation=False)`: ready, high tier, no unmapped paths. Current material digest is `58d235c265a4da21f2dda2a6683c017d1f94472c43a3c2878d179e4d5416dcc3`. Inspected the named local candidate receipt and its deterministic check outputs; readiness validated current selection, digest, check membership, statuses and output hashes:
+
+- Format and compile: exit 0; these successful commands produced no stdout.
+- Unit profile: 660 expected/discovered/executed/passed, complete; audit count 81.
+- CI contracts: 26 passed.
+- Harness tests: 363 tests, OK. Negative-fixture discrepancy diagnostics appear within the passing harness run, not as candidate test failures.
+
+These receipts establish the selected checks, not full integration or browser execution.
 
 ## Targeted evaluator checks
 
-The selected policy runs the unit profile, while the new acceptance cases are registered as integration/E2E. To resolve this concrete execution gap, ran only the affected integration surfaces and new browser case, sequentially:
+The repair affects integration-test cleanup, which the selected unit profile does not execute. To resolve that concrete gap, ran two sequential `MIX_ENV=test mix run -e` probes using the repository test helper, `ExUnit.run()` and explicit post-run configuration equality assertions:
 
-- `MIX_ENV=test mix test test/football_market/catalog/player_detail_test.exs test/football_market_web/controllers/player_detail_controller_test.exs test/football_market_web/controllers/player_freshness_test.exs test/football_market_web/live/portfolio_live_test.exs test/football_market_web/openapi_contract_test.exs` — **20 passed**, seed 552257.
-- `MIX_ENV=test mix test test/e2e/portfolio_analytics_test.exs:54 --include e2e` — **1 passed, 1 excluded**, seed 502597; selected case invokes actual Chromium and verifies the completed browser result and persisted final holdings.
-- `git diff --check` — exit 0.
+1. Seed 0, configured baseline: loaded `portfolio_live_test.exs`, `market/scope_test.exs` and `workflow_scope_test.exs`; **18 passed**, post-module configuration restored. This includes the previously failing market boundary without weakening it.
+2. Seed 0, setting deleted before loading `portfolio_live_test.exs`: **6 passed**, post-module `Application.fetch_env/2 == :error`. This directly exercises the absent-setting branch.
+
+`git diff --check` also passed. Unchanged browser and full regression suites were not rerun.
 
 ## Blocking findings
 
@@ -39,6 +47,6 @@ None.
 
 ## Residual risks
 
-Full integration/E2E suites were not rerun; verification was limited to selected deterministic checks and the affected acceptance surfaces. Provider availability and complete season coverage are not guaranteed and are explicitly represented as such. Quote/statistics displays are local read snapshots; execution obtains the authoritative price through the existing financial contexts. Exact PR-head `ThinFlow required` CI and human merge remain required after local readiness.
+Full integration/E2E execution remains outside this repair evaluation. Existing browser coverage was inspected, not freshly executed here. Statistics and displayed quotes are local snapshots; provider availability and complete season coverage are not guaranteed. Exact updated PR-head `ThinFlow required` CI and human merge remain required.
 
 Verdict: PASS

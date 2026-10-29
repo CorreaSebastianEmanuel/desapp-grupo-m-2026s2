@@ -1,6 +1,9 @@
 import importlib.util
 import hashlib
 import json
+import os
+import subprocess
+import sys
 import tempfile
 import unittest
 import xml.etree.ElementTree as ET
@@ -31,6 +34,30 @@ def sample_report():
 
 
 class SonarElixirProbeTest(unittest.TestCase):
+    def test_cli_reads_baseline_path_and_records_unverified_without_credentials(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            baseline = root / "control.json"
+            baseline.write_text(json.dumps({"stage": "control", "measures": {}}), encoding="utf-8")
+            env = dict(os.environ)
+            env.pop("SONAR_TOKEN", None)
+            for stage in ("issue", "coverage"):
+                with self.subTest(stage=stage):
+                    output = root / (stage + ".json")
+                    completed = subprocess.run([
+                        sys.executable, str(ROOT / "scripts/sonar_elixir_probe.py"), "observe",
+                        "--stage", stage, "--pull-request", "67", "--revision", "a" * 40,
+                        "--report-task", str(root / "absent-task.txt"), "--scan-outcome", "success",
+                        "--baseline", str(baseline), "--output", str(output),
+                    ], env=env, capture_output=True, text=True, timeout=10)
+                    self.assertEqual(completed.returncode, 0, completed.stderr)
+                    result = json.loads(output.read_text(encoding="utf-8"))
+                    self.assertEqual(result["stage"], stage)
+                    self.assertEqual(result["analysis"]["reason"], "sonar-token-unavailable")
+                    self.assertTrue(all(value["status"] == "unverified"
+                                        and value.get("comparison", "unverified") == "unverified"
+                                        for value in result["measures"].values()))
+
     def test_coverage_adapter_emits_generic_report_from_unique_application_lines(self):
         document = ET.fromstring(probe.render_coverage(sample_report()))
         self.assertEqual(document.tag, "coverage")

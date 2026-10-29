@@ -344,7 +344,7 @@ def observe(stage, pull_request, revision, report_task, scan_outcome, token, bas
 
 
 def write_observation(args):
-    baseline = read_json(args.baseline) if args.baseline else None
+    baseline = read_json(Path(args.baseline)) if args.baseline else None
     result = observe(args.stage, args.pull_request, args.revision, args.report_task,
                      args.scan_outcome, os.environ.get("SONAR_TOKEN", ""), baseline)
     output = Path(args.output)

@@ -8,6 +8,8 @@ An anonymous read on 2026-10-28 returned HTTP 200 for the project and measures a
 
 No generic report properties are enabled in normal analysis. Existing JavaScript LCOV import, SonarCloud quality checks, and independent Credo enforcement remain in place.
 
+On 2026-10-29, [the first authenticated experiment](https://github.com/CorreaSebastianEmanuel/desapp-grupo-m-2026s2/actions/runs/40793559253) ran at `a4f780a008f4344b5c96cd74a33bb7b412f684c6`. Fresh coverage and report validation succeeded. The control and issue-only scanners passed their gates; the issue scanner reported `Imported 1 issue in 1 file` for the synthetic report on `lib/football_market/accounts.ex:13`. The observation CLI then failed because its baseline argument was a string rather than a `Path`, so coverage-only analysis was skipped. The CLI path conversion and an actual subprocess regression cover that defect. The [input/control artifact](https://github.com/CorreaSebastianEmanuel/desapp-grupo-m-2026s2/actions/runs/40793559253/artifacts/12865260081) preserves revision/hash evidence; this partial execution establishes scanner acceptance only, not issue visibility or metric changes. A complete rerun remains required.
+
 ## Bounded dispatch
 
 After the TASK-069 PR head is ready, dispatch the existing workflow on that exact feature ref and pass its open PR number (currently PR `#67`):

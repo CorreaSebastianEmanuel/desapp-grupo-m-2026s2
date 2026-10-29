@@ -6785,6 +6785,13 @@
       "profile": "unit"
     },
     {
+      "id": "be6245a42b7dca4e5d8ae2ad",
+      "runner": "python",
+      "file": "test/scripts/sonar_elixir_probe_test.py",
+      "case_id": "test.scripts.sonar_elixir_probe_test.SonarElixirProbeTest.test_cli_reads_baseline_path_and_records_unverified_without_credentials",
+      "profile": "unit"
+    },
+    {
       "id": "be760e92f034da7184f39ca4",
       "runner": "python",
       "file": "test/scripts/thinflow_ci_test.py",

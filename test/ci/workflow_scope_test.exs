@@ -63,10 +63,17 @@ defmodule FootballMarket.WorkflowScopeTest do
     for feature <- [
           "specs/065-separate-unit-and-end-to-end-test-profiles",
           "specs/065-statistics-ingestion-pipeline",
-          "specs/068-atomic-idempotent-token-purchase"
+          "specs/068-atomic-idempotent-token-purchase",
+          "specs/069-verify-sonarcloud-external-elixir-report-compatibility"
         ] do
       assert WorkflowScope.allows_path?(feature, "test/support/workflow_scope.ex")
     end
+
+    probe_feature = "specs/069-verify-sonarcloud-external-elixir-report-compatibility"
+    assert WorkflowScope.allows_path?(probe_feature, ".github/workflows/sonarcloud.yml")
+    assert WorkflowScope.allows_path?(probe_feature, "test/ci/sonarcloud_contract_test.exs")
+    refute WorkflowScope.allows_path?(probe_feature, "lib/football_market/statistics.ex")
+    refute WorkflowScope.allows_path?(probe_feature, ".github/workflows/unplanned.yml")
 
     assert WorkflowScope.allows_path?(
              "specs/065-statistics-ingestion-pipeline",

@@ -6,37 +6,41 @@
 
 ## Outcome
 
-Determine, for the existing SonarCloud project, whether a minimal external Elixir finding and the TASK-067 application coverage report can be imported, and which project measures each changes. Record reproducible probe inputs, project and revision, observed results, and limits. Missing authorized project access is an explicit unverified result. Enable an adapter only for report types and measures whose import is demonstrated. Keep Credo as the mandatory independent Elixir gate and preserve the existing JavaScript LCOV import and SonarCloud quality gate.
+Provide a bounded, opt-in experiment in the existing SonarCloud workflow to determine whether the project's PR analysis imports a generic Elixir issue and TASK-067 application coverage, and which project measures change. Bind every run to the open internal TASK-069 PR and exact checked-out head. Preserve the normal JavaScript LCOV import, SonarCloud quality gate, and independent Credo gate. Enable no normal import until project evidence demonstrates it.
 
 ## Acceptance
 
-- [ ] A checked-in probe defines one deterministic synthetic external issue on a TASK-065-maintained source path and one generic coverage report from TASK-067 data, with a documented command/configuration and pinned input revision.
-- [ ] When authorized project access is available, a SonarCloud analysis records whether the external issue appears and separately records changes, no change, or unavailable evidence for `open_issues`, `bugs`, `vulnerabilities`, `code_smells`, and `coverage`; it records `ncloc` as a control for Elixir source indexing. Without authorized access, document each project-specific result as unverified and leave all imports disabled.
-- [ ] External finding import and coverage import are evaluated independently. Only report types and individual metrics shown to import in the project are enabled in the scanner workflow; unsupported or unverified imports are omitted.
-- [ ] Automated focused tests validate report generation, required fields, source paths/line locations, and that existing JavaScript coverage, SonarCloud checks, and the independent Credo gate remain configured. These tests do not claim project compatibility.
-- [ ] Documentation identifies the exact report inputs, observed status of each report/metric, revision, access limits, and the distinction between generic external findings and native Elixir analysis.
+- [ ] A deterministic synthetic issue on a TASK-065-maintained source path and a generic report generated from fresh TASK-067 coverage are bound to the checked-out revision and hashed.
+- [ ] An explicit manual dispatch accepts the TASK-069 PR number only on its open internal PR branch, base `main`, and exact current head. It runs three ordered analyses on that same revision: control, issue-only, and coverage-only.
+- [ ] Each completed analysis has a machine-readable result binding its Sonar CE task/analysis to the requested PR and revision. Record issue presence and each of `open_issues`, `bugs`, `vulnerabilities`, `code_smells`, `coverage`, and control measure `ncloc` separately against the control result. Missing or stale evidence is `unverified`, never evidence of unsupported behavior.
+- [ ] Probe results are uploaded even when a scanner or quality gate fails; the job still fails for any failed analysis or gate. Credentials remain protected runner environment values and are absent from command arguments, logs, summaries, and artifacts.
+- [ ] Focused automated tests cover report generation, observation classification and revision safeguards, exact PR/ref safeguards, and preservation of the normal JavaScript, SonarCloud, and Credo gates. Tests do not assert project compatibility.
+- [ ] Probe documentation gives the bounded dispatch command, exact inputs, output artifact contract, current observation status, and limits. External generic imports remain distinct from native Elixir analysis.
 
 ## Scope
 
-- Inspect the current SonarCloud scanner config, TASK-065 Credo source accounting, and TASK-067 application coverage report contract.
-- Add only the smallest report adapter(s), probe input(s), focused tests, and evidence documentation required to test the criteria above.
-- Use the existing SonarCloud CI analysis path and limited read access, if authorized, to test the existing project without changing account permissions or exposing credentials.
-- Preserve the JavaScript LCOV report, current SonarCloud checks and thresholds, and independent Elixir quality gate.
+- Update the existing `.github/workflows/sonarcloud.yml` manual-dispatch interface and add a probe-only job; retain its normal `workflow_call` and non-probe dispatch behavior.
+- Reuse `scripts/application_coverage.py run` and validation; generate isolated generic reports from its fresh output, with no stale coverage fallback.
+- Run the three analyses serially on the same TASK-069 PR head, recording scan outcome, issue visibility, each requested measure, and exact analysis identity independently.
+- Keep generic issue and coverage properties out of normal SonarCloud analysis until project-specific support is demonstrated.
+- Keep the change within the task's probe, evidence, documentation, and focused tests.
+- Register only the exact probe workflow and test paths in the legacy workflow-scope guard; retain rejection of application and unplanned workflow edits.
 
 ## Non-goals
 
-- Deploying SonarQube or implementing an Elixir language analyzer.
-- Changing SonarCloud account/project permissions, weakening or suppressing findings, or publishing credentials.
-- Claiming native Java-equivalent analysis or treating generic imports as native Elixir metrics.
-- Changing application behavior, the TASK-065 Credo policy, TASK-067 coverage accounting, or unrelated workflow policy.
+- Deploying SonarQube or implementing native Elixir analysis.
+- Changing project/account permissions, weakening gates, suppressing findings, or publishing credentials.
+- Claiming generic import support, native Elixir metrics, or Java-equivalent analysis without observed project evidence.
+- Changing application behavior, Credo policy, TASK-067 coverage accounting, ordinary SonarCloud analysis, or unrelated workflow policy.
 
 ## Risk
 
-- Declared: low. External imports can affect project analysis results, so probes must use a reviewable revision and deterministic, clearly identified findings. The existing gate and Elixir quality gate remain authoritative.
-- An inaccessible project or unavailable authorized token limits the result to unverified; it does not justify enabling an unproven import.
+- A probe can change the TASK-069 PR's SonarCloud PR analysis while it runs. The probe is explicit, serialized, reviewable, restricted to its open internal PR and exact head, and uses only one clearly synthetic issue; quality-gate failures remain failures.
+- If required access, a fresh coverage report, the exact analysis identity, or a measure response is unavailable, record the affected result as unverified and leave imports disabled.
 
 ## Decisions
 
-- Probe one controlled external finding on a TASK-065-maintained source path and the TASK-067 application-only coverage report separately.
-- Report the candidate measures individually: `open_issues`, `bugs`, `vulnerabilities`, `code_smells`, `coverage`, and the `ncloc` source-indexing control. A measure is supported only when the project analysis shows the corresponding controlled input changed it.
-- Do not enable a project import when its behavior cannot be observed with authorized access.
+- Use the existing workflow's manual dispatch with an explicit probe flag and PR number; reject main, forks, closed PRs, wrong base/branch, or mismatched head.
+- Compare one control with issue-only and coverage-only analyses, in that order, on the same full revision. Do not combine report types in one analysis.
+- Treat absence of an issue or measure change as inconclusive if the report, source indexing, PR analysis, or corresponding API evidence cannot be verified.
+- Keep all normal imports disabled until demonstrated project results identify supported report types and measures.

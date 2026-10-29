@@ -1,44 +1,35 @@
 # Independent evaluation — TASK-069
 
-Reviewed the task, compact spec, REVIEW.md, repository architecture/constitution, complete candidate diff, implementation, tests, and current ThinFlow selection/check evidence. No TASK-069 feedback or previous evaluation exists. This is the initial independent evaluation; implementation was not modified and no other agent was invoked.
+Fresh independent review of the actual diff against `origin/main`, the repair delta, compact contract, human feedback, required repository documents and named ThinFlow evidence. This evaluates preparation for the authorized PR #67 experiment; it does not assert authenticated import success. Only this evaluation was edited. No agent, Agentflow command, full suite, hosted workflow or service probe was launched.
 
 ## Acceptance and evidence
 
 | Acceptance | Assessment | Evidence |
 | --- | --- | --- |
-| Deterministic finding and TASK-067 generic coverage probe; command and revision binding | PASS | `scripts/sonar_elixir_probe.py` validates TASK-067 evidence before generation, selects a maintained executable source location, emits one labelled synthetic issue and application line coverage, and records Git/source revisions, snapshot/run identities and report hashes. `sonarcloud-probe.md` documents commands and exact available revisions. |
-| Project finding and each requested measure observed, or explicitly unverified without access | PASS via specified fallback | Evaluator confirmed `SONAR_TOKEN` is absent. Documentation individually marks issue appearance, `open_issues`, `bugs`, `vulnerabilities`, `code_smells`, `coverage`, and `ncloc` unverified. No project compatibility is asserted. |
-| Independent report decisions; enable only demonstrated imports | PASS via specified fallback | Neither report is enabled in scanner properties or workflow; both remain independently unverified. No unsupported metric is claimed. See the future-procedure advisory below. |
-| Focused automated generation and preservation checks | PASS | Six new probe cases cover output structure, synthetic source/line binding, invalid/coercible/duplicate/foreign lines, inventory membership and metadata hashes. All six are discoverable and registered in the unit profile. Existing selected SonarCloud/Credo CI contracts assert JavaScript LCOV, mandatory independent Credo execution and unchanged gate behavior. |
-| Exact inputs, observations, access limits and native-analysis distinction documented | PASS | `sonarcloud-probe.md` identifies the project, base and stale report revisions, generated inputs and hashes, unavailable credentials, every requested result, and the distinction between generic import and native Elixir analysis. |
+| Deterministic issue and fresh, revision-bound coverage with hashes | PASS — preparation | `build` validates TASK-067 evidence, requires its head to match checkout, selects an executable TASK-065-maintained path and hashes the exact input and both generated reports. Workflow collects fresh coverage without a stale fallback. |
+| Opt-in internal TASK-069 PR, main base, exact head; three ordered analyses | PASS — preparation | Dispatch guard rejects other refs, closed/fork/wrong-base PRs and SHA mismatches before secret-bearing steps. Control, issue-only and coverage-only scans use the same checked-out SHA and explicit PR context; prior task files are cleared. |
+| Analysis identity; issue and six separate measures versus control; stale evidence unverified | PASS — preparation | Observer verifies CE task/analysis, project, PR and revision before and after reads. Replacement or unavailable final identity clears issue and measure values; comparisons become unverified. Each requested metric is read independently; comparisons require a verified control for the same PR/revision. |
+| Artifacts on scanner/gate failure; failures retained; protected credentials | PASS by inspection | Scanner continuation allows observation/upload; final outcome check fails on unsuccessful collection, reports or scans/gates. Upload uses `always()`. Tokens enter runner environment only; no token arguments, explicit logging or artifact serialization was introduced. |
+| Focused tests and preservation of normal gates | PASS | Registered tests cover generation, malformed counts/lines, dispatch identity, observations, stale revision and replacement during reads. Workflow contracts assert preparation ordering and normal-gate preservation. Normal JavaScript LCOV generation, SonarCloud native/CP1 gates and independent Credo enforcement remain intact. |
+| Bounded dispatch, inputs/artifacts/status/limits, generic versus native distinction | PASS | `sonarcloud-probe.md` documents PR #67 dispatch, inputs/hashes, result artifacts, separate unverified capabilities and indexing/PR-filter limits. Normal generic imports remain disabled. |
 
-Generated structures also match the published [generic external issue format](https://docs.sonarsource.com/sonarqube-cloud/analyzing-source-code/importing-external-issues/generic-issue-data) and [generic coverage format](https://docs.sonarsource.com/sonarqube-cloud/analyzing-source-code/test-coverage/generic-test-data), checked during evaluation. Format conformance does not establish project import compatibility.
+## Previous blocking findings resolved
 
-## Risk, architecture and check integrity
+- **Cold-database prerequisite ordering:** `.github/workflows/sonarcloud.yml:172` now runs `MIX_ENV=test mix test.prepare` before the collector. The alias invokes database creation and all migrations, satisfying the marker-table dependency before collector preflight calls `infrastructure.verify`. The workflow contract asserts this order. This resolves the identified ordering defect; a fresh hosted execution remains subsequent evidence.
+- **Observation identity:** `scripts/sonar_elixir_probe.py:320` rechecks current task/analysis and PR revision after all metric/issue requests. Failed final verification discards collected values before comparison. Regression fixtures exercise replacement during reads, changed revision and unavailable final identity, alongside a valid positive observation and independently missing metric. The old attribution finding is resolved.
 
-Actual selection is **high**, correctly overriding the spec's declared low risk because `scripts/**`, `test/scripts/**` and `config/test_profiles.json` match delivery-harness policy. All six changed paths are mapped. Read-only `thinflow.readiness(..., require_evaluation=False)` recomputed the current selection/material digest and validated task, branch, complete passing rows and both evidence hashes against `.agentflow/runs/thinflow/TASK-069/candidate.json`.
+## Risk, boundaries and receipt freshness
 
-- `ci-contracts`: exit 0; evidence records **25 passed**.
-- `harness-tests`: exit 0; evidence records **359 tests, OK**. Independent discovery confirms 359 cases, including the six new probe cases.
+High risk is appropriate for CI/tooling and profile changes. All 13 selected paths are mapped by `.agentflow/thinflow.json`; no blocked path or policy weakening was found. Scope registration is confined to exact TASK-069 workflow/support/test paths and retains rejection of application and unplanned workflow edits. Application web, domain, persistence and external-adapter boundaries and financial behavior are unchanged. No permission expansion, credential export or finding suppression was introduced.
 
-These are inspected deterministic check records, not newly rerun suites. Only the named check evidence was inspected; workflow/session logs were not used. Negative-fixture diagnostics in the harness output are consistent with its passing terminal result.
+Read-only `scripts.thinflow.readiness(..., require_evaluation=False)` recomputed selection and material identity and verified all named receipt hashes against `candidate.json`: digest `d6a39c8bf7dc906550b31777f680d0e53d9ef366f24f897b9ebc8eb693c89ca7`, high tier, ready. Inspected receipts record CI contracts: 26 passed; harness: 362 tests, OK; format and compile: exit 0 with empty output; unit profile: 644 expected/discovered/executed/passed, complete. These are current deterministic receipts, not suites rerun by this evaluator. `git diff --check` passed. No concrete discrepancy required an additional focused execution.
 
-The diff changes local tooling, tests, profile registration and task documentation. Web, domain, persistence and external application adapters are unchanged. No scanner import, credential handling, permission change, finding suppression or gate weakening is introduced. Report generation delegates evidence integrity to the existing TASK-067 validator and does not launch an authenticated analysis. Existing JavaScript coverage, SonarCloud checks and Credo remain required by unchanged CI configuration.
+## Findings and residual risks
 
-## Targeted checks
+**Blocking findings: none. Advisory findings: none.**
 
-To resolve whether stale coverage could become apparently current probe evidence, ran only `python3 scripts/sonar_elixir_probe.py` and `python3 scripts/application_coverage.py validate`. They exited 1 with `application-coverage-validation-failed` and `APPLICATION_COVERAGE status=failed category=snapshot`, respectively. This confirms the documented refusal, not a required-check failure. No full suite, coverage profile or hosted analysis was rerun. The current ThinFlow receipt remained valid afterward.
+The candidate is ready for CI and human review and the separately authorized coordinator experiment. Actual external issue/coverage import and every claimed service metric remain unverified. Hosted prerequisites, source indexing, PR new-code filtering, missing API measures and scanner/service failures can limit the experiment; absence or unchanged values alone do not establish unsupported behavior. Normal and probe analyses can overlap, but detected replacement invalidates observations rather than attributing them to the wrong analysis. Avoid overlapping analyses during the controlled run.
 
-## Blocking findings
-
-None.
-
-## Advisory findings
-
-- **Future experiment attribution** — `sonarcloud-probe.md:24-37` shows a control followed by one analysis enabling both report types. Before claiming compatibility with authorized access, document separate issue-only and coverage-only analyses of the same revision, each compared with control. This strengthens independent attribution and isolates import failures. It does not block the present explicitly unverified outcome, which enables neither import.
-
-## Residual risks
-
-Authenticated import behavior, Elixir source indexing and every requested project measure remain unverified. Current TASK-067 evidence is stale, so no real coverage-backed probe artifacts were generated in this checkout; successful rendering is established by deterministic fixtures. Future project testing requires fresh TASK-067 evidence and authorized access. Exact PR-head `ThinFlow required` and human merge remain outstanding delivery gates; this evaluation grants readiness for those gates only.
+No live logs or unrelated runs were inspected and no service result was fabricated. The coordinator must preserve TASK-069/PR #67, execute the authenticated route with the existing protected secret and review revision-bound artifacts. Exact PR-head `ThinFlow required` and human merge remain delivery requirements; this evaluation does not complete the task or authorize a merge.
 
 Verdict: PASS

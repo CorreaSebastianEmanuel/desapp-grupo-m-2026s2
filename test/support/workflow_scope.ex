@@ -734,6 +734,19 @@ defmodule FootballMarket.WorkflowScope do
     ]
   end
 
+  def paths("specs/069-verify-sonarcloud-external-elixir-report-compatibility") do
+    [
+      ".github/workflows/sonarcloud.yml",
+      "config/test_profiles.json",
+      "scripts/sonar_elixir_probe.py",
+      "test/ci/sonarcloud_contract_test.exs",
+      "test/ci/workflow_scope_test.exs",
+      "test/scripts/sonar_elixir_probe_test.py",
+      "test/scripts/thinflow_ci_test.py",
+      "test/support/workflow_scope.ex"
+    ]
+  end
+
   def paths(_), do: []
 
   def allows_path?(feature, path) do

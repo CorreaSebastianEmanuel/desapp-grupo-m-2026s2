@@ -2550,6 +2550,13 @@
       "profile": "unit"
     },
     {
+      "id": "44afa46c5fbf8dda8f3f018f",
+      "runner": "exunit",
+      "file": "test/ci/sonarcloud_contract_test.exs",
+      "case_id": "FootballMarket.SonarCloudContractTest:test TASK-069 probe is opt-in, exact-head guarded, and keeps imports out of normal analysis",
+      "profile": "unit"
+    },
+    {
       "id": "44d68e69125c02df06c930e5",
       "runner": "python",
       "file": "test/scripts/agentflow_feedback_test.py",
@@ -3908,6 +3915,13 @@
       "profile": "integration"
     },
     {
+      "id": "6c5de9a9d84f185360f1bafb",
+      "runner": "python",
+      "file": "test/scripts/sonar_elixir_probe_test.py",
+      "case_id": "test.scripts.sonar_elixir_probe_test.SonarElixirProbeTest.test_observation_binds_analysis_revision_and_reports_each_metric_delta",
+      "profile": "unit"
+    },
+    {
       "id": "6cd8843f1feefd5b4c5430dc",
       "runner": "exunit",
       "file": "test/football_market_web/controllers/session_controller_test.exs",
@@ -4039,6 +4053,13 @@
       "file": "test/football_market_web/controllers/transaction_controller_test.exs",
       "case_id": "FootballMarketWeb.TransactionControllerTest:test conditional-order purchases appear exactly once with complete row evidence",
       "profile": "integration"
+    },
+    {
+      "id": "728877b86d62c2b815460db4",
+      "runner": "python",
+      "file": "test/scripts/sonar_elixir_probe_test.py",
+      "case_id": "test.scripts.sonar_elixir_probe_test.SonarElixirProbeTest.test_observation_refuses_a_nonmatching_analysis_revision_and_marks_comparison_unverified",
+      "profile": "unit"
     },
     {
       "id": "72a4e0930be17cc4011db750",
@@ -6656,6 +6677,13 @@
       "runner": "python",
       "file": "test/scripts/task_feature_binding_acceptance_test.py",
       "case_id": "test.scripts.task_feature_binding_acceptance_test.ActualProviderFixtureTest.test_tools_and_exact_provenance",
+      "profile": "unit"
+    },
+    {
+      "id": "bb174b174691016d15e93c7d",
+      "runner": "python",
+      "file": "test/scripts/sonar_elixir_probe_test.py",
+      "case_id": "test.scripts.sonar_elixir_probe_test.SonarElixirProbeTest.test_dispatch_requires_open_internal_task_branch_and_exact_head",
       "profile": "unit"
     },
     {

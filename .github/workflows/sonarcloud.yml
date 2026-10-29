@@ -3,17 +3,28 @@ name: SonarCloud analysis
 on:
   workflow_call:
   workflow_dispatch:
+    inputs:
+      task069_probe:
+        description: Run the bounded TASK-069 compatibility experiment
+        required: false
+        type: boolean
+        default: false
+      task069_pull_request:
+        description: Open internal TASK-069 pull request number (required when probe is enabled)
+        required: false
+        type: string
 
 permissions:
   contents: read
 
 concurrency:
-  group: sonarcloud-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  group: sonarcloud-${{ github.event.pull_request.number || github.ref }}-${{ inputs.task069_probe && 'task069-probe' || 'normal' }}
+  cancel-in-progress: ${{ inputs.task069_probe != true }}
 
 jobs:
   sonarcloud:
     name: SonarCloud analysis and CP1 gate
+    if: github.event_name != 'workflow_dispatch' || inputs.task069_probe != true
     runs-on: ubuntu-24.04
     env:
       EXPECTED_REVISION: ${{ github.event.pull_request.head.sha || github.sha }}
@@ -80,3 +91,200 @@ jobs:
             printf 'Gate result unavailable. Review the failed scanner/gate step and the [SonarCloud project](https://sonarcloud.io/dashboard?id=%s).\n' "$SONAR_PROJECT_KEY" >> "$GITHUB_STEP_SUMMARY"
           fi
           printf '\nAuthentication/authorization failures require checking the protected repository secret. Configuration failures require checking project binding, primary branch, and automatic-analysis settings. Service/network failures may be rerun after availability recovers.\n' >> "$GITHUB_STEP_SUMMARY"
+
+  task069-probe:
+    name: TASK-069 controlled SonarCloud compatibility probe
+    if: github.event_name == 'workflow_dispatch' && inputs.task069_probe == true
+    timeout-minutes: 60
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:17.6-alpine@sha256:ef257d85f76e48da1c64832459b59fcaba1a4dac97bf5d7450c77753542eee94
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: football_market_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d football_market_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:8.2.1-alpine@sha256:987c376c727652f99625c7d205a1cba3cb2c53b92b0b62aade2bd48ee1593232
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      TASK069_PR_NUMBER: ${{ inputs.task069_pull_request }}
+      TASK069_REVISION: ${{ github.sha }}
+      SONAR_PROJECT_KEY: CorreaSebastianEmanuel_desapp-grupo-m-2026s2
+    steps:
+      - name: Check out triggering revision
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Refuse non-TASK-069 or mismatched PR dispatch
+        env:
+          REPOSITORY: ${{ github.repository }}
+          REF_NAME: ${{ github.ref }}
+        run: >-
+          python3 scripts/sonar_elixir_probe.py guard
+          --repository "$REPOSITORY" --ref "$REF_NAME" --sha "$TASK069_REVISION"
+          --pull-request "$TASK069_PR_NUMBER"
+
+      - name: Install exact BEAM toolchain
+        uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124
+        with:
+          elixir-version: '1.20.3'
+          otp-version: '29.0.6'
+
+      - name: Verify exact toolchain and fetch locked dependencies
+        run: |
+          ./scripts/check_toolchain.sh
+          mix local.hex --if-missing --force
+          mix local.rebar --if-missing --force
+          mix deps.get --locked
+          MIX_ENV=test mix deps.compile
+
+      - name: Install pinned Node test toolchain and browser
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+
+      - name: Prepare assets and browser
+        run: |
+          npm ci --prefix tools/openapi
+          tools/openapi/node_modules/.bin/playwright-core install --with-deps chromium
+          docker info >/dev/null
+          docker compose version
+
+      - name: Generate fresh TASK-067 application coverage evidence
+        id: fresh_coverage
+        run: |
+          MIX_ENV=test mix test.prepare
+          python3 scripts/application_coverage.py run
+
+      - name: Generate deterministic isolated reports
+        id: reports
+        run: python3 scripts/sonar_elixir_probe.py build --output tmp/sonar-elixir-probe
+
+      - name: Control analysis
+        id: control_scan
+        continue-on-error: true
+        uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >-
+            -Dsonar.pullrequest.key=${{ inputs.task069_pull_request }}
+            -Dsonar.pullrequest.branch=${{ github.ref_name }}
+            -Dsonar.pullrequest.base=main
+            -Dsonar.qualitygate.wait=true
+            -Dsonar.qualitygate.timeout=300
+
+      - name: Record control analysis
+        if: always() && steps.reports.outcome == 'success'
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SCAN_OUTCOME: ${{ steps.control_scan.outcome }}
+        run: |
+          mkdir -p tmp/sonar-elixir-probe/results
+          if [[ -f .scannerwork/report-task.txt ]]; then cp .scannerwork/report-task.txt tmp/sonar-elixir-probe/results/control-task.txt; fi
+          python3 scripts/sonar_elixir_probe.py observe --stage control --pull-request "$TASK069_PR_NUMBER" \
+            --revision "$TASK069_REVISION" --report-task tmp/sonar-elixir-probe/results/control-task.txt \
+            --scan-outcome "$SCAN_OUTCOME" --output tmp/sonar-elixir-probe/results/control.json
+
+      # Prevent a failed scanner from reusing the preceding control task identity.
+      - name: Clear prior analysis identity before issue-only scan
+        if: steps.reports.outcome == 'success' && steps.control_scan.outcome != 'skipped'
+        run: rm -f .scannerwork/report-task.txt
+
+      - name: Issue-only analysis
+        id: issue_scan
+        if: steps.reports.outcome == 'success' && steps.control_scan.outcome != 'skipped'
+        continue-on-error: true
+        uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >-
+            -Dsonar.pullrequest.key=${{ inputs.task069_pull_request }}
+            -Dsonar.pullrequest.branch=${{ github.ref_name }}
+            -Dsonar.pullrequest.base=main
+            -Dsonar.qualitygate.wait=true
+            -Dsonar.qualitygate.timeout=300
+            -Dsonar.externalIssuesReportPaths=tmp/sonar-elixir-probe/external-issues.json
+
+      - name: Record issue-only analysis
+        if: always() && steps.reports.outcome == 'success' && steps.control_scan.outcome != 'skipped'
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SCAN_OUTCOME: ${{ steps.issue_scan.outcome }}
+        run: |
+          if [[ -f .scannerwork/report-task.txt ]]; then cp .scannerwork/report-task.txt tmp/sonar-elixir-probe/results/issue-task.txt; fi
+          python3 scripts/sonar_elixir_probe.py observe --stage issue --pull-request "$TASK069_PR_NUMBER" \
+            --revision "$TASK069_REVISION" --report-task tmp/sonar-elixir-probe/results/issue-task.txt \
+            --scan-outcome "$SCAN_OUTCOME" --baseline tmp/sonar-elixir-probe/results/control.json \
+            --output tmp/sonar-elixir-probe/results/issue.json
+
+      - name: Clear prior analysis identity before coverage-only scan
+        if: steps.reports.outcome == 'success' && steps.control_scan.outcome != 'skipped'
+        run: rm -f .scannerwork/report-task.txt
+
+      - name: Coverage-only analysis
+        id: coverage_scan
+        if: steps.reports.outcome == 'success' && steps.control_scan.outcome != 'skipped'
+        continue-on-error: true
+        uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >-
+            -Dsonar.pullrequest.key=${{ inputs.task069_pull_request }}
+            -Dsonar.pullrequest.branch=${{ github.ref_name }}
+            -Dsonar.pullrequest.base=main
+            -Dsonar.qualitygate.wait=true
+            -Dsonar.qualitygate.timeout=300
+            -Dsonar.coverageReportPaths=tmp/sonar-elixir-probe/coverage.xml
+
+      - name: Record coverage-only analysis
+        if: always() && steps.reports.outcome == 'success' && steps.control_scan.outcome != 'skipped'
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SCAN_OUTCOME: ${{ steps.coverage_scan.outcome }}
+        run: |
+          if [[ -f .scannerwork/report-task.txt ]]; then cp .scannerwork/report-task.txt tmp/sonar-elixir-probe/results/coverage-task.txt; fi
+          python3 scripts/sonar_elixir_probe.py observe --stage coverage --pull-request "$TASK069_PR_NUMBER" \
+            --revision "$TASK069_REVISION" --report-task tmp/sonar-elixir-probe/results/coverage-task.txt \
+            --scan-outcome "$SCAN_OUTCOME" --baseline tmp/sonar-elixir-probe/results/control.json \
+            --output tmp/sonar-elixir-probe/results/coverage.json
+
+      - name: Upload bounded probe inputs and results
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: task-069-sonarcloud-probe-${{ github.run_id }}
+          path: tmp/sonar-elixir-probe/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Preserve scanner and quality-gate failures
+        if: always() && !cancelled()
+        env:
+          COVERAGE_OUTCOME: ${{ steps.fresh_coverage.outcome }}
+          REPORTS_OUTCOME: ${{ steps.reports.outcome }}
+          CONTROL_OUTCOME: ${{ steps.control_scan.outcome }}
+          ISSUE_OUTCOME: ${{ steps.issue_scan.outcome }}
+          IMPORT_COVERAGE_OUTCOME: ${{ steps.coverage_scan.outcome }}
+        run: |
+          [[ "$COVERAGE_OUTCOME" == success && "$REPORTS_OUTCOME" == success && \
+             "$CONTROL_OUTCOME" == success && "$ISSUE_OUTCOME" == success && \
+             "$IMPORT_COVERAGE_OUTCOME" == success ]]

@@ -485,6 +485,13 @@
       "profile": "integration"
     },
     {
+      "id": "0c7cfca915dcd47a9535b7fd",
+      "runner": "python",
+      "file": "test/scripts/sonar_elixir_probe_test.py",
+      "case_id": "test.scripts.sonar_elixir_probe_test.SonarElixirProbeTest.test_duplicate_or_foreign_coverage_lines_are_rejected",
+      "profile": "unit"
+    },
+    {
       "id": "0c86dc07a638b89e317719d6",
       "runner": "exunit",
       "file": "test/football_market/market/order_evaluation/recovery_test.exs",
@@ -525,6 +532,13 @@
       "file": "test/football_market/synchronization/request_test.exs",
       "case_id": "FootballMarket.Synchronization.RequestTest:test unavailable durable store returns no usable identifier",
       "profile": "integration"
+    },
+    {
+      "id": "0d563c8ca7c94c87f7ed05aa",
+      "runner": "python",
+      "file": "test/scripts/sonar_elixir_probe_test.py",
+      "case_id": "test.scripts.sonar_elixir_probe_test.SonarElixirProbeTest.test_probe_source_must_be_in_credo_inventory_and_application_report",
+      "profile": "unit"
     },
     {
       "id": "0d56489fd5086e91cf8745bd",
@@ -2536,6 +2550,13 @@
       "profile": "unit"
     },
     {
+      "id": "44afa46c5fbf8dda8f3f018f",
+      "runner": "exunit",
+      "file": "test/ci/sonarcloud_contract_test.exs",
+      "case_id": "FootballMarket.SonarCloudContractTest:test TASK-069 probe is opt-in, exact-head guarded, and keeps imports out of normal analysis",
+      "profile": "unit"
+    },
+    {
       "id": "44d68e69125c02df06c930e5",
       "runner": "python",
       "file": "test/scripts/agentflow_feedback_test.py",
@@ -3474,6 +3495,13 @@
       "profile": "integration"
     },
     {
+      "id": "5fed9a17e05ead60022c3f3e",
+      "runner": "python",
+      "file": "test/scripts/sonar_elixir_probe_test.py",
+      "case_id": "test.scripts.sonar_elixir_probe_test.SonarElixirProbeTest.test_build_binds_generated_reports_to_coverage_snapshot_and_hashes",
+      "profile": "unit"
+    },
+    {
       "id": "5ff1d3530fa7335c21abe4d9",
       "runner": "exunit",
       "file": "test/football_market_web/controllers/ranking_controller_test.exs",
@@ -3775,6 +3803,13 @@
       "profile": "integration"
     },
     {
+      "id": "6928e22fd1ba209e7c295258",
+      "runner": "python",
+      "file": "test/scripts/sonar_elixir_probe_test.py",
+      "case_id": "test.scripts.sonar_elixir_probe_test.SonarElixirProbeTest.test_external_issue_is_an_explicit_synthetic_credo_path_probe",
+      "profile": "unit"
+    },
+    {
       "id": "69446394a227133f95f51060",
       "runner": "exunit",
       "file": "test/football_market/market/sales/transfer_test.exs",
@@ -3878,6 +3913,13 @@
       "file": "test/football_market/catalog/development_seed_test.exs",
       "case_id": "FootballMarket.Catalog.DevelopmentSeedTest:test preservation, conflicts, and rollback an exact player-name mismatch reports an attribute conflict and rolls back",
       "profile": "integration"
+    },
+    {
+      "id": "6c5de9a9d84f185360f1bafb",
+      "runner": "python",
+      "file": "test/scripts/sonar_elixir_probe_test.py",
+      "case_id": "test.scripts.sonar_elixir_probe_test.SonarElixirProbeTest.test_observation_binds_analysis_revision_and_reports_each_metric_delta",
+      "profile": "unit"
     },
     {
       "id": "6cd8843f1feefd5b4c5430dc",
@@ -4011,6 +4053,13 @@
       "file": "test/football_market_web/controllers/transaction_controller_test.exs",
       "case_id": "FootballMarketWeb.TransactionControllerTest:test conditional-order purchases appear exactly once with complete row evidence",
       "profile": "integration"
+    },
+    {
+      "id": "728877b86d62c2b815460db4",
+      "runner": "python",
+      "file": "test/scripts/sonar_elixir_probe_test.py",
+      "case_id": "test.scripts.sonar_elixir_probe_test.SonarElixirProbeTest.test_observation_refuses_a_nonmatching_analysis_revision_and_marks_comparison_unverified",
+      "profile": "unit"
     },
     {
       "id": "72a4e0930be17cc4011db750",
@@ -6169,6 +6218,13 @@
       "profile": "integration"
     },
     {
+      "id": "ac900da1cf491101685fc147",
+      "runner": "python",
+      "file": "test/scripts/sonar_elixir_probe_test.py",
+      "case_id": "test.scripts.sonar_elixir_probe_test.SonarElixirProbeTest.test_coverage_adapter_emits_generic_report_from_unique_application_lines",
+      "profile": "unit"
+    },
+    {
       "id": "ac95b903a0b1e9ea5c88704b",
       "runner": "exunit",
       "file": "test/football_market/catalog/player_cursor_test.exs",
@@ -6624,6 +6680,13 @@
       "profile": "unit"
     },
     {
+      "id": "bb174b174691016d15e93c7d",
+      "runner": "python",
+      "file": "test/scripts/sonar_elixir_probe_test.py",
+      "case_id": "test.scripts.sonar_elixir_probe_test.SonarElixirProbeTest.test_dispatch_requires_open_internal_task_branch_and_exact_head",
+      "profile": "unit"
+    },
+    {
       "id": "bb2b3ba9c85043660af53de1",
       "runner": "exunit",
       "file": "test/football_market/market/order_evaluation/retry_test.exs",
@@ -6719,6 +6782,13 @@
       "runner": "python",
       "file": "test/scripts/agentflow_providers_test.py",
       "case_id": "test.scripts.agentflow_providers_test.EnvTest.test_operator_shim_override_is_respected",
+      "profile": "unit"
+    },
+    {
+      "id": "be6245a42b7dca4e5d8ae2ad",
+      "runner": "python",
+      "file": "test/scripts/sonar_elixir_probe_test.py",
+      "case_id": "test.scripts.sonar_elixir_probe_test.SonarElixirProbeTest.test_cli_reads_baseline_path_and_records_unverified_without_credentials",
       "profile": "unit"
     },
     {
@@ -8449,6 +8519,13 @@
       "file": "test/football_market/market/order_evaluation/eligibility_test.exs",
       "case_id": "FootballMarket.Market.OrderEvaluation.WorkerQuoteOrderTest:test quote committed first prevents stale cheap authorization while evaluation waits",
       "profile": "integration"
+    },
+    {
+      "id": "e9bb06265f4c1b0c2a72d5d2",
+      "runner": "python",
+      "file": "test/scripts/sonar_elixir_probe_test.py",
+      "case_id": "test.scripts.sonar_elixir_probe_test.SonarElixirProbeTest.test_invalid_and_coercible_line_numbers_are_rejected",
+      "profile": "unit"
     },
     {
       "id": "ea046a2b48be4198517f4131",

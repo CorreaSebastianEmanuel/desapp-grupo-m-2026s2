@@ -6,6 +6,12 @@ defmodule FootballMarket.Market.PortfolioStore do
   alias FootballMarket.Market.Error
 
   def transactions(owner) do
+    {:ok, Repo.all(transaction_query(owner))}
+  rescue
+    _ -> Error.new(:temporarily_unavailable, :storage_rejected)
+  end
+
+  def transaction_query(owner) do
     purchases =
       from(p in Purchase,
         where: p.buyer_id == ^owner,
@@ -32,11 +38,9 @@ defmodule FootballMarket.Market.PortfolioStore do
         }
       )
 
-    # Both date parts are fetched in one statement, so the reducer reads a
+    # Both trade kinds are fetched in one statement, so the reducer reads a
     # single committed consistent snapshot and no committed trade can interleave.
-    {:ok, purchases |> union_all(^sales) |> Repo.all()}
-  rescue
-    _ -> Error.new(:temporarily_unavailable, :storage_rejected)
+    union_all(purchases, ^sales)
   end
 
   def details(player_ids) do

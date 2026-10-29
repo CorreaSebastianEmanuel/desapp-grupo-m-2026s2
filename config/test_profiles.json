@@ -128,6 +128,13 @@
       "profile": "unit"
     },
     {
+      "id": "03f04185ece4ca46982d1711",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/portfolio_controller_test.exs",
+      "case_id": "FootballMarketWeb.PortfolioControllerTest:test empty accounts return complete zero-valued data and one-sided ranges work",
+      "profile": "integration"
+    },
+    {
       "id": "0428bc01139958afe647be93",
       "runner": "python",
       "file": "test/scripts/agentflow_feedback_test.py",
@@ -681,6 +688,13 @@
       "profile": "integration"
     },
     {
+      "id": "10b9b2ea2ced24b3c13643d3",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/portfolio_controller_test.exs",
+      "case_id": "FootballMarketWeb.PortfolioControllerTest:test malformed dates reject after authentication and owner parameters cannot change scope",
+      "profile": "integration"
+    },
+    {
       "id": "10e821b528ea65db7bd5bdb6",
       "runner": "exunit",
       "file": "test/football_market/market/portfolio/calculation_test.exs",
@@ -744,6 +758,13 @@
       "profile": "integration"
     },
     {
+      "id": "1209cd3f0be32d456b299c48",
+      "runner": "exunit",
+      "file": "test/football_market/market/analytics/store_test.exs",
+      "case_id": "FootballMarket.Market.Analytics.StoreTest:test history uses bounded batched SQL independent of the number of points",
+      "profile": "integration"
+    },
+    {
       "id": "122082d5cc121f8945fa6bc4",
       "runner": "exunit",
       "file": "test/football_market/market/purchases/transfer_test.exs",
@@ -751,10 +772,24 @@
       "profile": "integration"
     },
     {
+      "id": "1233b8805e44e66ddd4c9e2d",
+      "runner": "exunit",
+      "file": "test/football_market/market/analytics/projection_test.exs",
+      "case_id": "FootballMarket.Market.Analytics.ProjectionTest:test daily replay includes opening trades, carry-forward quotes and retained closed profit",
+      "profile": "unit"
+    },
+    {
       "id": "129b41f04ff5992d21b48a02",
       "runner": "exunit",
       "file": "test/football_market/providers/scraping/assessment_test.exs",
       "case_id": "FootballMarket.Providers.ScrapingAssessmentTest:test actual assessment remains blocked with inspectable twenty rows",
+      "profile": "unit"
+    },
+    {
+      "id": "12cd0123a264c6bed1750138",
+      "runner": "exunit",
+      "file": "test/ci/portfolio_analytics_scope_test.exs",
+      "case_id": "FootballMarket.PortfolioAnalyticsScopeTest:test analytics runtime test retains the required high-risk application checks",
       "profile": "unit"
     },
     {
@@ -770,6 +805,13 @@
       "file": "test/football_market/catalog/ingestion/isolation_test.exs",
       "case_id": "FootballMarket.Catalog.Ingestion.IsolationTest:test selected offline scraper remains explicit and live access stays blocked",
       "profile": "integration"
+    },
+    {
+      "id": "13bb86f12851689fcda907a1",
+      "runner": "exunit",
+      "file": "test/football_market/market/analytics/projection_test.exs",
+      "case_id": "FootballMarket.Market.Analytics.ProjectionTest:test partial today uses the actual cutoff and excludes later trades and quotes",
+      "profile": "unit"
     },
     {
       "id": "13bcc95edd6706c68cf01254",
@@ -2459,6 +2501,13 @@
       "profile": "integration"
     },
     {
+      "id": "42c6447bee2a280f2121a18c",
+      "runner": "exunit",
+      "file": "test/football_market/market/analytics/store_test.exs",
+      "case_id": "FootballMarket.Market.Analytics.StoreTest:test unauthenticated callers and incompatible nested transactions are rejected",
+      "profile": "integration"
+    },
+    {
       "id": "4320c261a7eff348197b42d8",
       "runner": "python",
       "file": "test/scripts/agentflow_stage_checks_test.py",
@@ -2618,6 +2667,13 @@
       "file": "test/football_market/providers/scraping/assessment_test.exs",
       "case_id": "FootballMarket.Providers.ScrapingAssessmentTest:test publication rejects expiry, withdrawal and revision changes during final validation",
       "profile": "unit"
+    },
+    {
+      "id": "46eb7bb5b6f2f89d01f17528",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/portfolio_controller_test.exs",
+      "case_id": "FootballMarketWeb.PortfolioControllerTest:test storage errors are sanitized and private for both analytics responses",
+      "profile": "integration"
     },
     {
       "id": "470bcf2025eaa3192acc5f7e",
@@ -3415,6 +3471,13 @@
       "runner": "python",
       "file": "test/scripts/agentflow_feedback_test.py",
       "case_id": "test.scripts.agentflow_feedback_test.FeedbackTest.test_check_scoped_entry_is_read_back_by_feedback_guard",
+      "profile": "unit"
+    },
+    {
+      "id": "5ced828203ac6bdc62438f3c",
+      "runner": "exunit",
+      "file": "test/football_market/market/analytics/projection_test.exs",
+      "case_id": "FootballMarket.Market.Analytics.ProjectionTest:test same-sequence quote ties use effective time, inserted time and ID deterministically",
       "profile": "unit"
     },
     {
@@ -4335,6 +4398,13 @@
       "profile": "unit"
     },
     {
+      "id": "7a24527e0fb017b22a41910d",
+      "runner": "exunit",
+      "file": "test/football_market/market/analytics/store_test.exs",
+      "case_id": "FootballMarket.Market.Analytics.StoreTest:test a quote committed between queries cannot change the established snapshot",
+      "profile": "integration"
+    },
+    {
       "id": "7a25347b5d74636d4cfbae26",
       "runner": "python",
       "file": "test/scripts/agentflow_preflight_test.py",
@@ -4405,6 +4475,13 @@
       "profile": "unit"
     },
     {
+      "id": "7b899f0aec4029c8b8937512",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/portfolio_controller_test.exs",
+      "case_id": "FootballMarketWeb.PortfolioControllerTest:test both credentials return private owner analytics with decimal strings and UTC metadata",
+      "profile": "integration"
+    },
+    {
       "id": "7beab42e7fc475929564bc36",
       "runner": "python",
       "file": "test/scripts/agentflow_feature_test.py",
@@ -4473,6 +4550,13 @@
       "file": "test/football_market/statistics/freshness/valuation_status_test.exs",
       "case_id": "FootballMarket.Statistics.Freshness.ValuationStatusTest:test newer legacy imports without snapshots override older valuation status",
       "profile": "integration"
+    },
+    {
+      "id": "7d6ae1c376d591415d07a2fc",
+      "runner": "exunit",
+      "file": "test/football_market/market/analytics/projection_test.exs",
+      "case_id": "FootballMarket.Market.Analytics.ProjectionTest:test weighted accounting survives repurchase, losses and hostile precision without changing current portfolio",
+      "profile": "unit"
     },
     {
       "id": "7ddf4c7583366af261134f8a",
@@ -4571,6 +4655,13 @@
       "file": "test/ci/credo_remediation_contract_test.exs",
       "case_id": "FootballMarket.CredoRemediationContractTest:test standard invocation documents default priority without suppression",
       "profile": "unit"
+    },
+    {
+      "id": "81eea46187b9fe7945b14c7a",
+      "runner": "exunit",
+      "file": "test/football_market/market/analytics/store_test.exs",
+      "case_id": "FootballMarket.Market.Analytics.StoreTest:test allocation and history use owner-scoped persisted trades and remain read-only",
+      "profile": "integration"
     },
     {
       "id": "81f4e83d2fd9ed37df87941f",
@@ -5154,6 +5245,13 @@
       "profile": "unit"
     },
     {
+      "id": "900786e21e1fe3a7d94f0490",
+      "runner": "exunit",
+      "file": "test/football_market/market/analytics/projection_test.exs",
+      "case_id": "FootballMarket.Market.Analytics.ProjectionTest:test UTC end-of-day includes the final microsecond and leap-day midnight starts the next point",
+      "profile": "unit"
+    },
+    {
       "id": "9055195240749a8784d3f19e",
       "runner": "python",
       "file": "test/scripts/agentflow_evidence_test.py",
@@ -5207,6 +5305,13 @@
       "runner": "python",
       "file": "test/scripts/test_profile_runner_test.py",
       "case_id": "test.scripts.test_profile_runner_test.RunnerTest.test_unregistered_failure_event_never_emits_case_identity",
+      "profile": "unit"
+    },
+    {
+      "id": "9298be50cf55699713938c75",
+      "runner": "exunit",
+      "file": "test/ci/portfolio_analytics_scope_test.exs",
+      "case_id": "FootballMarket.PortfolioAnalyticsScopeTest:test analytics scope retains exact integration files and rejects unrelated changes",
       "profile": "unit"
     },
     {
@@ -5676,6 +5781,13 @@
       "runner": "python",
       "file": "test/scripts/workflow_artifact_probe_test.py",
       "case_id": "test.scripts.workflow_artifact_probe_test.WorkflowArtifactProbeTest.test_develop_rejects_glob_that_escapes_repository",
+      "profile": "unit"
+    },
+    {
+      "id": "a0226f1570f0fdf58cf70d15",
+      "runner": "exunit",
+      "file": "test/football_market/market/analytics/projection_test.exs",
+      "case_id": "FootballMarket.Market.Analytics.ProjectionTest:test large supported decimal values remain exact and empty portfolios are real zeroes",
       "profile": "unit"
     },
     {
@@ -6848,6 +6960,13 @@
       "profile": "integration"
     },
     {
+      "id": "bf862ac0a6df8e5d24152545",
+      "runner": "exunit",
+      "file": "test/football_market/market/analytics/projection_test.exs",
+      "case_id": "FootballMarket.Market.Analytics.ProjectionTest:test quotes never travel backwards and authoritative sequence wins over later effective time",
+      "profile": "unit"
+    },
+    {
       "id": "c011fa142ce12dfa0371b438",
       "runner": "python",
       "file": "test/scripts/agentflow_ci_check_test.py",
@@ -7541,6 +7660,13 @@
       "profile": "unit"
     },
     {
+      "id": "d140ea4f2331f7a76343697a",
+      "runner": "exunit",
+      "file": "test/football_market/market/analytics/projection_test.exs",
+      "case_id": "FootballMarket.Market.Analytics.ProjectionTest:test allocation weights use total value and all become unknown when any positive holding lacks a quote",
+      "profile": "unit"
+    },
+    {
       "id": "d16e8d8b77e1c31de31c9c30",
       "runner": "exunit",
       "file": "test/football_market/catalog/development_seed_test.exs",
@@ -7658,6 +7784,13 @@
       "file": "test/football_market/synchronization/request_test.exs",
       "case_id": "FootballMarket.Synchronization.RequestTest:test invalid scraper runtime is rejected before initial or manual executable work",
       "profile": "integration"
+    },
+    {
+      "id": "d468f36764873928f784320f",
+      "runner": "exunit",
+      "file": "test/football_market/market/analytics/projection_test.exs",
+      "case_id": "FootballMarket.Market.Analytics.ProjectionTest:test UTC ranges include leap days and enforce defaults, limits and strict query shapes",
+      "profile": "unit"
     },
     {
       "id": "d49401fee56b4c419aeb430c",
@@ -7784,6 +7917,13 @@
       "file": "test/football_market/valuation/configurations/scope_test.exs",
       "case_id": "FootballMarket.Valuation.Configurations.ScopeTest:test exact 33-path active inventory preserves inherited exclusions and module purity",
       "profile": "integration"
+    },
+    {
+      "id": "d7c4ed83e641de4c93e80682",
+      "runner": "exunit",
+      "file": "test/e2e/portfolio_analytics_test.exs",
+      "case_id": "FootballMarket.E2E.PortfolioAnalyticsTest:test real authenticated HTTP reports persisted trading value and flows without mutating state",
+      "profile": "e2e"
     },
     {
       "id": "d7eeefd5e836445e4fd35887",
@@ -8854,6 +8994,13 @@
       "runner": "exunit",
       "file": "test/football_market/market/conditional_orders/rollback_test.exs",
       "case_id": "FootballMarket.Market.ConditionalOrders.RollbackTest:test every financial and order write including deferred commit rolls back and safely retries",
+      "profile": "integration"
+    },
+    {
+      "id": "f3a890fd1c41a76f20c444ab",
+      "runner": "exunit",
+      "file": "test/football_market/market/analytics/store_test.exs",
+      "case_id": "FootballMarket.Market.Analytics.StoreTest:test future quotes are excluded and full sale retains profit after allocation disappears",
       "profile": "integration"
     },
     {

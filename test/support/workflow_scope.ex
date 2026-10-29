@@ -747,6 +747,40 @@ defmodule FootballMarket.WorkflowScope do
     ]
   end
 
+  def paths("specs/057-portfolio-analytics-and-historical-valuation-api") do
+    [
+      ".agentflow/thinflow.json",
+      "README.md",
+      "backlog/TASK-057-portfolio-analytics-and-historical-valuation-api.md",
+      "config/application_coverage_inventory.json",
+      "config/credo_inventory.json",
+      "config/test_profiles.json",
+      "docs/WORKFLOW_LESSONS.md",
+      "lib/football_market/market.ex",
+      "lib/football_market/market/analytics.ex",
+      "lib/football_market/market/analytics/input.ex",
+      "lib/football_market/market/analytics/projection.ex",
+      "lib/football_market/market/analytics/store.ex",
+      "lib/football_market/market/portfolio.ex",
+      "lib/football_market/market/portfolio_ledger.ex",
+      "lib/football_market/market/portfolio_store.ex",
+      "lib/football_market_web/controllers/portfolio_controller.ex",
+      "lib/football_market_web/controllers/portfolio_json.ex",
+      "lib/football_market_web/router.ex",
+      "priv/static/openapi.json",
+      "specs/057-portfolio-analytics-and-historical-valuation-api/",
+      "test/ci/portfolio_analytics_scope_test.exs",
+      "test/e2e/portfolio_analytics_test.exs",
+      "test/football_market/market/analytics/projection_test.exs",
+      "test/football_market/market/analytics/store_test.exs",
+      "test/football_market/market/scope_test.exs",
+      "test/football_market_web/controllers/portfolio_controller_test.exs",
+      "test/football_market_web/openapi_contract_test.exs",
+      "test/support/workflow_scope.ex",
+      "tools/openapi/browser.mjs"
+    ]
+  end
+
   def paths(_), do: []
 
   def allows_path?(feature, path) do

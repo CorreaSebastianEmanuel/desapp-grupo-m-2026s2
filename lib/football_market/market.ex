@@ -10,6 +10,10 @@ defmodule FootballMarket.Market do
     to: FootballMarket.Market.TransactionHistory,
     as: :list
 
+  defdelegate portfolio_allocation(actor), to: FootballMarket.Market.Analytics, as: :allocation
+
+  defdelegate portfolio_history(actor, options), to: FootballMarket.Market.Analytics, as: :history
+
   defdelegate portfolio(actor), to: FootballMarket.Market.Portfolio, as: :list
 
   defdelegate create_conditional_order(actor, terms),

@@ -201,7 +201,7 @@ defmodule FootballMarketWeb.SessionControllerTest do
       })
 
     invalid_html = html_response(invalid, 422)
-    assert invalid_html =~ "We couldn't create the account"
+    assert invalid_html =~ "We couldn&#39;t create the account"
     refute invalid_html =~ "short"
     assert {:error, :not_found} = Accounts.get_user_by_email("bad@example.test")
   end
@@ -219,7 +219,7 @@ defmodule FootballMarketWeb.SessionControllerTest do
       })
 
     html = html_response(response, 422)
-    assert html =~ "We couldn't create the account"
+    assert html =~ "We couldn&#39;t create the account"
     refute html =~ "already taken"
 
     assert {:ok, authenticated} =

@@ -18,12 +18,9 @@ defmodule FootballMarketWeb.PlayerController do
   end
 
   def show(conn, %{"player_id" => player_id}) do
-    case Catalog.get_player_detail(player_id) do
-      {:ok, player} ->
-        render(conn, :show,
-          player: player,
-          statistics_status: FootballMarket.Statistics.Freshness.for_player(player)
-        )
+    case Catalog.player_card(player_id) do
+      {:ok, detail} ->
+        render(conn, :show, detail)
 
       {:error, :not_found} ->
         error(conn, 404, "player_not_found")

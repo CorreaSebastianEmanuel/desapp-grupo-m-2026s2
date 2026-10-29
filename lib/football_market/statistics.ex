@@ -192,6 +192,36 @@ defmodule FootballMarket.Statistics do
     end
   end
 
+  @doc "Recorded local facts only; incomplete metrics remain unknown rather than partial totals."
+  def recorded_summary(%{id: id, season_id: season_id}) do
+    Decimal.Context.with(
+      %Decimal.Context{precision: 131_072, emax: :infinity, emin: :infinity},
+      fn ->
+        rows = Repo.all(Query.recorded_season(id, season_id))
+
+        {:ok,
+         Map.merge(recorded_totals(rows), %{
+           season_id: season_id,
+           recorded_match_count: length(rows),
+           coverage: "recorded_local_facts"
+         })}
+      end
+    )
+  rescue
+    _ -> {:error, :temporarily_unavailable}
+  end
+
+  defp recorded_totals(rows) do
+    Map.new([:minutes_played, :goals, :assists], fn metric ->
+      values = Enum.map(rows, &Map.fetch!(&1, metric))
+      {metric, complete_total(values)}
+    end)
+  end
+
+  defp complete_total(values) do
+    if values != [] and Enum.all?(values, &is_integer/1), do: Enum.sum(values)
+  end
+
   defp lock_seasons!(ids) do
     ids
     |> Enum.reject(&is_nil/1)

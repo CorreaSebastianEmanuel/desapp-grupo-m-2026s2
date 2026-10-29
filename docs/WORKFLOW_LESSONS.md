@@ -77,3 +77,4 @@ list passes the checkpoint hygiene review.
 - 2026-10-28 — Missing local credentials hid usable project evidence — Check public APIs and reuse the existing CI secret for controlled import probes before concluding that compatibility cannot be verified — TASK-069
 - 2026-10-29 — Preparation PASS and green scanner gates left the actual compatibility result outside canonical artifacts — Retain final revision-bound observations and bounded non-sensitive evidence in the feature document, then evaluate execution and demonstrated capability separately — TASK-069
 - 2026-10-29 — Related financial reads can mix commits when fetched separately — use one read-only repeatable-read snapshot and prove an intervening commit cannot change the result — TASK-033, TASK-057
+- 2026-10-29 — UI tasks can assume display metrics already exist in the API — inspect the actual response and settle missing metric scope before implementation — TASK-077

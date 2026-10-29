@@ -1437,6 +1437,13 @@
       "profile": "unit"
     },
     {
+      "id": "2462cde6d17abec943a95ce3",
+      "runner": "exunit",
+      "file": "test/football_market_web/live/portfolio_live_test.exs",
+      "case_id": "FootballMarketWeb.PortfolioLiveTest:test ranking and card routes require browser authentication",
+      "profile": "integration"
+    },
+    {
       "id": "2479357532e482f930f61416",
       "runner": "exunit",
       "file": "test/football_market/statistics/ingestion/positions_test.exs",
@@ -2179,6 +2186,13 @@
       "profile": "integration"
     },
     {
+      "id": "39407e3d64b49105cca20f35",
+      "runner": "exunit",
+      "file": "test/football_market/catalog/player_detail_test.exs",
+      "case_id": "FootballMarket.Catalog.PlayerDetailTest:test recorded season totals preserve missing metrics and distinguish explicit zero",
+      "profile": "integration"
+    },
+    {
       "id": "398e23d89848043b6e323e71",
       "runner": "exunit",
       "file": "test/football_market_web/controllers/purchase_controller_test.exs",
@@ -2484,6 +2498,13 @@
       "runner": "exunit",
       "file": "test/football_market_web/controllers/player_freshness_test.exs",
       "case_id": "FootballMarketWeb.PlayerFreshnessTest:test catalog storage failure maps to 503 without replacing it with a missing player",
+      "profile": "integration"
+    },
+    {
+      "id": "41de5988c8f9ba597d70bbb8",
+      "runner": "exunit",
+      "file": "test/football_market_web/live/portfolio_live_test.exs",
+      "case_id": "FootballMarketWeb.PortfolioLiveTest:test business failures remain safe and allow starting a corrected trade",
       "profile": "integration"
     },
     {
@@ -3654,6 +3675,13 @@
       "file": "test/scripts/agentflow_branch_test.py",
       "case_id": "test.scripts.agentflow_branch_test.AgentflowBranchTest.test_explicit_base_refuses_start_from_another_branch",
       "profile": "unit"
+    },
+    {
+      "id": "624227c797be258a535e33a9",
+      "runner": "exunit",
+      "file": "test/football_market_web/live/portfolio_live_test.exs",
+      "case_id": "FootballMarketWeb.PortfolioLiveTest:test buy and sell forms use immutable retry terms and immediately reload owner positions",
+      "profile": "integration"
     },
     {
       "id": "6273ea564d0e21da76eb9adf",
@@ -8465,6 +8493,13 @@
       "profile": "integration"
     },
     {
+      "id": "e4fa80b7e765b13191666bbb",
+      "runner": "exunit",
+      "file": "test/football_market_web/live/portfolio_live_test.exs",
+      "case_id": "FootballMarketWeb.PortfolioLiveTest:test ranking component preserves domain ordering and explicit states",
+      "profile": "integration"
+    },
+    {
       "id": "e5187821121483be5fc49165",
       "runner": "exunit",
       "file": "test/football_market/valuation/configurations/managed_test.exs",
@@ -8934,11 +8969,25 @@
       "profile": "integration"
     },
     {
+      "id": "f172904778060763ad4d1bde",
+      "runner": "exunit",
+      "file": "test/football_market_web/live/portfolio_live_test.exs",
+      "case_id": "FootballMarketWeb.PortfolioLiveTest:test player card preserves missing data and search-to-order links",
+      "profile": "integration"
+    },
+    {
       "id": "f1c943094e537b12fd57669c",
       "runner": "exunit",
       "file": "test/football_market_web/api_authentication_test.exs",
       "case_id": "FootballMarketWeb.APIAuthenticationTest:test real API-key revocation is immediate while a second key remains usable",
       "profile": "integration"
+    },
+    {
+      "id": "f1f0ac53de4eaa7e46e391fd",
+      "runner": "exunit",
+      "file": "test/e2e/portfolio_analytics_test.exs",
+      "case_id": "FootballMarket.E2E.PortfolioAnalyticsTest:test real browser searches creates an executed order sells tokens and reads active ranking",
+      "profile": "e2e"
     },
     {
       "id": "f1f5c1f5f3a304d47ae77336",
@@ -9606,7 +9655,8 @@
     "test/support/order_evaluation/case.ex": "Conditional evaluation owned-store fixture/runtime support; runtime assertions execute through the feature manifest.",
     "test/support/order_evaluation/runtime_probe.ex": "Conditional evaluation owned-store fixture/runtime support; runtime assertions execute through the feature manifest.",
     "test/runtime/order_evaluation_http.exs": "Conditional evaluation owned-store fixture/runtime support; runtime assertions execute through the feature manifest.",
-    "test/support/sales/case.ex": "Fixture/support helper; cases owned by its importing native suite."
+    "test/support/sales/case.ex": "Fixture/support helper; cases owned by its importing native suite.",
+    "tools/openapi/e2e_market.mjs": "Real Chromium market journey helper; invoked by the E2E portfolio suite."
   },
   "excluded_roots": [
     ".agentflow",

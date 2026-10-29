@@ -88,6 +88,18 @@ defmodule FootballMarket.Catalog do
     _ -> {:error, :temporarily_unavailable}
   end
 
+  def player_card(id) do
+    with {:ok, player} <- get_player_detail(id),
+         {:ok, statistics} <- FootballMarket.Statistics.recorded_summary(player) do
+      {:ok,
+       %{
+         player: player,
+         statistics: statistics,
+         statistics_status: FootballMarket.Statistics.Freshness.for_player(player)
+       }}
+    end
+  end
+
   def list_player_page(opts) when is_map(opts) do
     page_size = Map.fetch!(opts, :page_size)
     filters = Map.get(opts, :filters, %{})

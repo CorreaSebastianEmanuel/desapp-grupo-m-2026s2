@@ -313,6 +313,14 @@
                           "calculation_intent_id": null,
                           "request_states": {}
                         }
+                      },
+                      "statistics": {
+                        "season_id": "44444444-4444-4444-8444-444444444444",
+                        "coverage": "recorded_local_facts",
+                        "recorded_match_count": 0,
+                        "minutes_played": null,
+                        "goals": null,
+                        "assists": null
                       }
                     }
                   }
@@ -2144,7 +2152,8 @@
         "type": "object",
         "required": [
           "data",
-          "statistics_status"
+          "statistics_status",
+          "statistics"
         ],
         "additionalProperties": false,
         "properties": {
@@ -2153,6 +2162,50 @@
           },
           "statistics_status": {
             "$ref": "#/components/schemas/StatisticsStatus"
+          },
+          "statistics": {
+            "type": "object",
+            "description": "Latest recorded local performance facts for the catalog season, not complete season coverage or live provider data. Totals are null when no facts exist or any recorded metric is missing.",
+            "required": [
+              "season_id",
+              "coverage",
+              "recorded_match_count",
+              "minutes_played",
+              "goals",
+              "assists"
+            ],
+            "properties": {
+              "season_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "coverage": {
+                "type": "string",
+                "enum": [
+                  "recorded_local_facts"
+                ]
+              },
+              "recorded_match_count": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "minutes_played": {
+                "type": "integer",
+                "minimum": 0,
+                "nullable": true
+              },
+              "goals": {
+                "type": "integer",
+                "minimum": 0,
+                "nullable": true
+              },
+              "assists": {
+                "type": "integer",
+                "minimum": 0,
+                "nullable": true
+              }
+            },
+            "additionalProperties": false
           }
         }
       },

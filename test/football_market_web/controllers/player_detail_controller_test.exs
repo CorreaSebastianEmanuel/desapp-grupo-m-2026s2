@@ -19,6 +19,9 @@ defmodule FootballMarketWeb.PlayerDetailControllerTest do
       |> get("/api/players/#{player.id}")
       |> json_response(200)
 
+    assert {:ok, detail} = FootballMarket.Catalog.player_card(player.id)
+    assert body["statistics"] == Jason.decode!(Jason.encode!(detail.statistics))
+    assert body["statistics_status"] == Jason.decode!(Jason.encode!(detail.statistics_status))
     assert body["data"]["league"]["id"] == league.id
     assert body["data"]["season"]["id"] == player.team.season.id
   end

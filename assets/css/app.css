@@ -276,3 +276,18 @@ body { background:#edf1ee; color:#1e3029; font-family:system-ui,-apple-system,"S
 .player-table a { display:inline-block; padding:7px 10px; border-radius:4px; color:#174b39; background:#edf4df; text-decoration:none; font-size:12px; font-weight:650; }
 .player-table a:hover { background:#dcedbd; }
 @media(max-width:640px) { .catalog-heading { padding:0 0 18px; } .catalog-heading h1 { font-size:34px; } .catalog-search-card { padding:18px; } .player-table thead th, .player-table tbody th, .player-table tbody td { padding:12px 9px; } .player-table thead th:nth-child(3), .player-table tbody td:nth-child(3) { display:none; } .player-table tbody th { display:table-cell; } .player-table tbody th span { display:block; width:max-content; margin-top:4px; } }
+
+/* Player detail and immediate trading share the workspace's form vocabulary. */
+#player-card { background:#fff; border:1px solid var(--line); border-top:3px solid var(--green); border-radius:6px; padding:24px; margin-bottom:28px; }
+#player-card p { margin:12px 0; overflow-wrap:anywhere; }
+#player-statistics { display:grid; grid-template-columns:minmax(140px,1fr) 1fr; gap:8px 20px; max-width:440px; margin:20px 0; }
+#player-statistics dt { color:var(--muted); }
+#player-statistics dd { font-weight:600; }
+#trade-form { display:grid; gap:8px; max-width:360px; margin-top:20px; }
+#trade-form select { border:1px solid var(--line); border-radius:4px; padding:10px; background:white; }
+#trade-error { color:#a32727; }
+#trade-notice { color:var(--green); }
+#trade-positions { margin-bottom:24px; }
+#ranking-strategy { margin:20px 0; overflow-wrap:anywhere; }
+#ranking-entries { list-style:decimal inside; padding:0; }
+#ranking-entries li { background:white; border-bottom:1px solid var(--line); padding:18px; overflow-wrap:anywhere; }

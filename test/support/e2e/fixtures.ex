@@ -61,6 +61,76 @@ defmodule FootballMarket.E2E.Fixtures do
     end
   end
 
+  def market_browser!(base) do
+    credentials = account!()
+    f = FootballMarket.QuotesCase.fixture()
+    {:ok, _} = FootballMarket.Valuation.Configurations.activate(f.configuration.id, nil)
+    {:ok, _} = FootballMarket.Quotes.request(f.subject, :active, f.mapping.id)
+    other = List.last(f.base.players)
+    {:ok, _} = FootballMarket.Market.initialize_player(other.id)
+
+    {:ok, _} =
+      FootballMarket.Statistics.record_performance(
+        FootballMarket.StatisticsCase.performance_attrs(f.base, f.match, %{
+          player_id: other.id,
+          team_id: f.base.away.id,
+          goals: 2,
+          minutes_played: 90
+        })
+      )
+
+    {:ok, _} =
+      FootballMarket.Quotes.request(%{f.subject | player_id: other.id}, :active, f.mapping.id)
+
+    FootballMarket.PurchasesCase.fund(credentials.user, "100")
+    FootballMarket.PurchasesCase.fund(f.user, "100")
+    {:ok, ranking} = FootballMarket.Ranking.read()
+    dir = Path.join(System.tmp_dir!(), "market-e2e-" <> Ecto.UUID.generate())
+    File.mkdir!(dir)
+    File.chmod!(dir, 0o700)
+
+    watcher =
+      Task.async(fn ->
+        Runtime.await!(fn -> market_execution_signal(dir) end)
+
+        assert :ok = Oban.start_queue(queue: :conditional_orders, limit: 1)
+      end)
+
+    try do
+      {output, status} =
+        System.cmd("node", ["tools/openapi/e2e_market.mjs", base],
+          env: [
+            {"E2E_EMAIL", credentials.email},
+            {"E2E_PASSWORD", credentials.password},
+            {"E2E_PLAYER", f.player.id},
+            {"E2E_NAME", f.player.display_name},
+            {"E2E_RANKING", Jason.encode!(Enum.map(ranking.entries, & &1.player_id))},
+            {"E2E_STRATEGY", f.configuration.strategy_id},
+            {"E2E_IPC", dir}
+          ],
+          stderr_to_stdout: true
+        )
+
+      assert status == 0, output
+      assert output == "E2E_MARKET status=complete\n"
+      Task.await(watcher, 1_000)
+
+      {:ok, positions} =
+        FootballMarket.Market.portfolio(FootballMarket.PurchasesCase.actor(credentials.user))
+
+      assert [%{player_id: id, quantity: 2}] = positions
+      assert id == f.player.id
+      :ok
+    after
+      Task.shutdown(watcher, :brutal_kill)
+      File.rm_rf!(dir)
+    end
+  end
+
+  defp market_execution_signal(dir) do
+    if File.exists?(Path.join(dir, "execute")), do: {:ok, :ready}, else: :pending
+  end
+
   defp expire_browser_clock(dir, clock) do
     wait_for_expiration_request(dir)
 

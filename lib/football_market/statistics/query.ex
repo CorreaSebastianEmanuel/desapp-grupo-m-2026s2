@@ -28,6 +28,9 @@ defmodule FootballMarket.Statistics.Query do
   def pair(player_id, match_id),
     do: from(p in Performance, where: p.player_id == ^player_id and p.match_id == ^match_id)
 
+  def recorded_season(player_id, season_id),
+    do: from(p in Performance, where: p.player_id == ^player_id and p.season_id == ^season_id)
+
   def history(player_id, bounds) do
     query =
       from p in Performance,

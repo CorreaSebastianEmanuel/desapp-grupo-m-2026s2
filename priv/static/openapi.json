@@ -1530,7 +1530,7 @@
     "/api/transactions": {
       "get": {
         "summary": "List authenticated user transactions",
-        "description": "Returns the authenticated user’s immutable purchases and sales, newest completion first, with stable type and operation ID tie-breaks. Purchases are scoped by buyer_id and sales by seller_id. Cursor tokens are opaque, encrypted, and owner-bound. A continuation page remains anchored while newer operations are appended. Money values are exact decimal strings. This read does not mutate financial records.",
+        "description": "Returns the authenticated user\u2019s immutable purchases and sales, newest completion first, with stable type and operation ID tie-breaks. Purchases are scoped by buyer_id and sales by seller_id. Cursor tokens are opaque, encrypted, and owner-bound. A continuation page remains anchored while newer operations are appended. Money values are exact decimal strings. This read does not mutate financial records.",
         "operationId": "listTransactions",
         "security": [
           {
@@ -1566,7 +1566,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Transaction history page. data contains only the authenticated user’s purchases and sales.",
+            "description": "Transaction history page. data contains only the authenticated user\u2019s purchases and sales.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1710,6 +1710,232 @@
             }
           }
         }
+      }
+    },
+    "/api/portfolio/allocation": {
+      "get": {
+        "tags": [
+          "Portfolio"
+        ],
+        "operationId": "getPortfolioAllocation",
+        "summary": "Current portfolio allocation",
+        "description": "Read-only investor portfolio, excluding issuer inventory and cash. Owner is always the authenticated actor. Quotes follow authoritative sequence ordering and must be effective at or before the cutoff. Missing quotes yield null dependent values and explicit gaps; no holdings means genuine zero totals. Costs and flows are lifetime cumulative, weighted-average basis uses half-up 18-place precision, and derived decimals are not rounded to cents. No provider contact or job admission. Fractional weights are rounded half-up to 18 places and may have a rounding residual; all weights are null if any holding lacks a quote.",
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Owner-scoped portfolio analytics; decimal strings preserve financial precision.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "private, no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/PortfolioAllocation"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid authentication.",
+            "headers": {
+              "WWW-Authenticate": {
+                "description": "Bearer authentication challenge.",
+                "schema": {
+                  "type": "string"
+                },
+                "example": "Bearer realm=\"api\""
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthenticatedError"
+                },
+                "examples": {
+                  "unauthenticated": {
+                    "value": {
+                      "error": {
+                        "code": "unauthenticated"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The portfolio analytics snapshot could not be read. No storage details are disclosed.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "private, no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PortfolioAnalyticsStorageError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/portfolio/history": {
+      "get": {
+        "tags": [
+          "Portfolio"
+        ],
+        "operationId": "getPortfolioHistory",
+        "summary": "Daily portfolio value, flows and profit",
+        "description": "Read-only investor portfolio, excluding issuer inventory and cash. Owner is always the authenticated actor. Quotes follow authoritative sequence ordering and must be effective at or before the cutoff. Missing quotes yield null dependent values and explicit gaps; no holdings means genuine zero totals. Costs and flows are lifetime cumulative, weighted-average basis uses half-up 18-place precision, and derived decimals are not rounded to cents. No provider contact or job admission. Daily UTC points default to the last 30 days including partial today. Only to defaults from to-29 days; only from defaults to today. Today stops at as_of, past days at 23:59:59.999999Z. Use historical quantities, not present holdings. Currently retained effective facts are used, rather than past database knowledge. Unknown query keys are ignored.",
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Owner-scoped portfolio analytics; decimal strings preserve financial precision.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "private, no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/PortfolioHistory"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid authentication.",
+            "headers": {
+              "WWW-Authenticate": {
+                "description": "Bearer authentication challenge.",
+                "schema": {
+                  "type": "string"
+                },
+                "example": "Bearer realm=\"api\""
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthenticatedError"
+                },
+                "examples": {
+                  "unauthenticated": {
+                    "value": {
+                      "error": {
+                        "code": "unauthenticated"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The portfolio analytics snapshot could not be read. No storage details are disclosed.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "private, no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PortfolioAnalyticsStorageError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid date or range. Dates must occur once in YYYY-MM-DD form; range must be nonfuture, ordered and at most 366 inclusive days.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PortfolioAnalyticsInputError"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "description": "One nonempty ISO UTC calendar date; duplicate or structured values reject.",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "description": "One nonempty ISO UTC calendar date; duplicate or structured values reject.",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ]
       }
     }
   },
@@ -3015,6 +3241,357 @@
           "seller_id": {
             "type": "string",
             "format": "uuid"
+          }
+        }
+      },
+      "PortfolioTotals": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "market_value",
+          "cost_basis",
+          "purchase_expenditure",
+          "sale_proceeds",
+          "net_invested",
+          "realized_profit_loss",
+          "unrealized_profit_loss",
+          "total_profit_loss",
+          "valuation_complete",
+          "missing_quote_player_ids"
+        ],
+        "properties": {
+          "market_value": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$",
+            "nullable": true
+          },
+          "cost_basis": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "purchase_expenditure": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "sale_proceeds": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "net_invested": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "realized_profit_loss": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "unrealized_profit_loss": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$",
+            "nullable": true
+          },
+          "total_profit_loss": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$",
+            "nullable": true
+          },
+          "valuation_complete": {
+            "type": "boolean"
+          },
+          "missing_quote_player_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        }
+      },
+      "PortfolioAnalyticsQuote": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "unit_price",
+          "effective_at",
+          "performance_sequence"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "unit_price": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "effective_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "performance_sequence": {
+            "type": "integer",
+            "nullable": true
+          }
+        }
+      },
+      "PortfolioAllocationPosition": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "player_id",
+          "player_name",
+          "quantity",
+          "average_unit_cost",
+          "realized_profit_loss",
+          "cost_basis",
+          "quote",
+          "market_value",
+          "unrealized_profit_loss",
+          "weight"
+        ],
+        "properties": {
+          "player_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "player_name": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "average_unit_cost": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "realized_profit_loss": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "cost_basis": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "quote": {
+            "type": "object",
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PortfolioAnalyticsQuote"
+              }
+            ]
+          },
+          "market_value": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$",
+            "nullable": true
+          },
+          "unrealized_profit_loss": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$",
+            "nullable": true
+          },
+          "weight": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$",
+            "nullable": true
+          }
+        }
+      },
+      "PortfolioAllocation": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "as_of",
+          "positions",
+          "totals"
+        ],
+        "properties": {
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "positions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PortfolioAllocationPosition"
+            }
+          },
+          "totals": {
+            "$ref": "#/components/schemas/PortfolioTotals"
+          }
+        }
+      },
+      "PortfolioHistoryPoint": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "market_value",
+          "cost_basis",
+          "purchase_expenditure",
+          "sale_proceeds",
+          "net_invested",
+          "realized_profit_loss",
+          "unrealized_profit_loss",
+          "total_profit_loss",
+          "valuation_complete",
+          "missing_quote_player_ids",
+          "date",
+          "cutoff_at",
+          "partial"
+        ],
+        "properties": {
+          "market_value": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$",
+            "nullable": true
+          },
+          "cost_basis": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "purchase_expenditure": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "sale_proceeds": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "net_invested": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "realized_profit_loss": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "unrealized_profit_loss": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$",
+            "nullable": true
+          },
+          "total_profit_loss": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$",
+            "nullable": true
+          },
+          "valuation_complete": {
+            "type": "boolean"
+          },
+          "missing_quote_player_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "cutoff_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "partial": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PortfolioHistory": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "as_of",
+          "from",
+          "to",
+          "timezone",
+          "interval",
+          "points"
+        ],
+        "properties": {
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "from": {
+            "type": "string",
+            "format": "date"
+          },
+          "to": {
+            "type": "string",
+            "format": "date"
+          },
+          "timezone": {
+            "type": "string",
+            "enum": [
+              "UTC"
+            ]
+          },
+          "interval": {
+            "type": "string",
+            "enum": [
+              "day"
+            ]
+          },
+          "points": {
+            "type": "array",
+            "maxItems": 366,
+            "items": {
+              "$ref": "#/components/schemas/PortfolioHistoryPoint"
+            }
+          }
+        }
+      },
+      "PortfolioAnalyticsInputError": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "code"
+            ],
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "invalid_date",
+                  "invalid_date_range"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "PortfolioAnalyticsStorageError": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "code"
+            ],
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "temporarily_unavailable"
+                ]
+              }
+            }
           }
         }
       }

@@ -67,6 +67,12 @@ defmodule FootballMarketWeb.Router do
     get "/conditional-orders/:id", ConditionalOrderController, :show,
       metadata: %{authentication_policy: :api_protected}
 
+    get "/portfolio/allocation", PortfolioController, :allocation,
+      metadata: %{authentication_policy: :api_protected}
+
+    get "/portfolio/history", PortfolioController, :history,
+      metadata: %{authentication_policy: :api_protected}
+
     get "/ranking", RankingController, :index, metadata: %{authentication_policy: :api_protected}
 
     get "/transactions", TransactionController, :index,

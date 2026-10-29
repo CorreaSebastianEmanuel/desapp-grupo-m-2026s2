@@ -22,8 +22,13 @@ defmodule FootballMarket.Statistics.ScopeTest do
              path
     end
 
-    assert File.read!("specs/054-player-match-statistics/contracts/statistics-context.md") =~
-             "No HTTP route"
+    contract_path =
+      Path.expand(
+        "../../../specs/054-player-match-statistics/contracts/statistics-context.md",
+        __DIR__
+      )
+
+    assert File.read!(contract_path) =~ "No HTTP route"
 
     forbidden = [:score, :weight, :price, :money, :provider_id, :rating, :provenance]
 

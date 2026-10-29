@@ -11,20 +11,28 @@ defmodule FootballMarketWeb.WorkspaceComponents do
       <div id="connection-notice" role="alert" hidden>Connection lost. Reconnecting safely…</div>
       <div id="private-workspace" data-private-workspace>
         <header>
-          <p>{@actor.email}</p>
+          <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">FM</span>
+          Football Market</a>
           <nav aria-label="Workspace">
+            <a href="/players" aria-current={@destination == "/players" && "page"}>Players</a>
             <a href="/portfolio" aria-current={@destination == "/portfolio" && "page"}>Portfolio</a>
             <a
               href="/conditional-orders"
               aria-current={@destination == "/conditional-orders" && "page"}
             >Conditional orders</a>
           </nav>
-          <form method="post" action="/sign-out">
-            <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
-            <button>Sign out</button>
-          </form>
+          <div class="workspace-account">
+            <span>{@actor.email}</span>
+            <form method="post" action="/sign-out">
+              <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
+              <button>Sign out</button>
+            </form>
+          </div>
         </header>
-        <main>{render_slot(@inner_block)}</main>
+        <main id="workspace-main">{render_slot(@inner_block)}</main>
+        <footer class="workspace-footer">
+          Football Market <span>Player tokens · Performance-based quotes</span>
+        </footer>
       </div>
     </section>
     """

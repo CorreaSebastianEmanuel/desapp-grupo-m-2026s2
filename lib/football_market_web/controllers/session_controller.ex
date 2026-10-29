@@ -27,8 +27,7 @@ defmodule FootballMarketWeb.SessionController do
         |> form(
           params,
           status,
-          message ||
-            if(params["notice"] == "ended", do: "Your session ended. Please sign in again.")
+          message || notice_message(params["notice"])
         )
 
       _ ->
@@ -46,6 +45,64 @@ defmodule FootballMarketWeb.SessionController do
 
       _ ->
         sign_in(conn, params)
+    end
+  end
+
+  def new_registration(conn, _params) do
+    case BrowserSessions.validate(get_session(conn, :browser_handle)) do
+      {:ok, _} ->
+        redirect303(conn, "/portfolio")
+
+      {:error, :unavailable} ->
+        registration_form(
+          conn,
+          %{},
+          503,
+          "Account creation is temporarily unavailable. Please retry."
+        )
+
+      _ ->
+        registration_form(conn, %{}, 200, nil)
+    end
+  end
+
+  def create_registration(conn, params) do
+    case BrowserSessions.validate(get_session(conn, :browser_handle)) do
+      {:ok, _} ->
+        redirect303(conn, "/portfolio")
+
+      {:error, :unavailable} ->
+        registration_form(
+          conn,
+          params,
+          503,
+          "Account creation is temporarily unavailable. Please retry."
+        )
+
+      _ ->
+        register(conn, params)
+    end
+  end
+
+  defp register(conn, params) do
+    if params["password"] == params["password_confirmation"] do
+      case Accounts.register_user(%{
+             "email" => params["email"],
+             "password" => params["password"]
+           }) do
+        {:ok, _user} ->
+          redirect303(conn, "/sign-in?notice=created")
+
+        {:error, _changeset} ->
+          registration_form(
+            conn,
+            params,
+            422,
+            "We couldn't create the account. Check the details and try again."
+          )
+      end
+    else
+      registration_form(conn, params, 422, "Passwords do not match. Please try again.")
     end
   end
 
@@ -108,6 +165,20 @@ defmodule FootballMarketWeb.SessionController do
       invalid: status == 422
     )
   end
+
+  defp registration_form(conn, params, status, message) do
+    conn
+    |> put_status(status)
+    |> render(:register,
+      email: if(is_binary(params["email"]), do: params["email"], else: ""),
+      message: message,
+      invalid: status == 422
+    )
+  end
+
+  defp notice_message("ended"), do: "Your session ended. Please sign in again."
+  defp notice_message("created"), do: "Account created. Sign in to continue."
+  defp notice_message(_), do: nil
 
   defp redirect303(conn, path), do: conn |> put_status(303) |> redirect(to: path)
   defp no_store(conn, _), do: put_resp_header(conn, "cache-control", "no-store")

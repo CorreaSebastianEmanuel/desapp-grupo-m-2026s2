@@ -1,5 +1,6 @@
 defmodule FootballMarketWeb.SessionControllerTest do
   use FootballMarket.BrowserSessionCase
+  alias FootballMarket.Accounts
   @moduletag :integration
   import Phoenix.ConnTest
   import Plug.Conn
@@ -142,6 +143,92 @@ defmodule FootballMarketWeb.SessionControllerTest do
 
     assert redirected_to(good, 303) == "/conditional-orders"
     assert get(build_conn(), "/portfolio") |> redirected_to(303) =~ "/sign-in"
+  end
+
+  test "public registration creates an account and returns the user to sign-in" do
+    page = get(build_conn(), "/register")
+    html = html_response(page, 200)
+    assert html =~ "Create your account"
+    assert html =~ "name=\"password_confirmation\""
+    assert html =~ "name=\"_csrf_token\""
+
+    created =
+      page
+      |> recycle()
+      |> post("/register", %{
+        "email" => " New.User@Example.Test ",
+        "password" => "correct-password-123",
+        "password_confirmation" => "correct-password-123"
+      })
+
+    assert redirected_to(created, 303) == "/sign-in?notice=created"
+    assert get_session(created, :browser_handle) == nil
+
+    assert {:ok, user} =
+             Accounts.verify_browser_credentials(%{
+               "email" => "new.user@example.test",
+               "password" => "correct-password-123"
+             })
+
+    assert user.email == "new.user@example.test"
+
+    assert get(build_conn(), "/sign-in?notice=created") |> html_response(200) =~
+             "Account created. Sign in to continue."
+  end
+
+  test "registration rejects mismatched or invalid credentials without returning secrets" do
+    mismatch =
+      get(build_conn(), "/register")
+      |> recycle()
+      |> post("/register", %{
+        "email" => "mismatch@example.test",
+        "password" => "correct-password-123",
+        "password_confirmation" => "different-password-456"
+      })
+
+    mismatch_html = html_response(mismatch, 422)
+    assert mismatch_html =~ "Passwords do not match"
+    refute mismatch_html =~ "correct-password-123"
+    assert {:error, :not_found} = Accounts.get_user_by_email("mismatch@example.test")
+
+    invalid =
+      get(build_conn(), "/register")
+      |> recycle()
+      |> post("/register", %{
+        "email" => "bad@example.test",
+        "password" => "short",
+        "password_confirmation" => "short"
+      })
+
+    invalid_html = html_response(invalid, 422)
+    assert invalid_html =~ "We couldn&#39;t create the account"
+    refute invalid_html =~ "short"
+    assert {:error, :not_found} = Accounts.get_user_by_email("bad@example.test")
+  end
+
+  test "duplicate email registration returns a generic error and keeps the account intact" do
+    existing = account()
+
+    response =
+      get(build_conn(), "/register")
+      |> recycle()
+      |> post("/register", %{
+        "email" => existing.email,
+        "password" => "different-password-456",
+        "password_confirmation" => "different-password-456"
+      })
+
+    html = html_response(response, 422)
+    assert html =~ "We couldn&#39;t create the account"
+    refute html =~ "already taken"
+
+    assert {:ok, authenticated} =
+             Accounts.verify_browser_credentials(%{
+               "email" => existing.email,
+               "password" => "correct-password-123"
+             })
+
+    assert authenticated.id == existing.id
   end
 
   test "revocation commits before cookie deletion and failure retains retry authority" do

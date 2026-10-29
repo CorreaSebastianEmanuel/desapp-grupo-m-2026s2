@@ -18,6 +18,23 @@ defmodule FootballMarketWeb.ConditionalOrdersLiveTest do
     assert has_element?(view, "h1", "Conditional orders")
     assert has_element?(view, "#no-orders"), render(view)
 
+    {:ok, catalog, _html} = live(authenticated_conn(f.buyer), "/players")
+    refute has_element?(catalog, "#player-search-results")
+    catalog |> form("#player-catalog-search", %{"player_search" => "Player"}) |> render_submit()
+    assert has_element?(catalog, "#player-search-results", f.player.display_name)
+
+    assert has_element?(
+             catalog,
+             "a[href='/conditional-orders?player_id=#{f.player.id}']",
+             "Create order"
+           )
+
+    {:ok, view, _html} =
+      live(authenticated_conn(f.buyer), "/conditional-orders?player_id=#{f.player.id}")
+
+    assert has_element?(view, "#selected-player", f.player.display_name)
+    assert has_element?(view, "#order-player-id[value='#{f.player.id}']")
+
     form = %{
       "player_id" => f.player.id,
       "quantity" => "0",

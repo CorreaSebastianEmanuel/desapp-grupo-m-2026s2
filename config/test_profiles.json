@@ -282,6 +282,13 @@
       "profile": "integration"
     },
     {
+      "id": "07511b72bafc4d34d32c8299",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/session_controller_test.exs",
+      "case_id": "FootballMarketWeb.SessionControllerTest:test duplicate email registration returns a generic error and keeps the account intact",
+      "profile": "integration"
+    },
+    {
       "id": "075f61cf6400b2545bc82bd5",
       "runner": "exunit",
       "file": "test/football_market/quotes/history_test.exs",
@@ -4587,6 +4594,13 @@
       "profile": "unit"
     },
     {
+      "id": "836f5acb312c8facf5c4d29b",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/session_controller_test.exs",
+      "case_id": "FootballMarketWeb.SessionControllerTest:test public registration creates an account and returns the user to sign-in",
+      "profile": "integration"
+    },
+    {
       "id": "838fffb1644b52b05f4fdf59",
       "runner": "exunit",
       "file": "test/football_market/ranking/selection_test.exs",
@@ -8344,6 +8358,13 @@
       "file": "test/scripts/agentflow_ci_check_test.py",
       "case_id": "test.scripts.agentflow_ci_check_test.CollectionTest.test_pinned_exunit_result_format_retains_nonzero_collection",
       "profile": "unit"
+    },
+    {
+      "id": "e727fd73a4325e0fb0d900af",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/session_controller_test.exs",
+      "case_id": "FootballMarketWeb.SessionControllerTest:test registration rejects mismatched or invalid credentials without returning secrets",
+      "profile": "integration"
     },
     {
       "id": "e731f69c6ab3e31c4bf52e8c",

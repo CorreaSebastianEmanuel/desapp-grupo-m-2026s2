@@ -26,4 +26,5 @@ Password material will be held in a one-to-one credential record and stored only
 - Application-only duplicate checks: vulnerable to concurrent inserts.
 - Plaintext, encrypted, or fast-digest passwords: retain recoverable/reusable material or provide inadequate password hashing resistance.
 - A login endpoint, token, or registration UI: explicitly outside TASK-007.
+- Product update (2026-10-28): public browser registration is approved for TASK-072. It reuses this Accounts boundary and does not add email verification, automatic login, balances or credit issuance.
 - Storing the hash directly in ordinary user retrieval data: makes accidental disclosure easier and weakens the separate credential boundary.

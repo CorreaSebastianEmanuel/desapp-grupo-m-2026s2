@@ -74,6 +74,15 @@ defmodule FootballMarket.Catalog.Query do
     end
   end
 
+  def search_players(term, limit) when is_binary(term) and is_integer(limit) and limit > 0 do
+    pattern = "%" <> term <> "%"
+
+    from player in base_players(),
+      where: ilike(player.display_name, ^pattern),
+      order_by: [asc: fragment("lower(btrim(?))", player.display_name), asc: player.id],
+      limit: ^limit
+  end
+
   defp base_players do
     from player in Player,
       join: team in assoc(player, :team),

@@ -58,6 +58,22 @@ Cada nueva cotización solicita evaluación durable; un barrido recupera órdene
 
 ## Orden de trabajo y alcance
 
+### Cobertura frontend del backlog
+
+Toda capacidad de producto que una persona deba consultar u operar desde la aplicación declara su pantalla consumidora en el backlog y la enlaza mediante dependencias cuando corresponda. Ingesta, infraestructura, observabilidad y contratos de proveedor pueden quedar sin pantalla propia si el backlog identifica el flujo consumidor o los clasifica como internos.
+
+| Capacidad/backend | Uso visible en la aplicación |
+|---|---|
+| TASK-007 registro de usuarios; TASK-046 sesión | TASK-072 alta pública y acceso al workspace |
+| TASK-011/012 catálogo y filtros; TASK-027 cotizaciones; TASK-033 ranking; TASK-056 actualización | TASK-047 búsqueda, ficha, cotizaciones, ranking y estado de actualización |
+| TASK-029/030 compra y venta; TASK-031 historial; TASK-032 posiciones y rentabilidad | TASK-048 operaciones y portfolio |
+| TASK-057 analítica histórica | TASK-058 gráficos del portfolio |
+| TASK-059 órdenes condicionales; TASK-060 evaluación | TASK-061 creación y seguimiento de órdenes |
+| TASK-019 sincronización; TASK-025 estrategias | TASK-049 operaciones administrativas |
+| TASK-040 métricas de negocio | TASK-073 panel administrativo de solo lectura |
+
+Claves API, health checks, métricas Prometheus, persistencia de auditoría, scraping e ingesta son capacidades internas u operativas; no requieren una pantalla de producto por sí mismas. Cuando una tarea futura agregue métricas visibles, acciones de usuario o un flujo nuevo, debe enlazar su consumidor frontend antes de empezar la implementación.
+
 | Tareas | Entrega | Dependencias/resultado |
 |---|---|---|
 | TASK-016 | Hecha en main | Contrato externo mergeado en PR #27 |
@@ -66,11 +82,13 @@ Cada nueva cotización solicita evaluación durable; un barrido recupera órdene
 | TASK-022–027 | CP2 | Estrategias y cotizaciones inmutables |
 | TASK-028–033 | CP2 | Tokens, compra/venta, historia, portfolio y ranking |
 | TASK-046 | CP2 | Shell LiveView autenticado mínimo |
+| TASK-072 | CP2 | Mejora práctica de rutas existentes y registro web |
 | TASK-057 → TASK-058 | CP2 obligatorio nuevo | Analítica y gráficos del usuario |
 | TASK-059 → TASK-060 → TASK-061 | CP2 obligatorio nuevo | Órdenes condicionales, workers y UI |
 | TASK-063 → TASK-034 → TASK-062 | CP2 | Perfiles unit/E2E, regresión y presentación manual |
 | TASK-056 | Apoyo CP2, posponible | TTL de estadísticas; antes usó ID local TASK-054 |
 | TASK-041/042, TASK-036–045, TASK-047–052 | CP3 | Cache, observabilidad y completar interfaz/release |
+| TASK-040 → TASK-073 | CP3 | Métricas de negocio y panel administrativo de lectura |
 
 Las nuevas tareas tienen dependencias explícitas; sus IDs no indican orden de ejecución. Trabajar una a la vez. El detalle de TASK-047 y TASK-048 se mantiene en CP3, evitando repetir los gráficos de TASK-058. Usar fixtures controlados para la demo si la fuente falla, mostrándolo explícitamente.
 

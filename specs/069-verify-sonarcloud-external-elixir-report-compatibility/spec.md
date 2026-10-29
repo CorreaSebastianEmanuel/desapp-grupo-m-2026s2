@@ -16,6 +16,7 @@ Provide a bounded, opt-in experiment in the existing SonarCloud workflow to dete
 - [ ] Probe results are uploaded even when a scanner or quality gate fails; the job still fails for any failed analysis or gate. Credentials remain protected runner environment values and are absent from command arguments, logs, summaries, and artifacts.
 - [ ] Focused automated tests cover report generation, observation classification and revision safeguards, exact PR/ref safeguards, and preservation of the normal JavaScript, SonarCloud, and Credo gates. Tests do not assert project compatibility.
 - [ ] Probe documentation gives the bounded dispatch command, exact inputs, output artifact contract, current observation status, and limits. External generic imports remain distinct from native Elixir analysis.
+- [ ] The versioned probe document retains the completed run's exact revision, per-stage observations, bounded non-sensitive scanner excerpts and input fingerprints after temporary artifacts expire. Evaluation distinguishes preparation readiness, successful execution and demonstrated compatibility; ignored coverage and unproven issue visibility remain explicit.
 
 ## Scope
 
@@ -25,6 +26,7 @@ Provide a bounded, opt-in experiment in the existing SonarCloud workflow to dete
 - Keep generic issue and coverage properties out of normal SonarCloud analysis until project-specific support is demonstrated.
 - Keep the change within the task's probe, evidence, documentation, and focused tests.
 - Register only the exact probe workflow and test paths in the legacy workflow-scope guard; retain rejection of application and unplanned workflow edits.
+- Finish the observed-results documentation and independent reconciliation. Register separately scoped follow-up backlog tasks for Sobelow, Dialyzer CI and per-PR quality visibility/enforcement; their implementation is excluded from TASK-069.
 
 ## Non-goals
 

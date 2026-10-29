@@ -1,5 +1,5 @@
 ---
-id: TASK-075
+id: TASK-079
 title: Defer player quote recalculation to nightly batch
 type: task
 checkpoint: CP2

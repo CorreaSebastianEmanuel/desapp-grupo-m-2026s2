@@ -1,13 +1,12 @@
 ---
-id: TASK-074
+id: TASK-078
 title: Search scouting on missing catalog and bounded demand refresh policy
 type: task
 checkpoint: CP2
 priority: medium
 workflow: thinflow-v1
 status: todo
-depends_on: TASK-011, TASK-018, TASK-055, TASK-056, TASK-075
-active_run: none
+depends_on: TASK-011, TASK-018, TASK-055, TASK-056, TASK-079
 active_run: none
 ---
 
@@ -15,7 +14,7 @@ active_run: none
 
 Encode the CP2 product decision "demand + bounded scouting" for ingestion:
 
-1. Keep the already-implemented demand refresh (TASK-056): opening a player detail whose statistics are stale (TTL expired or never checked) enqueues a deduplicated verification run; confirmed statistics update the stored facts immediately, whatever the hour. Daily quote recalculation is NOT part of this task: per the closing-price decision (TASK-075), stored statistics only record pending calculation work that the nightly batch admits. Do NOT retire this behavior (an earlier draft of this task proposed scheduler-only ingestion and is superseded by this decision).
+1. Keep the already-implemented demand refresh (TASK-056): opening a player detail whose statistics are stale (TTL expired or never checked) enqueues a deduplicated verification run; confirmed statistics update the stored facts immediately, whatever the hour. Daily quote recalculation is NOT part of this task: per the closing-price decision (TASK-079), stored statistics only record pending calculation work that the nightly batch admits. Do NOT retire this behavior (an earlier draft of this task proposed scheduler-only ingestion and is superseded by this decision).
 2. Add the one missing behavior: searching a player who is not in the catalog triggers a bounded catalog scouting run chained to find the requested player. Resolution path (provider likely has no name search in its tier): normalize the name → try the provider name search when available, otherwise guess candidate team(s) from the name and pull those squad rosters → match the player. Requirements:
    - Deduplicate by normalized search name (same normalized name = one scouting run; reuse any active run).
    - Bounded budget per run: strict validation gate (format limits, no arbitrary queries), a small maximum of provider requests per scouting walk (fallback of guessing candidate teams first, squads second), per-window rate limit, and a negative cache TTL so a fruitless walk is not retried by further searches of the same name. A budget-exhausted walk may retry in the next nightly window instead of hammering in real time.

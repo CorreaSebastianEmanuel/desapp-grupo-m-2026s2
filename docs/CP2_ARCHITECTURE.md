@@ -65,8 +65,8 @@ Toda capacidad de producto que una persona deba consultar u operar desde la apli
 | Capacidad/backend | Uso visible en la aplicación |
 |---|---|
 | TASK-007 registro de usuarios; TASK-046 sesión | TASK-072 alta pública y acceso al workspace |
-| TASK-011/012 catálogo y filtros; TASK-027 cotizaciones; TASK-033 ranking; TASK-056 actualización | TASK-047 búsqueda, ficha, cotizaciones, ranking y estado de actualización |
-| TASK-029/030 compra y venta; TASK-031 historial; TASK-032 posiciones y rentabilidad | TASK-048 operaciones y portfolio |
+| TASK-011/012 catálogo y filtros; TASK-027 cotizaciones; TASK-033 ranking; TASK-056 actualización | TASK-047 búsqueda, ficha, cotizaciones, ranking y estado de actualización (CP3 completo; adelanto CP2 vía TASK-077) |
+| TASK-029/030 compra y venta; TASK-031 historial; TASK-032 posiciones y rentabilidad | TASK-048 operaciones y portfolio (CP3 completo; adelanto CP2 vía TASK-077) |
 | TASK-057 analítica histórica | TASK-058 gráficos del portfolio |
 | TASK-059 órdenes condicionales; TASK-060 evaluación | TASK-061 creación y seguimiento de órdenes |
 | TASK-019 sincronización; TASK-025 estrategias | TASK-049 operaciones administrativas |
@@ -85,7 +85,7 @@ Claves API, health checks, métricas Prometheus, persistencia de auditoría, scr
 | TASK-072 | CP2 | Mejora práctica de rutas existentes y registro web |
 | TASK-057 → TASK-058 | CP2 obligatorio nuevo | Analítica y gráficos del usuario |
 | TASK-059 → TASK-060 → TASK-061 | CP2 obligatorio nuevo | Órdenes condicionales, workers y UI |
-| TASK-063 → TASK-034 → TASK-062 | CP2 | Perfiles unit/E2E, regresión y presentación manual |
+| TASK-063 → TASK-034 | CP2 | Perfiles unit/E2E y regresión (la presentación manual se lleva fuera del backlog) |
 | TASK-056 | Apoyo CP2, posponible | TTL de estadísticas; antes usó ID local TASK-054 |
 | TASK-041/042, TASK-036–045, TASK-047–052 | CP3 | Cache, observabilidad y completar interfaz/release |
 | TASK-040 → TASK-073 | CP3 | Métricas de negocio y panel administrativo de lectura |

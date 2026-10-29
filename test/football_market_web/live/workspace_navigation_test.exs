@@ -10,7 +10,7 @@ defmodule FootballMarketWeb.WorkspaceNavigationTest do
     {:ok, handle} = BrowserSessions.authenticate(anon, user.id)
 
     for {path, heading, expectation} <- [
-          {"/portfolio", "Portfolio", :placeholder},
+          {"/portfolio", "Portfolio", :empty_portfolio},
           {"/conditional-orders", "Conditional orders", :page}
         ] do
       conn =
@@ -33,8 +33,9 @@ defmodule FootballMarketWeb.WorkspaceNavigationTest do
           assert has_element?(view, "#conditional-order-form")
           refute html =~ "not available yet"
 
-        :placeholder ->
-          assert html =~ "not available yet"
+        :empty_portfolio ->
+          assert has_element?(view, "#no-positions")
+          refute has_element?(view, "#portfolio-positions")
       end
 
       refute html =~ "Buy"

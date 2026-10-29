@@ -4,10 +4,10 @@ title: Portfolio positions and profitability
 type: task
 checkpoint: CP2
 priority: critical
-status: todo
+status: review
 workflow: thinflow-v1
 depends_on: TASK-027, TASK-031
-active_run: none
+active_run: f1bd05ea
 ---
 
 ## Outcome

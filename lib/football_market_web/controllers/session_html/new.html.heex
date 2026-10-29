@@ -1,29 +1,36 @@
-<main class="workspace-form">
-  <h1>Sign in</h1>
-  <p :if={@message} id="sign-in-message" role="alert">{@message}</p>
-  <form method="post" action="/sign-in">
-    <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
-    <input type="hidden" name="return_to" value={@return_to} />
-    <label for="email">Email</label>
-    <input
-      id="email"
-      name="email"
-      type="email"
-      autocomplete="username"
-      value={@email}
-      aria-invalid={to_string(@invalid)}
-      aria-describedby={@invalid && "sign-in-message"}
-    />
-    <label for="password">Password</label>
-    <input
-      id="password"
-      name="password"
-      type="password"
-      autocomplete="current-password"
-      aria-invalid={to_string(@invalid)}
-      aria-describedby={@invalid && "sign-in-message"}
-    />
-    <button type="submit">Sign in</button>
-  </form>
-  <a :if={@message} href="/sign-in">Retry sign in</a>
-</main>
+<div class="auth-page">
+  <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">FM</span> Football Market</a>
+  <main class="workspace-form">
+    <p class="eyebrow">YOUR WORKSPACE</p>
+    <h1>Sign in</h1>
+    <p class="muted">Access your portfolio and conditional orders.</p>
+    <p :if={@message} id="sign-in-message" role="alert">{@message}</p>
+    <form method="post" action="/sign-in">
+      <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
+      <input type="hidden" name="return_to" value={@return_to} />
+      <label for="email">Email</label>
+      <input
+        id="email"
+        name="email"
+        type="email"
+        autocomplete="username"
+        value={@email}
+        aria-invalid={to_string(@invalid)}
+        aria-describedby={@invalid && "sign-in-message"}
+      />
+      <label for="password">Password</label>
+      <input
+        id="password"
+        name="password"
+        type="password"
+        autocomplete="current-password"
+        aria-invalid={to_string(@invalid)}
+        aria-describedby={@invalid && "sign-in-message"}
+      />
+      <button type="submit">Sign in</button>
+    </form>
+    <a :if={@message} href="/sign-in">Retry sign in</a>
+    <p class="auth-note">New to Football Market? <a href="/register">Create an account</a>.</p>
+  </main>
+  <a class="text-link" href="/">← Back to Football Market</a>
+</div>

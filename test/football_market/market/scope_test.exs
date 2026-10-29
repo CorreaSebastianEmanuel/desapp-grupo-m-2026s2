@@ -99,6 +99,7 @@ defmodule FootballMarket.Market.ScopeTest do
              initialize_player: 1,
              initialize_player: 2,
              list_conditional_orders: 1,
+             portfolio: 1,
              purchase: 2,
              sale: 2,
              transaction_history: 2

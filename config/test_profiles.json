@@ -282,6 +282,13 @@
       "profile": "integration"
     },
     {
+      "id": "07511b72bafc4d34d32c8299",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/session_controller_test.exs",
+      "case_id": "FootballMarketWeb.SessionControllerTest:test duplicate email registration returns a generic error and keeps the account intact",
+      "profile": "integration"
+    },
+    {
       "id": "075f61cf6400b2545bc82bd5",
       "runner": "exunit",
       "file": "test/football_market/quotes/history_test.exs",
@@ -1456,6 +1463,13 @@
       "file": "test/mix/tasks/catalog.seed_test.exs",
       "case_id": "Mix.Tasks.Catalog.SeedProcessTest:test an unreachable database returns only a sanitized allowlisted Mix error",
       "profile": "integration"
+    },
+    {
+      "id": "27b362c7f7a6bb2d0de0bbc9",
+      "runner": "exunit",
+      "file": "test/football_market/market/portfolio/calculation_test.exs",
+      "case_id": "FootballMarket.Market.PortfolioCalculationTest:test weighted cost remains after a partial sale and is recalculated by later purchases",
+      "profile": "unit"
     },
     {
       "id": "27b4b1d93fa2422b59fe1df5",
@@ -2905,6 +2919,13 @@
       "file": "test/football_market/providers/deadline_test.exs",
       "case_id": "FootballMarket.Providers.DeadlineTest:test F-D02 production runtime accepts budgets above the VM receive limit",
       "profile": "unit"
+    },
+    {
+      "id": "50c72e843f3f61aefd8a4697",
+      "runner": "exunit",
+      "file": "test/football_market/market/portfolio/quote_test.exs",
+      "case_id": "FootballMarket.Market.PortfolioQuoteTest:test current valuation uses the latest quote rather than the purchase price",
+      "profile": "integration"
     },
     {
       "id": "50fe44439ded2f60f3acac2e",
@@ -4566,6 +4587,13 @@
       "profile": "unit"
     },
     {
+      "id": "836f5acb312c8facf5c4d29b",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/session_controller_test.exs",
+      "case_id": "FootballMarketWeb.SessionControllerTest:test public registration creates an account and returns the user to sign-in",
+      "profile": "integration"
+    },
+    {
       "id": "838fffb1644b52b05f4fdf59",
       "runner": "exunit",
       "file": "test/football_market/ranking/selection_test.exs",
@@ -5375,6 +5403,13 @@
       "runner": "exunit",
       "file": "test/football_market/providers/scraping/safety_test.exs",
       "case_id": "FootballMarket.Providers.ScrapingSafetyTest:test production adapter has no persistence, web, financial or network dependency",
+      "profile": "unit"
+    },
+    {
+      "id": "9b29d945b2f00055853f0559",
+      "runner": "exunit",
+      "file": "test/football_market/market/portfolio/calculation_test.exs",
+      "case_id": "FootballMarket.Market.PortfolioCalculationTest:test weighted average basis tracks multiple purchase prices and partial sale profit",
       "profile": "unit"
     },
     {
@@ -6302,6 +6337,13 @@
       "profile": "integration"
     },
     {
+      "id": "b0b1182c607071de97190c69",
+      "runner": "exunit",
+      "file": "test/football_market/market/portfolio/positions_test.exs",
+      "case_id": "FootballMarket.Market.PortfolioTest:test portfolio values current holdings from completed purchases and sales with owner scoping",
+      "profile": "integration"
+    },
+    {
       "id": "b15a1503d3270f38fe9346d6",
       "runner": "exunit",
       "file": "test/football_market/valuation/position_aware/scope_test.exs",
@@ -6778,6 +6820,13 @@
       "profile": "integration"
     },
     {
+      "id": "c07cae8c782f76d749816123",
+      "runner": "exunit",
+      "file": "test/football_market_web/live/portfolio_live_test.exs",
+      "case_id": "FootballMarketWeb.PortfolioLiveTest:test authenticated portfolio displays the user's current positions and exact values",
+      "profile": "integration"
+    },
+    {
       "id": "c09ce7ff94a67f2fa65c93d8",
       "runner": "exunit",
       "file": "test/football_market_web/controllers/session_controller_test.exs",
@@ -7104,6 +7153,13 @@
       "runner": "exunit",
       "file": "test/football_market/statistics/history_test.exs",
       "case_id": "FootballMarket.Statistics.HistoryTest:test empty absent unknown and malformed subjects stay distinct",
+      "profile": "integration"
+    },
+    {
+      "id": "c94a03e44501a2dda8bca4b3",
+      "runner": "exunit",
+      "file": "test/football_market/market/portfolio/positions_test.exs",
+      "case_id": "FootballMarket.Market.PortfolioTest:test trade history is read through one combined statement so committed trades cannot interleave",
       "profile": "integration"
     },
     {
@@ -8290,6 +8346,13 @@
       "profile": "unit"
     },
     {
+      "id": "e727fd73a4325e0fb0d900af",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/session_controller_test.exs",
+      "case_id": "FootballMarketWeb.SessionControllerTest:test registration rejects mismatched or invalid credentials without returning secrets",
+      "profile": "integration"
+    },
+    {
       "id": "e731f69c6ab3e31c4bf52e8c",
       "runner": "exunit",
       "file": "test/ci/profile_integration_sentinel_test.exs",
@@ -8878,6 +8941,13 @@
       "profile": "unit"
     },
     {
+      "id": "f858cfcafaac4d7872f74421",
+      "runner": "exunit",
+      "file": "test/football_market/market/portfolio/quote_test.exs",
+      "case_id": "FootballMarket.Market.PortfolioQuoteTest:test positions keep exact decimal money for a supported large cent-exact amount regardless of caller context",
+      "profile": "integration"
+    },
+    {
       "id": "f867ed394af8800abf56e29b",
       "runner": "exunit",
       "file": "test/football_market/accounts/api_keys_test.exs",
@@ -9015,6 +9085,13 @@
       "runner": "exunit",
       "file": "test/football_market/market/concurrency_test.exs",
       "case_id": "FootballMarket.Market.ConcurrencyTest:test issuance-first lock order blocks direct quote insert and retains both facts",
+      "profile": "integration"
+    },
+    {
+      "id": "fb1830f21086a729cc180efa",
+      "runner": "exunit",
+      "file": "test/football_market/market/portfolio/positions_test.exs",
+      "case_id": "FootballMarket.Market.PortfolioTest:test portfolio requires an authenticated owner",
       "profile": "integration"
     },
     {

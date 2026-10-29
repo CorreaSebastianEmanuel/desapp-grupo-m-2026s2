@@ -1,0 +1,51 @@
+<div class="auth-page">
+  <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">FM</span> Football Market</a>
+  <main class="workspace-form">
+    <p class="eyebrow">YOUR WORKSPACE</p>
+    <h1>Create your account</h1>
+    <p class="muted">Save your portfolio and manage your player orders in one place.</p>
+    <p :if={@message} id="registration-message" role="alert">{@message}</p>
+    <form method="post" action="/register">
+      <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
+      <label for="email">Email</label>
+      <input
+        id="email"
+        name="email"
+        type="email"
+        autocomplete="email"
+        required
+        value={@email}
+        aria-invalid={to_string(@invalid)}
+        aria-describedby={@invalid && "registration-message"}
+      />
+      <label for="password">Password</label>
+      <input
+        id="password"
+        name="password"
+        type="password"
+        autocomplete="new-password"
+        minlength="12"
+        maxlength="128"
+        required
+        aria-invalid={to_string(@invalid)}
+        aria-describedby="password-guidance"
+      />
+      <p id="password-guidance" class="auth-note">Use 12–128 characters.</p>
+      <label for="password-confirmation">Confirm password</label>
+      <input
+        id="password-confirmation"
+        name="password_confirmation"
+        type="password"
+        autocomplete="new-password"
+        minlength="12"
+        maxlength="128"
+        required
+        aria-invalid={to_string(@invalid)}
+        aria-describedby={@invalid && "registration-message"}
+      />
+      <button type="submit">Create account</button>
+    </form>
+    <p class="auth-note">Already have an account? <a href="/sign-in">Sign in</a>.</p>
+  </main>
+  <a class="text-link" href="/">← Back to Football Market</a>
+</div>

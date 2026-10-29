@@ -19,21 +19,37 @@ defmodule FootballMarket.Market.Portfolio do
 
   def list(%AuthenticatedActor{account_id: owner}) when is_binary(owner) do
     with {:ok, transactions} <- PortfolioStore.transactions(owner) do
-      positions = exact(fn -> calculate(transactions) end)
-
-      if positions == [] do
-        {:ok, []}
-      else
-        with {:ok, details} <- PortfolioStore.details(Enum.map(positions, & &1.player_id)) do
-          {:ok, exact(fn -> present(positions, details) end)}
-        end
-      end
+      read(transactions)
     end
   rescue
     _ -> Error.new(:temporarily_unavailable, :storage_rejected)
   end
 
   def list(_), do: Error.new(:unauthenticated, :unauthenticated)
+
+  @doc false
+  def calculate(transactions) do
+    exact(fn ->
+      transactions
+      |> Enum.sort_by(&{DateTime.to_unix(&1.completed_at, :microsecond), &1.type, &1.id})
+      |> Enum.reduce(%{}, &apply_transaction/2)
+      |> Enum.filter(fn {_player_id, position} -> position.quantity > 0 end)
+      |> Enum.map(fn {player_id, position} -> Map.put(position, :player_id, player_id) end)
+      |> Enum.sort_by(& &1.player_id)
+    end)
+  end
+
+  defp read(transactions) do
+    positions = exact(fn -> calculate(transactions) end)
+
+    if positions == [] do
+      {:ok, []}
+    else
+      with {:ok, details} <- PortfolioStore.details(Enum.map(positions, & &1.player_id)) do
+        {:ok, exact(fn -> present(positions, details) end)}
+      end
+    end
+  end
 
   defp exact(fun), do: Decimal.Context.with(%Decimal.Context{precision: @exact_precision}, fun)
 
@@ -52,18 +68,6 @@ defmodule FootballMarket.Market.Portfolio do
             position.quantity
           )
       })
-    end)
-  end
-
-  @doc false
-  def calculate(transactions) do
-    exact(fn ->
-      transactions
-      |> Enum.sort_by(&{DateTime.to_unix(&1.completed_at, :microsecond), &1.type, &1.id})
-      |> Enum.reduce(%{}, &apply_transaction/2)
-      |> Enum.filter(fn {_player_id, position} -> position.quantity > 0 end)
-      |> Enum.map(fn {player_id, position} -> Map.put(position, :player_id, player_id) end)
-      |> Enum.sort_by(& &1.player_id)
     end)
   end
 

@@ -31,6 +31,8 @@ defmodule FootballMarketWeb.Router do
     pipe_through :browser
     get "/sign-in", SessionController, :new
     post "/sign-in", SessionController, :create
+    get "/register", SessionController, :new_registration
+    post "/register", SessionController, :create_registration
     post "/sign-out", SessionController, :delete
   end
 
@@ -45,6 +47,7 @@ defmodule FootballMarketWeb.Router do
       session: {FootballMarketWeb.Plugs.BrowserAuth, :live_session, []},
       on_mount: [{FootballMarketWeb.Live.BrowserAuth, :workspace}] do
       live "/portfolio", WorkspaceLive, :portfolio
+      live "/players", WorkspaceLive, :players
       live "/conditional-orders", WorkspaceLive, :conditional_orders
     end
   end

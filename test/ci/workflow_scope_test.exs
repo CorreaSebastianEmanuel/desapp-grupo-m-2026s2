@@ -84,6 +84,32 @@ defmodule FootballMarket.WorkflowScopeTest do
              "specs/065-separate-unit-and-end-to-end-test-profiles",
              "lib/football_market/statistics/ingestion/publisher.ex"
            )
+
+    player_card_feature =
+      "specs/077-advance-cp2-product-ui-player-card-trading-actions-and-active-ranking"
+
+    player_card_paths = WorkflowScope.paths(player_card_feature)
+    assert length(player_card_paths) == length(Enum.uniq(player_card_paths))
+
+    for path <- [
+          "lib/football_market/catalog.ex",
+          "lib/football_market/statistics/query.ex",
+          "lib/football_market_web/live/workspace_live.ex",
+          "test/support/e2e/fixtures.ex",
+          "tools/openapi/e2e_market.mjs"
+        ] do
+      assert WorkflowScope.allows_path?(player_card_feature, path)
+    end
+
+    for path <- [
+          "lib/football_market/market/purchase_transaction.ex",
+          "lib/football_market/valuation/balanced.ex",
+          "priv/repo/migrations/unplanned.exs",
+          ".github/workflows/unplanned.yml",
+          "tools/openapi/unplanned.mjs"
+        ] do
+      refute WorkflowScope.allows_path?(player_card_feature, path)
+    end
   end
 
   test "TASK-029 verification recovery and compatibility allowance is limited to named paths" do

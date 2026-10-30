@@ -49,6 +49,22 @@ defmodule FootballMarket.E2E.PortfolioAnalyticsTest do
     end
   end
 
+  @tag timeout: 170_000
+  test "real browser searches creates an executed order sells tokens and reads active ranking" do
+    previous = Application.fetch_env(:football_market, :initial_issuance_recipients)
+
+    try do
+      FootballMarket.E2E.Runtime.with_runtime!(fn base ->
+        assert FootballMarket.E2E.Fixtures.market_browser!(base) == :ok
+      end)
+    after
+      case previous do
+        {:ok, value} -> Application.put_env(:football_market, :initial_issuance_recipients, value)
+        :error -> Application.delete_env(:football_market, :initial_issuance_recipients)
+      end
+    end
+  end
+
   defp get(base, path, jwt) do
     headers = if jwt, do: [{~c"authorization", String.to_charlist("Bearer " <> jwt)}], else: []
 

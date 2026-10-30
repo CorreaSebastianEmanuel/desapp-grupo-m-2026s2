@@ -408,7 +408,7 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
           {"League", ~w(id code name)},
           {"Pagination", ~w(page_size returned_count has_more next_cursor)},
           {"PlayerPage", ~w(data pagination)},
-          {"PlayerDetail", ~w(data statistics_status)}
+          {"PlayerDetail", ~w(data statistics statistics_status)}
         ] do
       schema = schemas[name]
       assert Enum.sort(schema["required"]) == Enum.sort(fields)

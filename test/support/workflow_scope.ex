@@ -27,6 +27,36 @@ defmodule FootballMarket.WorkflowScope do
     end
   end
 
+  def paths("specs/077-advance-cp2-product-ui-player-card-trading-actions-and-active-ranking") do
+    [
+      "assets/css/app.css",
+      "backlog/TASK-077-advance-cp2-product-ui-player-card-trading-actions-and-active-ranking.md",
+      "backlog/feedback/TASK-077.md",
+      "config/test_profiles.json",
+      "docs/WORKFLOW_LESSONS.md",
+      "lib/football_market/catalog.ex",
+      "lib/football_market/statistics.ex",
+      "lib/football_market/statistics/query.ex",
+      "lib/football_market_web/components/workspace_components.ex",
+      "lib/football_market_web/controllers/player_controller.ex",
+      "lib/football_market_web/controllers/player_json.ex",
+      "lib/football_market_web/live/workspace_live.ex",
+      "lib/football_market_web/router.ex",
+      "priv/static/openapi.json",
+      "specs/077-advance-cp2-product-ui-player-card-trading-actions-and-active-ranking/",
+      "test/ci/workflow_scope_test.exs",
+      "test/e2e/portfolio_analytics_test.exs",
+      "test/football_market/catalog/player_detail_test.exs",
+      "test/football_market_web/controllers/player_detail_controller_test.exs",
+      "test/football_market_web/controllers/player_freshness_test.exs",
+      "test/football_market_web/live/portfolio_live_test.exs",
+      "test/football_market_web/openapi_contract_test.exs",
+      "test/support/e2e/fixtures.ex",
+      "test/support/workflow_scope.ex",
+      "tools/openapi/e2e_market.mjs"
+    ]
+  end
+
   def paths("specs/031-immutable-transaction-history-api") do
     [
       "backlog/TASK-031-immutable-transaction-history-api.md",

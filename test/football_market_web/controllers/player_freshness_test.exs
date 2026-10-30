@@ -28,7 +28,7 @@ defmodule FootballMarketWeb.PlayerFreshnessTest do
       )
       |> json_response(200)
 
-    assert Map.keys(shown) |> Enum.sort() == ~w(data statistics_status)
+    assert Map.keys(shown) |> Enum.sort() == ~w(data statistics statistics_status)
     assert shown["data"] == hd(list["data"])
     assert shown["statistics_status"]["refresh"]["state"] == "queued"
     assert shown["statistics_status"]["last_checked_at"] == nil

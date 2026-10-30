@@ -3,7 +3,15 @@ defmodule FootballMarketWeb.WorkspaceLive do
   import FootballMarketWeb.WorkspaceComponents
 
   alias FootballMarket.Accounts.AuthenticatedActor
-  alias FootballMarket.{Catalog, Market.ConditionalOrders, Market.Portfolio}
+
+  alias FootballMarket.{
+    Catalog,
+    Market,
+    Market.ConditionalOrders,
+    Market.Portfolio,
+    Quotes,
+    Ranking
+  }
 
   def mount(_, _, socket) do
     if connected?(socket) and socket.assigns.actor do
@@ -15,6 +23,16 @@ defmodule FootballMarketWeb.WorkspaceLive do
 
     {:ok,
      assign(socket,
+       card: nil,
+       card_error: nil,
+       quote: nil,
+       trade_key: Ecto.UUID.generate(),
+       trade_error: nil,
+       trade_notice: nil,
+       trade_intent: nil,
+       trade_complete: false,
+       ranking: nil,
+       ranking_error: nil,
        destination: nil,
        heading: nil,
        orders: [],
@@ -36,14 +54,7 @@ defmodule FootballMarketWeb.WorkspaceLive do
     destination = URI.parse(uri).path
     params = URI.parse(uri).query |> then(&if(&1, do: URI.decode_query(&1), else: %{}))
 
-    heading =
-      case destination do
-        "/conditional-orders" -> "Conditional orders"
-        "/players" -> "Players"
-        _ -> "Portfolio"
-      end
-
-    socket = assign(socket, destination: destination, heading: heading)
+    socket = assign(socket, destination: destination, heading: workspace_heading(destination))
 
     {:noreply,
      case destination do
@@ -51,7 +62,10 @@ defmodule FootballMarketWeb.WorkspaceLive do
          socket |> reload_orders() |> load_selected_player(params["player_id"])
 
        "/players" ->
-         socket
+         load_card(socket, params["player_id"])
+
+       "/ranking" ->
+         load_ranking(socket)
 
        _ ->
          reload_portfolio(socket)
@@ -131,10 +145,123 @@ defmodule FootballMarketWeb.WorkspaceLive do
     end
   end
 
+  def handle_event("trade", %{"side" => side} = params, socket) when side in ["buy", "sell"] do
+    with %{player: player} <- socket.assigns.card,
+         true <- params["request_key"] == socket.assigns.trade_key,
+         {:ok, amount} <- quantity(params["quantity"]) do
+      submit_trade(socket, player.id, side, amount)
+    else
+      _ ->
+        {:noreply,
+         assign(socket, trade_error: "Enter a positive integer quantity and select a player.")}
+    end
+  end
+
+  def handle_event("trade", _, socket) do
+    {:noreply,
+     assign(socket, trade_error: "Choose Buy or Sell and enter a positive integer quantity.")}
+  end
+
+  def handle_event("new_trade", _, socket) do
+    {:noreply,
+     assign(socket,
+       trade_key: Ecto.UUID.generate(),
+       trade_intent: nil,
+       trade_complete: false,
+       trade_error: nil,
+       trade_notice: nil
+     )}
+  end
+
   def handle_info({:conditional_order_changed, _id}, socket) do
-    if socket.assigns.destination == "/conditional-orders",
-      do: {:noreply, reload_orders(socket)},
-      else: {:noreply, socket}
+    socket = reload_portfolio(socket)
+
+    {:noreply,
+     if(socket.assigns.destination == "/conditional-orders",
+       do: reload_orders(socket),
+       else: socket
+     )}
+  end
+
+  def handle_info(:portfolio_changed, socket), do: {:noreply, reload_portfolio(socket)}
+
+  defp workspace_heading("/conditional-orders"), do: "Conditional orders"
+  defp workspace_heading("/players"), do: "Players"
+  defp workspace_heading("/ranking"), do: "Ranking"
+  defp workspace_heading(_), do: "Portfolio"
+
+  defp submit_trade(socket, player_id, side, amount) do
+    intent = {player_id, side, amount}
+
+    if socket.assigns.trade_intent in [nil, intent] do
+      socket = assign(socket, trade_intent: intent)
+      input = %{player_id: player_id, quantity: amount, request_key: socket.assigns.trade_key}
+      trade_result(socket, execute_trade(side, domain_actor(socket.assigns.actor), input))
+    else
+      {:noreply,
+       assign(socket, trade_error: "This request has different terms. Start a new trade.")}
+    end
+  end
+
+  defp trade_result(socket, {:ok, _}) do
+    Phoenix.PubSub.broadcast_from(
+      FootballMarket.PubSub,
+      self(),
+      "conditional_orders:" <> socket.assigns.actor.account_id,
+      :portfolio_changed
+    )
+
+    {:noreply,
+     socket
+     |> assign(trade_error: nil, trade_notice: "Trade confirmed.", trade_complete: true)
+     |> reload_portfolio()}
+  end
+
+  defp trade_result(socket, {:error, error}),
+    do: {:noreply, assign(socket, trade_error: trade_error(error), trade_notice: nil)}
+
+  defp execute_trade("buy", actor, input), do: Market.purchase(actor, input)
+  defp execute_trade("sell", actor, input), do: Market.sale(actor, input)
+
+  defp trade_error(%{kind: kind}), do: trade_error(kind)
+  defp trade_error(:invalid_request), do: "Enter a positive integer quantity."
+  defp trade_error(:insufficient_funds), do: "Insufficient credits."
+  defp trade_error(:insufficient_inventory), do: "Insufficient available tokens."
+  defp trade_error(:insufficient_holdings), do: "You do not own enough tokens."
+  defp trade_error(:request_conflict), do: "This request was already used. Start a new trade."
+
+  defp trade_error(_),
+    do: "Trade unavailable. Check your balance, holdings and quantity, then retry."
+
+  defp load_card(socket, nil), do: assign(socket, card: nil, card_error: nil)
+
+  defp load_card(socket, id) do
+    case Catalog.player_card(id) do
+      {:ok, card} ->
+        quote =
+          case Quotes.latest(id) do
+            {:ok, quote} -> quote
+            _ -> nil
+          end
+
+        socket |> assign(card: card, quote: quote, card_error: nil) |> reload_portfolio()
+
+      _ ->
+        assign(socket, card: nil, card_error: "Player details are unavailable.")
+    end
+  end
+
+  defp load_ranking(socket) do
+    case Ranking.read() do
+      {:ok, ranking} ->
+        assign(socket, ranking: ranking, ranking_error: nil)
+
+      {:error, :no_active_configuration} ->
+        assign(socket, ranking: nil, ranking_error: "No active strategy configured.")
+
+      _ ->
+        assign(socket, ranking: nil, ranking_error: "Ranking is temporarily unavailable.")
+    end
   end
 
   def render(assigns) do
@@ -248,6 +375,23 @@ defmodule FootballMarketWeb.WorkspaceLive do
       <% else %>
         <%= if @destination == "/players" do %>
           <section id="player-catalog">
+            <.player_card
+              card={@card}
+              quote={@quote}
+              error={@card_error}
+              request_key={@trade_key}
+              trade_error={@trade_error}
+              notice={@trade_notice}
+              complete={@trade_complete}
+            />
+            <div :if={@card} id="trade-positions">
+              <p :if={@portfolio_unavailable} role="alert">
+                Positions are temporarily unavailable.
+              </p>
+              <p :for={position <- @positions} id={"trade-position-#{position.player_id}"}>
+                {position.player_name}: {position.quantity} tokens
+              </p>
+            </div>
             <div class="catalog-heading">
               <div>
                 <h1>Players</h1>
@@ -311,14 +455,18 @@ defmodule FootballMarketWeb.WorkspaceLive do
                     </th>
                     <td>{player.team.name}</td>
                     <td>{player.team.season.league.name}</td>
-                    <td><a href={~p"/conditional-orders?player_id=#{player.id}"}>Create order</a></td>
+                    <td>
+                      <a href={~p"/players?player_id=#{player.id}"}>View player</a>
+                      <a href={~p"/conditional-orders?player_id=#{player.id}"}>Create order</a>
+                    </td>
                   </tr>
                 </tbody>
               </table>
             </div>
           </section>
         <% else %>
-          <section id="portfolio">
+          <.ranking_view :if={@destination == "/ranking"} ranking={@ranking} error={@ranking_error} />
+          <section :if={@destination != "/ranking"} id="portfolio">
             <p class="eyebrow">WORKSPACE / HOLDINGS</p>
             <h1>Portfolio</h1>
             <p class="section-description">Your players, positions and performance.</p>
@@ -355,7 +503,9 @@ defmodule FootballMarketWeb.WorkspaceLive do
                 </thead>
                 <tbody>
                   <tr :for={position <- @positions} id={"portfolio-position-#{position.player_id}"}>
-                    <th scope="row">{position.player_name}</th>
+                    <th scope="row">
+                      <a href={~p"/players?player_id=#{position.player_id}"}>{position.player_name}</a>
+                    </th>
                     <td>{position.quantity}</td>
                     <td>{exact_money(position.average_unit_cost)}</td>
                     <td>{exact_money(position.current_quote)}</td>

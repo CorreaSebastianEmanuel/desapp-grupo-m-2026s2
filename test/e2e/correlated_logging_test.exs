@@ -84,8 +84,8 @@ defmodule FootballMarket.E2E.CorrelatedLoggingTest do
 
               if length(jobs) == 2 and quote_jobs == [] and
                    Enum.all?(jobs, &(&1.state == "completed")),
-                do: {:ok, jobs},
-                else: :pending
+                 do: {:ok, jobs},
+                 else: :pending
             end)
 
             close_time = DateTime.add(DateTime.utc_now(), 2 * 86_400, :second)

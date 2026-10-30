@@ -215,6 +215,30 @@ defmodule FootballMarket.Quotes.ImportTest do
                Ecto.UUID.dump!(second_intent.id)
              ]
            ).rows == [[5, 5]]
+
+    old_closing = Application.get_env(:football_market, FootballMarket.Quotes.Closing, [])
+
+    Application.put_env(:football_market, FootballMarket.Quotes.Closing,
+      default_recurrence: "* * * * *",
+      recurrences: %{}
+    )
+
+    on_exit(fn ->
+      Application.put_env(:football_market, FootballMarket.Quotes.Closing, old_closing)
+    end)
+
+    close_time = DateTime.add(DateTime.utc_now(), 120, :second)
+
+    assert {:ok, %{imports: 5, ttl: 0, enqueued: 5}} =
+             FootballMarket.Quotes.Closing.admit_due(close_time)
+
+    assert {:ok, %{imports: 0, ttl: 0, enqueued: 5}} =
+             FootballMarket.Quotes.Closing.admit_due(close_time)
+
+    assert Repo.query!(
+             "SELECT count(*), count(DISTINCT admitted_at) FROM quote_calculation_requests WHERE intent_id IN ($1, $2) AND admitted_at IS NOT NULL",
+             [Ecto.UUID.dump!(first_intent.id), Ecto.UUID.dump!(second_intent.id)]
+           ).rows == [[5, 1]]
   end
 
   test "legacy intent without original snapshots records unreproducible instead of today's membership" do

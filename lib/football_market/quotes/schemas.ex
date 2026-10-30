@@ -47,6 +47,7 @@ defmodule FootballMarket.Quotes.CalculationRequest do
   @primary_key {:id, :binary_id, autogenerate: false}
   schema "quote_calculation_requests" do
     field :source, :string, default: "import"
+    field :admission_key, :string
     field :snapshot_id, :binary_id
     field :intent_id, :binary_id
     field :player_id, :binary_id
@@ -66,6 +67,7 @@ defmodule FootballMarket.Quotes.CalculationRequest do
     field :lease_until, :utc_datetime_usec
     field :next_attempt_at, :utc_datetime_usec
     field :reason, :string
+    field :admitted_at, :utc_datetime_usec
     field :inserted_at, :utc_datetime_usec
   end
 end

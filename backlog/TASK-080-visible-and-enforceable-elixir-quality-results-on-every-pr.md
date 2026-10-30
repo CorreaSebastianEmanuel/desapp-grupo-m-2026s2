@@ -1,12 +1,12 @@
 ---
-id: TASK-076
+id: TASK-080
 title: Visible and enforceable Elixir quality results on every PR
 type: task
 checkpoint: CP2
 priority: high
 workflow: thinflow-v1
 status: todo
-depends_on: TASK-065, TASK-067, TASK-071, TASK-074, TASK-075
+depends_on: TASK-065, TASK-067, TASK-071, TASK-078, TASK-079
 active_run: none
 ---
 

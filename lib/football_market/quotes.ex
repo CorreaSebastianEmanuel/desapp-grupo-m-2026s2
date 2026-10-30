@@ -389,12 +389,29 @@ defmodule FootballMarket.Quotes do
 
   defp retained_explicit(_), do: nil
 
-  def request_membership(subject_week, selector, mapping_id, facts, request_id, lease \\ nil) do
+  def request_membership(
+        subject_week,
+        selector,
+        mapping_id,
+        facts,
+        request_id,
+        lease \\ nil,
+        identity_context \\ %{}
+      ) do
     with {:ok, subject} <- Valuation.Request.subject_week(subject_week),
          {:ok, request_id} <- Ecto.UUID.cast(request_id),
          {:ok, mapping} <- Mappings.get(mapping_id),
          {:ok, player} <- initialized_player(subject.player_id, subject.season_id) do
-      evaluate_and_persist(subject, player, selector, mapping, request_id, facts, lease)
+      evaluate_and_persist(
+        subject,
+        player,
+        selector,
+        mapping,
+        request_id,
+        facts,
+        lease,
+        identity_context
+      )
     end
   rescue
     _ -> {:error, :temporarily_unavailable}
@@ -437,7 +454,7 @@ defmodule FootballMarket.Quotes do
   # retain their own durable fact material (their import intent is nil);
   # import requests still resolve their snapshot row. A missing original row
   # stays a terminal unreproducible outcome while decode failures retry.
-  defp request_recovery_facts(%{source: "explicit"} = req) do
+  defp request_recovery_facts(%{source: source} = req) when source in ["explicit", "ttl"] do
     case load_explicit_facts(req) do
       {:ok, _request, facts} -> {:ok, facts}
       error -> error
@@ -469,7 +486,8 @@ defmodule FootballMarket.Quotes do
         req.mapping_id,
         facts,
         req.id,
-        {req.id, fence}
+        {req.id, fence},
+        if(req.source == "ttl", do: %{"admission_key" => req.admission_key}, else: %{})
       )
 
     case result do
@@ -542,6 +560,8 @@ defmodule FootballMarket.Quotes do
   end
 
   defp claim_import_locked(nil, _now), do: Repo.rollback(:not_found)
+
+  defp claim_import_locked(%{source: "import", admitted_at: nil}, _now), do: :not_due
 
   defp claim_import_locked(%{state: state}, _now)
        when state in [
@@ -864,11 +884,30 @@ defmodule FootballMarket.Quotes do
 
   defp exact_score(_), do: {:error, :invalid_decimal}
 
-  defp evaluate_and_persist(subject, player, selector, mapping, request_id, facts, lease \\ nil) do
+  defp evaluate_and_persist(
+         subject,
+         player,
+         selector,
+         mapping,
+         request_id,
+         facts,
+         lease \\ nil,
+         identity_context \\ %{}
+       ) do
     case Valuation.evaluate_managed_membership(subject, selector, facts) do
       {:ok, managed} ->
         with {:ok, result} <- outcome(managed.score, mapping.scale),
-             do: persist(subject, player, managed, mapping, request_id, result, lease)
+             do:
+               persist(
+                 subject,
+                 player,
+                 managed,
+                 mapping,
+                 request_id,
+                 result,
+                 lease,
+                 identity_context
+               )
 
       {:error, %Valuation.Error{} = error} ->
         with {:ok, configuration_id} <- configuration_id(selector),
@@ -880,7 +919,8 @@ defmodule FootballMarket.Quotes do
             facts: facts,
             status: status,
             reason: reason,
-            lease: lease
+            lease: lease,
+            identity_context: identity_context
           })
         end
 
@@ -913,20 +953,31 @@ defmodule FootballMarket.Quotes do
 
   defp safe_failure(%Valuation.Error{}), do: {:ok, "validation_failed", "invalid_valuation_input"}
 
-  defp persist(subject, player, managed, mapping, request_id, outcome, lease) do
+  defp persist(
+         subject,
+         player,
+         managed,
+         mapping,
+         request_id,
+         outcome,
+         lease,
+         identity_context
+       ) do
     version_id = managed.configuration_version_id
     facts = managed.prepared.facts
     ids = Enum.map(facts, & &1.performance_id)
 
-    identity = %{
-      "player_id" => player.id,
-      "season_id" => subject.season_id,
-      "week_start" => DateTime.to_iso8601(subject.week_start),
-      "week_end" => DateTime.to_iso8601(subject.week_end),
-      "membership" => ids,
-      "configuration_version_id" => version_id,
-      "mapping_id" => mapping.id
-    }
+    identity =
+      %{
+        "player_id" => player.id,
+        "season_id" => subject.season_id,
+        "week_start" => DateTime.to_iso8601(subject.week_start),
+        "week_end" => DateTime.to_iso8601(subject.week_end),
+        "membership" => ids,
+        "configuration_version_id" => version_id,
+        "mapping_id" => mapping.id
+      }
+      |> Map.merge(identity_context)
 
     reject_nested_confirmation!()
 
@@ -1047,15 +1098,17 @@ defmodule FootballMarket.Quotes do
     attributes = Map.update!(attributes, :facts, &Valuation.Preparation.canonical_order/1)
     membership = Enum.map(attributes.facts, & &1.performance_id)
 
-    identity = %{
-      "player_id" => player.id,
-      "season_id" => subject.season_id,
-      "week_start" => DateTime.to_iso8601(subject.week_start),
-      "week_end" => DateTime.to_iso8601(subject.week_end),
-      "membership" => membership,
-      "configuration_version_id" => version.id,
-      "mapping_id" => attributes.mapping.id
-    }
+    identity =
+      %{
+        "player_id" => player.id,
+        "season_id" => subject.season_id,
+        "week_start" => DateTime.to_iso8601(subject.week_start),
+        "week_end" => DateTime.to_iso8601(subject.week_end),
+        "membership" => membership,
+        "configuration_version_id" => version.id,
+        "mapping_id" => attributes.mapping.id
+      }
+      |> Map.merge(Map.get(attributes, :identity_context, %{}))
 
     context = %{
       identity: identity,

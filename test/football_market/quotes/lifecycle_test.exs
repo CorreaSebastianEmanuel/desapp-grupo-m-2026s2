@@ -53,6 +53,29 @@ defmodule FootballMarket.Quotes.LifecycleTest do
     assert first.id == second.id
   end
 
+  test "each TTL close has a distinct calculation identity and retries reuse it", f do
+    facts = [FootballMarket.Valuation.StatisticsReader.snapshot(f.performance, f.match)]
+
+    request = fn key ->
+      Quotes.request_membership(
+        f.subject,
+        {:version, f.configuration.id},
+        f.mapping.id,
+        facts,
+        Ecto.UUID.generate(),
+        nil,
+        %{"admission_key" => key}
+      )
+    end
+
+    assert {:ok, %{calculation: first}} = request.("ttl-cycle-1")
+    assert {:ok, %{calculation: retry}} = request.("ttl-cycle-1")
+    assert {:ok, %{calculation: next_close}} = request.("ttl-cycle-2")
+
+    assert first.id == retry.id
+    assert next_close.id != first.id
+  end
+
   test "duplicate missing mapping admissions are idempotent under concurrency", f do
     Repo.query!(
       "CREATE FUNCTION slow_admission() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN PERFORM pg_sleep(0.3); RETURN NEW; END $$"

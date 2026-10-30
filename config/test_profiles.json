@@ -1633,6 +1633,13 @@
       "profile": "integration"
     },
     {
+      "id": "2bb54bd469c53940aa724a93",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/lifecycle_test.exs",
+      "case_id": "FootballMarket.Quotes.LifecycleTest:test each TTL close has a distinct calculation identity and retries reuse it",
+      "profile": "integration"
+    },
+    {
       "id": "2bd3491f41d97c7eb790909e",
       "runner": "exunit",
       "file": "test/football_market_web/controllers/sale_controller_test.exs",
@@ -8486,6 +8493,13 @@
       "profile": "integration"
     },
     {
+      "id": "e8d40b9da72fe1e014f20344",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/recovery_test.exs",
+      "case_id": "FootballMarket.Quotes.RecoveryTest:test nightly TTL admission handles database timestamps and repeats safely",
+      "profile": "integration"
+    },
+    {
       "id": "e8e53a8ee0d7cb66274db4bb",
       "runner": "exunit",
       "file": "test/football_market/market/order_evaluation/eligibility_test.exs",
@@ -8652,6 +8666,13 @@
       "file": "test/football_market/market/sales/input_test.exs",
       "case_id": "FootballMarket.Market.Sales.InputTest:test strict actor, UUID, quantity, key and authority boundaries",
       "profile": "unit"
+    },
+    {
+      "id": "eebb007725ed3fe9885f99be",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/player_freshness_test.exs",
+      "case_id": "FootballMarketWeb.PlayerFreshnessTest:test player freshness includes the latest persisted quote timestamp",
+      "profile": "integration"
     },
     {
       "id": "eebfd2e6e7c006dc233efac6",

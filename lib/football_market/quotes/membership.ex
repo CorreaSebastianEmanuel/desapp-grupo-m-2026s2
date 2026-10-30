@@ -68,7 +68,7 @@ defmodule FootballMarket.Quotes.Membership do
     _ -> {:error, :temporarily_unavailable}
   end
 
-  def enqueue_import!(intent_id) do
+  def record_import!(intent_id) do
     {:ok, id} = Ecto.UUID.cast(intent_id)
     mapping = Application.get_env(:football_market, :quote_mapping_id)
 
@@ -94,23 +94,6 @@ defmodule FootballMarket.Quotes.Membership do
         """,
         [Ecto.UUID.dump!(id), mapping]
       )
-    end
-
-    import Ecto.Query
-    alias FootballMarket.Quotes.CalculationRequest
-    alias FootballMarket.Workers.QuoteCalculation
-    alias FootballMarket.Observability.JobContext
-
-    correlation = Map.get(JobContext.for_intents([id]), id, id)
-
-    for request <-
-          Repo.all(
-            from r in CalculationRequest, where: r.intent_id == ^id and r.state == "pending"
-          ) do
-      %{"request_id" => request.id}
-      |> QuoteCalculation.new()
-      |> JobContext.annotate(correlation)
-      |> Repo.insert!()
     end
 
     :ok

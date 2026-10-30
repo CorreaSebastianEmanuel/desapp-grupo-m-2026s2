@@ -1,5 +1,5 @@
 ---
-id: TASK-074
+id: TASK-078
 title: Required Sobelow security analysis for Elixir PRs
 type: task
 checkpoint: CP2
@@ -29,4 +29,4 @@ This task adds security analysis, not another framework, dashboard or test pipel
 
 ## Execution gate
 
-Start from clean main only after TASK-069 / PR #67 and TASK-065 are human-merged and their backlog states reconciled to done. Agentflow's willingness to start against a dependency in review does not waive this user-required merge gate. Use this task's own branch and PR, never implement it in TASK-069 and never merge automatically. After human merge, continue with TASK-075.
+Start from clean main only after TASK-069 / PR #67 and TASK-065 are human-merged and their backlog states reconciled to done. Agentflow's willingness to start against a dependency in review does not waive this user-required merge gate. Use this task's own branch and PR, never implement it in TASK-069 and never merge automatically. After human merge, continue with TASK-079.

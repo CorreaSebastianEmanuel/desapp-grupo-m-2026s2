@@ -90,6 +90,41 @@ defmodule FootballMarket.WorkflowScope do
     ]
   end
 
+  def paths("specs/075-defer-player-quote-recalculation-to-nightly-batch") do
+    [
+      "config/application_coverage_inventory.json",
+      "config/credo_inventory.json",
+      "config/synchronization.exs",
+      "docs/ARCHITECTURE.md",
+      "docs/CP2_ARCHITECTURE.md",
+      "docs/PLAYER_SEARCH_WORKFLOW.md",
+      "docs/WORKFLOW_LESSONS.md",
+      "docs/adr/0016-local-search-and-background-refresh.md",
+      "docs/presentations/cp2_arquitectura_completa.md",
+      "docs/presentations/cp2_arquitectura_iterable.excalidraw",
+      "docs/presentations/cp2_dia.png",
+      "docs/presentations/cp2_noche.png",
+      "lib/football_market/quotes.ex",
+      "lib/football_market/quotes/closing.ex",
+      "lib/football_market/quotes/membership.ex",
+      "lib/football_market/quotes/recovery.ex",
+      "lib/football_market/quotes/schemas.ex",
+      "lib/football_market/statistics/freshness/valuation_status.ex",
+      "lib/football_market/valuation/calculation_requests.ex",
+      "lib/football_market/workers/quote_calculation.ex",
+      "lib/football_market_web/openapi_contract_test.exs",
+      "priv/static/openapi.json",
+      "priv/repo/migrations/20261029000000_add_nightly_quote_admission.exs",
+      "specs/075-defer-player-quote-recalculation-to-nightly-batch/spec.md",
+      "test/football_market/statistics/ingestion/calculation_test.exs",
+      "test/football_market/quotes/lifecycle_test.exs",
+      "test/football_market/quotes/recovery_test.exs",
+      "test/football_market/quotes/import_test.exs",
+      "test/football_market_web/controllers/player_freshness_test.exs",
+      "test/support/workflow_scope.ex"
+    ]
+  end
+
   def paths("specs/030-atomic-idempotent-token-sale") do
     [
       "config/application_coverage_inventory.json",

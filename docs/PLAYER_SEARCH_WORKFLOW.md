@@ -66,13 +66,19 @@ Transacción PostgreSQL:
   (sin cambios también renueva fecha si la comprobación fue completa)
           |
           v
-Si hay cambios: solicitar cálculo de rendimiento y cotización
+Si hay cambios: persistir solicitud durable de cálculo pendiente
+          |             (sin job de cotización durante el día)
+          v
+Mostrar estadísticas aceptadas, cotización del cierre anterior y fecha de valoración
           |
           v
-Dominio calcula con entradas persistidas y estrategia versionada
+Cierre nocturno por liga/temporada admite solicitudes pendientes en Oban
           |
           v
-Insertar cotizaciones reproducibles sin sobrescribir historia
+Dominio calcula con hechos persistidos y estrategia versionada
+          |
+          v
+Insertar cotización reproducible + evento de evaluación sin sobrescribir historia
           |
           v
 Invalidar cachés afectadas; registrar resultado de cada trabajo
@@ -81,10 +87,10 @@ Invalidar cachés afectadas; registrar resultado de cada trabajo
 Frontend consulta estado mientras esté pendiente
           |
           v
-Mostrar estadísticas actualizadas y estado real de la cotización
+Mostrar estadísticas actualizadas, cotización vigente y su fecha de valoración
 ```
 
-La importación y el cálculo pueden finalizar en momentos distintos. El éxito del scraping no implica que una cotización ya se haya calculado. Fallos de Redis no deshacen importaciones confirmadas: se reintenta invalidación y la caché expira.
+La búsqueda puede refrescar estadísticas vencidas durante el día. Los hechos aceptados y su estado se hacen visibles inmediatamente, pero el precio conserva la cotización del último cierre hasta el cálculo nocturno. El TTL de cotización se mide desde esa última cotización; su respaldo usa el ámbito aceptado más reciente por jugador/temporada. Cada solicitud pendiente por hechos cambiados se admite por separado. Completar un partido no dispara una cotización; un disparo postpartido es una posible evolución futura. Fallos de Redis no deshacen importaciones confirmadas: se reintenta invalidación y la caché expira.
 
 ## Catálogo
 

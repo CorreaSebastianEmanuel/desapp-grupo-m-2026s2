@@ -1,12 +1,12 @@
 ---
-id: TASK-075
+id: TASK-079
 title: Required Dialyzer analysis with trustworthy PLT caching
 type: task
 checkpoint: CP2
 priority: high
 workflow: thinflow-v1
 status: todo
-depends_on: TASK-074, TASK-068
+depends_on: TASK-078, TASK-068
 active_run: none
 ---
 
@@ -27,4 +27,4 @@ Build on TASK-068 to integrate compatible pinned Dialyxir and Dialyzer into exis
 
 ## Execution gate
 
-TASK-074 is a sequencing dependency so its quality-workflow integration lands before another analyzer changes the same dependencies/workflow. Start in a separate branch/PR from clean main only after human merge and done-state reconciliation of TASK-074 and TASK-068. A dependency merely in review is insufficient, even if the harness offers it as ready. Do not mark unresolved mandatory adoption complete; no automatic merge. After human merge, continue with TASK-076.
+TASK-078 is a sequencing dependency so its quality-workflow integration lands before another analyzer changes the same dependencies/workflow. Start in a separate branch/PR from clean main only after human merge and done-state reconciliation of TASK-078 and TASK-068. A dependency merely in review is insufficient, even if the harness offers it as ready. Do not mark unresolved mandatory adoption complete; no automatic merge. After human merge, continue with TASK-080.

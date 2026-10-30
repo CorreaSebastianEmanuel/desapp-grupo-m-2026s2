@@ -4,9 +4,10 @@ defmodule FootballMarket.Quotes.RecoveryTest do
 
   alias FootballMarket.{Quotes, Repo}
   alias FootballMarket.QuotesCase
-  alias FootballMarket.Quotes.{CalculationRequest, Recovery}
+  alias FootballMarket.Quotes.{CalculationRequest, Membership, Recovery}
   alias FootballMarket.ValuationConfigurationCase
   alias FootballMarket.Valuation.Configurations
+  alias FootballMarket.StatisticsIngestion.{Case, Fixtures}
 
   setup do
     old = Application.get_env(:football_market, FootballMarket.Synchronization)
@@ -117,6 +118,86 @@ defmodule FootballMarket.Quotes.RecoveryTest do
     assert %{reason: "configuration_unavailable"} = Repo.get!(CalculationRequest, due.id)
     assert Repo.get!(CalculationRequest, future.id).state == "retrying"
     assert Repo.get!(CalculationRequest, second_backoff.id).state == "retrying"
+  end
+
+  test "nightly TTL admission handles database timestamps and repeats safely", f do
+    scope = Fixtures.scope(2080)
+    Case.seed_catalog!(scope)
+    candidate = Case.candidate(Fixtures.request(scope))
+    context = Case.delivery_context!(scope)
+
+    assert {:ok, import} =
+             FootballMarket.Statistics.Ingestion.import_scope(
+               scope,
+               Case.provider_options(candidate) ++ [delivery_context: context]
+             )
+
+    # Reuse the accepted intent as a durable owner for this player/season snapshot.
+    assert :ok = Membership.snapshot_import!(import.calculation_intent_id, [f.performance.id])
+    assert {:ok, _} = Configurations.activate(f.configuration.id, nil)
+
+    old_quote_at = DateTime.add(DateTime.utc_now(), -172_800, :second)
+    quote = QuotesCase.dated_quote(f, old_quote_at)
+
+    previous_mapping = Application.get_env(:football_market, :quote_mapping_id)
+
+    previous_freshness =
+      Application.get_env(:football_market, FootballMarket.Statistics.Freshness, [])
+
+    previous_closing = Application.get_env(:football_market, FootballMarket.Quotes.Closing, [])
+
+    Application.put_env(:football_market, :quote_mapping_id, f.mapping.id)
+
+    Application.put_env(
+      :football_market,
+      FootballMarket.Statistics.Freshness,
+      Keyword.put(previous_freshness, :ttl_seconds, 86_400)
+    )
+
+    Application.put_env(:football_market, FootballMarket.Quotes.Closing,
+      default_recurrence: "* * * * *",
+      recurrences: %{}
+    )
+
+    on_exit(fn ->
+      Application.put_env(:football_market, :quote_mapping_id, previous_mapping)
+
+      Application.put_env(
+        :football_market,
+        FootballMarket.Statistics.Freshness,
+        previous_freshness
+      )
+
+      Application.put_env(:football_market, FootballMarket.Quotes.Closing, previous_closing)
+    end)
+
+    quote_count = Repo.aggregate(FootballMarket.Market.Quote, :count)
+    event_count = Repo.query!("SELECT count(*) FROM quote_evaluation_requests").rows
+    close_time = DateTime.add(DateTime.utc_now(), 120, :second)
+
+    assert {:ok, %{imports: 0, ttl: 1, enqueued: 1}} =
+             FootballMarket.Quotes.Closing.admit_due(close_time)
+
+    request = Repo.get_by!(CalculationRequest, source: "ttl", player_id: f.player.id)
+    assert request.admitted_at
+    assert String.starts_with?(request.admission_key, f.player.id)
+
+    assert %{success: 1} =
+             Oban.drain_queue(FootballMarket.Quotes.TestOban, queue: :quote_calculation)
+
+    assert Repo.get!(CalculationRequest, request.id).state == "successful"
+    assert Repo.aggregate(FootballMarket.Market.Quote, :count) == quote_count + 1
+    [[events_before]] = event_count
+
+    assert Repo.query!("SELECT count(*) FROM quote_evaluation_requests").rows == [
+             [events_before + 1]
+           ]
+
+    assert {:ok, %{imports: 0, ttl: 0, enqueued: 0}} =
+             FootballMarket.Quotes.Closing.admit_due(close_time)
+
+    assert Repo.aggregate(FootballMarket.Market.Quote, :count) == quote_count + 1
+    assert quote.effective_at == old_quote_at
   end
 
   test "a request with three reserved attempts exhausts without financial writes", f do

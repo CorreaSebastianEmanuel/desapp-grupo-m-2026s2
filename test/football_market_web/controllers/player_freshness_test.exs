@@ -31,6 +31,8 @@ defmodule FootballMarketWeb.PlayerFreshnessTest do
     assert Map.keys(shown) |> Enum.sort() == ~w(data statistics statistics_status)
     assert shown["data"] == hd(list["data"])
     assert shown["statistics_status"]["refresh"]["state"] == "queued"
+    assert shown["statistics_status"]["valuation"]["last_quoted_at"] == nil
+    assert shown["statistics_status"]["valuation"]["current_quote"] == nil
     assert shown["statistics_status"]["last_checked_at"] == nil
     assert shown["statistics_status"]["ttl_seconds"] == 86_400
     assert Repo.one!(Run).source_ref == "freshness-fixture"
@@ -46,6 +48,30 @@ defmodule FootballMarketWeb.PlayerFreshnessTest do
     assert Repo.aggregate(Run, :count) == 1
     refute Jason.encode!(shown) =~ "source_identity"
     refute Jason.encode!(shown) =~ "freshness-fixture"
+  end
+
+  test "player freshness includes the latest persisted quote timestamp", f do
+    effective_at = DateTime.utc_now() |> DateTime.truncate(:microsecond)
+
+    Repo.insert!(%FootballMarket.Market.Quote{
+      player_id: f.player.id,
+      unit_price: Decimal.new("1"),
+      effective_at: effective_at,
+      inserted_at: effective_at,
+      rule_id: "initial_issuance",
+      rule_version: "1"
+    })
+
+    body =
+      build_conn()
+      |> put_req_header("x-api-key", f.key)
+      |> get("/api/players/#{f.player.id}")
+      |> json_response(200)
+
+    assert body["statistics_status"]["valuation"]["last_quoted_at"] ==
+             DateTime.to_iso8601(effective_at)
+
+    assert body["statistics_status"]["valuation"]["current_quote"] == "1.00"
   end
 
   test "authentication and player lookup reject before freshness admission", f do

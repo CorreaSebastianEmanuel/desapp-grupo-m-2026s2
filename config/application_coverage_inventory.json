@@ -674,6 +674,12 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/quotes/calculation.ex."
     },
     {
+      "path": "lib/football_market/quotes/closing.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/quotes/closing.ex."
+    },
+    {
       "path": "lib/football_market/quotes/conversion.ex",
       "role": "application",
       "disposition": "include",
@@ -1626,6 +1632,12 @@
       "role": "migration",
       "disposition": "exclude",
       "reason": "Database migration source, not maintained application implementation: priv/repo/migrations/20261027010000_create_market_sales.exs."
+    },
+    {
+      "path": "priv/repo/migrations/20261029000000_add_nightly_quote_admission.exs",
+      "role": "migration",
+      "disposition": "exclude",
+      "reason": "Migration source, excluded from application coverage: priv/repo/migrations/20261029000000_add_nightly_quote_admission.exs."
     },
     {
       "path": "scripts/application_coverage_native.exs",

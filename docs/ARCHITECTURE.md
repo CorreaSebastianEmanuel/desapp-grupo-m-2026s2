@@ -16,6 +16,8 @@ Keep business rules out of controllers and LiveViews. Do not leak provider paylo
 
 Run one modular Phoenix application locally with PostgreSQL and Redis. Oban persists durable jobs in PostgreSQL and runs workers in the application; Redis is a disposable read cache, not the job broker or processed-state ledger. Catalog searches use local data and never scrape arbitrary names. Scoped statistics freshness uses a configurable TTL since the last complete accepted check, with asynchronous deduplicated refresh and stale local reads.
 
+Statistics may refresh on demand during the day. Accepted facts are persisted and visible immediately, while quote-calculation requests remain pending. The market quote is recalculated only by the nightly close, independently per configured league/season; completed matches do not trigger recalculation. The close admits pending fact requests to the existing Oban calculation queue, with a TTL backstop measured from the latest quote and scoped to the latest accepted facts for that player/season. Player detail returns the current quote value and last valuation time beside statistics freshness.
+
 The merged TASK-016 contract is authoritative and must be reused; no duplicate provider boundary is introduced. TASK-017/PR #28 is an optional current-catalog Football-Data.org adapter and cannot satisfy player-performance coverage. TASK-055 owns the scraper and its access/coverage gates.
 
 CP2 now includes user portfolio charts and an additional product feature: conditional buy orders evaluated by Oban after confirmed quotes. LiveView displays order and valuation states; PostgreSQL remains authoritative for financial execution and chart history. Redis optimizations and advanced observability remain CP3.

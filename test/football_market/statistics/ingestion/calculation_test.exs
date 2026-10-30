@@ -94,6 +94,37 @@ defmodule FootballMarket.Statistics.Ingestion.CalculationTest do
 
     assert calculation_request.state == "pending"
 
+    assert {:ok, 0} = FootballMarket.Quotes.Recovery.recover_pending()
+
+    assert Repo.get!(FootballMarket.Quotes.CalculationRequest, calculation_request.id).state ==
+             "pending"
+
+    refute Repo.exists?(
+             from job in Oban.Job,
+               where: job.worker == "FootballMarket.Workers.QuoteCalculation"
+           )
+
+    old_closing =
+      Application.get_env(:football_market, FootballMarket.Quotes.Closing, [])
+
+    Application.put_env(
+      :football_market,
+      FootballMarket.Quotes.Closing,
+      default_recurrence: "* * * * *",
+      recurrences: %{}
+    )
+
+    on_exit(fn ->
+      Application.put_env(:football_market, FootballMarket.Quotes.Closing, old_closing)
+    end)
+
+    close_time = DateTime.add(DateTime.utc_now(), 120, :second)
+
+    assert {:ok, %{imports: 1, ttl: 0, enqueued: 1}} =
+             FootballMarket.Quotes.Closing.admit_due(close_time)
+
+    assert Repo.get!(FootballMarket.Quotes.CalculationRequest, calculation_request.id).admitted_at
+
     assert :ok =
              Oban.Testing.perform_job(
                FootballMarket.Workers.QuoteCalculation,

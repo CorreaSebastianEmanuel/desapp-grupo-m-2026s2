@@ -13,9 +13,11 @@ defmodule FootballMarket.Quotes.Recovery do
       Repo.all(
         from r in CalculationRequest,
           where:
-            r.state in ["pending", "running"] or
+            ((r.source != "import" or not is_nil(r.admitted_at)) and
+               r.state in ["pending", "running"]) or
               (r.state == "retrying" and not is_nil(r.next_attempt_at) and
-                 r.next_attempt_at <= ^now),
+                 r.next_attempt_at <= ^now and
+                 (r.source != "import" or not is_nil(r.admitted_at))),
           order_by: [asc: r.inserted_at, asc: r.id],
           select: r.id,
           limit: 500

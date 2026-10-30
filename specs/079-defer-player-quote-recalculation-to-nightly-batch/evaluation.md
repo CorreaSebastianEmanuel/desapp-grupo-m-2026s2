@@ -1,19 +1,19 @@
 # Independent evaluation — TASK-079 re-review
 
-Re-reviewed the repair delta and affected quote recovery, TTL admission, player freshness, and changed integration test surfaces against the compact outcome spec and `REVIEW.md`. No implementation code was changed and no other evaluator or verification workflow was invoked.
+Reviewed the repair commit and affected quote admission, recovery, TTL, player freshness, scheduler, migration, and focused test surfaces against the compact outcome spec and `REVIEW.md`. No implementation code was changed; no `agentflow verify`, other skill, or other evaluator was used.
 
 ## Repair verification
 
-- **B1 resolved:** `lib/football_market/quotes/recovery.ex` gates only unadmitted import requests. Explicit requests continue through pending/running and due-retry recovery.
-- **B2 resolved:** `lib/football_market/quotes/closing.ex` normalizes the raw SQL `NaiveDateTime` directly when creating the TTL admission key. `test/football_market/quotes/recovery_test.exs` exercises PostgreSQL TTL selection, admission, processing, quote/event writes, and duplicate-close behavior.
-- **B3 resolved:** `lib/football_market/statistics/freshness/valuation_status.ex` supplies the prior persisted quote value and its `effective_at` timestamp in player-detail valuation status. `test/football_market_web/controllers/player_freshness_test.exs` asserts both serialized values.
-- Existing focused integration evidence records 31 passing tests across quote recovery/import/lifecycle, statistics calculation, and player freshness.
-- The local ThinFlow TASK-079 candidate receipt matches the current selected paths and evidence hashes. Its high tier selected `harness-tests`, `format`, `compile`, `ci-contracts`, and `unit-profile`; each recorded exit code is 0. Exact hosted `ThinFlow required` and human merge remain downstream gates.
+- **B1 resolved:** `lib/football_market/quotes/recovery.ex` holds unadmitted import requests pending while still recovering eligible requests; `lib/football_market/quotes.ex` also rejects direct processing of an unadmitted import request.
+- **B2 resolved:** `lib/football_market/quotes/closing.ex` normalizes the raw SQL `NaiveDateTime` in the TTL admission key. The focused recovery test exercises PostgreSQL TTL selection, admission, processing, quote/event writes, and duplicate-close behavior.
+- **B3 resolved:** `lib/football_market/statistics/freshness/valuation_status.ex` returns the persisted current quote and `effective_at`; the player freshness test asserts both serialized values.
+- The recurring `QuoteClose` worker invokes per-season configured recurrence admission; accepted imports only record pending requests, while close admission marks them eligible and recovery enqueues them. The migration preserves eligibility of pre-existing requests.
+- The local candidate receipt selects the current task paths at high tier and records exit code 0 for `harness-tests`, `format`, `compile`, `ci-contracts`, and `unit-profile`. I recomputed all five evidence log hashes and they match the receipt. `git diff --check origin/main...HEAD` reports one trailing blank line at EOF in `backlog/feedback/TASK-079.md`.
 
 ## Advisory
 
-The focused assertions establish TTL admission and repeat-close behavior, import admission idempotency, recovery filtering, and serialization of the prior quote with its timestamp. I did not find runnable assertions for independent league/season recurrence selection, two weekly requests being processed independently through close, or a completed-match daytime trigger negative case. These are validation gaps without a demonstrated implementation failure and are not blocking findings.
+The focused assertions do not demonstrate independent league/season recurrence selection, separate processing of multiple weekly requests through close, or a completed-match daytime trigger negative case. These are validation gaps without a demonstrated implementation failure. The trailing blank line is also non-blocking.
 
-**Blocking findings: none.** The prior B1, B2, and B3 findings are resolved; no unresolved blocking finding was demonstrated in the repair delta. This evaluation means the candidate is ready for hosted CI and human review; it does not assert that hosted CI passed or that the change was merged.
+**Blocking findings: none.** Prior findings B1, B2, and B3 are resolved; no unresolved blocking finding was demonstrated in the repair delta. This evaluation means the candidate is ready for hosted CI and human review; it does not assert that hosted CI passed or that the change was merged.
 
 Verdict: PASS

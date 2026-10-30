@@ -4,10 +4,10 @@ title: User portfolio charts
 type: task
 checkpoint: CP2
 priority: critical
-status: todo
+status: review
 workflow: thinflow-v1
 depends_on: TASK-046, TASK-057
-active_run: none
+active_run: fcafe4c2
 ---
 
 ## Outcome

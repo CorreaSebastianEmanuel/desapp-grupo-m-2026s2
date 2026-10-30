@@ -799,6 +799,19 @@ defmodule FootballMarket.WorkflowScope do
     ]
   end
 
+  def paths("specs/058-user-portfolio-charts") do
+    [
+      "assets/css/app.css",
+      "backlog/TASK-058-user-portfolio-charts.md",
+      "config/test_profiles.json",
+      "lib/football_market_web/components/workspace_components.ex",
+      "lib/football_market_web/live/workspace_live.ex",
+      "specs/058-user-portfolio-charts/",
+      "test/football_market_web/live/portfolio_live_test.exs",
+      "test/support/workflow_scope.ex"
+    ]
+  end
+
   def paths("specs/069-verify-sonarcloud-external-elixir-report-compatibility") do
     [
       ".github/workflows/sonarcloud.yml",

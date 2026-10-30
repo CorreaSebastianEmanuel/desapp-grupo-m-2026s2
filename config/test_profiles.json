@@ -6120,6 +6120,13 @@
       "profile": "integration"
     },
     {
+      "id": "a6c5d99f5efed11c4132d48f",
+      "runner": "exunit",
+      "file": "test/football_market_web/live/portfolio_live_test.exs",
+      "case_id": "FootballMarketWeb.PortfolioLiveTest:test portfolio charts render accessible populated values and report unavailable reads",
+      "profile": "integration"
+    },
+    {
       "id": "a6d0349886415e2b42adb480",
       "runner": "shell",
       "file": "test/scripts/local_services_failure_test.sh",
@@ -7758,6 +7765,13 @@
       "profile": "integration"
     },
     {
+      "id": "d2d8c2f3f5a04b9f93cbc3db",
+      "runner": "exunit",
+      "file": "test/football_market_web/live/portfolio_live_test.exs",
+      "case_id": "FootballMarketWeb.PortfolioLiveTest:test portfolio charts offer accessible empty allocation and history states",
+      "profile": "integration"
+    },
+    {
       "id": "d330a00eae23a6f6cc9f4faa",
       "runner": "exunit",
       "file": "test/football_market/ranking/order_test.exs",
@@ -9071,6 +9085,13 @@
       "runner": "exunit",
       "file": "test/football_market/market/analytics/store_test.exs",
       "case_id": "FootballMarket.Market.Analytics.StoreTest:test future quotes are excluded and full sale retains profit after allocation disappears",
+      "profile": "integration"
+    },
+    {
+      "id": "f3e50c7a58dc097299987b00",
+      "runner": "exunit",
+      "file": "test/football_market_web/live/portfolio_live_test.exs",
+      "case_id": "FootballMarketWeb.PortfolioLiveTest:test portfolio chart marks missing quote data as a gap, not zero",
       "profile": "integration"
     },
     {

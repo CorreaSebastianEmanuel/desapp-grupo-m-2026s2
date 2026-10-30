@@ -38,6 +38,10 @@ defmodule FootballMarketWeb.WorkspaceLive do
        orders: [],
        positions: [],
        portfolio_unavailable: false,
+       allocation: nil,
+       allocation_unavailable: false,
+       portfolio_history: nil,
+       history_unavailable: false,
        order_form: empty_form(),
        order_error: nil,
        order_notice: nil,
@@ -68,7 +72,7 @@ defmodule FootballMarketWeb.WorkspaceLive do
          load_ranking(socket)
 
        _ ->
-         reload_portfolio(socket)
+         socket |> reload_portfolio() |> reload_charts()
      end}
   end
 
@@ -174,7 +178,7 @@ defmodule FootballMarketWeb.WorkspaceLive do
   end
 
   def handle_info({:conditional_order_changed, _id}, socket) do
-    socket = reload_portfolio(socket)
+    socket = socket |> reload_portfolio() |> reload_charts()
 
     {:noreply,
      if(socket.assigns.destination == "/conditional-orders",
@@ -183,7 +187,8 @@ defmodule FootballMarketWeb.WorkspaceLive do
      )}
   end
 
-  def handle_info(:portfolio_changed, socket), do: {:noreply, reload_portfolio(socket)}
+  def handle_info(:portfolio_changed, socket),
+    do: {:noreply, socket |> reload_portfolio() |> reload_charts()}
 
   defp workspace_heading("/conditional-orders"), do: "Conditional orders"
   defp workspace_heading("/players"), do: "Players"
@@ -214,7 +219,8 @@ defmodule FootballMarketWeb.WorkspaceLive do
     {:noreply,
      socket
      |> assign(trade_error: nil, trade_notice: "Trade confirmed.", trade_complete: true)
-     |> reload_portfolio()}
+     |> reload_portfolio()
+     |> reload_charts()}
   end
 
   defp trade_result(socket, {:error, error}),
@@ -473,6 +479,12 @@ defmodule FootballMarketWeb.WorkspaceLive do
             <p :if={@portfolio_unavailable} id="portfolio-unavailable" role="alert">
               Portfolio data is temporarily unavailable. Try again shortly.
             </p>
+            <.portfolio_charts
+              allocation={@allocation}
+              allocation_unavailable={@allocation_unavailable}
+              history={@portfolio_history}
+              history_unavailable={@history_unavailable}
+            />
             <div :if={@positions == [] && !@portfolio_unavailable} class="empty-state">
               <span class="empty-symbol" aria-hidden="true">◎</span>
               <h2>Your portfolio starts here</h2>
@@ -534,6 +546,33 @@ defmodule FootballMarketWeb.WorkspaceLive do
     case Portfolio.list(domain_actor(socket.assigns.actor)) do
       {:ok, positions} -> assign(socket, positions: positions, portfolio_unavailable: false)
       {:error, _} -> assign(socket, positions: [], portfolio_unavailable: true)
+    end
+  end
+
+  defp reload_charts(%{assigns: %{destination: "/portfolio", actor: actor}} = socket)
+       when not is_nil(actor) do
+    domain_actor = domain_actor(actor)
+
+    {allocation, allocation_unavailable} =
+      chart_read(fn -> Market.portfolio_allocation(domain_actor) end)
+
+    {history, history_unavailable} =
+      chart_read(fn -> Market.portfolio_history(domain_actor, %{}) end)
+
+    assign(socket,
+      allocation: allocation,
+      allocation_unavailable: allocation_unavailable,
+      portfolio_history: history,
+      history_unavailable: history_unavailable
+    )
+  end
+
+  defp reload_charts(socket), do: socket
+
+  defp chart_read(read) do
+    case read.() do
+      {:ok, data} -> {data, false}
+      {:error, _} -> {nil, true}
     end
   end
 

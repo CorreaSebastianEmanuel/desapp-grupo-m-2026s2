@@ -4,7 +4,6 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
 
   import Phoenix.ConnTest
   import Phoenix.LiveViewTest
-
   alias FootballMarket.{Catalog, Market, PurchasesCase}
 
   @endpoint FootballMarketWeb.Endpoint
@@ -60,6 +59,127 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
     assert has_element?(view, "#portfolio-position-#{player.id}", player.display_name)
     assert has_element?(view, "#portfolio-position-#{player.id}", "3")
     assert has_element?(view, "#portfolio-position-#{player.id}", "1")
+    assert has_element?(view, "#allocation-chart")
+    assert has_element?(view, "#portfolio-history")
+  end
+
+  test "portfolio chart marks missing quote data as a gap, not zero" do
+    point = %{
+      date: ~D[2026-10-30],
+      cutoff_at: ~U[2026-10-30 12:00:00Z],
+      market_value: Decimal.new("1"),
+      realized_profit_loss: Decimal.new(0),
+      unrealized_profit_loss: Decimal.new("0"),
+      purchase_expenditure: Decimal.new("1"),
+      sale_proceeds: Decimal.new("0")
+    }
+
+    points = [
+      point,
+      %{point | date: ~D[2026-10-31], cutoff_at: ~U[2026-10-31 12:00:00Z], market_value: nil},
+      %{
+        point
+        | date: ~D[2026-11-01],
+          cutoff_at: ~U[2026-11-01 12:00:00Z],
+          market_value: Decimal.new("2")
+      }
+    ]
+
+    html =
+      render_component(&FootballMarketWeb.WorkspaceComponents.history_chart/1, %{
+        points: points,
+        metric: :market_value,
+        label: "Portfolio market value"
+      })
+
+    assert html =~ "Unknown"
+    assert length(Regex.scan(~r/M[0-9.]+,[0-9.]+/, html)) == 2
+    assert html =~ "Scale: 1 to 2 credits."
+    assert html =~ "2026-10-30T12:00:00Z"
+
+    incomplete_allocation =
+      render_component(&FootballMarketWeb.WorkspaceComponents.portfolio_charts/1, %{
+        allocation: %{
+          positions: [%{player_name: "Alex Example", weight: nil}],
+          totals: %{valuation_complete: false},
+          as_of: ~U[2026-10-30 12:00:00Z]
+        },
+        allocation_unavailable: false,
+        history: %{points: [], from: ~D[2026-10-30], to: ~D[2026-10-30]},
+        history_unavailable: false
+      })
+
+    assert incomplete_allocation =~ "Unknown"
+
+    assert incomplete_allocation =~
+             "Allocation is unknown until every held player has a current quote."
+
+    realized =
+      render_component(&FootballMarketWeb.WorkspaceComponents.history_chart/1, %{
+        points: points,
+        metric: :realized_profit_loss,
+        label: "Realized profit/loss"
+      })
+
+    assert realized =~ "<td>0</td>"
+    refute realized =~ "<td>Unknown</td>"
+  end
+
+  test "portfolio charts offer accessible empty allocation and history states" do
+    html =
+      render_component(&FootballMarketWeb.WorkspaceComponents.portfolio_charts/1, %{
+        allocation: %{positions: [], totals: %{}, as_of: ~U[2026-10-30 12:00:00Z]},
+        allocation_unavailable: false,
+        history: %{points: [], from: ~D[2026-10-01], to: ~D[2026-10-30]},
+        history_unavailable: false
+      })
+
+    assert html =~ "No current holdings to allocate."
+    assert html =~ "No portfolio history yet."
+    refute html =~ "history-chart-market_value"
+  end
+
+  test "portfolio charts render accessible populated values and report unavailable reads" do
+    point = %{
+      date: ~D[2026-10-30],
+      cutoff_at: ~U[2026-10-30 12:00:00Z],
+      market_value: Decimal.new("4"),
+      realized_profit_loss: Decimal.new("1"),
+      unrealized_profit_loss: Decimal.new("2"),
+      purchase_expenditure: Decimal.new("3"),
+      sale_proceeds: Decimal.new("0")
+    }
+
+    html =
+      render_component(&FootballMarketWeb.WorkspaceComponents.portfolio_charts/1, %{
+        allocation: %{
+          positions: [%{player_name: "Alex Example", weight: Decimal.new("1")}],
+          totals: %{valuation_complete: true},
+          as_of: ~U[2026-10-30 12:00:00Z]
+        },
+        allocation_unavailable: false,
+        history: %{points: [point], from: point.date, to: point.date},
+        history_unavailable: false
+      })
+
+    assert html =~ "Alex Example"
+    assert html =~ "100.0%"
+    assert html =~ "Portfolio market value by day"
+    assert html =~ "Realized profit/loss by day"
+    assert html =~ "Unrealized profit/loss by day"
+    assert html =~ "2026-10-30T12:00:00Z"
+
+    unavailable =
+      render_component(&FootballMarketWeb.WorkspaceComponents.portfolio_charts/1, %{
+        allocation: nil,
+        allocation_unavailable: true,
+        history: nil,
+        history_unavailable: true
+      })
+
+    assert unavailable =~ "Current allocation is temporarily unavailable"
+    assert unavailable =~ "Portfolio history is temporarily unavailable"
+    refute unavailable =~ "No portfolio history yet"
   end
 
   test "player card preserves missing data and search-to-order links" do
@@ -161,7 +281,7 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
   end
 
   test "ranking and card routes require browser authentication" do
-    for path <- ["/players?player_id=" <> Ecto.UUID.generate(), "/ranking"] do
+    for path <- ["/portfolio", "/players?player_id=" <> Ecto.UUID.generate(), "/ranking"] do
       conn = build_conn() |> get(path)
       assert redirected_to(conn, 303) =~ "/sign-in"
     end

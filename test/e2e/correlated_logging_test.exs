@@ -72,13 +72,34 @@ defmodule FootballMarket.E2E.CorrelatedLoggingTest do
                     where:
                       j.worker in [
                         "FootballMarket.Workers.StatisticsImport",
-                        "FootballMarket.Workers.CalculationDispatch",
-                        "FootballMarket.Workers.QuoteCalculation"
+                        "FootballMarket.Workers.CalculationDispatch"
                       ]
                 )
 
-              if length(jobs) == 3 and Enum.all?(jobs, &(&1.state == "completed")),
+              quote_jobs =
+                Repo.all(
+                  from j in Oban.Job,
+                    where: j.worker == "FootballMarket.Workers.QuoteCalculation"
+                )
+
+              if length(jobs) == 2 and quote_jobs == [] and
+                   Enum.all?(jobs, &(&1.state == "completed")),
                 do: {:ok, jobs},
+                else: :pending
+            end)
+
+            close_time = DateTime.add(DateTime.utc_now(), 2 * 86_400, :second)
+            assert {:ok, %{imports: 1}} = FootballMarket.Quotes.Closing.admit_due(close_time)
+
+            Runtime.await!(fn ->
+              quote_jobs =
+                Repo.all(
+                  from j in Oban.Job,
+                    where: j.worker == "FootballMarket.Workers.QuoteCalculation"
+                )
+
+              if length(quote_jobs) == 1 and Enum.all?(quote_jobs, &(&1.state == "completed")),
+                do: {:ok, quote_jobs},
                 else: :pending
             end)
 

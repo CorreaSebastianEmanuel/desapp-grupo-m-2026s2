@@ -12,27 +12,10 @@ defmodule FootballMarket.Quotes.Closing do
     now = now || Store.database_clock_now!()
 
     with {:ok, configured} <- configuration(),
-         {:ok, scopes} <- scopes() do
-      result =
-        Enum.reduce_while(scopes, {:ok, %{imports: 0, ttl: 0}}, fn scope, {:ok, totals} ->
-          case close_scope(scope, configured, now) do
-            {:ok, counts} ->
-              {:cont,
-               {:ok,
-                %{
-                  imports: totals.imports + counts.imports,
-                  ttl: totals.ttl + counts.ttl
-                }}}
-
-            {:error, reason} ->
-              {:halt, {:error, reason}}
-          end
-        end)
-
-      with {:ok, counts} <- result,
-           {:ok, recovered} <- Recovery.recover_pending() do
-        {:ok, Map.put(counts, :enqueued, recovered)}
-      end
+         {:ok, scopes} <- scopes(),
+         {:ok, counts} <- admit_scopes(scopes, configured, now),
+         {:ok, recovered} <- Recovery.recover_pending() do
+      {:ok, Map.put(counts, :enqueued, recovered)}
     end
   rescue
     _ -> {:error, :quote_close_unavailable}
@@ -84,6 +67,27 @@ defmodule FootballMarket.Quotes.Closing do
     end
   end
 
+  defp admit_scopes(scopes, configured, now) do
+    Enum.reduce_while(scopes, {:ok, %{imports: 0, ttl: 0}}, fn scope, {:ok, totals} ->
+      accumulate_scope(scope, configured, now, totals)
+    end)
+  end
+
+  defp accumulate_scope(scope, configured, now, totals) do
+    case close_scope(scope, configured, now) do
+      {:ok, counts} ->
+        {:cont,
+         {:ok,
+          %{
+            imports: totals.imports + counts.imports,
+            ttl: totals.ttl + counts.ttl
+          }}}
+
+      {:error, reason} ->
+        {:halt, {:error, reason}}
+    end
+  end
+
   defp schedule_key(scope),
     do: "#{scope.league_code}:#{scope.start_year}-#{scope.end_year}"
 
@@ -106,22 +110,28 @@ defmodule FootballMarket.Quotes.Closing do
     ttl_seconds = Keyword.get(config, :ttl_seconds, 86_400)
     mapping_id = Application.get_env(:football_market, :quote_mapping_id)
 
-    with true <- is_integer(ttl_seconds) and ttl_seconds > 0,
-         {:ok, mapping_id} <- Ecto.UUID.cast(mapping_id) do
-      quote_before = DateTime.add(due, -ttl_seconds, :second)
+    case {is_integer(ttl_seconds) and ttl_seconds > 0, Ecto.UUID.cast(mapping_id)} do
+      {true, {:ok, mapping_id}} ->
+        quote_before = DateTime.add(due, -ttl_seconds, :second)
+        candidates = ttl_candidates(scope.id, DateTime.to_naive(quote_before), due)
+        count_ttl_candidates(candidates, due, mapping_id)
 
-      ttl_candidates(scope.id, DateTime.to_naive(quote_before), due)
-      |> Enum.reduce(0, fn candidate, count ->
-        case create_ttl_request(candidate, due, mapping_id) do
-          :inserted -> count + 1
-          :exists -> count
-        end
-      end)
-    else
-      false -> Repo.rollback(:invalid_quote_ttl)
-      _ -> 0
+      {false, _} ->
+        Repo.rollback(:invalid_quote_ttl)
+
+      _ ->
+        0
     end
   end
+
+  defp count_ttl_candidates(candidates, due, mapping_id) do
+    Enum.reduce(candidates, 0, fn candidate, count ->
+      increment_ttl_count(create_ttl_request(candidate, due, mapping_id), count)
+    end)
+  end
+
+  defp increment_ttl_count(:inserted, count), do: count + 1
+  defp increment_ttl_count(:exists, count), do: count
 
   defp ttl_candidates(season_id, quote_before, due) do
     Repo.query!(
@@ -162,49 +172,67 @@ defmodule FootballMarket.Quotes.Closing do
          due,
          mapping_id
        ) do
-    with {:ok, facts} <- Membership.facts(material) do
-      key =
-        Enum.join(
-          [
-            Ecto.UUID.load!(player_id),
-            Ecto.UUID.load!(season_id),
-            NaiveDateTime.to_iso8601(quote_at),
-            DateTime.to_iso8601(due)
-          ],
-          ":"
+    case Membership.facts(material) do
+      {:ok, facts} ->
+        insert_ttl_request(
+          [player_id, season_id, week_start, week_end, membership],
+          facts,
+          due,
+          mapping_id,
+          quote_at
         )
 
-      fact_material = %{"facts" => FootballMarket.Quotes.EvidenceCodec.encode_facts(facts)}
-
-      result =
-        Repo.query!(
-          """
-          INSERT INTO quote_calculation_requests
-            (id, source, player_id, season_id, week_start, week_end, selector, mapping_id,
-             explicit_membership, explicit_fact_material, state, attempt_count, lease_fence,
-             admitted_at, admission_key, inserted_at)
-          VALUES
-            (gen_random_uuid(), 'ttl', $1, $2, $3, $4, 'active', $5,
-             $6, $7::jsonb, 'pending', 0, 0, $8, $9, $8)
-          ON CONFLICT (admission_key) WHERE admission_key IS NOT NULL DO NOTHING
-          RETURNING id
-          """,
-          [
-            player_id,
-            season_id,
-            week_start,
-            week_end,
-            Ecto.UUID.dump!(mapping_id),
-            membership,
-            fact_material,
-            due,
-            key
-          ]
-        )
-
-      if result.num_rows == 1, do: :inserted, else: :exists
-    else
-      _ -> Repo.rollback(:ttl_facts_unavailable)
+      _ ->
+        Repo.rollback(:ttl_facts_unavailable)
     end
+  end
+
+  defp insert_ttl_request(
+         [player_id, season_id, week_start, week_end, membership],
+         facts,
+         due,
+         mapping_id,
+         quote_at
+       ) do
+    key =
+      Enum.join(
+        [
+          Ecto.UUID.load!(player_id),
+          Ecto.UUID.load!(season_id),
+          NaiveDateTime.to_iso8601(quote_at),
+          DateTime.to_iso8601(due)
+        ],
+        ":"
+      )
+
+    fact_material = %{"facts" => FootballMarket.Quotes.EvidenceCodec.encode_facts(facts)}
+
+    result =
+      Repo.query!(
+        """
+        INSERT INTO quote_calculation_requests
+          (id, source, player_id, season_id, week_start, week_end, selector, mapping_id,
+           explicit_membership, explicit_fact_material, state, attempt_count, lease_fence,
+           admitted_at, admission_key, inserted_at)
+        VALUES
+          (gen_random_uuid(), 'ttl', $1, $2, $3, $4, 'active', $5,
+           $6, $7::jsonb, 'pending', 0, 0, $8, $9, $8)
+        ON CONFLICT (admission_key) WHERE admission_key IS NOT NULL DO NOTHING
+        RETURNING id
+        """,
+        [
+          player_id,
+          season_id,
+          week_start,
+          week_end,
+          Ecto.UUID.dump!(mapping_id),
+          membership,
+          fact_material,
+          due,
+          key
+        ]
+      )
+
+    if result.num_rows == 1, do: :inserted, else: :exists
   end
 end

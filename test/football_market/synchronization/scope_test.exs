@@ -105,6 +105,7 @@ defmodule FootballMarket.Synchronization.ScopeTest do
              {Oban.Plugins.Cron,
               crontab: [
                 {"* * * * *", FootballMarket.Workers.QuoteRecovery},
+                {"* * * * *", FootballMarket.Workers.QuoteClose},
                 {"* * * * *", FootballMarket.Workers.ConditionalOrderRecovery}
               ]}
            ] = plugins

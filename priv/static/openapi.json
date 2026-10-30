@@ -311,7 +311,9 @@
                         "valuation": {
                           "state": "not_requested",
                           "calculation_intent_id": null,
-                          "request_states": {}
+                          "request_states": {},
+                          "last_quoted_at": null,
+                          "current_quote": null
                         }
                       },
                       "statistics": {
@@ -2740,7 +2742,9 @@
         "required": [
           "state",
           "calculation_intent_id",
-          "request_states"
+          "request_states",
+          "last_quoted_at",
+          "current_quote"
         ],
         "properties": {
           "state": {
@@ -2765,6 +2769,17 @@
               "type": "integer",
               "minimum": 0
             }
+          },
+          "last_quoted_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "current_quote": {
+            "type": "string",
+            "pattern": "^[0-9]+\\.[0-9]{2}$",
+            "nullable": true,
+            "description": "Last persisted quote value in credits per token."
           }
         },
         "additionalProperties": false

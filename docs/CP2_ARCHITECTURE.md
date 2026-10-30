@@ -27,6 +27,12 @@ Redis: optimización de búsquedas/ranking en CP3.
 PostgreSQL: autoridad incluso cuando exista cache.
 ```
 
+## Actualización diurna y cierre de cotizaciones
+
+Una búsqueda o apertura de ficha puede solicitar una actualización asíncrona de estadísticas vencidas. Cuando la fuente confirma cambios, se guardan los hechos aceptados y quedan disponibles para lectura durante el día; también se conserva una solicitud durable de cálculo de cotización. Ese evento no crea una cotización ni una orden de cálculo inmediata: el precio publicado sigue siendo el del último cierre, y la ficha devuelve la frescura de las estadísticas junto con el valor cotizado vigente y la fecha de última valoración.
+
+El cierre nocturno programado por liga/temporada admite en Oban cada solicitud pendiente de hechos aceptados y ejecuta el cálculo con los datos persistidos y la estrategia versionada. Como respaldo, una cotización que alcance su TTL se recalcula usando el ámbito aceptado más reciente de ese jugador/temporada. El TTL se mide desde la última cotización. Completar un partido durante el día no dispara el cálculo; el recálculo postpartido queda como posible evolución futura. La inserción inmutable de la cotización y su evento de evaluación conservan la transacción actual; Oban continúa después con la evaluación de órdenes.
+
 ## Flujo del feature adicional
 
 ```text

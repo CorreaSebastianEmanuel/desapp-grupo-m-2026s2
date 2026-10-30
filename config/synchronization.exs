@@ -16,6 +16,7 @@ config :football_market, Oban,
     {Oban.Plugins.Cron,
      crontab: [
        {"* * * * *", FootballMarket.Workers.QuoteRecovery},
+       {"* * * * *", FootballMarket.Workers.QuoteClose},
        {"* * * * *", FootballMarket.Workers.ConditionalOrderRecovery}
      ]}
   ],
@@ -31,3 +32,7 @@ config :football_market, FootballMarket.Statistics.Freshness,
   ttl_seconds: 86_400,
   cooldown_seconds: 3_600,
   refresh_options_by_scope: %{}
+
+config :football_market, FootballMarket.Quotes.Closing,
+  default_recurrence: "0 0 * * *",
+  recurrences: %{}

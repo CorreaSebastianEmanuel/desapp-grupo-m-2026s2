@@ -31,7 +31,7 @@ defmodule FootballMarket.Valuation.CalculationRequests do
   defp do_accept(intent_id, check_id, ids) do
     Repo.transaction(fn ->
       request = accept_locked(intent_id, check_id, ids)
-      FootballMarket.Quotes.Membership.enqueue_import!(intent_id)
+      FootballMarket.Quotes.Membership.record_import!(intent_id)
       request
     end)
     |> case do

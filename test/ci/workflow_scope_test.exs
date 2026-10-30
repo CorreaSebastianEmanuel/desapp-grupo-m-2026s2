@@ -69,6 +69,24 @@ defmodule FootballMarket.WorkflowScopeTest do
       assert WorkflowScope.allows_path?(feature, "test/support/workflow_scope.ex")
     end
 
+    security_feature = "specs/074-required-sobelow-security-analysis-for-elixir-prs"
+    assert WorkflowScope.allows_path?(security_feature, "scripts/sobelow_ci.py")
+    assert WorkflowScope.allows_path?(security_feature, "test/scripts/sobelow_ci_test.py")
+    assert WorkflowScope.allows_path?(security_feature, ".github/workflows/quality-baseline.yml")
+
+    for path <- [
+          "backlog/feedback/TASK-074.md",
+          "config/test_profiles.json",
+          "docs/WORKFLOW_LESSONS.md"
+        ] do
+      assert WorkflowScope.allows_path?(security_feature, path)
+    end
+
+    refute WorkflowScope.allows_path?(security_feature, "backlog/feedback/TASK-075.md")
+    refute WorkflowScope.allows_path?(security_feature, "config/unplanned.json")
+    refute WorkflowScope.allows_path?(security_feature, "lib/football_market/statistics.ex")
+    refute WorkflowScope.allows_path?(security_feature, ".github/workflows/unplanned.yml")
+
     probe_feature = "specs/069-verify-sonarcloud-external-elixir-report-compatibility"
     assert WorkflowScope.allows_path?(probe_feature, ".github/workflows/sonarcloud.yml")
     assert WorkflowScope.allows_path?(probe_feature, "test/ci/sonarcloud_contract_test.exs")

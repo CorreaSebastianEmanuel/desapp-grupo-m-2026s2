@@ -1,37 +1,46 @@
-# Independent evaluation — TASK-058
+# Independent evaluation — TASK-058 repair
 
-Reviewed the compact spec, backlog task, REVIEW.md, repository product/architecture/checkpoint/constitution rules, complete candidate diff, analytics implementation and local ThinFlow receipt. No TASK-058 feedback file or previous evaluation exists; this is the initial evaluation. Implementation was not modified and no other agent was invoked.
+Reviewed the compact spec, task, current Feedback 1, REVIEW.md, product/architecture/checkpoint/lessons/constitution, candidate diff, implementation, tests and current local ThinFlow selection/check receipt. This is a repair evaluation: the implementation delta since candidate commit `119f77d` extracts chart geometry helpers and replaces map/join pipelines with `Enum.map_join/3`. Implementation was not modified; no agent was invoked and no workflow logs were inspected. The prior report was not used as check evidence.
 
 ## Acceptance and evidence
 
 | Acceptance | Assessment and evidence |
 | --- | --- |
-| Authenticated allocation and three daily history charts using TASK-057 | PASS. `WorkspaceLive.reload_charts/1` calls the existing Market analytics context with the browser actor's account ID; the portfolio template renders all four charts. Existing router plug and LiveView authentication hooks remain intact. Focused tests cover authentication, positions and populated components. |
-| Held-player market-value percentages; incomplete allocation unknown | PASS. Component renders player names and Decimal-derived percentages; nil weights display `Unknown` and incomplete totals explain the missing quotes. Existing analytics `Projection.weights/2` suppresses every share when any valuation is missing. Component tests cover complete and incomplete responses. |
-| Default trailing 30 UTC days, credits and effective cutoff timestamps | PASS. History call supplies `%{}`; existing `Analytics.Input.range/2` defaults to today minus 29 days through today. Projection supplies daily UTC cutoffs. Each metric has a credits label and semantic table displaying each returned `cutoff_at` and exact Decimal value. Populated component test checks timestamp and metric labels. |
-| Unknown market/unrealized values remain gaps; realized values survive | PASS. Shared metric renderer splits SVG paths at nil values and displays `Unknown` in the table. Realized values are independently selected. Focused gap test verifies separate path segments, unknown text, known scale, timestamps and retained realized zero. No nil value is converted to a plotted zero. |
-| Accessible allocation/history empty states and read unavailability | PASS. Empty holdings and absence of cumulative historical trade activity have distinct text states. Error tuples clear chart data and produce `role=alert` messages rather than empty/zero output. Component tests cover both empty states and both unavailable states. |
-| Accessible names/summaries, underlying text data, existing positions/auth | PASS. Sections have named headings; history SVGs have title/description IDs and labeled expandable semantic tables. Allocation names/percentages are text in a list. Existing position assertions and unauthenticated redirect checks pass. Responsive CSS stays scoped to chart elements. |
+| Authenticated allocation and three history charts using TASK-057 | PASS. `WorkspaceLive.reload_charts/1` calls existing Market allocation/history functions with the authenticated actor; router authentication remains intact. Component renders all four metrics. Focused module passes authentication and existing-position assertions. Repair does not change loading. |
+| Held-player percentages; incomplete allocation unknown | PASS. Existing analytics `Projection.weights/2` returns nil weights for incomplete valuation. Component labels these Unknown and explains incomplete allocation; Decimal percentages and player names remain textual. Populated and missing-quote component assertions pass. |
+| Default 30 daily UTC points, credits and effective cutoffs | PASS. LiveView passes `%{}` to history; `Analytics.Input.range/2` defaults to today minus 29 days. Projection supplies daily UTC cutoffs; each chart labels credits and exposes exact Decimal values and `cutoff_at` in its table. Repair preserves point indices and x coordinates. |
+| Missing market/unrealized valuations form gaps; realized values survive | PASS. Nil segments are excluded before rendering and each known segment starts with M. Extracted helpers preserve singleton M/L commands, multi-point joins, min/max bounds, constant-value midpoint and y scaling. Existing focused test confirms two separated segments and retained realized zero. No nil is converted into a known zero. |
+| Accessible empty and unavailable states | PASS. Empty holdings and no historical activity have separate text states; failed reads clear chart data and render alerts. Focused empty/unavailable cases pass. Repair preserves empty/all-unknown path behavior. |
+| Accessible names, summaries and underlying values; existing portfolio/auth | PASS. Named sections, SVG title/description, semantic value tables, allocation text and scoped responsive CSS remain intact. Focused portfolio module passes all 9 cases, including positions, refresh, authentication and trading regressions. |
+| Feedback 1: remove excessive nesting/map-join findings without output changes | PASS. `chart_bounds/1`, `chart_segment_path/2`, `chart_point_command/4` and `chart_y/3` preserve the original formulas and segment ordering. Targeted Credo on the repaired file reports one source file, 57 checks, no issues, exit 0. |
 
-## Risk, architecture and deterministic evidence
+## Risk, boundaries and deterministic evidence
 
-- The actual diff correctly selects **high** risk through application and delivery-harness rules, including the profile inventory change; no paths are unmapped. The spec's read-only description does not override this classification.
-- Read `candidate.json` under `.agentflow/runs/thinflow/TASK-058/` and its referenced deterministic check outputs only. Independently invoked `scripts.thinflow.readiness(..., require_evaluation=False)`: current selection, branch, material digest and output SHA-256 identities all validate. Candidate digest: `d45eb30679a974112d2136d9f8623a76f2a000f689d08d960d5f0282d3df158e`.
-- Required evidence: format exit 0 (normally silent); compile exit 0; unit profile complete with 660 expected/discovered/executed/passed cases; CI contracts 26 passed; harness tests 363 passed. Negative-fixture discrepancy messages in harness output accompany an overall successful unittest result, not a failed application profile.
-- Concrete uncovered risk: the new chart cases are integration-classified and therefore absent from the selected unit profile. Ran only `MIX_ENV=test MIX_OS_CONCURRENCY_LOCK=0 mix test test/football_market_web/live/portfolio_live_test.exs`: **9 passed**, seed 738352. Did not rerun the full suite.
-- Changes preserve web/domain/persistence/external boundaries. Geometry and formatting stay in web components; existing analytics owns snapshot reads, quote selection and exact financial calculations. No schema, write path, provider, API or authentication changes. Owner identity comes from the authenticated socket, not user parameters; markup escapes player names. Float conversion is restricted to presentation geometry.
-- Regression scope includes shared workspace components, portfolio route loading, trade/order refresh handlers, chart CSS and test inventories. Chart reads are guarded to `/portfolio`; other workspace routes retain their existing behavior.
+- **High** is the correct selected tier: application code, profile inventory and delivery documents match application/delivery-harness/delivery-docs rules. No unmapped paths or weakened checks. Feedback adds documentation; repair adds no new behavior or dependency.
+- Read only `.agentflow/runs/thinflow/TASK-058/candidate.json` and its referenced deterministic outputs. Invoked `scripts.thinflow.readiness(Path.cwd(), "TASK-058", require_evaluation=False)`: current branch, selection, policy identity, material digest and output hashes validate. Candidate digest: `988e71d7056793fc61be6d8215446ecee10877ef24fa04cf81670e83020e9b38`.
+- Current required evidence: format and compile exit 0 (silent successful outputs are expected); unit profile complete with 660 expected/discovered/executed/passed; CI contracts 26 passed; harness tests 363 passed. Harness negative-fixture diagnostics end in an overall successful unittest result.
+- Web formatting/geometry remains separate from domain calculations, read-only repeatable-read persistence and external adapters. Actor identity is sourced from the authenticated socket; analytics scopes persisted transactions to that owner. Player names are escaped by HEEx. Financial text stays Decimal; floats remain limited to chart geometry. No authentication, write path, financial rule, schema or provider changes.
+- Regression scope is the shared chart renderer and its empty, singleton, constant, multi-point and missing-segment branches. Inspected old/new formulas and affected callers; no changed geometry or cross-route read behavior found. Existing route handlers only load charts for `/portfolio`.
+
+## Targeted checks
+
+The selected unit profile omits the integration-classified chart cases, and the selected manifest has no Credo invocation. These concrete gaps justify only the following supplemental checks:
+
+- `MIX_ENV=test MIX_OS_CONCURRENCY_LOCK=0 mix credo lib/football_market_web/components/workspace_components.ex`: exit 0, one file, no issues. Flycheck-format invocation also exited 0.
+- `MIX_ENV=test MIX_OS_CONCURRENCY_LOCK=0 mix test test/football_market_web/live/portfolio_live_test.exs`: exit 0, 9 passed, seed 714777.
+
+An initial Credo command used an ineffective file-filter option with `--strict`, scanned the repository and exited 14 on additional strict suggestions. It was not the configured CI invocation or evidence of a repaired-file failure; the corrected positional-file command above established the intended check. No full test suite was rerun.
 
 ## Blocking findings
 
-None.
+None. The reported Credo root cause is resolved.
 
 ## Advisory findings
 
-- **Successful route-to-analytics coverage:** `test/football_market_web/live/portfolio_live_test.exs:62` asserts chart containers only. `BrowserSessionCase` runs in a sandbox transaction, while `Analytics.Store.read/3` intentionally returns unavailable when already in a transaction. Thus this route test does not establish successful persisted chart loading, even though direct component fixtures and inspected context wiring support the delivered behavior. A future isolated-schema route test could assert an owned player's percentage and the returned history cutoff, and exclude another owner's values. This is a coverage improvement, not an observed production defect.
+No new advisory findings in the repair delta. Previously recorded coverage advice is not refiled.
 
 ## Residual risks
 
-No real-browser visual or assistive-technology session was run; responsive rendering and SVG accessibility were assessed from markup/CSS and focused tests. The full integration/E2E profiles were not rerun. Separate allocation/history snapshots can have slightly different as-of times, which are displayed independently. Hosted `ThinFlow required` on the exact PR head and human merge remain outstanding delivery gates; this evaluation establishes local readiness for them.
+Successful persisted analytics loading is established by inspected context wiring and component fixtures rather than a new isolated-database route test; sandbox route tests encounter the analytics transaction guard. No browser visual or assistive-technology session was run. Separate allocation/history snapshots can differ slightly in as-of time, displayed independently. Full integration/E2E profiles and hosted quality checks were not rerun here. Exact PR-head `ThinFlow required` and human merge remain delivery gates. Candidate is ready for CI and human review.
 
 Verdict: PASS

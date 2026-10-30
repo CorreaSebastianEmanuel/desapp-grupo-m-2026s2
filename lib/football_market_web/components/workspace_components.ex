@@ -260,44 +260,61 @@ defmodule FootballMarketWeb.WorkspaceComponents do
 
   defp chart_path(points, metric) do
     values = Enum.map(points, &Map.get(&1, metric))
-    known = Enum.filter(values, &(not is_nil(&1)))
 
-    if known == [] do
-      ""
-    else
-      floats = Enum.map(known, &Decimal.to_float/1)
-      minimum = Enum.min(floats)
-      maximum = Enum.max(floats)
-      span = if maximum == minimum, do: 1.0, else: maximum - minimum
-      last_index = max(length(values) - 1, 1)
+    case chart_bounds(values) do
+      nil ->
+        ""
 
-      values
-      |> Enum.with_index()
-      |> Enum.chunk_by(fn {value, _index} -> is_nil(value) end)
-      |> Enum.reject(fn segment -> match?([{nil, _} | _], segment) end)
-      |> Enum.map(fn segment ->
-        commands =
-          segment
-          |> Enum.map(fn {value, index} ->
-            x = 32 + 576 * index / last_index
+      {minimum, maximum} ->
+        scale = {minimum, maximum, max(length(values) - 1, 1)}
 
-            y =
-              if maximum == minimum do
-                88.0
-              else
-                16 + 144 * (maximum - Decimal.to_float(value)) / span
-              end
-
-            "#{if index == elem(hd(segment), 1), do: "M", else: "L"}#{Float.round(x, 2)},#{Float.round(y, 2)}"
-          end)
-
-        case commands do
-          [command] -> command <> " L" <> String.replace_prefix(command, "M", "")
-          commands -> Enum.join(commands, " ")
-        end
-      end)
-      |> Enum.join(" ")
+        values
+        |> Enum.with_index()
+        |> Enum.chunk_by(fn {value, _index} -> is_nil(value) end)
+        |> Enum.reject(&missing_chart_segment?/1)
+        |> Enum.map_join(" ", &chart_segment_path(&1, scale))
     end
+  end
+
+  defp chart_bounds(values) do
+    known = Enum.reject(values, &is_nil/1)
+
+    case known do
+      [] ->
+        nil
+
+      values ->
+        floats = Enum.map(values, &Decimal.to_float/1)
+        {Enum.min(floats), Enum.max(floats)}
+    end
+  end
+
+  defp missing_chart_segment?([{nil, _index} | _rest]), do: true
+  defp missing_chart_segment?(_segment), do: false
+
+  defp chart_segment_path([{value, index}], scale) do
+    command = chart_point_command(value, index, index, scale)
+    command <> " L" <> String.replace_prefix(command, "M", "")
+  end
+
+  defp chart_segment_path([{_value, first_index} | _rest] = segment, scale) do
+    Enum.map_join(segment, " ", fn {value, index} ->
+      chart_point_command(value, index, first_index, scale)
+    end)
+  end
+
+  defp chart_point_command(value, index, first_index, {minimum, maximum, last_index}) do
+    x = 32 + 576 * index / last_index
+    y = chart_y(value, minimum, maximum)
+    command = if index == first_index, do: "M", else: "L"
+    "#{command}#{Float.round(x, 2)},#{Float.round(y, 2)}"
+  end
+
+  defp chart_y(_value, minimum, maximum) when minimum == maximum, do: 88.0
+
+  defp chart_y(value, minimum, maximum) do
+    span = maximum - minimum
+    16 + 144 * (maximum - Decimal.to_float(value)) / span
   end
 
   defp chart_value(nil), do: "Unknown"

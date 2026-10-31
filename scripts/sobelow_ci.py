@@ -25,9 +25,9 @@ EXCEPTIONS = [
     {
         "type": "SQL.Query: SQL injection",
         "file": "lib/football_market/catalog.ex",
-        "line": 183,
+        "line": 180,
         "confidence": "low_confidence",
-        "sha256": "f3217180b5eacfa44e531f69a66e2c48d71edb89d247a2fa2b68b1da8055c6a4"
+        "sha256": "8f8a7e546be03d6b2a59bcd3f84e5106afc3317fe7f0adbd29eff3da9a4bf8c9"
     },
     {
         "type": "DOS.StringToAtom: Unsafe `String.to_atom`",

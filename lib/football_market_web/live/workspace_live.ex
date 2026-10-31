@@ -19,6 +19,8 @@ defmodule FootballMarketWeb.WorkspaceLive do
         FootballMarket.PubSub,
         "conditional_orders:" <> socket.assigns.actor.account_id
       )
+
+      Phoenix.PubSub.subscribe(FootballMarket.PubSub, "catalog_scouts")
     end
 
     {:ok,
@@ -48,6 +50,7 @@ defmodule FootballMarketWeb.WorkspaceLive do
        player_search: "",
        search_performed: false,
        player_results: [],
+       scouting_status: nil,
        selected_player: nil,
        player_search_unavailable: false,
        orders_unavailable: false
@@ -97,12 +100,13 @@ defmodule FootballMarketWeb.WorkspaceLive do
 
   def handle_event("search_players", %{"player_search" => term}, socket) do
     case Catalog.search_players(term) do
-      {:ok, players} ->
+      {:ok, players, scouting_status} ->
         {:noreply,
          assign(socket,
            player_search: term,
            search_performed: true,
            player_results: players,
+           scouting_status: scouting_status,
            selected_player: nil,
            order_form: Map.put(socket.assigns.order_form, "player_id", ""),
            player_search_unavailable: false
@@ -185,6 +189,21 @@ defmodule FootballMarketWeb.WorkspaceLive do
        do: reload_orders(socket),
        else: socket
      )}
+  end
+
+  def handle_info({:catalog_scout_changed, normalized_name}, socket) do
+    if socket.assigns.destination == "/players" and
+         Catalog.Scouting.normalize_identity(socket.assigns.player_search) == normalized_name do
+      case Catalog.search_players(socket.assigns.player_search) do
+        {:ok, players, scouting_status} ->
+          {:noreply, assign(socket, player_results: players, scouting_status: scouting_status)}
+
+        _ ->
+          {:noreply, socket}
+      end
+    else
+      {:noreply, socket}
+    end
   end
 
   def handle_info(:portfolio_changed, socket),
@@ -437,6 +456,39 @@ defmodule FootballMarketWeb.WorkspaceLive do
               class="catalog-hint"
             >
               No players found. Try another name.
+            </p>
+            <p
+              :if={@scouting_status && @scouting_status.state in [:queued, :scouting]}
+              id="catalog-scout-status"
+              role="status"
+            >
+              Searching the configured catalog sources in the background. Search again shortly.
+            </p>
+            <p
+              :if={@scouting_status && @scouting_status.state == :unavailable}
+              id="catalog-scout-status"
+              role="status"
+            >
+              Scouting is unavailable because trusted catalog sources are not configured. Local search is still available.
+            </p>
+            <p
+              :if={
+                @scouting_status &&
+                  @scouting_status.state in [:cached_miss, :provider_failure, :rate_limited]
+              }
+              id="catalog-scout-status"
+              role="status"
+            >
+              Scouting is paused for this name. Try again after {DateTime.to_iso8601(
+                @scouting_status.next_attempt_at
+              )}.
+            </p>
+            <p
+              :if={@scouting_status && @scouting_status.state == :rejected}
+              id="catalog-scout-status"
+              role="status"
+            >
+              Enter a player name containing at least two letters.
             </p>
             <div
               :if={@player_results != []}

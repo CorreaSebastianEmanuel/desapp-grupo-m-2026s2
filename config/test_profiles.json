@@ -926,6 +926,13 @@
       "profile": "unit"
     },
     {
+      "id": "167ac965ffc7405e3ec745af",
+      "runner": "exunit",
+      "file": "test/football_market/catalog/scouting_test.exs",
+      "case_id": "FootballMarket.Catalog.ScoutingTest:test catalog misses deduplicate, negative-cache fruitless runs, and reject invalid names",
+      "profile": "integration"
+    },
+    {
       "id": "16fa5f8ab7f4b5c582b1ba6d",
       "runner": "exunit",
       "file": "test/football_market/statistics/ingestion/calculation_test.exs",
@@ -994,6 +1001,13 @@
       "file": "test/football_market/catalog/ingestion/delivery_receipt_test.exs",
       "case_id": "FootballMarket.Catalog.Ingestion.DeliveryReceiptTest:test scope mismatch and malformed contexts reject without publishing",
       "profile": "integration"
+    },
+    {
+      "id": "17f6183d684b68e0d57965d5",
+      "runner": "exunit",
+      "file": "test/football_market/catalog/scouting_policy_test.exs",
+      "case_id": "FootballMarket.Catalog.ScoutingPolicyTest:test normalizes equivalent Unicode player names for durable deduplication",
+      "profile": "unit"
     },
     {
       "id": "189be024aeef40f11e91b767",
@@ -1799,6 +1813,13 @@
       "file": "test/football_market/accounts/user_test.exs",
       "case_id": "FootballMarket.Accounts.UserTest:test rejects blank, whitespace, malformed, and whitespace-containing addresses",
       "profile": "unit"
+    },
+    {
+      "id": "2db2f49a52bfa13cbd6b67ba",
+      "runner": "exunit",
+      "file": "test/football_market/catalog/scouting_test.exs",
+      "case_id": "FootballMarket.Catalog.ScoutingTest:test hourly admission is capped at ten distinct normalized names",
+      "profile": "integration"
     },
     {
       "id": "2e16bf3fbe641541c4c65785",
@@ -2814,6 +2835,13 @@
       "file": "test/scripts/thinflow_test.py",
       "case_id": "test.scripts.thinflow_test.CandidateTest.test_timed_out_checks_are_recorded_and_third_unchanged_attempt_is_refused",
       "profile": "unit"
+    },
+    {
+      "id": "49714aecba77c401c0b91951",
+      "runner": "exunit",
+      "file": "test/football_market/catalog/scouting_test.exs",
+      "case_id": "FootballMarket.Catalog.ScoutingTest:test unconfigured sources leave local reads available and do not create scout jobs",
+      "profile": "integration"
     },
     {
       "id": "4995f9e283c8cd6ce07ac16d",
@@ -5336,6 +5364,13 @@
       "profile": "unit"
     },
     {
+      "id": "8f9f95df915e253b87657aee",
+      "runner": "exunit",
+      "file": "test/football_market/catalog/scouting_policy_test.exs",
+      "case_id": "FootballMarket.Catalog.ScoutingPolicyTest:test rejects arbitrary or malformed search input before external admission",
+      "profile": "unit"
+    },
+    {
       "id": "8fe3a81db890acc89304c8c6",
       "runner": "shell",
       "file": "test/scripts/ci_unit_tests_test.sh",
@@ -6271,6 +6306,20 @@
       "runner": "exunit",
       "file": "test/football_market_web/controllers/conditional_order_controller_test.exs",
       "case_id": "FootballMarketWeb.ConditionalOrderControllerTest:test authenticated create list detail exact terms location and pure owner reads",
+      "profile": "integration"
+    },
+    {
+      "id": "a8b7a5361396abcf1a520e49",
+      "runner": "exunit",
+      "file": "test/football_market_web/live/catalog_scouting_live_test.exs",
+      "case_id": "FootballMarketWeb.CatalogScoutingLiveTest:test a catalog miss reports that scouting is unavailable when no trusted scope is configured",
+      "profile": "integration"
+    },
+    {
+      "id": "a8d296ae5b1ed93d52cd4c41",
+      "runner": "exunit",
+      "file": "test/football_market/catalog/scouting_test.exs",
+      "case_id": "FootballMarket.Catalog.ScoutingTest:test provider failure leaves local search available and defers the same name until nightly",
       "profile": "integration"
     },
     {
@@ -7636,6 +7685,13 @@
       "runner": "exunit",
       "file": "test/football_market/ranking/safety_test.exs",
       "case_id": "FootballMarket.Ranking.SafetyTest:test ranking reads leave persisted quote and selection rows unchanged",
+      "profile": "integration"
+    },
+    {
+      "id": "cddba59867f4379f1a65f37d",
+      "runner": "exunit",
+      "file": "test/football_market/catalog/scouting_test.exs",
+      "case_id": "FootballMarket.Catalog.ScoutingTest:test a valid miss is admitted immediately, imported through catalog synchronization, then published",
       "profile": "integration"
     },
     {
@@ -9165,6 +9221,13 @@
       "profile": "unit"
     },
     {
+      "id": "f29f181fff843ae525716b20",
+      "runner": "exunit",
+      "file": "test/e2e/catalog_scouting_test.exs",
+      "case_id": "FootballMarket.E2E.CatalogScoutingTest:test real browser search returns immediately and receives the imported catalog result",
+      "profile": "e2e"
+    },
+    {
       "id": "f2dc11e5e0d90f9ed0afda47",
       "runner": "exunit",
       "file": "test/football_market/catalog/ingestion/publication_test.exs",
@@ -9817,7 +9880,8 @@
     "test/support/order_evaluation/runtime_probe.ex": "Conditional evaluation owned-store fixture/runtime support; runtime assertions execute through the feature manifest.",
     "test/runtime/order_evaluation_http.exs": "Conditional evaluation owned-store fixture/runtime support; runtime assertions execute through the feature manifest.",
     "test/support/sales/case.ex": "Fixture/support helper; cases owned by its importing native suite.",
-    "tools/openapi/e2e_market.mjs": "Real Chromium market journey helper; invoked by the E2E portfolio suite."
+    "tools/openapi/e2e_market.mjs": "Real Chromium market journey helper; invoked by the E2E portfolio suite.",
+    "tools/openapi/e2e_catalog_scouting.mjs": "Real Chromium catalog scouting journey helper; invoked by the E2E catalog scouting suite."
   },
   "excluded_roots": [
     ".agentflow",

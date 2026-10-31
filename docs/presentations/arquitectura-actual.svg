@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 1600" role="img" aria-labelledby="title desc">
+  <title id="title">Arquitectura de Football Market</title>
+  <desc id="desc">Diagrama de arquitectura: clientes, Phoenix, dominio, Oban, PostgreSQL y la fuente externa.</desc>
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#6B7785"/>
+    </marker>
+    <marker id="ah-v" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#5B3A9E"/>
+    </marker>
+    <filter id="soft" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#1B2430" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+  <style>
+    .sans { font-family: "Avenir Next", "Segoe UI", system-ui, sans-serif; }
+    .mono { font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace; }
+  </style>
+
+  <rect width="1400" height="1600" fill="#F7F8FB"/>
+
+  <!-- Title -->
+  <text class="sans" x="60" y="52" fill="#1B2430" font-size="34" font-weight="650">Football Market</text>
+  <text class="sans" x="60" y="80" fill="#5C6B7A" font-size="15">Arquitectura del sistema · una aplicación Phoenix, tres fronteras</text>
+
+  <!-- Actors -->
+  <g class="sans">
+    <g transform="translate(300,120)">
+      <circle cx="0" cy="0" r="16" fill="none" stroke="#1D4E89" stroke-width="2"/>
+      <path d="M-20 46c2-20 12-28 20-28s18 8 20 28" fill="none" stroke="#1D4E89" stroke-width="2" stroke-linecap="round"/>
+      <text y="78" fill="#1B2430" font-size="15" font-weight="600" text-anchor="middle">Usuario web</text>
+    </g>
+    <g transform="translate(620,120)">
+      <circle cx="0" cy="0" r="16" fill="none" stroke="#1D4E89" stroke-width="2"/>
+      <path d="M-20 46c2-20 12-28 20-28s18 8 20 28" fill="none" stroke="#1D4E89" stroke-width="2" stroke-linecap="round"/>
+      <text y="78" fill="#1B2430" font-size="15" font-weight="600" text-anchor="middle">Cliente API</text>
+    </g>
+  </g>
+  <line x1="300" y1="176" x2="300" y2="216" stroke="#6B7785" stroke-width="1.5" marker-end="url(#ah)"/>
+  <line x1="620" y1="176" x2="620" y2="216" stroke="#6B7785" stroke-width="1.5" marker-end="url(#ah)"/>
+  <text class="sans" x="318" y="202" fill="#6B7785" font-size="12">HTTP</text>
+
+  <!-- PRESENTACIÓN -->
+  <rect x="60" y="224" width="880" height="148" rx="20" fill="#E7F0FC" stroke="#C5D8F6"/>
+  <rect x="60" y="224" width="10" height="148" rx="5" fill="#1D4E89"/>
+  <text class="sans" x="88" y="254" fill="#1D4E89" font-size="13" font-weight="700" letter-spacing="1.6">PRESENTACIÓN</text>
+
+  <g filter="url(#soft)">
+    <rect x="88" y="272" width="260" height="84" rx="16" fill="#FFFFFF" stroke="#1D4E89" stroke-width="1.6"/>
+    <rect x="372" y="272" width="260" height="84" rx="16" fill="#FFFFFF" stroke="#1D4E89" stroke-width="1.6"/>
+    <rect x="656" y="272" width="264" height="84" rx="16" fill="#FFFFFF" stroke="#1D4E89" stroke-width="1.6"/>
+  </g>
+  <g class="sans">
+    <text x="132" y="302" fill="#1B2430" font-size="17" font-weight="600">LiveView</text>
+    <text x="132" y="326" fill="#5C6B7A" font-size="13">portfolio · ranking · órdenes</text>
+    <text x="416" y="302" fill="#1B2430" font-size="17" font-weight="600">Sesión HTML</text>
+    <text x="416" y="326" fill="#5C6B7A" font-size="13">alta · ingreso</text>
+    <text x="700" y="302" fill="#1B2430" font-size="17" font-weight="600">REST</text>
+    <text x="700" y="326" fill="#5C6B7A" font-size="13">/api protegida</text>
+  </g>
+  <g fill="none" stroke="#1D4E89" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="96" y="286" width="24" height="16" rx="2.5"/>
+    <path d="M105 302h6M108 302v5"/>
+    <rect x="380" y="286" width="24" height="16" rx="2.5"/>
+    <path d="M386 292h12M386 297h8"/>
+    <path d="M664 288h12l10 6v10h-22z"/>
+  </g>
+
+  <line x1="500" y1="372" x2="500" y2="404" stroke="#6B7785" stroke-width="1.5" marker-end="url(#ah)"/>
+
+  <!-- ACCESO -->
+  <rect x="60" y="412" width="880" height="132" rx="20" fill="#FFF6E4" stroke="#F0D7A8"/>
+  <rect x="60" y="412" width="10" height="132" rx="5" fill="#C48A1A"/>
+  <text class="sans" x="88" y="442" fill="#9A6700" font-size="13" font-weight="700" letter-spacing="1.6">ACCESO</text>
+
+  <g filter="url(#soft)">
+    <rect x="88" y="458" width="260" height="68" rx="16" fill="#FFFFFF" stroke="#C48A1A" stroke-width="1.6"/>
+    <rect x="372" y="458" width="260" height="68" rx="16" fill="#FFFFFF" stroke="#C48A1A" stroke-width="1.6"/>
+    <rect x="656" y="458" width="264" height="68" rx="16" fill="#FFFFFF" stroke="#C48A1A" stroke-width="1.6"/>
+  </g>
+  <g class="sans">
+    <text x="132" y="493" fill="#1B2430" font-size="16" font-weight="600">Cookie revocable</text>
+    <text x="416" y="493" fill="#1B2430" font-size="16" font-weight="600">JWT o API key</text>
+    <text x="700" y="493" fill="#1B2430" font-size="16" font-weight="600">CSRF y origen</text>
+  </g>
+  <g fill="none" stroke="#C48A1A" stroke-width="1.7" stroke-linecap="round">
+    <rect x="96" y="472" width="20" height="24" rx="3"/>
+    <circle cx="400" cy="492" r="6"/>
+    <path d="M406 492h12M413 492v5"/>
+    <path d="M664 474h20M664 488h14M676 474v14"/>
+  </g>
+
+  <line x1="500" y1="544" x2="500" y2="576" stroke="#6B7785" stroke-width="1.5" marker-end="url(#ah)"/>
+
+  <!-- DOMINIO -->
+  <rect x="60" y="584" width="880" height="188" rx="20" fill="#E6F6EE" stroke="#B7E0CB"/>
+  <rect x="60" y="584" width="10" height="188" rx="5" fill="#0F7A4A"/>
+  <text class="sans" x="88" y="614" fill="#0F7A4A" font-size="13" font-weight="700" letter-spacing="1.6">APLICACIÓN / DOMINIO</text>
+  <text class="sans" x="300" y="614" fill="#5C6B7A" font-size="13">las reglas viven acá</text>
+
+  <g filter="url(#soft)">
+    <rect x="88" y="632" width="196" height="118" rx="16" fill="#FFFFFF" stroke="#0F7A4A" stroke-width="1.6"/>
+    <rect x="304" y="632" width="196" height="118" rx="16" fill="#FFFFFF" stroke="#0F7A4A" stroke-width="1.6"/>
+    <rect x="520" y="632" width="196" height="118" rx="16" fill="#FFFFFF" stroke="#0F7A4A" stroke-width="1.6"/>
+    <rect x="736" y="632" width="184" height="118" rx="16" fill="#FFFFFF" stroke="#0F7A4A" stroke-width="1.6"/>
+  </g>
+  <g class="sans">
+    <text x="112" y="666" fill="#1B2430" font-size="17" font-weight="600">Cuentas</text>
+    <text x="112" y="690" fill="#5C6B7A" font-size="13">identidad</text>
+    <text x="112" y="710" fill="#5C6B7A" font-size="13">sesiones</text>
+
+    <text x="328" y="666" fill="#1B2430" font-size="17" font-weight="600">Catálogo</text>
+    <text x="328" y="690" fill="#5C6B7A" font-size="13">jugadores</text>
+    <text x="328" y="710" fill="#5C6B7A" font-size="13">estadísticas</text>
+
+    <text x="544" y="666" fill="#1B2430" font-size="17" font-weight="600">Cotización</text>
+    <text x="544" y="690" fill="#5C6B7A" font-size="13">estrategias</text>
+    <text x="544" y="710" fill="#5C6B7A" font-size="13">precio insert-only</text>
+
+    <text x="760" y="666" fill="#1B2430" font-size="17" font-weight="600">Mercado</text>
+    <text x="760" y="690" fill="#5C6B7A" font-size="13">compra y venta</text>
+    <text x="760" y="710" fill="#5C6B7A" font-size="13">órdenes</text>
+  </g>
+
+  <!-- arrow from dominio to async -->
+  <line x1="940" y1="673" x2="976" y2="673" stroke="#5B3A9E" stroke-width="1.5" marker-end="url(#ah-v)"/>
+  <text class="sans" x="948" y="663" fill="#5B3A9E" font-size="11">job</text>
+
+  <line x1="500" y1="772" x2="500" y2="804" stroke="#6B7785" stroke-width="1.5" marker-end="url(#ah)"/>
+
+  <!-- ADAPTADORES -->
+  <rect x="60" y="812" width="880" height="132" rx="20" fill="#F4F6F8" stroke="#D5DCE3"/>
+  <rect x="60" y="812" width="10" height="132" rx="5" fill="#5C6B7A"/>
+  <text class="sans" x="88" y="842" fill="#3D4C5C" font-size="13" font-weight="700" letter-spacing="1.6">ADAPTADORES</text>
+
+  <g filter="url(#soft)">
+    <rect x="88" y="858" width="260" height="68" rx="16" fill="#FFFFFF" stroke="#5C6B7A" stroke-width="1.6"/>
+    <rect x="372" y="858" width="260" height="68" rx="16" fill="#FFFFFF" stroke="#5C6B7A" stroke-width="1.6"/>
+    <rect x="656" y="858" width="264" height="68" rx="16" fill="#FFFFFF" stroke="#5C6B7A" stroke-width="1.6"/>
+  </g>
+  <g class="sans">
+    <text x="132" y="893" fill="#1B2430" font-size="16" font-weight="600">Ecto</text>
+    <text x="132" y="915" fill="#5C6B7A" font-size="13">transacciones y persistencia</text>
+    <text x="416" y="893" fill="#1B2430" font-size="16" font-weight="600">Puerto de lectura</text>
+    <text x="416" y="915" fill="#5C6B7A" font-size="13">solo lectura, con deadline</text>
+    <text x="700" y="893" fill="#1B2430" font-size="16" font-weight="600">Telemetry</text>
+    <text x="700" y="915" fill="#5C6B7A" font-size="13">métricas y logs JSON</text>
+  </g>
+
+  <!-- ASYNC side panel -->
+  <rect x="984" y="224" width="368" height="720" rx="20" fill="#F6F3FC" stroke="#D9CCF3"/>
+  <rect x="984" y="224" width="10" height="720" rx="5" fill="#5B3A9E"/>
+  <text class="sans" x="1012" y="254" fill="#5B3A9E" font-size="13" font-weight="700" letter-spacing="1.6">FONDO</text>
+  <text class="sans" x="1076" y="254" fill="#5C6B7A" font-size="13">mismo nodo, otro ritmo</text>
+
+  <g filter="url(#soft)">
+    <rect x="1012" y="276" width="312" height="76" rx="16" fill="#FFFFFF" stroke="#5B3A9E" stroke-width="1.6" stroke-dasharray="7 4"/>
+    <rect x="1012" y="420" width="312" height="172" rx="16" fill="#FFFFFF" stroke="#5B3A9E" stroke-width="1.6"/>
+    <rect x="1012" y="664" width="312" height="96" rx="16" fill="#FFFFFF" stroke="#5B3A9E" stroke-width="1.6"/>
+  </g>
+  <g class="sans">
+    <text x="1036" y="308" fill="#5B3A9E" font-size="17" font-weight="600">PubSub</text>
+    <text x="1036" y="332" fill="#5C6B7A" font-size="13">avisa a LiveView</text>
+    <text x="1036" y="350" fill="#5C6B7A" font-size="13">no es autoridad</text>
+
+    <text x="1036" y="452" fill="#1B2430" font-size="18" font-weight="600">Oban</text>
+    <text x="1036" y="478" fill="#5C6B7A" font-size="13">cola durable en PostgreSQL</text>
+    <text x="1036" y="508" fill="#1B2430" font-size="13">catálogo · estadísticas</text>
+    <text x="1036" y="530" fill="#1B2430" font-size="13">cierre de cotización</text>
+    <text x="1036" y="552" fill="#1B2430" font-size="13">evaluación de órdenes</text>
+
+    <text x="1036" y="698" fill="#1B2430" font-size="17" font-weight="600">Scraping</text>
+    <text x="1036" y="722" fill="#5C6B7A" font-size="13">HTTP, fixture o apagado</text>
+    <text x="1036" y="740" fill="#5C6B7A" font-size="13">sync off salvo config</text>
+  </g>
+
+  <!-- PubSub return to LiveView -->
+  <path d="M1012 314 H960" fill="none" stroke="#5B3A9E" stroke-width="1.5" stroke-dasharray="6 3" marker-end="url(#ah-v)"/>
+  <text class="sans" x="970" y="304" fill="#5B3A9E" font-size="11">aviso</text>
+
+  <!-- Oban down to scraping -->
+  <line x1="1168" y1="592" x2="1168" y2="658" stroke="#5B3A9E" stroke-width="1.5" marker-end="url(#ah-v)"/>
+
+  <!-- INFRA -->
+  <rect x="60" y="996" width="1280" height="300" rx="20" fill="#FBF6EE" stroke="#E6D3B8"/>
+  <rect x="60" y="996" width="10" height="300" rx="5" fill="#8A5A20"/>
+  <text class="sans" x="88" y="1026" fill="#8A5A20" font-size="13" font-weight="700" letter-spacing="1.6">INFRAESTRUCTURA</text>
+
+  <!-- arrows into stores -->
+  <line x1="196" y1="944" x2="196" y2="1060" stroke="#6B7785" stroke-width="1.5" marker-end="url(#ah)"/>
+  <text class="sans" x="208" y="1012" fill="#6B7785" font-size="11">SQL</text>
+  <line x1="1168" y1="760" x2="1168" y2="1060" stroke="#6B7785" stroke-width="1.5" marker-end="url(#ah)"/>
+  <text class="sans" x="1178" y="900" fill="#6B7785" font-size="11">HTTP</text>
+
+  <!-- PostgreSQL cylinder -->
+  <g>
+    <path d="M104 1088 v96 a96 20 0 0 0 192 0 v-96" fill="#FFFFFF" stroke="#8A5A20" stroke-width="2"/>
+    <ellipse cx="200" cy="1088" rx="96" ry="20" fill="#FFF8EE" stroke="#8A5A20" stroke-width="2"/>
+    <text class="sans" x="200" y="1136" fill="#1B2430" font-size="17" font-weight="600" text-anchor="middle">PostgreSQL</text>
+    <text class="sans" x="200" y="1160" fill="#5C6B7A" font-size="13" text-anchor="middle">datos · precios</text>
+    <text class="sans" x="200" y="1182" fill="#5C6B7A" font-size="13" text-anchor="middle">y la cola Oban</text>
+  </g>
+
+  <!-- Redis cylinder, dashed -->
+  <g>
+    <path d="M460 1108 v76 a76 17 0 0 0 152 0 v-76" fill="#FFFFFF" stroke="#C9BBA6" stroke-width="1.8" stroke-dasharray="6 3"/>
+    <ellipse cx="536" cy="1108" rx="76" ry="17" fill="#FFFFFF" stroke="#C9BBA6" stroke-width="1.8" stroke-dasharray="6 3"/>
+    <text class="sans" x="536" y="1144" fill="#1B2430" font-size="16" font-weight="600" text-anchor="middle">Redis</text>
+    <text class="sans" x="536" y="1168" fill="#5C6B7A" font-size="12" text-anchor="middle">presente</text>
+    <text class="sans" x="536" y="1186" fill="#5C6B7A" font-size="12" text-anchor="middle">sin cache</text>
+  </g>
+
+  <!-- External cloud -->
+  <g>
+    <path d="M900 1190
+             c-12-40 16-70 48-70
+             c12-34 54-44 82-24
+             c24-28 68-20 80 12
+             c32-8 58 20 50 50
+             c24 12 24 44 6 56
+             h-246
+             c-24-10-32-36-20-54z"
+          fill="#FFFFFF" stroke="#8A5A20" stroke-width="2" stroke-linejoin="round"/>
+    <text class="sans" x="1014" y="1176" fill="#1B2430" font-size="17" font-weight="600" text-anchor="middle">Fuente externa</text>
+    <text class="sans" x="1014" y="1232" fill="#5C6B7A" font-size="13" text-anchor="middle">si falla, la lectura local sigue</text>
+  </g>
+
+  <!-- Legend -->
+  <g class="sans" fill="#5C6B7A" font-size="13">
+    <line x1="60" y1="1330" x2="110" y2="1330" stroke="#6B7785" stroke-width="1.5" marker-end="url(#ah)"/>
+    <text x="122" y="1334">llamada</text>
+    <line x1="240" y1="1330" x2="290" y2="1330" stroke="#5B3A9E" stroke-width="1.5" stroke-dasharray="6 3" marker-end="url(#ah-v)"/>
+    <text x="302" y="1334">aviso, no autoridad</text>
+    <ellipse cx="500" cy="1330" rx="20" ry="8" fill="#FFFFFF" stroke="#8A5A20" stroke-width="1.6"/>
+    <text x="528" y="1334">almacenamiento</text>
+    <path d="M720 1338c-3-12 6-18 14-18 2-10 14-12 20-6 6-8 18-6 20 4 8-2 16 6 14 14h-64c-6-2-8-12-4-14z" fill="#FFFFFF" stroke="#8A5A20" stroke-width="1.6"/>
+    <text x="780" y="1334">sistema externo</text>
+    <rect x="980" y="1322" width="28" height="16" rx="4" fill="#FFFFFF" stroke="#C9BBA6" stroke-width="1.6" stroke-dasharray="4 2"/>
+    <text x="1016" y="1334">fuera del camino de producto</text>
+  </g>
+  <text class="sans" x="60" y="1380" fill="#1B2430" font-size="14" font-weight="500">PostgreSQL es la única autoridad. Oban no es otro servidor: su cola es una tabla.</text>
+</svg>

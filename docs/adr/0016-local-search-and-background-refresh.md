@@ -10,7 +10,7 @@ El equipo necesita consultar jugadores sin esperar consultas externas y actualiz
 ## Decisión
 
 - Mantener el monolito modular Phoenix. PostgreSQL y Redis se ejecutan localmente; Oban administra trabajos persistidos en PostgreSQL y ejecuta workers dentro de la aplicación. No agregar RabbitMQ, Kafka ni despliegue en la nube.
-- Buscar exclusivamente en el catálogo local: Redis para resultados temporales, PostgreSQL ante un miss o fallo de Redis. Una búsqueda sin coincidencias devuelve una lista vacía y no dispara scraping por texto libre.
+- Buscar primero en el catálogo local: Redis para resultados temporales, PostgreSQL ante un miss o fallo de Redis. Un miss elegible puede admitir una exploración acotada y asíncrona según el addendum de TASK-078; nunca se consulta al proveedor durante la búsqueda.
 - Cargar el catálogo mediante sincronización inicial, manual o programada. Los trabajos externos usan identidades concretas del proveedor, no nombres ambiguos.
 - Consultar la frescura de las estadísticas de una ficha en PostgreSQL. `last_checked_at` representa la última comprobación exitosa y validada de la fuente para el alcance importado. Una ficha nunca consultada o con TTL vencido solicita actualización sin bloquear la lectura. Propuesta inicial: 24 horas configurables.
 - Definir el alcance de frescura por jugador, proveedor y temporada/conjunto de estadísticas solicitado. Consultar una temporada no vuelve vigentes todas las temporadas del jugador. La especificación de TASK-056 concretará este alcance y el contrato de lectura/solicitud.
@@ -29,6 +29,18 @@ El equipo necesita consultar jugadores sin esperar consultas externas y actualiz
 La investigación favorece un adaptador de scraping con FotMob como candidato principal, reemplazando la selección previa de Football-Data.org. Las pruebas exploratorias hallaron calendarios de cinco ligas y estadísticas de partidos, pero no validaron una temporada completa de importación ni una posición histórica para todos los suplentes. La regla aceptada de posición más frecuente conserva decisiones pendientes sobre ventana, empates e historial insuficiente; ver feedback de TASK-021.
 
 El acceso regular a la fuente no queda autorizado por este ADR. FotMob publica restricciones a la extracción automática sistemática en sus [términos](https://www.fotmob.com/terms). TASK-055 debe resolver acceso permitido y cobertura antes de habilitar sincronización real; las pruebas automatizadas usan fixtures deterministas y no requieren scraping en vivo. Mantener el adaptador reemplazable y no eludir controles de acceso.
+
+## Addendum — exploración acotada ante un miss (TASK-078)
+
+**Estado**: Aceptado por decisión de producto, 2026-10-31.
+
+Un miss válido puede programar una exploración de catálogo por el nombre normalizado. Los nombres equivalentes reutilizan el trabajo activo; se admiten como máximo 10 nombres nuevos por hora y un miss negativo se conserva durante 24 horas. Cada recorrido usa el contrato existente de catálogo completo, con como máximo una solicitud por liga para la temporada configurada (cinco solicitudes en total). No se introduce búsqueda de nombres en el proveedor, extracción arbitraria ni un adaptador externo adicional.
+
+La respuesta de búsqueda no espera al proveedor. El trabajo persiste únicamente catálogo mediante la ingestión idempotente existente y notifica el resultado por PubSub después de la persistencia. No cambia estadísticas, cotizaciones, saldos ni datos de trading. Los fallos del proveedor no afectan lecturas locales; el estado informa el último resultado y el próximo intento. Al agotar el presupuesto por recorrido, se espera hasta la próxima ventana nocturna configurada.
+
+Aceptamos que quien busca un jugador pueda obtener cobertura de catálogo más fresca que una persona que no lo buscó. Rechazamos extracción ilimitada porque convertiría texto arbitrario del usuario en carga externa impredecible y permitiría solicitudes repetidas sin límite. La validación estricta, deduplicación, límite horario, presupuesto por recorrido y caché negativa acotan esa carga.
+
+La temporada del recorrido debe resolverse a partir de configuración explícita; no se deduce del nombre buscado ni se amplía a temporadas adicionales. Ver TASK-078 para el límite de comportamiento.
 
 ## Consecuencias y alternativas
 

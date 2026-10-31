@@ -133,20 +133,17 @@ defmodule FootballMarket.Catalog do
   end
 
   def search_players(term) when is_binary(term) do
-    normalized = String.trim(term)
+    FootballMarket.Catalog.Scouting.search(term)
+  end
 
-    if String.length(normalized) in 2..80 do
-      Query.search_players(normalized, 10)
-      |> Repo.all()
-      |> then(&{:ok, &1})
-    else
-      {:ok, []}
-    end
+  def search_players(_),
+    do: {:ok, [], %{state: :rejected, next_attempt_at: nil, configured_scope_count: 0}}
+
+  def search_local_players(term) when is_binary(term) do
+    Query.search_players(term, 10) |> Repo.all() |> then(&{:ok, &1})
   rescue
     _ -> {:error, :temporarily_unavailable}
   end
-
-  def search_players(_), do: {:ok, []}
 
   def get_player(season_id, identity),
     do: Query.player(season_id, identity) |> Repo.one() |> preload_one_player()

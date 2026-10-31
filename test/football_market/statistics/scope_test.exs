@@ -212,6 +212,27 @@ defmodule FootballMarket.Statistics.ScopeTest do
       "test/ci/fixtures/quality-baseline.sha256"
     ]
 
+    scouting_paths =
+      if active_feature ==
+           "specs/078-search-scouting-on-missing-catalog-and-bounded-demand-refresh-policy" do
+        [
+          "lib/football_market/catalog.ex",
+          "lib/football_market/catalog/scout_run.ex",
+          "lib/football_market/catalog/scout_store.ex",
+          "lib/football_market/catalog/scouting.ex",
+          "lib/football_market/workers/catalog_scout.ex",
+          "lib/football_market_web/live/workspace_live.ex",
+          "priv/repo/migrations/20261031000100_create_catalog_scout_runs.exs",
+          "test/e2e/catalog_scouting_test.exs",
+          "test/football_market/catalog/scouting_policy_test.exs",
+          "test/football_market/catalog/scouting_test.exs",
+          "test/football_market_web/live/catalog_scouting_live_test.exs",
+          "test/support/e2e/runtime.ex"
+        ]
+      else
+        []
+      end
+
     for line <- changed, not is_nil(active_feature) do
       path = String.slice(line, 3..-1//1)
 
@@ -226,6 +247,7 @@ defmodule FootballMarket.Statistics.ScopeTest do
                path in FootballMarket.BrowserSessionCase.shell_paths(active_feature) or
                path in FootballMarket.WorkflowScope.paths(active_feature) or
                path in allowed_ci_paths or path in statistics_ingestion_paths or
+               path in scouting_paths or
                Enum.any?(statistics_ingestion_paths, fn prefix ->
                  String.ends_with?(prefix, "/") and String.starts_with?(path, prefix)
                end) or

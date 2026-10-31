@@ -224,6 +224,7 @@ defmodule FootballMarket.Statistics.ScopeTest do
           "lib/football_market_web/live/workspace_live.ex",
           "priv/repo/migrations/20261031000100_create_catalog_scout_runs.exs",
           "test/e2e/catalog_scouting_test.exs",
+          "test/ci/e2e_runtime_contract_test.exs",
           "test/football_market/catalog/scouting_policy_test.exs",
           "test/football_market/catalog/scouting_test.exs",
           "test/football_market_web/live/catalog_scouting_live_test.exs",

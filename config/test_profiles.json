@@ -926,6 +926,13 @@
       "profile": "integration"
     },
     {
+      "id": "173692e38eb39a85b90302a1",
+      "runner": "exunit",
+      "file": "test/football_market/providers/scraping/assessment_test.exs",
+      "case_id": "FootballMarket.Providers.ScrapingAssessmentTest:test live catalog and performances use assessed HTTPS documents through the existing pipeline",
+      "profile": "unit"
+    },
+    {
       "id": "1740eec1a1ad8b55b82ad416",
       "runner": "exunit",
       "file": "test/football_market/statistics/freshness/context_test.exs",
@@ -1133,6 +1140,13 @@
       "runner": "python",
       "file": "test/scripts/agentflow_artifacts_test.py",
       "case_id": "test.scripts.agentflow_artifacts_test.ApplicabilityTest.test_whole_policy_deletion_cannot_pass_plan_or_tasks_gates",
+      "profile": "unit"
+    },
+    {
+      "id": "1d6caeffadcaa44aee36e6f7",
+      "runner": "exunit",
+      "file": "test/football_market/providers/scraping/assessment_test.exs",
+      "case_id": "FootballMarket.Providers.ScrapingAssessmentTest:test live evidence withdrawal after a document fetch prevents publication",
       "profile": "unit"
     },
     {
@@ -3866,6 +3880,13 @@
       "profile": "integration"
     },
     {
+      "id": "681c9c0e7e6570d6ca852342",
+      "runner": "exunit",
+      "file": "test/football_market/providers/scraping/assessment_test.exs",
+      "case_id": "FootballMarket.Providers.ScrapingAssessmentTest:test live request deadline cancels the HTTP callback before it can publish",
+      "profile": "unit"
+    },
+    {
       "id": "681ed358f137ad2f318bd02a",
       "runner": "python",
       "file": "test/scripts/test_profile_runner_test.py",
@@ -5595,13 +5616,6 @@
       "profile": "unit"
     },
     {
-      "id": "9b1c515300ee69ff5d6091f2",
-      "runner": "exunit",
-      "file": "test/football_market/providers/scraping/safety_test.exs",
-      "case_id": "FootballMarket.Providers.ScrapingSafetyTest:test production adapter has no persistence, web, financial or network dependency",
-      "profile": "unit"
-    },
-    {
       "id": "9b29d945b2f00055853f0559",
       "runner": "exunit",
       "file": "test/football_market/market/portfolio/calculation_test.exs",
@@ -6708,6 +6722,13 @@
       "profile": "unit"
     },
     {
+      "id": "b6751c9be616d1bb7736bb51",
+      "runner": "exunit",
+      "file": "test/football_market/providers/scraping/assessment_test.exs",
+      "case_id": "FootballMarket.Providers.ScrapingAssessmentTest:test expired and future-reviewed live evidence deny before HTTP contact",
+      "profile": "unit"
+    },
+    {
       "id": "b68878d5aa42a4907ee11447",
       "runner": "exunit",
       "file": "test/football_market/valuation/position_aware/arithmetic_test.exs",
@@ -6915,6 +6936,13 @@
       "runner": "python",
       "file": "test/scripts/task_feature_binding_acceptance_test.py",
       "case_id": "test.scripts.task_feature_binding_acceptance_test.WorkflowScopeTest.test_changed_file_allowlist_and_readme_boundary",
+      "profile": "unit"
+    },
+    {
+      "id": "bdb1b997cec702c79019c853",
+      "runner": "exunit",
+      "file": "test/football_market/providers/scraping/assessment_test.exs",
+      "case_id": "FootballMarket.Providers.ScrapingAssessmentTest:test live HTTP failures and shared volume limits return no partial result",
       "profile": "unit"
     },
     {
@@ -7933,6 +7961,13 @@
       "profile": "unit"
     },
     {
+      "id": "d6a446c653eda2f98e4678b5",
+      "runner": "exunit",
+      "file": "test/football_market/providers/scraping/safety_test.exs",
+      "case_id": "FootballMarket.Providers.ScrapingSafetyTest:test production adapter isolates HTTPS access in the assessed transport",
+      "profile": "unit"
+    },
+    {
       "id": "d6d439d4d4d630f480e7c3dc",
       "runner": "exunit",
       "file": "test/football_market/valuation/normalization_test.exs",
@@ -8155,6 +8190,13 @@
       "file": "test/football_market/market/storage_test.exs",
       "case_id": "FootballMarket.Market.StorageTest:test issuance migration seeds its explicit prefix independently of search_path",
       "profile": "integration"
+    },
+    {
+      "id": "dc0c5eace54040959acedd81",
+      "runner": "exunit",
+      "file": "test/football_market/providers/scraping/assessment_test.exs",
+      "case_id": "FootballMarket.Providers.ScrapingAssessmentTest:test live admission fails closed without shared state and enforces concurrent leases",
+      "profile": "unit"
     },
     {
       "id": "dc29d76b03552918c8f86441",
@@ -8645,6 +8687,13 @@
       "file": "test/football_market/market/issuance_test.exs",
       "case_id": "FootballMarket.Market.IssuanceTest:test US1: exact original inventory for independent season identities, no account effects",
       "profile": "integration"
+    },
+    {
+      "id": "e79ac61799a2f178bd8aaefb",
+      "runner": "exunit",
+      "file": "test/football_market/providers/scraping/assessment_test.exs",
+      "case_id": "FootballMarket.Providers.ScrapingAssessmentTest:test actual live assessment denies before the HTTP callback is reached",
+      "profile": "unit"
     },
     {
       "id": "e7cebdbacdec0a3136c1d91a",
@@ -9457,6 +9506,13 @@
       "file": "test/football_market/accounts/api_keys_test.exs",
       "case_id": "FootballMarket.Accounts.ApiKeysTest:test owner revocation affects one key and remains irreversible",
       "profile": "integration"
+    },
+    {
+      "id": "fbdddc0f51f1d3cbf90c13f0",
+      "runner": "exunit",
+      "file": "test/football_market/providers/scraping/assessment_test.exs",
+      "case_id": "FootballMarket.Providers.ScrapingAssessmentTest:test oversized streamed response is cancelled before another chunk is requested",
+      "profile": "unit"
     },
     {
       "id": "fc1aa21c8e566169aa57c8f6",

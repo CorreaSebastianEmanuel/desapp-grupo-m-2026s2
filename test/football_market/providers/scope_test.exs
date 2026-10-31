@@ -13,7 +13,7 @@ defmodule FootballMarket.Providers.ScopeTest do
   @scraping_production [
     "lib/football_market/providers/scraping.ex"
     | Enum.map(
-        ~w(assessment source translator transport disabled_transport fixture_transport),
+        ~w(assessment source translator transport disabled_transport fixture_transport http_transport),
         &"lib/football_market/providers/scraping/#{&1}.ex"
       )
   ]

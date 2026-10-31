@@ -1,10 +1,11 @@
 defmodule FootballMarket.Providers.Scraping do
-  @moduledoc "Explicit offline translator; actual retrieval is denied irrespective of switches."
+  @moduledoc "Assessed provider pipeline with recorded-fixture and HTTPS document transports."
   @behaviour FootballMarket.Providers.Adapter
   alias FootballMarket.Providers.Scraping.{
     Assessment,
     Source,
     FixtureTransport,
+    HttpTransport,
     DisabledTransport
   }
 
@@ -25,15 +26,18 @@ defmodule FootballMarket.Providers.Scraping do
   def provider_label, do: "fotmob-shaped-offline"
 
   def read(request, context, state) when is_map(state) do
-    if state[:mode] != :fixture do
+    if state[:mode] not in [:fixture, :live] do
       DisabledTransport.fetch("disabled", context, state)
     else
+      transport = if state[:mode] == :fixture, do: FixtureTransport, else: HttpTransport
+      state = Map.put(state, :transport, transport)
+
       with {:ok, revision, _} <- Assessment.admit(request, state),
-           {:ok, lease} <- FixtureTransport.acquire(request, context, state) do
+           {:ok, lease} <- transport.acquire(request, context, state) do
         try do
           Source.read(request, context, state, revision)
         after
-          FixtureTransport.release(lease, state)
+          transport.release(lease, state)
         end
       end
     end

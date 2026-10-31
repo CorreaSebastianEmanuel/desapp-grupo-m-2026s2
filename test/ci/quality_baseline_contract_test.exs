@@ -111,13 +111,13 @@ defmodule FootballMarket.QualityBaselineContractTest do
     assert labels == ["Formatting", "Warnings-as-errors", "Unit tests"]
     assert workflow =~ "run: mix format --check-formatted"
     assert workflow =~ "run: MIX_ENV=test mix compile --warnings-as-errors"
-    assert workflow =~ "run: scripts/ci_unit_tests.sh"
+    assert workflow =~ "run: python3 scripts/application_coverage.py run"
     assert workflow =~ "playwright-core install --with-deps chromium"
     refute workflow =~ "playwright-core install --with-deps --only-shell chromium"
     assert workflow =~ "name: Workflow behavior tests"
     assert workflow =~ "verify-receipts tmp/profile-ci"
     assert workflow =~ "fetch-depth: 0"
-    refute workflow =~ ~r/(secrets\.|sonar|coverage|deploy|release|architecture)/i
+    refute workflow =~ ~r/(secrets\.|deploy|release|architecture)/i
     refute workflow =~ ~r/mix format\s*$/m
     refute workflow =~ ~r/mix test.*(--stale|--only|--exclude|test\/)/
   end
@@ -129,6 +129,41 @@ defmodule FootballMarket.QualityBaselineContractTest do
     refute workflow =~ "|| true"
     refute workflow =~ "git add"
     refute workflow =~ "git commit"
+  end
+
+  test "quality reports and required aggregate are tied to the exact PR head", context do
+    document = context.workflow_document
+    ref = "${{ github.event.pull_request.head.sha || github.sha }}"
+
+    for job_name <- ["quality-baseline", "end-to-end"] do
+      checkout =
+        Enum.find(
+          document["jobs"][job_name]["steps"],
+          &(&1["name"] == "Check out triggering revision")
+        )
+
+      assert checkout["with"]["ref"] == ref
+    end
+
+    quality_steps = document["jobs"]["quality-baseline"]["steps"]
+    summary = Enum.find(quality_steps, &(&1["name"] == "Publish quality summary"))
+    assert summary["if"] == "always()"
+    assert summary["run"] == "python3 scripts/quality_summary.py"
+    assert summary["env"]["QUALITY_REVISION"] == ref
+    assert summary["env"]["CREDO_ARTIFACT_OUTCOME"] == "${{ steps.upload-credo.outcome }}"
+    assert Enum.any?(quality_steps, &(&1["name"] == "Upload TASK-067 application coverage"))
+
+    aggregate = document["jobs"]["thinflow-required"]
+
+    assert Enum.any?(
+             aggregate["steps"],
+             &(&1["name"] == "Summarize exact-head required checks" and &1["if"] == "always()")
+           )
+
+    summary_step =
+      Enum.find(aggregate["steps"], &(&1["name"] == "Summarize exact-head required checks"))
+
+    assert summary_step["env"]["QUALITY_REVISION"] == ref
   end
 
   test "Credo reconciliation is mandatory and retains full evidence independently", context do
@@ -147,6 +182,11 @@ defmodule FootballMarket.QualityBaselineContractTest do
     assert baseline =~ "if-no-files-found: error"
     assert baseline =~ "retention-days: 14"
     assert baseline =~ "github.run_attempt"
+    assert baseline =~ "name: Upload TASK-067 application coverage"
+    assert baseline =~ "path: cover/application/"
+    assert baseline =~ "name: Publish quality summary"
+    assert baseline =~ "run: python3 scripts/quality_summary.py"
+    assert baseline =~ "steps.upload-credo.outputs.artifact-url"
     refute baseline =~ "continue-on-error"
     refute baseline =~ "needs: sonar"
 
@@ -159,6 +199,14 @@ defmodule FootballMarket.QualityBaselineContractTest do
     assert upload_step["with"]["path"] == "tmp/credo-ci/"
     assert upload_step["with"]["retention-days"] == 14
     assert upload_step["with"]["if-no-files-found"] == "error"
+
+    uploads =
+      Enum.filter(context.workflow_document["jobs"]["quality-baseline"]["steps"], fn step ->
+        String.starts_with?(step["name"] || "", "Upload ")
+      end)
+
+    assert length(uploads) == 4
+    assert Enum.all?(uploads, &(&1["with"]["if-no-files-found"] == "error"))
     assert upload_step["with"]["name"] =~ "github.sha"
     assert upload_step["with"]["name"] =~ "github.run_attempt"
   end

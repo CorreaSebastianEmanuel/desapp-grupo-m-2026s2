@@ -28,7 +28,8 @@ defmodule FootballMarket.SonarCloudContractTest do
       "cache-dependency-path: tools/openapi/package-lock.json",
       "npm ci --prefix tools/openapi",
       "playwright-core install --with-deps chromium",
-      "scripts/ci_unit_tests.sh"
+      "run: python3 scripts/application_coverage.py run",
+      "verify-receipts tmp/profile-ci"
     ]
 
     positions =

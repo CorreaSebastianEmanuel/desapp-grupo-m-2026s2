@@ -342,6 +342,14 @@ def contained_path(root, relative):
     return path
 
 
+def run_audited_profiles(environment):
+    """Run the existing safe CI wrapper once with native coverage enabled."""
+    result = subprocess.run(['sh', 'scripts/ci_unit_tests.sh'], cwd=ROOT, env=environment,
+                            stdin=subprocess.DEVNULL)
+    if result.returncode:
+        raise ValueError('profile-failure')
+
+
 def validate_run_identity(run_id, started_at=None):
     try:
         if not isinstance(run_id, str) or str(uuid.UUID(run_id)) != run_id:
@@ -716,17 +724,20 @@ def run():
             schedule = partition_schedule()
             partitions = []
             receipt_evidence = {}
+            receipt_root = os.environ.get('CI_PROFILE_RECEIPTS') or str(staging / 'ci-profile-receipts')
+            receipt_directory = Path(receipt_root)
+            if receipt_directory.is_symlink():
+                raise ValueError('publication')
+            env['CI_PROFILE_RECEIPTS'] = str(receipt_directory)
+            run_audited_profiles(env)
             for profile in ('unit', 'integration'):
                 if snapshot() != snap:
                     raise ValueError('snapshot')
-                receipt = contained_path(staging, profile + '-receipt.json')
-                env['CP1_PROFILE_RECEIPT'] = str(receipt)
-                proc = subprocess.run(['sh', 'scripts/test_profile.sh', profile], cwd=ROOT, env=env,
-                                      stdin=subprocess.DEVNULL)
-                if snapshot() != snap:
-                    raise ValueError('snapshot')
-                if proc.returncode or not receipt.exists():
+                external_receipt = contained_path(receipt_directory, profile + '.json')
+                if not external_receipt.is_file():
                     raise ValueError('profile-failure')
+                receipt = contained_path(staging, profile + '-receipt.json')
+                receipt.write_bytes(external_receipt.read_bytes())
                 receipt = contained_path(staging, receipt.name)
                 metadata = strict_json(receipt.read_text())
                 inventory_bytes = (ROOT / 'config/test_profiles.json').read_bytes()

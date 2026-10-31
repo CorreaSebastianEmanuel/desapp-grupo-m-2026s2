@@ -131,6 +131,31 @@ defmodule FootballMarket.WorkflowScopeTest do
     refute WorkflowScope.allows_path?(probe_feature, "lib/football_market/statistics.ex")
     refute WorkflowScope.allows_path?(probe_feature, ".github/workflows/unplanned.yml")
 
+    summary_feature = "specs/076-visible-and-enforceable-elixir-quality-results-on-every-pr"
+
+    for path <- [
+          ".github/workflows/quality-baseline.yml",
+          "backlog/TASK-076-visible-and-enforceable-elixir-quality-results-on-every-pr.md",
+          "backlog/feedback/TASK-076.md",
+          "config/test_profiles.json",
+          "docs/WORKFLOW_LESSONS.md",
+          "scripts/application_coverage.py",
+          "scripts/quality_summary.py",
+          "test/ci/quality_baseline_contract_test.exs",
+          "test/ci/credo_ci_contract_test.exs",
+          "test/ci/sonarcloud_contract_test.exs",
+          "test/ci/test_profiles_quality_contract_test.exs",
+          "test/ci/workflow_scope_test.exs",
+          "test/scripts/application_coverage_test.py",
+          "test/scripts/sobelow_ci_test.py",
+          "test/support/workflow_scope.ex"
+        ] do
+      assert WorkflowScope.allows_path?(summary_feature, path)
+    end
+
+    refute WorkflowScope.allows_path?(summary_feature, "lib/football_market/market.ex")
+    refute WorkflowScope.allows_path?(summary_feature, ".github/workflows/unplanned.yml")
+
     assert WorkflowScope.allows_path?(
              "specs/065-statistics-ingestion-pipeline",
              "lib/football_market/statistics/ingestion/publisher.ex"

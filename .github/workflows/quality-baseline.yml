@@ -44,6 +44,7 @@ jobs:
       - name: Check out triggering revision
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
 
       - name: Install exact BEAM toolchain
@@ -75,9 +76,11 @@ jobs:
         run: MIX_ENV=test mix deps.compile
 
       - name: Credo and source inventory
+        id: credo
         run: sh scripts/credo_ci.sh
 
       - name: Sobelow security analysis
+        id: sobelow
         run: |
           python3 scripts/sobelow_ci.py
           python3 -m unittest discover -s test/scripts -p sobelow_ci_test.py
@@ -94,6 +97,7 @@ jobs:
           key: ${{ steps.dialyzer-cache.outputs.key }}
 
       - name: Required Dialyzer model and application analysis
+        id: dialyzer
         env:
           DIALYZER_CACHE_HIT: ${{ steps.dialyzer-plts.outputs.cache-hit }}
         run: |
@@ -135,39 +139,74 @@ jobs:
         run: MIX_ENV=test mix test.prepare
 
       - name: Unit tests
+        id: application-coverage
         env:
           CI_PROFILE_RECEIPTS: tmp/profile-ci
-        run: scripts/ci_unit_tests.sh
+        run: python3 scripts/application_coverage.py run
 
       - name: Workflow behavior tests
+        id: profile-receipt-verification
         run: python3 scripts/test_profile_components.py verify-receipts tmp/profile-ci
 
       - name: Upload Credo evidence
+        id: upload-credo
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: credo-${{ github.sha }}-attempt-${{ github.run_attempt }}
+          name: credo-${{ github.event.pull_request.head.sha || github.sha }}-attempt-${{ github.run_attempt }}
           path: tmp/credo-ci/
           retention-days: 14
           if-no-files-found: error
 
       - name: Upload Sobelow evidence
+        id: upload-sobelow
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: sobelow-${{ github.sha }}-attempt-${{ github.run_attempt }}
+          name: sobelow-${{ github.event.pull_request.head.sha || github.sha }}-attempt-${{ github.run_attempt }}
           path: tmp/sobelow-ci/
           retention-days: 14
           if-no-files-found: error
 
       - name: Upload Dialyzer evidence
+        id: upload-dialyzer
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: dialyzer-${{ github.sha }}-attempt-${{ github.run_attempt }}
+          name: dialyzer-${{ github.event.pull_request.head.sha || github.sha }}-attempt-${{ github.run_attempt }}
           path: tmp/dialyzer-ci/
           retention-days: 14
           if-no-files-found: error
+
+      - name: Upload TASK-067 application coverage
+        id: upload-coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: application-coverage-${{ github.event.pull_request.head.sha || github.sha }}-attempt-${{ github.run_attempt }}
+          path: cover/application/
+          retention-days: 14
+          if-no-files-found: error
+
+      - name: Publish quality summary
+        if: always()
+        env:
+          QUALITY_REVISION: ${{ github.event.pull_request.head.sha || github.sha }}
+          CREDO_OUTCOME: ${{ steps.credo.outcome }}
+          CREDO_ARTIFACT_URL: ${{ steps.upload-credo.outputs.artifact-url }}
+          CREDO_ARTIFACT_OUTCOME: ${{ steps.upload-credo.outcome }}
+          SOBELOW_OUTCOME: ${{ steps.sobelow.outcome }}
+          SOBELOW_ARTIFACT_URL: ${{ steps.upload-sobelow.outputs.artifact-url }}
+          SOBELOW_ARTIFACT_OUTCOME: ${{ steps.upload-sobelow.outcome }}
+          DIALYZER_OUTCOME: ${{ steps.dialyzer.outcome }}
+          DIALYZER_ARTIFACT_URL: ${{ steps.upload-dialyzer.outputs.artifact-url }}
+          DIALYZER_ARTIFACT_OUTCOME: ${{ steps.upload-dialyzer.outcome }}
+          APPLICATION_COVERAGE_OUTCOME: ${{ steps.application-coverage.outcome }}
+          COVERAGE_ARTIFACT_URL: ${{ steps.upload-coverage.outputs.artifact-url }}
+          COVERAGE_ARTIFACT_OUTCOME: ${{ steps.upload-coverage.outcome }}
+          UNIT_OUTCOME: ${{ steps.application-coverage.outcome }}
+          PROFILE_RECEIPTS_OUTCOME: ${{ steps.profile-receipt-verification.outcome }}
+        run: python3 scripts/quality_summary.py
 
   end-to-end:
     name: End-to-end profile
@@ -200,6 +239,7 @@ jobs:
       - name: Check out triggering revision
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
 
       - name: Install exact BEAM toolchain
@@ -288,3 +328,19 @@ jobs:
           [[ "$QUALITY_RESULT" == success ]]
           [[ "$E2E_RESULT" == success ]]
           [[ "$SONAR_RESULT" == success ]]
+      - name: Summarize exact-head required checks
+        if: always()
+        env:
+          QUALITY_RESULT: ${{ needs.quality-baseline.result }}
+          E2E_RESULT: ${{ needs.end-to-end.result }}
+          SONAR_RESULT: ${{ needs.sonarcloud.result }}
+          QUALITY_REVISION: ${{ github.event.pull_request.head.sha || github.sha }}
+        shell: bash
+        run: |
+          {
+            printf '## ThinFlow required\n\nRevision: `%s`\n\n' "$QUALITY_REVISION"
+            printf '| Required context | Exact-head outcome |\n| --- | --- |\n'
+            printf '| `Quality baseline` | %s |\n| `End-to-end profile` | %s |\n| `SonarCloud` | %s |\n' \
+              "$QUALITY_RESULT" "$E2E_RESULT" "$SONAR_RESULT"
+            printf '\nThe aggregate succeeds only when all three contexts succeed.\n'
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -26,7 +26,9 @@ defmodule FootballMarket.TestProfilesQualityContractTest do
              )
 
     assert after_prepare =~ "- name: Unit tests"
-    assert after_prepare =~ "run: scripts/ci_unit_tests.sh"
+    assert after_prepare =~ "run: python3 scripts/application_coverage.py run"
+    assert after_prepare =~ "- name: Workflow behavior tests"
+    assert after_prepare =~ "verify-receipts tmp/profile-ci"
     [credo_step, _] = String.split(baseline, "- name: Credo and source inventory", parts: 2)
     refute credo_step =~ "name: Unit tests"
     assert after_prepare =~ "- name: Upload Credo evidence"
@@ -41,5 +43,11 @@ defmodule FootballMarket.TestProfilesQualityContractTest do
     assert script =~ "CP1_PROFILE_OUTCOME status=failed category="
     refute script =~ "cat \"$output\""
     refute script =~ "mix test --warnings-as-errors"
+
+    collector = File.read!("scripts/application_coverage.py")
+    assert collector =~ "def run_audited_profiles(environment):"
+    assert collector =~ "subprocess.run(['sh', 'scripts/ci_unit_tests.sh']"
+    assert collector =~ "run_audited_profiles(environment)"
+    assert length(Regex.scan(~r/run_audited_profiles\(environment\)/, collector)) == 1
   end
 end

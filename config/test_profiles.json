@@ -37,6 +37,13 @@
       "profile": "unit"
     },
     {
+      "id": "00dedbad951e075e5cd17311",
+      "runner": "python",
+      "file": "test/scripts/sobelow_ci_test.py",
+      "case_id": "test.scripts.sobelow_ci_test.SobelowCiTest.test_publisher_appends_summary_and_fails_closed_on_nonapproved_result",
+      "profile": "unit"
+    },
+    {
       "id": "010667e7e6aba4e586fad7a3",
       "runner": "exunit",
       "file": "test/football_market/statistics/ingestion/positions_test.exs",
@@ -783,6 +790,13 @@
       "runner": "exunit",
       "file": "test/football_market/market/analytics/projection_test.exs",
       "case_id": "FootballMarket.Market.Analytics.ProjectionTest:test daily replay includes opening trades, carry-forward quotes and retained closed profit",
+      "profile": "unit"
+    },
+    {
+      "id": "129863b220a4c9e394102ed5",
+      "runner": "python",
+      "file": "test/scripts/sobelow_ci_test.py",
+      "case_id": "test.scripts.sobelow_ci_test.SobelowCiTest.test_summary_keeps_skipped_and_stale_evidence_nonpassing",
       "profile": "unit"
     },
     {
@@ -3019,6 +3033,13 @@
       "profile": "unit"
     },
     {
+      "id": "4e4314ecda4d435c741ed54a",
+      "runner": "python",
+      "file": "test/scripts/application_coverage_test.py",
+      "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_coverage_runs_the_existing_ci_profile_wrapper_once",
+      "profile": "unit"
+    },
+    {
       "id": "4e8ead2cb8140f8e5089211f",
       "runner": "exunit",
       "file": "test/football_market_web/api_authentication_test.exs",
@@ -3198,6 +3219,13 @@
       "runner": "exunit",
       "file": "test/football_market/providers/ingestion_contract_test.exs",
       "case_id": "FootballMarket.Providers.IngestionContractTest:test provider errors redact rejected source diagnostics",
+      "profile": "unit"
+    },
+    {
+      "id": "53e7905af26fc10cd702e76b",
+      "runner": "python",
+      "file": "test/scripts/sobelow_ci_test.py",
+      "case_id": "test.scripts.sobelow_ci_test.SobelowCiTest.test_real_finding_and_recovery_reach_the_pr_summary",
       "profile": "unit"
     },
     {
@@ -7240,6 +7268,13 @@
       "profile": "integration"
     },
     {
+      "id": "c3d4276a80ea4d08e9625308",
+      "runner": "exunit",
+      "file": "test/ci/quality_baseline_contract_test.exs",
+      "case_id": "FootballMarket.QualityBaselineContractTest:test quality reports and required aggregate are tied to the exact PR head",
+      "profile": "unit"
+    },
+    {
       "id": "c3e3e905d225b9419bf199ec",
       "runner": "python",
       "file": "test/scripts/agentflow_evidence_test.py",
@@ -7378,6 +7413,13 @@
       "file": "test/football_market_web/api_authentication_test.exs",
       "case_id": "FootballMarketWeb.APIAuthenticationTest:test direct non-binary credential input fails closed",
       "profile": "integration"
+    },
+    {
+      "id": "c6d040d2b0eb5b263741265a",
+      "runner": "python",
+      "file": "test/scripts/sobelow_ci_test.py",
+      "case_id": "test.scripts.sobelow_ci_test.SobelowCiTest.test_native_credo_findings_with_optional_positions_reach_summary",
+      "profile": "unit"
     },
     {
       "id": "c6ecc24c71e38ec686484480",
@@ -8283,6 +8325,13 @@
       "profile": "integration"
     },
     {
+      "id": "dc45bf2fa595cfb4aa28accd",
+      "runner": "python",
+      "file": "test/scripts/sobelow_ci_test.py",
+      "case_id": "test.scripts.sobelow_ci_test.SobelowCiTest.test_analyzer_error_reports_preserve_other_outcomes_and_artifacts",
+      "profile": "unit"
+    },
+    {
       "id": "dc5d61408e00f013b3fd8beb",
       "runner": "exunit",
       "file": "test/football_market/statistics/history_test.exs",
@@ -8315,6 +8364,13 @@
       "runner": "exunit",
       "file": "test/ci/credo_ci_contract_test.exs",
       "case_id": "FootballMarket.CredoCiContractTest:test incomplete oracle and changed snapshots fail and retain diagnostics",
+      "profile": "unit"
+    },
+    {
+      "id": "dcf3e0b3749887467e6f7f08",
+      "runner": "python",
+      "file": "test/scripts/sobelow_ci_test.py",
+      "case_id": "test.scripts.sobelow_ci_test.SobelowCiTest.test_failed_dialyzer_step_preserves_successful_phases_without_approving_gate",
       "profile": "unit"
     },
     {
@@ -8960,6 +9016,13 @@
       "file": "test/football_market_web/live/conditional_orders_live_test.exs",
       "case_id": "FootballMarketWeb.ConditionalOrdersLiveTest:test shows expiry reached before the persisted transition and the expired outcome after reload",
       "profile": "integration"
+    },
+    {
+      "id": "ee2d5ebf91b3f6d971ca3479",
+      "runner": "python",
+      "file": "test/scripts/sobelow_ci_test.py",
+      "case_id": "test.scripts.sobelow_ci_test.SobelowCiTest.test_summary_combines_current_analyzer_and_coverage_reports",
+      "profile": "unit"
     },
     {
       "id": "ee2ef3eead5e144410c90c7e",

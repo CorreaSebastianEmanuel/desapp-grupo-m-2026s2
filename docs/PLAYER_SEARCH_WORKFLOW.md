@@ -107,7 +107,13 @@ Persistir catálogo idempotentemente en PostgreSQL
 Invalidar caché de búsquedas
 ```
 
-Una búsqueda sin coincidencias no dispara scraping de un nombre arbitrario. La sincronización del catálogo permite encontrar nuevos jugadores.
+Una búsqueda sin coincidencias puede admitir una exploración acotada del catálogo. Primero se valida y normaliza el nombre; una consulta inválida nunca genera trabajo externo. Los nombres equivalentes comparten una exploración activa. Cada nombre nuevo admitido cuenta contra un límite de 10 admisiones por hora; los resultados negativos se conservan durante 24 horas.
+
+La exploración es asíncrona y usa exclusivamente la sincronización de catálogo existente. Como máximo solicita un catálogo completo por cada una de las cinco ligas para una temporada configurada, sin más de cinco solicitudes por recorrido. La búsqueda devuelve de inmediato el estado de exploración y nunca espera al proveedor. Un resultado válido se publica mediante la ingestión idempotente del catálogo; después de persistir, se notifica el estado final por PubSub. No se importan estadísticas ni se crean cotizaciones, saldos, tokens, órdenes o transacciones. Los errores del proveedor conservan disponibles las lecturas locales. Si se agota el presupuesto de solicitudes, el siguiente intento espera a la próxima ventana nocturna configurada.
+
+Una temporada debe poder resolverse antes de admitir el recorrido. Si no hay una temporada y fuentes compatibles configuradas, la búsqueda permanece local y muestra el estado de exploración no disponible; nunca infiere una temporada ni inicia scraping arbitrario.
+
+El operador habilita recorridos mediante `:scouting_scopes` en la configuración de `FootballMarket.Synchronization`. Cada entrada enlaza un código de liga permitido, una temporada exacta (`start_year` y `end_year`) y un `source_ref` ya presente en `:sources`. La lista está vacía por defecto; instalar el adaptador no habilita por sí solo contacto externo. El worker valida cada solicitud mediante `Synchronization.request_catalog/2` y conserva sus controles existentes.
 
 ## Responsabilidades y tareas
 

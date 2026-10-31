@@ -87,6 +87,44 @@ defmodule FootballMarket.WorkflowScopeTest do
     refute WorkflowScope.allows_path?(security_feature, "lib/football_market/statistics.ex")
     refute WorkflowScope.allows_path?(security_feature, ".github/workflows/unplanned.yml")
 
+    dialyzer_feature = "specs/075-required-dialyzer-analysis-with-trustworthy-plt-caching"
+
+    for path <- [
+          ".github/workflows/quality-baseline.yml",
+          "backlog/TASK-075-required-dialyzer-analysis-with-trustworthy-plt-caching.md",
+          "backlog/feedback/TASK-075.md",
+          "config/application_coverage_inventory.json",
+          "config/credo_inventory.json",
+          "config/test_profiles.json",
+          "docs/WORKFLOW_LESSONS.md",
+          "mix.exs",
+          "mix.lock",
+          "scripts/dialyzer_analyze.exs",
+          "scripts/dialyzer_ci.py",
+          "scripts/dialyzer_exceptions.json",
+          "specs/075-required-dialyzer-analysis-with-trustworthy-plt-caching/spec.md",
+          "test/ci/fixtures/quality-baseline.sha256",
+          "test/ci/workflow_scope_test.exs",
+          "test/scripts/dialyzer_ci_test.py",
+          "test/support/workflow_scope.ex"
+        ] do
+      assert WorkflowScope.allows_path?(dialyzer_feature, path)
+    end
+
+    assert length(WorkflowScope.paths(dialyzer_feature)) == 17
+
+    for path <- [
+          "lib/football_market/statistics.ex",
+          "scripts/unplanned.py",
+          "config/unplanned.json",
+          "backlog/feedback/TASK-074.md",
+          ".github/workflows/unplanned.yml",
+          "specs/075-required-dialyzer-analysis-with-trustworthy-plt-caching/unplanned.md",
+          "test/ci/fixtures/unplanned.sha256"
+        ] do
+      refute WorkflowScope.allows_path?(dialyzer_feature, path)
+    end
+
     probe_feature = "specs/069-verify-sonarcloud-external-elixir-report-compatibility"
     assert WorkflowScope.allows_path?(probe_feature, ".github/workflows/sonarcloud.yml")
     assert WorkflowScope.allows_path?(probe_feature, "test/ci/sonarcloud_contract_test.exs")

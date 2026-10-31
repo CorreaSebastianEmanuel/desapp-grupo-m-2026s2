@@ -417,6 +417,7 @@
     "priv/repo/migrations/20261029000000_add_nightly_quote_admission.exs",
     "scripts/application_coverage_native.exs",
     "scripts/credo_inventory.exs",
+    "scripts/dialyzer_analyze.exs",
     "scripts/test_profile_discovery.exs",
     "scripts/verify_conditional_orders_preflight.exs",
     "scripts/verify_quote_runtime.exs",

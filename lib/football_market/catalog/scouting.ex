@@ -10,19 +10,22 @@ defmodule FootballMarket.Catalog.Scouting do
   def search(term) do
     case normalize_name(term) do
       {:ok, display_name, normalized_name} ->
-        with {:ok, players} <- Catalog.search_local_players(display_name) do
-          if players == [] do
-            {:ok, players, ScoutStore.admit(display_name, normalized_name, configured_scopes())}
-          else
-            {:ok, players, nil}
-          end
-        end
+        search_normalized(display_name, normalized_name)
 
       :error ->
         {:ok, [], %{state: :rejected, next_attempt_at: nil, configured_scope_count: 0}}
     end
   rescue
     _ -> {:error, :temporarily_unavailable}
+  end
+
+  defp search_normalized(display_name, normalized_name) do
+    with {:ok, players} <- Catalog.search_local_players(display_name) do
+      status =
+        if players == [], do: ScoutStore.admit(display_name, normalized_name, configured_scopes())
+
+      {:ok, players, status}
+    end
   end
 
   def normalize_name(term) when is_binary(term) do
@@ -50,23 +53,20 @@ defmodule FootballMarket.Catalog.Scouting do
 
   def configured_scopes do
     config = Application.get_env(:football_market, Synchronization, [])
-    scopes = Keyword.get(config, :scouting_scopes, [])
-
-    if is_list(scopes) and length(scopes) <= 5 do
-      scopes
-      |> Enum.map(&validate_scope/1)
-      |> case do
-        values when length(values) == length(scopes) ->
-          if Enum.any?(values, &is_nil/1) or duplicate_leagues?(values),
-            do: [],
-            else: Enum.sort_by(values, & &1["league_code"])
-      end
-    else
-      []
-    end
+    config |> Keyword.get(:scouting_scopes, []) |> validate_scopes()
   rescue
     _ -> []
   end
+
+  defp validate_scopes(scopes) when is_list(scopes) and length(scopes) <= 5 do
+    values = Enum.map(scopes, &validate_scope/1)
+
+    if Enum.any?(values, &is_nil/1) or duplicate_leagues?(values),
+      do: [],
+      else: Enum.sort_by(values, & &1["league_code"])
+  end
+
+  defp validate_scopes(_), do: []
 
   defp validate_scope(scope) when is_map(scope) do
     if Enum.sort(Map.keys(scope)) == Enum.sort(@scope_fields) and

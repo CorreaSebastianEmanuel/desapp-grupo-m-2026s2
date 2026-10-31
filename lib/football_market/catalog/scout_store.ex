@@ -10,18 +10,23 @@ defmodule FootballMarket.Catalog.ScoutStore do
   @negative_ttl 86_400
   @hourly_limit 10
 
-  def admit(display_name, normalized_name, scopes, now \\ DateTime.utc_now()) do
-    if scopes == [] do
-      status(:unavailable, nil, 0)
-    else
-      digest = FootballMarket.Catalog.Scouting.digest(scopes)
+  def admit(display_name, normalized_name, scopes, now \\ DateTime.utc_now())
 
-      case Repo.transaction(fn ->
-             admit_locked(display_name, normalized_name, scopes, digest, now)
-           end) do
-        {:ok, result} -> result
-        _ -> status(:unavailable, nil, length(scopes))
-      end
+  def admit(_display_name, _normalized_name, [], _now),
+    do: status(:unavailable, nil, 0)
+
+  def admit(display_name, normalized_name, scopes, now) do
+    do_admit(display_name, normalized_name, scopes, now)
+  end
+
+  defp do_admit(display_name, normalized_name, scopes, now) do
+    digest = FootballMarket.Catalog.Scouting.digest(scopes)
+
+    case Repo.transaction(fn ->
+           admit_locked(display_name, normalized_name, scopes, digest, now)
+         end) do
+      {:ok, result} -> result
+      _ -> status(:unavailable, nil, length(scopes))
     end
   rescue
     _ -> status(:unavailable, nil, 0)

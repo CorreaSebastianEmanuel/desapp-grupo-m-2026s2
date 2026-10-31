@@ -86,7 +86,7 @@ defmodule FootballMarket.E2E.Runtime do
         repo: Repo,
         prefix: schema,
         testing: :disabled,
-        queues: [catalog_sync: 1, statistics_import: 1, quote_calculation: 2],
+        queues: [catalog_sync: 1, catalog_scout: 1, statistics_import: 1, quote_calculation: 2],
         plugins: []
       ],
       sync: [enabled: true, automatic: false, sources: %{}, schedules: []],

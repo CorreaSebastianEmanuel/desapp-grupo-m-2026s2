@@ -60,7 +60,14 @@ defmodule FootballMarket.E2E.RuntimeContractTest do
     assert config.repo[:parameters] == [search_path: schema]
     assert config.oban[:prefix] == schema
     assert config.oban[:testing] == :disabled
-    assert config.oban[:queues] == [catalog_sync: 1, statistics_import: 1, quote_calculation: 2]
+
+    assert config.oban[:queues] == [
+             catalog_sync: 1,
+             catalog_scout: 1,
+             statistics_import: 1,
+             quote_calculation: 2
+           ]
+
     assert config.oban[:plugins] == []
     assert config.sync[:enabled]
     refute config.sync[:automatic]

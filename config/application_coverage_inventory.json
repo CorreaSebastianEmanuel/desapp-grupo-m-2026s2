@@ -224,6 +224,24 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/catalog/query.ex."
     },
     {
+      "path": "lib/football_market/catalog/scout_run.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Catalog scouting admission, lifecycle, and bounded background synchronization behavior."
+    },
+    {
+      "path": "lib/football_market/catalog/scout_store.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Catalog scouting admission, lifecycle, and bounded background synchronization behavior."
+    },
+    {
+      "path": "lib/football_market/catalog/scouting.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Catalog scouting admission, lifecycle, and bounded background synchronization behavior."
+    },
+    {
       "path": "lib/football_market/catalog/season.ex",
       "role": "application",
       "disposition": "include",
@@ -608,16 +626,16 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/providers/runtime.ex."
     },
     {
-      "path": "lib/football_market/providers/scraping/admission.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/providers/scraping/admission.ex."
-    },
-    {
       "path": "lib/football_market/providers/scraping.ex",
       "role": "application",
       "disposition": "include",
       "reason": "Maintained first-party application implementation source: lib/football_market/providers/scraping.ex."
+    },
+    {
+      "path": "lib/football_market/providers/scraping/admission.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/providers/scraping/admission.ex."
     },
     {
       "path": "lib/football_market/providers/scraping/assessment.ex",
@@ -1136,6 +1154,12 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/workers/calculation_dispatch.ex."
     },
     {
+      "path": "lib/football_market/workers/catalog_scout.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Catalog scouting admission, lifecycle, and bounded background synchronization behavior."
+    },
+    {
       "path": "lib/football_market/workers/catalog_sync.ex",
       "role": "application",
       "disposition": "include",
@@ -1652,6 +1676,12 @@
       "reason": "Migration source, excluded from application coverage: priv/repo/migrations/20261029000000_add_nightly_quote_admission.exs."
     },
     {
+      "path": "priv/repo/migrations/20261031000100_create_catalog_scout_runs.exs",
+      "role": "migration",
+      "disposition": "exclude",
+      "reason": "Database migration, not application source code: priv/repo/migrations/20261031000100_create_catalog_scout_runs.exs."
+    },
+    {
       "path": "scripts/application_coverage_native.exs",
       "role": "script",
       "disposition": "exclude",
@@ -1994,6 +2024,12 @@
       "reason": "Test code, not application behavior: test/e2e/browser_shell_test.exs."
     },
     {
+      "path": "test/e2e/catalog_scouting_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Test code, not application behavior: test/e2e/catalog_scouting_test.exs."
+    },
+    {
       "path": "test/e2e/catalog_sync_test.exs",
       "role": "test",
       "disposition": "exclude",
@@ -2274,6 +2310,18 @@
       "role": "test",
       "disposition": "exclude",
       "reason": "Test code, not application behavior: test/football_market/catalog/query_test.exs."
+    },
+    {
+      "path": "test/football_market/catalog/scouting_policy_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Test code, not application behavior: test/football_market/catalog/scouting_policy_test.exs."
+    },
+    {
+      "path": "test/football_market/catalog/scouting_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Test code, not application behavior: test/football_market/catalog/scouting_test.exs."
     },
     {
       "path": "test/football_market/infrastructure/configuration_test.exs",
@@ -3462,6 +3510,12 @@
       "role": "test",
       "disposition": "exclude",
       "reason": "Test code, not application behavior: test/football_market_web/live/browser_session_lifecycle_test.exs."
+    },
+    {
+      "path": "test/football_market_web/live/catalog_scouting_live_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Test code, not application behavior: test/football_market_web/live/catalog_scouting_live_test.exs."
     },
     {
       "path": "test/football_market_web/live/conditional_orders_live_test.exs",

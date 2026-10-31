@@ -5,9 +5,9 @@ type: task
 checkpoint: CP2
 priority: medium
 workflow: thinflow-v1
-status: todo
+status: review
 depends_on: TASK-011, TASK-018, TASK-055, TASK-056, TASK-079
-active_run: none
+active_run: 139dd9b4
 ---
 
 ## Outcome
@@ -24,4 +24,4 @@ Encode the CP2 product decision "demand + bounded scouting" for ingestion:
 3. Documentation: update docs/PLAYER_SEARCH_WORKFLOW.md (its rule "a search without matches must not scrape an arbitrary name" is replaced by this bounded policy) and add an addendum to ADR-0016 recording the decision, the accepted tradeoff (a searcher may obtain fresher catalog coverage than idle users) and the rejection rationale of unbounded scraping.
 4. Tests: unit + E2E profiles covering deduplication, policy rejection, negative cache, provider failure isolation, and the guarantee that scouting never mutates financial state or quotes.
 
-Follow [CP2 architecture](../docs/CP2_ARCHITECTURE.md), [ADR-0017](../docs/adr/0017-cp2-charts-and-conditional-orders.md) and the proposed [ADR-0016](../docs/adr/0016-local-search-and-background-refresh.md). Generate specification and plan before implementation.
+Follow [CP2 architecture](../docs/CP2_ARCHITECTURE.md), [ADR-0017](../docs/adr/0017-cp2-charts-and-conditional-orders.md) and [ADR-0016](../docs/adr/0016-local-search-and-background-refresh.md). Keep the compact ThinFlow spec as the behavioral contract; separate plan and task artifacts are not required.

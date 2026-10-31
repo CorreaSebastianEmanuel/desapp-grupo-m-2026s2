@@ -82,3 +82,4 @@ list passes the checkpoint hygiene review.
 - 2026-10-29 — Nightly quote recalculation was confused with post-match and daytime refresh behavior — state the refresh, queue admission, and final calculation triggers separately in the compact contract and architecture — TASK-079
 - 2026-10-30 — Hosted Credo caught style and maintained-inventory defects absent from the earlier local check set — run CI-identical Credo and its effective-input oracle before publishing, and keep maintained paths sorted — TASK-080
 - 2026-10-30 — New Python controls were absent from the committed profile inventory — register every new native test case with its explicit profile before required checks — TASK-074
+- 2026-10-30 — New CI steps left a legacy workflow byte oracle stale — reconcile the reviewed workflow hash and exact task scope before required checks — TASK-074, TASK-075

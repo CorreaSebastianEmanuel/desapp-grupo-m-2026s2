@@ -1381,6 +1381,13 @@
       "profile": "unit"
     },
     {
+      "id": "21faa5fbcf6f422d46b1bdd2",
+      "runner": "python",
+      "file": "test/scripts/dialyzer_ci_test.py",
+      "case_id": "test.scripts.dialyzer_ci_test.DialyzerCiTest.test_real_analyzer_contract_detection_recovery_unknowns_and_errors",
+      "profile": "unit"
+    },
+    {
       "id": "221407cbb76adefe273a1bfa",
       "runner": "exunit",
       "file": "test/football_market/valuation/configurations/rules_test.exs",
@@ -3005,6 +3012,13 @@
       "profile": "integration"
     },
     {
+      "id": "4e231970784f437edc2072ca",
+      "runner": "python",
+      "file": "test/scripts/dialyzer_ci_test.py",
+      "case_id": "test.scripts.dialyzer_ci_test.DialyzerCiTest.test_report_errors_and_exact_exception_boundary",
+      "profile": "unit"
+    },
+    {
       "id": "4e8ead2cb8140f8e5089211f",
       "runner": "exunit",
       "file": "test/football_market_web/api_authentication_test.exs",
@@ -3402,6 +3416,13 @@
       "file": "test/football_market/quotes/lifecycle_test.exs",
       "case_id": "FootballMarket.Quotes.LifecycleTest:test lease claim starts its duration after acquiring the row lock",
       "profile": "integration"
+    },
+    {
+      "id": "598b6e756c1bec96329827fe",
+      "runner": "python",
+      "file": "test/scripts/dialyzer_ci_test.py",
+      "case_id": "test.scripts.dialyzer_ci_test.DialyzerCiTest.test_workflow_keeps_dialyzer_required_and_cache_exact",
+      "profile": "unit"
     },
     {
       "id": "59914b9ffb83491931ebec39",
@@ -4472,6 +4493,13 @@
       "runner": "exunit",
       "file": "test/ci/credo_inventory_test.exs",
       "case_id": "FootballMarket.CredoInventoryTest:test a Credo input outside the tracked inventory fails effective-input equality",
+      "profile": "unit"
+    },
+    {
+      "id": "79f69634f085748a40d8e26c",
+      "runner": "python",
+      "file": "test/scripts/dialyzer_ci_test.py",
+      "case_id": "test.scripts.dialyzer_ci_test.DialyzerCiTest.test_cache_invalidation_for_each_compatibility_input",
       "profile": "unit"
     },
     {
@@ -6873,6 +6901,13 @@
       "runner": "python",
       "file": "test/scripts/agentflow_preflight_test.py",
       "case_id": "test.scripts.agentflow_preflight_test.PreflightTest.test_wrong_global_elixir_is_ignored_when_mise_selects_project_pin",
+      "profile": "unit"
+    },
+    {
+      "id": "ba8e6dbb45458be3cefb7a5d",
+      "runner": "python",
+      "file": "test/scripts/dialyzer_ci_test.py",
+      "case_id": "test.scripts.dialyzer_ci_test.DialyzerCiTest.test_preparation_requires_receipt_even_if_process_exits_zero",
       "profile": "unit"
     },
     {

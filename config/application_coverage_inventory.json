@@ -1664,6 +1664,12 @@
       "reason": "Development or verification script, not application implementation: scripts/credo_inventory.exs."
     },
     {
+      "path": "scripts/dialyzer_analyze.exs",
+      "role": "script",
+      "disposition": "exclude",
+      "reason": "Native Dialyzer analysis boundary, not application implementation: scripts/dialyzer_analyze.exs."
+    },
+    {
       "path": "scripts/test_profile_discovery.exs",
       "role": "script",
       "disposition": "exclude",

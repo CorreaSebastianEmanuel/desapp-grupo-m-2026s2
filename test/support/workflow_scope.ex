@@ -900,6 +900,28 @@ defmodule FootballMarket.WorkflowScope do
     ]
   end
 
+  def paths("specs/075-required-dialyzer-analysis-with-trustworthy-plt-caching") do
+    [
+      ".github/workflows/quality-baseline.yml",
+      "backlog/TASK-075-required-dialyzer-analysis-with-trustworthy-plt-caching.md",
+      "backlog/feedback/TASK-075.md",
+      "config/application_coverage_inventory.json",
+      "config/credo_inventory.json",
+      "config/test_profiles.json",
+      "docs/WORKFLOW_LESSONS.md",
+      "mix.exs",
+      "mix.lock",
+      "scripts/dialyzer_analyze.exs",
+      "scripts/dialyzer_ci.py",
+      "scripts/dialyzer_exceptions.json",
+      "specs/075-required-dialyzer-analysis-with-trustworthy-plt-caching/spec.md",
+      "test/ci/fixtures/quality-baseline.sha256",
+      "test/ci/workflow_scope_test.exs",
+      "test/scripts/dialyzer_ci_test.py",
+      "test/support/workflow_scope.ex"
+    ]
+  end
+
   def paths(_), do: []
 
   def allows_path?(feature, path) do

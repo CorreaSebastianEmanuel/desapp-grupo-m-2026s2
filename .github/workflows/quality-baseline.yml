@@ -82,6 +82,24 @@ jobs:
           python3 scripts/sobelow_ci.py
           python3 -m unittest discover -s test/scripts -p sobelow_ci_test.py
 
+      - name: Identify compatible Dialyzer cache
+        id: dialyzer-cache
+        run: echo "key=$(python3 scripts/dialyzer_ci.py cache-key)" >> "$GITHUB_OUTPUT"
+
+      - name: Restore exact Dialyzer PLTs
+        id: dialyzer-plts
+        uses: actions/cache@v4
+        with:
+          path: tmp/dialyzer/
+          key: ${{ steps.dialyzer-cache.outputs.key }}
+
+      - name: Required Dialyzer model and application analysis
+        env:
+          DIALYZER_CACHE_HIT: ${{ steps.dialyzer-plts.outputs.cache-hit }}
+        run: |
+          python3 scripts/dialyzer_ci.py
+          python3 -m unittest discover -s test/scripts -p dialyzer_ci_test.py
+
       - name: Formatting
         run: mix format --check-formatted
 
@@ -139,6 +157,15 @@ jobs:
         with:
           name: sobelow-${{ github.sha }}-attempt-${{ github.run_attempt }}
           path: tmp/sobelow-ci/
+          retention-days: 14
+          if-no-files-found: error
+
+      - name: Upload Dialyzer evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dialyzer-${{ github.sha }}-attempt-${{ github.run_attempt }}
+          path: tmp/dialyzer-ci/
           retention-days: 14
           if-no-files-found: error
 

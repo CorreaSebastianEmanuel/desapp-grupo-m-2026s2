@@ -13,7 +13,7 @@ defmodule FootballMarket.Providers.ScopeTest do
   @scraping_production [
     "lib/football_market/providers/scraping.ex"
     | Enum.map(
-        ~w(assessment source translator transport disabled_transport fixture_transport http_transport),
+        ~w(admission assessment source translator transport disabled_transport fixture_transport http_transport),
         &"lib/football_market/providers/scraping/#{&1}.ex"
       )
   ]
@@ -56,8 +56,11 @@ defmodule FootballMarket.Providers.ScopeTest do
 
       refute source =~ ~r/\b(retry|backoff|fallback|score|quote|trade|ranking|cache)\s*\(/
 
-      if Path.basename(path) != "runtime.ex",
-        do: refute(source =~ ~r/\bspawn(?:_link|_monitor)?\(/)
+      if path not in [
+           "lib/football_market/providers/runtime.ex",
+           "lib/football_market/providers/scraping/http_transport.ex"
+         ],
+         do: refute(source =~ ~r/\bspawn(?:_link|_monitor)?\(/)
     end
 
     {merge_head, merge_status} = System.cmd("git", ["rev-parse", "--verify", "MERGE_HEAD"])

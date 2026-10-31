@@ -6,7 +6,7 @@ Add an HTTPS document transport to the existing TASK-016 provider contract and T
 
 ## Acceptance
 
-- [ ] Given a live request with no current permission and coverage evidence, when the scraper runs, then it returns `unsupported_capability` without making an HTTP request.
+- [x] Given a live request with no current permission and coverage evidence, when the scraper runs, then it returns `unsupported_capability` without making an HTTP request.
 - Live catalog and performances requests with missing, expired, withdrawn, incompatible or scope-mismatched evidence return `unsupported_capability` before transport contact.
 - An admitted request fetches only assessed HTTPS documents, capped at 2 MB each, then uses the existing source decoding, translation, provenance and provider contract without adding persistence or ingestion behavior.
 - Retrieval uses the shared assessment lease, volume and concurrency controls and the absolute provider deadline. The transport adds no retry loop, scheduler or fallback source. Timeout, cancellation, budget exhaustion and provider failure return safe errors without partial results.
@@ -17,6 +17,7 @@ Add an HTTPS document transport to the existing TASK-016 provider contract and T
 
 - Add the HTTPS transport and the minimum assessment wiring needed to admit only evidence-backed operation, league and season scopes through existing admission and deadline controls.
 - Add focused tests and document the denied actual assessment and activation prerequisites here.
+- Record the confirmed hosted Credo/oracle workflow lesson in `docs/WORKFLOW_LESSONS.md`.
 
 ## Non-goals
 

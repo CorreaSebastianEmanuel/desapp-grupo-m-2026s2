@@ -26,9 +26,7 @@ defmodule FootballMarket.Providers.Scraping do
   def provider_label, do: "fotmob-shaped-offline"
 
   def read(request, context, state) when is_map(state) do
-    if state[:mode] not in [:fixture, :live] do
-      DisabledTransport.fetch("disabled", context, state)
-    else
+    if state[:mode] in [:fixture, :live] do
       transport = if state[:mode] == :fixture, do: FixtureTransport, else: HttpTransport
       state = Map.put(state, :transport, transport)
 
@@ -40,6 +38,8 @@ defmodule FootballMarket.Providers.Scraping do
           transport.release(lease, state)
         end
       end
+    else
+      DisabledTransport.fetch("disabled", context, state)
     end
   end
 

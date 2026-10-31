@@ -80,3 +80,4 @@ list passes the checkpoint hygiene review.
 - 2026-10-29 — UI tasks can assume display metrics already exist in the API — inspect the actual response and settle missing metric scope before implementation — TASK-077
 - 2026-10-29 — Reusing financial fixtures in LiveView tests leaked global issuance settings between modules — capture and restore application configuration in per-test setup and probe state after the full module finishes — TASK-077
 - 2026-10-29 — Nightly quote recalculation was confused with post-match and daytime refresh behavior — state the refresh, queue admission, and final calculation triggers separately in the compact contract and architecture — TASK-079
+- 2026-10-30 — Hosted Credo caught style and maintained-inventory defects absent from the earlier local check set — run CI-identical Credo and its effective-input oracle before publishing, and keep maintained paths sorted — TASK-080

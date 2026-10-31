@@ -179,48 +179,14 @@ defmodule FootballMarket.Providers.Scraping.HttpTransport do
   end
 
   defp collect_response(request_id, handler, chunks, size, parent, parent_monitor, context, state) do
+    execution = %{parent: parent, parent_monitor: parent_monitor, context: context, state: state}
+
     case await_response(request_id, parent, parent_monitor, context, state) do
       {:stream_start, headers, stream_handler} ->
-        with {:ok, declared} <- declared_size(headers),
-             true <- declared == :unknown or declared <= @max_document_bytes do
-          next_stream(stream_handler, state)
-
-          collect_response(
-            request_id,
-            stream_handler,
-            chunks,
-            size,
-            parent,
-            parent_monitor,
-            context,
-            state
-          )
-        else
-          _ ->
-            cancel_request(request_id, state)
-            {:error, %{category: :invalid_response}}
-        end
+        collect_stream_start(request_id, headers, stream_handler, chunks, size, execution)
 
       {:stream_chunk, chunk} when is_binary(chunk) ->
-        next_size = size + byte_size(chunk)
-
-        if next_size > @max_document_bytes do
-          cancel_request(request_id, state)
-          {:error, %{category: :invalid_response}}
-        else
-          next_stream(handler, state)
-
-          collect_response(
-            request_id,
-            handler,
-            [chunk | chunks],
-            next_size,
-            parent,
-            parent_monitor,
-            context,
-            state
-          )
-        end
+        collect_stream_chunk(request_id, handler, chunk, chunks, size, execution)
 
       {:stream_end, headers} ->
         if content_range?(headers),
@@ -271,6 +237,44 @@ defmodule FootballMarket.Providers.Scraping.HttpTransport do
       after
         max(1, div(remaining + 999, 1000)) -> {:error, %{category: :timeout}}
       end
+    end
+  end
+
+  defp collect_stream_start(request_id, headers, handler, chunks, size, execution) do
+    %{parent: parent, parent_monitor: parent_monitor, context: context, state: state} = execution
+
+    with {:ok, declared} <- declared_size(headers),
+         true <- declared == :unknown or declared <= @max_document_bytes do
+      next_stream(handler, state)
+      collect_response(request_id, handler, chunks, size, parent, parent_monitor, context, state)
+    else
+      _ ->
+        cancel_request(request_id, state)
+        {:error, %{category: :invalid_response}}
+    end
+  end
+
+  defp collect_stream_chunk(request_id, handler, chunk, chunks, size, execution) do
+    %{parent: parent, parent_monitor: parent_monitor, context: context, state: state} = execution
+
+    next_size = size + byte_size(chunk)
+
+    if next_size <= @max_document_bytes do
+      next_stream(handler, state)
+
+      collect_response(
+        request_id,
+        handler,
+        [chunk | chunks],
+        next_size,
+        parent,
+        parent_monitor,
+        context,
+        state
+      )
+    else
+      cancel_request(request_id, state)
+      {:error, %{category: :invalid_response}}
     end
   end
 

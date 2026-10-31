@@ -63,6 +63,7 @@ defmodule FootballMarket.WorkflowScope do
       "config/application_coverage_inventory.json",
       "config/credo_inventory.json",
       "config/test_profiles.json",
+      "docs/WORKFLOW_LESSONS.md",
       "lib/football_market/application.ex",
       "lib/football_market/providers/scraping/admission.ex",
       "lib/football_market/providers/scraping.ex",

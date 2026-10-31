@@ -881,6 +881,25 @@ defmodule FootballMarket.WorkflowScope do
     ]
   end
 
+  def paths("specs/074-required-sobelow-security-analysis-for-elixir-prs") do
+    [
+      ".github/workflows/quality-baseline.yml",
+      "README.md",
+      "backlog/TASK-074-required-sobelow-security-analysis-for-elixir-prs.md",
+      "backlog/feedback/TASK-074.md",
+      "config/test_profiles.json",
+      "docs/WORKFLOW_LESSONS.md",
+      "mix.exs",
+      "mix.lock",
+      "scripts/sobelow_ci.py",
+      "specs/074-required-sobelow-security-analysis-for-elixir-prs/",
+      "test/ci/fixtures/quality-baseline.sha256",
+      "test/ci/workflow_scope_test.exs",
+      "test/scripts/sobelow_ci_test.py",
+      "test/support/workflow_scope.ex"
+    ]
+  end
+
   def paths(_), do: []
 
   def allows_path?(feature, path) do

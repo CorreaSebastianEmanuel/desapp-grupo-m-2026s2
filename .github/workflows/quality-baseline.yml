@@ -77,6 +77,11 @@ jobs:
       - name: Credo and source inventory
         run: sh scripts/credo_ci.sh
 
+      - name: Sobelow security analysis
+        run: |
+          python3 scripts/sobelow_ci.py
+          python3 -m unittest discover -s test/scripts -p sobelow_ci_test.py
+
       - name: Formatting
         run: mix format --check-formatted
 
@@ -125,6 +130,15 @@ jobs:
         with:
           name: credo-${{ github.sha }}-attempt-${{ github.run_attempt }}
           path: tmp/credo-ci/
+          retention-days: 14
+          if-no-files-found: error
+
+      - name: Upload Sobelow evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sobelow-${{ github.sha }}-attempt-${{ github.run_attempt }}
+          path: tmp/sobelow-ci/
           retention-days: 14
           if-no-files-found: error
 

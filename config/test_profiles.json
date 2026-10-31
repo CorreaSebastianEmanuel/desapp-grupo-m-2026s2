@@ -590,6 +590,13 @@
       "profile": "integration"
     },
     {
+      "id": "0e357bc425aeb709d9ad970a",
+      "runner": "python",
+      "file": "test/scripts/sobelow_ci_test.py",
+      "case_id": "test.scripts.sobelow_ci_test.SobelowCiTest.test_report_and_summary_fail_closed",
+      "profile": "unit"
+    },
+    {
       "id": "0e6293c09558d7402f615d14",
       "runner": "exunit",
       "file": "test/ci/credo_inventory_test.exs",
@@ -1164,6 +1171,13 @@
       "profile": "unit"
     },
     {
+      "id": "1e152181e277567bbe578b61",
+      "runner": "python",
+      "file": "test/scripts/sobelow_ci_test.py",
+      "case_id": "test.scripts.sobelow_ci_test.SobelowCiTest.test_workflow_requires_control_and_retains_evidence_in_existing_aggregate",
+      "profile": "unit"
+    },
+    {
       "id": "1e15ab7d2d77a7cd0ad5fe48",
       "runner": "exunit",
       "file": "test/football_market/valuation/configurations/durability_test.exs",
@@ -1540,6 +1554,13 @@
       "file": "test/football_market/synchronization/retry_test.exs",
       "case_id": "FootballMarket.Synchronization.RetryTest:test a fresh attempt succeeds after transient failure while waits release global capacity",
       "profile": "integration"
+    },
+    {
+      "id": "2696d07d6c03f25ab491258e",
+      "runner": "python",
+      "file": "test/scripts/sobelow_ci_test.py",
+      "case_id": "test.scripts.sobelow_ci_test.SobelowCiTest.test_exception_requires_exact_rule_location_confidence_and_source_bytes",
+      "profile": "unit"
     },
     {
       "id": "272471f77dcc83dd02e7e43b",
@@ -3010,6 +3031,13 @@
       "file": "test/football_market/quotes/recovery_test.exs",
       "case_id": "FootballMarket.Quotes.RecoveryTest:test temporary persistence failures follow the 60 and 300 second schedule then recover",
       "profile": "integration"
+    },
+    {
+      "id": "4ff3a5504556a29fd14acfd3",
+      "runner": "python",
+      "file": "test/scripts/sobelow_ci_test.py",
+      "case_id": "test.scripts.sobelow_ci_test.SobelowCiTest.test_real_analyzer_detection_recovery_and_execution_errors",
+      "profile": "unit"
     },
     {
       "id": "5010ffc550631ab646d00109",

@@ -106,6 +106,7 @@ defmodule FootballMarket.MixProject do
   defp deps do
     [
       {:credo, "1.7.19", only: [:dev, :test], runtime: false},
+      {:sobelow, "0.18.1", only: [:dev, :test], runtime: false},
       {:phoenix, "~> 1.8.13"},
       {:phoenix_ecto, "~> 4.5"},
       {:ecto_sql, "~> 3.13"},

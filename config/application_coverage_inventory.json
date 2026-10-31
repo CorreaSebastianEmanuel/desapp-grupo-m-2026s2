@@ -608,6 +608,12 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/providers/runtime.ex."
     },
     {
+      "path": "lib/football_market/providers/scraping/admission.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/providers/scraping/admission.ex."
+    },
+    {
       "path": "lib/football_market/providers/scraping.ex",
       "role": "application",
       "disposition": "include",
@@ -630,6 +636,12 @@
       "role": "application",
       "disposition": "include",
       "reason": "Maintained first-party application implementation source: lib/football_market/providers/scraping/fixture_transport.ex."
+    },
+    {
+      "path": "lib/football_market/providers/scraping/http_transport.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/providers/scraping/http_transport.ex."
     },
     {
       "path": "lib/football_market/providers/scraping/source.ex",

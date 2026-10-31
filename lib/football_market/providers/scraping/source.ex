@@ -121,10 +121,14 @@ defmodule FootballMarket.Providers.Scraping.Source do
     admit!(request, state, revision)
 
     require!(state[:repeat] != true)
-    # Fixtures are the sole enabled transport in this delivery.
-    transport = FootballMarket.Providers.Scraping.FixtureTransport
+    transport = state.transport
 
-    case fetch(transport, key, context, state) do
+    fetch_state =
+      state
+      |> Map.put(:request, request)
+      |> Map.put(:assessment_revision, revision)
+
+    case fetch(transport, key, context, fetch_state) do
       {:error, failure} ->
         throw({:source_failure, failure})
 

@@ -57,6 +57,28 @@ defmodule FootballMarket.WorkflowScope do
     ]
   end
 
+  def paths("specs/080-live-scraping-transport-with-documented-access-evidence") do
+    [
+      "backlog/TASK-080-live-scraping-transport-with-documented-access-evidence.md",
+      "config/application_coverage_inventory.json",
+      "config/credo_inventory.json",
+      "config/test_profiles.json",
+      "docs/WORKFLOW_LESSONS.md",
+      "lib/football_market/application.ex",
+      "lib/football_market/providers/scraping/admission.ex",
+      "lib/football_market/providers/scraping.ex",
+      "lib/football_market/providers/scraping/assessment.ex",
+      "lib/football_market/providers/scraping/http_transport.ex",
+      "lib/football_market/providers/scraping/source.ex",
+      "specs/080-live-scraping-transport-with-documented-access-evidence/",
+      "test/football_market/providers/scope_test.exs",
+      "test/football_market/providers/scraping/assessment_test.exs",
+      "test/football_market/providers/scraping/safety_test.exs",
+      "test/football_market/statistics/scope_test.exs",
+      "test/support/workflow_scope.ex"
+    ]
+  end
+
   def paths("specs/031-immutable-transaction-history-api") do
     [
       "backlog/TASK-031-immutable-transaction-history-api.md",

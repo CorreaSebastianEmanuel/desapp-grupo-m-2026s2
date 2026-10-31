@@ -5,9 +5,9 @@ type: task
 checkpoint: CP2
 priority: medium
 workflow: thinflow-v1
-status: review
+status: done
 depends_on: TASK-011, TASK-018, TASK-055, TASK-056, TASK-079
-active_run: 139dd9b4
+active_run: none
 ---
 
 ## Outcome

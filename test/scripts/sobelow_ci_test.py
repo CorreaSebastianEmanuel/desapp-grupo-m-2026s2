@@ -77,9 +77,15 @@ class SobelowCiTest(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="quality-summary-complete-") as directory:
             root = Path(directory)
             env = self.summary_fixture(root, revision)
+            sobelow_report = root / "tmp/sobelow-ci/evidence.json"
+            sobelow = json.loads(sobelow_report.read_text())
+            sobelow["accepted"] = [{"file": "lib/a.ex", "line": 2,
+                                    "type": "Reviewed.Rule: controlled finding"}]
+            sobelow_report.write_text(json.dumps(sobelow))
             rendered = summary.render(env, root)
             self.assertIn("Required analysis result: Approved", rendered)
             self.assertIn(f"/blob/{revision}/lib/a.ex#L2", rendered)
+            self.assertIn("Reviewed.Rule: controlled finding", rendered)
             self.assertIn("Credo.Check.Warning.Sample", rendered)
             self.assertIn("TASK-067 coverage | Approved", rendered)
             self.assertIn("https://github.com/owner/project/actions/runs/1/artifacts/4", rendered)
@@ -240,6 +246,33 @@ end)
                                       {"file": "lib/a.ex", "line": 0})
         self.assertIn("line unavailable", linked)
         self.assertIn("rule/warning kind unavailable", linked)
+        linked = summary.finding_link("https://github.com", "owner/project", revision,
+                                      {"file": "lib/probe.ex", "line": 3,
+                                       "type": "SQL.Query: SQL injection"})
+        self.assertIn(f"/blob/{revision}/lib/probe.ex#L3", linked)
+        self.assertIn("SQL.Query: SQL injection", linked)
+        for path in ("/workspace/lib/probe.ex", "../lib/probe.ex", "lib/../probe.ex"):
+            with self.subTest(path=path), self.assertRaises(summary.EvidenceError):
+                summary.finding_link("https://github.com", "owner/project", revision,
+                                     {"file": path, "line": 3})
+
+    def test_finding_paths_normalize_the_configured_root_alias(self):
+        with tempfile.TemporaryDirectory(prefix="sobelow-root-alias-") as directory:
+            parent = Path(directory)
+            actual_root = parent / "private-var-root"
+            actual_root.mkdir()
+            configured_root = parent / "var-root"
+            configured_root.symlink_to(actual_root, target_is_directory=True)
+            reported_path = str(configured_root).lstrip("/") + "/lib/probe.ex"
+            unrelated_path = "workspace/lib/other.ex"
+
+            normalized = control.normalize_finding_paths(
+                [{"file": reported_path}, {"file": unrelated_path}], configured_root)
+
+        self.assertEqual(normalized, [
+            {"file": "lib/probe.ex"},
+            {"file": unrelated_path},
+        ])
 
     def test_real_finding_and_recovery_reach_the_pr_summary(self):
         revision = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()

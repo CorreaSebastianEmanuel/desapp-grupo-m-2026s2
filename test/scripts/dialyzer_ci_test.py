@@ -77,9 +77,39 @@ class DialyzerCiTest(unittest.TestCase):
             self.assertEqual(evidence["prepare_exit"], 1)
             self.assertEqual(evidence["error"], "FileNotFoundError")
 
+            for profile in ("dev", "test"):
+                with self.subTest(profile=profile):
+                    def prepare_native(command, **_kwargs):
+                        Path(command[-1]).write_text('{"status":"prepared"}\n')
+                        return SimpleNamespace(returncode=0)
+
+                    with mock.patch.object(control.subprocess, "run", side_effect=prepare_native) as run:
+                        evidence = control.prepare(profile, Path(directory))
+                    self.assertEqual(evidence["prepare_exit"], 0, evidence)
+                    self.assertEqual(run.call_args.args[0][4], "prepare")
+
+            def malformed_native(command, **_kwargs):
+                Path(command[-1]).write_text('{"status":"analyzed"}\n')
+                return SimpleNamespace(returncode=0)
+
+            with mock.patch.object(control.subprocess, "run", side_effect=malformed_native):
+                evidence = control.prepare("test", Path(directory))
+            self.assertEqual(evidence["prepare_exit"], 1)
+            self.assertEqual(evidence["error"], "incomplete-preparation")
+
+            def failed_native(command, **_kwargs):
+                Path(command[-1]).write_text('{"status":"prepared"}\n')
+                return SimpleNamespace(returncode=1)
+
+            with mock.patch.object(control.subprocess, "run", side_effect=failed_native):
+                evidence = control.prepare("dev", Path(directory))
+            self.assertEqual(evidence["prepare_exit"], 1)
+
     def test_real_analyzer_contract_detection_recovery_unknowns_and_errors(self):
-        preparation = control.prepare("dev", ROOT / "tmp/dialyzer-ci/probe-prepare")
-        self.assertEqual(preparation["prepare_exit"], 0, preparation)
+        for profile in ("dev", "test"):
+            preparation = control.prepare(
+                profile, ROOT / f"tmp/dialyzer-ci/probe-prepare-{profile}")
+            self.assertEqual(preparation["prepare_exit"], 0, {profile: preparation})
         with tempfile.TemporaryDirectory(prefix="dialyzer-probe-", dir=ROOT / "tmp") as directory:
             root = Path(directory)
             source = root / "probe.ex"

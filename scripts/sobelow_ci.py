@@ -129,6 +129,25 @@ def classify(findings, sources):
     return accepted, blocking
 
 
+def normalize_finding_paths(findings, root):
+    """Strip only the configured or resolved scan root from analyzer paths."""
+    configured_root = Path(root).absolute()
+    prefixes = {
+        str(configured_root).lstrip("/") + "/",
+        str(configured_root.resolve()).lstrip("/") + "/",
+        os.path.relpath(root, ROOT).rstrip("/") + "/",
+    }
+    normalized = []
+    for finding in findings:
+        row = dict(finding)
+        for prefix in prefixes:
+            if row["file"].startswith(prefix):
+                row["file"] = row["file"][len(prefix):]
+                break
+        normalized.append(row)
+    return normalized
+
+
 def analyze(root, output):
     evidence = {"status": "failed", "sobelow_version": VERSION, "command": COMMAND,
                 "errors": [], "accepted": [], "blocking": []}
@@ -143,15 +162,9 @@ def analyze(root, output):
                                 capture_output=True, text=True, timeout=120)
         evidence["analyzer_exit_status"] = result.returncode
         findings = validate_report(json.loads(result.stdout))
-        # Sobelow normalizes paths against an empty root and strips the leading slash.
-        # Bind only exact known root-relative paths; never accept arbitrary suffix matches.
-        prefix = str(root.resolve()).lstrip("/") + "/"
-        relative_prefix = os.path.relpath(root, ROOT).rstrip("/") + "/"
-        for finding in findings:
-            for candidate in (prefix, relative_prefix):
-                if finding["file"].startswith(candidate):
-                    finding["file"] = finding["file"][len(candidate):]
-                    break
+        # Sobelow strips the leading slash. Accept the exact configured root too:
+        # macOS /var paths may resolve through /private/var while reports retain /var.
+        findings = normalize_finding_paths(findings, root)
         evidence["scan"] = validate_summary(result.stderr)
         if result.returncode != (1 if findings else 0):
             raise ValueError("unexpected-analyzer-exit-status")

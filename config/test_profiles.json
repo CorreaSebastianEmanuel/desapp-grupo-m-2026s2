@@ -4265,6 +4265,13 @@
       "profile": "integration"
     },
     {
+      "id": "71d069b3a39fbc09ce305f2d",
+      "runner": "python",
+      "file": "test/scripts/sobelow_ci_test.py",
+      "case_id": "test.scripts.sobelow_ci_test.SobelowCiTest.test_finding_paths_normalize_the_configured_root_alias",
+      "profile": "unit"
+    },
+    {
       "id": "71eeff3b5977fbb22562c983",
       "runner": "exunit",
       "file": "test/ci/application_coverage_contract_test.exs",

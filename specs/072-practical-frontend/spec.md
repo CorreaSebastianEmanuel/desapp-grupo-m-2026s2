@@ -1,18 +1,31 @@
 # Practical frontend
 
-User request: review localhost:4000 and improve existing routes in a worktree with a restrained, useful design.
+## Outcome
 
-Product decision (2026-10-28): allow public self-registration from the browser. Registration uses the existing Accounts validation and persistence boundary; successful registration returns the user to sign-in. Do not add email verification, automatic login, balances, credit issuance or account recovery in this task.
+Refresh the existing home, sign-in, portfolio, conditional orders and API documentation routes with a restrained, useful, responsive design. Add public browser registration through the existing Accounts boundary. Preserve authentication, trading rules and existing data contracts.
 
-- Home offers working links to sign-in, portfolio, orders and API documentation. No fabricated prices, charts, players or metrics.
+## Acceptance
+
+- [ ] Given a visitor registers with valid details, when account creation succeeds, then they reach sign-in without receiving credits or API credentials; invalid or duplicate registrations receive a generic error.
+- [ ] Given a developer activates repository tools with mise, when Node is resolved, then it selects v24.22.1 from `.tool-versions`; CI stays on the Node 24 release line.
+- Home links work for sign-in, portfolio, orders and API documentation without fabricated market data.
 - Sign-in preserves CSRF, return destination, field labels, autocomplete and error semantics.
-- Public registration is available at `/register`, linked from the home page and sign-in page. It accepts a normalized email and password with confirmation, applies the existing 12–128 character password policy, and never repopulates password fields. A successful account creation redirects to sign-in with a confirmation notice; invalid or duplicate details produce a generic form error without disclosing whether an email is already registered.
-- Registration remains inside the existing browser protections: CSRF and origin checks, non-cacheable responses, and no API credentials or tokens are issued to the browser.
+- Registration at `/register` is linked from home and sign-in, accepts normalized email and confirmed password under the existing 12–128 character policy, never repopulates password fields, and redirects successful creation to sign-in with a notice. Invalid or duplicate details return a generic error without email enumeration.
+- Registration preserves CSRF and origin checks, non-cacheable responses, and does not issue API credentials or tokens.
 - Workspace preserves session hooks, private data boundary, identity, active navigation, logout, position values and conditional order lifecycle.
-- A shared light palette, dark green navigation, compact typography, responsive layouts and visible keyboard focus make the existing workflows readable. Tables scroll within their container on narrow screens.
-- Conditional orders explain non-reservation and UTC expiry alongside the form. Player selection searches the local catalog by name, shows team and league, and writes only the selected catalog ID into the order terms.
+- Responsive layouts, visible keyboard focus and contained narrow-screen table scrolling keep workflows readable.
+- Conditional orders explain non-reservation and UTC expiry. Player selection searches the local catalog, shows team and league, and submits only the selected catalog ID.
 - Documentation keeps Swagger and credential controls functional with a return link.
+- Controller tests cover entry links and registration success/rejection; LiveView tests prove explicit player selection and ID submission; existing session and portfolio regressions pass; desktop and narrow layouts are inspected in a local worktree server.
 
-Scope excludes full catalog detail and ranking screens, new trading flows beyond the existing conditional order form, charts, translations, email verification, automatic login after registration, account recovery and changes to financial calculations. Existing local TASK-032 changes are copied as the working baseline and remain separately attributable.
+## Scope
 
-Acceptance: controller tests verify real entry links, registration success and rejection without credential disclosure; order LiveView proves name search, explicit result selection and ID submission; existing session and portfolio regressions pass; inspect desktop and narrow layouts in a local worktree server.
+Existing browser routes and public registration, including focused tests and responsive styling. Pin the repository-local Node toolchain to v24.22.1 to align local workflows with CI's Node 24 release line. Existing local TASK-032 changes are a separate baseline and remain separately attributable.
+
+## Non-goals
+
+Full catalog detail and ranking screens, new trading flows beyond the existing conditional order form, charts, translations, email verification, automatic login after registration, account recovery, and changes to financial calculations.
+
+## Risk
+
+High: browser authentication, registration, session handling and trading UI are in scope. Registration must reuse Accounts validation and credential storage; no credit issuance, financial behavior, or credential leakage may be introduced. Product decision dated 2026-10-28 allows public self-registration while returning new users to sign-in.

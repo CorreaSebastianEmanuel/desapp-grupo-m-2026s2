@@ -25,12 +25,12 @@ defmodule FootballMarket.TestProfilesQualityContractTest do
                parts: 2
              )
 
-    assert after_prepare =~ "- name: Unit tests"
+    assert after_prepare =~ "- name: Audited tests and application coverage"
     assert after_prepare =~ "run: python3 scripts/application_coverage.py run"
     assert after_prepare =~ "- name: Workflow behavior tests"
     assert after_prepare =~ "verify-receipts tmp/profile-ci"
     [credo_step, _] = String.split(baseline, "- name: Credo and source inventory", parts: 2)
-    refute credo_step =~ "name: Unit tests"
+    refute credo_step =~ "name: Audited tests and application coverage"
     assert after_prepare =~ "- name: Upload Credo evidence"
     assert after_prepare =~ "if: always()"
     assert after_prepare =~ "if-no-files-found: error"

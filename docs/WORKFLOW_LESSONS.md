@@ -84,3 +84,5 @@ list passes the checkpoint hygiene review.
 - 2026-10-30 — New Python controls were absent from the committed profile inventory — register every new native test case with its explicit profile before required checks — TASK-074
 - 2026-10-30 — New CI steps left a legacy workflow byte oracle stale — reconcile the reviewed workflow hash and exact task scope before required checks — TASK-074, TASK-075
 - 2026-10-31 — Synthetic analyzer fixtures missed native optional positions and expected execution failures — exercise pinned native output and per-analyzer error paths while retaining unaffected evidence — TASK-076
+- 2026-10-31 — Rebuilding a full native coverage baseline for every partition exhausted hosted CI after all tests passed — share hash-bound counter identities within each pass, isolate every import, and measure phase durations before publishing — TASK-076
+- 2026-11-01 — A fixed future-date fixture became valid after calendar rollover — pin the supported clock for temporal admission scenarios instead of relying on today's date — TASK-080, TASK-076

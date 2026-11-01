@@ -182,7 +182,7 @@ defmodule FootballMarket.Providers.ScrapingAssessmentTest do
 
   test "expired and future-reviewed live evidence deny before HTTP contact" do
     c = Data.case!("catalog-PL-2024")
-    base = live_state(c)
+    base = live_state(c, assessment_clock: fn -> ~U[2026-10-09 00:00:00Z] end)
     owner = self()
 
     callback = fn _, _, _ ->

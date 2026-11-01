@@ -18,6 +18,7 @@ Every pull request revision receives a readable GitHub Actions quality summary b
 - [ ] Main-branch protection and repository rulesets are inspected read-only. If `ThinFlow required` is not effectively required, the exact pending setting/context and evidence gap are documented; no security setting is changed and no merge-blocking claim is made.
 - [ ] SonarCloud continues to analyze supported languages. TASK-069's ignored Elixir coverage and unproven external-issue visibility remain explicit; ordinary Elixir report imports stay disabled.
 - [ ] A capability/gap matrix covers maintainability, types/contracts, security, and coverage. It states that coverage measures executed code, analyzer rules are bounded, and these controls do not establish bug absence or equivalence with native SonarCloud Java analysis.
+- [ ] Coverage normalizes exports in one native batch per collection or independent validation pass. The batch reconstructs expected counter identities once from validated BEAM/source hashes and resets coverage state for every import; missing counters, duplicate/truncated exports and incomplete batch output still fail. Actions exposes measured phase durations without rerunning test profiles or increasing the job timeout.
 
 ## Scope
 
@@ -25,6 +26,7 @@ Every pull request revision receives a readable GitHub Actions quality summary b
 - Add focused tests for report validation, status distinctions, finding links/metadata, summary publication, aggregate failure propagation, and controlled analyzer detection/recovery.
 - Record analyzer capability limits, TASK-069 observations, exact-head CI integration, and the read-only repository-protection result in this feature's evidence document.
 - Reuse the current test profile receipts and TASK-067 collector outputs without rerunning profiles for publication.
+- Repair only the existing scraper assessment expiry/future-review test fixture's wall-clock dependency exposed by the November 1 rollover, using its supported assessment clock; preserve adapter behavior and assertions.
 
 ## Non-goals
 
@@ -43,3 +45,4 @@ Every pull request revision receives a readable GitHub Actions quality summary b
 - Preserve `ThinFlow required` and existing SonarCloud behavior. TASK-069 evidence keeps generic Elixir issue and coverage imports disabled.
 - Read-only GitHub API inspection on 2026-10-31 returned `Branch not protected` for `main`; no repository rulesets were returned. The precise required context is `ThinFlow required`. Effective merge enforcement therefore remains pending external repository configuration and exact-head protection evidence.
 - On 2026-10-31, the user explicitly authorized one additional grouped repair of independent evaluator findings B1/B2: native Credo positions are optional, and invalid analyzer evidence must retain a full nonpassing summary. The repair uses current ThinFlow checks and a fresh independent evaluation before resuming the existing verdict gate; global harness limits and saved workflow state stay intact.
+- On 2026-10-31, the user authorized repair and optimization after hosted run 41228774520 timed out during final coverage validation despite passing all test profiles. Retain per-revision coverage, scheduling and the 35-minute timeout; amortize native baseline reconstruction within each batch, retain per-export isolation/hash checks and independently recompute the baseline during validation. Measure processor results/time and publish bounded phase durations. Delivery updates the existing PR #82 after fresh checks/evaluation without altering saved workflow history.

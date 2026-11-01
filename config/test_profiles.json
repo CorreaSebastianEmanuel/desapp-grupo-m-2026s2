@@ -6981,6 +6981,13 @@
       "profile": "unit"
     },
     {
+      "id": "bc8ca79db33aba20164fa47d",
+      "runner": "python",
+      "file": "test/scripts/application_coverage_test.py",
+      "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_batch_normalization_uses_one_worker_and_rejects_incomplete_outputs",
+      "profile": "unit"
+    },
+    {
       "id": "bc95a2a6cdb383c0fb2d9d7a",
       "runner": "python",
       "file": "test/scripts/agentflow_artifacts_test.py",

@@ -138,7 +138,7 @@ jobs:
       - name: Prepare test database
         run: MIX_ENV=test mix test.prepare
 
-      - name: Unit tests
+      - name: Audited tests and application coverage
         id: application-coverage
         env:
           CI_PROFILE_RECEIPTS: tmp/profile-ci

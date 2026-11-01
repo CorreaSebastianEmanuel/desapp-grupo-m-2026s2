@@ -141,9 +141,11 @@ defmodule FootballMarket.CredoCiContractTest do
     assert baseline =~ "github.run_attempt"
 
     assert index(baseline, "name: Credo and source inventory") <
-             index(baseline, "name: Unit tests")
+             index(baseline, "name: Audited tests and application coverage")
 
-    assert index(baseline, "name: Upload Credo evidence") > index(baseline, "name: Unit tests")
+    assert index(baseline, "name: Upload Credo evidence") >
+             index(baseline, "name: Audited tests and application coverage")
+
     refute baseline =~ "continue-on-error"
     refute workflow =~ "needs: sonar"
 

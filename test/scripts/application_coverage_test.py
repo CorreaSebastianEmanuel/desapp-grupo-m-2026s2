@@ -17,6 +17,34 @@ from test_profile_components import EventResult
 
 
 class CoverageAccountingTest(unittest.TestCase):
+    def test_batch_normalization_uses_one_worker_and_rejects_incomplete_outputs(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            jobs = [(root / f'{i}.coverdata', root / f'{i}.json') for i in range(3)]
+            environment = {'MIX_ENV': 'test'}
+            captured = []
+
+            def worker(argv, **kwargs):
+                self.assertEqual(kwargs['env'], environment)
+                self.assertIn('--batch', argv)
+                plan = json.loads(Path(argv[argv.index('--batch') + 1]).read_text())
+                captured.append(plan)
+                for _export, output in jobs:
+                    output.write_text('{}')
+                return subprocess.CompletedProcess(argv, 0)
+
+            with patch.object(coverage.subprocess, 'run', side_effect=worker) as run:
+                coverage.normalize_exports(root / 'modules.json', jobs, environment)
+            self.assertEqual(run.call_count, 1)
+            self.assertEqual(captured, [[dict(export=str(export), output=str(output))
+                                         for export, output in jobs]])
+            for _export, output in jobs:
+                output.unlink()
+            for code in (0, 1):
+                with self.subTest(exit_code=code), patch.object(coverage.subprocess, 'run',
+                        return_value=subprocess.CompletedProcess([], code)), self.assertRaisesRegex(ValueError, 'native-export'):
+                    coverage.normalize_exports(root / 'modules.json', jobs, environment)
+
     def setUp(self):
         self.entries = [
             dict(path='lib/a.ex', role='application', disposition='include', reason='application source'),

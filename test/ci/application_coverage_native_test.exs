@@ -109,6 +109,7 @@ defmodule FootballMarket.ApplicationCoverageNativeTest do
     )
 
     export = Path.join(directory, "fixture.coverdata")
+    empty_export = Path.join(directory, "empty.coverdata")
     inventory = Path.join(directory, "inventory.json")
     manifest = Path.join(directory, "modules.json")
     output = Path.join(directory, "normalized.json")
@@ -133,6 +134,8 @@ defmodule FootballMarket.ApplicationCoverageNativeTest do
     :hit = CoverageFixture.pick(:hit)
     :miss = CoverageFixture.pick(:miss)
     :ok = :cover.export(String.to_charlist(System.fetch_env!("FIXTURE_EXPORT")))
+    :ok = :cover.reset()
+    :ok = :cover.export(String.to_charlist(System.fetch_env!("FIXTURE_EMPTY_EXPORT")))
     """
 
     env = [
@@ -143,7 +146,8 @@ defmodule FootballMarket.ApplicationCoverageNativeTest do
       {"CP1_COVERAGE_OUTPUT", nil},
       {"FIXTURE_SOURCE", source},
       {"FIXTURE_BEAMS", beams},
-      {"FIXTURE_EXPORT", export}
+      {"FIXTURE_EXPORT", export},
+      {"FIXTURE_EMPTY_EXPORT", empty_export}
     ]
 
     {_, 0} =
@@ -189,6 +193,54 @@ defmodule FootballMarket.ApplicationCoverageNativeTest do
     bindings = manifest |> File.read!() |> Jason.decode!()
     empty = Enum.find(bindings, &(&1["module"] == "Elixir.CoverageFixture.Empty"))
     assert empty["executable_lines"] == []
+
+    # Each batch import owns fresh :cover state, including the zero-call export
+    # between two executed exports. Reusing baseline identities cannot merge calls.
+    copied_export = Path.join(directory, "copied.coverdata")
+    File.cp!(export, copied_export)
+    jobs_path = Path.join(directory, "batch.json")
+
+    jobs =
+      [export, empty_export, copied_export]
+      |> Enum.with_index()
+      |> Enum.map(fn {input, index} ->
+        %{"export" => input, "output" => Path.join(directory, "batch-#{index}.json")}
+      end)
+
+    File.write!(jobs_path, Jason.encode!(jobs))
+    batch_args = ["run", "--no-start", @script, "--batch", jobs_path, "--modules", manifest]
+    {_, 0} = System.cmd("mix", batch_args, env: env, stderr_to_stdout: true)
+    batch_reports = Enum.map(jobs, &(&1["output"] |> File.read!() |> Jason.decode!()))
+    assert Enum.at(batch_reports, 0) == report
+    assert Enum.at(batch_reports, 2) == report
+    assert Enum.all?(Enum.at(batch_reports, 1)["lines"], &(&1["calls"] == 0))
+
+    for invalid <- [[], [hd(jobs), hd(jobs)], [Map.put(hd(jobs), "output", export)]] do
+      File.write!(jobs_path, Jason.encode!(invalid))
+      {_, status} = System.cmd("mix", batch_args, env: env, stderr_to_stdout: true)
+      assert status != 0
+      assert File.read!(export) == File.read!(copied_export)
+    end
+
+    original_empty = File.read!(empty_export)
+    empty_records = decode_native_export(original_empty)
+    counter = Enum.find(empty_records, &match?({{:bump, _, _, _, _, _}, _}, &1))
+    assert counter
+    File.write!(jobs_path, Jason.encode!(jobs))
+
+    for invalid <- [
+          encode_native_export(List.delete(empty_records, counter)),
+          original_empty <> original_empty,
+          "truncated"
+        ] do
+      Enum.each(jobs, &File.rm(&1["output"]))
+      File.write!(empty_export, invalid)
+      {_, status} = System.cmd("mix", batch_args, env: env, stderr_to_stdout: true)
+      assert status != 0
+      refute File.exists?(Enum.at(jobs, 1)["output"])
+    end
+
+    File.write!(empty_export, original_empty)
     original_manifest = File.read!(manifest)
     [first | _] = Jason.decode!(original_manifest)
     File.write!(manifest, Jason.encode!([first]))

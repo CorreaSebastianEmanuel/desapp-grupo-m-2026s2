@@ -103,12 +103,19 @@ defmodule FootballMarket.QualityBaselineContractTest do
     workflow = File.read!(@workflow) |> String.split("  end-to-end:") |> hd()
 
     labels =
-      Regex.scan(~r/^\s+- name: (Formatting|Warnings-as-errors|Unit tests)$/m, workflow,
+      Regex.scan(
+        ~r/^\s+- name: (Formatting|Warnings-as-errors|Audited tests and application coverage)$/m,
+        workflow,
         capture: :all_but_first
       )
       |> List.flatten()
 
-    assert labels == ["Formatting", "Warnings-as-errors", "Unit tests"]
+    assert labels == [
+             "Formatting",
+             "Warnings-as-errors",
+             "Audited tests and application coverage"
+           ]
+
     assert workflow =~ "run: mix format --check-formatted"
     assert workflow =~ "run: MIX_ENV=test mix compile --warnings-as-errors"
     assert workflow =~ "run: python3 scripts/application_coverage.py run"
@@ -170,7 +177,7 @@ defmodule FootballMarket.QualityBaselineContractTest do
     workflow = File.read!(@workflow)
     [baseline, _e2e] = String.split(workflow, "\n  end-to-end:", parts: 2)
     credo = index(baseline, "name: Credo and source inventory")
-    tests = index(baseline, "name: Unit tests")
+    tests = index(baseline, "name: Audited tests and application coverage")
     upload = index(baseline, "name: Upload Credo evidence")
 
     assert credo != nil and tests != nil and upload != nil

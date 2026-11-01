@@ -2,6 +2,7 @@
 """Fail-closed application-only coverage collection and reconciliation."""
 import argparse
 from collections import defaultdict
+from contextlib import contextmanager
 from datetime import datetime, timezone
 import fcntl
 import hashlib
@@ -14,6 +15,7 @@ from pathlib import Path, PurePosixPath
 import subprocess
 import sys
 import tempfile
+import time
 import uuid
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -342,6 +344,44 @@ def contained_path(root, relative):
     return path
 
 
+def run_audited_profiles(environment):
+    """Run the existing safe CI wrapper once with native coverage enabled."""
+    result = subprocess.run(['sh', 'scripts/ci_unit_tests.sh'], cwd=ROOT, env=environment,
+                            stdin=subprocess.DEVNULL)
+    if result.returncode:
+        raise ValueError('profile-failure')
+
+
+@contextmanager
+def measured_phase(name):
+    started = time.monotonic()
+    print(f'APPLICATION_COVERAGE_PHASE phase={name} status=started', flush=True)
+    try:
+        yield
+    except BaseException:
+        print(f'APPLICATION_COVERAGE_PHASE phase={name} status=failed seconds={time.monotonic() - started:.2f}', flush=True)
+        raise
+    else:
+        print(f'APPLICATION_COVERAGE_PHASE phase={name} status=complete seconds={time.monotonic() - started:.2f}', flush=True)
+
+
+def normalize_exports(modules, jobs, environment=None, phase='native-normalization'):
+    if not jobs:
+        raise ValueError('native-export')
+    with tempfile.TemporaryDirectory(prefix='application-native-batch-') as directory, measured_phase(phase):
+        manifest = Path(directory) / 'jobs.json'
+        manifest.write_bytes(canonical_json([
+            dict(export=str(export.resolve()), output=str(output.resolve()))
+            for export, output in jobs]))
+        argv = ['mix', 'run', '--no-start', 'scripts/application_coverage_native.exs',
+                '--batch', str(manifest), '--modules', str(modules)]
+        if subprocess.run(argv, cwd=ROOT, env=environment, stdin=subprocess.DEVNULL,
+                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode:
+            raise ValueError('native-export')
+        if any(not output.is_file() for _export, output in jobs):
+            raise ValueError('native-export')
+
+
 def validate_run_identity(run_id, started_at=None):
     try:
         if not isinstance(run_id, str) or str(uuid.UUID(run_id)) != run_id:
@@ -649,16 +689,12 @@ def validate(pending=None, pending_path=None):
             raise ValueError('native-export')
         if strict_json(fresh.read_text()) != module_manifest:
             raise ValueError('native-export')
-    for partition in report['partitions']:
-        export_file = contained_path(report_path.parent, partition['export'])
-        normalized = strict_json(contained_path(report_path.parent, partition['normalized_file']).read_text())
-        with tempfile.TemporaryDirectory(prefix='application-native-validate-') as directory:
-            reread = Path(directory) / 'normalized.json'
-            argv = ['mix', 'run', '--no-start', 'scripts/application_coverage_native.exs',
-                    '--export', str(export_file), '--modules', str(module_file), '--output', str(reread)]
-            if subprocess.run(argv, cwd=ROOT, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
-                              stderr=subprocess.DEVNULL).returncode or not reread.is_file():
-                raise ValueError('native-export')
+    with tempfile.TemporaryDirectory(prefix='application-native-validate-') as directory:
+        jobs = [(contained_path(report_path.parent, partition['export']), Path(directory) / f'{index}.json')
+                for index, partition in enumerate(report['partitions'])]
+        normalize_exports(module_file, jobs, phase='native-verification')
+        for (_export, reread), partition in zip(jobs, report['partitions']):
+            normalized = strict_json(contained_path(report_path.parent, partition['normalized_file']).read_text())
             if strict_json(reread.read_text()) != normalized:
                 raise ValueError('native-export')
     accounting = reconcile_records(entries, report.get('partitions', []))
@@ -698,7 +734,8 @@ def run():
         current_status('running', run_id, snap)
         staging = Path(tempfile.mkdtemp(prefix='.staging-', dir=out))
         try:
-            preflight()
+            with measured_phase('preflight'):
+                preflight()
             if snapshot() != snap:
                 raise ValueError('snapshot')
             entries = source_inventory()
@@ -716,17 +753,21 @@ def run():
             schedule = partition_schedule()
             partitions = []
             receipt_evidence = {}
+            receipt_root = os.environ.get('CI_PROFILE_RECEIPTS') or str(staging / 'ci-profile-receipts')
+            receipt_directory = Path(receipt_root)
+            if receipt_directory.is_symlink():
+                raise ValueError('publication')
+            env['CI_PROFILE_RECEIPTS'] = str(receipt_directory)
+            with measured_phase('audited-profiles'):
+                run_audited_profiles(env)
             for profile in ('unit', 'integration'):
                 if snapshot() != snap:
                     raise ValueError('snapshot')
-                receipt = contained_path(staging, profile + '-receipt.json')
-                env['CP1_PROFILE_RECEIPT'] = str(receipt)
-                proc = subprocess.run(['sh', 'scripts/test_profile.sh', profile], cwd=ROOT, env=env,
-                                      stdin=subprocess.DEVNULL)
-                if snapshot() != snap:
-                    raise ValueError('snapshot')
-                if proc.returncode or not receipt.exists():
+                external_receipt = contained_path(receipt_directory, profile + '.json')
+                if not external_receipt.is_file():
                     raise ValueError('profile-failure')
+                receipt = contained_path(staging, profile + '-receipt.json')
+                receipt.write_bytes(external_receipt.read_bytes())
                 receipt = contained_path(staging, receipt.name)
                 metadata = strict_json(receipt.read_text())
                 inventory_bytes = (ROOT / 'config/test_profiles.json').read_bytes()
@@ -743,27 +784,24 @@ def run():
                     if not export.is_file() or item.get('export_sha256') != digest(export.read_bytes()):
                         raise ValueError('partition')
                     normalized_path = contained_path(staging, profile + '_' + item['id'] + '.normalized.json')
-                    invocation = ['mix', 'run', '--no-start', 'scripts/application_coverage_native.exs',
-                                  '--export', str(export), '--modules', str(module_manifest),
-                                  '--output', str(normalized_path)]
-                    if subprocess.run(invocation, cwd=ROOT, env=env, stdin=subprocess.DEVNULL,
-                                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode or not normalized_path.exists():
-                        raise ValueError('native-export')
-                    normalized_path = contained_path(staging, normalized_path.name)
-                    normalized = strict_json(normalized_path.read_text())
-                    validate_native_counts(normalized)
-                    if normalized.get('export_sha256') != digest(export.read_bytes()):
-                        raise ValueError('native-export')
                     partitions.append(dict(profile=profile, id=item['id'], selected_files=item['selected_files'],
                                            selected_sha256=item['selected_sha256'], export=item['export'],
                                            export_sha256=digest(export.read_bytes()), complete=True,
                                            module_manifest_sha256=digest(module_manifest.read_bytes()),
-                                           normalized_file=normalized_path.name,
-                                           normalized_sha256=digest(normalized_path.read_bytes()),
-                                           modules=normalized.get('modules'), lines=normalized.get('lines')))
+                                           normalized_file=normalized_path.name))
                 receipt_evidence[profile] = dict(receipt_path=receipt.name, receipt_sha256=digest(receipt.read_bytes()),
                                                  sidecar_path=sidecar.name, sidecar_sha256=digest(sidecar.read_bytes()),
                                                  nonce=metadata['nonce'])
+            jobs = [(contained_path(staging, part['export']), contained_path(staging, part['normalized_file']))
+                    for part in partitions]
+            normalize_exports(module_manifest, jobs, env)
+            for part, (export, normalized_path) in zip(partitions, jobs):
+                normalized = strict_json(normalized_path.read_text())
+                validate_native_counts(normalized)
+                if normalized.get('export_sha256') != part['export_sha256']:
+                    raise ValueError('native-export')
+                part.update(normalized_sha256=digest(normalized_path.read_bytes()),
+                            modules=normalized.get('modules'), lines=normalized.get('lines'))
             if snapshot() != snap:
                 raise ValueError('snapshot')
             validate_partition_set(partitions, run_id, schedule)
@@ -789,7 +827,8 @@ def run():
             final.parent.mkdir(parents=True, exist_ok=True)
             os.rename(staging, final)
             relative_report = final_rel + '/report.json'
-            validate(pending=report, pending_path=final / 'report.json')
+            with measured_phase('report-validation'):
+                validate(pending=report, pending_path=final / 'report.json')
             if snapshot() != snap:
                 raise ValueError('snapshot')
             current_status('complete', run_id, snap, report=relative_report)

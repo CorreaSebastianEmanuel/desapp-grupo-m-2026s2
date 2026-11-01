@@ -27,6 +27,12 @@ Redis: optimización de búsquedas/ranking en CP3.
 PostgreSQL: autoridad incluso cuando exista cache.
 ```
 
+## Actualización diurna y cierre de cotizaciones
+
+Una búsqueda o apertura de ficha puede solicitar una actualización asíncrona de estadísticas vencidas. Cuando la fuente confirma cambios, se guardan los hechos aceptados y quedan disponibles para lectura durante el día; también se conserva una solicitud durable de cálculo de cotización. Ese evento no crea una cotización ni una orden de cálculo inmediata: el precio publicado sigue siendo el del último cierre, y la ficha devuelve la frescura de las estadísticas junto con el valor cotizado vigente y la fecha de última valoración.
+
+El cierre nocturno programado por liga/temporada admite en Oban cada solicitud pendiente de hechos aceptados y ejecuta el cálculo con los datos persistidos y la estrategia versionada. Como respaldo, una cotización que alcance su TTL se recalcula usando el ámbito aceptado más reciente de ese jugador/temporada. El TTL se mide desde la última cotización. Completar un partido durante el día no dispara el cálculo; el recálculo postpartido queda como posible evolución futura. La inserción inmutable de la cotización y su evento de evaluación conservan la transacción actual; Oban continúa después con la evaluación de órdenes.
+
 ## Flujo del feature adicional
 
 ```text
@@ -65,8 +71,8 @@ Toda capacidad de producto que una persona deba consultar u operar desde la apli
 | Capacidad/backend | Uso visible en la aplicación |
 |---|---|
 | TASK-007 registro de usuarios; TASK-046 sesión | TASK-072 alta pública y acceso al workspace |
-| TASK-011/012 catálogo y filtros; TASK-027 cotizaciones; TASK-033 ranking; TASK-056 actualización | TASK-047 búsqueda, ficha, cotizaciones, ranking y estado de actualización |
-| TASK-029/030 compra y venta; TASK-031 historial; TASK-032 posiciones y rentabilidad | TASK-048 operaciones y portfolio |
+| TASK-011/012 catálogo y filtros; TASK-027 cotizaciones; TASK-033 ranking; TASK-056 actualización | TASK-047 búsqueda, ficha, cotizaciones, ranking y estado de actualización (CP3 completo; adelanto CP2 vía TASK-077) |
+| TASK-029/030 compra y venta; TASK-031 historial; TASK-032 posiciones y rentabilidad | TASK-048 operaciones y portfolio (CP3 completo; adelanto CP2 vía TASK-077) |
 | TASK-057 analítica histórica | TASK-058 gráficos del portfolio |
 | TASK-059 órdenes condicionales; TASK-060 evaluación | TASK-061 creación y seguimiento de órdenes |
 | TASK-019 sincronización; TASK-025 estrategias | TASK-049 operaciones administrativas |
@@ -85,7 +91,7 @@ Claves API, health checks, métricas Prometheus, persistencia de auditoría, scr
 | TASK-072 | CP2 | Mejora práctica de rutas existentes y registro web |
 | TASK-057 → TASK-058 | CP2 obligatorio nuevo | Analítica y gráficos del usuario |
 | TASK-059 → TASK-060 → TASK-061 | CP2 obligatorio nuevo | Órdenes condicionales, workers y UI |
-| TASK-063 → TASK-034 → TASK-062 | CP2 | Perfiles unit/E2E, regresión y presentación manual |
+| TASK-063 → TASK-034 | CP2 | Perfiles unit/E2E y regresión (la presentación manual se lleva fuera del backlog) |
 | TASK-056 | Apoyo CP2, posponible | TTL de estadísticas; antes usó ID local TASK-054 |
 | TASK-041/042, TASK-036–045, TASK-047–052 | CP3 | Cache, observabilidad y completar interfaz/release |
 | TASK-040 → TASK-073 | CP3 | Métricas de negocio y panel administrativo de lectura |

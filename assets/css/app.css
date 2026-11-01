@@ -195,6 +195,30 @@ input[aria-invalid=true] { border-color:#a43232; }
 [role=alert]:not([hidden]) { padding:14px; background:#fcf0e6; color:#783a1a; border-left:3px solid #ad622f; margin:16px 0; }
 [role=status] { padding:12px; background:#e8f0e3; margin:16px 0; }
 .table-scroll { overflow-x:auto; background:white; border:1px solid var(--line); border-radius:6px; margin-top:30px; }
+#portfolio-charts { margin-top:36px; display:grid; gap:22px; }
+#portfolio-charts > h2 { margin-bottom:-12px; }
+#portfolio-charts > section { min-width:0; padding:22px; background:#fff; border:1px solid var(--line); border-radius:6px; }
+#portfolio-charts h3 { margin-bottom:16px; }
+#portfolio-charts h4 { margin:20px 0 4px; font-size:14px; }
+.allocation-bars { list-style:none; padding:0; margin:0; display:grid; gap:12px; }
+.allocation-bars li { display:grid; grid-template-columns:minmax(110px, 1fr) minmax(90px, 2fr) minmax(70px, auto); align-items:center; gap:14px; font-size:12px; }
+.allocation-player { overflow-wrap:anywhere; }
+.allocation-track { height:10px; overflow:hidden; background:#e8ede6; border-radius:5px; }
+.allocation-fill { display:block; height:100%; background:#164f3c; border-radius:5px; }
+.allocation-value { text-align:right; font-variant-numeric:tabular-nums; }
+.chart-as-of { margin-top:14px; color:var(--muted); font-size:12px; }
+.history-chart svg { display:block; width:100%; max-height:240px; margin:8px 0; overflow:visible; }
+.history-chart svg text { fill:var(--muted); font-size:10px; }
+.chart-scale { color:var(--muted); font-size:11px; }
+.chart-axis { stroke:var(--line); stroke-width:1; }
+.chart-line { fill:none; stroke:var(--green); stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; }
+.history-chart details { margin:8px 0 18px; font-size:12px; }
+.history-chart summary { width:fit-content; cursor:pointer; font-weight:600; }
+.chart-table { max-height:280px; overflow:auto; }
+.chart-table table { min-width:360px; }
+.chart-table th, .chart-table td { padding:9px 12px; }
+.chart-table tbody th { text-align:left; }
+@media(max-width:640px) { #portfolio-charts > section { padding:16px; } .allocation-bars li { grid-template-columns:minmax(90px, 1fr) minmax(60px, 1.5fr) minmax(58px, auto); gap:8px; } }
 table { border-collapse:collapse; width:100%; font-size:12px; text-align:right; font-variant-numeric:tabular-nums; }
 caption { text-align:left; padding:20px; font-size:13px; font-weight:600; }
 th,td { padding:16px 20px; border-top:1px solid var(--line); white-space:nowrap; }
@@ -276,3 +300,18 @@ body { background:#edf1ee; color:#1e3029; font-family:system-ui,-apple-system,"S
 .player-table a { display:inline-block; padding:7px 10px; border-radius:4px; color:#174b39; background:#edf4df; text-decoration:none; font-size:12px; font-weight:650; }
 .player-table a:hover { background:#dcedbd; }
 @media(max-width:640px) { .catalog-heading { padding:0 0 18px; } .catalog-heading h1 { font-size:34px; } .catalog-search-card { padding:18px; } .player-table thead th, .player-table tbody th, .player-table tbody td { padding:12px 9px; } .player-table thead th:nth-child(3), .player-table tbody td:nth-child(3) { display:none; } .player-table tbody th { display:table-cell; } .player-table tbody th span { display:block; width:max-content; margin-top:4px; } }
+
+/* Player detail and immediate trading share the workspace's form vocabulary. */
+#player-card { background:#fff; border:1px solid var(--line); border-top:3px solid var(--green); border-radius:6px; padding:24px; margin-bottom:28px; }
+#player-card p { margin:12px 0; overflow-wrap:anywhere; }
+#player-statistics { display:grid; grid-template-columns:minmax(140px,1fr) 1fr; gap:8px 20px; max-width:440px; margin:20px 0; }
+#player-statistics dt { color:var(--muted); }
+#player-statistics dd { font-weight:600; }
+#trade-form { display:grid; gap:8px; max-width:360px; margin-top:20px; }
+#trade-form select { border:1px solid var(--line); border-radius:4px; padding:10px; background:white; }
+#trade-error { color:#a32727; }
+#trade-notice { color:var(--green); }
+#trade-positions { margin-bottom:24px; }
+#ranking-strategy { margin:20px 0; overflow-wrap:anywhere; }
+#ranking-entries { list-style:decimal inside; padding:0; }
+#ranking-entries li { background:white; border-bottom:1px solid var(--line); padding:18px; overflow-wrap:anywhere; }

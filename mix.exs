@@ -7,6 +7,26 @@ defmodule FootballMarket.MixProject do
   def project do
     [
       app: :football_market,
+      dialyzer: [
+        plt_core_path: "tmp/dialyzer/core",
+        plt_local_path: "tmp/dialyzer",
+        plt_add_apps:
+          [
+            :mix,
+            :ex_unit,
+            :dialyzer,
+            :tools,
+            :inets,
+            :iex,
+            :credo,
+            :bunt,
+            :sobelow,
+            :dialyxir,
+            :erlex,
+            :elixir_make
+          ] ++
+            if(Mix.env() == :test, do: [:lazy_html, :cc_precompiler, :fine], else: [])
+      ],
       version: "0.1.0",
       elixir: "~> 1.20.3",
       test_coverage: test_coverage(),
@@ -105,7 +125,9 @@ defmodule FootballMarket.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:dialyxir, "1.4.8", only: [:dev, :test], runtime: false},
       {:credo, "1.7.19", only: [:dev, :test], runtime: false},
+      {:sobelow, "0.18.1", only: [:dev, :test], runtime: false},
       {:phoenix, "~> 1.8.13"},
       {:phoenix_ecto, "~> 4.5"},
       {:ecto_sql, "~> 3.13"},

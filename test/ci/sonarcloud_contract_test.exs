@@ -28,7 +28,8 @@ defmodule FootballMarket.SonarCloudContractTest do
       "cache-dependency-path: tools/openapi/package-lock.json",
       "npm ci --prefix tools/openapi",
       "playwright-core install --with-deps chromium",
-      "scripts/ci_unit_tests.sh"
+      "run: python3 scripts/application_coverage.py run",
+      "verify-receipts tmp/profile-ci"
     ]
 
     positions =
@@ -52,7 +53,7 @@ defmodule FootballMarket.SonarCloudContractTest do
     assert workflow =~ "permissions:\n  contents: read"
     assert workflow =~ "github.event.pull_request.head.sha || github.sha"
     assert workflow =~ "fetch-depth: 0"
-    assert workflow =~ "cancel-in-progress: true"
+    assert workflow =~ "cancel-in-progress: ${{ inputs.task069_probe != true }}"
     assert workflow =~ "github.event.pull_request.number || github.ref"
   end
 
@@ -133,16 +134,51 @@ defmodule FootballMarket.SonarCloudContractTest do
 
   test "workflow propagates failures and does not persist or summarize secrets" do
     workflow = File.read!(@workflow)
+    [normal, probe] = String.split(workflow, "  task069-probe:", parts: 2)
     normalized = String.downcase(workflow)
     assert workflow =~ "set -o pipefail"
     assert workflow =~ "::error title=SonarCloud %s"
     assert normalized =~ "authentication/authorization failures"
     assert normalized =~ "configuration failures"
     assert normalized =~ "service/network failures"
-    refute workflow =~ "continue-on-error"
+    refute normal =~ "continue-on-error"
+    assert probe =~ "continue-on-error: true"
+    assert probe =~ "Preserve scanner and quality-gate failures"
     refute workflow =~ "|| true"
     refute workflow =~ "set -x"
     refute workflow =~ ~r/echo.*SONAR_TOKEN/
-    refute workflow =~ ~r/GITHUB_STEP_SUMMARY.*SONAR_TOKEN/s
+    refute normal =~ ~r/GITHUB_STEP_SUMMARY.*SONAR_TOKEN/s
+    refute probe =~ ~r/GITHUB_STEP_SUMMARY.*SONAR_TOKEN/s
+  end
+
+  test "TASK-069 probe is opt-in, exact-head guarded, and keeps imports out of normal analysis" do
+    workflow = File.read!(@workflow)
+    [normal, probe] = String.split(workflow, "  task069-probe:", parts: 2)
+    guard = File.read!(Path.join(@root, "scripts/sonar_elixir_probe.py"))
+
+    assert normal =~ "inputs.task069_probe != true"
+    assert probe =~ "inputs.task069_probe == true"
+    assert probe =~ "scripts/sonar_elixir_probe.py guard"
+    assert probe =~ "scripts/application_coverage.py run"
+    {preparation, _} = :binary.match(probe, "MIX_ENV=test mix test.prepare")
+    {collection, _} = :binary.match(probe, "python3 scripts/application_coverage.py run")
+    assert preparation < collection
+    assert probe =~ "--ref"
+    assert probe =~ "--sha"
+    assert guard =~ "head.get(\"sha\") != sha"
+    assert probe =~ "pullrequest.key=${{ inputs.task069_pull_request }}"
+    assert probe =~ "pullrequest.branch=${{ github.ref_name }}"
+    assert probe =~ "externalIssuesReportPaths=tmp/sonar-elixir-probe/external-issues.json"
+    assert probe =~ "coverageReportPaths=tmp/sonar-elixir-probe/coverage.xml"
+    assert probe =~ "name: Control analysis"
+    assert probe =~ "name: Issue-only analysis"
+    assert probe =~ "name: Coverage-only analysis"
+    assert probe =~ "rm -f .scannerwork/report-task.txt"
+    assert probe =~ "actions/upload-artifact@"
+    assert probe =~ "Preserve scanner and quality-gate failures"
+    refute normal =~ "sonar.externalIssuesReportPaths"
+    refute normal =~ "sonar.coverageReportPaths"
+    assert probe =~ "SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}"
+    refute probe =~ ~r/--token\s+\$\{\{\s*secrets\.SONAR_TOKEN/
   end
 end

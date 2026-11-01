@@ -21,7 +21,9 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
     "purchaseTokens" => ~w(200 400 401 404 409 503),
     "saleTokens" => ~w(200 400 401 404 409 503),
     "listTransactions" => ~w(200 400 401 503),
-    "getActiveStrategyRanking" => ~w(200 401 409 503)
+    "getActiveStrategyRanking" => ~w(200 401 409 503),
+    "getPortfolioAllocation" => ~w(200 401 503),
+    "getPortfolioHistory" => ~w(200 400 401 503)
   }
 
   setup do
@@ -304,21 +306,19 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
     refute_receive {:catalog_query, _}
   end
 
+  defp protected_api_route?(route) do
+    route.path in ~w(/api/ranking /api/purchases /api/sales /api/transactions /api/players) or
+      Enum.any?(
+        ~w(/api/players/ /api/conditional-orders /api/portfolio/),
+        &String.starts_with?(route.path, &1)
+      )
+  end
+
   defp assert_contract!(doc) do
     routes =
       FootballMarketWeb.Router
       |> Phoenix.Router.routes()
-      |> Enum.filter(
-        &(&1.path in [
-            "/api/ranking",
-            "/api/purchases",
-            "/api/sales",
-            "/api/transactions",
-            "/api/players"
-          ] or
-            String.starts_with?(&1.path, "/api/players/") or
-            String.starts_with?(&1.path, "/api/conditional-orders"))
-      )
+      |> Enum.filter(&protected_api_route?/1)
 
     assert Enum.all?(routes, &(&1.metadata[:authentication_policy] == :api_protected))
 
@@ -408,7 +408,7 @@ defmodule FootballMarketWeb.OpenAPIContractTest do
           {"League", ~w(id code name)},
           {"Pagination", ~w(page_size returned_count has_more next_cursor)},
           {"PlayerPage", ~w(data pagination)},
-          {"PlayerDetail", ~w(data statistics_status)}
+          {"PlayerDetail", ~w(data statistics statistics_status)}
         ] do
       schema = schemas[name]
       assert Enum.sort(schema["required"]) == Enum.sort(fields)

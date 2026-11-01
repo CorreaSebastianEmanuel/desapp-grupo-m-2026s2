@@ -224,6 +224,24 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/catalog/query.ex."
     },
     {
+      "path": "lib/football_market/catalog/scout_run.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Catalog scouting admission, lifecycle, and bounded background synchronization behavior."
+    },
+    {
+      "path": "lib/football_market/catalog/scout_store.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Catalog scouting admission, lifecycle, and bounded background synchronization behavior."
+    },
+    {
+      "path": "lib/football_market/catalog/scouting.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Catalog scouting admission, lifecycle, and bounded background synchronization behavior."
+    },
+    {
       "path": "lib/football_market/catalog/season.ex",
       "role": "application",
       "disposition": "include",
@@ -258,6 +276,30 @@
       "role": "application",
       "disposition": "include",
       "reason": "Maintained first-party application implementation source: lib/football_market/market.ex."
+    },
+    {
+      "path": "lib/football_market/market/analytics.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained application implementation for TASK-057 portfolio analytics: lib/football_market/market/analytics.ex."
+    },
+    {
+      "path": "lib/football_market/market/analytics/input.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained application implementation for TASK-057 portfolio analytics: lib/football_market/market/analytics/input.ex."
+    },
+    {
+      "path": "lib/football_market/market/analytics/projection.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained application implementation for TASK-057 portfolio analytics: lib/football_market/market/analytics/projection.ex."
+    },
+    {
+      "path": "lib/football_market/market/analytics/store.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained application implementation for TASK-057 portfolio analytics: lib/football_market/market/analytics/store.ex."
     },
     {
       "path": "lib/football_market/market/conditional_order.ex",
@@ -378,6 +420,12 @@
       "role": "application",
       "disposition": "include",
       "reason": "portfolio domain module"
+    },
+    {
+      "path": "lib/football_market/market/portfolio_ledger.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained application implementation for TASK-057 portfolio analytics: lib/football_market/market/portfolio_ledger.ex."
     },
     {
       "path": "lib/football_market/market/portfolio_store.ex",
@@ -584,6 +632,12 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/providers/scraping.ex."
     },
     {
+      "path": "lib/football_market/providers/scraping/admission.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/providers/scraping/admission.ex."
+    },
+    {
       "path": "lib/football_market/providers/scraping/assessment.ex",
       "role": "application",
       "disposition": "include",
@@ -600,6 +654,12 @@
       "role": "application",
       "disposition": "include",
       "reason": "Maintained first-party application implementation source: lib/football_market/providers/scraping/fixture_transport.ex."
+    },
+    {
+      "path": "lib/football_market/providers/scraping/http_transport.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/providers/scraping/http_transport.ex."
     },
     {
       "path": "lib/football_market/providers/scraping/source.ex",
@@ -642,6 +702,12 @@
       "role": "application",
       "disposition": "include",
       "reason": "Maintained first-party application implementation source: lib/football_market/quotes/calculation.ex."
+    },
+    {
+      "path": "lib/football_market/quotes/closing.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/quotes/closing.ex."
     },
     {
       "path": "lib/football_market/quotes/conversion.ex",
@@ -1088,6 +1154,12 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/workers/calculation_dispatch.ex."
     },
     {
+      "path": "lib/football_market/workers/catalog_scout.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Catalog scouting admission, lifecycle, and bounded background synchronization behavior."
+    },
+    {
       "path": "lib/football_market/workers/catalog_sync.ex",
       "role": "application",
       "disposition": "include",
@@ -1200,6 +1272,18 @@
       "role": "application",
       "disposition": "include",
       "reason": "Maintained first-party application implementation source: lib/football_market_web/controllers/player_json.ex."
+    },
+    {
+      "path": "lib/football_market_web/controllers/portfolio_controller.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained application implementation for TASK-057 portfolio analytics: lib/football_market_web/controllers/portfolio_controller.ex."
+    },
+    {
+      "path": "lib/football_market_web/controllers/portfolio_json.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained application implementation for TASK-057 portfolio analytics: lib/football_market_web/controllers/portfolio_json.ex."
     },
     {
       "path": "lib/football_market_web/controllers/purchase_controller.ex",
@@ -1586,6 +1670,18 @@
       "reason": "Database migration source, not maintained application implementation: priv/repo/migrations/20261027010000_create_market_sales.exs."
     },
     {
+      "path": "priv/repo/migrations/20261029000000_add_nightly_quote_admission.exs",
+      "role": "migration",
+      "disposition": "exclude",
+      "reason": "Migration source, excluded from application coverage: priv/repo/migrations/20261029000000_add_nightly_quote_admission.exs."
+    },
+    {
+      "path": "priv/repo/migrations/20261031000100_create_catalog_scout_runs.exs",
+      "role": "migration",
+      "disposition": "exclude",
+      "reason": "Database migration, not application source code: priv/repo/migrations/20261031000100_create_catalog_scout_runs.exs."
+    },
+    {
       "path": "scripts/application_coverage_native.exs",
       "role": "script",
       "disposition": "exclude",
@@ -1596,6 +1692,12 @@
       "role": "script",
       "disposition": "exclude",
       "reason": "Development or verification script, not application implementation: scripts/credo_inventory.exs."
+    },
+    {
+      "path": "scripts/dialyzer_analyze.exs",
+      "role": "script",
+      "disposition": "exclude",
+      "reason": "Native Dialyzer analysis boundary, not application implementation: scripts/dialyzer_analyze.exs."
     },
     {
       "path": "scripts/test_profile_discovery.exs",
@@ -1844,6 +1946,12 @@
       "reason": "Test code, not application behavior: test/ci/e2e_supervisor_cleanup_test.exs."
     },
     {
+      "path": "test/ci/portfolio_analytics_scope_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Task-057 compatibility and exact-scope regression tests."
+    },
+    {
       "path": "test/ci/profile_integration_sentinel_test.exs",
       "role": "test",
       "disposition": "exclude",
@@ -1916,6 +2024,12 @@
       "reason": "Test code, not application behavior: test/e2e/browser_shell_test.exs."
     },
     {
+      "path": "test/e2e/catalog_scouting_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Test code, not application behavior: test/e2e/catalog_scouting_test.exs."
+    },
+    {
       "path": "test/e2e/catalog_sync_test.exs",
       "role": "test",
       "disposition": "exclude",
@@ -1926,6 +2040,12 @@
       "role": "test",
       "disposition": "exclude",
       "reason": "Test code, not application behavior: test/e2e/correlated_logging_test.exs."
+    },
+    {
+      "path": "test/e2e/portfolio_analytics_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Behavioral regression test for TASK-057 portfolio analytics: test/e2e/portfolio_analytics_test.exs."
     },
     {
       "path": "test/fixtures/providers/cases.exs",
@@ -2192,6 +2312,18 @@
       "reason": "Test code, not application behavior: test/football_market/catalog/query_test.exs."
     },
     {
+      "path": "test/football_market/catalog/scouting_policy_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Test code, not application behavior: test/football_market/catalog/scouting_policy_test.exs."
+    },
+    {
+      "path": "test/football_market/catalog/scouting_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Test code, not application behavior: test/football_market/catalog/scouting_test.exs."
+    },
+    {
       "path": "test/football_market/infrastructure/configuration_test.exs",
       "role": "test",
       "disposition": "exclude",
@@ -2214,6 +2346,18 @@
       "role": "test",
       "disposition": "exclude",
       "reason": "Test code, not application behavior: test/football_market/infrastructure/verification_test.exs."
+    },
+    {
+      "path": "test/football_market/market/analytics/projection_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Behavioral regression test for TASK-057 portfolio analytics: test/football_market/market/analytics/projection_test.exs."
+    },
+    {
+      "path": "test/football_market/market/analytics/store_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Behavioral regression test for TASK-057 portfolio analytics: test/football_market/market/analytics/store_test.exs."
     },
     {
       "path": "test/football_market/market/concurrency_test.exs",
@@ -3320,6 +3464,12 @@
       "reason": "Test source, not application implementation: test/football_market_web/controllers/player_freshness_test.exs."
     },
     {
+      "path": "test/football_market_web/controllers/portfolio_controller_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Behavioral regression test for TASK-057 portfolio analytics: test/football_market_web/controllers/portfolio_controller_test.exs."
+    },
+    {
       "path": "test/football_market_web/controllers/purchase_controller_test.exs",
       "role": "test",
       "disposition": "exclude",
@@ -3360,6 +3510,12 @@
       "role": "test",
       "disposition": "exclude",
       "reason": "Test code, not application behavior: test/football_market_web/live/browser_session_lifecycle_test.exs."
+    },
+    {
+      "path": "test/football_market_web/live/catalog_scouting_live_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Test code, not application behavior: test/football_market_web/live/catalog_scouting_live_test.exs."
     },
     {
       "path": "test/football_market_web/live/conditional_orders_live_test.exs",

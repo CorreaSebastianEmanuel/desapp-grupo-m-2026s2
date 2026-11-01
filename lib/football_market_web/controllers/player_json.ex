@@ -3,8 +3,8 @@ defmodule FootballMarketWeb.PlayerJSON do
     %{data: Enum.map(players, &player/1), pagination: pagination}
   end
 
-  def show(%{player: record, statistics_status: status}),
-    do: %{data: player(record), statistics_status: status}
+  def show(%{player: record, statistics_status: status, statistics: statistics}),
+    do: %{data: player(record), statistics_status: status, statistics: statistics}
 
   defp player(record) do
     %{

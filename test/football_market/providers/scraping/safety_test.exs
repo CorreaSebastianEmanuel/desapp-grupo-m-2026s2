@@ -10,21 +10,24 @@ defmodule FootballMarket.Providers.ScrapingSafetyTest do
     end
   end
 
-  test "production adapter has no persistence, web, financial or network dependency" do
+  test "production adapter isolates HTTPS access in the assessed transport" do
     files = [
       "lib/football_market/providers/scraping.ex"
       | Path.wildcard("lib/football_market/providers/scraping/*.ex")
     ]
 
-    assert length(files) == 7
+    assert length(files) == 9
 
     for file <- files do
       source = File.read!(file)
 
       refute Regex.match?(
-               ~r/\b(Repo|Ecto|CatalogCase|Statistics|Trading|Quotes|Finch|HTTPoison|Req|Tesla|httpc|FootballMarketWeb)\b/,
+               ~r/\b(Repo|Ecto|CatalogCase|Statistics|Trading|Quotes|Finch|HTTPoison|Req|Tesla|FootballMarketWeb)\b/,
                source
              )
+
+      if Path.basename(file) != "http_transport.ex",
+        do: refute(source =~ ":httpc")
 
       refute source =~ "String.to_atom"
     end

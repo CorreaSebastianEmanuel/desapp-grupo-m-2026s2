@@ -63,10 +63,101 @@ defmodule FootballMarket.WorkflowScopeTest do
     for feature <- [
           "specs/065-separate-unit-and-end-to-end-test-profiles",
           "specs/065-statistics-ingestion-pipeline",
-          "specs/068-atomic-idempotent-token-purchase"
+          "specs/068-atomic-idempotent-token-purchase",
+          "specs/069-verify-sonarcloud-external-elixir-report-compatibility"
         ] do
       assert WorkflowScope.allows_path?(feature, "test/support/workflow_scope.ex")
     end
+
+    security_feature = "specs/074-required-sobelow-security-analysis-for-elixir-prs"
+    assert WorkflowScope.allows_path?(security_feature, "scripts/sobelow_ci.py")
+    assert WorkflowScope.allows_path?(security_feature, "test/scripts/sobelow_ci_test.py")
+    assert WorkflowScope.allows_path?(security_feature, ".github/workflows/quality-baseline.yml")
+
+    for path <- [
+          "backlog/feedback/TASK-074.md",
+          "config/test_profiles.json",
+          "docs/WORKFLOW_LESSONS.md"
+        ] do
+      assert WorkflowScope.allows_path?(security_feature, path)
+    end
+
+    refute WorkflowScope.allows_path?(security_feature, "backlog/feedback/TASK-075.md")
+    refute WorkflowScope.allows_path?(security_feature, "config/unplanned.json")
+    refute WorkflowScope.allows_path?(security_feature, "lib/football_market/statistics.ex")
+    refute WorkflowScope.allows_path?(security_feature, ".github/workflows/unplanned.yml")
+
+    dialyzer_feature = "specs/075-required-dialyzer-analysis-with-trustworthy-plt-caching"
+
+    for path <- [
+          ".github/workflows/quality-baseline.yml",
+          "backlog/TASK-075-required-dialyzer-analysis-with-trustworthy-plt-caching.md",
+          "backlog/feedback/TASK-075.md",
+          "config/application_coverage_inventory.json",
+          "config/credo_inventory.json",
+          "config/test_profiles.json",
+          "docs/WORKFLOW_LESSONS.md",
+          "mix.exs",
+          "mix.lock",
+          "scripts/dialyzer_analyze.exs",
+          "scripts/dialyzer_ci.py",
+          "scripts/dialyzer_exceptions.json",
+          "specs/075-required-dialyzer-analysis-with-trustworthy-plt-caching/spec.md",
+          "test/ci/fixtures/quality-baseline.sha256",
+          "test/ci/workflow_scope_test.exs",
+          "test/scripts/dialyzer_ci_test.py",
+          "test/support/workflow_scope.ex"
+        ] do
+      assert WorkflowScope.allows_path?(dialyzer_feature, path)
+    end
+
+    assert length(WorkflowScope.paths(dialyzer_feature)) == 17
+
+    for path <- [
+          "lib/football_market/statistics.ex",
+          "scripts/unplanned.py",
+          "config/unplanned.json",
+          "backlog/feedback/TASK-074.md",
+          ".github/workflows/unplanned.yml",
+          "specs/075-required-dialyzer-analysis-with-trustworthy-plt-caching/unplanned.md",
+          "test/ci/fixtures/unplanned.sha256"
+        ] do
+      refute WorkflowScope.allows_path?(dialyzer_feature, path)
+    end
+
+    probe_feature = "specs/069-verify-sonarcloud-external-elixir-report-compatibility"
+    assert WorkflowScope.allows_path?(probe_feature, ".github/workflows/sonarcloud.yml")
+    assert WorkflowScope.allows_path?(probe_feature, "test/ci/sonarcloud_contract_test.exs")
+    refute WorkflowScope.allows_path?(probe_feature, "lib/football_market/statistics.ex")
+    refute WorkflowScope.allows_path?(probe_feature, ".github/workflows/unplanned.yml")
+
+    summary_feature = "specs/076-visible-and-enforceable-elixir-quality-results-on-every-pr"
+
+    for path <- [
+          ".github/workflows/quality-baseline.yml",
+          "backlog/TASK-076-visible-and-enforceable-elixir-quality-results-on-every-pr.md",
+          "backlog/feedback/TASK-076.md",
+          "config/test_profiles.json",
+          "docs/WORKFLOW_LESSONS.md",
+          "scripts/application_coverage.py",
+          "scripts/application_coverage_native.exs",
+          "scripts/quality_summary.py",
+          "test/football_market/providers/scraping/assessment_test.exs",
+          "test/ci/application_coverage_native_test.exs",
+          "test/ci/quality_baseline_contract_test.exs",
+          "test/ci/credo_ci_contract_test.exs",
+          "test/ci/sonarcloud_contract_test.exs",
+          "test/ci/test_profiles_quality_contract_test.exs",
+          "test/ci/workflow_scope_test.exs",
+          "test/scripts/application_coverage_test.py",
+          "test/scripts/sobelow_ci_test.py",
+          "test/support/workflow_scope.ex"
+        ] do
+      assert WorkflowScope.allows_path?(summary_feature, path)
+    end
+
+    refute WorkflowScope.allows_path?(summary_feature, "lib/football_market/market.ex")
+    refute WorkflowScope.allows_path?(summary_feature, ".github/workflows/unplanned.yml")
 
     assert WorkflowScope.allows_path?(
              "specs/065-statistics-ingestion-pipeline",
@@ -77,6 +168,32 @@ defmodule FootballMarket.WorkflowScopeTest do
              "specs/065-separate-unit-and-end-to-end-test-profiles",
              "lib/football_market/statistics/ingestion/publisher.ex"
            )
+
+    player_card_feature =
+      "specs/077-advance-cp2-product-ui-player-card-trading-actions-and-active-ranking"
+
+    player_card_paths = WorkflowScope.paths(player_card_feature)
+    assert length(player_card_paths) == length(Enum.uniq(player_card_paths))
+
+    for path <- [
+          "lib/football_market/catalog.ex",
+          "lib/football_market/statistics/query.ex",
+          "lib/football_market_web/live/workspace_live.ex",
+          "test/support/e2e/fixtures.ex",
+          "tools/openapi/e2e_market.mjs"
+        ] do
+      assert WorkflowScope.allows_path?(player_card_feature, path)
+    end
+
+    for path <- [
+          "lib/football_market/market/purchase_transaction.ex",
+          "lib/football_market/valuation/balanced.ex",
+          "priv/repo/migrations/unplanned.exs",
+          ".github/workflows/unplanned.yml",
+          "tools/openapi/unplanned.mjs"
+        ] do
+      refute WorkflowScope.allows_path?(player_card_feature, path)
+    end
   end
 
   test "TASK-029 verification recovery and compatibility allowance is limited to named paths" do

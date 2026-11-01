@@ -1,5 +1,5 @@
 #!/usr/bin/env elixir
-# Pinned OTP native export reader: each process owns fresh coverage state.
+# Pinned OTP reader: each import owns fresh coverage state.
 defmodule ApplicationCoverageNative do
   def fail do
     raise ArgumentError, "native-export"
@@ -16,11 +16,17 @@ defmodule ApplicationCoverageNative do
           output: :string,
           manifest: :boolean,
           beam_dir: :string,
-          inventory: :string
+          inventory: :string,
+          batch: :string
         ]
       )
 
-    if opts[:manifest], do: manifest(opts), else: normalize(opts)
+    cond do
+      opts[:manifest] && opts[:batch] -> fail()
+      opts[:manifest] -> manifest(opts)
+      opts[:batch] -> batch(opts)
+      true -> normalize(opts)
+    end
   end
 
   defp manifest(opts) do
@@ -80,15 +86,57 @@ defmodule ApplicationCoverageNative do
   end
 
   defp normalize(opts) do
-    export = Keyword.fetch!(opts, :export)
+    jobs = [
+      %{"export" => Keyword.fetch!(opts, :export), "output" => Keyword.fetch!(opts, :output)}
+    ]
+
+    normalize_jobs(opts, jobs)
+  end
+
+  defp batch(opts) do
+    jobs = opts |> Keyword.fetch!(:batch) |> File.read!() |> Jason.decode!()
+    normalize_jobs(opts, jobs)
+  end
+
+  defp normalize_jobs(opts, jobs) do
     expected = opts |> Keyword.fetch!(:modules) |> File.read!() |> Jason.decode!()
     if not is_list(expected) or expected == [], do: fail()
+    validate_jobs(jobs)
     Enum.each(expected, &validate_binding/1)
+    # Counter identities depend only on these exact validated BEAM bytes.
+    # Reconstruct once per invocation, independently again during validation.
+    expected_counters = fresh_counter_identities(expected)
+
+    Enum.each(jobs, fn job ->
+      Enum.each(expected, &validate_binding/1)
+      normalize_export(job, expected, expected_counters)
+    end)
+  end
+
+  defp validate_jobs(jobs) do
+    if not is_list(jobs) or jobs == [], do: fail()
+    Enum.each(jobs, &validate_job/1)
+    exports = Enum.map(jobs, &Path.expand(&1["export"]))
+    outputs = Enum.map(jobs, &Path.expand(&1["output"]))
+    if length(Enum.uniq(exports)) != length(jobs), do: fail()
+    if length(Enum.uniq(outputs)) != length(jobs), do: fail()
+    if not MapSet.disjoint?(MapSet.new(exports), MapSet.new(outputs)), do: fail()
+  end
+
+  defp validate_job(job) do
+    if not is_map(job) or Enum.sort(Map.keys(job)) != ["export", "output"], do: fail()
+
+    Enum.each(["export", "output"], fn key ->
+      if not is_binary(job[key]) or job[key] == "", do: fail()
+    end)
+  end
+
+  defp normalize_export(job, expected, expected_counters) do
+    export = job["export"]
     # OTP import merges repeated records; reject duplicates and truncated framing first.
     raw = File.read!(export)
     records = decode_records(raw, [])
     validate_records(records, expected)
-    expected_counters = fresh_counter_identities(expected)
     actual_counters = counter_identities(records)
     if actual_counters != expected_counters, do: fail()
     fresh_cover()
@@ -99,7 +147,7 @@ defmodule ApplicationCoverageNative do
     lines = Enum.flat_map(included, &partition_lines/1)
 
     File.write!(
-      Keyword.fetch!(opts, :output),
+      job["output"],
       Jason.encode!(%{
         "schema_version" => 1,
         "export_sha256" => hash(raw),

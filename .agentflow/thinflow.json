@@ -45,7 +45,7 @@
     },
     {
       "id": "application",
-      "patterns": ["lib/**", "test/football_market/**", "test/football_market_web/**", "test/ci/**", "test/support/**", "config/*.exs", "config/**/*.exs", "priv/**", "assets/**", "mix.exs", "mix.lock", ".formatter.exs", ".credo.exs"],
+      "patterns": ["lib/**", "test/e2e/**", "test/football_market/**", "test/football_market_web/**", "test/ci/**", "test/support/**", "config/*.exs", "config/**/*.exs", "priv/**", "assets/**", "mix.exs", "mix.lock", ".formatter.exs", ".credo.exs"],
       "tier": "high",
       "checks": ["format", "compile", "unit-profile"]
     },

@@ -71,6 +71,13 @@ defmodule FootballMarket.Observability.JobContextTest do
     assert :ok = FootballMarket.Workers.CalculationDispatch.perform(dispatch)
     calculation = Repo.one!(FootballMarket.Quotes.CalculationRequest)
 
+    assert Repo.all(
+             from j in Oban.Job, where: j.worker == "FootballMarket.Workers.QuoteCalculation"
+           ) == []
+
+    close_time = DateTime.add(DateTime.utc_now(), 2 * 86_400, :second)
+    assert {:ok, %{imports: 1}} = FootballMarket.Quotes.Closing.admit_due(close_time)
+
     job =
       Repo.one!(from j in Oban.Job, where: j.worker == "FootballMarket.Workers.QuoteCalculation")
 

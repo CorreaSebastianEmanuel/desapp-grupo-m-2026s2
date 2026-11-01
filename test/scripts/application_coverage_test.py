@@ -17,12 +17,57 @@ from test_profile_components import EventResult
 
 
 class CoverageAccountingTest(unittest.TestCase):
+    def test_batch_normalization_uses_one_worker_and_rejects_incomplete_outputs(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            jobs = [(root / f'{i}.coverdata', root / f'{i}.json') for i in range(3)]
+            environment = {'MIX_ENV': 'test'}
+            captured = []
+
+            def worker(argv, **kwargs):
+                self.assertEqual(kwargs['env'], environment)
+                self.assertIn('--batch', argv)
+                plan = json.loads(Path(argv[argv.index('--batch') + 1]).read_text())
+                captured.append(plan)
+                for _export, output in jobs:
+                    output.write_text('{}')
+                return subprocess.CompletedProcess(argv, 0)
+
+            with patch.object(coverage.subprocess, 'run', side_effect=worker) as run:
+                coverage.normalize_exports(root / 'modules.json', jobs, environment)
+            self.assertEqual(run.call_count, 1)
+            self.assertEqual(captured, [[dict(export=str(export), output=str(output))
+                                         for export, output in jobs]])
+            for _export, output in jobs:
+                output.unlink()
+            for code in (0, 1):
+                with self.subTest(exit_code=code), patch.object(coverage.subprocess, 'run',
+                        return_value=subprocess.CompletedProcess([], code)), self.assertRaisesRegex(ValueError, 'native-export'):
+                    coverage.normalize_exports(root / 'modules.json', jobs, environment)
+
     def setUp(self):
         self.entries = [
             dict(path='lib/a.ex', role='application', disposition='include', reason='application source'),
             dict(path='test/a_test.exs', role='test', disposition='exclude', reason='test source'),
             dict(path='test/support/helper.ex', role='test-support', disposition='exclude', reason='test helper'),
         ]
+
+    def test_coverage_runs_the_existing_ci_profile_wrapper_once(self):
+        environment = {'CI_PROFILE_RECEIPTS': '/tmp/profile-ci',
+                       'APPLICATION_COVERAGE_DIR': '/tmp/coverage-run',
+                       'APPLICATION_COVERAGE_RUN_ID': 'run-id',
+                       'APPLICATION_COVERAGE_SNAPSHOT': 'snapshot'}
+        with patch.object(coverage.subprocess, 'run', return_value=subprocess.CompletedProcess([], 0)) as run:
+            coverage.run_audited_profiles(environment)
+        self.assertEqual(run.call_count, 1)
+        args, kwargs = run.call_args
+        self.assertEqual(args[0], ['sh', 'scripts/ci_unit_tests.sh'])
+        self.assertEqual(kwargs['env'], environment)
+        self.assertIs(kwargs['stdin'], subprocess.DEVNULL)
+
+        with patch.object(coverage.subprocess, 'run', return_value=subprocess.CompletedProcess([], 1)):
+            with self.assertRaisesRegex(ValueError, 'profile-failure'):
+                coverage.run_audited_profiles(environment)
 
     def test_python_profile_failure_event_contains_only_safe_assertion_location(self):
         with tempfile.TemporaryDirectory() as directory, patch.dict(os.environ, {
@@ -686,7 +731,7 @@ class CoverageAccountingTest(unittest.TestCase):
                 return SimpleNamespace(returncode=0)
             with patch.multiple(coverage, ROOT=root, FEATURE=root / 'spec', OUTPUT=output, STATUS=output / 'status.json'), patch.object(
                     coverage, 'preflight'), patch.object(coverage, 'partition_schedule', return_value={}), patch.object(coverage, 'source_inventory', return_value=self.entries), patch.object(
-                    coverage, 'snapshot', side_effect=['stable', 'stable', 'stable', 'changed']), patch.object(
+                    coverage, 'snapshot', side_effect=['stable', 'stable', 'changed']), patch.object(
                     coverage.subprocess, 'check_output', return_value='head'), patch.object(coverage.subprocess, 'run', side_effect=child):
                 with self.assertRaisesRegex(ValueError, 'snapshot'):
                     coverage.run()

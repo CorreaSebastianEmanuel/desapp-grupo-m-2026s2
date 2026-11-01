@@ -386,3 +386,17 @@ inventory so reviewers can audit the complete boundary.
 
 Zero Credo findings do not establish absence of bugs and do not establish equivalence to
 SonarCloud's native Java analysis.
+
+### Portfolio analytics (TASK-057)
+
+Authenticated `GET /api/portfolio/allocation` returns current investor positions, quote identity/time, market value and fractional weights. `GET /api/portfolio/history?from=2026-10-01&to=2026-10-29` returns daily UTC value, remaining cost basis, cumulative purchase expenditure/sale proceeds/net invested and realized/unrealized/total profit. Use the existing Bearer JWT or X-API-Key; ownership cannot be selected through parameters. Responses are private and non-cacheable.
+
+History defaults to 30 calendar days including today; explicit ranges allow at most 366 inclusive days. Only `to` means its preceding 30 days; only `from` ends today. Dates must be single ISO calendar dates; future/reversed/oversized ranges return 400. Today is partial, with `cutoff_at` bounded by `as_of`; past points close at the end of their UTC day. Trades before the range establish opening holdings and lifetime flows/profit. Closed positions retain realized profit. Holdings are reconstructed from the user's purchases/sales, excluding initial issuer inventory and cash.
+
+Values use the existing weighted-average cost rule and authoritative quote sequence ordering. Prices effective after a cutoff never participate; eligible prices carry forward. Historical values use currently retained effective facts, not an archival record of database knowledge. A missing quote produces null affected values and dependent totals/weights, with `missing_quote_player_ids`; an empty portfolio has true zero totals. Money is serialized as decimal strings (derived precision retained; quote prices have two places), never floats. Weights round half-up to 18 decimal places and can have a rounding residual. Purchases are flows, not profit; the API does not claim a percentage return. TASK-058 owns charts.
+
+Sobelow security analysis is required in Quality baseline and therefore in
+`ThinFlow required`. Run `python3 scripts/sobelow_ci.py` locally; focused real
+analyzer controls use `python3 -m unittest discover -s test/scripts -p sobelow_ci_test.py`.
+See the [TASK-074 scope, blocking policy and individual finding triage](specs/074-required-sobelow-security-analysis-for-elixir-prs/spec.md).
+Revision-bound, non-sensitive evidence is uploaded from `tmp/sobelow-ci/` for 14 days.

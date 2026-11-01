@@ -20,8 +20,8 @@ class ThinFlowCIContractTest(unittest.TestCase):
         sonar = (ROOT / ".github/workflows/sonarcloud.yml").read_text()
         self.assertIn("uses: ./.github/workflows/sonarcloud.yml", quality)
         self.assertIn("workflow_call:", sonar)
-        self.assertNotIn("pull_request:\n", sonar)
-        self.assertNotIn("push:\n", sonar)
+        self.assertNotRegex(sonar, r"(?m)^  pull_request:")
+        self.assertNotRegex(sonar, r"(?m)^  push:")
 
 
 if __name__ == "__main__":

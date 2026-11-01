@@ -66,13 +66,19 @@ Transacción PostgreSQL:
   (sin cambios también renueva fecha si la comprobación fue completa)
           |
           v
-Si hay cambios: solicitar cálculo de rendimiento y cotización
+Si hay cambios: persistir solicitud durable de cálculo pendiente
+          |             (sin job de cotización durante el día)
+          v
+Mostrar estadísticas aceptadas, cotización del cierre anterior y fecha de valoración
           |
           v
-Dominio calcula con entradas persistidas y estrategia versionada
+Cierre nocturno por liga/temporada admite solicitudes pendientes en Oban
           |
           v
-Insertar cotizaciones reproducibles sin sobrescribir historia
+Dominio calcula con hechos persistidos y estrategia versionada
+          |
+          v
+Insertar cotización reproducible + evento de evaluación sin sobrescribir historia
           |
           v
 Invalidar cachés afectadas; registrar resultado de cada trabajo
@@ -81,10 +87,10 @@ Invalidar cachés afectadas; registrar resultado de cada trabajo
 Frontend consulta estado mientras esté pendiente
           |
           v
-Mostrar estadísticas actualizadas y estado real de la cotización
+Mostrar estadísticas actualizadas, cotización vigente y su fecha de valoración
 ```
 
-La importación y el cálculo pueden finalizar en momentos distintos. El éxito del scraping no implica que una cotización ya se haya calculado. Fallos de Redis no deshacen importaciones confirmadas: se reintenta invalidación y la caché expira.
+La búsqueda puede refrescar estadísticas vencidas durante el día. Los hechos aceptados y su estado se hacen visibles inmediatamente, pero el precio conserva la cotización del último cierre hasta el cálculo nocturno. El TTL de cotización se mide desde esa última cotización; su respaldo usa el ámbito aceptado más reciente por jugador/temporada. Cada solicitud pendiente por hechos cambiados se admite por separado. Completar un partido no dispara una cotización; un disparo postpartido es una posible evolución futura. Fallos de Redis no deshacen importaciones confirmadas: se reintenta invalidación y la caché expira.
 
 ## Catálogo
 
@@ -101,7 +107,13 @@ Persistir catálogo idempotentemente en PostgreSQL
 Invalidar caché de búsquedas
 ```
 
-Una búsqueda sin coincidencias no dispara scraping de un nombre arbitrario. La sincronización del catálogo permite encontrar nuevos jugadores.
+Una búsqueda sin coincidencias puede admitir una exploración acotada del catálogo. Primero se valida y normaliza el nombre; una consulta inválida nunca genera trabajo externo. Los nombres equivalentes comparten una exploración activa. Cada nombre nuevo admitido cuenta contra un límite de 10 admisiones por hora; los resultados negativos se conservan durante 24 horas.
+
+La exploración es asíncrona y usa exclusivamente la sincronización de catálogo existente. Como máximo solicita un catálogo completo por cada una de las cinco ligas para una temporada configurada, sin más de cinco solicitudes por recorrido. La búsqueda devuelve de inmediato el estado de exploración y nunca espera al proveedor. Un resultado válido se publica mediante la ingestión idempotente del catálogo; después de persistir, se notifica el estado final por PubSub. No se importan estadísticas ni se crean cotizaciones, saldos, tokens, órdenes o transacciones. Los errores del proveedor conservan disponibles las lecturas locales. Si se agota el presupuesto de solicitudes, el siguiente intento espera a la próxima ventana nocturna configurada.
+
+Una temporada debe poder resolverse antes de admitir el recorrido. Si no hay una temporada y fuentes compatibles configuradas, la búsqueda permanece local y muestra el estado de exploración no disponible; nunca infiere una temporada ni inicia scraping arbitrario.
+
+El operador habilita recorridos mediante `:scouting_scopes` en la configuración de `FootballMarket.Synchronization`. Cada entrada enlaza un código de liga permitido, una temporada exacta (`start_year` y `end_year`) y un `source_ref` ya presente en `:sources`. La lista está vacía por defecto; instalar el adaptador no habilita por sí solo contacto externo. El worker valida cada solicitud mediante `Synchronization.request_catalog/2` y conserva sus controles existentes.
 
 ## Responsabilidades y tareas
 

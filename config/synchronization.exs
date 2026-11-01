@@ -5,17 +5,27 @@ config :football_market, FootballMarket.Synchronization,
   automatic: config_env() != :test,
   recurrence: "0 0 * * *",
   sources: %{},
+  # Search scouting is disabled unless an operator explicitly binds trusted
+  # league/season scopes to an already configured provider source.
+  scouting_scopes: [],
   schedules: [],
   concurrency: 1,
   tick_ms: 15_000
 
 config :football_market, Oban,
   repo: FootballMarket.Repo,
-  queues: [catalog_sync: 1, statistics_import: 1, quote_calculation: 2, conditional_orders: 1],
+  queues: [
+    catalog_sync: 1,
+    catalog_scout: 1,
+    statistics_import: 1,
+    quote_calculation: 2,
+    conditional_orders: 1
+  ],
   plugins: [
     {Oban.Plugins.Cron,
      crontab: [
        {"* * * * *", FootballMarket.Workers.QuoteRecovery},
+       {"* * * * *", FootballMarket.Workers.QuoteClose},
        {"* * * * *", FootballMarket.Workers.ConditionalOrderRecovery}
      ]}
   ],
@@ -31,3 +41,7 @@ config :football_market, FootballMarket.Statistics.Freshness,
   ttl_seconds: 86_400,
   cooldown_seconds: 3_600,
   refresh_options_by_scope: %{}
+
+config :football_market, FootballMarket.Quotes.Closing,
+  default_recurrence: "0 0 * * *",
+  recurrences: %{}

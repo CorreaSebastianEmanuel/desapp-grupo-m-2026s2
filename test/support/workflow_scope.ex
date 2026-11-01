@@ -27,6 +27,58 @@ defmodule FootballMarket.WorkflowScope do
     end
   end
 
+  def paths("specs/077-advance-cp2-product-ui-player-card-trading-actions-and-active-ranking") do
+    [
+      "assets/css/app.css",
+      "backlog/TASK-077-advance-cp2-product-ui-player-card-trading-actions-and-active-ranking.md",
+      "backlog/feedback/TASK-077.md",
+      "config/test_profiles.json",
+      "docs/WORKFLOW_LESSONS.md",
+      "lib/football_market/catalog.ex",
+      "lib/football_market/statistics.ex",
+      "lib/football_market/statistics/query.ex",
+      "lib/football_market_web/components/workspace_components.ex",
+      "lib/football_market_web/controllers/player_controller.ex",
+      "lib/football_market_web/controllers/player_json.ex",
+      "lib/football_market_web/live/workspace_live.ex",
+      "lib/football_market_web/router.ex",
+      "priv/static/openapi.json",
+      "specs/077-advance-cp2-product-ui-player-card-trading-actions-and-active-ranking/",
+      "test/ci/workflow_scope_test.exs",
+      "test/e2e/portfolio_analytics_test.exs",
+      "test/football_market/catalog/player_detail_test.exs",
+      "test/football_market_web/controllers/player_detail_controller_test.exs",
+      "test/football_market_web/controllers/player_freshness_test.exs",
+      "test/football_market_web/live/portfolio_live_test.exs",
+      "test/football_market_web/openapi_contract_test.exs",
+      "test/support/e2e/fixtures.ex",
+      "test/support/workflow_scope.ex",
+      "tools/openapi/e2e_market.mjs"
+    ]
+  end
+
+  def paths("specs/080-live-scraping-transport-with-documented-access-evidence") do
+    [
+      "backlog/TASK-080-live-scraping-transport-with-documented-access-evidence.md",
+      "config/application_coverage_inventory.json",
+      "config/credo_inventory.json",
+      "config/test_profiles.json",
+      "docs/WORKFLOW_LESSONS.md",
+      "lib/football_market/application.ex",
+      "lib/football_market/providers/scraping/admission.ex",
+      "lib/football_market/providers/scraping.ex",
+      "lib/football_market/providers/scraping/assessment.ex",
+      "lib/football_market/providers/scraping/http_transport.ex",
+      "lib/football_market/providers/scraping/source.ex",
+      "specs/080-live-scraping-transport-with-documented-access-evidence/",
+      "test/football_market/providers/scope_test.exs",
+      "test/football_market/providers/scraping/assessment_test.exs",
+      "test/football_market/providers/scraping/safety_test.exs",
+      "test/football_market/statistics/scope_test.exs",
+      "test/support/workflow_scope.ex"
+    ]
+  end
+
   def paths("specs/031-immutable-transaction-history-api") do
     [
       "backlog/TASK-031-immutable-transaction-history-api.md",
@@ -86,6 +138,41 @@ defmodule FootballMarket.WorkflowScope do
       "test/support/e2e/runtime.ex",
       "test/support/observability_worker.ex",
       "test/support/synchronization/case.ex",
+      "test/support/workflow_scope.ex"
+    ]
+  end
+
+  def paths("specs/079-defer-player-quote-recalculation-to-nightly-batch") do
+    [
+      "config/application_coverage_inventory.json",
+      "config/credo_inventory.json",
+      "config/synchronization.exs",
+      "docs/ARCHITECTURE.md",
+      "docs/CP2_ARCHITECTURE.md",
+      "docs/PLAYER_SEARCH_WORKFLOW.md",
+      "docs/WORKFLOW_LESSONS.md",
+      "docs/adr/0016-local-search-and-background-refresh.md",
+      "docs/presentations/cp2_arquitectura_completa.md",
+      "docs/presentations/cp2_arquitectura_iterable.excalidraw",
+      "docs/presentations/cp2_dia.png",
+      "docs/presentations/cp2_noche.png",
+      "lib/football_market/quotes.ex",
+      "lib/football_market/quotes/closing.ex",
+      "lib/football_market/quotes/membership.ex",
+      "lib/football_market/quotes/recovery.ex",
+      "lib/football_market/quotes/schemas.ex",
+      "lib/football_market/statistics/freshness/valuation_status.ex",
+      "lib/football_market/valuation/calculation_requests.ex",
+      "lib/football_market/workers/quote_calculation.ex",
+      "lib/football_market_web/openapi_contract_test.exs",
+      "priv/static/openapi.json",
+      "priv/repo/migrations/20261029000000_add_nightly_quote_admission.exs",
+      "specs/079-defer-player-quote-recalculation-to-nightly-batch/spec.md",
+      "test/football_market/statistics/ingestion/calculation_test.exs",
+      "test/football_market/quotes/lifecycle_test.exs",
+      "test/football_market/quotes/recovery_test.exs",
+      "test/football_market/quotes/import_test.exs",
+      "test/football_market_web/controllers/player_freshness_test.exs",
       "test/support/workflow_scope.ex"
     ]
   end
@@ -730,6 +817,132 @@ defmodule FootballMarket.WorkflowScope do
       "test/football_market_web/live/portfolio_live_test.exs",
       "test/football_market_web/live/workspace_navigation_test.exs",
       "test/support/purchases/case.ex",
+      "test/support/workflow_scope.ex"
+    ]
+  end
+
+  def paths("specs/058-user-portfolio-charts") do
+    [
+      "assets/css/app.css",
+      "backlog/TASK-058-user-portfolio-charts.md",
+      "config/test_profiles.json",
+      "lib/football_market_web/components/workspace_components.ex",
+      "lib/football_market_web/live/workspace_live.ex",
+      "specs/058-user-portfolio-charts/",
+      "test/football_market_web/live/portfolio_live_test.exs",
+      "test/support/workflow_scope.ex"
+    ]
+  end
+
+  def paths("specs/069-verify-sonarcloud-external-elixir-report-compatibility") do
+    [
+      ".github/workflows/sonarcloud.yml",
+      "config/test_profiles.json",
+      "scripts/sonar_elixir_probe.py",
+      "test/ci/sonarcloud_contract_test.exs",
+      "test/ci/workflow_scope_test.exs",
+      "test/scripts/sonar_elixir_probe_test.py",
+      "test/scripts/thinflow_ci_test.py",
+      "test/support/workflow_scope.ex"
+    ]
+  end
+
+  def paths("specs/057-portfolio-analytics-and-historical-valuation-api") do
+    [
+      ".agentflow/thinflow.json",
+      "README.md",
+      "backlog/TASK-057-portfolio-analytics-and-historical-valuation-api.md",
+      "config/application_coverage_inventory.json",
+      "config/credo_inventory.json",
+      "config/test_profiles.json",
+      "docs/WORKFLOW_LESSONS.md",
+      "lib/football_market/market.ex",
+      "lib/football_market/market/analytics.ex",
+      "lib/football_market/market/analytics/input.ex",
+      "lib/football_market/market/analytics/projection.ex",
+      "lib/football_market/market/analytics/store.ex",
+      "lib/football_market/market/portfolio.ex",
+      "lib/football_market/market/portfolio_ledger.ex",
+      "lib/football_market/market/portfolio_store.ex",
+      "lib/football_market_web/controllers/portfolio_controller.ex",
+      "lib/football_market_web/controllers/portfolio_json.ex",
+      "lib/football_market_web/router.ex",
+      "priv/static/openapi.json",
+      "specs/057-portfolio-analytics-and-historical-valuation-api/",
+      "test/ci/portfolio_analytics_scope_test.exs",
+      "test/e2e/portfolio_analytics_test.exs",
+      "test/football_market/market/analytics/projection_test.exs",
+      "test/football_market/market/analytics/store_test.exs",
+      "test/football_market/market/scope_test.exs",
+      "test/football_market_web/controllers/portfolio_controller_test.exs",
+      "test/football_market_web/openapi_contract_test.exs",
+      "test/support/workflow_scope.ex",
+      "tools/openapi/browser.mjs"
+    ]
+  end
+
+  def paths("specs/074-required-sobelow-security-analysis-for-elixir-prs") do
+    [
+      ".github/workflows/quality-baseline.yml",
+      "README.md",
+      "backlog/TASK-074-required-sobelow-security-analysis-for-elixir-prs.md",
+      "backlog/feedback/TASK-074.md",
+      "config/test_profiles.json",
+      "docs/WORKFLOW_LESSONS.md",
+      "mix.exs",
+      "mix.lock",
+      "scripts/sobelow_ci.py",
+      "specs/074-required-sobelow-security-analysis-for-elixir-prs/",
+      "test/ci/fixtures/quality-baseline.sha256",
+      "test/ci/workflow_scope_test.exs",
+      "test/scripts/sobelow_ci_test.py",
+      "test/support/workflow_scope.ex"
+    ]
+  end
+
+  def paths("specs/075-required-dialyzer-analysis-with-trustworthy-plt-caching") do
+    [
+      ".github/workflows/quality-baseline.yml",
+      "backlog/TASK-075-required-dialyzer-analysis-with-trustworthy-plt-caching.md",
+      "backlog/feedback/TASK-075.md",
+      "config/application_coverage_inventory.json",
+      "config/credo_inventory.json",
+      "config/test_profiles.json",
+      "docs/WORKFLOW_LESSONS.md",
+      "mix.exs",
+      "mix.lock",
+      "scripts/dialyzer_analyze.exs",
+      "scripts/dialyzer_ci.py",
+      "scripts/dialyzer_exceptions.json",
+      "specs/075-required-dialyzer-analysis-with-trustworthy-plt-caching/spec.md",
+      "test/ci/fixtures/quality-baseline.sha256",
+      "test/ci/workflow_scope_test.exs",
+      "test/scripts/dialyzer_ci_test.py",
+      "test/support/workflow_scope.ex"
+    ]
+  end
+
+  def paths("specs/076-visible-and-enforceable-elixir-quality-results-on-every-pr") do
+    [
+      ".github/workflows/quality-baseline.yml",
+      "backlog/TASK-076-visible-and-enforceable-elixir-quality-results-on-every-pr.md",
+      "backlog/feedback/TASK-076.md",
+      "config/test_profiles.json",
+      "docs/WORKFLOW_LESSONS.md",
+      "scripts/application_coverage.py",
+      "scripts/application_coverage_native.exs",
+      "scripts/quality_summary.py",
+      "specs/076-visible-and-enforceable-elixir-quality-results-on-every-pr/",
+      "test/football_market/providers/scraping/assessment_test.exs",
+      "test/ci/fixtures/quality-baseline.sha256",
+      "test/ci/application_coverage_native_test.exs",
+      "test/ci/quality_baseline_contract_test.exs",
+      "test/ci/credo_ci_contract_test.exs",
+      "test/ci/sonarcloud_contract_test.exs",
+      "test/ci/test_profiles_quality_contract_test.exs",
+      "test/ci/workflow_scope_test.exs",
+      "test/scripts/application_coverage_test.py",
+      "test/scripts/sobelow_ci_test.py",
       "test/support/workflow_scope.ex"
     ]
   end

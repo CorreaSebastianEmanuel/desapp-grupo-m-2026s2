@@ -4,10 +4,11 @@ title: Portfolio analytics and historical valuation API
 type: task
 checkpoint: CP2
 priority: high
-status: todo
+status: done
 workflow: thinflow-v1
 depends_on: TASK-027, TASK-031, TASK-032
 active_run: none
+feature_directory: specs/057-portfolio-analytics-and-historical-valuation-api
 ---
 
 ## Outcome

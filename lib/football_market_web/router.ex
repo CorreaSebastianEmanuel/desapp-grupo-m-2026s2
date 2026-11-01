@@ -47,6 +47,7 @@ defmodule FootballMarketWeb.Router do
       session: {FootballMarketWeb.Plugs.BrowserAuth, :live_session, []},
       on_mount: [{FootballMarketWeb.Live.BrowserAuth, :workspace}] do
       live "/portfolio", WorkspaceLive, :portfolio
+      live "/ranking", WorkspaceLive, :ranking
       live "/players", WorkspaceLive, :players
       live "/conditional-orders", WorkspaceLive, :conditional_orders
     end
@@ -65,6 +66,12 @@ defmodule FootballMarketWeb.Router do
       metadata: %{authentication_policy: :api_protected}
 
     get "/conditional-orders/:id", ConditionalOrderController, :show,
+      metadata: %{authentication_policy: :api_protected}
+
+    get "/portfolio/allocation", PortfolioController, :allocation,
+      metadata: %{authentication_policy: :api_protected}
+
+    get "/portfolio/history", PortfolioController, :history,
       metadata: %{authentication_policy: :api_protected}
 
     get "/ranking", RankingController, :index, metadata: %{authentication_policy: :api_protected}

@@ -4,7 +4,7 @@ title: Practical visual refresh of existing browser routes
 type: task
 checkpoint: CP2
 priority: high
-status: in_progress
+status: review
 workflow: thinflow-v1
 depends_on: TASK-007, TASK-046
 active_run: none

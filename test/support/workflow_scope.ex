@@ -922,6 +922,31 @@ defmodule FootballMarket.WorkflowScope do
     ]
   end
 
+  def paths("specs/076-visible-and-enforceable-elixir-quality-results-on-every-pr") do
+    [
+      ".github/workflows/quality-baseline.yml",
+      "backlog/TASK-076-visible-and-enforceable-elixir-quality-results-on-every-pr.md",
+      "backlog/feedback/TASK-076.md",
+      "config/test_profiles.json",
+      "docs/WORKFLOW_LESSONS.md",
+      "scripts/application_coverage.py",
+      "scripts/application_coverage_native.exs",
+      "scripts/quality_summary.py",
+      "specs/076-visible-and-enforceable-elixir-quality-results-on-every-pr/",
+      "test/football_market/providers/scraping/assessment_test.exs",
+      "test/ci/fixtures/quality-baseline.sha256",
+      "test/ci/application_coverage_native_test.exs",
+      "test/ci/quality_baseline_contract_test.exs",
+      "test/ci/credo_ci_contract_test.exs",
+      "test/ci/sonarcloud_contract_test.exs",
+      "test/ci/test_profiles_quality_contract_test.exs",
+      "test/ci/workflow_scope_test.exs",
+      "test/scripts/application_coverage_test.py",
+      "test/scripts/sobelow_ci_test.py",
+      "test/support/workflow_scope.ex"
+    ]
+  end
+
   def paths(_), do: []
 
   def allows_path?(feature, path) do

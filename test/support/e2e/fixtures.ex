@@ -127,6 +127,73 @@ defmodule FootballMarket.E2E.Fixtures do
     end
   end
 
+  def market_reconnect_browser!(base) do
+    credentials = account!()
+    f = FootballMarket.QuotesCase.fixture()
+    {:ok, _} = FootballMarket.Valuation.Configurations.activate(f.configuration.id, nil)
+    {:ok, _} = FootballMarket.Quotes.request(f.subject, :active, f.mapping.id)
+    FootballMarket.PurchasesCase.fund(credentials.user, "100")
+    dir = Path.join(System.tmp_dir!(), "market-reconnect-e2e-" <> Ecto.UUID.generate())
+    File.mkdir!(dir)
+    File.chmod!(dir, 0o700)
+
+    watcher = Task.async(fn -> watch_market_reconnect(dir) end)
+
+    try do
+      {output, status} =
+        System.cmd("node", ["tools/openapi/e2e_market_reconnect.mjs", base],
+          env: [
+            {"E2E_EMAIL", credentials.email},
+            {"E2E_PASSWORD", credentials.password},
+            {"E2E_PLAYER", f.player.id},
+            {"E2E_NAME", f.player.display_name},
+            {"E2E_IPC", dir}
+          ],
+          stderr_to_stdout: true
+        )
+
+      assert status == 0, output
+      assert output == "E2E_MARKET_RECONNECT status=complete\n"
+      Task.await(watcher, 1_000)
+
+      assert Repo.query!(
+               "SELECT count(*), count(DISTINCT conditional_order_id), sum(quantity) FROM market_purchases WHERE conditional_order_id IS NOT NULL"
+             ).rows == [[1, 1, 3]]
+
+      assert Repo.query!(
+               "SELECT count(*) FROM market_conditional_buy_orders WHERE status='executed' AND purchase_id IS NOT NULL"
+             ).rows == [[1]]
+
+      assert FootballMarket.ConditionalOrdersCase.invariant!()
+      :ok
+    after
+      Task.shutdown(watcher, :brutal_kill)
+      File.rm_rf!(dir)
+    end
+  end
+
+  defp conditional_purchase_outcome do
+    case Repo.query!(
+           "SELECT count(*) FROM market_purchases WHERE conditional_order_id IS NOT NULL"
+         ).rows do
+      [[1]] -> {:ok, :committed}
+      [[count]] when count > 1 -> {:error, :duplicate_purchase}
+      _ -> :pending
+    end
+  end
+
+  defp watch_market_reconnect(dir) do
+    Runtime.await!(fn ->
+      if File.exists?(Path.join(dir, "execute")), do: {:ok, :ready}, else: :pending
+    end)
+
+    assert :ok = Oban.start_queue(queue: :conditional_orders, limit: 1)
+
+    Runtime.await!(&conditional_purchase_outcome/0)
+
+    File.write!(Path.join(dir, "committed"), "ready")
+  end
+
   defp market_execution_signal(dir) do
     if File.exists?(Path.join(dir, "execute")), do: {:ok, :ready}, else: :pending
   end

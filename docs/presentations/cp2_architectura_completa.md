@@ -1,5 +1,77 @@
 # Arquitectura completa CP2 — versión acordada (octubre 2026)
 
+## Mapa general del sistema
+
+Este mapa resume los componentes y sus límites. Los diagramas de abajo detallan
+los flujos de actualización/cotización y de órdenes condicionales.
+
+Para recorrer los procesos paso a paso, abre el [diagrama HTML interactivo](arquitectura_interactiva.html) y su [guía de lectura](arquitectura_interactiva.md).
+
+```mermaid
+flowchart LR
+    user["Persona usuaria"]
+    client["Navegador / cliente API"]
+
+    subgraph app["Aplicación modular · Elixir / Phoenix · un solo despliegue"]
+        direction TB
+        web["Entrada web<br/>LiveView · REST/OpenAPI<br/>sesión web · API key"]
+        domain["Contextos de dominio<br/>Accounts · Catalog · Statistics<br/>Quotes · Valuation · Market<br/>Ranking · Analytics"]
+        jobs["Oban + workers<br/>Sync · ingesta · scouting<br/>cotización · órdenes · recuperación"]
+        adapters["Adaptadores externos<br/>contratos · validación · scraping"]
+        events["Phoenix PubSub<br/>avisos después del commit"]
+        telemetry["Telemetría y logs<br/>instrumentación de app/jobs"]
+        web -->|"llamadas locales"| domain
+        jobs -->|"ejecuta reglas existentes"| domain
+        domain -->|"solicita trabajo durable"| jobs
+        jobs -->|"invoca proveedores"| adapters
+        domain -.->|"aviso post-commit"| events
+        events -.->|"refrescar / releer"| web
+        web -.-> telemetry
+        jobs -.-> telemetry
+    end
+
+    pg[("PostgreSQL<br/>datos de dominio + historial<br/>y tablas durable de Oban")]
+    provider["Fuentes deportivas<br/>externas configurables"]
+    redis["Redis<br/>conectividad disponible;<br/>caché de producto CP3"]
+
+    user -->|"usa"| client
+    client -->|"HTTPS / LiveView o JSON"| web
+    domain -->|"Ecto: lecturas y transacciones"| pg
+    jobs -->|"Oban persiste/consume jobs<br/>en el mismo PostgreSQL"| pg
+    adapters -->|"HTTP según adaptador configurado"| provider
+    redis -.->|"futuro: lecturas cacheables"| domain
+
+    classDef actor fill:#f3f4f6,stroke:#475569,color:#111827,stroke-width:1.5px;
+    classDef entry fill:#dbeafe,stroke:#2563eb,color:#172554,stroke-width:1.5px;
+    classDef domain fill:#dcfce7,stroke:#16a34a,color:#14532d,stroke-width:1.5px;
+    classDef process fill:#fef3c7,stroke:#d97706,color:#78350f,stroke-width:1.5px;
+    classDef infra fill:#ede9fe,stroke:#7c3aed,color:#3b0764,stroke-width:1.5px;
+    classDef external fill:#f1f5f9,stroke:#64748b,color:#0f172a,stroke-width:1.5px;
+    class user,client actor;
+    class web entry;
+    class domain,events domain;
+    class jobs,adapters process;
+    class pg,redis,telemetry infra;
+    class provider external;
+```
+
+**Lectura rápida:** las líneas sólidas representan llamadas o persistencia;
+las punteadas representan avisos o capacidades aún previstas. Oban corre dentro
+de la aplicación y guarda sus jobs en PostgreSQL: no hay un broker separado.
+PostgreSQL conserva la autoridad de cotizaciones, operaciones, órdenes y datos
+aceptados. Redis no participa hoy del camino de búsqueda/ranking; el caché de
+producto está planificado para CP3. Los adaptadores consultan fuentes solo cuando
+hay una configuración confiable habilitada.
+
+### Qué corregimos del boceto inicial
+
+El boceto sirve para ubicar los casos de uso, pero mostraba un caché activo en
+búsqueda y colas como servicios separados. En el código actual, las búsquedas son
+locales vía contextos/Ecto; Oban es el proceso de jobs y PostgreSQL almacena su
+estado durable. También se agregó el límite de la aplicación modular, las
+entradas LiveView/API, los adaptadores, la señal PubSub post-commit y la distinción
+entre capacidades actuales y el caché futuro.
+
 Frecuencia diaria de recálculo. El diagrama está dividido en dos flujos:
 **de día** (lo que dispara el usuario) y **de noche** (lo que hace el sistema solo).
 

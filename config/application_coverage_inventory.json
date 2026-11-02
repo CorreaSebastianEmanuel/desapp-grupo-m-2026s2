@@ -2018,6 +2018,12 @@
       "reason": "Test code, not application behavior: test/ci/workflow_scope_test.exs."
     },
     {
+      "path": "test/e2e/browser_reconnect_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Real-browser reconnect recovery regression test: test/e2e/browser_reconnect_test.exs."
+    },
+    {
       "path": "test/e2e/browser_shell_test.exs",
       "role": "test",
       "disposition": "exclude",

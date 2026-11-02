@@ -13,6 +13,7 @@ defmodule FootballMarket.Statistics.Ingestion.CalculationTest do
     Case.seed_catalog!(scope)
     candidate = Case.candidate(Fixtures.request(scope))
     context = Case.delivery_context!(scope)
+    quote_count = Repo.aggregate(FootballMarket.Market.Quote, :count)
 
     assert {:ok, outcome} =
              Statistics.Ingestion.import_scope(
@@ -20,7 +21,7 @@ defmodule FootballMarket.Statistics.Ingestion.CalculationTest do
                Case.provider_options(candidate) ++ [delivery_context: context]
              )
 
-    quote_count = Repo.aggregate(FootballMarket.Market.Quote, :count)
+    assert Repo.aggregate(FootballMarket.Market.Quote, :count) == quote_count
 
     intent = Repo.get!(CalculationIntent, outcome.calculation_intent_id)
     performance_ids = intent.changed_performance_ids

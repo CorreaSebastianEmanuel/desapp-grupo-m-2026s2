@@ -450,6 +450,7 @@
     "test/ci/test_profiles_quality_contract_test.exs",
     "test/ci/test_profiles_scope_test.exs",
     "test/ci/workflow_scope_test.exs",
+    "test/e2e/browser_reconnect_test.exs",
     "test/e2e/browser_shell_test.exs",
     "test/e2e/catalog_scouting_test.exs",
     "test/e2e/catalog_sync_test.exs",

@@ -674,6 +674,13 @@
       "profile": "unit"
     },
     {
+      "id": "103e7647d9936c44043e6d61",
+      "runner": "exunit",
+      "file": "test/football_market/providers/football_data_org_config_test.exs",
+      "case_id": "FootballMarket.Providers.FootballDataOrgConfigTest:test runtime config binds the secret and schedules five current-season durable scopes",
+      "profile": "unit"
+    },
+    {
       "id": "104de124339d6d80c8bbfd86",
       "runner": "python",
       "file": "test/scripts/application_coverage_test.py",
@@ -2410,6 +2417,13 @@
       "profile": "integration"
     },
     {
+      "id": "3cca0621c25705a77727890f",
+      "runner": "exunit",
+      "file": "test/football_market/infrastructure/provider_rate_limit_test.exs",
+      "case_id": "FootballMarket.Infrastructure.ProviderRateLimitTest:test provider reset remains durable beyond the current attempt and does not slide on retry",
+      "profile": "integration"
+    },
+    {
       "id": "3cce2553b4661e4511fa606c",
       "runner": "exunit",
       "file": "test/football_market/accounts/api_key_persistence_test.exs",
@@ -3325,6 +3339,13 @@
       "file": "test/scripts/agentflow_providers_test.py",
       "case_id": "test.scripts.agentflow_providers_test.ShimTest.test_command_without_name_is_refused_loudly",
       "profile": "unit"
+    },
+    {
+      "id": "55695c56e0f77f2e59c47a00",
+      "runner": "exunit",
+      "file": "test/football_market/synchronization/integrity_test.exs",
+      "case_id": "FootballMarket.Synchronization.IntegrityTest:test missing or invalid Football-Data.org credentials fail before durable admission",
+      "profile": "integration"
     },
     {
       "id": "556a57f8e73d8492f463ce22",
@@ -4804,6 +4825,13 @@
       "profile": "unit"
     },
     {
+      "id": "809a6f9573f769606753fad3",
+      "runner": "exunit",
+      "file": "test/football_market/synchronization/integrity_test.exs",
+      "case_id": "FootballMarket.Synchronization.IntegrityTest:test later team-resource 503 retains retry metadata and cannot replace the accepted catalog",
+      "profile": "integration"
+    },
+    {
       "id": "80af47eb8c910d8c1887937f",
       "runner": "python",
       "file": "test/scripts/fast_lane_check_test.py",
@@ -5434,6 +5462,13 @@
       "profile": "unit"
     },
     {
+      "id": "8fe993e0d1c90282e1aab895",
+      "runner": "exunit",
+      "file": "test/football_market/providers/football_data_org_test.exs",
+      "case_id": "FootballMarket.Providers.FootballDataOrgTest:test honors a provider rate-limit reset without retrying the HTTP request",
+      "profile": "unit"
+    },
+    {
       "id": "8fefa24225de7801aac012a9",
       "runner": "python",
       "file": "test/scripts/application_coverage_test.py",
@@ -5686,6 +5721,13 @@
       "profile": "unit"
     },
     {
+      "id": "986a83990119e202689841a8",
+      "runner": "exunit",
+      "file": "test/football_market/providers/football_data_org_test.exs",
+      "case_id": "FootballMarket.Providers.FootballDataOrgTest:test retrieves a whole current-season team and squad snapshot with stable source bindings",
+      "profile": "unit"
+    },
+    {
       "id": "98760cf40b17abf60f4aec6c",
       "runner": "exunit",
       "file": "test/ci/test_profile_audit_test.exs",
@@ -5921,6 +5963,13 @@
       "runner": "exunit",
       "file": "test/ci/credo_inventory_test.exs",
       "case_id": "FootballMarket.CredoInventoryTest:test a completed Credo analysis with default-priority findings remains complete and fails",
+      "profile": "unit"
+    },
+    {
+      "id": "9e9d0b0c3abce5a141ccd0e2",
+      "runner": "exunit",
+      "file": "test/football_market/providers/football_data_org_test.exs",
+      "case_id": "FootballMarket.Providers.FootballDataOrgTest:test rejects missing, empty, or malformed squad data before publication",
       "profile": "unit"
     },
     {
@@ -6351,6 +6400,13 @@
       "profile": "integration"
     },
     {
+      "id": "a8157368cb09d1417e2e0d96",
+      "runner": "exunit",
+      "file": "test/football_market/infrastructure/provider_rate_limit_test.exs",
+      "case_id": "FootballMarket.Infrastructure.ProviderRateLimitTest:test expired reservations do not bank request intervals during an idle period",
+      "profile": "integration"
+    },
+    {
       "id": "a81b100073635b69fc73add5",
       "runner": "shell",
       "file": "test/scripts/ci_unit_tests_test.sh",
@@ -6649,6 +6705,13 @@
       "runner": "python",
       "file": "test/scripts/agentflow_feature_test.py",
       "case_id": "test.scripts.agentflow_feature_test.IdentityAndResolutionTest.test_second_unequal_example",
+      "profile": "unit"
+    },
+    {
+      "id": "aece507162e3b9e9903998b8",
+      "runner": "exunit",
+      "file": "test/football_market/providers/football_data_org_config_test.exs",
+      "case_id": "FootballMarket.Providers.FootballDataOrgConfigTest:test missing, blank, and malformed runtime secrets leave the provider disabled",
       "profile": "unit"
     },
     {
@@ -7044,6 +7107,13 @@
       "profile": "integration"
     },
     {
+      "id": "bbdbb160e2033fc24a669abc",
+      "runner": "exunit",
+      "file": "test/football_market/providers/football_data_org_test.exs",
+      "case_id": "FootballMarket.Providers.FootballDataOrgTest:test source configuration identity does not include the runtime API credential",
+      "profile": "unit"
+    },
+    {
       "id": "bbf4e31c491bbff3b2eb45f9",
       "runner": "python",
       "file": "test/scripts/agentflow_clean_checkout_test.py",
@@ -7161,6 +7231,13 @@
       "file": "test/football_market/valuation/position_aware/formula_test.exs",
       "case_id": "FootballMarket.Valuation.PositionAware.FormulaTest:test US1.5 all 36 group metric pairs have no implied restriction or sign",
       "profile": "integration"
+    },
+    {
+      "id": "becaec2074124820c2dbbf7e",
+      "runner": "exunit",
+      "file": "test/football_market/providers/football_data_org_test.exs",
+      "case_id": "FootballMarket.Providers.FootballDataOrgTest:test preserves retryable failures from later team resources through translation",
+      "profile": "unit"
     },
     {
       "id": "becfc1083ed73f8cca45a0c8",
@@ -7713,6 +7790,13 @@
       "runner": "exunit",
       "file": "test/football_market/quotes/followup_test.exs",
       "case_id": "FootballMarket.Quotes.FollowupTest:test a redelivered event produces one effective consumer action keyed by quote UUID",
+      "profile": "integration"
+    },
+    {
+      "id": "cbcaa9554a96b21072fee842",
+      "runner": "exunit",
+      "file": "test/football_market/synchronization/integrity_test.exs",
+      "case_id": "FootballMarket.Synchronization.IntegrityTest:test Football-Data.org initial, replay, and update publish through durable synchronization",
       "profile": "integration"
     },
     {
@@ -9200,6 +9284,13 @@
       "profile": "integration"
     },
     {
+      "id": "ef651292a4f39d1e70d75be2",
+      "runner": "exunit",
+      "file": "test/football_market/infrastructure/provider_rate_limit_test.exs",
+      "case_id": "FootballMarket.Infrastructure.ProviderRateLimitTest:test credential pacing reservations remain shared across callers and adjacent runs",
+      "profile": "integration"
+    },
+    {
       "id": "ef7436322706bb69436be950",
       "runner": "python",
       "file": "test/scripts/agentflow_models_test.py",
@@ -9902,34 +9993,6 @@
   ],
   "helpers": {
     "test/__init__.py": "Fixture/support helper; cases owned by its importing native suite.",
-    "test/provider_contract_offline.exs": "Fixture/support helper; cases owned by its importing native suite.",
-    "test/scraping_adapter_offline.exs": "Fixture/support helper; cases owned by its importing native suite.",
-    "test/test_helper.exs": "Fixture/support helper; cases owned by its importing native suite.",
-    "test/scripts/__init__.py": "Fixture/support helper; cases owned by its importing native suite.",
-    "test/support/conn_case.ex": "Fixture/support helper; cases owned by its importing native suite.",
-    "test/support/infrastructure_case.ex": "Fixture/support helper; cases owned by its importing native suite.",
-    "test/support/accounts_case.ex": "Fixture/support helper; cases owned by its importing native suite.",
-    "test/support/api_authentication_probe.ex": "Fixture/support helper; cases owned by its importing native suite.",
-    "test/support/authentication_helpers.ex": "Fixture/support helper; cases owned by its importing native suite.",
-    "test/support/catalog_case.ex": "Fixture/support helper; cases owned by its importing native suite.",
-    "test/support/catalog_filter_case.ex": "Fixture/support helper; cases owned by its importing native suite.",
-    "test/support/data_case.ex": "Fixture/support helper; cases owned by its importing native suite.",
-    "test/support/player_catalog_probe.ex": "Fixture/support helper; cases owned by its importing native suite.",
-    "test/support/catalog_concurrency_case.ex": "Fixture/support helper; cases owned by its importing native suite.",
-    "test/support/cp1_coverage_publisher.ex": "Fixture/support helper; cases owned by its importing native suite.",
-    "test/support/ingestion_fixtures.ex": "Fixture/support helper; cases owned by its importing native suite.",
-    "test/support/market_case.ex": "Fixture/support helper; cases owned by its importing native suite.",
-    "test/support/openapi_case.ex": "Fixture/support helper; cases owned by its importing native suite.",
-    "test/support/position_aware_case.ex": "Fixture/support helper; cases owned by its importing native suite.",
-    "test/support/provider_contract_case.ex": "Fixture/support helper; cases owned by its importing native suite.",
-    "test/support/statistics_case.ex": "Fixture/support helper; cases owned by its importing native suite.",
-    "test/support/test_profile_audit.ex": "Fixture/support helper; cases owned by its importing native suite.",
-    "test/support/valuation_case.ex": "Fixture/support helper; cases owned by its importing native suite.",
-    "test/support/valuation_configuration_case.ex": "Fixture/support helper; cases owned by its importing native suite.",
-    "test/support/valuation_scorers.ex": "Fixture/support helper; cases owned by its importing native suite.",
-    "test/support/browser_session_case.ex": "Fixture/support helper; cases owned by its importing native suite.",
-    "test/support/workflow_scope.ex": "Fixture/support helper; cases owned by its importing native suite.",
-    "test/support/test_profile_formatter.ex": "Fixture/support helper; cases owned by its importing native suite.",
     "test/fixtures/providers/cases.exs": "Fixture/support helper; cases owned by its importing native suite.",
     "test/fixtures/providers/expected.exs": "Fixture/support helper; cases owned by its importing native suite.",
     "test/fixtures/providers/source_a.exs": "Fixture/support helper; cases owned by its importing native suite.",
@@ -9938,56 +10001,85 @@
     "test/fixtures/scraping/documents.exs": "Fixture/support helper; cases owned by its importing native suite.",
     "test/fixtures/scraping/expected.exs": "Fixture/support helper; cases owned by its importing native suite.",
     "test/fixtures/scraping/inventory.exs": "Fixture/support helper; cases owned by its importing native suite.",
+    "test/fixtures/statistics_ingestion/documents.exs": "Deterministic provider documents consumed by statistics ingestion cases; no independent tests.",
+    "test/fixtures/statistics_ingestion/expected.exs": "Expected statistics fixture facts consumed by ingestion assertions; no independent tests.",
+    "test/fixtures/statistics_ingestion/inventory.exs": "Statistics ingestion fixture inventory used by the owning ExUnit cases; no independent tests.",
     "test/fixtures/synchronization/expected.exs": "Fixture/support helper; cases owned by its importing native suite.",
+    "test/provider_contract_offline.exs": "Fixture/support helper; cases owned by its importing native suite.",
+    "test/runtime/conditional_orders_http.exs": "Explicit real HTTP assertion runner; executed by the feature manifest rather than ExUnit discovery.",
+    "test/runtime/order_evaluation_http.exs": "Conditional evaluation owned-store fixture/runtime support; runtime assertions execute through the feature manifest.",
+    "test/runtime/purchase_http.exs": "Standalone real HTTP assertion runner executed explicitly by purchase-runtime in verification.json.",
+    "test/scraping_adapter_offline.exs": "Fixture/support helper; cases owned by its importing native suite.",
+    "test/scripts/__init__.py": "Fixture/support helper; cases owned by its importing native suite.",
+    "test/scripts/support/agentflow_delivery_fixtures.py": "Fixture/support helper; cases owned by its importing native suite.",
+    "test/scripts/support/local_services_test_helpers.sh": "Fixture/support helper; cases owned by its importing native suite.",
+    "test/scripts/support/profile_events.sh": "Fixture/support helper; cases owned by its importing native suite.",
+    "test/support/accounts_case.ex": "Fixture/support helper; cases owned by its importing native suite.",
+    "test/support/api_authentication_probe.ex": "Fixture/support helper; cases owned by its importing native suite.",
+    "test/support/authentication_helpers.ex": "Fixture/support helper; cases owned by its importing native suite.",
+    "test/support/browser_session_case.ex": "Fixture/support helper; cases owned by its importing native suite.",
+    "test/support/catalog_case.ex": "Fixture/support helper; cases owned by its importing native suite.",
+    "test/support/catalog_concurrency_case.ex": "Fixture/support helper; cases owned by its importing native suite.",
+    "test/support/catalog_filter_case.ex": "Fixture/support helper; cases owned by its importing native suite.",
+    "test/support/conditional_orders/case.ex": "Isolated conditional-order fixtures, pure snapshots and financial invariant assertions.",
+    "test/support/conditional_orders/runtime_probe.ex": "Independent committed connections and owned runtime store/readiness helpers.",
+    "test/support/conn_case.ex": "Fixture/support helper; cases owned by its importing native suite.",
+    "test/support/cp1_coverage_publisher.ex": "Fixture/support helper; cases owned by its importing native suite.",
+    "test/support/data_case.ex": "Fixture/support helper; cases owned by its importing native suite.",
+    "test/support/e2e/fixture_adapter.ex": "Fixture/support helper; cases owned by its importing native suite.",
+    "test/support/e2e/fixtures.ex": "Fixture/support helper; cases owned by its importing native suite.",
+    "test/support/e2e/interrupted_runtime.exs": "Child runtime scenario owned by SupervisorCleanupTest; waits after recording the invocation-owned schema.",
+    "test/support/e2e/runtime.ex": "Fixture/support helper; cases owned by its importing native suite.",
+    "test/support/e2e/supervisor_probe.py": "Real supervisor timeout/termination probe owned by SupervisorCleanupTest; no standalone test population.",
+    "test/support/freshness_case.ex": "Shared deterministic freshness fixtures; executed by registered integration tests.",
+    "test/support/infrastructure_case.ex": "Fixture/support helper; cases owned by its importing native suite.",
+    "test/support/ingestion_fixtures.ex": "Fixture/support helper; cases owned by its importing native suite.",
+    "test/support/market_case.ex": "Fixture/support helper; cases owned by its importing native suite.",
+    "test/support/observability_worker.ex": "Test-only raising endpoint and timed-out Oban worker, exercised by registered HTTP integration and real-runtime E2E cases.",
+    "test/support/openapi_case.ex": "Fixture/support helper; cases owned by its importing native suite.",
+    "test/support/order_evaluation/case.ex": "Conditional evaluation owned-store fixture/runtime support; runtime assertions execute through the feature manifest.",
+    "test/support/order_evaluation/runtime_probe.ex": "Conditional evaluation owned-store fixture/runtime support; runtime assertions execute through the feature manifest.",
+    "test/support/player_catalog_probe.ex": "Fixture/support helper; cases owned by its importing native suite.",
+    "test/support/position_aware_case.ex": "Fixture/support helper; cases owned by its importing native suite.",
+    "test/support/provider_contract_case.ex": "Fixture/support helper; cases owned by its importing native suite.",
     "test/support/providers/fact_oracle.ex": "Fixture/support helper; cases owned by its importing native suite.",
     "test/support/providers/fixture_data.ex": "Fixture/support helper; cases owned by its importing native suite.",
     "test/support/providers/fixture_runtime.ex": "Fixture/support helper; cases owned by its importing native suite.",
     "test/support/providers/fixture_source_a.ex": "Fixture/support helper; cases owned by its importing native suite.",
     "test/support/providers/fixture_source_b.ex": "Fixture/support helper; cases owned by its importing native suite.",
     "test/support/providers/scraping_fixture_data.ex": "Fixture/support helper; cases owned by its importing native suite.",
+    "test/support/providers/test_provider_rate_limit.ex": "Test-only provider pacing fake; durable rate-limit integration cases own the behavior.",
+    "test/support/purchases/case.ex": "Deterministic provisioned-credit purchase fixtures and exact financial snapshots.",
+    "test/support/purchases/runtime_probe.ex": "Committed independent-connection barriers and owned-store helpers.",
+    "test/support/quotes/case.ex": true,
+    "test/support/quotes/fixtures.ex": true,
+    "test/support/quotes/runtime_probe.ex": true,
+    "test/support/ranking_case.ex": "Fixture/support helper; ranking cases own the active configuration and successful quote setup.",
+    "test/support/sales/case.ex": "Fixture/support helper; cases owned by its importing native suite.",
+    "test/support/statistics_case.ex": "Fixture/support helper; cases owned by its importing native suite.",
+    "test/support/statistics_ingestion/case.ex": "Shared isolated statistics store and provider harness for integration cases; no independent tests.",
+    "test/support/statistics_ingestion/fixtures.ex": "Statistics ingestion fixture loader shared by owning tests; no independent tests.",
+    "test/support/statistics_ingestion/runtime_probe.ex": "Statistics synchronization runtime probe driven by integration cases; no independent tests.",
     "test/support/synchronization/case.ex": "Fixture/support helper; cases owned by its importing native suite.",
     "test/support/synchronization/clock.ex": "Fixture/support helper; cases owned by its importing native suite.",
     "test/support/synchronization/fixtures.ex": "Fixture/support helper; cases owned by its importing native suite.",
     "test/support/synchronization/runtime_probe.ex": "Fixture/support helper; cases owned by its importing native suite.",
-    "test/support/e2e/runtime.ex": "Fixture/support helper; cases owned by its importing native suite.",
-    "test/support/e2e/fixture_adapter.ex": "Fixture/support helper; cases owned by its importing native suite.",
-    "test/support/e2e/fixtures.ex": "Fixture/support helper; cases owned by its importing native suite.",
-    "test/scripts/support/local_services_test_helpers.sh": "Fixture/support helper; cases owned by its importing native suite.",
-    "test/scripts/support/agentflow_delivery_fixtures.py": "Fixture/support helper; cases owned by its importing native suite.",
-    "test/scripts/support/profile_events.sh": "Fixture/support helper; cases owned by its importing native suite.",
+    "test/support/test_profile_audit.ex": "Fixture/support helper; cases owned by its importing native suite.",
+    "test/support/test_profile_formatter.ex": "Fixture/support helper; cases owned by its importing native suite.",
+    "test/support/valuation_case.ex": "Fixture/support helper; cases owned by its importing native suite.",
+    "test/support/valuation_configuration_case.ex": "Fixture/support helper; cases owned by its importing native suite.",
+    "test/support/valuation_scorers.ex": "Fixture/support helper; cases owned by its importing native suite.",
+    "test/support/workflow_scope.ex": "Fixture/support helper; cases owned by its importing native suite.",
+    "test/test_helper.exs": "Fixture/support helper; cases owned by its importing native suite.",
     "tools/openapi/browser.mjs": "Fixture/support helper; cases owned by its importing native suite.",
-    "tools/openapi/validate.mjs": "Fixture/support helper; cases owned by its importing native suite.",
-    "tools/openapi/workspace_browser.mjs": "Fixture/support helper; cases owned by its importing native suite.",
-    "tools/openapi/workspace_coverage.mjs": "Fixture/support helper; cases owned by its importing native suite.",
     "tools/openapi/e2e_browser.mjs": "Fixture/support helper; cases owned by its importing native suite.",
-    "tools/openapi/profile_reporter.mjs": "Fixture/support helper; cases owned by its importing native suite.",
-    "test/support/e2e/supervisor_probe.py": "Real supervisor timeout/termination probe owned by SupervisorCleanupTest; no standalone test population.",
-    "test/support/e2e/interrupted_runtime.exs": "Child runtime scenario owned by SupervisorCleanupTest; waits after recording the invocation-owned schema.",
-    "test/fixtures/statistics_ingestion/documents.exs": "Deterministic provider documents consumed by statistics ingestion cases; no independent tests.",
-    "test/fixtures/statistics_ingestion/expected.exs": "Expected statistics fixture facts consumed by ingestion assertions; no independent tests.",
-    "test/fixtures/statistics_ingestion/inventory.exs": "Statistics ingestion fixture inventory used by the owning ExUnit cases; no independent tests.",
-    "test/support/statistics_ingestion/case.ex": "Shared isolated statistics store and provider harness for integration cases; no independent tests.",
-    "test/support/statistics_ingestion/fixtures.ex": "Statistics ingestion fixture loader shared by owning tests; no independent tests.",
-    "test/support/statistics_ingestion/runtime_probe.ex": "Statistics synchronization runtime probe driven by integration cases; no independent tests.",
-    "test/support/quotes/runtime_probe.ex": true,
-    "test/support/quotes/fixtures.ex": true,
-    "test/support/quotes/case.ex": true,
-    "test/support/purchases/case.ex": "Deterministic provisioned-credit purchase fixtures and exact financial snapshots.",
-    "test/support/purchases/runtime_probe.ex": "Committed independent-connection barriers and owned-store helpers.",
-    "test/runtime/purchase_http.exs": "Standalone real HTTP assertion runner executed explicitly by purchase-runtime in verification.json.",
-    "test/support/freshness_case.ex": "Shared deterministic freshness fixtures; executed by registered integration tests.",
-    "test/support/observability_worker.ex": "Test-only raising endpoint and timed-out Oban worker, exercised by registered HTTP integration and real-runtime E2E cases.",
-    "test/support/ranking_case.ex": "Fixture/support helper; ranking cases own the active configuration and successful quote setup.",
-    "test/support/conditional_orders/case.ex": "Isolated conditional-order fixtures, pure snapshots and financial invariant assertions.",
-    "test/support/conditional_orders/runtime_probe.ex": "Independent committed connections and owned runtime store/readiness helpers.",
-    "test/runtime/conditional_orders_http.exs": "Explicit real HTTP assertion runner; executed by the feature manifest rather than ExUnit discovery.",
-    "test/support/order_evaluation/case.ex": "Conditional evaluation owned-store fixture/runtime support; runtime assertions execute through the feature manifest.",
-    "test/support/order_evaluation/runtime_probe.ex": "Conditional evaluation owned-store fixture/runtime support; runtime assertions execute through the feature manifest.",
-    "test/runtime/order_evaluation_http.exs": "Conditional evaluation owned-store fixture/runtime support; runtime assertions execute through the feature manifest.",
-    "test/support/sales/case.ex": "Fixture/support helper; cases owned by its importing native suite.",
+    "tools/openapi/e2e_catalog_scouting.mjs": "Real Chromium catalog scouting journey helper; invoked by the E2E catalog scouting suite.",
     "tools/openapi/e2e_market.mjs": "Real Chromium market journey helper; invoked by the E2E portfolio suite.",
     "tools/openapi/e2e_market_reconnect.mjs": "Real Chromium offline commit and reconnect recovery journey helper; invoked by the E2E browser reconnect suite.",
-    "tools/openapi/e2e_catalog_scouting.mjs": "Real Chromium catalog scouting journey helper; invoked by the E2E catalog scouting suite."
+    "tools/openapi/profile_reporter.mjs": "Fixture/support helper; cases owned by its importing native suite.",
+    "tools/openapi/validate.mjs": "Fixture/support helper; cases owned by its importing native suite.",
+    "tools/openapi/workspace_browser.mjs": "Fixture/support helper; cases owned by its importing native suite.",
+    "tools/openapi/workspace_coverage.mjs": "Fixture/support helper; cases owned by its importing native suite."
   },
   "excluded_roots": [
     ".agentflow",

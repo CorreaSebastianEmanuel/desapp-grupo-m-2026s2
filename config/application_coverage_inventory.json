@@ -260,6 +260,12 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/infrastructure/configuration.ex."
     },
     {
+      "path": "lib/football_market/infrastructure/provider_rate_limit.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/infrastructure/provider_rate_limit.ex."
+    },
+    {
       "path": "lib/football_market/infrastructure/redis.ex",
       "role": "application",
       "disposition": "include",
@@ -614,6 +620,12 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/providers/error.ex."
     },
     {
+      "path": "lib/football_market/providers/football_data_org.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/providers/football_data_org.ex."
+    },
+    {
       "path": "lib/football_market/providers/instant.ex",
       "role": "application",
       "disposition": "include",
@@ -630,6 +642,12 @@
       "role": "application",
       "disposition": "include",
       "reason": "Maintained first-party application implementation source: lib/football_market/providers/provenance.ex."
+    },
+    {
+      "path": "lib/football_market/providers/rate_limit.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/providers/rate_limit.ex."
     },
     {
       "path": "lib/football_market/providers/request.ex",
@@ -1706,6 +1724,12 @@
       "reason": "Database migration, not application source code: priv/repo/migrations/20261031000100_create_catalog_scout_runs.exs."
     },
     {
+      "path": "priv/repo/migrations/20261102000000_create_provider_rate_limits.exs",
+      "role": "migration",
+      "disposition": "exclude",
+      "reason": "Provider request pacing migration, not maintained application implementation: priv/repo/migrations/20261102000000_create_provider_rate_limits.exs."
+    },
+    {
       "path": "scripts/application_coverage_native.exs",
       "role": "script",
       "disposition": "exclude",
@@ -2366,6 +2390,12 @@
       "reason": "Test code, not application behavior: test/football_market/infrastructure/database_workflow_test.exs."
     },
     {
+      "path": "test/football_market/infrastructure/provider_rate_limit_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Test code, not application behavior: test/football_market/infrastructure/provider_rate_limit_test.exs."
+    },
+    {
       "path": "test/football_market/infrastructure/redis_test.exs",
       "role": "test",
       "disposition": "exclude",
@@ -2754,6 +2784,18 @@
       "role": "test",
       "disposition": "exclude",
       "reason": "Test code, not application behavior: test/football_market/providers/fixture_preservation_test.exs."
+    },
+    {
+      "path": "test/football_market/providers/football_data_org_config_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Test code, not application behavior: test/football_market/providers/football_data_org_config_test.exs."
+    },
+    {
+      "path": "test/football_market/providers/football_data_org_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Test code, not application behavior: test/football_market/providers/football_data_org_test.exs."
     },
     {
       "path": "test/football_market/providers/ingestion_contract_test.exs",
@@ -3840,6 +3882,12 @@
       "role": "test-support",
       "disposition": "exclude",
       "reason": "Test harness or fixture support, not application behavior: test/support/providers/scraping_fixture_data.ex."
+    },
+    {
+      "path": "test/support/providers/test_provider_rate_limit.ex",
+      "role": "test-support",
+      "disposition": "exclude",
+      "reason": "Test support code, not application behavior: test/support/providers/test_provider_rate_limit.ex."
     },
     {
       "path": "test/support/purchases/case.ex",

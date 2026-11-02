@@ -238,6 +238,292 @@ defmodule FootballMarket.Synchronization.IntegrityTest do
     assert Repo.get!(Oban.Job, job.id).errors == []
   end
 
+  test "later team-resource 503 retains retry metadata and cannot replace the accepted catalog" do
+    {:ok, accepted} = Synchronization.request_catalog(Fixtures.scope(), source_ref: "fixture")
+    accepted_run = Repo.get!(Run, accepted.run_id)
+
+    :ok =
+      FootballMarket.Workers.CatalogSync.perform(%Oban.Job{
+        args: %{"run_id" => accepted_run.id, "delivery_id" => accepted_run.delivery_id}
+      })
+
+    before = snapshot()
+    before_players = Repo.aggregate(FootballMarket.Catalog.Player, :count)
+    scope = %{Fixtures.scope() | end_year: 2091}
+
+    source = %{
+      provider:
+        {FootballMarket.Providers.FootballDataOrg,
+         %{
+           token: "runtime-only-retry-token",
+           get: fn url, token, _timeout ->
+             assert token == "runtime-only-retry-token"
+
+             if URI.parse(url).path =~ "/competitions/" do
+               body =
+                 Jason.encode!(%{
+                   "count" => 1,
+                   "competition" => %{"code" => "PL"},
+                   "season" => %{
+                     "id" => 2090,
+                     "startDate" => "2090-08-01",
+                     "endDate" => "2091-05-30"
+                   },
+                   "teams" => [%{"id" => 65, "name" => "Arsenal"}]
+                 })
+
+               {:ok, 200, [], body}
+             else
+               {:ok, 503, [{"retry-after", "90"}], "{}"}
+             end
+           end
+         }},
+      identity: %{api: "football-data.org", version: "v4", season_rule: "utc-july"}
+    }
+
+    Application.put_env(:football_market, Synchronization,
+      sources: %{"fixture" => Fixtures.source(), "football-data-org" => source}
+    )
+
+    assert {:ok, requested} =
+             Synchronization.request_catalog(scope,
+               source_ref: "football-data-org",
+               policy: %{attempt_limit: 3, waits: [1, 2], worker_timeout_ms: 30_000}
+             )
+
+    run = Repo.get!(Run, requested.run_id)
+    job = Repo.get!(Oban.Job, run.job_id)
+    :ok = FootballMarket.Workers.CatalogSync.perform(job)
+
+    assert {:ok, result} = Synchronization.get_run(run.id)
+    assert result.state == "retry_wait"
+    assert result.attempts |> hd() |> Map.get(:outcome) |> Map.get("category") == "unavailable"
+    assert hd(result.attempts).outcome["retry_after_ms"] == 90_000
+    assert DateTime.diff(result.next_retry_at, DateTime.utc_now(), :second) > 80
+    assert Repo.aggregate(FootballMarket.Catalog.Player, :count) == before_players
+    assert snapshot() == before
+    refute inspect(result) =~ "runtime-only-retry-token"
+  end
+
+  test "missing or invalid Football-Data.org credentials fail before durable admission" do
+    valid = %{
+      provider: {FootballMarket.Providers.FootballDataOrg, %{token: "valid-token"}},
+      identity: %{api: "football-data.org", version: "v4"}
+    }
+
+    for token <- [nil, "  invalid token  "] do
+      source = put_in(valid, [:provider, Access.elem(1), :token], token)
+
+      Application.put_env(:football_market, Synchronization,
+        sources: %{"football-data-org" => source}
+      )
+
+      before_jobs = Repo.aggregate(Oban.Job, :count)
+
+      assert {:error, _} =
+               Synchronization.request_catalog(Fixtures.scope(), source_ref: "football-data-org")
+
+      assert Repo.aggregate(Oban.Job, :count) == before_jobs
+    end
+  end
+
+  test "Football-Data.org initial, replay, and update publish through durable synchronization" do
+    old_recipients = Application.get_env(:football_market, :initial_issuance_recipients)
+
+    on_exit(fn ->
+      Application.put_env(:football_market, :initial_issuance_recipients, old_recipients)
+    end)
+
+    market = FootballMarket.MarketCase.fixture()
+    assert {:ok, _} = FootballMarket.Market.initialize_player(market.player.id)
+    statistics = FootballMarket.StatisticsCase.fixture("BL1", 2090)
+
+    {:ok, match} =
+      FootballMarket.Statistics.record_match(
+        FootballMarket.StatisticsCase.match_attrs(statistics)
+      )
+
+    metrics = Map.new(FootballMarket.StatisticsCase.metrics(), &{&1, 0})
+
+    assert {:ok, _} =
+             FootballMarket.Statistics.record_performance(
+               Map.merge(
+                 FootballMarket.StatisticsCase.performance_attrs(statistics, match),
+                 metrics
+               )
+             )
+
+    unrelated_players = Enum.map(statistics.players, &{&1.id, &1.display_name})
+    baseline_player_count = Repo.aggregate(FootballMarket.Catalog.Player, :count)
+
+    {:ok, version} = Agent.start_link(fn -> 1 end)
+    token = "source-only-secret-" <> Ecto.UUID.generate()
+
+    get = fn url, received_token, _timeout ->
+      assert received_token == token
+
+      case URI.parse(url).path do
+        "/v4/competitions/PL/teams" ->
+          {:ok, 200, [],
+           Jason.encode!(%{
+             "count" => 1,
+             "competition" => %{"code" => "PL"},
+             "season" => %{
+               "id" => 2093,
+               "startDate" => "2093-08-01",
+               "endDate" => "2094-05-30"
+             },
+             "teams" => [%{"id" => 65, "name" => "Alpha"}]
+           })}
+
+        "/v4/teams/65" ->
+          squad =
+            case Agent.get(version, & &1) do
+              1 ->
+                [
+                  %{"id" => 9001, "name" => "New Catalog Player", "position" => "Goalkeeper"},
+                  %{"id" => 9002, "name" => "Retained Catalog Player", "position" => "Goalkeeper"}
+                ]
+
+              2 ->
+                [%{"id" => 9001, "name" => "Updated Catalog Player", "position" => "Goalkeeper"}]
+
+              3 ->
+                [
+                  %{"id" => 9001, "name" => "Updated Catalog Player", "position" => "Goalkeeper"},
+                  %{"id" => 9003, "name" => "Legacy Conflict Player", "position" => "Goalkeeper"}
+                ]
+            end
+
+          {:ok, 200, [],
+           Jason.encode!(%{"id" => 65, "name" => "Alpha", "tla" => "ALP", "squad" => squad})}
+      end
+    end
+
+    source = %{
+      provider: {FootballMarket.Providers.FootballDataOrg, %{token: token, get: get}},
+      identity: %{api: "football-data.org", version: "v4", season_rule: "utc-july"}
+    }
+
+    Application.put_env(:football_market, Synchronization,
+      sources: %{"football-data-org" => source}
+    )
+
+    scope = %{league_code: "PL", start_year: 2093, end_year: 2094}
+    before_external_state = snapshot()
+    assert before_external_state["market_quotes"] != []
+    assert before_external_state["player_match_performances"] != []
+    assert before_external_state["balance_sentinels"] != []
+
+    {:ok, initial} =
+      Synchronization.request_catalog(scope,
+        source_ref: "football-data-org",
+        trigger: :initial
+      )
+
+    initial_run = Repo.get!(Run, initial.run_id)
+    initial_job = Repo.get!(Oban.Job, initial_run.job_id)
+    assert Enum.sort(Map.keys(initial_job.args)) == ["delivery_id", "run_id"]
+    refute inspect(initial_job) =~ token
+    :ok = FootballMarket.Workers.CatalogSync.perform(initial_job)
+
+    assert {:ok, %{state: "succeeded", attempts: [%{number: 1}]}} =
+             Synchronization.get_run(initial_run.id)
+
+    assert Repo.get_by!(FootballMarket.Catalog.Player, display_name: "New Catalog Player")
+
+    player_binding =
+      Repo.get_by!(FootballMarket.Catalog.Ingestion.SourceBinding,
+        provider: "football-data.org-v4",
+        kind: "player",
+        source_id: "9001"
+      )
+
+    assert Repo.aggregate(FootballMarket.Catalog.Player, :count) == baseline_player_count + 2
+    assert snapshot() == before_external_state
+    refute inspect(Synchronization.get_run(initial_run.id)) =~ token
+
+    :ok = FootballMarket.Workers.CatalogSync.perform(initial_job)
+    assert Repo.aggregate(FootballMarket.Catalog.Player, :count) == baseline_player_count + 2
+
+    Agent.update(version, fn _ -> 2 end)
+
+    {:ok, update} =
+      Synchronization.request_catalog(scope,
+        source_ref: "football-data-org",
+        trigger: :manual,
+        fixture_ref: "provider-update"
+      )
+
+    update_run = Repo.get!(Run, update.run_id)
+
+    :ok =
+      FootballMarket.Workers.CatalogSync.perform(Repo.get!(Oban.Job, update_run.job_id))
+
+    assert {:ok, %{state: "succeeded"}} = Synchronization.get_run(update_run.id)
+    assert Repo.aggregate(FootballMarket.Catalog.Player, :count) == baseline_player_count + 2
+
+    assert Repo.get_by!(FootballMarket.Catalog.Ingestion.SourceBinding,
+             provider: "football-data.org-v4",
+             kind: "player",
+             source_id: "9002"
+           )
+
+    assert Repo.get!(FootballMarket.Catalog.Player, player_binding.player_id).display_name ==
+             "Updated Catalog Player"
+
+    assert snapshot() == before_external_state
+    refute inspect(Synchronization.get_run(update_run.id)) =~ token
+
+    player = Repo.get!(FootballMarket.Catalog.Player, player_binding.player_id)
+
+    assert {:ok, legacy} =
+             FootballMarket.Catalog.create_player(%{
+               team_id: player.team_id,
+               position_id: player.position_id,
+               catalog_identity: "unbound-legacy-player",
+               display_name: "Legacy Conflict Player"
+             })
+
+    Agent.update(version, fn _ -> 3 end)
+
+    {:ok, conflict} =
+      Synchronization.request_catalog(scope,
+        source_ref: "football-data-org",
+        trigger: :manual,
+        fixture_ref: "provider-conflict"
+      )
+
+    conflict_run = Repo.get!(Run, conflict.run_id)
+    :ok = FootballMarket.Workers.CatalogSync.perform(Repo.get!(Oban.Job, conflict_run.job_id))
+
+    assert {:ok, failed} = Synchronization.get_run(conflict_run.id)
+    assert failed.state == "failed"
+    assert failed.outcome["status"] == "reconciliation_conflict"
+
+    refute Repo.get_by(FootballMarket.Catalog.Ingestion.SourceBinding,
+             provider: "football-data.org-v4",
+             kind: "player",
+             source_id: "9003"
+           )
+
+    assert Repo.get!(FootballMarket.Catalog.Player, player_binding.player_id).display_name ==
+             "Updated Catalog Player"
+
+    assert Repo.get!(FootballMarket.Catalog.Player, legacy.id).display_name ==
+             "Legacy Conflict Player"
+
+    assert Repo.aggregate(FootballMarket.Catalog.Player, :count) == baseline_player_count + 3
+    assert snapshot() == before_external_state
+
+    assert Enum.map(statistics.players, fn player ->
+             persisted = Repo.get!(FootballMarket.Catalog.Player, player.id)
+             {persisted.id, persisted.display_name}
+           end) == unrelated_players
+
+    refute inspect(failed) =~ token
+  end
+
   defp snapshot do
     tables =
       ~w(market_initial_recipients market_quotes market_holdings market_issuances matches player_match_performances)

@@ -5,10 +5,11 @@ defmodule FootballMarket.Providers.ScopeTest do
 
   @production [
     "lib/football_market/providers.ex"
-    | Enum.map(
-        ~w(adapter types request instant error validator catalog performances provenance runner runtime),
-        &"lib/football_market/providers/#{&1}.ex"
-      )
+    | ["lib/football_market/providers/football_data_org.ex"] ++
+        Enum.map(
+          ~w(adapter types request instant error rate_limit validator catalog performances provenance runner runtime),
+          &"lib/football_market/providers/#{&1}.ex"
+        )
   ]
   @scraping_production [
     "lib/football_market/providers/scraping.ex"

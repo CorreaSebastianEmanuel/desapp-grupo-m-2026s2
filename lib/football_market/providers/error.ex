@@ -82,7 +82,7 @@ defmodule FootballMarket.Providers.Error do
   defp valid_delay?(v) do
     case Map.get(v, :retry_after_ms) do
       nil -> true
-      n -> v.category == :rate_limited and is_integer(n) and n > 0
+      n -> v.category in [:rate_limited, :unavailable, :timeout] and is_integer(n) and n > 0
     end
   end
 end

@@ -1015,6 +1015,35 @@ defmodule FootballMarket.WorkflowScope do
     ]
   end
 
+  def paths("specs/082-football-data-org-player-catalog-synchronization") do
+    [
+      "backlog/TASK-082-football-data-org-player-catalog-synchronization.md",
+      "backlog/feedback/TASK-082.md",
+      "config/application_coverage_inventory.json",
+      "config/credo_inventory.json",
+      "config/synchronization.exs",
+      "config/test.exs",
+      "config/test_profiles.json",
+      "docs/FOOTBALL_DATA_ORG_CATALOG_SYNC.md",
+      "docs/WORKFLOW_LESSONS.md",
+      "lib/football_market/infrastructure/provider_rate_limit.ex",
+      "lib/football_market/providers/error.ex",
+      "lib/football_market/providers/football_data_org.ex",
+      "lib/football_market/providers/rate_limit.ex",
+      "lib/football_market/synchronization/input.ex",
+      "priv/repo/migrations/20261102000000_create_provider_rate_limits.exs",
+      "specs/082-football-data-org-player-catalog-synchronization/",
+      "test/ci/workflow_scope_test.exs",
+      "test/football_market/infrastructure/provider_rate_limit_test.exs",
+      "test/football_market/providers/football_data_org_config_test.exs",
+      "test/football_market/providers/football_data_org_test.exs",
+      "test/football_market/providers/scope_test.exs",
+      "test/football_market/synchronization/integrity_test.exs",
+      "test/support/providers/test_provider_rate_limit.ex",
+      "test/support/workflow_scope.ex"
+    ]
+  end
+
   def paths(_), do: []
 
   def allows_path?(feature, path) do

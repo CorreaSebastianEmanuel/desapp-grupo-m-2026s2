@@ -3,36 +3,54 @@ defmodule FootballMarketWeb.WorkspaceComponents do
   use FootballMarketWeb, :html
   attr :actor, :map, required: true
   attr :destination, :string, required: true
+  attr :credit_balance, :any, required: true
+  attr :credit_balance_unavailable, :boolean, required: true
   slot :inner_block, required: true
 
   def shell(assigns) do
     ~H"""
     <section id="workspace" phx-hook="WorkspaceSession">
-      <div id="connection-notice" role="alert" hidden>Connection lost. Reconnecting safely…</div>
+      <div id="connection-notice" role="alert" hidden>Se perdió la conexión. Reconectando…</div>
       <div id="private-workspace" data-private-workspace>
         <header>
           <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">FM</span>
           Football Market</a>
-          <nav aria-label="Workspace">
-            <a href="/players" aria-current={@destination == "/players" && "page"}>Players</a>
+          <nav aria-label="Espacio de trabajo">
+            <a href="/players" aria-current={@destination == "/players" && "page"}>Jugadores</a>
             <a href="/ranking" aria-current={@destination == "/ranking" && "page"}>Ranking</a>
-            <a href="/portfolio" aria-current={@destination == "/portfolio" && "page"}>Portfolio</a>
+            <a href="/portfolio" aria-current={@destination == "/portfolio" && "page"}>Portafolio</a>
             <a
               href="/conditional-orders"
               aria-current={@destination == "/conditional-orders" && "page"}
-            >Conditional orders</a>
+            >Órdenes condicionales</a>
           </nav>
           <div class="workspace-account">
-            <span>{@actor.email}</span>
+            <div class="workspace-account-details">
+              <span class="account-email">{@actor.email}</span>
+              <span
+                :if={!@credit_balance_unavailable}
+                id="credit-balance"
+                class="account-credit-balance"
+              >
+                Créditos disponibles: {Decimal.round(@credit_balance, 2) |> Decimal.to_string(:normal)}
+              </span>
+              <span
+                :if={@credit_balance_unavailable}
+                id="credit-balance-unavailable"
+                role="alert"
+              >
+                Saldo de créditos no disponible
+              </span>
+            </div>
             <form method="post" action="/sign-out">
               <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
-              <button>Sign out</button>
+              <button>Cerrar sesión</button>
             </form>
           </div>
         </header>
         <main id="workspace-main">{render_slot(@inner_block)}</main>
         <footer class="workspace-footer">
-          Football Market <span>Player tokens · Performance-based quotes</span>
+          Football Market <span>Tokens de jugadores · Cotizaciones según rendimiento</span>
         </footer>
       </div>
     </section>
@@ -43,6 +61,12 @@ defmodule FootballMarketWeb.WorkspaceComponents do
   attr :quote, :map, default: nil
   attr :error, :string, default: nil
   attr :request_key, :string, required: true
+  attr :credit_balance, :any, default: nil
+  attr :credit_balance_unavailable, :boolean, default: false
+  attr :initial_recipient, :boolean, default: false
+  attr :initial_recipient_unavailable, :boolean, default: false
+  attr :trade_quantity, :string, default: ""
+  attr :positions, :list, default: []
   attr :trade_error, :string, default: nil
   attr :notice, :string, default: nil
   attr :complete, :boolean, default: false
@@ -52,41 +76,114 @@ defmodule FootballMarketWeb.WorkspaceComponents do
     <p :if={@error} role="alert">{@error}</p>
     <article :if={@card} id="player-card">
       <h2>{@card.player.display_name}</h2>
-      <p>
-        {@card.player.position.name} · {@card.player.team.name} · {@card.player.team.season.league.name}
+      <p class="player-subtitle">
+        {position_name(@card.player.position.code)} · {@card.player.team.name} · {@card.player.team.season.league.name}
       </p>
-      <p>Season {@card.player.team.season.start_year}–{@card.player.team.season.end_year}</p>
+      <p>Temporada {@card.player.team.season.start_year}–{@card.player.team.season.end_year}</p>
       <p :if={@quote} id="player-quote">
-        Current quote: {Decimal.to_string(@quote.unit_price, :normal)} credits · Effective at {DateTime.to_iso8601(
-          @quote.effective_at
-        )}
+        Valor por token <strong>{money(@quote.unit_price)} créditos</strong>
+        <span>· Vigente desde {Calendar.strftime(@quote.effective_at, "%d/%m/%Y %H:%M UTC")}</span>
       </p>
-      <p :if={!@quote} id="player-quote-missing">Current quote missing or unavailable.</p>
-      <p id="player-freshness">
-        Statistics: {@card.statistics_status.freshness} · Refresh: {@card.statistics_status.refresh.state} · Valuation: {@card.statistics_status.valuation.state}
+      <p :if={!@quote && @card.statistics.recorded_match_count > 0} id="player-quote-missing">
+        Aún no hay una cotización disponible. Se habilitarán las operaciones cuando se publique.
       </p>
-      <p>Recorded local data for this catalog season; season coverage may be incomplete.</p>
-      <dl id="player-statistics">
-        <dt>Recorded matches</dt><dd>{@card.statistics.recorded_match_count}</dd>
-        <dt>Minutes played</dt><dd>{known(@card.statistics.minutes_played)}</dd>
-        <dt>Goals</dt><dd>{known(@card.statistics.goals)}</dd>
-        <dt>Assists</dt><dd>{known(@card.statistics.assists)}</dd>
+      <p
+        :if={@card.statistics.recorded_match_count == 0 && @quote}
+        id="player-statistics-unavailable"
+        class="statistics-notice"
+      >
+        Todavía no hay estadísticas cargadas para esta temporada.
+      </p>
+      <p
+        :if={@card.statistics.recorded_match_count == 0 && !@quote}
+        id="player-statistics-unavailable"
+        class="statistics-notice"
+      >
+        Todavía no hay estadísticas cargadas ni una cotización disponible. No se pueden operar tokens por ahora.
+      </p>
+      <p :if={@card.statistics.recorded_match_count > 0} id="player-statistics-coverage">
+        Datos registrados para esta temporada; la cobertura puede ser parcial.
+      </p>
+      <dl :if={@card.statistics.recorded_match_count > 0} id="player-statistics">
+        <dt>Partidos registrados</dt><dd>{@card.statistics.recorded_match_count}</dd>
+        <dt :if={@card.statistics.minutes_played != nil}>Minutos jugados</dt>
+        <dd :if={@card.statistics.minutes_played != nil}>{@card.statistics.minutes_played}</dd>
+        <dt :if={@card.statistics.goals != nil}>Goles</dt>
+        <dd :if={@card.statistics.goals != nil}>{@card.statistics.goals}</dd>
+        <dt :if={@card.statistics.assists != nil}>Asistencias</dt>
+        <dd :if={@card.statistics.assists != nil}>{@card.statistics.assists}</dd>
       </dl>
-      <a href={~p"/conditional-orders?player_id=#{@card.player.id}"}>Create order</a>
-      <p>The execution price is determined when the trade is processed.</p>
-      <form :if={!@complete} id="trade-form" phx-submit="trade">
+      <section id="player-position-summary" aria-label="Tu posición en este jugador">
+        <h3>Tu posición</h3>
+        <%= if position = Enum.find(@positions, &(&1.player_id == @card.player.id)) do %>
+          <p>
+            <strong>{position.quantity} tokens</strong><span :if={@quote}> · Valor estimado {money(
+              Decimal.mult(@quote.unit_price, position.quantity)
+            )} créditos</span>
+          </p>
+        <% else %>
+          <p>Todavía no tenés tokens de este jugador.</p>
+        <% end %>
+      </section>
+      <a
+        :if={@quote && !@initial_recipient && !@initial_recipient_unavailable}
+        href={~p"/conditional-orders?player_id=#{@card.player.id}"}
+      >Crear orden</a>
+      <p :if={@initial_recipient} id="initial-issuer-trade-note" class="statistics-notice">
+        Esta cuenta emitió los tokens iniciales. Otros usuarios pueden comprarlos de su inventario; esta cuenta no puede operar sus propios tokens.
+      </p>
+      <p
+        :if={@initial_recipient_unavailable}
+        id="initial-issuer-check-unavailable"
+        role="alert"
+      >
+        No se pueden operar tokens temporalmente porque no pudimos verificar el tipo de cuenta.
+      </p>
+      <form
+        :if={@quote && !@complete && !@initial_recipient && !@initial_recipient_unavailable}
+        id="trade-form"
+        phx-submit="trade"
+        phx-change="trade_preview"
+      >
         <input type="hidden" name="request_key" value={@request_key} />
-        <label for="trade-side">Action</label>
-        <select id="trade-side" name="side"><option value="buy">Buy</option><option value="sell">
-          Sell
-        </option></select>
-        <label for="trade-quantity">Token quantity</label>
-        <input id="trade-quantity" name="quantity" type="number" min="1" step="1" required />
-        <button type="submit">Confirm trade</button>
+        <p :if={@credit_balance_unavailable} id="player-card-credit-balance-unavailable" role="alert">
+          No se pudo consultar el saldo; la compra no está disponible temporalmente.
+        </p>
+        <label for="trade-quantity">Cantidad de tokens</label>
+        <input
+          id="trade-quantity"
+          name="quantity"
+          type="number"
+          min="1"
+          step="1"
+          placeholder="Ingresá un número entero"
+          value={@trade_quantity}
+          required
+        />
+        <p id="trade-estimate" class="trade-estimate">
+          Importe estimado:
+          <strong>{estimated_total(@trade_quantity, @quote.unit_price)} créditos</strong>
+        </p>
+        <div id="trade-actions">
+          <button
+            type="submit"
+            name="side"
+            value="buy"
+            class="trade-action-buy"
+            disabled={@credit_balance_unavailable}
+          >Comprar tokens</button>
+          <button
+            type="submit"
+            name="side"
+            value="sell"
+            class="trade-action-sell"
+            disabled={Enum.find(@positions, &(&1.player_id == @card.player.id)) == nil}
+          >Vender tokens</button>
+        </div>
       </form>
       <p :if={@trade_error} id="trade-error" role="alert">{@trade_error}</p>
       <p :if={@notice} id="trade-notice" role="status">{@notice}</p>
-      <button :if={@complete || @trade_error} id="new-trade" phx-click="new_trade">New trade</button>
+      <button :if={@complete || @trade_error} id="new-trade" phx-click="new_trade">Nueva operación</button>
     </article>
     """
   end
@@ -97,19 +194,24 @@ defmodule FootballMarketWeb.WorkspaceComponents do
   def ranking_view(assigns) do
     ~H"""
     <section id="ranking">
-      <h1>Active strategy ranking</h1>
+      <h1>Ranking de estrategia activa</h1>
       <p :if={@error} role="alert">{@error}</p>
+      <div :if={!@ranking && !@error} id="ranking-unavailable" class="empty-state">
+        <h2>El ranking todavía no está disponible</h2>
+        <p>Se mostrará cuando haya una estrategia de cotización activa.</p>
+        <a class="text-link" href="/players">Explorar jugadores →</a>
+      </div>
       <div :if={@ranking}>
         <p id="ranking-strategy">
-          Active strategy: {@ranking.configuration.strategy_id} · Formula {@ranking.configuration.formula_version} · Configuration {@ranking.configuration.id}
+          Estrategia activa: {@ranking.configuration.strategy_id} · Fórmula {@ranking.configuration.formula_version} · Configuración {@ranking.configuration.id}
         </p>
         <p :if={@ranking.entries == []} id="ranking-empty">
-          No eligible quotes for the active strategy.
+          No hay cotizaciones válidas para la estrategia activa.
         </p>
         <ol id="ranking-entries">
           <li :for={entry <- @ranking.entries} id={"ranking-player-#{entry.player_id}"}>
-            <a href={~p"/players?player_id=#{entry.player_id}"}>Player {entry.player_id}</a>
-            · {Decimal.to_string(entry.unit_price, :normal)} credits
+            <a href={~p"/players?player_id=#{entry.player_id}"}>Jugador {entry.player_id}</a>
+            · {Decimal.to_string(entry.unit_price, :normal)} créditos
           </li>
         </ol>
       </div>
@@ -125,15 +227,15 @@ defmodule FootballMarketWeb.WorkspaceComponents do
   def portfolio_charts(assigns) do
     ~H"""
     <section id="portfolio-charts" aria-labelledby="portfolio-charts-heading">
-      <h2 id="portfolio-charts-heading">Portfolio charts</h2>
+      <h2 id="portfolio-charts-heading">Gráficos del portafolio</h2>
       <section id="allocation-chart" aria-labelledby="allocation-heading">
-        <h3 id="allocation-heading">Current allocation</h3>
+        <h3 id="allocation-heading">Distribución actual</h3>
         <p :if={@allocation_unavailable} role="alert">
-          Current allocation is temporarily unavailable. Try again shortly.
+          La distribución no está disponible temporalmente. Probá de nuevo en unos instantes.
         </p>
         <div :if={@allocation}>
           <p :if={@allocation.positions == []} id="allocation-empty">
-            No current holdings to allocate.
+            No hay posiciones para mostrar.
           </p>
           <ol :if={@allocation.positions != []} class="allocation-bars">
             <li :for={position <- @allocation.positions}>
@@ -142,27 +244,26 @@ defmodule FootballMarketWeb.WorkspaceComponents do
                 <span class="allocation-fill" style={allocation_style(position.weight)}></span>
               </span>
               <span class="allocation-value">
-                {if is_nil(position.weight), do: "Unknown", else: percent(position.weight)}
+                {if is_nil(position.weight), do: "Sin datos", else: percent(position.weight)}
               </span>
             </li>
           </ol>
           <p :if={@allocation.positions != [] && !@allocation.totals.valuation_complete}>
-            Allocation is unknown until every held player has a current quote.
+            La distribución estará disponible cuando todos tus jugadores tengan una cotización actual.
           </p>
           <p :if={@allocation.positions != []} class="chart-as-of">
-            Current allocation as of {DateTime.to_iso8601(@allocation.as_of)} UTC · Percent of
-            market value
+            Distribución al {DateTime.to_iso8601(@allocation.as_of)} UTC · Porcentaje del valor de mercado
           </p>
         </div>
       </section>
 
       <section id="portfolio-history" aria-labelledby="history-heading">
-        <h3 id="history-heading">Daily portfolio history</h3>
+        <h3 id="history-heading">Historial diario del portafolio</h3>
         <p :if={@history_unavailable} role="alert">
-          Portfolio history is temporarily unavailable. Try again shortly.
+          El historial del portafolio no está disponible temporalmente. Probá de nuevo en unos instantes.
         </p>
         <div :if={@history && !has_historical_activity?(@history.points)} id="history-empty">
-          <p>No portfolio history yet. Completed purchases and sales will appear here.</p>
+          <p>Todavía no hay movimientos. Las compras y ventas realizadas aparecerán acá.</p>
         </div>
         <div :if={@history && has_historical_activity?(@history.points)}>
           <.history_chart
@@ -172,8 +273,7 @@ defmodule FootballMarketWeb.WorkspaceComponents do
             label={label}
           />
           <p class="chart-as-of">
-            Daily values for {@history.from} through {@history.to}, UTC. Each point is measured at
-            its displayed cutoff time.
+            Valores diarios del {@history.from} al {@history.to} (UTC). Cada punto corresponde al horario indicado.
           </p>
         </div>
       </section>
@@ -196,9 +296,9 @@ defmodule FootballMarketWeb.WorkspaceComponents do
         role="img"
         aria-labelledby={"#{@metric}-title #{@metric}-description"}
       >
-        <title id={"#{@metric}-title"}>{@label} by day</title>
+        <title id={"#{@metric}-title"}>{@label} por día</title>
         <desc id={"#{@metric}-description"}>
-          Daily values in credits. Missing quote-dependent values appear as gaps.
+          Valores diarios en créditos. Los importes que dependen de una cotización faltante aparecen como espacios.
         </desc>
         <line x1="32" y1="170" x2="608" y2="170" class="chart-axis" />
         <path :if={@path != ""} d={@path} class="chart-line" />
@@ -207,13 +307,13 @@ defmodule FootballMarketWeb.WorkspaceComponents do
       </svg>
       <p class="chart-scale">{chart_scale(@points, @metric)}</p>
       <details>
-        <summary>View {@label} values and UTC timestamps</summary>
+        <summary>Ver valores de {@label} y horarios UTC</summary>
         <div class="table-scroll chart-table">
           <table>
-            <caption>{@label} · Credits</caption>
+            <caption>{@label} · Créditos</caption>
             <thead>
               <tr>
-                <th scope="col">UTC cutoff</th><th scope="col">Value</th>
+                <th scope="col">Corte UTC</th><th scope="col">Valor</th>
               </tr>
             </thead>
             <tbody>
@@ -231,9 +331,9 @@ defmodule FootballMarketWeb.WorkspaceComponents do
 
   defp history_metrics do
     [
-      {:market_value, "Portfolio market value"},
-      {:realized_profit_loss, "Realized profit/loss"},
-      {:unrealized_profit_loss, "Unrealized profit/loss"}
+      {:market_value, "Valor de mercado del portafolio"},
+      {:realized_profit_loss, "Ganancia/pérdida realizada"},
+      {:unrealized_profit_loss, "Ganancia/pérdida no realizada"}
     ]
   end
 
@@ -317,7 +417,7 @@ defmodule FootballMarketWeb.WorkspaceComponents do
     16 + 144 * (maximum - Decimal.to_float(value)) / span
   end
 
-  defp chart_value(nil), do: "Unknown"
+  defp chart_value(nil), do: "Sin datos"
   defp chart_value(value), do: Decimal.to_string(value, :normal)
 
   defp chart_scale(points, metric) do
@@ -325,12 +425,12 @@ defmodule FootballMarketWeb.WorkspaceComponents do
 
     case values do
       [] ->
-        "No known values to plot."
+        "No hay valores para graficar."
 
       values ->
         minimum = Enum.min_by(values, &Decimal.to_float/1)
         maximum = Enum.max_by(values, &Decimal.to_float/1)
-        "Scale: #{chart_value(minimum)} to #{chart_value(maximum)} credits."
+        "Escala: #{chart_value(minimum)} a #{chart_value(maximum)} créditos."
     end
   end
 
@@ -339,15 +439,32 @@ defmodule FootballMarketWeb.WorkspaceComponents do
   defp last_chart_date([]), do: ""
   defp last_chart_date(points), do: points |> List.last() |> then(&Date.to_iso8601(&1.date))
 
-  defp known(nil), do: "Unknown"
-  defp known(value), do: value
+  def position_name("GK"), do: "Arquero"
+  def position_name("DEF"), do: "Defensor"
+  def position_name("DF"), do: "Defensor"
+  def position_name("MID"), do: "Mediocampista"
+  def position_name("MF"), do: "Mediocampista"
+  def position_name("FWD"), do: "Delantero"
+  def position_name("FW"), do: "Delantero"
+  def position_name(value), do: value
+
+  defp money(value), do: value |> Decimal.round(2) |> Decimal.to_string(:normal)
+
+  defp estimated_total(quantity, unit_price) do
+    case Integer.parse(quantity) do
+      {amount, ""} when amount > 0 -> money(Decimal.mult(unit_price, amount))
+      _ -> "—"
+    end
+  end
 
   attr :heading, :string, required: true
 
   def unavailable(assigns) do
     ~H"""
     <h1>{@heading}</h1>
-    <p>This area is not available yet. More features will be added in a future update.</p>
+    <p>
+      Esta sección todavía no está disponible. Se agregarán más funciones en futuras actualizaciones.
+    </p>
     """
   end
 
@@ -356,7 +473,7 @@ defmodule FootballMarketWeb.WorkspaceComponents do
   def recovery(assigns) do
     ~H"""
     <main>
-      <h1>{@kind}</h1><p role="alert">This resource is unavailable.</p><a href="/portfolio">Return to workspace</a><a href="/sign-in">Sign in</a>
+      <h1>{@kind}</h1><p role="alert">Este contenido no está disponible.</p><a href="/portfolio">Volver al espacio de trabajo</a><a href="/sign-in">Iniciar sesión</a>
     </main>
     """
   end

@@ -15,7 +15,7 @@ defmodule FootballMarketWeb.ConditionalOrdersLiveTest do
     f = fixture()
     view = open_orders(f.buyer)
 
-    assert has_element?(view, "h1", "Conditional orders")
+    assert has_element?(view, "h1", "Órdenes condicionales")
     assert has_element?(view, "#no-orders"), render(view)
 
     {:ok, catalog, _html} = live(authenticated_conn(f.buyer), "/players")
@@ -25,14 +25,14 @@ defmodule FootballMarketWeb.ConditionalOrdersLiveTest do
 
     assert has_element?(
              catalog,
-             "a[href='/conditional-orders?player_id=#{f.player.id}']",
-             "Create order"
+             "a[href^='/players?player_id=#{f.player.id}']",
+             "Ver ficha y operar"
            )
 
     {:ok, view, _html} =
       live(authenticated_conn(f.buyer), "/conditional-orders?player_id=#{f.player.id}")
 
-    assert has_element?(view, "#selected-player", f.player.display_name)
+    assert has_element?(view, ".selected-order-player", f.player.display_name)
     assert has_element?(view, "#order-player-id[value='#{f.player.id}']")
 
     form = %{
@@ -43,19 +43,19 @@ defmodule FootballMarketWeb.ConditionalOrdersLiveTest do
     }
 
     view |> form("#conditional-order-form", form) |> render_submit()
-    assert has_element?(view, "#order-error[role=alert]", "Check the player ID")
+    assert has_element?(view, "#order-error[role=alert]", "Revisá el jugador")
     assert has_element?(view, "#order-quantity[value='0']")
 
     form = %{form | "quantity" => "3"}
     view |> form("#conditional-order-form", form) |> render_submit()
-    assert has_element?(view, "#order-notice[role=status]", "Order created.")
+    assert has_element?(view, "#order-notice[role=status]", "Orden creada.")
     assert [order] = ConditionalOrders.list(C.actor(f.buyer)) |> elem(1)
-    assert has_element?(view, "#conditional-order-#{order.id}", f.player.id)
-    assert has_element?(view, "#conditional-order-#{order.id}", "pending")
-    assert has_element?(view, "#conditional-order-#{order.id} button", "Cancel order")
+    assert has_element?(view, "#conditional-order-#{order.id}", f.player.display_name)
+    assert has_element?(view, "#conditional-order-#{order.id}", "Pendiente")
+    assert has_element?(view, "#conditional-order-#{order.id} button", "Cancelar orden")
 
     view |> element("#conditional-order-#{order.id} button") |> render_click()
-    assert has_element?(view, "#conditional-order-#{order.id}", "cancelled")
+    assert has_element?(view, "#conditional-order-#{order.id}", "Cancelada")
     refute has_element?(view, "#conditional-order-#{order.id} button")
   end
 
@@ -70,16 +70,16 @@ defmodule FootballMarketWeb.ConditionalOrdersLiveTest do
 
     order = C.order!(f, %{maximum_unit_price: "0.01"})
     :ok = FootballMarket.Market.OrderNotifications.changed(order.id)
-    assert has_element?(view, "#conditional-order-#{order.id}", "pending")
+    assert has_element?(view, "#conditional-order-#{order.id}", "Pendiente")
 
     assert {:ok, cancelled} = ConditionalOrders.cancel(C.actor(f.buyer), order.id)
     assert cancelled.status == "cancelled"
-    assert has_element?(view, "#conditional-order-#{order.id}", "cancelled")
+    assert has_element?(view, "#conditional-order-#{order.id}", "Cancelada")
 
     executed = C.order!(f, %{maximum_unit_price: "999.99"})
     assert {:ok, result} = ConditionalOrders.evaluate(executed.id)
     assert result.status == "executed"
-    assert has_element?(view, "#conditional-order-#{executed.id}", "Executed at")
+    assert has_element?(view, "#conditional-order-#{executed.id}", "Ejecutada a")
     assert has_element?(view, "#conditional-order-#{executed.id}", "total")
 
     PurchasesCase.fund(f.buyer, "0")
@@ -90,14 +90,14 @@ defmodule FootballMarketWeb.ConditionalOrdersLiveTest do
     assert has_element?(
              view,
              "#conditional-order-#{rejected.id}",
-             "Rejected: insufficient funds."
+             "Rechazada: saldo insuficiente."
            )
 
     conn = authenticated_conn(f.buyer)
     {:ok, reconnected, _html} = live(conn, "/conditional-orders")
-    assert has_element?(reconnected, "#conditional-order-#{order.id}", "cancelled")
-    assert has_element?(reconnected, "#conditional-order-#{executed.id}", "executed")
-    assert has_element?(reconnected, "#conditional-order-#{rejected.id}", "insufficient funds")
+    assert has_element?(reconnected, "#conditional-order-#{order.id}", "Cancelada")
+    assert has_element?(reconnected, "#conditional-order-#{executed.id}", "Ejecutada")
+    assert has_element?(reconnected, "#conditional-order-#{rejected.id}", "saldo insuficiente")
   end
 
   test "shows expiry reached before the persisted transition and the expired outcome after reload" do
@@ -111,7 +111,7 @@ defmodule FootballMarketWeb.ConditionalOrdersLiveTest do
 
     view = open_orders(f.buyer)
 
-    assert has_element?(view, "#conditional-order-#{order.id}", "pending")
+    assert has_element?(view, "#conditional-order-#{order.id}", "Pendiente")
     Process.sleep(1_100)
     :ok = FootballMarket.Market.OrderNotifications.changed(order.id)
     assert has_element?(view, "#conditional-order-#{order.id} .expiry-reached")
@@ -119,7 +119,7 @@ defmodule FootballMarketWeb.ConditionalOrdersLiveTest do
 
     assert {:ok, expired} = ConditionalOrders.evaluate(order.id)
     assert expired.status == "expired"
-    assert has_element?(view, "#conditional-order-#{order.id}", "expired")
+    assert has_element?(view, "#conditional-order-#{order.id}", "Vencida")
   end
 
   defp open_orders(user) do

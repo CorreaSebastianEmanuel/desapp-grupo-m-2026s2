@@ -10,8 +10,8 @@ defmodule FootballMarketWeb.WorkspaceNavigationTest do
     {:ok, handle} = BrowserSessions.authenticate(anon, user.id)
 
     for {path, heading, expectation} <- [
-          {"/portfolio", "Portfolio", :empty_portfolio},
-          {"/conditional-orders", "Conditional orders", :page}
+          {"/portfolio", "Portafolio", :empty_portfolio},
+          {"/conditional-orders", "Órdenes condicionales", :page}
         ] do
       conn =
         build_conn()

@@ -6,7 +6,7 @@ defmodule FootballMarketWeb.PageControllerTest do
   test "GET / returns the application foundation", %{conn: conn} do
     conn = get(conn, ~p"/")
     html = html_response(conn, 200)
-    assert html =~ "Football Player Market"
+    assert html =~ "Football Market"
 
     for path <- ["/sign-in", "/register", "/portfolio", "/conditional-orders", "/docs"] do
       assert html =~ ~s(href="#{path}")

@@ -1563,6 +1563,13 @@
       "profile": "integration"
     },
     {
+      "id": "259f9431f6b4e96cdc13412c",
+      "runner": "exunit",
+      "file": "test/football_market/market/portfolio/positions_test.exs",
+      "case_id": "FootballMarket.Market.PortfolioTest:test initial inventory is limited to the original recipient and follows remaining holdings",
+      "profile": "integration"
+    },
+    {
       "id": "25fb34a6a3c9758b941ae18e",
       "runner": "exunit",
       "file": "test/football_market/accounts/authentication_security_test.exs",
@@ -1897,6 +1904,13 @@
       "file": "test/scripts/agentflow_branch_test.py",
       "case_id": "test.scripts.agentflow_branch_test.VerificationRevalidationTest.test_verifier_cannot_promote_reports_after_ownership_changes",
       "profile": "unit"
+    },
+    {
+      "id": "2f6369d6152497a289ff74b9",
+      "runner": "exunit",
+      "file": "test/football_market_web/live/portfolio_live_test.exs",
+      "case_id": "FootballMarketWeb.PortfolioLiveTest:test player card preserves search context and disables trades without a quote",
+      "profile": "integration"
     },
     {
       "id": "2fa9caffe9f1d9e2d965ce38",
@@ -4060,6 +4074,13 @@
       "file": "test/ci/credo_inventory_test.exs",
       "case_id": "FootballMarket.CredoInventoryTest:test tracked maintained roots and root dotfiles reconcile with Credo's valid source inputs",
       "profile": "unit"
+    },
+    {
+      "id": "69e3cc615b8cee814bdafcad",
+      "runner": "exunit",
+      "file": "test/football_market_web/live/portfolio_live_test.exs",
+      "case_id": "FootballMarketWeb.PortfolioLiveTest:test initial issuer inventory is separate from an investor portfolio",
+      "profile": "integration"
     },
     {
       "id": "69f1df564fa5c12cd71d4e07",
@@ -8185,6 +8206,13 @@
       "profile": "integration"
     },
     {
+      "id": "d7b8f7e8d2ff5fb3a4e2d297",
+      "runner": "exunit",
+      "file": "test/football_market/market/portfolio/positions_test.exs",
+      "case_id": "FootballMarket.Market.PortfolioTest:test credit balance is owner-scoped, exact, and zero before funding",
+      "profile": "integration"
+    },
+    {
       "id": "d7c4ed83e641de4c93e80682",
       "runner": "exunit",
       "file": "test/e2e/portfolio_analytics_test.exs",
@@ -9253,13 +9281,6 @@
       "runner": "exunit",
       "file": "test/football_market/catalog/development_seed_test.exs",
       "case_id": "FootballMarket.Catalog.DevelopmentSeedTest:test repeat and partial convergence a matching partial hierarchy is reused and only missing descendants are created",
-      "profile": "integration"
-    },
-    {
-      "id": "f172904778060763ad4d1bde",
-      "runner": "exunit",
-      "file": "test/football_market_web/live/portfolio_live_test.exs",
-      "case_id": "FootballMarketWeb.PortfolioLiveTest:test player card preserves missing data and search-to-order links",
       "profile": "integration"
     },
     {

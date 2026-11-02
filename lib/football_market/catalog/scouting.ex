@@ -103,7 +103,7 @@ defmodule FootballMarket.Catalog.Scouting do
     letters = Regex.scan(~r/\p{L}/u, value) |> length()
 
     length in 2..@max_name_length and letters >= 2 and
-      Regex.match?(~r/\A[\p{L}\p{M}][\p{L}\p{M} .’'-]*\z/u, value)
+      Regex.match?(~r/\A[\p{L}\p{M}][\p{L}\p{M}0-9 .’'-]*\z/u, value)
   end
 
   def digest(scopes),

@@ -7,12 +7,13 @@ defmodule FootballMarketWeb.ErrorHTMLTest do
   import Phoenix.Template, only: [render_to_string: 4]
 
   test "renders 404.html" do
-    assert render_to_string(FootballMarketWeb.ErrorHTML, "404", "html", []) =~ "Not Found"
-    assert render_to_string(FootballMarketWeb.ErrorHTML, "404", "html", []) =~ "Sign in"
+    assert render_to_string(FootballMarketWeb.ErrorHTML, "404", "html", []) =~ "No encontrado"
+    assert render_to_string(FootballMarketWeb.ErrorHTML, "404", "html", []) =~ "Iniciar sesión"
   end
 
   test "renders 500.html" do
-    assert render_to_string(FootballMarketWeb.ErrorHTML, "500", "html", []) ==
-             "Internal Server Error"
+    html = render_to_string(FootballMarketWeb.ErrorHTML, "500", "html", [])
+    assert html =~ "Error interno del servidor"
+    assert html =~ "No pudimos completar la solicitud"
   end
 end

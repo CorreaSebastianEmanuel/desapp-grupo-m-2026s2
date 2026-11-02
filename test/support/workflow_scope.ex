@@ -57,6 +57,25 @@ defmodule FootballMarket.WorkflowScope do
     ]
   end
 
+  def paths("specs/034-cp2-integration-and-end-to-end-suite") do
+    [
+      "backlog/TASK-034-cp2-integration-and-end-to-end-suite.md",
+      "backlog/feedback/TASK-034.md",
+      "config/application_coverage_inventory.json",
+      "config/test_profiles.json",
+      "docs/WORKFLOW_LESSONS.md",
+      "docs/presentations/arquitectura_interactiva.html",
+      "docs/presentations/arquitectura_interactiva.md",
+      "docs/presentations/cp2_architectura_completa.md",
+      "specs/034-cp2-integration-and-end-to-end-suite/",
+      "test/e2e/browser_reconnect_test.exs",
+      "test/football_market/statistics/ingestion/calculation_test.exs",
+      "test/support/e2e/fixtures.ex",
+      "test/support/workflow_scope.ex",
+      "tools/openapi/e2e_market_reconnect.mjs"
+    ]
+  end
+
   def paths("specs/080-live-scraping-transport-with-documented-access-evidence") do
     [
       "backlog/TASK-080-live-scraping-transport-with-documented-access-evidence.md",

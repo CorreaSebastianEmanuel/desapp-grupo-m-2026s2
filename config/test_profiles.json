@@ -7611,6 +7611,13 @@
       "profile": "integration"
     },
     {
+      "id": "c9d24f6f33203633af58ff7b",
+      "runner": "exunit",
+      "file": "test/e2e/browser_reconnect_test.exs",
+      "case_id": "FootballMarket.E2E.BrowserReconnectTest:test real browser reconnect recovers a committed order purchase exactly once",
+      "profile": "e2e"
+    },
+    {
       "id": "c9da6e5a560c2a720754a576",
       "runner": "exunit",
       "file": "test/football_market/catalog/player_catalog_index_test.exs",
@@ -9958,6 +9965,7 @@
     "test/runtime/order_evaluation_http.exs": "Conditional evaluation owned-store fixture/runtime support; runtime assertions execute through the feature manifest.",
     "test/support/sales/case.ex": "Fixture/support helper; cases owned by its importing native suite.",
     "tools/openapi/e2e_market.mjs": "Real Chromium market journey helper; invoked by the E2E portfolio suite.",
+    "tools/openapi/e2e_market_reconnect.mjs": "Real Chromium offline commit and reconnect recovery journey helper; invoked by the E2E browser reconnect suite.",
     "tools/openapi/e2e_catalog_scouting.mjs": "Real Chromium catalog scouting journey helper; invoked by the E2E catalog scouting suite."
   },
   "excluded_roots": [

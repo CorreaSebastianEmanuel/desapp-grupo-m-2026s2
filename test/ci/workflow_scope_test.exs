@@ -87,6 +87,22 @@ defmodule FootballMarket.WorkflowScopeTest do
     refute WorkflowScope.allows_path?(security_feature, "lib/football_market/statistics.ex")
     refute WorkflowScope.allows_path?(security_feature, ".github/workflows/unplanned.yml")
 
+    catalog_sync_feature = "specs/082-football-data-org-player-catalog-synchronization"
+    catalog_sync_paths = WorkflowScope.paths(catalog_sync_feature)
+    assert length(catalog_sync_paths) == length(Enum.uniq(catalog_sync_paths))
+    assert "lib/football_market/providers/football_data_org.ex" in catalog_sync_paths
+    assert "lib/football_market/providers/rate_limit.ex" in catalog_sync_paths
+    assert "lib/football_market/infrastructure/provider_rate_limit.ex" in catalog_sync_paths
+    assert "lib/football_market/synchronization/input.ex" in catalog_sync_paths
+
+    assert "test/football_market/providers/football_data_org_config_test.exs" in catalog_sync_paths
+
+    assert "test/football_market/providers/football_data_org_test.exs" in catalog_sync_paths
+
+    assert "test/football_market/infrastructure/provider_rate_limit_test.exs" in catalog_sync_paths
+
+    refute WorkflowScope.allows_path?(catalog_sync_feature, "lib/football_market/market.ex")
+
     dialyzer_feature = "specs/075-required-dialyzer-analysis-with-trustworthy-plt-caching"
 
     for path <- [

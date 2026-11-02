@@ -137,26 +137,7 @@ defmodule FootballMarket.E2E.Fixtures do
     File.mkdir!(dir)
     File.chmod!(dir, 0o700)
 
-    watcher =
-      Task.async(fn ->
-        Runtime.await!(fn ->
-          if File.exists?(Path.join(dir, "execute")), do: {:ok, :ready}, else: :pending
-        end)
-
-        assert :ok = Oban.start_queue(queue: :conditional_orders, limit: 1)
-
-        Runtime.await!(fn ->
-          case Repo.query!(
-                 "SELECT count(*) FROM market_purchases WHERE conditional_order_id IS NOT NULL"
-               ).rows do
-            [[1]] -> {:ok, :committed}
-            [[count]] when count > 1 -> {:error, :duplicate_purchase}
-            _ -> :pending
-          end
-        end)
-
-        File.write!(Path.join(dir, "committed"), "ready")
-      end)
+    watcher = Task.async(fn -> watch_market_reconnect(dir) end)
 
     try do
       {output, status} =
@@ -189,6 +170,28 @@ defmodule FootballMarket.E2E.Fixtures do
       Task.shutdown(watcher, :brutal_kill)
       File.rm_rf!(dir)
     end
+  end
+
+  defp conditional_purchase_outcome do
+    case Repo.query!(
+           "SELECT count(*) FROM market_purchases WHERE conditional_order_id IS NOT NULL"
+         ).rows do
+      [[1]] -> {:ok, :committed}
+      [[count]] when count > 1 -> {:error, :duplicate_purchase}
+      _ -> :pending
+    end
+  end
+
+  defp watch_market_reconnect(dir) do
+    Runtime.await!(fn ->
+      if File.exists?(Path.join(dir, "execute")), do: {:ok, :ready}, else: :pending
+    end)
+
+    assert :ok = Oban.start_queue(queue: :conditional_orders, limit: 1)
+
+    Runtime.await!(&conditional_purchase_outcome/0)
+
+    File.write!(Path.join(dir, "committed"), "ready")
   end
 
   defp market_execution_signal(dir) do

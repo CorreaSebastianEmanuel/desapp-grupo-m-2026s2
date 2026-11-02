@@ -4,10 +4,10 @@ title: CP2 integration and end-to-end suite
 type: task
 checkpoint: CP2
 priority: critical
-status: review
+status: done
 workflow: thinflow-v1
 depends_on: TASK-019, TASK-027, TASK-030, TASK-032, TASK-033, TASK-058, TASK-060, TASK-061, TASK-063, TASK-078, TASK-079, TASK-077
-active_run: de44c6cd
+active_run: none
 ---
 
 ## Outcome

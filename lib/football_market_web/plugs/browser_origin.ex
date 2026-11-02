@@ -19,7 +19,7 @@ defmodule FootballMarketWeb.Plugs.BrowserOrigin do
         |> put_resp_content_type("text/html")
         |> send_resp(
           403,
-          ~s(<main><h1>Access denied</h1><p role="alert">This request could not be accepted.</p><a href="/sign-in">Sign in</a></main>)
+          ~s(<main><h1>Acceso denegado</h1><p role="alert">No se pudo aceptar esta solicitud.</p><a href="/sign-in">Iniciar sesión</a></main>)
         )
         |> halt()
     end

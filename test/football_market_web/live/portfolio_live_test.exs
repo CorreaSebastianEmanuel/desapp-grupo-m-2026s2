@@ -54,6 +54,7 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
 
     {:ok, view, _html} = live(authenticated_conn(buyer), "/portfolio")
 
+    assert has_element?(view, "#credit-balance", "Créditos disponibles: 97.00")
     assert has_element?(view, "#portfolio-positions")
     assert has_element?(view, "a[href='/players?player_id=#{player.id}']", player.display_name)
     assert has_element?(view, "#portfolio-position-#{player.id}", player.display_name)
@@ -61,6 +62,51 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
     assert has_element?(view, "#portfolio-position-#{player.id}", "1")
     assert has_element?(view, "#allocation-chart")
     assert has_element?(view, "#portfolio-history")
+  end
+
+  test "initial issuer inventory is separate from an investor portfolio" do
+    buyer = account("issuer-inventory-buyer@example.com")
+    owner = account("issuer-inventory-owner@example.com")
+    %{team: team} = FootballMarket.CatalogCase.insert_hierarchy!()
+    {:ok, position} = Catalog.create_position(FootballMarket.CatalogCase.position_attrs())
+    {:ok, player} = Catalog.create_player(FootballMarket.CatalogCase.player_attrs(team, position))
+
+    Application.put_env(:football_market, :initial_issuance_recipients, [owner.id])
+    assert {:ok, _} = Market.initialize_player(player.id)
+    PurchasesCase.fund(buyer, "100")
+
+    assert {:ok, _} =
+             Market.purchase(PurchasesCase.actor(buyer), %{
+               player_id: player.id,
+               quantity: 3,
+               request_key: "issuer-inventory-ui"
+             })
+
+    {:ok, issuer_view, _} = live(authenticated_conn(owner), "/portfolio")
+    assert has_element?(issuer_view, "#credit-balance", "Créditos disponibles: 3.00")
+    assert has_element?(issuer_view, "#initial-issuer-inventory")
+
+    assert has_element?(
+             issuer_view,
+             "#initial-issuer-inventory-#{player.id}",
+             player.display_name
+           )
+
+    assert has_element?(issuer_view, "#initial-issuer-inventory-#{player.id}", "97")
+    refute has_element?(issuer_view, "#portfolio-positions")
+    assert has_element?(issuer_view, "#no-positions")
+
+    assert has_element?(
+             issuer_view,
+             "#no-positions",
+             "Todavía no tenés posiciones de operaciones"
+           )
+
+    {:ok, buyer_view, _} = live(authenticated_conn(buyer), "/portfolio")
+    assert has_element?(buyer_view, "#credit-balance", "Créditos disponibles: 97.00")
+    assert has_element?(buyer_view, "#portfolio-position-#{player.id}", "3")
+    assert has_element?(buyer_view, "#no-initial-issuer-inventory")
+    refute has_element?(buyer_view, "#initial-issuer-inventory-#{player.id}")
   end
 
   test "portfolio chart marks missing quote data as a gap, not zero" do
@@ -89,12 +135,12 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
       render_component(&FootballMarketWeb.WorkspaceComponents.history_chart/1, %{
         points: points,
         metric: :market_value,
-        label: "Portfolio market value"
+        label: "Valor de mercado del portafolio"
       })
 
-    assert html =~ "Unknown"
+    assert html =~ "Sin datos"
     assert length(Regex.scan(~r/M[0-9.]+,[0-9.]+/, html)) == 2
-    assert html =~ "Scale: 1 to 2 credits."
+    assert html =~ "Escala: 1 a 2 créditos."
     assert html =~ "2026-10-30T12:00:00Z"
 
     incomplete_allocation =
@@ -109,20 +155,20 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
         history_unavailable: false
       })
 
-    assert incomplete_allocation =~ "Unknown"
+    assert incomplete_allocation =~ "Sin datos"
 
     assert incomplete_allocation =~
-             "Allocation is unknown until every held player has a current quote."
+             "La distribución estará disponible cuando todos tus jugadores tengan una cotización actual."
 
     realized =
       render_component(&FootballMarketWeb.WorkspaceComponents.history_chart/1, %{
         points: points,
         metric: :realized_profit_loss,
-        label: "Realized profit/loss"
+        label: "Ganancia/pérdida realizada"
       })
 
     assert realized =~ "<td>0</td>"
-    refute realized =~ "<td>Unknown</td>"
+    refute realized =~ "<td>Sin datos</td>"
   end
 
   test "portfolio charts offer accessible empty allocation and history states" do
@@ -134,8 +180,8 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
         history_unavailable: false
       })
 
-    assert html =~ "No current holdings to allocate."
-    assert html =~ "No portfolio history yet."
+    assert html =~ "No hay posiciones para mostrar."
+    assert html =~ "Todavía no hay movimientos."
     refute html =~ "history-chart-market_value"
   end
 
@@ -164,9 +210,9 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
 
     assert html =~ "Alex Example"
     assert html =~ "100.0%"
-    assert html =~ "Portfolio market value by day"
-    assert html =~ "Realized profit/loss by day"
-    assert html =~ "Unrealized profit/loss by day"
+    assert html =~ "Valor de mercado del portafolio por día"
+    assert html =~ "Ganancia/pérdida realizada por día"
+    assert html =~ "Ganancia/pérdida no realizada por día"
     assert html =~ "2026-10-30T12:00:00Z"
 
     unavailable =
@@ -177,32 +223,36 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
         history_unavailable: true
       })
 
-    assert unavailable =~ "Current allocation is temporarily unavailable"
-    assert unavailable =~ "Portfolio history is temporarily unavailable"
-    refute unavailable =~ "No portfolio history yet"
+    assert unavailable =~ "La distribución no está disponible temporalmente"
+    assert unavailable =~ "El historial del portafolio no está disponible temporalmente"
+    refute unavailable =~ "Todavía no hay movimientos"
   end
 
-  test "player card preserves missing data and search-to-order links" do
+  test "player card preserves search context and disables trades without a quote" do
     user = account("card@example.com")
     %{players: [player]} = FootballMarket.CatalogCase.insert_catalog!()
     {:ok, view, _} = live(authenticated_conn(user), "/players")
     view |> form("#player-catalog-search", player_search: player.display_name) |> render_submit()
-    assert has_element?(view, "a[href='/players?player_id=#{player.id}']", "View player")
+    assert has_element?(view, "a[href^='/players?player_id=#{player.id}']", "Ver ficha y operar")
+
+    query = URI.encode_query(%{q: player.display_name})
+    {:ok, card, _} = live(authenticated_conn(user), "/players?player_id=#{player.id}&#{query}")
+    assert has_element?(card, "#player-card", player.team.name)
+    assert has_element?(card, "a[href^='/players?q=']", "Volver a resultados")
+    refute has_element?(card, "#player-catalog-search")
+    refute has_element?(card, "#trade-form")
+    refute has_element?(card, "a[href^='/conditional-orders?player_id=']")
 
     assert has_element?(
-             view,
-             "a[href='/conditional-orders?player_id=#{player.id}']",
-             "Create order"
+             card,
+             "#player-statistics-unavailable",
+             "Todavía no hay estadísticas cargadas"
            )
 
-    {:ok, card, _} = live(authenticated_conn(user), "/players?player_id=#{player.id}")
-    assert has_element?(card, "#player-card", player.team.name)
-    assert has_element?(card, "#player-statistics", "Unknown")
-    assert has_element?(card, "#player-quote-missing")
-    assert has_element?(card, "#player-freshness", "never_checked")
-    assert has_element?(card, "#player-card", "coverage may be incomplete")
+    refute has_element?(card, "#player-statistics")
+    refute has_element?(card, "#player-freshness")
     {:ok, missing, _} = live(authenticated_conn(user), "/players?player_id=invalid")
-    assert has_element?(missing, "[role=alert]", "Player details are unavailable")
+    assert has_element?(missing, "[role=alert]", "No se pudo cargar la ficha")
   end
 
   test "buy and sell forms use immutable retry terms and immediately reload owner positions" do
@@ -213,39 +263,47 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
     conn = authenticated_conn(f.buyer)
     {:ok, open_portfolio, _} = live(conn, "/portfolio")
     {:ok, view, _} = live(conn, "/players?player_id=#{f.player.id}")
-    assert has_element?(view, "#player-quote", "Effective at")
+    assert has_element?(view, "#player-quote", "Vigente desde")
+    assert has_element?(view, "#credit-balance", "Créditos disponibles:")
+    assert has_element?(view, "#trade-actions button[name=side][value=buy]", "Comprar tokens")
+    assert has_element?(view, "#trade-actions button[name=side][value=sell]", "Vender tokens")
+    refute has_element?(view, "#trade-side")
 
-    key =
-      view
-      |> element("#trade-form input[name=request_key]")
-      |> render()
-      |> then(&Regex.run(~r/value="([^"]+)"/, &1))
-      |> List.last()
+    key = trade_key(view)
 
     assert render_submit(view, "trade", %{side: "invalid", quantity: "1", request_key: key}) =~
-             "Choose Buy or Sell"
+             "Elegí comprar o vender"
 
     assert render_submit(view, "trade", %{side: "buy", quantity: "1.5", request_key: key}) =~
-             "positive integer"
+             "número entero"
 
     assert render_submit(view, "trade", %{side: "buy", quantity: "3", request_key: key}) =~
-             "Trade confirmed"
+             "Operación confirmada"
 
-    assert has_element?(view, "#trade-position-#{f.player.id}", "3 tokens")
+    assert has_element?(view, "#credit-balance", "Créditos disponibles: 97.00")
+    assert has_element?(view, "#player-position-summary", "3 tokens")
     render_submit(view, "trade", %{side: "buy", quantity: "3", request_key: key})
-    assert has_element?(view, "#trade-position-#{f.player.id}", "3 tokens")
+    assert has_element?(view, "#player-position-summary", "3 tokens")
 
     assert render_submit(view, "trade", %{side: "sell", quantity: "1", request_key: key}) =~
-             "different terms"
+             "otros datos"
 
     view |> element("#new-trade") |> render_click()
-    view |> form("#trade-form", side: "sell", quantity: "1") |> render_submit()
-    assert has_element?(view, "#trade-position-#{f.player.id}", "2 tokens")
+
+    render_submit(view, "trade", %{
+      side: "sell",
+      quantity: "1",
+      request_key: trade_key(view)
+    })
+
+    assert has_element?(view, "#credit-balance", "Créditos disponibles: 98.00")
+    assert has_element?(view, "#player-position-summary", "2 tokens")
     assert has_element?(open_portfolio, "#portfolio-position-#{f.player.id}", "2")
     {:ok, reconnected, _} = live(conn, "/portfolio")
     assert has_element?(reconnected, "#portfolio-position-#{f.player.id}", "2")
     other = account("other-positions@example.com")
     {:ok, other_view, _} = live(authenticated_conn(other), "/portfolio")
+    assert has_element?(other_view, "#credit-balance", "Créditos disponibles: 0.00")
     send(other_view.pid, {:conditional_order_changed, "untrusted-id"})
     assert has_element?(other_view, "#no-positions")
     refute has_element?(other_view, "#portfolio-position-#{f.player.id}")
@@ -263,7 +321,7 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
       {:conditional_order_changed, "hint"}
     )
 
-    assert has_element?(view, "#trade-position-#{f.player.id}", "3 tokens")
+    assert has_element?(view, "#player-position-summary", "3 tokens")
     assert has_element?(reconnected, "#portfolio-position-#{f.player.id}", "3")
     refute has_element?(other_view, "#portfolio-position-#{f.player.id}")
   end
@@ -272,10 +330,22 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
     f = FootballMarket.MarketCase.fixture()
     assert {:ok, _} = Market.initialize_player(f.player.id)
     {:ok, view, _} = live(authenticated_conn(f.buyer), "/players?player_id=#{f.player.id}")
-    view |> form("#trade-form", side: "buy", quantity: "1") |> render_submit()
-    assert has_element?(view, "#trade-error", "Insufficient credits")
+
+    render_submit(view, "trade", %{
+      side: "buy",
+      quantity: "1",
+      request_key: trade_key(view)
+    })
+
+    assert has_element?(view, "#trade-error", "créditos suficientes")
     view |> element("#new-trade") |> render_click()
-    view |> form("#trade-form", side: "sell", quantity: "1") |> render_submit()
+
+    render_submit(view, "trade", %{
+      side: "sell",
+      quantity: "1",
+      request_key: trade_key(view)
+    })
+
     assert has_element?(view, "#trade-error")
     refute has_element?(view, "#trade-notice")
   end
@@ -296,20 +366,20 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
         ranking: %{configuration: configuration, entries: entries}
       )
 
-    assert html =~ "Active strategy: balanced"
+    assert html =~ "Estrategia activa: balanced"
     assert [_, first, second] = Regex.run(~r/ranking-player-(3).*ranking-player-(1)/s, html)
     assert {first, second} == {"3", "1"}
 
     assert render_component(&FootballMarketWeb.WorkspaceComponents.ranking_view/1,
              ranking: %{configuration: configuration, entries: []}
-           ) =~ "No eligible quotes"
+           ) =~ "No hay cotizaciones válidas"
 
     assert render_component(&FootballMarketWeb.WorkspaceComponents.ranking_view/1,
              error: "Ranking is temporarily unavailable."
            ) =~ "temporarily unavailable"
 
     {:ok, view, _} = live(authenticated_conn(account("ranking-empty@example.com")), "/ranking")
-    assert has_element?(view, "#ranking", "Active strategy ranking")
+    assert has_element?(view, "#ranking", "Ranking de estrategia activa")
 
     assert render_component(&FootballMarketWeb.WorkspaceComponents.ranking_view/1,
              error: "No active strategy configured."
@@ -323,5 +393,13 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
     build_conn()
     |> Plug.Test.init_test_session(%{browser_handle: handle})
     |> Plug.Conn.put_private(:live_view_connect_info, %{session: %{"browser_handle" => handle}})
+  end
+
+  defp trade_key(view) do
+    view
+    |> element("#trade-form input[name=request_key]")
+    |> render()
+    |> then(&Regex.run(~r/value="([^"]+)"/, &1))
+    |> List.last()
   end
 end

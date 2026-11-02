@@ -18,7 +18,7 @@ defmodule FootballMarketWeb.Plugs.BrowserAuth do
         conn
         |> put_status(503)
         |> html(
-          ~s(<main><h1>Authentication temporarily unavailable</h1><p role="alert">Please retry sign in.</p><a href="/sign-in">Retry sign in</a></main>)
+          ~s(<main><h1>El inicio de sesión no está disponible</h1><p role="alert">Probá de nuevo en unos instantes.</p><a href="/sign-in">Volver a intentar</a></main>)
         )
         |> halt()
 

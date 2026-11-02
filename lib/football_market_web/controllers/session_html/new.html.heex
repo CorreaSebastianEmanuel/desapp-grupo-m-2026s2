@@ -1,14 +1,14 @@
 <div class="auth-page">
   <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">FM</span> Football Market</a>
   <main class="workspace-form">
-    <p class="eyebrow">YOUR WORKSPACE</p>
-    <h1>Sign in</h1>
-    <p class="muted">Access your portfolio and conditional orders.</p>
+    <p class="eyebrow">TU ESPACIO DE TRABAJO</p>
+    <h1>Iniciar sesión</h1>
+    <p class="muted">Accedé a tu portafolio y administrá tus órdenes condicionales.</p>
     <p :if={@message} id="sign-in-message" role="alert">{@message}</p>
     <form method="post" action="/sign-in">
       <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
       <input type="hidden" name="return_to" value={@return_to} />
-      <label for="email">Email</label>
+      <label for="email">Correo electrónico</label>
       <input
         id="email"
         name="email"
@@ -18,7 +18,7 @@
         aria-invalid={to_string(@invalid)}
         aria-describedby={@invalid && "sign-in-message"}
       />
-      <label for="password">Password</label>
+      <label for="password">Contraseña</label>
       <input
         id="password"
         name="password"
@@ -27,10 +27,10 @@
         aria-invalid={to_string(@invalid)}
         aria-describedby={@invalid && "sign-in-message"}
       />
-      <button type="submit">Sign in</button>
+      <button type="submit">Iniciar sesión</button>
     </form>
-    <a :if={@message} href="/sign-in">Retry sign in</a>
-    <p class="auth-note">New to Football Market? <a href="/register">Create an account</a>.</p>
+    <a :if={@message} href="/sign-in">Volver a intentar</a>
+    <p class="auth-note">¿No tenés cuenta? <a href="/register">Crear una cuenta</a>.</p>
   </main>
-  <a class="text-link" href="/">← Back to Football Market</a>
+  <a class="text-link" href="/">← Volver a Football Market</a>
 </div>

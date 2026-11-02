@@ -1,0 +1,8 @@
+<main>
+  <h1>No se pudo cerrar la sesión</h1>
+  <p role="alert">Intentá cerrar sesión de nuevo.</p>
+  <form method="post" action="/sign-out">
+    <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
+    <button type="submit">Reintentar</button>
+  </form>
+</main>

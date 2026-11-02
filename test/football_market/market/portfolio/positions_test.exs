@@ -91,4 +91,37 @@ defmodule FootballMarket.Market.PortfolioTest do
   test "portfolio requires an authenticated owner" do
     assert {:error, %{kind: :unauthenticated}} = Market.portfolio(nil)
   end
+
+  test "initial inventory is limited to the original recipient and follows remaining holdings" do
+    f = PurchasesCase.fixture()
+    PurchasesCase.fund(f.buyer, "100")
+
+    assert {:ok, [initial]} = Market.initial_inventory(PurchasesCase.actor(f.owner))
+    assert initial.player_id == f.player.id
+    assert initial.player_name == f.player.display_name
+    assert initial.quantity == 100
+    assert {:ok, []} = Market.initial_inventory(PurchasesCase.actor(f.buyer))
+
+    assert {:ok, _purchase} = PurchasesCase.purchase(f, "issuer-inventory-sale", 3)
+
+    assert {:ok, [remaining]} = Market.initial_inventory(PurchasesCase.actor(f.owner))
+    assert remaining.quantity == 97
+    assert {:ok, []} = Market.initial_inventory(PurchasesCase.actor(f.buyer))
+    assert {:error, %{kind: :unauthenticated}} = Market.initial_inventory(nil)
+  end
+
+  test "credit balance is owner-scoped, exact, and zero before funding" do
+    f = PurchasesCase.fixture()
+
+    assert {:ok, zero} = Market.credit_balance(PurchasesCase.actor(f.buyer))
+    assert Decimal.equal?(zero, "0.00")
+
+    PurchasesCase.fund(f.buyer, "42.75")
+
+    assert {:ok, balance} = Market.credit_balance(PurchasesCase.actor(f.buyer))
+    assert Decimal.equal?(balance, "42.75")
+    assert {:ok, owner_balance} = Market.credit_balance(PurchasesCase.actor(f.owner))
+    assert Decimal.equal?(owner_balance, "0.00")
+    assert {:error, %{kind: :unauthenticated}} = Market.credit_balance(nil)
+  end
 end

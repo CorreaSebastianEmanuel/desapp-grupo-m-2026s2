@@ -17,13 +17,13 @@ defmodule FootballMarketWeb.ErrorHTML do
 
   # The default is to render a plain text page based on
   # the template name. For example, "404.html" becomes
-  # "Not Found".
+  # "No encontrado".
   def render("403.html", assigns) do
     assigns = Map.new(assigns)
 
     ~H"""
     <main>
-      <h1>Access denied</h1><p role="alert">This request could not be accepted.</p><a href="/portfolio">Return to workspace</a><a href="/sign-in">Sign in</a>
+      <h1>Acceso denegado</h1><p role="alert">No se pudo aceptar esta solicitud.</p><a href="/portfolio">Volver al espacio de trabajo</a><a href="/sign-in">Iniciar sesión</a>
     </main>
     """
   end
@@ -33,7 +33,19 @@ defmodule FootballMarketWeb.ErrorHTML do
 
     ~H"""
     <main>
-      <h1>Not Found</h1><p role="alert">This destination is unavailable.</p><a href="/portfolio">Return to workspace</a><a href="/sign-in">Sign in</a>
+      <h1>No encontrado</h1><p role="alert">Este destino no está disponible.</p><a href="/portfolio">Volver al espacio de trabajo</a><a href="/sign-in">Iniciar sesión</a>
+    </main>
+    """
+  end
+
+  def render("500.html", assigns) do
+    assigns = Map.new(assigns)
+
+    ~H"""
+    <main>
+      <h1>Error interno del servidor</h1>
+      <p role="alert">No pudimos completar la solicitud. Probá de nuevo en unos instantes.</p>
+      <a href="/portfolio">Volver al espacio de trabajo</a>
     </main>
     """
   end

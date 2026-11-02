@@ -36,7 +36,7 @@ class CoverageAccountingTest(unittest.TestCase):
             with patch.object(coverage.subprocess, 'run', side_effect=worker) as run:
                 coverage.normalize_exports(root / 'modules.json', jobs, environment)
             self.assertEqual(run.call_count, 1)
-            self.assertEqual(captured, [[dict(export=str(export), output=str(output))
+            self.assertEqual(captured, [[dict(export=str(export.resolve()), output=str(output.resolve()))
                                          for export, output in jobs]])
             for _export, output in jobs:
                 output.unlink()

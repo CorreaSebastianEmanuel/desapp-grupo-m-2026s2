@@ -1,6 +1,6 @@
 # Independent evaluation — TASK-082
 
-Re-review of Feedback 1 (B1–B3). Inspected the compact spec, task, feedback, REVIEW.md, repository principles, current diff, rate-limit repair, affected adapter/tests, and local ThinFlow candidate evidence. Focused on the pacing repair and touched boundaries; the previously reported idle-time defect is resolved and is not reissued. No implementation changes, other agents, external HTTP calls or full-suite rerun.
+Re-review of Feedback 1 (B1–B3), including the current two-file delta. Inspected the compact spec, task, feedback, REVIEW.md, repository principles, adapter and synchronization code/tests, and local ThinFlow candidate evidence. Focused on pacing, retry propagation, and the touched adapter/input boundaries; resolved findings are not repeated. No implementation changes, other agents, external HTTP calls or full-suite rerun.
 
 ## Acceptance / evidence matrix
 
@@ -20,11 +20,13 @@ High risk remains appropriate: authenticated external catalog identity changes a
 
 The selected unit profile does not execute the new integration cases. The recorded focused run of `provider_rate_limit_test.exs` and synchronization `integrity_test.exs` reports **11 passed**, exit 0, and includes the idle regression. The prior sandboxed probe documented B1 before repair: twelve consecutive reservations returned `{:ok, 0}` after ten minutes idle. The new regression now exercises the same aged-row condition and verifies pacing waits.
 
+The current unstaged adapter delta extracts the existing wait/sleep/deadline/request path into `request_after_wait/6`; its timeout calculation still clamps to at least one millisecond, and the previous unreachable nonpositive-timeout branch is replaced by a case with the same effective behavior. The response-decoding rewrite preserves the same success and unavailable outcomes. The input delta rewrites fixture-file reads from `with` to `case` without changing the digest material or failure result. `git diff --check` passes; no blocking regression is supported by this repair delta.
+
 The recorded focused command used pinned Elixir 1.20.3/OTP 29 and `MIX_ENV=test mix run --no-start --no-compile` with QA-only script `.agentflow/runs/thinflow/TASK-082/qa-repair-targeted.exs`; it starts the application with a two-connection test pool and loads test_helper plus the affected test files. A fresh rerun in this evaluator session could not initialize because the local no-compile build lacks `FootballMarket.Observability.JSONFormatter`; the recorded focused output and current passing ThinFlow receipt were reviewed. No candidate implementation/configuration was edited. Probe source/output are evaluator evidence, not workflow logs.
 
 ## Findings
 
-No blocking findings. The earlier B1 pacing finding is resolved by the database-clock clamp and aged-idle regression described above. B2 retry metadata preservation and B3 source-specific durable-path evidence remain resolved; neither is repeated.
+No blocking findings. The earlier B1 pacing finding is resolved by the database-clock clamp and aged-idle regression described above. B2 retry metadata preservation and B3 source-specific durable-path evidence remain resolved; neither is repeated. The current adapter/input delta introduces no blocking behavior change.
 
 Advisory: a fresh focused rerun in this evaluator session could not initialize due to a missing compiled `FootballMarket.Observability.JSONFormatter` module under `--no-compile`. The saved focused run and current ThinFlow receipt provide successful evidence; hosted exact-head CI remains the next authoritative check.
 

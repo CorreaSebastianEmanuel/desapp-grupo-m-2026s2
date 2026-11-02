@@ -119,17 +119,21 @@ defmodule FootballMarket.Synchronization.Input do
   def source_identity(source) do
     case source[:fixture_path] do
       path when is_binary(path) ->
-        with {:ok, bytes} <- File.read(path) do
-          {:ok,
-           %{
-             "artifact_digest" => digest(bytes),
-             "configuration_digest" =>
-               digest(
-                 :erlang.term_to_binary(Map.take(source, [:provider, :runtime]), [:deterministic])
-               )
-           }}
-        else
-          _ -> {:error, :fixture_ref}
+        case File.read(path) do
+          {:ok, bytes} ->
+            {:ok,
+             %{
+               "artifact_digest" => digest(bytes),
+               "configuration_digest" =>
+                 digest(
+                   :erlang.term_to_binary(Map.take(source, [:provider, :runtime]), [
+                     :deterministic
+                   ])
+                 )
+             }}
+
+          _ ->
+            {:error, :fixture_ref}
         end
 
       nil ->

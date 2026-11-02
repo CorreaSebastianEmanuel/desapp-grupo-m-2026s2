@@ -194,14 +194,7 @@ defmodule FootballMarket.Providers.FootballDataOrg do
     else
       case RateLimit.reserve(state[:token], @min_interval_ms, div(remaining, 1000)) do
         {:ok, wait_ms} ->
-          if wait_ms > 0, do: sleep(wait_ms, context)
-          timeout = max(1, div(context.deadline_us - runtime.now_us(runtime_state), 1000))
-
-          if timeout <= 0 do
-            {:error, %{category: :timeout}}
-          else
-            request(path, state, timeout) |> decode_response(context, state)
-          end
+          request_after_wait(path, wait_ms, context, state, runtime, runtime_state)
 
         {:defer, wait_ms} ->
           {:error, %{category: :rate_limited, retry_after_ms: wait_ms}}
@@ -209,6 +202,16 @@ defmodule FootballMarket.Providers.FootballDataOrg do
         {:error, _} ->
           {:error, %{category: :unavailable}}
       end
+    end
+  end
+
+  defp request_after_wait(path, wait_ms, context, state, runtime, runtime_state) do
+    if wait_ms > 0, do: sleep(wait_ms, context)
+    timeout = max(1, div(context.deadline_us - runtime.now_us(runtime_state), 1000))
+
+    case timeout do
+      timeout when timeout > 0 -> request(path, state, timeout) |> decode_response(context, state)
+      _ -> {:error, %{category: :timeout}}
     end
   end
 
@@ -252,13 +255,15 @@ defmodule FootballMarket.Providers.FootballDataOrg do
 
   defp decode_response({:ok, status, headers, body}, _context, state)
        when status == 200 and is_binary(body) and byte_size(body) <= @max_body_bytes do
-    with :ok <- persist_reset(headers, state) do
-      case Jason.decode(body) do
-        {:ok, map} when is_map(map) -> {:ok, map}
-        _ -> {:error, %{category: :invalid_response}}
-      end
-    else
-      _ -> {:error, %{category: :unavailable}}
+    case persist_reset(headers, state) do
+      :ok ->
+        case Jason.decode(body) do
+          {:ok, map} when is_map(map) -> {:ok, map}
+          _ -> {:error, %{category: :invalid_response}}
+        end
+
+      _ ->
+        {:error, %{category: :unavailable}}
     end
   end
 

@@ -2,7 +2,16 @@ defmodule FootballMarket.Synchronization.Input do
   @moduledoc "Closed source resolution and versioned, non-secret canonical identity."
   alias FootballMarket.Providers.{Request, Provenance}
   alias FootballMarket.Synchronization.Policy
-  @test Mix.env() == :test
+
+  @allowed_providers [FootballMarket.Providers.Scraping, FootballMarket.Providers.FootballDataOrg] ++
+                       if(Mix.env() == :test,
+                         do: [
+                           FootballMarket.IngestionFixtureAdapter,
+                           FootballMarket.IngestionReplacementAdapter,
+                           FootballMarket.Synchronization.ScriptAdapter
+                         ],
+                         else: []
+                       )
 
   def normalize(scope, options), do: normalize(:catalog, scope, options)
 
@@ -76,20 +85,10 @@ defmodule FootballMarket.Synchronization.Input do
 
     case Map.fetch(sources, ref) do
       {:ok, %{provider: {module, _}} = source} ->
-        allowed =
-          [FootballMarket.Providers.Scraping, FootballMarket.Providers.FootballDataOrg] ++
-            if(@test,
-              do: [
-                FootballMarket.IngestionFixtureAdapter,
-                FootballMarket.IngestionReplacementAdapter,
-                FootballMarket.Synchronization.ScriptAdapter
-              ],
-              else: []
-            )
-
-        if module in allowed and valid_source_runtime?(source) and valid_provider_source?(source),
-          do: {:ok, source},
-          else: {:error, :source_ref}
+        if module in @allowed_providers and valid_source_runtime?(source) and
+             valid_provider_source?(source),
+           do: {:ok, source},
+           else: {:error, :source_ref}
 
       _ ->
         {:error, :source_ref}

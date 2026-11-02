@@ -60,9 +60,9 @@ EXCEPTIONS = [
     {
         "type": "Traversal.FileModule: Directory Traversal in `File.read`",
         "file": "lib/football_market/synchronization/input.ex",
-        "line": 122,
+        "line": 121,
         "confidence": "low_confidence",
-        "sha256": "61f82b77e0e9778714211d02930027393f7c95b7077fa05bc64a3d87c393fbbe"
+        "sha256": "9d9caae800e25ac6bd91de963fb786826bb0e4e682b94035a4b31dca06cef2a6"
     },
     {
         "type": "XSS.HTML: XSS in `html`",

@@ -16,18 +16,18 @@ try {
 
   phase = 'login';
   assert.equal((await page.goto(`${base}/sign-in`)).status(), 200);
-  await page.getByLabel('Email', {exact: true}).fill(email);
-  await page.getByLabel('Password', {exact: true}).fill(password);
+  await page.getByLabel('Correo electrónico', {exact: true}).fill(email);
+  await page.getByLabel('Contraseña', {exact: true}).fill(password);
   const login = page.waitForResponse(r => r.request().method() === 'POST' && new URL(r.url()).pathname === '/sign-in');
-  await page.getByRole('button', {name: 'Sign in', exact: true}).click();
+  await page.getByRole('button', {name: 'Iniciar sesión', exact: true}).click();
   assert.equal((await login).status(), 303);
 
   phase = 'search';
   assert.equal((await page.goto(`${base}/players`)).status(), 200);
   await page.waitForSelector('.phx-connected #workspace');
-  await page.getByLabel('Player name').fill('Alex');
-  await page.getByRole('button', {name: 'Search players'}).click();
-  await page.getByText('Searching the configured catalog sources in the background. Search again shortly.').waitFor();
+  await page.getByLabel('Nombre del jugador').fill('Alex');
+  await page.getByRole('button', {name: 'Buscar jugadores'}).click();
+  await page.getByText('Estamos buscando en las fuentes configuradas. Volvé a buscar en unos instantes.').waitFor();
   await writeFile(join(ipc, 'scouting-visible'), 'ready', {mode: 0o600});
 
   phase = 'publication';

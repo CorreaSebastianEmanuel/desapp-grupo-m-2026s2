@@ -70,6 +70,7 @@ defmodule FootballMarket.Catalog.ScoutingTest do
   end
 
   test "catalog misses deduplicate, negative-cache fruitless runs, and reject invalid names" do
+    assert {:ok, "Demo BL1", "demo bl1"} = Catalog.Scouting.normalize_name("Demo BL1")
     assert {:ok, [], %{state: :queued}} = Catalog.search_players("Messi")
     scout = Repo.one!(from s in ScoutRun, where: s.normalized_name == "messi")
     assert {:ok, [], %{state: :scouting}} = Catalog.search_players("  MESSI ")

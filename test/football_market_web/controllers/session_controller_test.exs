@@ -32,7 +32,7 @@ defmodule FootballMarketWeb.SessionControllerTest do
     for conn <- [opened, build_conn() |> init_test_session(%{})] do
       retry = submit(conn, %{"return_to" => "/conditional-orders"})
       html = html_response(retry, 422)
-      assert html =~ "Your sign-in form expired. Please try again."
+      assert html =~ "El formulario venció. Volvé a iniciar sesión."
       refute html =~ "correct-password-123"
       fresh_handle = get_session(retry, :browser_handle)
       refute fresh_handle == expired_handle
@@ -71,12 +71,12 @@ defmodule FootballMarketWeb.SessionControllerTest do
       refute response(denied, 303) =~ user.email
 
       recovery = denied |> recycle() |> get(location) |> html_response(200)
-      assert recovery =~ "Your session ended. Please sign in again."
+      assert recovery =~ "Tu sesión finalizó. Iniciá sesión otra vez."
       refute recovery =~ user.email
       refute recovery =~ handle
     end
 
-    refute anonymous() |> html_response(200) =~ "Your session ended"
+    refute anonymous() |> html_response(200) =~ "Tu sesión finalizó"
   end
 
   test "real wall clock cookie retention does not truncate the remaining lifetime" do
@@ -133,7 +133,7 @@ defmodule FootballMarketWeb.SessionControllerTest do
     account()
     invalid = anonymous() |> submit(%{"password" => "incorrect-secret"})
     html = html_response(invalid, 422)
-    assert html =~ "Unable to sign in"
+    assert html =~ "No se pudo iniciar sesión"
     refute html =~ "incorrect-secret"
     assert html =~ "aria-describedby=\"sign-in-message\""
 
@@ -148,7 +148,7 @@ defmodule FootballMarketWeb.SessionControllerTest do
   test "public registration creates an account and returns the user to sign-in" do
     page = get(build_conn(), "/register")
     html = html_response(page, 200)
-    assert html =~ "Create your account"
+    assert html =~ "Crear cuenta"
     assert html =~ "name=\"password_confirmation\""
     assert html =~ "name=\"_csrf_token\""
 
@@ -173,7 +173,7 @@ defmodule FootballMarketWeb.SessionControllerTest do
     assert user.email == "new.user@example.test"
 
     assert get(build_conn(), "/sign-in?notice=created") |> html_response(200) =~
-             "Account created. Sign in to continue."
+             "Cuenta creada. Iniciá sesión para continuar."
   end
 
   test "registration rejects mismatched or invalid credentials without returning secrets" do
@@ -187,7 +187,7 @@ defmodule FootballMarketWeb.SessionControllerTest do
       })
 
     mismatch_html = html_response(mismatch, 422)
-    assert mismatch_html =~ "Passwords do not match"
+    assert mismatch_html =~ "Las contraseñas no coinciden"
     refute mismatch_html =~ "correct-password-123"
     assert {:error, :not_found} = Accounts.get_user_by_email("mismatch@example.test")
 
@@ -201,7 +201,7 @@ defmodule FootballMarketWeb.SessionControllerTest do
       })
 
     invalid_html = html_response(invalid, 422)
-    assert invalid_html =~ "We couldn&#39;t create the account"
+    assert invalid_html =~ "No pudimos crear la cuenta"
     refute invalid_html =~ "short"
     assert {:error, :not_found} = Accounts.get_user_by_email("bad@example.test")
   end
@@ -219,7 +219,7 @@ defmodule FootballMarketWeb.SessionControllerTest do
       })
 
     html = html_response(response, 422)
-    assert html =~ "We couldn&#39;t create the account"
+    assert html =~ "No pudimos crear la cuenta"
     refute html =~ "already taken"
 
     assert {:ok, authenticated} =
@@ -238,7 +238,7 @@ defmodule FootballMarketWeb.SessionControllerTest do
     handle = get_session(signed, :browser_handle)
     Application.put_env(:football_market, :browser_failure, :revoke)
     failed = signed |> recycle() |> post("/sign-out")
-    assert html_response(failed, 503) =~ "Retry sign out"
+    assert html_response(failed, 503) =~ "Reintentar"
     assert get_session(failed, :browser_handle) == handle
     assert {:ok, _} = BrowserSessions.validate(handle)
     Application.delete_env(:football_market, :browser_failure)

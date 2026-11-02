@@ -350,6 +350,18 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/market/credit_balance.ex."
     },
     {
+      "path": "lib/football_market/market/credit_balance_store.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Persistence adapter for authenticated available credit balance reads."
+    },
+    {
+      "path": "lib/football_market/market/credit_balances.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Authenticated market credit balance read API."
+    },
+    {
       "path": "lib/football_market/market/credit_entry.ex",
       "role": "application",
       "disposition": "include",
@@ -366,6 +378,18 @@
       "role": "application",
       "disposition": "include",
       "reason": "Maintained first-party application implementation source: lib/football_market/market/holding.ex."
+    },
+    {
+      "path": "lib/football_market/market/initial_inventory.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Authenticated read model for remaining initial issuer inventory."
+    },
+    {
+      "path": "lib/football_market/market/initial_inventory_store.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Persistence adapter for initial issuer inventory reads."
     },
     {
       "path": "lib/football_market/market/initial_recipient.ex",

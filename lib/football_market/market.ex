@@ -16,6 +16,17 @@ defmodule FootballMarket.Market do
 
   defdelegate portfolio(actor), to: FootballMarket.Market.Portfolio, as: :list
 
+  defdelegate initial_inventory(actor),
+    to: FootballMarket.Market.InitialInventory,
+    as: :list
+
+  defdelegate initial_recipient?(actor),
+    to: FootballMarket.Market.InitialInventory
+
+  defdelegate credit_balance(actor),
+    to: FootballMarket.Market.CreditBalances,
+    as: :available
+
   defdelegate create_conditional_order(actor, terms),
     to: FootballMarket.Market.ConditionalOrders,
     as: :create

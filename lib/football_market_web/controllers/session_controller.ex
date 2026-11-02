@@ -12,7 +12,12 @@ defmodule FootballMarketWeb.SessionController do
         redirect303(conn, BrowserAuth.destination(params["return_to"]))
 
       {:error, :unavailable} ->
-        form(conn, params, 503, "Authentication temporarily unavailable. Please retry.")
+        form(
+          conn,
+          params,
+          503,
+          "El inicio de sesión no está disponible temporalmente. Probá de nuevo."
+        )
 
       _ ->
         new_anonymous(conn, params)
@@ -31,7 +36,12 @@ defmodule FootballMarketWeb.SessionController do
         )
 
       _ ->
-        form(conn, params, 503, "Authentication temporarily unavailable. Please retry.")
+        form(
+          conn,
+          params,
+          503,
+          "El inicio de sesión no está disponible temporalmente. Probá de nuevo."
+        )
     end
   end
 
@@ -41,7 +51,12 @@ defmodule FootballMarketWeb.SessionController do
         redirect303(conn, BrowserAuth.destination(params["return_to"]))
 
       {:error, :unavailable} ->
-        form(conn, params, 503, "Authentication temporarily unavailable. Please retry.")
+        form(
+          conn,
+          params,
+          503,
+          "El inicio de sesión no está disponible temporalmente. Probá de nuevo."
+        )
 
       _ ->
         sign_in(conn, params)
@@ -58,7 +73,7 @@ defmodule FootballMarketWeb.SessionController do
           conn,
           %{},
           503,
-          "Account creation is temporarily unavailable. Please retry."
+          "La creación de cuentas no está disponible temporalmente. Probá de nuevo."
         )
 
       _ ->
@@ -76,7 +91,7 @@ defmodule FootballMarketWeb.SessionController do
           conn,
           params,
           503,
-          "Account creation is temporarily unavailable. Please retry."
+          "La creación de cuentas no está disponible temporalmente. Probá de nuevo."
         )
 
       _ ->
@@ -98,11 +113,11 @@ defmodule FootballMarketWeb.SessionController do
             conn,
             params,
             422,
-            "We couldn't create the account. Check the details and try again."
+            "No pudimos crear la cuenta. Revisá los datos e intentá de nuevo."
           )
       end
     else
-      registration_form(conn, params, 422, "Passwords do not match. Please try again.")
+      registration_form(conn, params, 422, "Las contraseñas no coinciden. Intentá de nuevo.")
     end
   end
 
@@ -119,13 +134,18 @@ defmodule FootballMarketWeb.SessionController do
       |> redirect303(BrowserAuth.destination(params["return_to"]))
     else
       {:error, :unavailable} ->
-        form(conn, params, 503, "Authentication temporarily unavailable. Please retry.")
+        form(
+          conn,
+          params,
+          503,
+          "El inicio de sesión no está disponible temporalmente. Probá de nuevo."
+        )
 
       {:error, :expired_form} ->
-        new_anonymous(conn, params, 422, "Your sign-in form expired. Please try again.")
+        new_anonymous(conn, params, 422, "El formulario venció. Volvé a iniciar sesión.")
 
       _ ->
-        form(conn, params, 422, "Unable to sign in with those credentials.")
+        form(conn, params, 422, "No se pudo iniciar sesión con esos datos.")
     end
   end
 
@@ -149,9 +169,7 @@ defmodule FootballMarketWeb.SessionController do
       _ ->
         conn
         |> put_status(503)
-        |> html(
-          ~s(<main><h1>Sign out temporarily unavailable</h1><p role="alert">Your session could not be ended. Please retry sign out.</p><form method="post" action="/sign-out"><input type="hidden" name="_csrf_token" value="#{get_csrf_token()}"><button>Retry sign out</button></form></main>)
-        )
+        |> render(:sign_out_unavailable)
     end
   end
 
@@ -176,8 +194,8 @@ defmodule FootballMarketWeb.SessionController do
     )
   end
 
-  defp notice_message("ended"), do: "Your session ended. Please sign in again."
-  defp notice_message("created"), do: "Account created. Sign in to continue."
+  defp notice_message("ended"), do: "Tu sesión finalizó. Iniciá sesión otra vez."
+  defp notice_message("created"), do: "Cuenta creada. Iniciá sesión para continuar."
   defp notice_message(_), do: nil
 
   defp redirect303(conn, path), do: conn |> put_status(303) |> redirect(to: path)

@@ -27,6 +27,55 @@ defmodule FootballMarket.WorkflowScope do
     end
   end
 
+  def paths("specs/083-show-initial-issuer-inventory-separately-from-investor-portfolio") do
+    [
+      "assets/css/app.css",
+      "backlog/TASK-083-show-initial-issuer-inventory-separately-from-investor-portfolio.md",
+      "config/application_coverage_inventory.json",
+      "config/credo_inventory.json",
+      "config/test_profiles.json",
+      "docs/WORKFLOW_LESSONS.md",
+      "lib/football_market/catalog/scouting.ex",
+      "lib/football_market/market.ex",
+      "lib/football_market/market/credit_balance_store.ex",
+      "lib/football_market/market/credit_balances.ex",
+      "lib/football_market/market/initial_inventory.ex",
+      "lib/football_market/market/initial_inventory_store.ex",
+      "lib/football_market_web/components/layouts.ex",
+      "lib/football_market_web/components/layouts/root.html.heex",
+      "lib/football_market_web/components/workspace_components.ex",
+      "lib/football_market_web/controllers/api_docs_html/docs.html.heex",
+      "lib/football_market_web/controllers/error_html.ex",
+      "lib/football_market_web/controllers/page_html/home.html.heex",
+      "lib/football_market_web/controllers/session_controller.ex",
+      "lib/football_market_web/controllers/session_html/new.html.heex",
+      "lib/football_market_web/controllers/session_html/register.html.heex",
+      "lib/football_market_web/controllers/session_html/sign_out_unavailable.html.heex",
+      "lib/football_market_web/live/workspace_live.ex",
+      "lib/football_market_web/plugs/browser_auth.ex",
+      "lib/football_market_web/plugs/browser_origin.ex",
+      "specs/083-show-initial-issuer-inventory-separately-from-investor-portfolio/",
+      "test/football_market/catalog/scouting_test.exs",
+      "test/football_market/market/scope_test.exs",
+      "test/football_market/market/portfolio/positions_test.exs",
+      "test/football_market_web/controllers/error_html_test.exs",
+      "test/football_market_web/controllers/session_controller_test.exs",
+      "test/football_market_web/controllers/page_controller_test.exs",
+      "test/football_market_web/live/catalog_scouting_live_test.exs",
+      "test/football_market_web/live/conditional_orders_live_test.exs",
+      "test/football_market_web/live/portfolio_live_test.exs",
+      "test/football_market_web/live/workspace_navigation_test.exs",
+      "test/football_market_web/workspace_browser_test.exs",
+      "test/football_market_web/workspace_http_runtime_test.exs",
+      "test/support/workflow_scope.ex",
+      "tools/openapi/e2e_browser.mjs",
+      "tools/openapi/e2e_catalog_scouting.mjs",
+      "tools/openapi/e2e_market.mjs",
+      "tools/openapi/e2e_market_reconnect.mjs",
+      "tools/openapi/workspace_browser.mjs"
+    ]
+  end
+
   def paths("specs/077-advance-cp2-product-ui-player-card-trading-actions-and-active-ranking") do
     [
       "assets/css/app.css",

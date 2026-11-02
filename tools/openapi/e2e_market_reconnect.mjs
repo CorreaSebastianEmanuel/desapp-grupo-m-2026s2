@@ -29,21 +29,21 @@ try {
   const page = await context.newPage();
   phase = 'authentication';
   await page.goto(base + '/sign-in');
-  await page.getByLabel('Email', {exact: true}).fill(email);
-  await page.getByLabel('Password', {exact: true}).fill(password);
-  await page.getByRole('button', {name: 'Sign in', exact: true}).click();
+  await page.getByLabel('Correo electrónico', {exact: true}).fill(email);
+  await page.getByLabel('Contraseña', {exact: true}).fill(password);
+  await page.getByRole('button', {name: 'Iniciar sesión', exact: true}).click();
   await page.waitForSelector('.phx-connected #workspace');
 
   phase = 'create-order';
   await page.goto(`${base}/players?player_id=${player}`);
   await page.waitForSelector('.phx-connected #player-card');
   assert.match(await page.locator('#player-card').innerText(), new RegExp(name));
-  await page.locator('#player-card').getByRole('link', {name: 'Create order', exact: true}).click();
+  await page.locator('#player-card').getByRole('link', {name: 'Crear orden', exact: true}).click();
   await page.waitForSelector('.phx-connected #conditional-order-form');
-  await page.getByLabel('Quantity', {exact: true}).fill('3');
-  await page.getByLabel('Maximum unit price', {exact: true}).fill('10.00');
-  await page.getByLabel('Expiry in UTC', {exact: true}).fill(new Date(Date.now() + 3600000).toISOString());
-  await page.getByRole('button', {name: 'Create order', exact: true}).click();
+  await page.getByLabel('Cantidad', {exact: true}).fill('3');
+  await page.getByLabel('Precio máximo por token (créditos)', {exact: true}).fill('10.00');
+  await page.getByLabel('Vencimiento (fecha y hora UTC)', {exact: true}).fill(new Date(Date.now() + 3600000).toISOString());
+  await page.getByRole('button', {name: 'Crear orden condicional', exact: true}).click();
   await page.waitForSelector('#order-notice');
 
   phase = 'offline-commit';
@@ -55,10 +55,10 @@ try {
   await context.setOffline(false);
   await page.goto(base + '/conditional-orders');
   await page.waitForSelector('.phx-connected #order-list');
-  assert.match(await page.locator('#order-list').innerText(), /executed/);
+  assert.match(await page.locator('#order-list').innerText(), /Ejecutada/);
   await page.reload();
   await page.waitForSelector('.phx-connected #order-list');
-  assert.match(await page.locator('#order-list').innerText(), /executed/);
+  assert.match(await page.locator('#order-list').innerText(), /Ejecutada/);
 
   await page.goto(base + '/portfolio');
   await page.waitForSelector('.phx-connected #portfolio-positions');

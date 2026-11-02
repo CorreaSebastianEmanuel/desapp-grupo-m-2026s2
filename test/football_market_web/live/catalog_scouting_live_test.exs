@@ -19,10 +19,10 @@ defmodule FootballMarketWeb.CatalogScoutingLiveTest do
     assert has_element?(
              view,
              "#catalog-scout-status[role=status]",
-             "trusted catalog sources are not configured"
+             "no hay fuentes configuradas"
            )
 
-    assert has_element?(view, ".catalog-hint", "No players found")
+    assert has_element?(view, ".catalog-hint", "No encontramos jugadores")
   end
 
   defp authenticated_conn(user) do

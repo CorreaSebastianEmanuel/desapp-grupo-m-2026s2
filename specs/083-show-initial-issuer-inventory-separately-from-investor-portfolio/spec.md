@@ -14,6 +14,7 @@ The authenticated designated initial recipient can see, in a dedicated workspace
 - Portfolio positions and their estimated market value appear before charts; the initial issuer inventory remains a separate, quantity-only section.
 - Conditional orders identify the selected player by name, show the current quote and units, and do not expose player UUIDs in the interface.
 - Empty ranking and catalog states explain the next useful action instead of showing technical identifiers or unexplained errors.
+- Browser journeys use the Spanish labels and states visible in the app and cover sign-in, search, trading, order execution, and logout.
 - The designated initial recipient sees a clearly labeled initial issuer inventory section listing each issued player they still hold and the remaining whole-token quantity.
 - The view uses the immutable issuance recipient and the recipient's current persisted holding; it omits players with no remaining holding.
 - An authenticated non-recipient does not see another user's initial issuer inventory.

@@ -48,21 +48,31 @@ defmodule FootballMarket.WorkflowScope do
       "lib/football_market_web/controllers/error_html.ex",
       "lib/football_market_web/controllers/page_html/home.html.heex",
       "lib/football_market_web/controllers/session_controller.ex",
-      "lib/football_market_web/controllers/session_html/sign_out_unavailable.html.heex",
       "lib/football_market_web/controllers/session_html/new.html.heex",
       "lib/football_market_web/controllers/session_html/register.html.heex",
+      "lib/football_market_web/controllers/session_html/sign_out_unavailable.html.heex",
       "lib/football_market_web/live/workspace_live.ex",
       "lib/football_market_web/plugs/browser_auth.ex",
       "lib/football_market_web/plugs/browser_origin.ex",
       "specs/083-show-initial-issuer-inventory-separately-from-investor-portfolio/",
       "test/football_market/catalog/scouting_test.exs",
+      "test/football_market/market/scope_test.exs",
       "test/football_market/market/portfolio/positions_test.exs",
       "test/football_market_web/controllers/error_html_test.exs",
       "test/football_market_web/controllers/session_controller_test.exs",
+      "test/football_market_web/controllers/page_controller_test.exs",
+      "test/football_market_web/live/catalog_scouting_live_test.exs",
       "test/football_market_web/live/conditional_orders_live_test.exs",
       "test/football_market_web/live/portfolio_live_test.exs",
       "test/football_market_web/live/workspace_navigation_test.exs",
-      "test/support/workflow_scope.ex"
+      "test/football_market_web/workspace_browser_test.exs",
+      "test/football_market_web/workspace_http_runtime_test.exs",
+      "test/support/workflow_scope.ex",
+      "tools/openapi/e2e_browser.mjs",
+      "tools/openapi/e2e_catalog_scouting.mjs",
+      "tools/openapi/e2e_market.mjs",
+      "tools/openapi/e2e_market_reconnect.mjs",
+      "tools/openapi/workspace_browser.mjs"
     ]
   end
 

@@ -95,3 +95,4 @@ list passes the checkpoint hygiene review.
 - 2026-11-02 — Browser journeys kept English locators and identifier assumptions after interface localization — update E2E selectors and assertions whenever visible labels or user-facing identifiers change — TASK-083
 - 2026-11-02 — A merged UI delivery retained noncanonical spec headings and no independent evaluation — validate the ThinFlow contract shape and evaluation before merge, and reconcile accepted deliveries through the normal review gate — TASK-083
 - 2026-11-02 — Financial tables hid cumulative totals after the last position closed while presence-only tests passed — Render totals independently of rows and assert exact empty/open/closed/incomplete financial values — TASK-084
+- 2026-11-03 — Initial issuance exposed legacy tests that assumed unconfigured recipients or empty migrated catalogs — configure recipients in each ingestion fixture and assert changes against the preexisting baseline — TASK-085

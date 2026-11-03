@@ -218,6 +218,12 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/catalog/position.ex."
     },
     {
+      "path": "lib/football_market/catalog/profiles.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Application implementation measured by executable-line coverage."
+    },
+    {
       "path": "lib/football_market/catalog/query.ex",
       "role": "application",
       "disposition": "include",
@@ -630,6 +636,12 @@
       "role": "application",
       "disposition": "include",
       "reason": "Maintained first-party application implementation source: lib/football_market/providers/instant.ex."
+    },
+    {
+      "path": "lib/football_market/providers/media.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Application implementation measured by executable-line coverage."
     },
     {
       "path": "lib/football_market/providers/performances.ex",
@@ -2390,6 +2402,12 @@
       "reason": "Test code, not application behavior: test/football_market/catalog/player_pagination_test.exs."
     },
     {
+      "path": "test/football_market/catalog/profiles_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Test code, not application behavior: test/football_market/catalog/profiles_test.exs."
+    },
+    {
       "path": "test/football_market/catalog/query_test.exs",
       "role": "test",
       "disposition": "exclude",
@@ -2832,6 +2850,12 @@
       "role": "test",
       "disposition": "exclude",
       "reason": "Test code, not application behavior: test/football_market/providers/ingestion_contract_test.exs."
+    },
+    {
+      "path": "test/football_market/providers/media_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Test code, not application behavior: test/football_market/providers/media_test.exs."
     },
     {
       "path": "test/football_market/providers/performance_contract_test.exs",

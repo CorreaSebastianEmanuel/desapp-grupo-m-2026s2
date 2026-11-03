@@ -38,7 +38,7 @@ try {
   await page.goto(`${base}/players?player_id=${player}`);
   await page.waitForSelector('.phx-connected #player-card');
   assert.match(await page.locator('#player-card').innerText(), new RegExp(name));
-  await page.locator('#player-card').getByRole('link', {name: 'Crear orden', exact: true}).click();
+  await page.locator('#player-card').getByRole('link', {name: 'Crear orden condicional', exact: true}).click();
   await page.waitForSelector('.phx-connected #conditional-order-form');
   await page.getByLabel('Cantidad', {exact: true}).fill('3');
   await page.getByLabel('Precio máximo por token (créditos)', {exact: true}).fill('10.00');

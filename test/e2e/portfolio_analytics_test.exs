@@ -14,6 +14,7 @@ defmodule FootballMarket.E2E.PortfolioAnalyticsTest do
       FootballMarket.E2E.Runtime.with_runtime!(fn base ->
         f = MarketCase.fixture()
         assert {:ok, _} = Market.initialize_player(f.player.id)
+        PurchasesCase.performance_quote!(f.player)
         PurchasesCase.fund(f.buyer, "100")
         PurchasesCase.fund(f.owner, "100")
         assert {:ok, _} = PurchasesCase.purchase(f, "analytics-runtime-buy", 3)
@@ -76,6 +77,7 @@ defmodule FootballMarket.E2E.PortfolioAnalyticsTest do
       FootballMarket.E2E.Runtime.with_runtime!(fn _base ->
         f = MarketCase.fixture()
         assert {:ok, _} = Market.initialize_player(f.player.id)
+        PurchasesCase.performance_quote!(f.player)
         PurchasesCase.fund(f.buyer, "100")
         PurchasesCase.fund(f.owner, "100")
         conn = authenticated_conn(f.buyer)

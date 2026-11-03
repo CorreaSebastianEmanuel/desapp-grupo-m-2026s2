@@ -48,6 +48,23 @@ defmodule FootballMarket.Market.Purchases.RejectionTest do
     assert {:ok, _} = PurchasesCase.purchase(f)
   end
 
+  test "initial issuance value cannot authorize purchases before a performance quote", f do
+    assert {:ok, _} = Market.initialize_player(f.other.id)
+    PurchasesCase.fund(f.buyer, "100")
+    input = %{PurchasesCase.request(f) | player_id: f.other.id}
+    before = PurchasesCase.snapshot()
+
+    assert {:error, %{kind: :quote_unavailable}} =
+             Market.purchase(PurchasesCase.actor(f.buyer), input)
+
+    assert before == PurchasesCase.snapshot()
+
+    PurchasesCase.performance_quote!(f.other)
+    assert {:ok, purchase} = Market.purchase(PurchasesCase.actor(f.buyer), input)
+    assert purchase.player_id == f.other.id
+    assert Repo.query!("SELECT count(*) FROM market_purchases").rows == [[1]]
+  end
+
   test "absent or invalid current quote never falls back or changes financial state", f do
     PurchasesCase.fund(f.buyer, "100")
     Repo.query!("ALTER TABLE market_quotes DISABLE TRIGGER ALL")

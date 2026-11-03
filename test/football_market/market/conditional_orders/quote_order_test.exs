@@ -19,7 +19,11 @@ defmodule FootballMarket.Market.ConditionalOrders.QuoteOrderTest do
 
     PurchasesCase.fund(buyer, "100")
     {:ok, _} = Configurations.activate(f.configuration.id, nil)
-    Map.merge(f, Map.merge(ns, %{buyer: buyer}))
+
+    performance_quote =
+      QuotesCase.dated_quote(f, DateTime.add(DateTime.utc_now(), -60, :second), "1.00")
+
+    Map.merge(f, Map.merge(ns, %{buyer: buyer, performance_quote: performance_quote}))
   end
 
   test "evaluation decision excludes quote confirmation until purchase commit", f do
@@ -51,7 +55,7 @@ defmodule FootballMarket.Market.ConditionalOrders.QuoteOrderTest do
     assert {:ok, result} = Task.await(purchase, 20_000)
     assert {:ok, _} = Task.await(quote, 20_000)
     assert result.status == "executed"
-    assert result.execution.quote_id == f.issuance.initial_quote_id
+    assert result.execution.quote_id == f.performance_quote.id
     assert Decimal.equal?(result.execution.total, "3")
     assert {:ok, latest} = Quotes.latest(f.player.id)
     assert Decimal.equal?(latest.unit_price, "1.25")

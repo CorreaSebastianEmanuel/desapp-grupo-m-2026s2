@@ -109,6 +109,7 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
   test "authenticated transaction history displays purchase details and paginates" do
     f = FootballMarket.MarketCase.fixture()
     assert {:ok, _} = Market.initialize_player(f.player.id)
+    PurchasesCase.performance_quote!(f.player)
     PurchasesCase.fund(f.buyer, "100")
 
     for key <- ["history-one", "history-two"] do
@@ -169,6 +170,7 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
 
     Application.put_env(:football_market, :initial_issuance_recipients, [owner.id])
     assert {:ok, _} = Market.initialize_player(player.id)
+    PurchasesCase.performance_quote!(player)
     PurchasesCase.fund(buyer, "100")
 
     assert {:ok, _} =
@@ -480,9 +482,28 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
     refute has_element?(view, "#quote-history [role=status]", "2.50 créditos")
   end
 
+  test "player detail blocks buying until a performance quote exists" do
+    f = FootballMarket.MarketCase.fixture()
+    assert {:ok, _} = Market.initialize_player(f.player.id)
+    PurchasesCase.fund(f.buyer, "100")
+
+    {:ok, view, _} = live(authenticated_conn(f.buyer), "/players?player_id=#{f.player.id}")
+
+    assert has_element?(view, "#player-performance-quote-unavailable")
+    assert has_element?(view, "#trade-actions button[name=side][value=buy][disabled]")
+
+    assert {:error, %{kind: :quote_unavailable}} =
+             Market.purchase(PurchasesCase.actor(f.buyer), %{
+               player_id: f.player.id,
+               quantity: 1,
+               request_key: "purchase-before-performance-quote"
+             })
+  end
+
   test "buy and sell forms use immutable retry terms and immediately reload owner positions" do
     f = FootballMarket.MarketCase.fixture()
     assert {:ok, _} = Market.initialize_player(f.player.id)
+    PurchasesCase.performance_quote!(f.player)
     PurchasesCase.fund(f.buyer, "100")
     PurchasesCase.fund(f.owner, "100")
     conn = authenticated_conn(f.buyer)
@@ -613,6 +634,7 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
   test "definitive buy and sale failures allow corrected quantities in the same session" do
     f = FootballMarket.MarketCase.fixture()
     assert {:ok, _} = Market.initialize_player(f.player.id)
+    PurchasesCase.performance_quote!(f.player)
     PurchasesCase.fund(f.buyer, "3")
     PurchasesCase.fund(f.owner, "100")
     {:ok, view, _} = live(authenticated_conn(f.buyer), "/players?player_id=#{f.player.id}")

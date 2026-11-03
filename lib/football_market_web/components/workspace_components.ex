@@ -243,7 +243,11 @@ defmodule FootballMarketWeb.WorkspaceComponents do
           </div>
         </div>
         <div class="hero-market-value">
-          <p class="eyebrow">VALOR POR TOKEN</p>
+          <p class="eyebrow">
+            {if performance_quote?(@quote),
+              do: "COTIZACIÓN ACTUAL POR TOKEN",
+              else: "VALOR INICIAL DE EMISIÓN"}
+          </p>
           <p :if={@quote} id="player-quote">
             <strong>{money(@quote.unit_price)}</strong><span>créditos</span><small>Vigente desde {Calendar.strftime(
               @quote.effective_at,
@@ -366,7 +370,12 @@ defmodule FootballMarketWeb.WorkspaceComponents do
               <p :if={@card.statistics_status} id="player-valuation-status">
                 {valuation_status(@card.statistics_status.valuation)}
               </p>
-              <p :if={@quote}>Última valuación publicada: {timestamp(@quote.effective_at)}.</p>
+              <p :if={performance_quote?(@quote)}>
+                Última cotización de rendimiento publicada: {timestamp(@quote.effective_at)}.
+              </p>
+              <p :if={@quote && !performance_quote?(@quote)}>
+                El valor mostrado corresponde a la emisión inicial; todavía no hay una valuación de rendimiento publicada.
+              </p>
               <p>
                 Las estadísticas se actualizan por separado; las cotizaciones se recalculan en el cierre del mercado.
               </p>
@@ -416,6 +425,14 @@ defmodule FootballMarketWeb.WorkspaceComponents do
             Esta cuenta emitió los tokens iniciales. Otros usuarios pueden comprarlos de su inventario; esta cuenta no puede operar sus propios tokens.
           </p>
           <p
+            :if={@quote && !performance_quote?(@quote)}
+            id="player-performance-quote-unavailable"
+            class="statistics-notice"
+            role="status"
+          >
+            No hay una cotización de rendimiento disponible. No se pueden comprar tokens hasta que se publique una cotización positiva.
+          </p>
+          <p
             :if={@initial_recipient_unavailable}
             id="initial-issuer-check-unavailable"
             role="alert"
@@ -458,7 +475,7 @@ defmodule FootballMarketWeb.WorkspaceComponents do
                 value="buy"
                 phx-disable-with="Comprando…"
                 class="trade-action-buy"
-                disabled={@credit_balance_unavailable}
+                disabled={@credit_balance_unavailable || !performance_quote?(@quote)}
               >Comprar tokens</button>
               <button
                 type="submit"
@@ -1053,6 +1070,18 @@ defmodule FootballMarketWeb.WorkspaceComponents do
   def strategy_name("position_aware"), do: "Por posición"
   def strategy_name("initial_issuance"), do: "Emisión inicial"
   def strategy_name(value), do: value
+
+  defp performance_quote?(%{
+         calculation_id: calculation_id,
+         configuration_version_id: configuration_version_id,
+         mapping_id: mapping_id,
+         performance_sequence: sequence
+       }),
+       do:
+         not is_nil(calculation_id) and not is_nil(configuration_version_id) and
+           not is_nil(mapping_id) and is_integer(sequence) and sequence > 0
+
+  defp performance_quote?(_), do: false
 
   defp quote_source(%{rule_id: "initial_issuance"}), do: "Emisión inicial del mercado"
   defp quote_source(_), do: "Rendimiento deportivo registrado"

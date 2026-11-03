@@ -12,10 +12,11 @@ TASK-086 delivers authenticated market administration and a readable investor fr
 - [ ] Conditional orders use a native date/time picker explicitly labeled UTC; browser wall-clock values are interpreted as UTC and validated by existing expiry rules. Invalid/past input is rejected without creating an order.
 - [ ] After definitive invalid-quantity, funds, inventory or holdings rejection, a corrected buy/sale succeeds without logout or manual reset. Successful/uncertain submissions retain their idempotency protection; duplicate events cannot add another operation.
 - [ ] Focused automated regressions cover permissions, activation/conflict, readable values/names/dates, expiry conversion and trade corrections. Real-browser journeys cover mobile summary layout, date/time entry and session continuity.
+- [ ] Feedback 1: native Sobelow accepts only the individually reviewed CSP finding at router line 11 on the current source hash; focused controls still reject changed source bytes, locations, rules and confidence. All other findings and scanner policy remain unchanged.
 
 ## Scope
 
-Existing domain boundaries, browser authorization, administration controls, investor LiveView/components/CSS and directly affected test fixtures, browser journeys and maintained inventories. The development stage leaves a reviewable workspace; ThinFlow owns subsequent checks and independent evaluation.
+Existing domain boundaries, browser authorization, administration controls, investor LiveView/components/CSS and directly affected test fixtures, browser journeys and maintained inventories. Feedback 1 also covers the exact router CSP exception identity, its focused regression controls and task scope declarations. The development stage leaves a reviewable workspace; ThinFlow owns subsequent checks and independent evaluation.
 
 ## Non-goals
 
@@ -31,3 +32,4 @@ High: administrator authorization and financial retry safety. Designation fails 
 - `/administration` is authenticated in every environment; `/__local/ops` remains development-only and additionally requires the same administrator authority.
 - Native `datetime-local` input is labeled UTC and converted at the web boundary, independently of the browser's timezone. Daily values display their UTC calendar day; partial days disclose their actual cutoff.
 - Human-readable provenance is a presentation projection; immutable internal evidence and API identifiers are preserved.
+- Feedback 1 CSP re-triage: the browser pipeline is byte-identical to PR #91, including origin checks, CSRF and secure headers. Both administrator routes traverse that pipeline plus session and administrator authorization, with connected callbacks revalidating authority. The existing missing-CSP finding remains at line 11; selecting existing versions adds no new external content source or inline script requirement. Retain the existing separate-policy-review rationale and bind only this finding to router SHA-256 `a81d33f0e33070d7af0230b6eb1d7cab9f1527ec5d7df44852f36f29c272d2ae`; no CSP policy or scanner threshold/exclusion changes.

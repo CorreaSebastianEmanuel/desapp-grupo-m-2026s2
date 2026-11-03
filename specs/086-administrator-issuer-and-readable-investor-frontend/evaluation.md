@@ -1,37 +1,39 @@
 # Independent evaluation — TASK-086
 
-Evaluated 2026-11-03 against the compact spec, backlog task, REVIEW.md, repository product/architecture/checkpoint guidance and constitution. No current TASK-086 feedback file or earlier evaluation exists. This is the first independent evaluation; implementation was not modified and no other agent was invoked.
-
-The candidate is on `086-administrator-issuer-and-readable-investor-frontend`, stacked on primary-account branch commit `3c0a485617783c195ebbc3cb5c8d9bf5a5336953`. Review covered the working implementation delta, new files, directly affected consumers and tests. Inherited changes in the stack are included in ThinFlow's broader selection against origin/main.
+Repair evaluation, 2026-11-03. Read the task, compact spec, current Feedback 1, REVIEW.md, product/architecture/checkpoint guidance, workflow lessons and constitution. Reviewed the working repair against candidate commit `96555436861e64818fed84610427dc50e2558a0e`, its affected implementation/tests and the local deterministic evidence. The previous evaluation is historical context, not proof of current readiness. No implementation was modified, other evaluator invoked, workflow log inspected or full suite rerun.
 
 ## Acceptance and evidence
 
-| Acceptance | Evidence | Result |
+| Acceptance item | Independently inspected evidence | Result |
 | --- | --- | --- |
-| Fail-closed administrator designation; HTTP, connected mount and callbacks enforce current session/authority | Accounts.administrator?/1 accepts only one valid existing designated account; router protects both administration and local ops. BrowserAuth revalidates event, params, info and async callbacks. AdministrationLiveTest exercises invalid/missing/ambiguous designation, ordinary users, submitted identity, connected mount, changed designation and revocation. | PASS |
-| Inspect immutable versions/rules, activate with observed selection, handle conflict without recalculation | AdministrationLive uses authorized Configurations wrappers and socket-held expected selection; existing Store owns locking/CAS. Tests assert stale conflict/reload, immutable version, unchanged quotes/jobs, selection history and idempotent reactivation. Browser journey activates and reloads the chosen version. | PASS |
-| Responsive exact portfolio totals; UTC calendar days and partial cutoffs | Metric grid preserves exact_money rendering; daily tables/charts project dates and disclose partial cutoffs. PortfolioAnalyticsTest checks exact empty/open/closed/incomplete values. Browser checks computed grid/card dimensions and overflow at 1280, 768 and 390 pixels and rejects raw timestamp text in daily history. | PASS |
-| Actual ranking player names and destinations; readable strategy without configuration/quote UUID text | WorkspaceLive resolves names from Catalog using each entry's player ID; components preserve player links and name/formula version. Component tests and real-browser assertions verify names, ranking order and absence of UUID text. | PASS |
-| Human-readable quote/provenance/freshness and references; internal records unchanged | WorkspaceComponents presents price, UTC dates, strategy/version and initial-issuance/performance source. PortfolioLiveTest checks rendered provenance and hidden technical IDs. Transaction/conditional-order references use executed price rather than quote UUID. Storage and API code are unchanged by this task. | PASS |
-| UTC native expiry picker with existing validation | datetime-local values convert through NaiveDateTime into Etc/UTC at the web boundary. ConditionalOrdersLiveTest proves the exact stored instant and no order after past/malformed input. Browser fills the picker from an Argentina-timezone context; reconnect journey uses the updated input. | PASS |
-| Correct definitive trade rejections in the same session; retain idempotency for success/uncertainty | Only known definitive errors release the intent/key. Tests cover invalid quantity, funds, inventory/holdings, corrected buy/sale, duplicate submissions and retained intent/key after transaction-in-progress. Browser corrects rejected purchase/sale without logout and exercises double click; fixture asserts exact operation counts. Reconnect journey recovers a committed order purchase once. | PASS |
-| Focused regression tests and meaningful browser coverage | Maintained profile, coverage, Credo and scope inventories include new sources/tests. Evaluator ran the affected LiveView modules, financial projection/browser cases and changed reconnect consumer: 28 cases passed. | PASS |
+| Fail-closed administrator designation and fresh HTTP/connected authority | Accounts.administrator?/1, browser plug, Live.BrowserAuth hooks and AdministrationLiveTest retain designation, session, connected-mount and callback guards. Router sends both administrator routes through browser/workspace/administrator protection. Repair changes none of these. | PASS; preserved |
+| Inspect immutable versions; activate using observed selection; conflict/reload without recalculation | AdministrationLive passes socket-held expected selection to Configurations.activate_for/3 and reloads after outcomes; existing Store remains the CAS boundary. Administration tests assert conflict, version/quote/job preservation and activation. No repair delta here. | PASS; preserved |
+| Exact responsive portfolio totals, UTC days and partial cutoffs | WorkspaceComponents metric cards retain exact_money and explicit daily/cutoff projections. Portfolio tests cover empty/incomplete states; browser source checks grid/card dimensions at desktop/tablet/mobile widths. Rendering, CSS and financial projections are unchanged by repair. | PASS; preserved |
+| Catalog names/destinations and readable ranking strategy | WorkspaceLive resolves catalog names; ranking component retains player-ID destinations and displays strategy/formula rather than configuration UUIDs. Component/browser assertions remain unchanged. | PASS; preserved |
+| Human-readable quote provenance, references and freshness | WorkspaceComponents retains price, UTC timestamps, strategy/version and source projections; portfolio regression assertions inspect provenance. Repair changes no presentation, API, persistence or immutable evidence record. | PASS; preserved |
+| UTC native expiry picker and rejection of invalid/past input | WorkspaceLive retains datetime-local input and UTC conversion; ConditionalOrdersLiveTest asserts exact stored instant and no order for malformed/past values. Browser journey uses the UTC-labeled picker. No affected behavior in repair. | PASS; preserved |
+| Correct rejected trades in-session; preserve success/uncertainty idempotency | submit_trade/trade_result retain immutable intent and key for uncertain outcomes; only definitive rejections release them. Portfolio tests cover correction, duplicate events and uncertain outcomes; browser journey covers same-session correction. Repair changes none of these. | PASS; preserved |
+| Focused regressions and real-browser journeys | Existing authorization, activation, rendering, expiry, correction and browser assertions remain present and unchanged. Repair adds actual-router-byte positive/negative controls to the exact exception test and declares all three new scope paths without removing any. Current harness receipt passes all 382 tests. Browser/integration suites were not rerun for this scanner-only repair. | PASS for repair scope |
+| Feedback 1: exact CSP exception, native control and refusal controls | scripts/sobelow_ci.py changes only one SHA-256 value. Actual router SHA-256 equals `a81d33f0e33070d7af0230b6eb1d7cab9f1527ec5d7df44852f36f29c272d2ae`. Native evidence matches current source snapshot and accepts the line-11 high-confidence CSP identity. Focused tests retain refusal of changed rule/file/line/confidence/hash and now test current bytes plus appended-byte mutation. | PASS |
 
-## Risk, boundaries and deterministic evidence
+## Risk, architecture and security
 
-High risk is appropriate for authorization and financial retry behavior. Selection also correctly includes high-risk harness/inventory and runtime-tool paths, with no unmapped paths. Authentication stays in browser session boundaries, administrator designation in Accounts, activation/CAS in Configurations/Store, and financial execution in existing Market transactions. The task adds presentation projections rather than changing monetary arithmetic, supply, immutable history or provider adapters. Development-only local operations now require administrator authentication as well.
+High risk remains appropriate: the original task includes authorization and financial retry safety, while this repair changes security-check acceptance and a scope boundary. Current policy selects high risk, all changed paths are mapped, and no check is waived.
 
-Read `.agentflow/runs/thinflow/TASK-086/candidate.json` and its specifically linked deterministic check evidence; no workflow logs were inspected. Independently called `thinflow.readiness(..., require_evaluation=False)` before and after targeted checks: task/branch, current selection, material digest, ordered successful check rows and all evidence hashes validate. Candidate digest: `9e48f6afc8f71a68822f9fdde1ffa884f97f870ea1050adeb9f3362aab2a009a`. Receipt SHA-256: `16888f2147dbfc3fa14a1bdfa04115d66cc83065b40575937011cdc4442fc1da`.
+Compared the browser pipeline directly with stack base `3c0a485`: its bytes are identical, including BrowserOrigin, CSRF protection and secure browser headers. The administrator routes retain both HTTP and connected-session authorization; configuration rules render through escaped HEEx, and selection uses existing domain operations. The repair introduces no external content source, script requirement, domain/persistence change or adapter coupling. The existing separate CSP-policy-review rationale still applies. Missing CSP remains an explicitly reviewed existing exception; this repair neither implements a CSP policy nor broadens suppression.
 
-Recorded selected checks: ci-contracts (27 passed), harness-tests (382 passed), format (exit 0), compile with warnings-as-errors (exit 0), unit-profile (706 expected/discovered/executed/passed, complete). Format and compile produce silent successful logs; their receipt exit codes and hashes validate. Harness refusal/duplicate-event diagnostics are exercised negative controls; the harness run terminates OK. No required check is failed, skipped or interrupted.
+## Deterministic evidence integrity
 
-The selected checks exclude the newly added integration cases and changed browser journeys. To resolve this concrete coverage gap, the evaluator ran only:
+Called `thinflow.readiness(..., require_evaluation=False)` successfully and inspected every linked deterministic check result. Current task/branch, selection, material digest, ordered successful rows and evidence-file hashes validate. Candidate digest: `ef34307dfb0c23acea8c1a7c33f817a7426b18378b089d5b3f6ee9eee4c3dd12`. Candidate receipt SHA-256: `17258f7ce920727acd27e151adbd74e43f7191e3a990694849a00a5ade5be07d`.
 
-- `MIX_OS_CONCURRENCY_LOCK=0 MIX_ENV=test mix test test/football_market_web/live/administration_live_test.exs test/football_market_web/live/portfolio_live_test.exs test/football_market_web/live/conditional_orders_live_test.exs test/football_market_web/live/local_admin_live_test.exs --seed 0` — 24 passed.
-- `MIX_OS_CONCURRENCY_LOCK=0 MIX_ENV=test mix test test/e2e/portfolio_analytics_test.exs --include e2e --seed 0` — 3 passed, including real Chromium and exact financial projections.
-- `MIX_OS_CONCURRENCY_LOCK=0 MIX_ENV=test mix test test/e2e/browser_reconnect_test.exs --include e2e --seed 0` — 1 passed.
+- ci-contracts: 27 passed.
+- harness-tests: 382 tests, terminal OK; includes the Sobelow focused controls and native unsafe/corrected/error controls. Refusal diagnostics are negative-control output, not failed runner results.
+- format and compile with warnings-as-errors: successful exit 0 receipts; both commands are silent on success.
+- unit-profile: expected/discovered/executed/passed all 706, status complete.
 
-`git diff --check` also passed. The full suite was not rerun.
+Additionally recomputed the native Sobelow report's source digest from current mix/lib/config bytes and reclassified every accepted finding using the current exact exceptions. The report records Sobelow 0.18.1, the unchanged strict command with low thresholds and no project config, 250 discovered/248 scanned/2 analyzer-default ignored, zero unreadable/unparseable/pending, seven accepted findings, no blocking findings and no errors. Analyzer exit 1 is expected for findings; the control accepts only the reviewed identities. Native report SHA-256: `9ee17c5ba1714330ef45846d57beb4a410fbb55b3a8b4abff0c5f90b17c39148`.
+
+Verified programmatically that replacing only the previous router hash reproduces the entire repaired scanner file. Existing native unsafe/corrected/error-control artifacts agree with the passing harness evidence. `git diff --check` passed. These read-only integrity assertions found no concrete discrepancy or uncovered repair risk requiring another targeted test run.
 
 ## Blocking findings
 
@@ -39,10 +41,10 @@ None.
 
 ## Advisory findings
 
-None.
+None introduced by this repair.
 
 ## Residual risks
 
-Browser evidence covers Chromium and the tested viewports, not every browser's native date/time widget. Targeted checks do not substitute for hosted integration, security/static analysis or coverage gates. The exact PR head must still pass ThinFlow required and receive human merge; this evaluation establishes readiness for those steps, not completion or merge approval.
+This repair preserves the existing reviewed missing-CSP exception. Browser and integration behavior is unchanged and was inspected without rerunning those suites; the older evaluation's execution claims were not used as fresh check evidence. Hosted E2E/Sonar success mentioned in feedback is context, not proof for the repaired PR head. The exact resulting PR head must pass ThinFlow required, including hosted security and other required gates, before human merge. This candidate is ready for CI and human review; task completion still requires those gates and human merge.
 
 Verdict: PASS

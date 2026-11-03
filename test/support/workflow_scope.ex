@@ -1090,6 +1090,7 @@ defmodule FootballMarket.WorkflowScope do
       "scripts/sobelow_ci.py",
       "specs/085-assign-initial-player-inventory-to-the-primary-account/",
       "test/football_market/accounts/browser_sessions_test.exs",
+      "test/football_market/catalog/development_seed_test.exs",
       "test/football_market/catalog/ingestion/",
       "test/football_market/catalog/ingestion/isolation_test.exs",
       "test/football_market/catalog/ingestion/publication_test.exs",

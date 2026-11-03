@@ -7,6 +7,7 @@ defmodule FootballMarketWeb.WorkspaceLive do
   alias FootballMarket.{
     Catalog,
     Market,
+    Market.Analytics.Input,
     Market.ConditionalOrders,
     Market.CreditBalances,
     Market.InitialInventory,
@@ -30,6 +31,11 @@ defmodule FootballMarketWeb.WorkspaceLive do
        card: nil,
        card_error: nil,
        quote: nil,
+       quote_history: [],
+       quote_history_unavailable: false,
+       quote_date: "",
+       dated_quote: nil,
+       trade_record: nil,
        trade_key: Ecto.UUID.generate(),
        trade_error: nil,
        trade_notice: nil,
@@ -57,6 +63,17 @@ defmodule FootballMarketWeb.WorkspaceLive do
        order_error: nil,
        order_notice: nil,
        player_search: "",
+       catalog_filters: %{},
+       catalog_page_size: 25,
+       catalog_pagination: nil,
+       catalog_filter_options: %{leagues: [], teams: [], positions: []},
+       transactions: [],
+       transaction_pagination: nil,
+       transaction_page_size: 25,
+       transaction_error: false,
+       portfolio_from: "",
+       portfolio_to: "",
+       portfolio_range_invalid: false,
        search_performed: false,
        player_results: [],
        scouting_status: nil,
@@ -73,31 +90,40 @@ defmodule FootballMarketWeb.WorkspaceLive do
 
     socket =
       socket
-      |> assign(destination: destination, heading: workspace_heading(destination))
+      |> assign(
+        destination: destination,
+        heading: workspace_heading(destination),
+        portfolio_from: params["from"] || "",
+        portfolio_to: params["to"] || ""
+      )
       |> reload_credit_balance()
       |> reload_initial_recipient()
 
-    {:noreply,
-     case destination do
-       "/conditional-orders" ->
-         socket |> reload_orders() |> load_selected_player(params["player_id"])
-
-       "/players" ->
-         socket = assign(socket, player_search: params["q"] || "")
-
-         if params["player_id"] do
-           load_card(socket, params["player_id"])
-         else
-           socket |> load_card(nil) |> load_player_search(params["q"])
-         end
-
-       "/ranking" ->
-         load_ranking(socket)
-
-       _ ->
-         socket |> reload_portfolio() |> reload_issuer_inventory() |> reload_charts()
-     end}
+    {:noreply, load_destination(socket, destination, params)}
   end
+
+  defp load_destination(socket, "/conditional-orders", params),
+    do: socket |> reload_orders() |> load_selected_player(params["player_id"])
+
+  defp load_destination(socket, "/players", params) do
+    socket =
+      assign(socket,
+        player_search: params["q"] || "",
+        catalog_filters: Map.take(params, ["league_id", "team_id", "position_id"]),
+        catalog_page_size: page_size(params["page_size"]),
+        catalog_state_query: params |> Map.delete("player_id") |> URI.encode_query()
+      )
+
+    if params["player_id"],
+      do: load_card(socket, params["player_id"], params),
+      else: socket |> load_card(nil, params) |> load_player_page(params)
+  end
+
+  defp load_destination(socket, "/transactions", params), do: load_transactions(socket, params)
+  defp load_destination(socket, "/ranking", _params), do: load_ranking(socket)
+
+  defp load_destination(socket, _destination, _params),
+    do: socket |> reload_portfolio() |> reload_issuer_inventory() |> reload_charts()
 
   def handle_event("create_order", params, socket) do
     with {:ok, quantity} <- quantity(params["quantity"]),
@@ -118,8 +144,57 @@ defmodule FootballMarketWeb.WorkspaceLive do
     end
   end
 
-  def handle_event("search_players", %{"player_search" => term}, socket) do
-    {:noreply, push_patch(socket, to: ~p"/players?q=#{String.trim(term)}")}
+  def handle_event("search_players", params, socket) do
+    query =
+      %{
+        "q" => String.trim(Map.get(params, "player_search", "")),
+        "league_id" => Map.get(params, "league_id", ""),
+        "team_id" => Map.get(params, "team_id", ""),
+        "position_id" => Map.get(params, "position_id", ""),
+        "page_size" => Map.get(params, "page_size", "25")
+      }
+      |> Enum.reject(fn {_key, value} -> value in ["", nil] end)
+      |> Map.new()
+
+    {:noreply, push_patch(socket, to: "/players?" <> URI.encode_query(query))}
+  end
+
+  def handle_event("portfolio_range", params, socket) do
+    query =
+      %{"from" => params["from"], "to" => params["to"]}
+      |> Enum.reject(fn {_key, value} -> value in ["", nil] end)
+      |> Map.new()
+
+    {:noreply,
+     push_patch(socket,
+       to:
+         if(map_size(query) == 0,
+           do: "/portfolio",
+           else: "/portfolio?" <> URI.encode_query(query)
+         )
+     )}
+  end
+
+  def handle_event("quote_date", %{"date" => date}, socket) do
+    params =
+      %{"player_id" => socket.assigns.card.player.id, "date" => date}
+      |> Map.merge(
+        Map.take(URI.decode_query(socket.assigns.catalog_state_query || ""), [
+          "q",
+          "league_id",
+          "team_id",
+          "position_id",
+          "page_size",
+          "cursor"
+        ])
+      )
+
+    {:noreply, push_patch(socket, to: "/players?" <> URI.encode_query(params))}
+  end
+
+  def handle_event("transaction_page_size", %{"page_size" => size}, socket) do
+    {:noreply,
+     push_patch(socket, to: "/transactions?" <> URI.encode_query(%{"page_size" => size}))}
   end
 
   def handle_event("select_player", %{"id" => id}, socket) do
@@ -206,15 +281,9 @@ defmodule FootballMarketWeb.WorkspaceLive do
   end
 
   def handle_info({:catalog_scout_changed, normalized_name}, socket) do
-    if socket.assigns.destination == "/players" and
+    if socket.assigns.destination == "/players" and is_nil(socket.assigns.card) and
          Catalog.Scouting.normalize_identity(socket.assigns.player_search) == normalized_name do
-      case Catalog.search_players(socket.assigns.player_search) do
-        {:ok, players, scouting_status} ->
-          {:noreply, assign(socket, player_results: players, scouting_status: scouting_status)}
-
-        _ ->
-          {:noreply, socket}
-      end
+      {:noreply, load_player_page(socket, URI.decode_query(socket.assigns.catalog_state_query))}
     else
       {:noreply, socket}
     end
@@ -231,6 +300,7 @@ defmodule FootballMarketWeb.WorkspaceLive do
 
   defp workspace_heading("/conditional-orders"), do: "Órdenes condicionales"
   defp workspace_heading("/players"), do: "Jugadores"
+  defp workspace_heading("/transactions"), do: "Operaciones"
   defp workspace_heading("/ranking"), do: "Ranking"
   defp workspace_heading(_), do: "Portafolio"
 
@@ -251,7 +321,7 @@ defmodule FootballMarketWeb.WorkspaceLive do
     end
   end
 
-  defp trade_result(socket, {:ok, _}) do
+  defp trade_result(socket, {:ok, record}) do
     Phoenix.PubSub.broadcast_from(
       FootballMarket.PubSub,
       self(),
@@ -261,7 +331,12 @@ defmodule FootballMarketWeb.WorkspaceLive do
 
     {:noreply,
      socket
-     |> assign(trade_error: nil, trade_notice: "Operación confirmada.", trade_complete: true)
+     |> assign(
+       trade_error: nil,
+       trade_notice: "Operación confirmada.",
+       trade_complete: true,
+       trade_record: Map.put(record, :type, elem(socket.assigns.trade_intent, 1))
+     )
      |> reload_credit_balance()
      |> reload_portfolio()
      |> reload_issuer_inventory()
@@ -296,19 +371,26 @@ defmodule FootballMarketWeb.WorkspaceLive do
     do:
       "No se pudo completar la operación. Revisá tus créditos para comprar, tus tokens para vender y que la cantidad sea un número entero. Se necesita una cotización actual."
 
-  defp load_card(socket, nil), do: assign(socket, card: nil, quote: nil, card_error: nil)
+  defp load_card(socket, nil, _params), do: assign(socket, card: nil, quote: nil, card_error: nil)
 
-  defp load_card(socket, id) do
+  defp load_card(socket, id, params) do
     case Catalog.player_card(id) do
       {:ok, card} ->
-        quote =
-          case Quotes.latest(id) do
-            {:ok, quote} -> quote
-            _ -> nil
-          end
+        quote = current_quote(id)
+        {history, history_unavailable} = quote_history(id)
+        date_param = params["date"] || ""
+        dated_quote = dated_quote(id, date_param)
 
         socket
-        |> assign(card: card, quote: quote, card_error: nil)
+        |> assign(
+          card: card,
+          quote: quote,
+          quote_history: history,
+          quote_history_unavailable: history_unavailable,
+          quote_date: date_param,
+          dated_quote: dated_quote,
+          card_error: nil
+        )
         |> reload_portfolio()
         |> reload_issuer_inventory()
 
@@ -317,35 +399,158 @@ defmodule FootballMarketWeb.WorkspaceLive do
     end
   end
 
-  defp load_player_search(socket, nil),
-    do:
-      assign(socket,
-        search_performed: false,
-        player_results: [],
-        scouting_status: nil,
-        player_search_unavailable: false
-      )
+  defp current_quote(id) do
+    case Quotes.latest(id) do
+      {:ok, quote} -> quote
+      _ -> nil
+    end
+  end
 
-  defp load_player_search(socket, term) do
-    case Catalog.search_players(term) do
-      {:ok, players, scouting_status} ->
+  defp quote_history(id) do
+    case Quotes.list_history(id) do
+      {:ok, rows} -> {rows, false}
+      _ -> {[], true}
+    end
+  end
+
+  defp dated_quote(_id, ""), do: nil
+
+  defp dated_quote(id, value) do
+    case Date.from_iso8601(value) do
+      {:ok, date} -> dated_quote_at(id, date)
+      _ -> :invalid
+    end
+  end
+
+  defp dated_quote_at(id, date) do
+    case Quotes.at_date(id, date) do
+      {:ok, row} -> row
+      {:error, :quote_not_found} -> :missing
+      _ -> :unavailable
+    end
+  end
+
+  defp load_player_page(socket, params) do
+    filter_options =
+      case Catalog.filter_options() do
+        {:ok, options} -> options
+        _ -> socket.assigns.catalog_filter_options
+      end
+
+    filters =
+      params
+      |> Enum.filter(fn {key, value} ->
+        key in ["league_id", "team_id", "position_id"] and value != ""
+      end)
+      |> Map.new(fn {key, value} -> {String.to_existing_atom(key), value} end)
+      |> maybe_name_filter(params["q"])
+
+    opts = %{
+      page_size: page_size(params["page_size"]),
+      cursor: params["cursor"],
+      filters: filters
+    }
+
+    valid_filters? =
+      filters
+      |> Map.delete(:search_name)
+      |> Enum.all?(fn {_key, value} -> match?({:ok, _}, Ecto.UUID.cast(value)) end)
+
+    result =
+      if valid_filters?, do: Catalog.list_player_page(opts), else: {:error, :invalid_filters}
+
+    case result do
+      {:ok, page} ->
+        {players, scouting_status} =
+          maybe_scout_name_miss(params["q"], filters, page.players, params["cursor"])
+
         assign(socket,
-          player_search: term,
-          search_performed: true,
+          catalog_filter_options: filter_options,
+          catalog_pagination: page.pagination,
           player_results: players,
+          search_performed: true,
           scouting_status: scouting_status,
           player_search_unavailable: false
         )
 
       {:error, _} ->
         assign(socket,
-          player_search: term,
-          search_performed: true,
+          catalog_filter_options: filter_options,
           player_results: [],
+          catalog_pagination: nil,
+          search_performed: true,
+          scouting_status: nil,
           player_search_unavailable: true
         )
     end
   end
+
+  defp maybe_name_filter(filters, nil), do: filters
+  defp maybe_name_filter(filters, ""), do: filters
+  defp maybe_name_filter(filters, name), do: Map.put(filters, :search_name, name)
+
+  defp maybe_scout_name_miss(nil, _filters, players, _cursor), do: {players, nil}
+  defp maybe_scout_name_miss("", _filters, players, _cursor), do: {players, nil}
+
+  defp maybe_scout_name_miss(_name, _filters, players, _cursor) when players != [],
+    do: {players, nil}
+
+  defp maybe_scout_name_miss(name, filters, [], cursor) do
+    local_miss? = Catalog.search_local_players(name) == {:ok, []}
+
+    if is_nil(cursor) and local_miss? and Map.keys(filters) == [:search_name] do
+      case Catalog.search_players(name) do
+        {:ok, players, status} -> {players, status}
+        _ -> {[], nil}
+      end
+    else
+      {[], nil}
+    end
+  end
+
+  defp load_transactions(socket, params) do
+    size = page_size(params["page_size"])
+
+    case Market.transaction_history(domain_actor(socket.assigns.actor), %{
+           page_size: size,
+           cursor: params["cursor"]
+         }) do
+      {:ok, page} ->
+        rows =
+          Enum.map(page.data, fn row -> Map.put(row, :player_name, player_name(row.player_id)) end)
+
+        assign(socket,
+          transactions: rows,
+          transaction_pagination: page.pagination,
+          transaction_page_size: size,
+          transaction_error: false
+        )
+
+      {:error, _} ->
+        assign(socket,
+          transactions: [],
+          transaction_pagination: nil,
+          transaction_page_size: size,
+          transaction_error: true
+        )
+    end
+  end
+
+  defp player_name(id) do
+    case Catalog.get_player_detail(id) do
+      {:ok, player} -> player.display_name
+      _ -> "Jugador"
+    end
+  end
+
+  defp page_size(value) when is_binary(value) do
+    case Integer.parse(value) do
+      {size, ""} when size in 1..100 -> size
+      _ -> 25
+    end
+  end
+
+  defp page_size(_), do: 25
 
   defp load_ranking(socket) do
     case Ranking.read() do
@@ -462,20 +667,38 @@ defmodule FootballMarketWeb.WorkspaceLive do
                   <article>
                     <h3>Compra de {order.player_name}</h3>
                     <dl>
+                      <dt>Identificador de orden</dt><dd><code>{order.id}</code></dd>
                       <dt>Cantidad</dt><dd>{order.quantity}</dd>
                       <dt>Precio máximo por token</dt><dd>{money(order.maximum_unit_price)}</dd>
                       <dt>Creada</dt><dd>{timestamp(order.created_at)}</dd>
                       <dt>Vence</dt><dd>{timestamp(order.expires_at)}</dd>
                       <dt>Estado</dt><dd>{order_status(order.status)}</dd>
+                      <dt>Completada</dt><dd>
+                        {if order.completed_at, do: timestamp(order.completed_at), else: "—"}
+                      </dd>
+                      <dt>Vencimiento alcanzado</dt><dd>
+                        {if order.expiry_reached, do: "Sí", else: "No"}
+                      </dd>
+                      <dt>Jugador</dt><dd><code>{order.player_id}</code></dd>
                     </dl>
                     <p :if={order.expiry_reached} class="expiry-reached">
                       Venció el plazo. El estado se actualizará cuando se procese la evaluación.
                     </p>
-                    <p :if={order.status == "executed" && order.execution}>
-                      Ejecutada a {money(order.execution.unit_price)} por token, total {money(
-                        order.execution.total
-                      )}.
-                    </p>
+                    <details :if={order.status == "executed" && order.execution}>
+                      <summary>Detalles de ejecución</summary>
+                      <dl>
+                        <dt>Precio unitario</dt><dd>{money(order.execution.unit_price)}</dd>
+                        <dt>Total</dt><dd>{money(order.execution.total)}</dd>
+                        <dt>Completada</dt><dd>{timestamp(order.completed_at)}</dd>
+                        <dt>Operación</dt><dd>
+                          <code>{Map.get(order.execution, :purchase_id)}</code>
+                        </dd>
+                        <dt>Cotización</dt><dd><code>{Map.get(order.execution, :quote_id)}</code></dd>
+                        <dt>Completada</dt><dd>
+                          {timestamp(Map.get(order.execution, :completed_at))}
+                        </dd>
+                      </dl>
+                    </details>
                     <p :if={order.status == "rejected"}>
                       Rechazada: {readable_reason(order.rejection_reason)}.
                     </p>
@@ -492,10 +715,69 @@ defmodule FootballMarketWeb.WorkspaceLive do
           </div>
         </section>
       <% else %>
+        <section :if={@destination == "/transactions"} id="transactions">
+          <h1>Historial de operaciones</h1>
+          <form id="transaction-page-size" phx-change="transaction_page_size">
+            <label for="transaction-size">Operaciones por página</label>
+            <select id="transaction-size" name="page_size">
+              <option
+                :for={size <- 1..100}
+                value={size}
+                selected={size == @transaction_page_size}
+              >
+                {size}
+              </option>
+            </select>
+          </form>
+          <p :if={@transaction_error} role="alert">El historial no está disponible temporalmente.</p>
+          <p :if={@transactions == [] && !@transaction_error} id="transactions-empty">
+            Todavía no hay operaciones.
+          </p>
+          <div
+            :if={@transactions != []}
+            class="table-scroll"
+            role="region"
+            aria-label="Historial de operaciones"
+            tabindex="0"
+          >
+            <table>
+              <caption>Compras y ventas · Valores en créditos</caption>
+              <thead>
+                <tr>
+                  <th>Tipo</th><th>Jugador</th><th>Cantidad</th><th>Precio unitario</th><th>Total</th><th>
+                    Cotización
+                  </th><th>Fecha</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr :for={transaction <- @transactions} id={"transaction-#{transaction.id}"}>
+                  <td>{if transaction.type == "purchase", do: "Compra", else: "Venta"}</td>
+                  <td>
+                    <a href={~p"/players?player_id=#{transaction.player_id}"}>{transaction.player_name}</a>
+                  </td>
+                  <td>{transaction.quantity}</td><td>{exact_money(transaction.unit_price)}</td><td>
+                    {exact_money(transaction.total)}
+                  </td>
+                  <td>
+                    <details>
+                      <summary>Ver referencia</summary><code>{transaction.quote_id}</code>
+                    </details>
+                  </td>
+                  <td>{timestamp(transaction.completed_at)}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <a
+            :if={@transaction_pagination && @transaction_pagination.has_more}
+            id="transactions-next"
+            href={"/transactions?" <> URI.encode_query(%{"page_size" => @transaction_page_size, "cursor" => @transaction_pagination.next_cursor})}
+          >Siguiente página</a>
+        </section>
         <%= if @destination == "/players" do %>
           <section id="player-catalog">
             <p :if={@card} class="catalog-back-link">
-              <a :if={@player_search != ""} href={~p"/players?q=#{@player_search}"}>← Volver a resultados</a>
+              <a :if={@catalog_state_query != ""} href={"/players?" <> @catalog_state_query}>← Volver a resultados</a>
               <a :if={@player_search == ""} href="/players">← Buscar otro jugador</a>
             </p>
             <.player_card
@@ -503,6 +785,12 @@ defmodule FootballMarketWeb.WorkspaceLive do
               quote={@quote}
               error={@card_error}
               request_key={@trade_key}
+              search_query={@catalog_state_query}
+              quote_history={@quote_history}
+              quote_history_unavailable={@quote_history_unavailable}
+              quote_date={@quote_date}
+              dated_quote={@dated_quote}
+              trade_record={@trade_record}
               credit_balance={@credit_balance}
               credit_balance_unavailable={@credit_balance_unavailable}
               initial_recipient={@initial_recipient}
@@ -537,6 +825,44 @@ defmodule FootballMarketWeb.WorkspaceLive do
                     value={@player_search}
                   />
                   <button type="submit">Buscar jugadores</button>
+                </div>
+                <div class="catalog-filters">
+                  <label for="catalog-league">Liga</label>
+                  <select id="catalog-league" name="league_id"><option value="">
+                    Todas las ligas
+                  </option><option
+                    :for={item <- @catalog_filter_options.leagues}
+                    value={item.id}
+                    selected={@catalog_filters["league_id"] == item.id}
+                  >
+                    {item.name}
+                  </option></select>
+                  <label for="catalog-team">Club</label>
+                  <select id="catalog-team" name="team_id"><option value="">Todos los clubes</option><option
+                    :for={item <- @catalog_filter_options.teams}
+                    value={item.id}
+                    selected={@catalog_filters["team_id"] == item.id}
+                  >
+                    {item.name} · {item.league_name}
+                  </option></select>
+                  <label for="catalog-position">Posición</label>
+                  <select id="catalog-position" name="position_id"><option value="">
+                    Todas las posiciones
+                  </option><option
+                    :for={item <- @catalog_filter_options.positions}
+                    value={item.id}
+                    selected={@catalog_filters["position_id"] == item.id}
+                  >
+                    {item.name}
+                  </option></select>
+                  <label for="catalog-page-size">Resultados por página</label>
+                  <select id="catalog-page-size" name="page_size"><option
+                    :for={size <- 1..100}
+                    value={size}
+                    selected={size == @catalog_page_size}
+                  >
+                    {size}
+                  </option></select>
                 </div>
               </form>
               <p :if={!@search_performed} class="catalog-hint">
@@ -618,16 +944,21 @@ defmodule FootballMarketWeb.WorkspaceLive do
                     <td>{player.team.name}</td>
                     <td>{player.team.season.league.name}</td>
                     <td>
-                      <a href={~p"/players?player_id=#{player.id}&q=#{@player_search}"}>Ver ficha y operar</a>
+                      <a href={"/players?player_id=#{player.id}" <> if(@catalog_state_query == "", do: "", else: "&" <> @catalog_state_query)}>Ver ficha y operar</a>
                     </td>
                   </tr>
                 </tbody>
               </table>
             </div>
+            <a
+              :if={@catalog_pagination && @catalog_pagination.has_more}
+              id="catalog-next"
+              href={"/players?" <> URI.encode_query(Map.merge(Map.take(%{"q" => @player_search}, ["q"]), @catalog_filters) |> Map.put("page_size", @catalog_page_size) |> Map.put("cursor", @catalog_pagination.next_cursor))}
+            >Siguiente página</a>
           </section>
         <% else %>
           <.ranking_view :if={@destination == "/ranking"} ranking={@ranking} error={@ranking_error} />
-          <section :if={@destination != "/ranking"} id="portfolio">
+          <section :if={@destination == "/portfolio"} id="portfolio">
             <p class="eyebrow">ESPACIO DE TRABAJO / PORTAFOLIO</p>
             <h1>Portafolio</h1>
             <p class="section-description">Tus jugadores, posiciones y rendimiento.</p>
@@ -743,6 +1074,25 @@ defmodule FootballMarketWeb.WorkspaceLive do
               history={@portfolio_history}
               history_unavailable={@history_unavailable}
             />
+            <form id="portfolio-history-range" phx-submit="portfolio_range">
+              <label for="portfolio-from">Desde</label><input
+                id="portfolio-from"
+                type="date"
+                name="from"
+                value={@portfolio_from}
+              />
+              <label for="portfolio-to">Hasta</label><input
+                id="portfolio-to"
+                type="date"
+                name="to"
+                value={@portfolio_to}
+              />
+              <button type="submit">Actualizar período</button>
+            </form>
+            <p :if={@portfolio_range_invalid} id="portfolio-range-invalid" role="alert">
+              El período debe tener fechas válidas y un rango permitido.
+            </p>
+            <.portfolio_tables allocation={@allocation} portfolio_history={@portfolio_history} />
           </section>
         <% end %>
       <% end %>
@@ -814,14 +1164,30 @@ defmodule FootballMarketWeb.WorkspaceLive do
     {allocation, allocation_unavailable} =
       chart_read(fn -> Market.portfolio_allocation(domain_actor) end)
 
-    {history, history_unavailable} =
-      chart_read(fn -> Market.portfolio_history(domain_actor, %{}) end)
+    {history, history_unavailable, range_invalid} =
+      case portfolio_options(socket.assigns.portfolio_from, socket.assigns.portfolio_to) do
+        {:ok, options} ->
+          case Market.portfolio_history(domain_actor, options) do
+            {:ok, value} ->
+              {value, false, false}
+
+            {:error, %{kind: kind}} when kind in [:invalid_date, :invalid_date_range] ->
+              {nil, false, true}
+
+            {:error, _} ->
+              {nil, true, false}
+          end
+
+        {:error, _} ->
+          {nil, false, true}
+      end
 
     assign(socket,
       allocation: allocation,
       allocation_unavailable: allocation_unavailable,
       portfolio_history: history,
-      history_unavailable: history_unavailable
+      history_unavailable: history_unavailable,
+      portfolio_range_invalid: range_invalid
     )
   end
 
@@ -833,6 +1199,19 @@ defmodule FootballMarketWeb.WorkspaceLive do
       {:error, _} -> {nil, true}
     end
   end
+
+  defp portfolio_options("", ""), do: Input.range(%{}, Date.utc_today())
+
+  defp portfolio_options(from, to) do
+    with {:ok, parsed_from} <- optional_date(from),
+         {:ok, parsed_to} <- optional_date(to) do
+      Input.range(%{from: parsed_from, to: parsed_to}, Date.utc_today())
+    end
+  end
+
+  defp optional_date(""), do: {:ok, nil}
+  defp optional_date(value) when is_binary(value), do: Date.from_iso8601(value)
+  defp optional_date(_), do: {:error, :invalid_date}
 
   defp load_selected_player(socket, nil), do: socket
 
@@ -908,6 +1287,7 @@ defmodule FootballMarketWeb.WorkspaceLive do
     do: "No se pudo completar la orden. Revisá las condiciones e intentá de nuevo."
 
   defp money(value), do: value |> Decimal.round(2) |> Decimal.to_string(:normal)
+  defp exact_money(nil), do: "Sin datos"
   defp exact_money(value), do: value |> Decimal.normalize() |> Decimal.to_string(:normal)
   defp timestamp(value), do: Calendar.strftime(value, "%Y-%m-%d %H:%M:%S UTC")
   defp readable_reason(nil), do: "no disponible"

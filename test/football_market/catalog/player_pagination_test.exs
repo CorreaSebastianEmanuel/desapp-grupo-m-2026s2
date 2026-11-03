@@ -23,6 +23,36 @@ defmodule FootballMarket.Catalog.PlayerPaginationTest do
     end
   end
 
+  test "name search composes with catalog filters and paginates beyond ten matches" do
+    fixture = FootballMarket.CatalogFilterCase.build!()
+    filters = %{search_name: "tie"}
+    expected = FootballMarket.CatalogFilterCase.expected(fixture.players, filters)
+    assert length(expected) > 10
+
+    {:ok, first} = Catalog.list_player_page(%{page_size: 10, cursor: nil, filters: filters})
+    assert Enum.map(first.players, & &1.id) == Enum.take(expected, 10)
+    assert first.pagination.has_more
+
+    combined = %{
+      search_name: "tie",
+      league_id: fixture.target.team.season.league.id,
+      team_id: fixture.target.team.id,
+      position_id: fixture.target.position.id
+    }
+
+    combined_expected = FootballMarket.CatalogFilterCase.expected(fixture.players, combined)
+    assert length(combined_expected) == 2
+    {:ok, page} = Catalog.list_player_page(%{page_size: 10, cursor: nil, filters: combined})
+    assert Enum.map(page.players, & &1.id) == combined_expected
+
+    assert {:error, :invalid_cursor} =
+             Catalog.list_player_page(%{
+               page_size: 10,
+               cursor: first.pagination.next_cursor,
+               filters: %{search_name: "Tie"}
+             })
+  end
+
   test "filtered traversal is bounded, replayable, and independent of page size" do
     fixture = FootballMarket.CatalogFilterCase.build!()
     filters = %{team_id: fixture.target.team.id, position_id: fixture.target.position.id}

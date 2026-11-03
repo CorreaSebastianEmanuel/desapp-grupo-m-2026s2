@@ -21,6 +21,18 @@ defmodule FootballMarket.Quotes.Closing do
     _ -> {:error, :quote_close_unavailable}
   end
 
+  def admit_now(now \\ nil) do
+    now = now || Store.database_clock_now!()
+
+    with {:ok, scopes} <- scopes(),
+         {:ok, counts} <- admit_scopes_now(scopes, now),
+         {:ok, recovered} <- Recovery.recover_pending() do
+      {:ok, Map.put(counts, :enqueued, recovered)}
+    end
+  rescue
+    _ -> {:error, :quote_close_unavailable}
+  end
+
   defp configuration do
     config = Application.get_env(:football_market, __MODULE__, [])
     default = Keyword.get(config, :default_recurrence, "0 0 * * *")
@@ -52,15 +64,7 @@ defmodule FootballMarket.Quotes.Closing do
 
     with {:ok, _expression} <- Scheduler.validate(recurrence),
          due when not is_nil(due) <- Scheduler.latest_due(recurrence, @earliest_schedule, now) do
-      Repo.transaction(fn ->
-        import_count = admit_import_requests!(scope.id, due)
-        ttl_count = admit_ttl_requests!(scope, due)
-        %{imports: import_count, ttl: ttl_count}
-      end)
-      |> case do
-        {:ok, counts} -> {:ok, counts}
-        {:error, reason} -> {:error, reason}
-      end
+      admit_scope_at(scope, due)
     else
       nil -> {:ok, %{imports: 0, ttl: 0}}
       _ -> {:error, :invalid_quote_close_recurrence}
@@ -71,6 +75,31 @@ defmodule FootballMarket.Quotes.Closing do
     Enum.reduce_while(scopes, {:ok, %{imports: 0, ttl: 0}}, fn scope, {:ok, totals} ->
       accumulate_scope(scope, configured, now, totals)
     end)
+  end
+
+  defp admit_scopes_now(scopes, now) do
+    Enum.reduce_while(scopes, {:ok, %{imports: 0, ttl: 0}}, fn scope, {:ok, totals} ->
+      case admit_scope_at(scope, now) do
+        {:ok, counts} ->
+          {:cont,
+           {:ok, %{imports: totals.imports + counts.imports, ttl: totals.ttl + counts.ttl}}}
+
+        {:error, reason} ->
+          {:halt, {:error, reason}}
+      end
+    end)
+  end
+
+  defp admit_scope_at(scope, now) do
+    Repo.transaction(fn ->
+      import_count = admit_import_requests!(scope.id, now)
+      ttl_count = admit_ttl_requests!(scope, now)
+      %{imports: import_count, ttl: ttl_count}
+    end)
+    |> case do
+      {:ok, counts} -> {:ok, counts}
+      {:error, reason} -> {:error, reason}
+    end
   end
 
   defp accumulate_scope(scope, configured, now, totals) do

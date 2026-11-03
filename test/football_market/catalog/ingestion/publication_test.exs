@@ -16,6 +16,38 @@ defmodule FootballMarket.Catalog.Ingestion.PublicationTest do
     assert outcome.fixture_id == "independent-catalog"
   end
 
+  test "a newly cataloged player receives initial inventory once at the configured account" do
+    positions!()
+
+    user =
+      Repo.insert!(
+        FootballMarket.Accounts.User.changeset(%FootballMarket.Accounts.User{}, %{
+          email: "primary@example.com"
+        })
+      )
+
+    previous = Application.get_env(:football_market, :initial_issuance_recipients, [])
+    Application.put_env(:football_market, :initial_issuance_recipients, [user.id])
+
+    on_exit(fn ->
+      Application.put_env(:football_market, :initial_issuance_recipients, previous)
+    end)
+
+    assert {:ok, _} = Ingestion.import_catalog(request(), options())
+    player = Repo.get_by!(Player, display_name: "Alex")
+    assert {:ok, issuance} = FootballMarket.Market.get_initial_issuance(player.id)
+    assert issuance.recipient_id == user.id
+    assert issuance.quantity == 100
+
+    assert {:ok, _} =
+             Ingestion.import_catalog(
+               request(),
+               options(candidate(), ~U[2026-10-08 12:00:00.000000Z])
+             )
+
+    assert Repo.aggregate(FootballMarket.Market.Issuance, :count) == 1
+  end
+
   test "persistence interruption leaves no orphan hierarchy or acceptance" do
     positions!()
     before = snapshot()

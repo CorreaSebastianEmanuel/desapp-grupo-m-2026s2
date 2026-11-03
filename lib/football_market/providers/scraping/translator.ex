@@ -117,7 +117,7 @@ defmodule FootballMarket.Providers.Scraping.Translator do
     performances =
       for {m, ps} <- details, p <- ps do
         stats =
-          for group <- Source.list!(p["stats"]), stat <- Source.list!(group["stats"]), do: stat
+          for group <- Source.list!(p["stats"]), stat <- stats_entries!(group["stats"]), do: stat
 
         stats = Enum.filter(stats, &(&1["key"] in ["minutes_played" | Map.values(@metric_keys)]))
         keys = Enum.map(stats, & &1["key"])
@@ -147,12 +147,17 @@ defmodule FootballMarket.Providers.Scraping.Translator do
     {key, value}
   end
 
+  defp stats_entries!(stats) when is_list(stats), do: stats
+  defp stats_entries!(stats) when is_map(stats), do: Map.values(stats)
+  defp stats_entries!(stats), do: Source.list!(stats)
+
   defp position_ref(player, row) do
     if is_nil(player["positionId"]), do: nil, else: position!(player["positionId"], row)
   end
 
   def position!(id, row) do
-    position = row.positions[id]
+    key = if is_integer(id), do: Integer.to_string(id), else: id
+    position = row.positions[key]
     Source.require!(is_binary(position))
     position
   end

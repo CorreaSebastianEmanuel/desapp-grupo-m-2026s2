@@ -1,7 +1,7 @@
 defmodule FootballMarket.Statistics.Ingestion.Publisher do
   @moduledoc "Atomic acceptance of immutable facts, provenance, checks and calculation intent."
   import Ecto.Query
-  alias FootballMarket.{Repo, Catalog}
+  alias FootballMarket.{Market, Repo, Catalog}
   alias FootballMarket.Catalog.Ingestion.{Scope, SourceBinding}
   alias FootballMarket.Synchronization.DeliveryReceipt
   alias FootballMarket.Statistics.{Match, Performance}
@@ -55,8 +55,11 @@ defmodule FootballMarket.Statistics.Ingestion.Publisher do
           league_code: result.scope.league_code,
           start_year: result.scope.start_year,
           end_year: result.scope.end_year,
-          season_id: season.id
+          season_id: season.id,
+          player_id: Keyword.get(options, :player_id)
         })
+
+    initialize_player_inventory!(options)
 
     {matches, match_count} = persist_matches!(result, season, options)
     prior = history_for_season(season.id)
@@ -140,8 +143,10 @@ defmodule FootballMarket.Statistics.Ingestion.Publisher do
     result_outcome
   end
 
-  defp accepted_replay!(check, scope_row, result, receipt, attempt_id, encoded) do
+  defp accepted_replay!(check, scope_row, result, receipt, attempt_id, encoded, options) do
     now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
+
+    initialize_player_inventory!(options)
 
     replay =
       Repo.insert!(%Check{
@@ -175,6 +180,20 @@ defmodule FootballMarket.Statistics.Ingestion.Publisher do
     )
 
     %Outcome{status: :replay, scope: result.scope, run_id: receipt.run_id, check_id: replay.id}
+  end
+
+  defp initialize_player_inventory!(options) do
+    case Keyword.get(options, :player_id) do
+      nil ->
+        :ok
+
+      player_id ->
+        case Market.initialize_primary_player_in_transaction(player_id) do
+          %{outcome: _status} -> :ok
+          {:ok, _status} -> :ok
+          {:error, reason} -> Repo.rollback({:initial_player_issuance_failed, reason})
+        end
+    end
   end
 
   defp append_replay_observations!(result, check) do
@@ -230,8 +249,8 @@ defmodule FootballMarket.Statistics.Ingestion.Publisher do
     )
   end
 
-  defp get_scope!(result, provider, season_id) do
-    case ScopeCheck.find(provider, season_id) do
+  defp get_scope!(result, provider, season_id, player_id) do
+    case ScopeCheck.find(provider, season_id, player_id) do
       nil ->
         nil
 
@@ -262,6 +281,11 @@ defmodule FootballMarket.Statistics.Ingestion.Publisher do
             source_id: source_id
           )
 
+    existing =
+      existing || maybe_bind_fotmob_scope(result, kind, source_id, scope) ||
+        maybe_bind_fotmob_team(result, kind, ref, source_id, scope) ||
+        maybe_bind_fotmob_player(result, kind, ref, source_id, scope, options)
+
     mapped =
       Enum.find(
         Keyword.get(options, :mappings, []),
@@ -280,6 +304,125 @@ defmodule FootballMarket.Statistics.Ingestion.Publisher do
       nil -> Repo.rollback(:unbound_identity)
       row -> row
     end
+  end
+
+  defp maybe_bind_fotmob_scope(result, kind, source_id, scope)
+       when result.provenance.provider == "fotmob-public-html-v1" and not is_nil(scope) and
+              kind in ["league", "season"] do
+    target_id = if kind == "league", do: scope.league_id, else: scope.season_id
+    target_field = String.to_existing_atom(kind <> "_id")
+
+    attrs =
+      Map.merge(
+        %{
+          scope_id: scope.id,
+          season_scope_id: scope.season_id,
+          league_scope_id: scope.league_id,
+          provider: result.provenance.provider,
+          kind: kind,
+          source_id: source_id
+        },
+        %{target_field => target_id}
+      )
+
+    case Repo.insert(SourceBinding.changeset(%SourceBinding{}, attrs)) do
+      {:ok, binding} -> binding
+      {:error, _changeset} -> nil
+    end
+  end
+
+  defp maybe_bind_fotmob_scope(_, _, _, _), do: nil
+
+  defp maybe_bind_fotmob_team(result, "team", ref, source_id, scope)
+       when result.provenance.provider == "fotmob-public-html-v1" and not is_nil(scope) do
+    case Enum.find(result.facts.teams, &(&1.ref == ref)) do
+      %{name: name} when is_binary(name) ->
+        target = unique_team_by_source_name(name, scope.season_id)
+
+        if target do
+          attrs = %{
+            scope_id: scope.id,
+            season_scope_id: scope.season_id,
+            league_scope_id: scope.league_id,
+            provider: result.provenance.provider,
+            kind: "team",
+            source_id: source_id,
+            team_id: target.id
+          }
+
+          case Repo.insert(SourceBinding.changeset(%SourceBinding{}, attrs)) do
+            {:ok, binding} -> binding
+            {:error, _changeset} -> nil
+          end
+        end
+
+      _ ->
+        nil
+    end
+  end
+
+  defp maybe_bind_fotmob_team(_, _, _, _, _), do: nil
+
+  defp maybe_bind_fotmob_player(result, "player", ref, source_id, scope, options)
+       when result.provenance.provider == "fotmob-public-html-v1" and not is_nil(scope) do
+    target_id = Keyword.get(options, :player_id)
+    fact = Enum.find(result.facts.players, &(&1.ref == ref))
+    target = if is_binary(target_id), do: Repo.get(Catalog.Player, target_id)
+
+    if fact && target && target.season_id == scope.season_id &&
+         normalized_player_name(fact.display_name) == normalized_player_name(target.display_name) do
+      attrs = %{
+        scope_id: scope.id,
+        season_scope_id: scope.season_id,
+        league_scope_id: scope.league_id,
+        provider: result.provenance.provider,
+        kind: "player",
+        source_id: source_id,
+        player_id: target.id
+      }
+
+      case Repo.insert(SourceBinding.changeset(%SourceBinding{}, attrs)) do
+        {:ok, binding} -> binding
+        {:error, _changeset} -> nil
+      end
+    end
+  end
+
+  defp maybe_bind_fotmob_player(_, _, _, _, _, _), do: nil
+
+  defp unique_team_by_source_name(source_name, season_id) do
+    key = normalized_team_name(source_name)
+
+    from(team in FootballMarket.Catalog.Team, where: team.season_id == ^season_id)
+    |> Repo.all()
+    |> Enum.filter(&(normalized_team_name(&1.name) == key))
+    |> case do
+      [team] -> team
+      _ -> nil
+    end
+  end
+
+  defp normalized_team_name(name) do
+    name
+    |> String.downcase()
+    |> :unicode.characters_to_nfd_binary()
+    |> String.replace(~r/\p{Mn}/u, "")
+    |> String.replace(~r/[^a-z0-9]+/u, " ")
+    |> String.split()
+    |> Enum.reject(
+      &(&1 in ["fc", "afc", "sc", "sv", "fsv", "tsg", "vfb", "1", "04", "05", "07", "1899"])
+    )
+    |> Enum.join(" ")
+  end
+
+  defp normalized_player_name(name) do
+    name
+    |> String.downcase()
+    |> :unicode.characters_to_nfd_binary()
+    |> String.replace(~r/\p{Mn}/u, "")
+    |> String.replace(~r/[^a-z0-9]+/u, " ")
+    |> String.split()
+    |> Enum.join(" ")
   end
 
   defp source_id!(result, kind, ref) do
@@ -668,7 +811,7 @@ defmodule FootballMarket.Statistics.Ingestion.Publisher do
       do: Repo.rollback(:immutable_conflict)
 
     if replay && replay.retrieved_at == result.provenance.retrieved_at do
-      accepted_replay!(replay, scope_row, result, receipt, attempt_id, encoded)
+      accepted_replay!(replay, scope_row, result, receipt, attempt_id, encoded, options)
     else
       accept_new!(scope_row, result, receipt, attempt_id, encoded, options, season)
     end
@@ -702,7 +845,7 @@ defmodule FootballMarket.Statistics.Ingestion.Publisher do
     Enum.each(result.facts.matches, &validate_match_mapping!(result, &1, season, options))
 
     lock_season!(season.id)
-    scope_row = get_scope!(result, provider, season.id)
+    scope_row = get_scope!(result, provider, season.id, Keyword.get(options, :player_id))
 
     classify_result!(scope_row, encoded, result, receipt, attempt_id, options, season)
   end

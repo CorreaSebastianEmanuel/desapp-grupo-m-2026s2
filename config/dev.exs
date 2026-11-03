@@ -1,6 +1,8 @@
 import Config
 
 config :football_market, development_seed_enabled: true
+config :football_market, :local_admin_enabled, true
+config :football_market, :scraping_assessment, :local_development
 
 parse_port = fn value ->
   case Integer.parse(value) do
@@ -62,7 +64,6 @@ config :football_market, FootballMarketWeb.Endpoint,
 # configured to run both http and https servers on
 # different ports.
 
-# No development-only operational routes are exposed in TASK-001.
 config :football_market, dev_routes: false
 
 config :football_market, :redis,

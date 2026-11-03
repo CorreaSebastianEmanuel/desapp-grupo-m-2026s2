@@ -12,9 +12,15 @@ defmodule FootballMarket.Catalog.Ingestion.IsolationTest do
     :ok
   end
 
-  test "accepted local reads stay available when a subsequent provider fails" do
-    assert {:ok, _} = Ingestion.import_catalog(request(), options())
+  test "catalog source IDs do not imply a FotMob binding and local reads survive provider failure" do
+    scope = request("BL1")
+    assert {:ok, _} = Ingestion.import_catalog(scope, options(candidate("BL1")))
     [p] = Repo.all(Player)
+
+    assert is_nil(
+             Catalog.provider_player_id(p.id, FootballMarket.Providers.Scraping.provider_label())
+           )
+
     before = snapshot()
 
     assert {:error, _} =
@@ -94,7 +100,7 @@ defmodule FootballMarket.Catalog.Ingestion.IsolationTest do
     c = ScrapingFixtureData.case!("catalog-PL-2024")
     opts = [provider: {Scraping, ScrapingFixtureData.state(c)}, runtime: {FixtureRuntime, %{}}]
     assert {:ok, outcome} = Ingestion.import_catalog(ScrapingFixtureData.request(c), opts)
-    assert outcome.provider == "fotmob-shaped-offline"
+    assert outcome.provider == "fotmob-public-html-v1"
     assert outcome.fixture_id == "catalog-PL-2024"
     expected = ScrapingFixtureData.expected_facts(c, %{"kind" => "catalog"})
 

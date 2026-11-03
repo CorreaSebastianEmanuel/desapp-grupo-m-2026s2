@@ -20,7 +20,19 @@ defmodule FootballMarket.Synchronization.Input do
          true <-
            Enum.all?(
              Keyword.keys(options),
-             &(&1 in [:source_ref, :fixture_ref, :mappings, :new_players, :trigger, :policy])
+             &(&1 in [
+                 :source_ref,
+                 :fixture_ref,
+                 :mappings,
+                 :new_players,
+                 :trigger,
+                 :policy,
+                 :player_id,
+                 :player_source_id,
+                 :player_name,
+                 :player_team_name,
+                 :player_position_code
+               ])
            ),
          :ok <-
            Policy.validate_runtime(
@@ -42,7 +54,9 @@ defmodule FootballMarket.Synchronization.Input do
          fixture <- Keyword.get(options, :fixture_ref),
          true <- is_nil(fixture) or Provenance.safe_text?(fixture),
          trigger <- Keyword.get(options, :trigger, :manual),
-         true <- trigger in [:manual, :initial, :scheduled] do
+         true <- trigger in [:manual, :initial, :scheduled],
+         {:ok, player_id, player_source_id, player_name, player_team_name, player_position_code} <-
+           player_target(operation, options) do
       material = %{
         "version" => if(operation == :catalog, do: 1, else: 2),
         "source_ref" => ref,
@@ -58,9 +72,24 @@ defmodule FootballMarket.Synchronization.Input do
           do: Map.put(material, "operation", "statistics"),
           else: material
 
+      material =
+        if player_id do
+          material
+          |> Map.put("player_id", player_id)
+          |> Map.put("player_source_id", player_source_id)
+          |> maybe_put("player_name", player_name)
+          |> maybe_put("player_team_name", player_team_name)
+          |> maybe_put("player_position_code", player_position_code)
+        else
+          material
+        end
+
+      input_scope =
+        if player_id, do: Map.put(scope_values, :player_id, player_id), else: scope_values
+
       {:ok,
        %{
-         scope: scope_values,
+         scope: input_scope,
          operation: operation,
          material: material,
          digest: digest(material),
@@ -162,12 +191,66 @@ defmodule FootballMarket.Synchronization.Input do
           {String.to_existing_atom(key), values}
         end
 
-      {:ok, Keyword.merge(Map.to_list(Map.take(source, [:provider, :runtime])), instructions)}
+      options =
+        [
+          player_id: material["player_id"],
+          player_source_id: material["player_source_id"],
+          player_name: material["player_name"],
+          player_team_name: material["player_team_name"],
+          player_position_code: material["player_position_code"]
+        ]
+        |> Enum.reject(fn {_key, value} -> is_nil(value) end)
+
+      {:ok,
+       Keyword.merge(
+         Map.to_list(Map.take(source, [:provider, :runtime])),
+         instructions ++ options
+       )}
     else
       false -> {:error, :input_drift}
       _ -> {:error, :missing_configuration}
     end
   end
+
+  defp player_target(:catalog, options) do
+    if is_nil(Keyword.get(options, :player_id)) and
+         is_nil(Keyword.get(options, :player_source_id)) and
+         is_nil(Keyword.get(options, :player_name)) and
+         is_nil(Keyword.get(options, :player_team_name)),
+       do: {:ok, nil, nil, nil, nil, nil},
+       else: {:error, :player_target}
+  end
+
+  defp player_target(:statistics, options) do
+    case {Keyword.get(options, :player_id), Keyword.get(options, :player_source_id),
+          Keyword.get(options, :player_name), Keyword.get(options, :player_team_name),
+          Keyword.get(options, :player_position_code)} do
+      {nil, nil, nil, nil, nil} ->
+        {:ok, nil, nil, nil, nil, nil}
+
+      {player_id, source_id, name, team, position_code}
+      when is_binary(player_id) and (is_binary(source_id) or is_nil(source_id)) and
+             (is_binary(name) or is_nil(name)) and (is_binary(team) or is_nil(team)) and
+             (is_binary(position_code) or is_nil(position_code)) ->
+        with {:ok, uuid} <- Ecto.UUID.cast(player_id),
+             true <- is_nil(source_id) or Provenance.safe_text?(source_id),
+             true <- is_nil(name) or Provenance.safe_text?(name),
+             true <- is_nil(team) or Provenance.safe_text?(team),
+             true <- is_nil(position_code) or position_code in ["GK", "DEF", "MID", "FWD"],
+             true <- is_binary(source_id) or (is_binary(name) and is_binary(team)),
+             true <- (is_nil(name) and is_nil(team)) or (is_binary(name) and is_binary(team)) do
+          {:ok, String.downcase(uuid), source_id, name, team, position_code}
+        else
+          _ -> {:error, :player_target}
+        end
+
+      _ ->
+        {:error, :player_target}
+    end
+  end
+
+  defp maybe_put(map, _key, nil), do: map
+  defp maybe_put(map, key, value), do: Map.put(map, key, value)
 
   def digest(value) do
     bytes = if is_binary(value), do: value, else: :erlang.term_to_binary(value, [:deterministic])

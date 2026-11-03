@@ -357,3 +357,64 @@ body { background:#edf1ee; color:#1e3029; font-family:system-ui,-apple-system,"S
 #ranking-strategy { margin:20px 0; overflow-wrap:anywhere; }
 #ranking-entries { list-style:decimal inside; padding:0; }
 #ranking-entries li { background:white; border-bottom:1px solid var(--line); padding:18px; overflow-wrap:anywhere; }
+
+/* Local-only operations page. */
+.local-admin { width:min(1180px, calc(100% - 32px)); margin:32px auto 56px; color:var(--ink); }
+.local-admin-header { display:flex; justify-content:space-between; align-items:center; gap:20px; margin-bottom:22px; }
+.local-admin-header h1 { margin:4px 0; font-size:34px; }
+.local-admin-header p { margin:6px 0; color:var(--muted); }
+.local-admin .eyebrow { color:#8a4c16; font-size:11px; font-weight:750; letter-spacing:.1em; }
+.local-admin-panel { margin:16px 0; padding:20px; border:1px solid var(--line); border-radius:10px; background:#fff; box-shadow:0 5px 18px rgba(28,48,38,.045); animation:admin-rise .28s ease-out both; }
+.local-admin-panel:nth-of-type(2) { animation-delay:35ms; }
+.local-admin-panel:nth-of-type(3) { animation-delay:70ms; }
+.local-admin-panel:nth-of-type(4) { animation-delay:105ms; }
+.local-admin-panel:nth-of-type(5) { animation-delay:140ms; }
+.local-admin-panel:nth-of-type(6) { animation-delay:175ms; }
+.local-admin-panel:nth-of-type(7) { animation-delay:210ms; }
+.local-admin-panel:nth-of-type(8) { animation-delay:245ms; }
+@keyframes admin-rise { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+.local-admin-panel h2 { margin:0 0 14px; font-size:19px; }
+.local-admin-panel h2 span { color:var(--muted); font-size:12px; font-weight:400; }
+.local-admin-counts { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:8px; margin:18px 0 0; }
+.local-admin-counts div { padding:12px; background:#f4f6f2; border-radius:4px; }
+.local-admin-counts dt { color:var(--muted); font-size:12px; }
+.local-admin-counts dd { margin:4px 0 0; font-size:20px; font-weight:700; }
+.local-admin-flow { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin:16px 0 22px; }
+.local-admin-job-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:12px; margin:16px 0 22px; }
+.local-admin-job-card { display:flex; flex-direction:column; align-items:flex-start; gap:9px; padding:16px; border:1px solid #dfe7df; border-radius:9px; background:linear-gradient(145deg,#fbfcfa,#f0f4ef); }
+.local-admin-job-card h3 { margin:0; font-size:15px; }
+.local-admin-job-card p, .local-admin-job-card span { margin:0; color:var(--muted); font-size:12px; line-height:1.5; }
+.local-admin-job-card button { margin-top:auto; }
+.local-admin-flow article { display:grid; gap:5px; padding:14px; border:1px solid #dfe7df; border-radius:8px; background:linear-gradient(145deg,#f8faf7,#eef3ec); }
+.local-admin-flow strong { color:#244d3d; font-size:13px; }
+.local-admin-flow span, .local-admin-queue > p { color:var(--muted); font-size:12px; line-height:1.5; }
+.local-admin-queue { margin-top:18px; padding:16px; border:1px solid #e6ebe7; border-radius:8px; background:#fbfcfa; }
+.local-admin-queue h3 { margin:0 0 6px; }
+.local-admin-queue > p { margin:0 0 14px; }
+.local-admin-queue h4 span { color:var(--muted); font-size:11px; font-weight:400; }
+.local-admin .job-state, .local-admin .run-state { display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border-radius:999px; background:#eef1ee; color:#49564e; font-size:11px; font-weight:700; white-space:nowrap; }
+.local-admin .job-state-executing, .local-admin .run-state-executing { background:#e8f1e7; color:#176142; }
+.local-admin .job-state-executing::before, .local-admin .run-state-executing::before { width:7px; height:7px; border-radius:50%; background:#258253; content:""; animation:admin-pulse 1.5s ease-in-out infinite; }
+.local-admin .job-state-completed, .local-admin .run-state-succeeded { background:#e8f1e7; color:#176142; }
+.local-admin .job-state-discarded, .local-admin .job-state-cancelled, .local-admin .run-state-failed { background:#f8e9e7; color:#9d3029; }
+.local-admin .run-state { display:table; margin-top:5px; }
+.local-admin .run-detail { display:block; margin-top:5px; color:#9d3029; }
+@keyframes admin-pulse { 50% { box-shadow:0 0 0 4px rgba(37,130,83,.16); opacity:.7; } }
+.local-admin .status-good { color:#176142; }
+.local-admin .status-bad { color:#a32727; }
+.local-admin-form { display:flex; flex-wrap:wrap; align-items:end; gap:12px; }
+.local-admin-form label { display:grid; gap:5px; font-size:13px; }
+.local-admin-form input, .local-admin-form select { min-height:40px; padding:8px 10px; border:1px solid var(--line); border-radius:4px; background:#fff; }
+.local-admin button { min-height:38px; padding:8px 12px; border:1px solid var(--green); border-radius:4px; background:var(--green); color:#fff; font-weight:650; cursor:pointer; }
+.local-admin button:hover { filter:brightness(.92); }
+.local-admin #local-admin-notice { padding:12px; border-left:3px solid var(--green); background:#edf4df; }
+.local-admin .table-scroll { overflow:auto; }
+.local-admin table { width:100%; border-collapse:collapse; text-align:left; font-size:12px; }
+.local-admin th, .local-admin td { padding:9px 10px; border-bottom:1px solid #e6ebe7; vertical-align:top; }
+.local-admin th { color:var(--muted); white-space:nowrap; }
+.local-admin tbody tr { transition:background-color .16s ease; }
+.local-admin tbody tr:hover { background:#f7faf6; }
+.local-admin td code { display:inline-block; max-width:280px; overflow-wrap:anywhere; white-space:normal; color:#43544a; }
+.local-admin footer { margin-top:24px; }
+@media(max-width:640px) { .local-admin-header { align-items:flex-start; flex-direction:column; } .local-admin-header h1 { font-size:28px; } .local-admin-panel { padding:14px; } .local-admin-flow { grid-template-columns:1fr; } .local-admin-job-grid { grid-template-columns:1fr; } .local-admin-queue { padding:12px; } }
+@media(prefers-reduced-motion:reduce) { .local-admin-panel, .local-admin .job-state-executing::before, .local-admin .run-state-executing::before { animation:none; } .local-admin tbody tr { transition:none; } }

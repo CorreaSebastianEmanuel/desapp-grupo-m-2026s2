@@ -16,6 +16,70 @@ defmodule FootballMarket.Statistics.Ingestion.AcceptanceTest do
   alias FootballMarket.Statistics.Performance
   alias FootballMarket.StatisticsIngestion.{Case, Fixtures}
 
+  test "first accepted player-scoped import assigns initial inventory to the primary account" do
+    scope = Fixtures.scope(2026)
+    league_scope = Fixtures.scope(2027)
+    Case.seed_catalog!(scope)
+    Case.seed_catalog!(league_scope)
+    season = Repo.get_by!(FootballMarket.Catalog.Season, start_year: scope.start_year)
+
+    player =
+      Repo.get_by!(FootballMarket.Catalog.Player, display_name: "Alex", season_id: season.id)
+
+    user =
+      Repo.insert!(
+        FootballMarket.Accounts.User.changeset(%FootballMarket.Accounts.User{}, %{
+          email: "primary-stats@example.com"
+        })
+      )
+
+    previous = Application.get_env(:football_market, :initial_issuance_recipients, [])
+    Application.put_env(:football_market, :initial_issuance_recipients, [user.id])
+
+    on_exit(fn ->
+      Application.put_env(:football_market, :initial_issuance_recipients, previous)
+    end)
+
+    request = Fixtures.request(scope)
+    candidate = Case.candidate(request)
+    candidate = %{candidate | completeness: %{candidate.completeness | full_scope: "player"}}
+    context = Case.delivery_context!(scope)
+
+    assert {:ok, %{status: :accepted_changes}} =
+             Ingestion.import_scope(
+               scope,
+               Case.provider_options(candidate) ++
+                 [
+                   delivery_context: context,
+                   player_id: player.id,
+                   player_source_id: "player-A"
+                 ]
+             )
+
+    assert {:ok, issuance} = FootballMarket.Market.get_initial_issuance(player.id)
+    assert issuance.recipient_id == user.id
+    assert issuance.quantity == 100
+
+    league_season =
+      Repo.get_by!(FootballMarket.Catalog.Season, start_year: league_scope.start_year)
+
+    assert {:ok, %{status: :accepted_changes}} =
+             Ingestion.import_scope(
+               league_scope,
+               Case.provider_options(Case.candidate(Fixtures.request(league_scope))) ++
+                 [delivery_context: Case.delivery_context!(league_scope)]
+             )
+
+    league_player =
+      Repo.get_by!(FootballMarket.Catalog.Player,
+        display_name: "Alex",
+        season_id: league_season.id
+      )
+
+    assert {:error, %{reason: :not_initialized}} =
+             FootballMarket.Market.get_initial_issuance(league_player.id)
+  end
+
   test "string-keyed scopes use normalized provider input throughout admission" do
     scope = Fixtures.scope()
     Case.seed_catalog!(scope)

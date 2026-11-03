@@ -45,7 +45,12 @@ defmodule FootballMarket.Synchronization.Store do
           where:
             r.league_code == ^scope.league_code and r.start_year == ^scope.start_year and
               r.end_year == ^scope.end_year and r.operation == ^Atom.to_string(input.operation) and
-              r.state in @active,
+              r.state in @active and
+              fragment(
+                "coalesce(?->>'player_id', '') = ?",
+                r.input,
+                ^(input.material["player_id"] || "")
+              ),
           lock: "FOR UPDATE"
       )
 
@@ -284,7 +289,7 @@ defmodule FootballMarket.Synchronization.Store do
           Repo.insert!(
             struct!(
               Run,
-              Map.merge(scope, %{
+              Map.merge(Map.take(scope, [:league_code, :start_year, :end_year]), %{
                 operation: Atom.to_string(input.operation),
                 correlation_id: Context.current(),
                 source_ref: input.material["source_ref"],

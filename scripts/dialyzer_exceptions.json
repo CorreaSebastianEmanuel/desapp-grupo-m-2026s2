@@ -3108,7 +3108,7 @@
     "line": 1,
     "kind": "pattern_match",
     "message_sha256": "88ee4bcc85baa10ab2f324da80bd8c5c41a1679f2a26a6413405738c591b0bc9",
-    "source_sha256": "36346a165a98349c7f95e05cd5202ed3e4f61a6f72c357e0c0556950bcb24fdc",
+    "source_sha256": "61f82b77e0e9778714211d02930027393f7c95b7077fa05bc64a3d87c393fbbe",
     "lock_sha256": "49bd54159fd3a657f97ab5facf094b73e1c5ba1ef3becf65803428a8ae8128e6",
     "reason": "Test-profile compile-time hook specialization (@test=true) makes this exact false/nil branch unreachable. Dev application analysis remains separate; no function/module exclusion is used."
   },

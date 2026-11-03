@@ -1,7 +1,7 @@
 defmodule FootballMarket.Catalog.Ingestion.Publisher do
   @moduledoc "Atomic scope-coordinated catalog and acceptance publication."
   import Ecto.Query
-  alias FootballMarket.Repo
+  alias FootballMarket.{Market, Repo}
   alias FootballMarket.Catalog.{League, Season, Team, Player}
 
   alias FootballMarket.Catalog.Ingestion.{
@@ -60,7 +60,7 @@ defmodule FootballMarket.Catalog.Ingestion.Publisher do
         do: failure(:reconciliation_conflict, result, :business_identity_conflict),
         else: failure(:persistence_failure, result, :publication_failed)
 
-    _ ->
+    _error ->
       failure(:persistence_failure, result, :publication_failed)
   end
 
@@ -144,7 +144,15 @@ defmodule FootballMarket.Catalog.Ingestion.Publisher do
     )
 
     for {row, attrs, operation} <- candidate.operations do
-      persist_operation(row, attrs, operation, season)
+      persisted = persist_operation(row, attrs, operation, season)
+
+      if operation == :insert and match?(%Player{}, persisted) do
+        case Market.initialize_primary_player_in_transaction(persisted.id) do
+          %{outcome: _status} -> :ok
+          {:ok, _status} -> :ok
+          {:error, reason} -> Repo.rollback({:initial_player_issuance_failed, reason})
+        end
+      end
     end
 
     hook(:after_catalog)

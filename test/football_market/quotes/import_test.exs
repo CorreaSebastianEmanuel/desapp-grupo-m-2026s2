@@ -7,6 +7,36 @@ defmodule FootballMarket.Quotes.ImportTest do
   alias FootballMarket.StatisticsIngestion.{Case, Fixtures}
   alias FootballMarket.Valuation.CalculationRequests
 
+  test "manual close admits pending import requests before their scheduled close" do
+    scope = Fixtures.scope(2084)
+    Case.seed_catalog!(scope)
+    candidate = Case.candidate(Fixtures.request(scope))
+    delivery = Case.delivery_context!(scope)
+
+    assert {:ok, accepted} =
+             Statistics.Ingestion.import_scope(
+               scope,
+               Case.provider_options(candidate) ++ [delivery_context: delivery]
+             )
+
+    intent = Repo.get!(CalculationIntent, accepted.calculation_intent_id)
+
+    assert {:ok, _} =
+             CalculationRequests.accept(
+               intent.id,
+               intent.accepted_check_id,
+               intent.changed_performance_ids
+             )
+
+    assert {:ok, result} = FootballMarket.Quotes.Closing.admit_now()
+    assert result.imports == 1
+    assert result.ttl == 0
+    assert result.enqueued == 1
+
+    request = Repo.get_by!(FootballMarket.Quotes.CalculationRequest, intent_id: intent.id)
+    assert request.admitted_at
+  end
+
   test "accepted changed facts pin complete immutable weekly membership before dispatch" do
     scope = Fixtures.scope(2085)
     Case.seed_catalog!(scope)

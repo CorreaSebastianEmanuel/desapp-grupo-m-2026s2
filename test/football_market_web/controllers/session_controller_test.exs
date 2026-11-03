@@ -26,7 +26,7 @@ defmodule FootballMarketWeb.SessionControllerTest do
 
     :persistent_term.put(
       {FootballMarket.BrowserTestClock, :now},
-      DateTime.add(BrowserSessions.now(), 901, :second)
+      DateTime.add(BrowserSessions.now(), 28_801, :second)
     )
 
     for conn <- [opened, build_conn() |> init_test_session(%{})] do
@@ -56,7 +56,7 @@ defmodule FootballMarketWeb.SessionControllerTest do
 
     :persistent_term.put(
       {FootballMarket.BrowserTestClock, :now},
-      DateTime.add(BrowserSessions.now(), 901, :second)
+      DateTime.add(BrowserSessions.now(), 28_801, :second)
     )
 
     assert {:error, :expired} = BrowserSessions.validate(handle)
@@ -92,7 +92,7 @@ defmodule FootballMarketWeb.SessionControllerTest do
     session
     |> Ecto.Changeset.change(
       expires_at: deadline,
-      started_at: DateTime.add(deadline, -900, :second)
+      started_at: DateTime.add(deadline, -28_800, :second)
     )
     |> Repo.update!()
 

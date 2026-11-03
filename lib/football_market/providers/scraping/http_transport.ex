@@ -18,7 +18,7 @@ defmodule FootballMarket.Providers.Scraping.HttpTransport do
     with :ok <- before_deadline(context),
          {:ok, assessment, revision, row} <-
            Assessment.admit_snapshot(state[:request], state, state[:assessment_revision]),
-         {:ok, uri, destination} <- endpoint(key, row, assessment),
+         {:ok, uri, destination} <- endpoint(key, row, assessment, state),
          {:ok, status, body} <- request(uri, context, state),
          :ok <- before_deadline(context),
          :ok <- status(status),
@@ -60,8 +60,10 @@ defmodule FootballMarket.Providers.Scraping.HttpTransport do
     _ -> {:error, %{category: :rate_limited}}
   end
 
-  defp endpoint(key, row, assessment) do
-    case Map.get(row[:documents] || %{}, key) do
+  defp endpoint(key, row, assessment, state) do
+    documents = row[:documents] || %{}
+
+    case Map.get(documents, key) || dynamic_endpoint(key, documents, state) do
       url when is_binary(url) ->
         uri = URI.parse(url)
         destination = origin(uri)
@@ -74,6 +76,60 @@ defmodule FootballMarket.Providers.Scraping.HttpTransport do
         {:error, %{category: :unsupported_capability}}
     end
   end
+
+  defp dynamic_endpoint("player_data:" <> player_id, documents, _state) do
+    player_page(documents["player_page"], player_id)
+  end
+
+  defp dynamic_endpoint("player_search:" <> player_name, documents, _state) do
+    player_search(documents["player_search"], player_name)
+  end
+
+  defp dynamic_endpoint("match_details:" <> match_id, _documents, state) do
+    match_page(Map.get(state[:match_page_urls] || %{}, match_id))
+  end
+
+  defp dynamic_endpoint(_, _, _), do: nil
+
+  defp player_page(base, player_id) when is_binary(base) do
+    if FootballMarket.Providers.Provenance.safe_text?(player_id) do
+      uri = URI.parse(base)
+
+      if uri.path in [nil, "", "/players", "/players/"] and is_nil(uri.query) and
+           is_nil(uri.fragment) do
+        %{uri | path: "/players/" <> player_id} |> URI.to_string()
+      end
+    end
+  end
+
+  defp player_page(_, _), do: nil
+
+  defp player_search(base, player_name) when is_binary(base) and is_binary(player_name) do
+    uri = URI.parse(base)
+
+    if uri.scheme == "https" and uri.host == "www.fotmob.com" and
+         uri.path == "/api/data/search/suggest" and is_nil(uri.userinfo) and
+         is_nil(uri.query) and is_nil(uri.fragment) and
+         FootballMarket.Providers.Provenance.safe_text?(player_name) do
+      query = URI.encode_query(%{"hits" => "50", "lang" => "en,es", "term" => player_name})
+      %{uri | query: query} |> URI.to_string()
+    end
+  end
+
+  defp player_search(_, _), do: nil
+
+  defp match_page(path) when is_binary(path) do
+    uri = URI.parse(path)
+    segments = String.split(uri.path || "", "/", trim: true) |> Enum.map(&URI.decode/1)
+
+    if length(segments) >= 2 and hd(segments) == "matches" and
+         Enum.all?(segments, &(&1 not in [".", "..", "api"])) and is_nil(uri.scheme) and
+         is_nil(uri.host) and is_nil(uri.userinfo) and is_nil(uri.query) do
+      URI.merge("https://www.fotmob.com", %{uri | fragment: nil}) |> URI.to_string()
+    end
+  end
+
+  defp match_page(_), do: nil
 
   defp safe_uri?(%URI{scheme: "https", host: host, userinfo: nil, fragment: nil}),
     do: is_binary(host) and host != ""
@@ -164,6 +220,11 @@ defmodule FootballMarket.Providers.Scraping.HttpTransport do
       ]
     ]
 
+    request_headers = [
+      {~c"accept", ~c"application/json"},
+      {~c"user-agent", ~c"FootballMarket/0.1 (educational statistics importer)"}
+    ]
+
     request_options = [
       sync: false,
       receiver: self(),
@@ -172,7 +233,12 @@ defmodule FootballMarket.Providers.Scraping.HttpTransport do
       max_body_size: @max_document_bytes
     ]
 
-    case :httpc.request(:get, {String.to_charlist(url), []}, http_options, request_options) do
+    case :httpc.request(
+           :get,
+           {String.to_charlist(url), request_headers},
+           http_options,
+           request_options
+         ) do
       {:ok, request_id} -> {:ok, request_id}
       {:error, _} -> {:error, %{category: :unavailable}}
     end

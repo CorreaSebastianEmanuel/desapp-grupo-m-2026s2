@@ -47,11 +47,75 @@ defmodule FootballMarket.Providers.Scraping.Assessment do
     }
   end
 
+  def local_development do
+    today = Date.utc_today()
+    start_year = if today.month >= 7, do: today.year, else: today.year - 1
+    end_year = start_year + 1
+    reviewed_at = DateTime.utc_now() |> DateTime.truncate(:second)
+
+    profile_metrics = MapSet.new([:goals, :assists, :yellow_cards, :red_cards])
+
+    metrics =
+      Map.new(Performances.count_keys(), fn key ->
+        if MapSet.member?(profile_metrics, key) do
+          {key,
+           %{
+             status: :verified,
+             meaning: @meanings[key],
+             evidence: "FotMob authorized public player profile match-history fields"
+           }}
+        else
+          {key, %{status: :unavailable, meaning: @meanings[key], evidence: nil}}
+        end
+      end)
+
+    row = %{
+      required: :verified,
+      witness: "fotmob-authorized-player-profile-v1",
+      competition: "54",
+      season: "#{start_year}/#{end_year}",
+      positions: %{"38" => "DEF"},
+      documents: %{
+        "player_page" => "https://www.fotmob.com/players",
+        "player_search" => "https://www.fotmob.com/api/data/search/suggest"
+      },
+      metrics: metrics
+    }
+
+    %{
+      mode: :live,
+      revision: "local-fotmob-top-five-#{start_year}-v4",
+      permission: :granted,
+      withdrawn: false,
+      conditions: :satisfied,
+      evidence:
+        "User reports written FotMob authorization for this local educational use; public search suggestion, player, and match resources",
+      reviewed_at: reviewed_at,
+      expires_at: DateTime.add(reviewed_at, 30 * 24 * 60 * 60, :second),
+      destinations: ["https://www.fotmob.com"],
+      limits: %{concurrency: 1, volume: 20, cadence_ms: 0},
+      scopes:
+        Map.new(%{"PL" => "47", "BL1" => "54", "PD" => "87", "SA" => "55", "FL1" => "53"}, fn
+          {league_code, competition} ->
+            scoped_row = Map.put(row, :competition, competition)
+            {{:performances, league_code, start_year, end_year}, scoped_row}
+        end)
+    }
+  end
+
   def current(state) do
     cond do
       is_function(state[:assessment_reader], 0) -> state.assessment_reader.()
       not is_nil(state[:assessment]) -> state[:assessment]
-      true -> Application.get_env(:football_market, :scraping_assessment, actual())
+      true -> configured_assessment()
+    end
+  end
+
+  defp configured_assessment do
+    case Application.get_env(:football_market, :scraping_assessment, actual()) do
+      :local_development -> if(Mix.env() == :dev, do: local_development(), else: actual())
+      assessment when is_map(assessment) -> assessment
+      _ -> actual()
     end
   end
 

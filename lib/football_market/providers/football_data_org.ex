@@ -10,10 +10,26 @@ defmodule FootballMarket.Providers.FootballDataOrg do
     "Goalkeeper" => "GK",
     "Defence" => "DEF",
     "Defender" => "DEF",
+    "Centre-Back" => "DEF",
+    "Centre Back" => "DEF",
+    "Left-Back" => "DEF",
+    "Right-Back" => "DEF",
+    "Full-Back" => "DEF",
     "Midfield" => "MID",
     "Midfielder" => "MID",
+    "Central Midfield" => "MID",
+    "Defensive Midfield" => "MID",
+    "Attacking Midfield" => "MID",
+    "Left Midfield" => "MID",
+    "Right Midfield" => "MID",
     "Offence" => "FWD",
-    "Forward" => "FWD"
+    "Forward" => "FWD",
+    "Centre-Forward" => "FWD",
+    "Second Striker" => "FWD",
+    "Striker" => "FWD",
+    "Left Winger" => "FWD",
+    "Right Winger" => "FWD",
+    "Winger" => "FWD"
   }
 
   @impl true
@@ -151,7 +167,8 @@ defmodule FootballMarket.Providers.FootballDataOrg do
     Enum.reduce_while(rows, {:ok, []}, fn row, {:ok, acc} ->
       with %{"id" => id, "name" => name, "position" => position}
            when is_integer(id) and id > 0 and is_binary(name) and byte_size(name) > 0 <- row,
-           position_code when is_binary(position_code) <- @positions[position] do
+           position_code when is_binary(position_code) <-
+             if(is_nil(position), do: "UNK", else: @positions[position]) do
         player = %{
           ref: "football-data.org:player:#{id}",
           season_ref: "football-data.org:season:#{season_ref}",
@@ -326,7 +343,8 @@ defmodule FootballMarket.Providers.FootballDataOrg do
       "GK" => "Goalkeeper",
       "DEF" => "Defender",
       "MID" => "Midfielder",
-      "FWD" => "Forward"
+      "FWD" => "Forward",
+      "UNK" => "Sin posición"
     }
 
     rows =

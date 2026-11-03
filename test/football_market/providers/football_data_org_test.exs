@@ -61,7 +61,7 @@ defmodule FootballMarket.Providers.FootballDataOrgTest do
     assert replay.bindings == candidate.bindings
   end
 
-  test "rejects missing, empty, or malformed squad data before publication" do
+  test "rejects empty squads and unsupported position labels before publication" do
     assert FootballDataOrg.valid_token?("valid-token")
     refute FootballDataOrg.valid_token?("  invalid-token  ")
     refute FootballDataOrg.valid_token?(nil)
@@ -89,6 +89,65 @@ defmodule FootballMarket.Providers.FootballDataOrgTest do
 
     assert {:error, %{category: :invalid_response}} =
              FootballDataOrg.read(request, context, invalid_position)
+  end
+
+  test "preserves a player with no reported position under the neutral catalog role" do
+    {:ok, request} = Request.normalize(:catalog, @scope)
+
+    context = %{
+      deadline_us: System.monotonic_time(:microsecond) + 30_000_000,
+      runtime: {Runtime, nil},
+      positions: %{
+        "GK" => "Goalkeeper",
+        "DEF" => "Defender",
+        "MID" => "Midfielder",
+        "FWD" => "Forward",
+        "UNK" => "Sin posición"
+      }
+    }
+
+    state = %{
+      token: "runtime-only-token",
+      get: fn url, _, _ -> response(url, "missing_position") end,
+      sleep: fn _ -> :ok end
+    }
+
+    assert {:ok, candidate} = FootballDataOrg.read(request, context, state)
+
+    assert Enum.any?(candidate.facts.positions, &(&1.code == "UNK" and &1.name == "Sin posición"))
+
+    assert Enum.any?(candidate.facts.players, fn player ->
+             player.display_name == "Unclassified Player" and player.position_ref == "UNK"
+           end)
+
+    assert {:ok, result} =
+             Validator.validate(candidate, request, context, FootballDataOrg.provider_label())
+
+    assert Enum.any?(result.facts.players, &(&1.position_ref == "UNK"))
+  end
+
+  test "normalizes detailed defender and midfield position labels" do
+    {:ok, request} = Request.normalize(:catalog, @scope)
+
+    context = %{
+      deadline_us: System.monotonic_time(:microsecond) + 30_000_000,
+      runtime: {Runtime, nil},
+      positions: %{
+        "DEF" => "Defender",
+        "MID" => "Midfielder",
+        "FWD" => "Forward"
+      }
+    }
+
+    state = %{
+      token: "runtime-only-token",
+      get: fn url, _, _ -> response(url, "detailed_position") end,
+      sleep: fn _ -> :ok end
+    }
+
+    assert {:ok, candidate} = FootballDataOrg.read(request, context, state)
+    assert Enum.any?(candidate.facts.players, &(&1.position_ref == "DEF"))
+    assert Enum.any?(candidate.facts.players, &(&1.position_ref == "MID"))
   end
 
   test "honors a provider rate-limit reset without retrying the HTTP request" do
@@ -192,6 +251,28 @@ defmodule FootballMarket.Providers.FootballDataOrgTest do
             "name" => "Arsenal FC",
             "tla" => "ARS",
             "squad" => [%{"id" => 9001, "name" => "Alex Keeper", "position" => "Coach"}]
+          }
+
+        mode == "missing_position" and String.ends_with?(URI.parse(url).path, "/65") ->
+          %{
+            "id" => 65,
+            "name" => "Arsenal FC",
+            "tla" => "ARS",
+            "squad" => [
+              %{"id" => 9001, "name" => "Alex Keeper", "position" => "Goalkeeper"},
+              %{"id" => 9003, "name" => "Unclassified Player", "position" => nil}
+            ]
+          }
+
+        mode == "detailed_position" and String.ends_with?(URI.parse(url).path, "/65") ->
+          %{
+            "id" => 65,
+            "name" => "Arsenal FC",
+            "tla" => "ARS",
+            "squad" => [
+              %{"id" => 9004, "name" => "Casey Defender", "position" => "Centre-Back"},
+              %{"id" => 9005, "name" => "Drew Midfielder", "position" => "Central Midfield"}
+            ]
           }
 
         String.ends_with?(URI.parse(url).path, "/66") ->

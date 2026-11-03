@@ -1418,6 +1418,12 @@
       "reason": "Maintained first-party application implementation source: lib/football_market_web/live/browser_auth.ex."
     },
     {
+      "path": "lib/football_market_web/live/local_admin_live.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Local operations admin LiveView implementation."
+    },
+    {
       "path": "lib/football_market_web/live/workspace_live.ex",
       "role": "application",
       "disposition": "include",
@@ -1728,6 +1734,24 @@
       "role": "migration",
       "disposition": "exclude",
       "reason": "Provider request pacing migration, not maintained application implementation: priv/repo/migrations/20261102000000_create_provider_rate_limits.exs."
+    },
+    {
+      "path": "priv/repo/migrations/20261102000100_add_player_scoped_statistics_checks.exs",
+      "role": "migration",
+      "disposition": "exclude",
+      "reason": "Non-application migration or test source: priv/repo/migrations/20261102000100_add_player_scoped_statistics_checks.exs."
+    },
+    {
+      "path": "priv/repo/migrations/20261102000200_add_unknown_catalog_position.exs",
+      "role": "migration",
+      "disposition": "exclude",
+      "reason": "Non-application migration or test source: priv/repo/migrations/20261102000200_add_unknown_catalog_position.exs."
+    },
+    {
+      "path": "priv/repo/migrations/20261102000300_extend_browser_session_deadline.exs",
+      "role": "migration",
+      "disposition": "exclude",
+      "reason": "Non-application migration or test source: priv/repo/migrations/20261102000300_extend_browser_session_deadline.exs."
     },
     {
       "path": "scripts/application_coverage_native.exs",
@@ -3594,6 +3618,12 @@
       "role": "test",
       "disposition": "exclude",
       "reason": "Test code, not application behavior: test/football_market_web/live/conditional_orders_live_test.exs."
+    },
+    {
+      "path": "test/football_market_web/live/local_admin_live_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Non-application migration or test source: test/football_market_web/live/local_admin_live_test.exs."
     },
     {
       "path": "test/football_market_web/live/portfolio_live_test.exs",

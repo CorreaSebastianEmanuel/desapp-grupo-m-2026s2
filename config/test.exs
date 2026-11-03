@@ -1,6 +1,8 @@
 import Config
 
 config :football_market, development_seed_enabled: true
+config :football_market, :browser_session_ttl_seconds, 28_800
+config :football_market, :local_admin_enabled, true
 
 # The report is informational only. Its denominator is deliberately restricted
 # to repository-owned application modules; test, generated, and dependency code

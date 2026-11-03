@@ -52,7 +52,10 @@ defmodule FootballMarket.FreshnessCase do
     run = Repo.get!(Run, status.refresh.run_id)
     assert :ok = FootballMarket.Workers.StatisticsImport.perform(Repo.get!(Oban.Job, run.job_id))
     run = Repo.get!(Run, run.id)
-    assert run.state == "succeeded", "fixture import did not succeed: #{inspect(run.reason)}"
+
+    assert run.state == "succeeded",
+           "fixture import did not succeed: #{inspect({run.reason, run.outcome})}"
+
     run
   end
 

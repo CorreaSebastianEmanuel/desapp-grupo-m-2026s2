@@ -225,6 +225,7 @@ defmodule FootballMarket.E2E.Fixtures do
   def catalog!(base) do
     %{user: user} = account!()
     {:ok, jwt} = Accounts.Authentication.issue(user.id)
+    FootballMarket.IngestionFixtures.setup_primary_account!()
     FootballMarket.IngestionFixtures.positions!()
     gate = make_ref()
     source = FootballMarket.E2E.FixtureAdapter.source(self(), gate)
@@ -235,10 +236,7 @@ defmodule FootballMarket.E2E.Fixtures do
       sources: %{"e2e-fixture" => source}
     )
 
-    immutable =
-      snapshot(
-        ~w(market_initial_recipients market_quotes market_holdings market_issuances matches player_match_performances)
-      )
+    immutable = snapshot(~w(matches player_match_performances))
 
     identity =
       Enum.reduce(1..2, nil, fn _, previous_identity ->
@@ -286,7 +284,31 @@ defmodule FootballMarket.E2E.Fixtures do
     record = hd(data["data"])
     assert {:ok, _} = Ecto.UUID.cast(record["id"])
     assert is_binary(record["catalog_identity"]) and record["catalog_identity"] != ""
+    assert_primary_initial_issuance(record["id"])
     {record["id"], record["catalog_identity"], record["season"]}
+  end
+
+  defp assert_primary_initial_issuance(player_id) do
+    issuance = Repo.get_by!(FootballMarket.Market.Issuance, player_id: player_id)
+    recipient_id = "00000000-0000-4000-8000-000000000085"
+
+    assert issuance.recipient_id == recipient_id
+    assert issuance.quantity == 100
+
+    assert Repo.get_by!(FootballMarket.Market.Holding,
+             player_id: player_id,
+             user_id: recipient_id
+           ).quantity == 100
+
+    assert Repo.aggregate(FootballMarket.Market.Issuance, :count) == 1
+    assert Repo.aggregate(FootballMarket.Market.InitialRecipient, :count) == 1
+
+    assert Repo.aggregate(
+             from(q in FootballMarket.Market.Quote,
+               where: q.player_id == ^player_id and q.rule_id == "initial_issuance"
+             ),
+             :count
+           ) == 1
   end
 
   defp assert_expected_player(data) do

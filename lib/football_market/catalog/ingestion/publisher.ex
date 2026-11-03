@@ -51,8 +51,14 @@ defmodule FootballMarket.Catalog.Ingestion.Publisher do
       end)
 
     case transaction do
-      {:ok, outcome} -> {:ok, outcome}
-      {:error, {status, reason}} -> failure(status, result, reason)
+      {:ok, outcome} ->
+        {:ok, outcome}
+
+      {:error, {:initial_player_issuance_failed, _reason}} ->
+        failure(:persistence_failure, result, :publication_failed)
+
+      {:error, {status, reason}} ->
+        failure(status, result, reason)
     end
   rescue
     error in Ecto.ConstraintError ->

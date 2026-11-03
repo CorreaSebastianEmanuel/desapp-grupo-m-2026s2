@@ -53,11 +53,11 @@ defmodule FootballMarket.Providers.Scraping.Assessment do
     end_year = start_year + 1
     reviewed_at = DateTime.utc_now() |> DateTime.truncate(:second)
 
-    profile_metrics = MapSet.new([:goals, :assists, :yellow_cards, :red_cards])
+    profile_metrics = [:goals, :assists, :yellow_cards, :red_cards]
 
     metrics =
       Map.new(Performances.count_keys(), fn key ->
-        if MapSet.member?(profile_metrics, key) do
+        if key in profile_metrics do
           {key,
            %{
              status: :verified,

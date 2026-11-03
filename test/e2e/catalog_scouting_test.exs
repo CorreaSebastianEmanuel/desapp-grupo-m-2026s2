@@ -7,6 +7,7 @@ defmodule FootballMarket.E2E.CatalogScoutingTest do
   test "real browser search returns immediately and receives the imported catalog result" do
     FootballMarket.E2E.Runtime.with_runtime!(fn base ->
       credentials = FootballMarket.E2E.Fixtures.account!()
+      FootballMarket.IngestionFixtures.setup_primary_account!()
       FootballMarket.IngestionFixtures.positions!()
       gate = make_ref()
 

@@ -2,9 +2,9 @@
 
 ## Re-review
 
-Reviewed the repair delta in `lib/football_market/market.ex` and the affected catalog publication and statistics acceptance paths. Missing configuration now returns an error, which the transactional callers convert to rollback. Existing issuance remains idempotent: an already issued player returns its stored issuance before checking current configuration. The new catalog and player-scoped statistics tests cover rollback with no configured primary account. Ambiguous and invalid recipients remain fail-closed through configuration matching and `Input.validate/3`; `Store` checks that the configured user exists before issuing.
+Reviewed the current repair delta in `lib/football_market/catalog/ingestion/publisher.ex`, `lib/football_market/providers/scraping/assessment.ex`, and the affected E2E support. Catalog publication now maps `{:initial_player_issuance_failed, reason}` transaction rollbacks to the expected persistence failure outcome. The E2E catalog workflow establishes the configured primary account before publication, asserts the 100-token issuance, recipient holding, and initial quote, and scopes its immutable-state snapshot to actual immutable rows. Scraping assessment changes the four verified profile metrics from a `MapSet` membership check to list membership; each configured performance metric is still classified against the same four-element set.
 
-The previously reported missing-configuration finding is resolved. I found no new blocking implementation defect in the repair delta.
+The previously reported missing-configuration finding remains resolved. I found no new blocking implementation defect in this repair delta.
 
 ## Acceptance evidence
 
@@ -18,11 +18,11 @@ The previously reported missing-configuration finding is resolved. I found no ne
 | Atomic issuance; no league-wide mass issuance | Issuance is invoked inside the catalog/statistics transactions and errors roll them back. Statistics acceptance without player scope skips issuance. New missing-configuration rollback tests assert no accepted catalog/statistics state remains. |
 | Missing, ambiguous, or nonexistent recipient configuration | Missing designation returns an error; ambiguous lists are rejected; `Input.validate/3` rejects malformed identifiers and `Store` rejects nonexistent users. The local admin reports configuration status. |
 | Local-only operator route and eight-hour browser sessions | Router gates `/__local/ops` behind local-admin configuration; session migration and lifecycle tests cover the extended deadline. |
-| Local candidate evidence | Candidate receipt `.agentflow/runs/thinflow/TASK-085/candidate.json` reports CI contracts (27 passed), harness tests (382 passed), format, compile, and unit profile (706 passed). Recomputing `material_digest` against the receipt selection and current selected files yields `bef3997a801ad3f7edc2eea679a00c22075756bac2afd83543d6c158f9bbb314`, matching the receipt digest; all recorded checks passed. `git diff --check` passed. |
+| Local candidate evidence | Candidate receipt `.agentflow/runs/thinflow/TASK-085/candidate.json` selects the high tier and reports passing CI contracts, harness tests, format, compile, and unit profile. Recomputing `material_digest` over the receipt selection and current selected files yields `f55f77f51c03baa4021cf40921e83e2f5633f1189e94aefe14b9ac343fb255ac`, matching the receipt digest and binding the current repair delta. `git diff --check` passed. |
 
 ## Findings
 
-No blocking findings. The previously reported missing-configuration behavior is repaired, and the refreshed candidate receipt binds the selected local checks to the current candidate. This evaluation supports readiness for hosted CI and human merge; it does not replace either gate.
+No blocking findings. The previously reported missing-configuration behavior is repaired, the current delta introduces no blocking regression, and the candidate receipt binds all selected passing checks to the current candidate. This evaluation supports readiness for hosted CI and human merge; it does not replace either gate.
 
 ## Residual status
 

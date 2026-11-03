@@ -1106,6 +1106,7 @@ defmodule FootballMarket.WorkflowScope do
       "test/football_market/statistics/scope_test.exs",
       "test/football_market/synchronization/input_test.exs",
       "test/football_market_web/browser_feedback_test.exs",
+      "test/e2e/catalog_scouting_test.exs",
       "test/football_market_web/controllers/session_controller_test.exs",
       "test/football_market_web/live/browser_session_lifecycle_test.exs",
       "test/football_market_web/live/local_admin_live_test.exs",

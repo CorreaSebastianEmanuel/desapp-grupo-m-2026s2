@@ -71,6 +71,15 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
              "no está disponible temporalmente"
            )
 
+    assert has_element?(view, "#portfolio-tab-positions[aria-current=page]")
+    assert has_element?(view, "#portfolio-panel-performance[hidden]")
+    assert has_element?(view, "#portfolio-panel-details[hidden]")
+    view |> element("#portfolio-tab-performance") |> render_click()
+    refute has_element?(view, "#portfolio-panel-performance[hidden]")
+    assert has_element?(view, "#portfolio-panel-positions[hidden]")
+    view |> element("#portfolio-tab-details") |> render_click()
+    refute has_element?(view, "#portfolio-panel-details[hidden]")
+
     today = Date.utc_today()
 
     view
@@ -94,6 +103,7 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
     |> render_submit()
 
     assert has_element?(view, "#portfolio-range-invalid", "rango permitido")
+    assert has_element?(view, "#portfolio-tab-details[aria-current=page]")
   end
 
   test "authenticated transaction history displays purchase details and paginates" do
@@ -358,7 +368,7 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
     user = account("card@example.com")
     %{players: [player]} = FootballMarket.CatalogCase.insert_catalog!()
     {:ok, view, _} = live(authenticated_conn(user), "/players")
-    view |> form("#player-catalog-search", player_search: player.display_name) |> render_submit()
+    view |> form("#player-catalog-search", player_search: player.display_name) |> render_change()
     assert has_element?(view, "a[href^='/players?player_id=#{player.id}']", "Ver ficha y operar")
 
     query = URI.encode_query(%{q: player.display_name})

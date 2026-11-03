@@ -29,8 +29,8 @@ try {
   phase = 'catalog-search';
   await page.waitForSelector('.phx-connected #player-catalog-search');
   await page.getByLabel('Nombre del jugador', {exact: true}).fill(name);
-  await page.getByRole('button', {name: 'Buscar jugadores', exact: true}).click();
   await page.waitForURL(url => url.searchParams.get('q') === name);
+  assert.equal(await page.locator('#player-search').getAttribute('phx-debounce'), '300');
   phase = 'combined-catalog-filters';
   const filters = JSON.parse(filtersJson);
   await page.locator('#catalog-league').selectOption(filters.league_id);
@@ -162,7 +162,15 @@ try {
   assert.match(await page.locator('#transactions tbody').innerText(), /Compra|Venta/);
   phase = 'portfolio-analytics';
   await page.getByRole('link', {name: 'Portafolio', exact: true}).click();
-  await page.waitForSelector('.phx-connected #portfolio-history-range');
+  await page.waitForSelector('.phx-connected #portfolio-panel-positions');
+  assert.equal(await page.locator('#portfolio-panel-performance').isVisible(), false);
+  assert.equal(await page.locator('#portfolio-panel-details').isVisible(), false);
+  await page.getByRole('link', {name: 'Rendimiento', exact: true}).click();
+  await page.waitForSelector('#portfolio-panel-performance', {state: 'visible'});
+  assert.equal(await page.locator('#portfolio-panel-positions').isVisible(), false);
+  await page.getByRole('link', {name: 'Detalle financiero', exact: true}).click();
+  await page.waitForSelector('#portfolio-panel-details', {state: 'visible'});
+  await page.waitForSelector('#portfolio-history-range');
   assert.equal(await page.locator('#portfolio-allocation-table').count(), 1);
   assert.equal(await page.locator('#portfolio-history-table').count(), 1);
   assert.equal(await page.locator('#portfolio-history-table').isVisible(), false);

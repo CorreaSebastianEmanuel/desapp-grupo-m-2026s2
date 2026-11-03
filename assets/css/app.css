@@ -747,3 +747,19 @@ tfoot { background: #f4f8f1; font-weight: 650; }
   .podium-card:hover { transform: none; }
   .phx-submit-loading button[type=submit]::before { animation: none; }
 }
+
+/* Text identities align to a shared left edge; amounts retain their numeric alignment. */
+#transactions th:nth-child(1), #transactions td:nth-child(1),
+#transactions th:nth-child(2), #transactions td:nth-child(2),
+#transactions th:nth-child(6), #transactions td:nth-child(6) { text-align: left; }
+#transactions td:nth-child(2) { min-width: 230px; }
+#transactions .player-identity { display: flex; }
+#transactions .player-avatar { flex-shrink: 0; }
+#portfolio [hidden] { display: none !important; }
+.portfolio-tabs { display: flex; gap: 8px; margin: 24px 0; padding: 6px; background: #e9eeea; border-radius: 12px; flex-wrap: wrap; }
+.portfolio-tabs a { flex: 1; padding: 12px 16px; border-radius: 8px; text-align: center; text-decoration: none; color: var(--muted); font-weight: 600; font-size: 14px; }
+.portfolio-tabs a[aria-current="page"] { background: white; color: var(--green); box-shadow: 0 2px 5px #102d2110; }
+.portfolio-tabs a:hover { color: var(--green); }
+.search-feedback { display: none; margin-top: 10px; font-size: 13px; color: var(--green); }
+.phx-change-loading .search-feedback, .phx-submit-loading .search-feedback { display: block; }
+@media (max-width: 700px) { .portfolio-tabs a { padding: 10px 8px; font-size: 13px; } }

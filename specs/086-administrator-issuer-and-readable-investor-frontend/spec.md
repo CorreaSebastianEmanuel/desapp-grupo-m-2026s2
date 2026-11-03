@@ -1,6 +1,6 @@
 ## Outcome
 
-TASK-086 delivers authenticated market administration and a readable investor frontend on `086-administrator-issuer-and-readable-investor-frontend`, stacked on PR #91. The primary inventory account administers selection of existing valuation versions; investors can understand portfolio and quote data and correct rejected trades in the same session.
+TASK-086 delivers authenticated market administration and a readable investor frontend on `086-administrator-issuer-and-readable-investor-frontend`, based on main after the accepted PR #91. The primary inventory account administers selection of existing valuation versions; investors can understand portfolio and quote data and correct rejected trades in the same session.
 
 ## Acceptance
 

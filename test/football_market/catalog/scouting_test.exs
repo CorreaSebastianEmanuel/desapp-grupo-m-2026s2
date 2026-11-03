@@ -3,6 +3,12 @@ defmodule FootballMarket.Catalog.ScoutingTest do
 
   @moduletag :integration
 
+  setup do
+    restore = FootballMarket.IngestionFixtures.setup_primary_account!()
+    on_exit(restore)
+    :ok
+  end
+
   import Ecto.Query
   alias FootballMarket.{Catalog, Repo, Synchronization}
   alias FootballMarket.Catalog.ScoutRun
@@ -66,7 +72,15 @@ defmodule FootballMarket.Catalog.ScoutingTest do
     assert {:ok, [player], nil} = Catalog.search_players("alex")
     assert player.display_name == "Alex"
 
-    assert financial_snapshot() == before
+    assert financial_snapshot() == %{
+             before
+             | FootballMarket.Market.Holding => before[FootballMarket.Market.Holding] + 1,
+               FootballMarket.Market.Quote => before[FootballMarket.Market.Quote] + 1
+           }
+
+    issuance = Repo.get_by!(FootballMarket.Market.Issuance, player_id: player.id)
+    assert issuance.recipient_id == "00000000-0000-4000-8000-000000000085"
+    assert issuance.quantity == 100
   end
 
   test "catalog misses deduplicate, negative-cache fruitless runs, and reject invalid names" do

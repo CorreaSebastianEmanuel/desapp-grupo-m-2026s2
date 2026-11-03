@@ -1,6 +1,13 @@
 defmodule FootballMarket.Synchronization.RecoveryTest do
   use FootballMarket.DataCase, async: false
   @moduletag :integration
+
+  setup do
+    restore = FootballMarket.IngestionFixtures.setup_primary_account!()
+    on_exit(restore)
+    :ok
+  end
+
   alias FootballMarket.Synchronization
   alias FootballMarket.Synchronization.{Fixtures, Run, Recovery, Store}
 

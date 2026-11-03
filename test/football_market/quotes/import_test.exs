@@ -2,6 +2,12 @@ defmodule FootballMarket.Quotes.ImportTest do
   use FootballMarket.DataCase, async: false
   @moduletag :integration
 
+  setup do
+    restore = FootballMarket.IngestionFixtures.setup_primary_account!()
+    on_exit(restore)
+    :ok
+  end
+
   alias FootballMarket.{Repo, Statistics}
   alias FootballMarket.Statistics.Ingestion.CalculationIntent
   alias FootballMarket.StatisticsIngestion.{Case, Fixtures}

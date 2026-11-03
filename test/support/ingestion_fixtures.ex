@@ -20,9 +20,15 @@ defmodule FootballMarket.IngestionFixtures do
   def setup_primary_account! do
     previous = Application.get_env(:football_market, :initial_issuance_recipients, [])
 
+    recipient = Repo.get(FootballMarket.Market.InitialRecipient, 1)
+
     user =
-      Repo.get(User, @test_primary_id) ||
-        Repo.insert!(%User{id: @test_primary_id, email: "primary-task085@example.com"})
+      if recipient do
+        Repo.get!(User, recipient.user_id)
+      else
+        Repo.get(User, @test_primary_id) ||
+          Repo.insert!(%User{id: @test_primary_id, email: "primary-task085@example.com"})
+      end
 
     Application.put_env(:football_market, :initial_issuance_recipients, [user.id])
     fn -> Application.put_env(:football_market, :initial_issuance_recipients, previous) end

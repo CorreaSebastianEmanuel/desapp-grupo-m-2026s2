@@ -1,7 +1,7 @@
 defmodule FootballMarket.Catalog.Ingestion.ReconciliationTest do
   use FootballMarket.DataCase, async: false
   @moduletag :integration
-  import FootballMarket.IngestionFixtures
+  use FootballMarket.IngestionFixtures
   alias FootballMarket.Catalog.Ingestion
 
   test "catalog requests normalize the canonical league-season" do

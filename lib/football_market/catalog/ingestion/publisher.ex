@@ -55,9 +55,20 @@ defmodule FootballMarket.Catalog.Ingestion.Publisher do
       {:error, {status, reason}} -> failure(status, result, reason)
     end
   rescue
+    error in Ecto.ConstraintError ->
+      if String.starts_with?(error.constraint, [
+           "catalog_ingestion_scopes_",
+           "teams_season_",
+           "players_season_"
+         ]) do
+        recover_scope_race(result, Canonical.encode(result))
+      else
+        failure(:persistence_failure, result, :publication_failed)
+      end
+
     error in Postgrex.Error ->
       if error.postgres && error.postgres.code == :unique_violation,
-        do: failure(:reconciliation_conflict, result, :business_identity_conflict),
+        do: recover_scope_race(result, Canonical.encode(result)),
         else: failure(:persistence_failure, result, :publication_failed)
 
     _error ->
@@ -85,6 +96,19 @@ defmodule FootballMarket.Catalog.Ingestion.Publisher do
 
     <<key::signed-64, _::binary>> = bytes
     Ecto.Adapters.SQL.query!(Repo, "SELECT pg_advisory_xact_lock($1)", [key])
+  end
+
+  defp recover_scope_race(result, encoded) do
+    case scope_row(result.scope) do
+      nil ->
+        failure(:persistence_failure, result, :publication_failed)
+
+      scope ->
+        case Repo.get_by(Observation, scope_id: scope.id, delivery_digest: encoded.digest) do
+          nil -> failure(:concurrent_change, result, :scope_revision_changed)
+          observation -> {:ok, outcome(observation, result.scope, :replay)}
+        end
+    end
   end
 
   defp order!(nil, _), do: :ok

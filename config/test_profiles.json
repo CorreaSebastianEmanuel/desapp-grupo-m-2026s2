@@ -8976,6 +8976,13 @@
       "profile": "unit"
     },
     {
+      "id": "e4526b863a4dc789221b33f6",
+      "runner": "exunit",
+      "file": "test/football_market/statistics/ingestion/acceptance_test.exs",
+      "case_id": "FootballMarket.Statistics.Ingestion.AcceptanceTest:test player-scoped acceptance rolls back when the primary account is not configured",
+      "profile": "integration"
+    },
+    {
       "id": "e4bef48b98c4e8141af1f60a",
       "runner": "exunit",
       "file": "test/football_market/accounts/authentication_test.exs",
@@ -9106,6 +9113,13 @@
       "runner": "exunit",
       "file": "test/ci/profile_integration_sentinel_test.exs",
       "case_id": "FootballMarket.ProfileIntegrationSentinelTest:test writes opaque completion evidence only for the selected integration profile",
+      "profile": "integration"
+    },
+    {
+      "id": "e75d8ee1278b6e3691880e6e",
+      "runner": "exunit",
+      "file": "test/football_market/catalog/ingestion/publication_test.exs",
+      "case_id": "FootballMarket.Catalog.Ingestion.PublicationTest:test new catalog players roll back when the primary account is not configured",
       "profile": "integration"
     },
     {

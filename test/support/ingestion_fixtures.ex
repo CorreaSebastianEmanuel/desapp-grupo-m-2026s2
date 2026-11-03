@@ -1,6 +1,32 @@
 defmodule FootballMarket.IngestionFixtures do
   @moduledoc false
   alias FootballMarket.{Catalog, Repo}
+  alias FootballMarket.Accounts.User
+
+  @test_primary_id "00000000-0000-4000-8000-000000000085"
+
+  defmacro __using__(_options) do
+    quote do
+      import FootballMarket.IngestionFixtures
+
+      setup do
+        restore = FootballMarket.IngestionFixtures.setup_primary_account!()
+        on_exit(restore)
+        :ok
+      end
+    end
+  end
+
+  def setup_primary_account! do
+    previous = Application.get_env(:football_market, :initial_issuance_recipients, [])
+
+    user =
+      Repo.get(User, @test_primary_id) ||
+        Repo.insert!(%User{id: @test_primary_id, email: "primary-task085@example.com"})
+
+    Application.put_env(:football_market, :initial_issuance_recipients, [user.id])
+    fn -> Application.put_env(:football_market, :initial_issuance_recipients, previous) end
+  end
 
   @leagues [
     {"PL", "Premier League"},
@@ -75,10 +101,18 @@ defmodule FootballMarket.IngestionFixtures do
   end
 
   def options(candidate \\ candidate(), instant \\ ~U[2026-10-06 12:00:00.000000Z]) do
+    ensure_test_primary_account!()
+
     [
       provider: {FootballMarket.IngestionFixtureAdapter, candidate},
       runtime: {FootballMarket.IngestionFixtureRuntime, %{instant: instant}}
     ]
+  end
+
+  defp ensure_test_primary_account! do
+    unless Repo.get(User, @test_primary_id) do
+      Repo.insert!(%User{id: @test_primary_id, email: "primary-task085@example.com"})
+    end
   end
 
   def snapshot do

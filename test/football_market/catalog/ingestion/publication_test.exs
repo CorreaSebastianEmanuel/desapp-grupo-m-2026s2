@@ -1,7 +1,7 @@
 defmodule FootballMarket.Catalog.Ingestion.PublicationTest do
   use FootballMarket.DataCase, async: false
   @moduletag :integration
-  import FootballMarket.IngestionFixtures
+  use FootballMarket.IngestionFixtures
   alias FootballMarket.Catalog.Ingestion
   alias FootballMarket.Catalog.Player
   alias FootballMarket.Catalog.Team
@@ -46,6 +46,23 @@ defmodule FootballMarket.Catalog.Ingestion.PublicationTest do
              )
 
     assert Repo.aggregate(FootballMarket.Market.Issuance, :count) == 1
+  end
+
+  test "new catalog players roll back when the primary account is not configured" do
+    positions!()
+    previous = Application.get_env(:football_market, :initial_issuance_recipients, [])
+    Application.put_env(:football_market, :initial_issuance_recipients, [])
+
+    on_exit(fn ->
+      Application.put_env(:football_market, :initial_issuance_recipients, previous)
+    end)
+
+    before = snapshot()
+
+    assert {:error, %{status: :persistence_failure}} =
+             Ingestion.import_catalog(request(), options())
+
+    assert snapshot() == before
   end
 
   test "persistence interruption leaves no orphan hierarchy or acceptance" do

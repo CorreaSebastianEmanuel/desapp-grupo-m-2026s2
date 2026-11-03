@@ -1,6 +1,7 @@
 import Config
 
 config :football_market, development_seed_enabled: true
+config :football_market, :initial_issuance_recipients, ["00000000-0000-4000-8000-000000000085"]
 config :football_market, :browser_session_ttl_seconds, 28_800
 config :football_market, :local_admin_enabled, true
 

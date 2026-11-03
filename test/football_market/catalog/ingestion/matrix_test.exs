@@ -10,6 +10,12 @@ defmodule FootballMarket.Catalog.Ingestion.MatrixTest do
   alias FootballMarket.Catalog.Ingestion.Observation
   alias FootballMarket.Catalog.Ingestion.SourceBinding
 
+  setup do
+    restore = Sandbox.unboxed_run(Repo, fn -> setup_primary_account!() end)
+    on_exit(restore)
+    :ok
+  end
+
   test "two fresh five-league/two-season runs reproduce independently expected catalogs and outcomes" do
     before = Sandbox.unboxed_run(Repo, fn -> {snapshot(), acceptance_snapshot()} end)
 

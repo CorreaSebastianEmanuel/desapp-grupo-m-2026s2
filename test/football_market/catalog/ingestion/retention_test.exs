@@ -1,7 +1,7 @@
 defmodule FootballMarket.Catalog.Ingestion.RetentionTest do
   use FootballMarket.DataCase, async: false
   @moduletag :integration
-  import FootballMarket.IngestionFixtures
+  use FootballMarket.IngestionFixtures
   alias FootballMarket.Repo
   alias FootballMarket.Catalog.Ingestion
   alias FootballMarket.Catalog.Ingestion.Observation

@@ -1,29 +1,31 @@
 # Independent evaluation
 
-## Re-review: repair commit `de5790c1`
+## Re-review
 
-The repair delta was reviewed against the affected catalog publication, statistics acceptance/replay, scraping translation, synchronization input, local admin projections, and browser-session expiry paths. The issuance calls still run inside the parent acceptance transactions: catalog inserts only call issuance for inserted players, and statistics acceptance/replay only call it when `player_id` is present. Issuance errors roll back the transaction; empty/ambiguous recipient configuration does not select a user, and the operator surface reports configuration status. The refactors preserve league/season/player scoping, job context projection, and configured session TTL expiry behavior. No new blocking regression was found.
+Reviewed the repair delta in `lib/football_market/market.ex` and the affected catalog publication and statistics acceptance paths. Missing configuration now returns an error, which the transactional callers convert to rollback. Existing issuance remains idempotent: an already issued player returns its stored issuance before checking current configuration. The new catalog and player-scoped statistics tests cover rollback with no configured primary account. Ambiguous and invalid recipients remain fail-closed through configuration matching and `Input.validate/3`; `Store` checks that the configured user exists before issuing.
+
+The previously reported missing-configuration finding is resolved. I found no new blocking implementation defect in the repair delta.
 
 ## Acceptance evidence
 
 | Acceptance area | Evidence and result |
 | --- | --- |
-| Five-league catalog sync/search; preserve accepted catalog on provider failure | `config/synchronization.ex` configures PL, BL1, PD, SA, FL1; catalog publication is transactional and ingestion tests cover publication and isolation. |
-| Player-scoped profile scrape/import, context, idempotency and derived work | Player scope is carried through synchronization and statistics ingestion; `test/football_market/providers/scraping/performances_test.exs`, `test/football_market/statistics/ingestion/acceptance_test.exs`, and quote import tests cover these paths. |
-| Manual quote close/recovery and scoped job history | `lib/football_market_web/live/local_admin_live.ex` exposes local operational actions and run/queue data; `test/football_market_web/live/local_admin_live_test.exs` exercises the operator surface. |
-| Portfolio buy/sell and operator visibility | Existing market rules remain behind Market/context boundaries; portfolio tests and local admin tests are included in the required unit profile. |
-| Initial issuance exactly once for catalog inserts and accepted player-scoped imports | Catalog publication calls `Market.initialize_primary_player_in_transaction/1` only for inserted players; statistics acceptance and replay call it only when `player_id` is present. Publication and acceptance tests assert recipient and one-time issuance. |
-| Issuance atomic with acceptance; no league-wide mass issuance | Both calls run inside their publisher transactions and roll back on issuance errors. Statistics without `player_id` skip issuance. Catalog publication tests cover rollback/isolation. |
-| Missing, ambiguous, or nonexistent recipient configuration | Market validates configured recipients and fails closed on invalid/ambiguous values; local admin renders configured, unconfigured, and ambiguous status. |
-| Local-only operator route and eight-hour browser sessions | Router gates `/__local/ops` behind local-admin configuration; browser session expiry migration and lifecycle tests cover the extended deadline. |
-| Automated coverage and selected risk checks | ThinFlow selected high tier with no blocked paths. Current `.agentflow/runs/thinflow/TASK-085/candidate.json` is for this branch and digest `5e6aaafe74ccfface6b5f22b45ada0eee8e2e3db943b426d85d739c6532dc8cd`; CI contracts (27 passed), harness tests (382 passed), format, compile, and unit profile (706 passed) report exit code 0 with matching evidence hashes. |
+| Five-league catalog sync/search and provider failure retention | `config/synchronization.ex` configures PL, BL1, PD, SA, and FL1; catalog publication is transactional and ingestion tests cover publication and isolation. |
+| Player-scoped profile scrape/import, context, idempotency, and derived work | Player scope is carried through synchronization and statistics ingestion; scraping performance and statistics acceptance tests cover these paths. |
+| Manual quote close/recovery and scoped job history | `lib/football_market_web/live/local_admin_live.ex` exposes local operational actions and run/queue data; local admin tests exercise the surface. |
+| Portfolio buy/sell and operator visibility | Existing market rules remain behind the Market context; portfolio and local admin tests cover the affected surfaces. |
+| Initial issuance exactly once for catalog inserts and accepted player-scoped imports | Catalog publication initializes inserted players, and statistics acceptance initializes only when `player_id` is supplied. The catalog publication and statistics acceptance tests assert recipient and quantity. |
+| Atomic issuance; no league-wide mass issuance | Issuance is invoked inside the catalog/statistics transactions and errors roll them back. Statistics acceptance without player scope skips issuance. New missing-configuration rollback tests assert no accepted catalog/statistics state remains. |
+| Missing, ambiguous, or nonexistent recipient configuration | Missing designation returns an error; ambiguous lists are rejected; `Input.validate/3` rejects malformed identifiers and `Store` rejects nonexistent users. The local admin reports configuration status. |
+| Local-only operator route and eight-hour browser sessions | Router gates `/__local/ops` behind local-admin configuration; session migration and lifecycle tests cover the extended deadline. |
+| Local candidate evidence | Candidate receipt `.agentflow/runs/thinflow/TASK-085/candidate.json` reports CI contracts (27 passed), harness tests (382 passed), format, compile, and unit profile (706 passed). Recomputing `material_digest` against the receipt selection and current selected files yields `bef3997a801ad3f7edc2eea679a00c22075756bac2afd83543d6c158f9bbb314`, matching the receipt digest; all recorded checks passed. `git diff --check` passed. |
 
 ## Findings
 
-No blocking findings. The repaired implementation meets the compact outcome and acceptance criteria, and the deterministic local candidate evidence is complete for the current diff. No advisory findings.
+No blocking findings. The previously reported missing-configuration behavior is repaired, and the refreshed candidate receipt binds the selected local checks to the current candidate. This evaluation supports readiness for hosted CI and human merge; it does not replace either gate.
 
 ## Residual status
 
-Ready for hosted CI and human merge. This evaluation does not assert hosted CI success or merge.
+Implementation findings are clear, local ThinFlow evidence is current, and no blocking acceptance or regression issue remains.
 
 Verdict: PASS

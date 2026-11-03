@@ -31,8 +31,8 @@ defmodule FootballMarketWeb.PlayerFreshnessTest do
     assert Map.keys(shown) |> Enum.sort() == ~w(data statistics statistics_status)
     assert shown["data"] == hd(list["data"])
     assert shown["statistics_status"]["refresh"]["state"] == "queued"
-    assert shown["statistics_status"]["valuation"]["last_quoted_at"] == nil
-    assert shown["statistics_status"]["valuation"]["current_quote"] == nil
+    assert is_binary(shown["statistics_status"]["valuation"]["last_quoted_at"])
+    assert shown["statistics_status"]["valuation"]["current_quote"] == "1.00"
     assert shown["statistics_status"]["last_checked_at"] == nil
     assert shown["statistics_status"]["ttl_seconds"] == 86_400
     assert Repo.one!(Run).source_ref == "freshness-fixture"
@@ -51,16 +51,8 @@ defmodule FootballMarketWeb.PlayerFreshnessTest do
   end
 
   test "player freshness includes the latest persisted quote timestamp", f do
-    effective_at = DateTime.utc_now() |> DateTime.truncate(:microsecond)
-
-    Repo.insert!(%FootballMarket.Market.Quote{
-      player_id: f.player.id,
-      unit_price: Decimal.new("1"),
-      effective_at: effective_at,
-      inserted_at: effective_at,
-      rule_id: "initial_issuance",
-      rule_version: "1"
-    })
+    issuance = Repo.get_by!(FootballMarket.Market.Issuance, player_id: f.player.id)
+    effective_at = Repo.get!(FootballMarket.Market.Quote, issuance.initial_quote_id).effective_at
 
     body =
       build_conn()

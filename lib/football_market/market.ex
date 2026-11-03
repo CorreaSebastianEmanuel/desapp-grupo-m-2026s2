@@ -55,19 +55,25 @@ defmodule FootballMarket.Market do
   end
 
   def initialize_primary_player(player_id) do
-    case Application.get_env(:football_market, :initial_issuance_recipients, []) do
-      [] -> {:ok, :primary_account_not_configured}
-      [_recipient] -> initialize_player(player_id)
-      _recipients -> {:error, :ambiguous_initial_issuance_recipient}
-    end
+    primary_player_action(player_id, fn ->
+      case Application.get_env(:football_market, :initial_issuance_recipients, []) do
+        [] -> {:error, :primary_account_not_configured}
+        [_recipient] -> initialize_player(player_id)
+        _recipients -> {:error, :ambiguous_initial_issuance_recipient}
+      end
+    end)
   end
 
   def initialize_primary_player_in_transaction(player_id) do
+    primary_player_action(player_id, fn -> initialize_primary_in_transaction(player_id) end)
+  end
+
+  defp initialize_primary_in_transaction(player_id) do
     designation = Application.get_env(:football_market, :initial_issuance_recipients, [])
 
     case designation do
       [] ->
-        {:ok, :primary_account_not_configured}
+        {:error, :primary_account_not_configured}
 
       [_] ->
         with {:ok, input} <- Input.validate(player_id, designation, %{}),
@@ -75,6 +81,14 @@ defmodule FootballMarket.Market do
 
       _ ->
         {:error, :ambiguous_initial_issuance_recipient}
+    end
+  end
+
+  defp primary_player_action(player_id, initialize) do
+    case get_initial_issuance(player_id) do
+      {:ok, issuance} -> {:ok, %{outcome: :already_completed, issuance: issuance}}
+      {:error, %{reason: :not_initialized}} -> initialize.()
+      {:error, error} -> {:error, error}
     end
   end
 

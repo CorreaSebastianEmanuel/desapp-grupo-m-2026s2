@@ -49,7 +49,7 @@ defmodule FootballMarketWeb.BrowserSessionLifecycleTest do
         :expiry ->
           :persistent_term.put(
             {FootballMarket.BrowserTestClock, :now},
-            DateTime.add(BrowserSessions.now(), 900, :second)
+            DateTime.add(BrowserSessions.now(), 28_800, :second)
           )
 
         :outage ->

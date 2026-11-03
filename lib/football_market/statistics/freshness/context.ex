@@ -30,11 +30,32 @@ defmodule FootballMarket.Statistics.Freshness do
       }
   end
 
+  def refresh_now(player) do
+    case Settings.load(player) do
+      {:ok, settings} ->
+        Refresh.refresh_now(player, settings, Clock.now())
+
+      {:error, {:unconfigured, ttl}} ->
+        Refresh.status("unconfigured", nil, "missing_source_or_player_binding", nil)
+        |> Map.put(:ttl_seconds, ttl)
+
+      {:error, :invalid_configuration} ->
+        Refresh.status("unavailable", nil, "invalid_configuration")
+    end
+  rescue
+    _ -> Refresh.status("unavailable", nil, "temporarily_unavailable")
+  end
+
   defp configured(player, settings, base) do
     now = Clock.now()
     refresh = Refresh.ensure(player, settings, now)
-    row = ScopeCheck.find(settings.provider, player.season_id)
+    targeted_player_id = settings.input.material["player_id"]
+    row = ScopeCheck.find(settings.provider, player.season_id, targeted_player_id)
     at = row && row.last_checked_at
+    {_provider, provider_state} = settings.input.source.provider
+
+    source_mode =
+      if is_map(provider_state) and provider_state[:mode] == :live, do: "live", else: "fixture"
 
     state =
       cond do
@@ -45,8 +66,14 @@ defmodule FootballMarket.Statistics.Freshness do
 
     %{
       base
-      | scope: Map.put(base.scope, :provider, settings.provider),
-        source_mode: "fixture",
+      | scope:
+          base.scope
+          |> Map.put(:provider, settings.provider)
+          |> Map.put(
+            :coverage,
+            if(targeted_player_id, do: "player_season", else: "league_season")
+          ),
+        source_mode: source_mode,
         last_checked_at: at,
         expires_at: at && DateTime.add(at, settings.ttl, :second),
         ttl_seconds: settings.ttl,

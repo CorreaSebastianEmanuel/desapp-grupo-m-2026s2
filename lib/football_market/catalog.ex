@@ -4,7 +4,17 @@ defmodule FootballMarket.Catalog do
   import Ecto.Query
   import Ecto.Changeset
 
-  alias FootballMarket.Catalog.{League, Player, PlayerCursor, Position, Query, Season, Team}
+  alias FootballMarket.Catalog.{
+    League,
+    Player,
+    PlayerCursor,
+    Position,
+    Query,
+    Season,
+    Team,
+    Ingestion.SourceBinding
+  }
+
   alias FootballMarket.Repo
 
   @supported_leagues [
@@ -99,6 +109,21 @@ defmodule FootballMarket.Catalog do
          statistics_status: FootballMarket.Statistics.Freshness.for_player(player)
        }}
     end
+  end
+
+  def provider_player_id(player_id, provider) when is_binary(provider) do
+    import Ecto.Query
+    alias FootballMarket.Catalog.Ingestion.SourceBinding
+
+    Repo.one(
+      from binding in SourceBinding,
+        where:
+          binding.player_id == ^player_id and binding.provider == ^provider and
+            binding.kind == "player",
+        select: binding.source_id
+    )
+  rescue
+    _ -> nil
   end
 
   def list_player_page(opts) when is_map(opts) do

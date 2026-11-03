@@ -88,6 +88,7 @@ defmodule FootballMarket.CatalogConstraintsTest do
       :name
     )
 
+    positions_before = Repo.aggregate(FootballMarket.Catalog.Position, :count)
     {:ok, position} = Catalog.create_position(%{code: "GK", name: "Goalkeeper"})
 
     assert_normalized_duplicates(
@@ -114,7 +115,7 @@ defmodule FootballMarket.CatalogConstraintsTest do
     assert Repo.aggregate(FootballMarket.Catalog.League, :count) == 1
     assert Repo.aggregate(FootballMarket.Catalog.Season, :count) == 1
     assert Repo.aggregate(FootballMarket.Catalog.Team, :count) == 1
-    assert Repo.aggregate(FootballMarket.Catalog.Position, :count) == 1
+    assert Repo.aggregate(FootballMarket.Catalog.Position, :count) == positions_before + 1
     assert Enum.map(Repo.all(FootballMarket.Catalog.Player), & &1.id) == [original.id]
   end
 

@@ -8,7 +8,7 @@ defmodule FootballMarketWeb.Endpoint do
     signing_salt: "StBRTN8C",
     encryption_salt: "browser-session-v1",
     http_only: true,
-    max_age: 900,
+    max_age: 28_800,
     secure: Application.compile_env(:football_market, :browser_cookie_secure, false),
     same_site: "Lax"
   ]

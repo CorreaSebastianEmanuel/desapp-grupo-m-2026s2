@@ -117,6 +117,7 @@ defmodule FootballMarket.Accounts.BrowserSessions do
 
   defp insert(user_id, status, time) do
     handle = Base.url_encode64(:crypto.strong_rand_bytes(32), padding: false)
+    ttl = Application.get_env(:football_market, :browser_session_ttl_seconds, 900)
 
     Repo.insert!(
       %BrowserSession{
@@ -124,7 +125,7 @@ defmodule FootballMarket.Accounts.BrowserSessions do
         user_id: user_id,
         state: status,
         started_at: time,
-        expires_at: DateTime.add(time, 900, :second)
+        expires_at: DateTime.add(time, ttl, :second)
       },
       log: false
     )

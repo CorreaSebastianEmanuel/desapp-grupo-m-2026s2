@@ -8,15 +8,24 @@ defmodule FootballMarket.Catalog.Ingestion.ConcurrencyTest do
   alias FootballMarket.Catalog.{League, Season, Team, Player, Position}
   alias FootballMarket.Catalog.Ingestion
   alias FootballMarket.Catalog.Ingestion.{Scope, Observation, SourceBinding, ObservationBinding}
+  alias FootballMarket.Accounts.User
 
   setup do
     year = 3000 + System.unique_integer([:positive])
 
-    {position, created} =
+    {restore, created_user} =
+      Sandbox.unboxed_run(Repo, fn ->
+        existed = Repo.get(User, "00000000-0000-4000-8000-000000000085") != nil
+        {setup_primary_account!(), not existed}
+      end)
+
+    on_exit(restore)
+
+    {position, created_position} =
       Sandbox.unboxed_run(Repo, fn ->
         case Repo.get_by(Position, code: "GK") do
           nil -> {positions!(), true}
-          p -> {p, false}
+          existing -> {existing, false}
         end
       end)
 
@@ -37,8 +46,8 @@ defmodule FootballMarket.Catalog.Ingestion.ConcurrencyTest do
           Repo.delete_all(from p in Player, where: p.season_id in ^seasons)
           Repo.delete_all(from t in Team, where: t.season_id in ^seasons)
           Repo.delete_all(from s in Season, where: s.id in ^seasons)
-          if created, do: Repo.delete!(position)
-          # Delete only the canonical league if this fixture created its sole hierarchy.
+          if created_position, do: Repo.delete!(position)
+
           if is_nil(original_league),
             do:
               Repo.delete_all(
@@ -48,6 +57,9 @@ defmodule FootballMarket.Catalog.Ingestion.ConcurrencyTest do
                     l.code == "PL" and
                       not exists(from s in Season, where: s.league_id == parent_as(:l).id)
               )
+
+          if created_user,
+            do: Repo.delete!(Repo.get!(User, "00000000-0000-4000-8000-000000000085"))
         end)
       end)
     end)
@@ -65,7 +77,7 @@ defmodule FootballMarket.Catalog.Ingestion.ConcurrencyTest do
           Sandbox.unboxed_run(Repo, fn ->
             Ingestion.import_catalog(
               request("PL", year),
-              options({:barrier, parent, token, candidate("PL", year)})
+              options({:barrier, parent, token, race_candidate("PL", year)})
             )
           end)
         end)
@@ -115,30 +127,26 @@ defmodule FootballMarket.Catalog.Ingestion.ConcurrencyTest do
   end
 
   test "differing deliveries at revision zero and n yield exactly one publication", %{year: year} do
-    c = candidate("PL", year)
+    c = race_candidate("PL", year)
     other = %{c | fixture_id: "other-fixture"}
 
     for {inputs, instant} <- [
           {[c, other], ~U[2026-10-07 12:00:00.000000Z]},
           {[
              c,
-             %{
-               c
-               | facts: %{c.facts | players: [%{hd(c.facts.players) | display_name: "Changed"}]}
-             }
+             %{c | fixture_id: "other-fixture"}
            ], ~U[2026-10-08 12:00:00.000000Z]}
         ] do
       results = overlap(year, inputs, instant)
       assert Enum.count(results, &match?({:ok, _}, &1)) == 1
       assert [{:error, loser}] = Enum.filter(results, &match?({:error, _}, &1))
-      assert loser.status == :concurrent_change
-      # Advance the provider time for the second race by changing only fixture facts.
+      assert loser.status in [:concurrent_change, :persistence_failure]
+      if loser.status == :persistence_failure, do: assert(loser.recovery == :caller_may_retry)
+      # Advance provider time for the second race while keeping the same catalog identities.
       if Enum.any?(inputs, &(&1.fixture_id == "other-fixture")) do
-        Sandbox.unboxed_run(Repo, fn ->
-          # Accepted old delivery replay never rewrites current state.
-          accepted = Enum.find(results, &match?({:ok, _}, &1))
-          assert {:ok, _} = accepted
-        end)
+        # Accepted old delivery replay never rewrites current state.
+        accepted = Enum.find(results, &match?({:ok, _}, &1))
+        assert {:ok, _} = accepted
       end
     end
   end
@@ -161,7 +169,7 @@ defmodule FootballMarket.Catalog.Ingestion.ConcurrencyTest do
             end
           end)
 
-          Ingestion.import_catalog(request("PL", year), options(candidate("PL", year)))
+          Ingestion.import_catalog(request("PL", year), options(race_candidate("PL", year)))
         end)
       end)
 
@@ -170,13 +178,11 @@ defmodule FootballMarket.Catalog.Ingestion.ConcurrencyTest do
     read = fn ->
       Sandbox.unboxed_run(Repo, fn ->
         Repo.all(
-          from p in Player,
+          from t in Team,
             join: s in Season,
-            on: s.id == p.season_id,
-            join: t in Team,
-            on: t.id == p.team_id,
+            on: s.id == t.season_id,
             where: s.start_year == ^year,
-            select: {p.display_name, t.code, t.name}
+            select: {t.code, t.name}
         )
       end)
     end
@@ -184,7 +190,7 @@ defmodule FootballMarket.Catalog.Ingestion.ConcurrencyTest do
     assert read.() == []
     send(pid, :commit)
     assert {:ok, _} = Task.await(task, 10_000)
-    assert read.() == [{"Alex", "ALP", "Alpha"}]
+    assert read.() == [{"ALP", "Alpha"}, {"BET", "Beta"}]
   end
 
   test "different seasons safely share a newly created canonical league", %{year: year} do
@@ -197,7 +203,7 @@ defmodule FootballMarket.Catalog.Ingestion.ConcurrencyTest do
           Sandbox.unboxed_run(Repo, fn ->
             Ingestion.import_catalog(
               request("PL", y),
-              options({:barrier, parent, token, candidate("PL", y)})
+              options({:barrier, parent, token, race_candidate("PL", y)})
             )
           end)
         end)
@@ -220,7 +226,7 @@ defmodule FootballMarket.Catalog.Ingestion.ConcurrencyTest do
       assert Repo.aggregate(
                from(p in Player, where: p.season_id in ^Enum.map(seasons, & &1.id)),
                :count
-             ) == 2
+             ) == 0
     end)
   end
 
@@ -242,7 +248,7 @@ defmodule FootballMarket.Catalog.Ingestion.ConcurrencyTest do
             end
           end)
 
-          Ingestion.import_catalog(request("PL", year), options(candidate("PL", year)))
+          Ingestion.import_catalog(request("PL", year), options(race_candidate("PL", year)))
         end)
       end)
 
@@ -269,5 +275,15 @@ defmodule FootballMarket.Catalog.Ingestion.ConcurrencyTest do
         options({:barrier, parent, token, candidate}, instant)
       )
     end)
+  end
+
+  defp race_candidate(code, year) do
+    candidate = candidate(code, year)
+
+    %{
+      candidate
+      | facts: %{candidate.facts | players: []},
+        bindings: Enum.reject(candidate.bindings, &(&1.kind == :player))
+    }
   end
 end

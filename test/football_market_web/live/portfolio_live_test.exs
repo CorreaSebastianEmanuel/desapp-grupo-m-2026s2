@@ -362,6 +362,13 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
     query = URI.encode_query(%{q: player.display_name})
     {:ok, card, _} = live(authenticated_conn(user), "/players?player_id=#{player.id}&#{query}")
     assert has_element?(card, "#player-card", player.team.name)
+
+    assert has_element?(
+             card,
+             "#player-scraping-status",
+             "Actualización automática no configurada para este jugador."
+           )
+
     assert has_element?(card, "a[href^='/players?q=']", "Volver a resultados")
     refute has_element?(card, "#player-catalog-search")
     refute has_element?(card, "#trade-form")

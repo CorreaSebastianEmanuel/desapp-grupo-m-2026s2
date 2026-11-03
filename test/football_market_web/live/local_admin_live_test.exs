@@ -1,0 +1,178 @@
+defmodule FootballMarketWeb.LocalAdminLiveTest do
+  use FootballMarket.BrowserSessionCase
+
+  @moduletag :integration
+
+  import Phoenix.ConnTest
+  import Phoenix.LiveViewTest
+  import Ecto.Query
+
+  alias FootballMarket.Synchronization.Run
+
+  @endpoint FootballMarketWeb.Endpoint
+
+  test "local operations page reports database, queues, jobs, and catalog state" do
+    old_assessment = Application.fetch_env(:football_market, :scraping_assessment)
+    Application.put_env(:football_market, :scraping_assessment, :local_development)
+
+    on_exit(fn ->
+      case old_assessment do
+        {:ok, value} -> Application.put_env(:football_market, :scraping_assessment, value)
+        :error -> Application.delete_env(:football_market, :scraping_assessment)
+      end
+    end)
+
+    {:ok, view, html} = live(build_conn(), "/__local/ops")
+
+    assert html =~ "SOLO DESARROLLO LOCAL"
+    assert has_element?(view, "#database-heading", "PostgreSQL")
+
+    assert has_element?(
+             view,
+             "#primary-inventory-heading",
+             "Cuenta principal de fichas iniciales"
+           )
+
+    assert html =~ "MARKET_PRIMARY_ACCOUNT_ID"
+    assert has_element?(view, "#redis-heading", "Redis")
+    assert has_element?(view, "#jobs-heading", "2 · Jobs")
+    assert has_element?(view, "#queues-heading", "3 · Colas")
+    assert has_element?(view, "#queue-catalog_sync", "catalog_sync")
+    assert has_element?(view, "#queue-statistics_import", "statistics_import")
+    assert has_element?(view, "#queue-quote_calculation", "quote_calculation")
+    refute has_element?(view, "#queue-catalog_scout")
+    assert has_element?(view, "#runs-heading", "Últimas 5 ejecuciones")
+    assert html =~ "Solicitudes de cotización"
+    assert html =~ "Trabajo y alcance"
+    assert has_element?(view, "#catalog-heading", "Sincronizar catálogo completo")
+
+    assert has_element?(
+             view,
+             "#queue-statistics_import",
+             "Abrir la ficha de un jugador encola su scraping"
+           )
+
+    refute html =~ "Vincular jugador con FotMob"
+    assert html =~ "Ejecutar ahora"
+    assert html =~ "cinco ligas europeas"
+
+    render_click(view, "run_support_job", %{"job" => "quote_recovery"})
+
+    assert Repo.exists?(
+             from(j in Oban.Job,
+               where:
+                 j.worker == "FootballMarket.Workers.QuoteRecovery" and
+                   j.queue == "quote_calculation"
+             )
+           )
+
+    render_click(view, "run_support_job", %{"job" => "quote_close"})
+    assert has_element?(view, "#local-admin-notice", "Cierre manual de cotizaciones encolado")
+
+    assert Repo.exists?(
+             from(j in Oban.Job,
+               where:
+                 j.worker == "FootballMarket.Workers.QuoteClose" and
+                   j.queue == "quote_calculation" and fragment("?->>'mode' = 'manual'", j.args)
+             )
+           )
+  end
+
+  test "statistics queue shows a failed synchronization result beside completed delivery" do
+    now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
+    delivery_id = Ecto.UUID.generate()
+
+    run =
+      Repo.insert!(%Run{
+        operation: "statistics",
+        correlation_id: "admin-failed-statistics-run",
+        league_code: "PL",
+        start_year: 2026,
+        end_year: 2027,
+        source_ref: "fotmob-public-html",
+        input: %{"timeout_ms" => 1_000},
+        input_digest: String.duplicate("a", 64),
+        policy: %{"worker_timeout_ms" => 3_000},
+        original_trigger: "manual",
+        state: "failed",
+        requested_at: now,
+        started_at: now,
+        finished_at: now,
+        outcome: %{
+          "status" => "provider_failure",
+          "category" => "invalid_response",
+          "reason" => "invalid_response",
+          "retryable" => false
+        },
+        reason: "non_retryable",
+        recovery: "inspect_run",
+        delivery_id: delivery_id
+      })
+
+    {:ok, job} =
+      Oban.insert(
+        Oban,
+        FootballMarket.Workers.StatisticsImport.new(%{
+          "run_id" => run.id,
+          "delivery_id" => delivery_id
+        })
+      )
+
+    Repo.update!(Ecto.Changeset.change(run, job_id: job.id))
+    Repo.update!(Ecto.Changeset.change(job, state: "completed", completed_at: now))
+
+    {:ok, view, _html} = live(build_conn(), "/__local/ops")
+
+    assert has_element?(view, "#queue-statistics_import", "Importación fallida")
+    assert has_element?(view, "#queue-statistics_import", "Respuesta no válida del proveedor")
+    assert has_element?(view, "#queue-statistics_import", "No reintentable")
+  end
+
+  test "failed synchronization details identify provider rate limiting" do
+    now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
+    delivery_id = Ecto.UUID.generate()
+
+    run =
+      Repo.insert!(%Run{
+        operation: "catalog",
+        correlation_id: "admin-rate-limited-catalog-run",
+        league_code: "PD",
+        start_year: 2026,
+        end_year: 2027,
+        source_ref: "football-data-org",
+        input: %{},
+        input_digest: String.duplicate("b", 64),
+        policy: %{},
+        original_trigger: "manual",
+        state: "failed",
+        requested_at: now,
+        started_at: now,
+        finished_at: now,
+        outcome: %{
+          "status" => "provider_failure",
+          "category" => "rate_limited",
+          "retryable" => true
+        },
+        reason: "exhausted",
+        recovery: "provider_guidance",
+        delivery_id: delivery_id
+      })
+
+    {:ok, job} =
+      Oban.insert(
+        Oban,
+        FootballMarket.Workers.CatalogSync.new(%{
+          "run_id" => run.id,
+          "delivery_id" => delivery_id
+        })
+      )
+
+    Repo.update!(Ecto.Changeset.change(run, job_id: job.id))
+    Repo.update!(Ecto.Changeset.change(job, state: "completed", completed_at: now))
+
+    {:ok, view, _html} = live(build_conn(), "/__local/ops")
+
+    assert has_element?(view, "#queue-catalog_sync", "Importación fallida")
+    assert has_element?(view, "#queue-catalog_sync", "Proveedor limitó las solicitudes")
+  end
+end

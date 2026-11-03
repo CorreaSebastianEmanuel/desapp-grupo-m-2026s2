@@ -16,6 +16,157 @@ defmodule FootballMarket.Statistics.Ingestion.AcceptanceTest do
   alias FootballMarket.Statistics.Performance
   alias FootballMarket.StatisticsIngestion.{Case, Fixtures}
 
+  setup do
+    restore = FootballMarket.IngestionFixtures.setup_primary_account!()
+    on_exit(restore)
+    :ok
+  end
+
+  test "first accepted player-scoped import assigns initial inventory to the primary account" do
+    scope = Fixtures.scope(2026)
+    league_scope = Fixtures.scope(2027)
+    Case.seed_catalog!(scope)
+    Case.seed_catalog!(league_scope)
+    season = Repo.get_by!(FootballMarket.Catalog.Season, start_year: scope.start_year)
+
+    [primary_account_id] =
+      Application.get_env(:football_market, :initial_issuance_recipients, [])
+
+    player =
+      Repo.get_by!(FootballMarket.Catalog.Player, display_name: "Alex", season_id: season.id)
+
+    unissued_player = new_unissued_player!(player)
+
+    request = Fixtures.request(scope)
+    candidate = Case.candidate(request)
+    candidate = %{candidate | completeness: %{candidate.completeness | full_scope: "player"}}
+    {candidate, mapping} = target_player(candidate, unissued_player, scope)
+    context = Case.delivery_context!(scope)
+
+    assert {:ok, %{status: :accepted_changes}} =
+             Ingestion.import_scope(
+               scope,
+               Case.provider_options(candidate) ++
+                 [
+                   delivery_context: context,
+                   player_id: unissued_player.id,
+                   player_source_id: "player-new",
+                   mappings: [mapping]
+                 ]
+             )
+
+    assert {:ok, issuance} = FootballMarket.Market.get_initial_issuance(unissued_player.id)
+    assert issuance.recipient_id == primary_account_id
+    assert issuance.quantity == 100
+
+    league_season =
+      Repo.get_by!(FootballMarket.Catalog.Season, start_year: league_scope.start_year)
+
+    assert {:ok, %{status: :accepted_changes}} =
+             Ingestion.import_scope(
+               league_scope,
+               Case.provider_options(Case.candidate(Fixtures.request(league_scope))) ++
+                 [delivery_context: Case.delivery_context!(league_scope)]
+             )
+
+    league_player =
+      Repo.get_by!(FootballMarket.Catalog.Player,
+        display_name: "Alex",
+        season_id: league_season.id
+      )
+
+    assert {:ok, league_issuance} = FootballMarket.Market.get_initial_issuance(league_player.id)
+    assert league_issuance.recipient_id == primary_account_id
+    assert league_issuance.quantity == 100
+  end
+
+  test "player-scoped acceptance rolls back when the primary account is not configured" do
+    scope = Fixtures.scope(2026)
+    Case.seed_catalog!(scope)
+    season = Repo.get_by!(FootballMarket.Catalog.Season, start_year: scope.start_year)
+
+    catalog_player =
+      Repo.get_by!(FootballMarket.Catalog.Player, display_name: "Alex", season_id: season.id)
+
+    unissued_player = new_unissued_player!(catalog_player)
+
+    request = Fixtures.request(scope)
+    candidate = Case.candidate(request)
+    candidate = %{candidate | completeness: %{candidate.completeness | full_scope: "player"}}
+    {candidate, mapping} = target_player(candidate, unissued_player, scope)
+    context = Case.delivery_context!(scope)
+
+    previous = Application.get_env(:football_market, :initial_issuance_recipients, [])
+    Application.put_env(:football_market, :initial_issuance_recipients, [])
+
+    on_exit(fn ->
+      Application.put_env(:football_market, :initial_issuance_recipients, previous)
+    end)
+
+    assert {:error, %{status: :persistence_failure}} =
+             Ingestion.import_scope(
+               scope,
+               Case.provider_options(candidate) ++
+                 [
+                   delivery_context: context,
+                   player_id: unissued_player.id,
+                   player_source_id: "player-new",
+                   mappings: [mapping]
+                 ]
+             )
+
+    assert Repo.aggregate(Check, :count) == 0
+    assert Repo.aggregate(Performance, :count) == 0
+
+    assert {:error, %{reason: :not_initialized}} =
+             FootballMarket.Market.get_initial_issuance(unissued_player.id)
+  end
+
+  defp new_unissued_player!(catalog_player) do
+    Repo.insert!(%FootballMarket.Catalog.Player{
+      catalog_identity: "unissued-#{Ecto.UUID.generate()}",
+      display_name: "Unissued Player",
+      team_id: catalog_player.team_id,
+      season_id: catalog_player.season_id,
+      position_id: catalog_player.position_id
+    })
+  end
+
+  defp target_player(candidate, player, scope) do
+    player_ref = "player-a"
+
+    [first_player | other_players] = candidate.facts.players
+
+    facts = %{
+      candidate.facts
+      | players: [
+          %{first_player | ref: player_ref, display_name: player.display_name} | other_players
+        ],
+        performances: Enum.map(candidate.facts.performances, &%{&1 | player_ref: player_ref})
+    }
+
+    bindings =
+      Enum.map(candidate.bindings, fn
+        %{kind: :player} = binding ->
+          %{binding | ref: player_ref, source_id: "player-new"}
+
+        binding ->
+          binding
+      end)
+
+    mapping =
+      FootballMarket.IngestionFixtures.mapping(
+        :player,
+        "player-new",
+        player.id,
+        "synthetic-a",
+        scope.league_code,
+        scope.start_year
+      )
+
+    {%{candidate | facts: facts, bindings: bindings}, mapping}
+  end
+
   test "string-keyed scopes use normalized provider input throughout admission" do
     scope = Fixtures.scope()
     Case.seed_catalog!(scope)

@@ -90,6 +90,14 @@ defmodule FootballMarketWeb.WorkspaceComponents do
         {position_name(@card.player.position.code)} · {@card.player.team.name} · {@card.player.team.season.league.name}
       </p>
       <p>Temporada {@card.player.team.season.start_year}–{@card.player.team.season.end_year}</p>
+      <p
+        :if={@card.statistics_status}
+        id="player-scraping-status"
+        class="statistics-notice"
+        role="status"
+      >
+        {scraping_status(@card.statistics_status.refresh)}
+      </p>
       <p :if={@quote} id="player-quote">
         Valor por token <strong>{money(@quote.unit_price)} créditos</strong>
         <span>· Vigente desde {Calendar.strftime(@quote.effective_at, "%d/%m/%Y %H:%M UTC")}</span>
@@ -288,6 +296,25 @@ defmodule FootballMarketWeb.WorkspaceComponents do
     </article>
     """
   end
+
+  defp scraping_status(%{state: "queued"}), do: "Actualización de estadísticas en cola."
+
+  defp scraping_status(%{state: state}) when state in ["executing", "retry_wait"],
+    do: "Actualizando estadísticas del jugador."
+
+  defp scraping_status(%{state: "idle"}), do: "Estadísticas actualizadas para esta temporada."
+
+  defp scraping_status(%{state: "unconfigured"}),
+    do: "Actualización automática no configurada para este jugador."
+
+  defp scraping_status(%{state: "unavailable"}),
+    do: "No se pudo iniciar la actualización de estadísticas."
+
+  defp scraping_status(%{state: "blocked"}),
+    do: "La actualización de estadísticas necesita revisión."
+
+  defp scraping_status(%{state: "cooldown"}), do: "La actualización se reintentará más tarde."
+  defp scraping_status(_), do: "Estado de actualización de estadísticas no disponible."
 
   attr :quote, :map, required: true
 

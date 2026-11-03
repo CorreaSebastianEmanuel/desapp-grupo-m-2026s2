@@ -1,7 +1,7 @@
 defmodule FootballMarket.Catalog.Ingestion.IdentityTest do
   use FootballMarket.DataCase, async: false
   @moduletag :integration
-  import FootballMarket.IngestionFixtures
+  use FootballMarket.IngestionFixtures
   alias FootballMarket.Catalog
   alias FootballMarket.Catalog.Ingestion.SourceBinding
   alias FootballMarket.Repo

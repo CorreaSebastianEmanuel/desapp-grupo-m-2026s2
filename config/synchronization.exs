@@ -20,46 +20,76 @@ config :football_market, FootballMarket.Synchronization,
 
 football_data_org_token = System.get_env("FOOTBALL_DATA_ORG_TOKEN")
 
-if is_binary(football_data_org_token) and String.valid?(football_data_org_token) and
-     String.trim(football_data_org_token) != "" and
-     football_data_org_token == String.trim(football_data_org_token) and
-     not Regex.match?(~r/[\p{Cc}\p{Cf}]/u, football_data_org_token) and
-     config_env() != :test do
-  today = Date.utc_today()
-  current_year = today.year
-  start_year = if today.month >= 7, do: current_year, else: current_year - 1
-  timeout_ms = 1_800_000
+football_data_configured? =
+  is_binary(football_data_org_token) and String.valid?(football_data_org_token) and
+    String.trim(football_data_org_token) != "" and
+    football_data_org_token == String.trim(football_data_org_token) and
+    not Regex.match?(~r/[\p{Cc}\p{Cf}]/u, football_data_org_token) and
+    config_env() != :test
 
-  scopes =
-    for code <- ["PL", "BL1", "PD", "SA", "FL1"], into: %{} do
-      {"football-data-org-#{code}",
-       %{
-         scope: %{
-           league_code: code,
-           start_year: start_year,
-           end_year: start_year + 1,
-           timeout_ms: timeout_ms
-         },
-         source_ref: "football-data-org",
-         recurrence: "0 2 * * *",
-         enabled: true,
-         policy: %{
-           attempt_limit: 3,
-           waits: [60, 300],
-           worker_timeout_ms: timeout_ms + 30_000
-         }
-       }}
-    end
+{configured_sources, configured_schedules} =
+  if football_data_configured? do
+    today = Date.utc_today()
+    current_year = today.year
+    start_year = if today.month >= 7, do: current_year, else: current_year - 1
+    timeout_ms = 1_800_000
 
-  config :football_market, FootballMarket.Synchronization,
-    enabled: true,
-    sources: %{
+    scopes =
+      for code <- ["PL", "BL1", "PD", "SA", "FL1"], into: %{} do
+        {"football-data-org-#{code}",
+         %{
+           scope: %{
+             league_code: code,
+             start_year: start_year,
+             end_year: start_year + 1,
+             timeout_ms: timeout_ms
+           },
+           source_ref: "football-data-org",
+           recurrence: "0 2 * * *",
+           enabled: true,
+           policy: %{
+             attempt_limit: 3,
+             waits: [60, 300],
+             worker_timeout_ms: timeout_ms + 30_000
+           }
+         }}
+      end
+
+    sources = %{
       "football-data-org" => %{
         provider: {FootballMarket.Providers.FootballDataOrg, %{token: football_data_org_token}},
         identity: %{api: "football-data.org", version: "v4", season_rule: "utc-july"}
       }
-    },
-    schedules: Map.to_list(scopes)
+    }
+
+    {sources, Map.to_list(scopes)}
+  else
+    {%{}, []}
+  end
+
+if config_env() == :dev do
+  sources =
+    Map.put(configured_sources, "fotmob-public-html", %{
+      provider: {FootballMarket.Providers.Scraping, %{mode: :live}},
+      identity: %{
+        site: "fotmob.com",
+        access: "authorized-public-search-and-html",
+        parser: "player-profile-history-v2",
+        version: 5
+      }
+    })
+
+  config :football_market, FootballMarket.Synchronization,
+    enabled: true,
+    sources: sources,
+    schedules: configured_schedules
+end
+
+if config_env() == :prod and football_data_configured? do
+  config :football_market, FootballMarket.Synchronization,
+    enabled: true,
+    sources: configured_sources,
+    schedules: configured_schedules
 end
 
 config :football_market, Oban,
@@ -90,7 +120,29 @@ config :football_market, FootballMarket.Market.OrderEvaluation, startup: config_
 config :football_market, FootballMarket.Statistics.Freshness,
   ttl_seconds: 86_400,
   cooldown_seconds: 3_600,
+  request_timeout_ms: 20_000,
   refresh_options_by_scope: %{}
+
+if config_env() == :dev do
+  today = Date.utc_today()
+  start_year = if today.month >= 7, do: today.year, else: today.year - 1
+  end_year = start_year + 1
+
+  config :football_market, FootballMarket.Statistics.Freshness,
+    request_timeout_ms: 20_000,
+    refresh_options_by_scope:
+      Map.new(["PL", "BL1", "PD", "SA", "FL1"], fn league_code ->
+        {{league_code, start_year, end_year},
+         [
+           source_ref: "fotmob-public-html",
+           policy: %{
+             attempt_limit: 3,
+             waits: [60, 300],
+             worker_timeout_ms: 120_000
+           }
+         ]}
+      end)
+end
 
 config :football_market, FootballMarket.Quotes.Closing,
   default_recurrence: "0 0 * * *",

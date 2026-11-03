@@ -26,10 +26,10 @@ defmodule FootballMarketWeb.PlayerCatalogPerformanceTest do
     assert Repo.aggregate(League, :count) == 5
     assert Repo.aggregate(Season, :count) == 10
     assert Repo.aggregate(Team, :count) == 100
-    assert Repo.aggregate(Position, :count) == 4
+    assert Repo.aggregate(Position, :count) == 5
 
     IO.puts(
-      "PLAYER_CATALOG_FIXTURE seed=#{@seed} leagues=5 seasons=10 teams=100 positions=4 players=100000"
+      "PLAYER_CATALOG_FIXTURE seed=#{@seed} leagues=5 seasons=10 teams=100 positions=5 players=100000"
     )
 
     league_id = hd(fixture.leagues).id

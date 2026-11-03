@@ -7,6 +7,12 @@ defmodule FootballMarket.Catalog.Ingestion.DeliveryReceiptTest do
   alias FootballMarket.IngestionFixtures, as: F
 
   setup do
+    restore = F.setup_primary_account!()
+    on_exit(restore)
+    :ok
+  end
+
+  setup do
     F.positions!()
 
     run =

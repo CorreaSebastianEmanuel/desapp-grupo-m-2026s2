@@ -3053,7 +3053,7 @@
     "line": 1,
     "kind": "pattern_match",
     "message_sha256": "cef9b9e8e7aded28c83033e9b66d1fdb9b27303da39fd511a112ca81b73803d3",
-    "source_sha256": "33ce29b7b46d09eedfa973f544716a4525f670273b952c577163377b18c1bccc",
+    "source_sha256": "0f9a4ce290a1dc04790d2fe534e87e9cd76809265521f5910aa68f6a57bf9023",
     "lock_sha256": "49bd54159fd3a657f97ab5facf094b73e1c5ba1ef3becf65803428a8ae8128e6",
     "reason": "Test-profile compile-time hook specialization (@test=true) makes this exact false/nil branch unreachable. Dev application analysis remains separate; no function/module exclusion is used."
   },
@@ -3108,7 +3108,7 @@
     "line": 1,
     "kind": "pattern_match",
     "message_sha256": "88ee4bcc85baa10ab2f324da80bd8c5c41a1679f2a26a6413405738c591b0bc9",
-    "source_sha256": "36346a165a98349c7f95e05cd5202ed3e4f61a6f72c357e0c0556950bcb24fdc",
+    "source_sha256": "61f82b77e0e9778714211d02930027393f7c95b7077fa05bc64a3d87c393fbbe",
     "lock_sha256": "49bd54159fd3a657f97ab5facf094b73e1c5ba1ef3becf65803428a8ae8128e6",
     "reason": "Test-profile compile-time hook specialization (@test=true) makes this exact false/nil branch unreachable. Dev application analysis remains separate; no function/module exclusion is used."
   },
@@ -3116,10 +3116,10 @@
     "profile": "test",
     "phase": "application",
     "file": "lib/football_market/synchronization/store.ex",
-    "line": 365,
+    "line": 375,
     "kind": "guard_fail",
-    "message_sha256": "393d5c0e8adb5eeef653d6894e06c497328223b26d7a3a6ce55db17830bd32a8",
-    "source_sha256": "594c99e71f5c9620d477b7a830c403745cdabf57682ccbf63986e999366258c4",
+    "message_sha256": "d8182066e1a1e1bd2bc131efd1914df10b8129870a8299cd780884a640cb4558",
+    "source_sha256": "442b1b023d0ae07c54ab4b1ea4a5344f52c2d3a5bdc4f7c48f3f073f5c873459",
     "lock_sha256": "49bd54159fd3a657f97ab5facf094b73e1c5ba1ef3becf65803428a8ae8128e6",
     "reason": "Test-profile compile-time hook specialization (@test=true) makes this exact false/nil branch unreachable. Dev application analysis remains separate; no function/module exclusion is used."
   },

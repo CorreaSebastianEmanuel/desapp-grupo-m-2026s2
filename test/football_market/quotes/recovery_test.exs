@@ -2,6 +2,12 @@ defmodule FootballMarket.Quotes.RecoveryTest do
   use FootballMarket.DataCase, async: false
   @moduletag :integration
 
+  setup do
+    restore = FootballMarket.IngestionFixtures.setup_primary_account!()
+    on_exit(restore)
+    :ok
+  end
+
   alias FootballMarket.{Quotes, Repo}
   alias FootballMarket.QuotesCase
   alias FootballMarket.Quotes.{CalculationRequest, Membership, Recovery}

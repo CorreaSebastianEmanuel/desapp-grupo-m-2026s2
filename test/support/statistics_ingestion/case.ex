@@ -57,15 +57,21 @@ defmodule FootballMarket.StatisticsIngestion.Case do
   end
 
   def seed_catalog!(scope) do
-    FootballMarket.IngestionFixtures.positions!()
-    provider_scope = Map.take(scope, [:league_code, :start_year, :end_year])
-    candidate = FootballMarket.IngestionFixtures.candidate(scope.league_code, scope.start_year)
+    restore = FootballMarket.IngestionFixtures.setup_primary_account!()
 
-    {:ok, _} =
-      Ingestion.import_catalog(
-        provider_scope,
-        FootballMarket.IngestionFixtures.options(candidate)
-      )
+    try do
+      FootballMarket.IngestionFixtures.positions!()
+      provider_scope = Map.take(scope, [:league_code, :start_year, :end_year])
+      candidate = FootballMarket.IngestionFixtures.candidate(scope.league_code, scope.start_year)
+
+      {:ok, _} =
+        Ingestion.import_catalog(
+          provider_scope,
+          FootballMarket.IngestionFixtures.options(candidate)
+        )
+    after
+      restore.()
+    end
   end
 
   def provider_options(candidate) do

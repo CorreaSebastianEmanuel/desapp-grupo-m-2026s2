@@ -5,6 +5,7 @@ const email = process.env.WORKSPACE_EMAIL;
 const second = process.env.WORKSPACE_SECOND_EMAIL;
 const password = process.env.WORKSPACE_PASSWORD;
 const control = process.env.WORKSPACE_CONTROL;
+const expiredSessionAdvance = 9 * 60 * 60 * 1_000_000;
 let browser;
 let phase = 'prerequisites';
 const change = async query => {
@@ -163,7 +164,7 @@ try {
     await tab.waitForSelector('.phx-connected #workspace');
     await page.waitForSelector('.phx-connected #workspace');
     const expiryStarted = Date.now();
-    await change('advance=900000000');
+    await change(`advance=${expiredSessionAdvance}`);
     await waitUntil(async () => !(await page.locator('body').innerText()).includes(second) && !(await tab.locator('body').innerText()).includes(second));
     assert(Date.now() - expiryStarted <= 2000);
     phase = 'valid-reconnect-refresh';
@@ -188,7 +189,7 @@ try {
     await ctx.setOffline(true);
     await waitUntil(async () => !(await page.locator('body').innerText()).includes(email));
     assert(await page.getByRole('alert').isVisible());
-    await change('advance=900000000');
+    await change(`advance=${expiredSessionAdvance}`);
     await ctx.setOffline(false);
     phase = 'offline-expired-notice';
     await page.waitForURL(/\/sign-in\?.*notice=ended/);
@@ -208,7 +209,7 @@ try {
     phase = 'expired-transport-recovery';
     await ctx.setOffline(true);
     await waitUntil(async () => !(await page.locator('body').innerText()).includes(email));
-    await change('advance=900000000');
+    await change(`advance=${expiredSessionAdvance}`);
     await ctx.clearCookies({name: '_football_market_key'});
     assert(!(await ctx.cookies()).some(c => c.name === '_football_market_key'));
     await ctx.setOffline(false);

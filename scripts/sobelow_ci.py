@@ -24,7 +24,7 @@ EXCEPTIONS = [
         "file": "lib/football_market_web/router.ex",
         "line": 11,
         "confidence": "high_confidence",
-        "sha256": "210ab2996cf4c007bde28c8f993d04624800f6e6493da8488c69d1c88976d5a0"
+        "sha256": "a81d33f0e33070d7af0230b6eb1d7cab9f1527ec5d7df44852f36f29c272d2ae"
     },
     {
         "type": "SQL.Query: SQL injection",

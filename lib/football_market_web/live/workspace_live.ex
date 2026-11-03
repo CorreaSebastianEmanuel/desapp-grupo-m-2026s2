@@ -253,6 +253,13 @@ defmodule FootballMarketWeb.WorkspaceLive do
      )}
   end
 
+  def handle_event(
+        "new_trade",
+        _,
+        %{assigns: %{trade_intent: intent, trade_complete: false}} = socket
+      )
+      when not is_nil(intent), do: {:noreply, socket}
+
   def handle_event("new_trade", _, socket) do
     {:noreply,
      assign(socket,
@@ -343,11 +350,32 @@ defmodule FootballMarketWeb.WorkspaceLive do
      |> reload_charts()}
   end
 
-  defp trade_result(socket, {:error, error}),
-    do: {:noreply, assign(socket, trade_error: trade_error(error), trade_notice: nil)}
+  defp trade_result(socket, {:error, error}) do
+    socket =
+      if definitive_rejection?(error) do
+        assign(socket, trade_intent: nil, trade_key: Ecto.UUID.generate())
+      else
+        socket
+      end
+
+    {:noreply, assign(socket, trade_error: trade_error(error), trade_notice: nil)}
+  end
+
+  defp definitive_rejection?(%{kind: kind, reason: reason}) do
+    kind in [:insufficient_funds, :insufficient_inventory, :insufficient_holdings] or
+      (kind == :invalid_request and reason == :invalid_request)
+  end
+
+  defp definitive_rejection?(_), do: false
 
   defp execute_trade("buy", actor, input), do: Market.purchase(actor, input)
   defp execute_trade("sell", actor, input), do: Market.sale(actor, input)
+
+  defp trade_error(%{reason: :transaction_in_progress}),
+    do: "La operación aún no se pudo confirmar. Reintentá con la misma acción y cantidad."
+
+  defp trade_error(%{kind: :temporarily_unavailable}),
+    do: "No se pudo confirmar el resultado. Reintentá con la misma acción y cantidad."
 
   defp trade_error(%{kind: kind}), do: trade_error(kind)
   defp trade_error(:invalid_request), do: "Ingresá una cantidad entera mayor que cero."
@@ -555,7 +583,10 @@ defmodule FootballMarketWeb.WorkspaceLive do
   defp load_ranking(socket) do
     case Ranking.read() do
       {:ok, ranking} ->
-        assign(socket, ranking: ranking, ranking_error: nil)
+        entries =
+          Enum.map(ranking.entries, &Map.put(&1, :player_name, order_player_name(&1.player_id)))
+
+        assign(socket, ranking: %{ranking | entries: entries}, ranking_error: nil)
 
       {:error, :no_active_configuration} ->
         assign(socket, ranking: nil, ranking_error: nil)
@@ -573,6 +604,7 @@ defmodule FootballMarketWeb.WorkspaceLive do
     <.shell
       actor={@actor}
       destination={@destination}
+      administrator={FootballMarket.Accounts.administrator?(domain_actor(@actor))}
       credit_balance={@credit_balance}
       credit_balance_unavailable={@credit_balance_unavailable}
     >
@@ -640,13 +672,13 @@ defmodule FootballMarketWeb.WorkspaceLive do
                 <input
                   id="order-expires-at"
                   name="expires_at"
-                  type="text"
-                  placeholder="2026-11-03T12:00:00Z"
+                  type="datetime-local"
+                  step="1"
                   required
                   value={@order_form["expires_at"]}
                 />
                 <p>
-                  Usá el formato AAAA-MM-DDTHH:MM:SSZ. La Z indica horario UTC.
+                  Seleccioná fecha y hora en UTC, independientemente de la zona horaria de tu dispositivo.
                 </p>
                 <button
                   type="submit"
@@ -697,7 +729,9 @@ defmodule FootballMarketWeb.WorkspaceLive do
                         <dt>Operación</dt><dd>
                           <code>{Map.get(order.execution, :purchase_id)}</code>
                         </dd>
-                        <dt>Cotización</dt><dd><code>{Map.get(order.execution, :quote_id)}</code></dd>
+                        <dt>Cotización utilizada</dt><dd>
+                          {money(order.execution.unit_price)} créditos por token
+                        </dd>
                         <dt>Completada</dt><dd>
                           {timestamp(Map.get(order.execution, :completed_at))}
                         </dd>
@@ -766,7 +800,11 @@ defmodule FootballMarketWeb.WorkspaceLive do
                   </td>
                   <td>
                     <details>
-                      <summary>Ver referencia</summary><code>{transaction.quote_id}</code>
+                      <summary>Ver referencia</summary><p>
+                        {exact_money(transaction.unit_price)} créditos por token · operación del {timestamp(
+                          transaction.completed_at
+                        )}
+                      </p>
                     </details>
                   </td>
                   <td>{timestamp(transaction.completed_at)}</td>
@@ -1280,9 +1318,24 @@ defmodule FootballMarketWeb.WorkspaceLive do
        player_id: params["player_id"],
        quantity: quantity,
        maximum_unit_price: params["maximum_unit_price"],
-       expires_at: params["expires_at"]
+       expires_at: utc_expiry(params["expires_at"])
      }}
   end
+
+  defp utc_expiry(value) when is_binary(value) do
+    normalized = value <> if(byte_size(value) == 16, do: ":00", else: "")
+
+    if Regex.match?(~r/\A\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{1,6})?)?\z/, value) do
+      case NaiveDateTime.from_iso8601(normalized) do
+        {:ok, naive} -> DateTime.from_naive!(naive, "Etc/UTC")
+        _ -> value
+      end
+    else
+      value
+    end
+  end
+
+  defp utc_expiry(value), do: value
 
   defp empty_form,
     do: %{"player_id" => "", "quantity" => "", "maximum_unit_price" => "", "expires_at" => ""}

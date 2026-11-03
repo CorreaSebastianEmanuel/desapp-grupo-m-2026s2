@@ -512,3 +512,10 @@ tfoot { background: #f4f8f1; font-weight: 650; }
 @media(prefers-reduced-motion:reduce) { .local-admin-panel, .local-admin .job-state-executing::before, .local-admin .run-state-executing::before { animation:none; } .local-admin tbody tr { transition:none; } }
 
 .local-admin .local-admin-header button { background:var(--lime); border-color:var(--lime); color:var(--forest); }
+
+/* Authenticated strategy administration shares the operations visual language. */
+#administration > .text-link { display:inline-block; min-height:44px; margin-bottom:12px; }
+#administration .local-admin-header { display:block; }
+#administration .active-configuration { display:inline-flex; padding:5px 12px; margin-top:12px; border-radius:20px; background:var(--lime); color:var(--forest); font-size:12px; font-weight:700; }
+#administration .local-admin-panel > p { color:var(--muted); font-size:12px; }
+#administration .local-admin-panel > .active-configuration { color:var(--forest); }

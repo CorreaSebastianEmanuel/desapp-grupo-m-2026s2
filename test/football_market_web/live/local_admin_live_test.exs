@@ -11,7 +11,30 @@ defmodule FootballMarketWeb.LocalAdminLiveTest do
 
   @endpoint FootballMarketWeb.Endpoint
 
-  test "local operations page reports database, queues, jobs, and catalog state" do
+  setup do
+    user = account("local-administrator@example.test")
+    previous = Application.fetch_env(:football_market, :initial_issuance_recipients)
+    Application.put_env(:football_market, :initial_issuance_recipients, [user.id])
+
+    on_exit(fn ->
+      case previous do
+        {:ok, value} -> Application.put_env(:football_market, :initial_issuance_recipients, value)
+        :error -> Application.delete_env(:football_market, :initial_issuance_recipients)
+      end
+    end)
+
+    {:ok, anonymous} = BrowserSessions.create_anonymous()
+    {:ok, handle} = BrowserSessions.authenticate(anonymous, user.id)
+
+    conn =
+      build_conn()
+      |> Plug.Test.init_test_session(%{browser_handle: handle})
+      |> Plug.Conn.put_private(:live_view_connect_info, %{session: %{"browser_handle" => handle}})
+
+    %{conn: conn}
+  end
+
+  test "local operations page reports database, queues, jobs, and catalog state", %{conn: conn} do
     old_assessment = Application.fetch_env(:football_market, :scraping_assessment)
     Application.put_env(:football_market, :scraping_assessment, :local_development)
 
@@ -22,7 +45,7 @@ defmodule FootballMarketWeb.LocalAdminLiveTest do
       end
     end)
 
-    {:ok, view, html} = live(build_conn(), "/__local/ops")
+    {:ok, view, html} = live(conn, "/__local/ops")
 
     assert html =~ "SOLO DESARROLLO LOCAL"
     assert has_element?(view, "#database-heading", "PostgreSQL")
@@ -33,7 +56,7 @@ defmodule FootballMarketWeb.LocalAdminLiveTest do
              "Cuenta principal de fichas iniciales"
            )
 
-    assert html =~ "MARKET_PRIMARY_ACCOUNT_ID"
+    assert html =~ "local-administrator@example.test"
     assert has_element?(view, "#redis-heading", "Redis")
     assert has_element?(view, "#jobs-heading", "2 · Jobs")
     assert has_element?(view, "#queues-heading", "3 · Colas")
@@ -78,7 +101,9 @@ defmodule FootballMarketWeb.LocalAdminLiveTest do
            )
   end
 
-  test "statistics queue shows a failed synchronization result beside completed delivery" do
+  test "statistics queue shows a failed synchronization result beside completed delivery", %{
+    conn: conn
+  } do
     now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
     delivery_id = Ecto.UUID.generate()
 
@@ -121,14 +146,14 @@ defmodule FootballMarketWeb.LocalAdminLiveTest do
     Repo.update!(Ecto.Changeset.change(run, job_id: job.id))
     Repo.update!(Ecto.Changeset.change(job, state: "completed", completed_at: now))
 
-    {:ok, view, _html} = live(build_conn(), "/__local/ops")
+    {:ok, view, _html} = live(conn, "/__local/ops")
 
     assert has_element?(view, "#queue-statistics_import", "Importación fallida")
     assert has_element?(view, "#queue-statistics_import", "Respuesta no válida del proveedor")
     assert has_element?(view, "#queue-statistics_import", "No reintentable")
   end
 
-  test "failed synchronization details identify provider rate limiting" do
+  test "failed synchronization details identify provider rate limiting", %{conn: conn} do
     now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
     delivery_id = Ecto.UUID.generate()
 
@@ -170,7 +195,7 @@ defmodule FootballMarketWeb.LocalAdminLiveTest do
     Repo.update!(Ecto.Changeset.change(run, job_id: job.id))
     Repo.update!(Ecto.Changeset.change(job, state: "completed", completed_at: now))
 
-    {:ok, view, _html} = live(build_conn(), "/__local/ops")
+    {:ok, view, _html} = live(conn, "/__local/ops")
 
     assert has_element?(view, "#queue-catalog_sync", "Importación fallida")
     assert has_element?(view, "#queue-catalog_sync", "Proveedor limitó las solicitudes")

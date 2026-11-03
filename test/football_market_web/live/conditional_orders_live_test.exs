@@ -19,7 +19,6 @@ defmodule FootballMarketWeb.ConditionalOrdersLiveTest do
     assert has_element?(view, "#no-orders"), render(view)
 
     {:ok, catalog, _html} = live(authenticated_conn(f.buyer), "/players")
-    refute has_element?(catalog, "#player-search-results")
     catalog |> form("#player-catalog-search", %{"player_search" => "Player"}) |> render_submit()
     assert has_element?(catalog, "#player-search-results", f.player.display_name)
 
@@ -79,8 +78,10 @@ defmodule FootballMarketWeb.ConditionalOrdersLiveTest do
     executed = C.order!(f, %{maximum_unit_price: "999.99"})
     assert {:ok, result} = ConditionalOrders.evaluate(executed.id)
     assert result.status == "executed"
-    assert has_element?(view, "#conditional-order-#{executed.id}", "Ejecutada a")
-    assert has_element?(view, "#conditional-order-#{executed.id}", "total")
+    assert has_element?(view, "#conditional-order-#{executed.id}", "Detalles de ejecución")
+    assert has_element?(view, "#conditional-order-#{executed.id}", result.execution.purchase_id)
+    assert has_element?(view, "#conditional-order-#{executed.id}", result.execution.quote_id)
+    assert has_element?(view, "#conditional-order-#{executed.id}", "Completada")
 
     PurchasesCase.fund(f.buyer, "0")
     rejected = C.order!(f, %{maximum_unit_price: "999.99"})

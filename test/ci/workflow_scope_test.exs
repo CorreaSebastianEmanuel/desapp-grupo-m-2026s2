@@ -210,6 +210,28 @@ defmodule FootballMarket.WorkflowScopeTest do
         ] do
       refute WorkflowScope.allows_path?(player_card_feature, path)
     end
+
+    parity_feature = "specs/084-complete-api-and-frontend-parity"
+    parity_paths = WorkflowScope.paths(parity_feature)
+    assert length(parity_paths) == length(Enum.uniq(parity_paths))
+
+    for path <- [
+          "assets/css/app.css",
+          "lib/football_market/catalog/query.ex",
+          "lib/football_market_web/live/workspace_live.ex",
+          "test/football_market_web/live/portfolio_live_test.exs",
+          "tools/openapi/e2e_market.mjs"
+        ] do
+      assert WorkflowScope.allows_path?(parity_feature, path)
+    end
+
+    for path <- [
+          "priv/repo/migrations/unplanned.exs",
+          "lib/football_market/market/purchase_transaction.ex",
+          ".github/workflows/unplanned.yml"
+        ] do
+      refute WorkflowScope.allows_path?(parity_feature, path)
+    end
   end
 
   test "TASK-029 verification recovery and compatibility allowance is limited to named paths" do

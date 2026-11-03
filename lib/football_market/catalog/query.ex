@@ -4,7 +4,7 @@ defmodule FootballMarket.Catalog.Query do
 
   alias FootballMarket.Catalog.{League, Player, Position, Season, Team}
 
-  @player_filters [:league_id, :season_id, :team_id, :position_id]
+  @player_filters [:league_id, :season_id, :team_id, :position_id, :search_name]
 
   def by_id(schema, id), do: from(record in schema, where: record.id == ^id)
 
@@ -103,4 +103,12 @@ defmodule FootballMarket.Catalog.Query do
 
   defp apply_filter({:position_id, value}, query),
     do: from([player, team, season, league, position] in query, where: position.id == ^value)
+
+  defp apply_filter({:search_name, value}, query) when is_binary(value) do
+    pattern = "%" <> String.trim(value) <> "%"
+
+    from([player, _team, _season, _league, _position] in query,
+      where: ilike(player.display_name, ^pattern)
+    )
+  end
 end

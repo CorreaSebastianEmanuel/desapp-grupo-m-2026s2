@@ -61,9 +61,17 @@ defmodule FootballMarket.CatalogFilterCase do
     players
     |> Enum.filter(fn player ->
       Enum.all?(filters, fn
-        {:league_id, id} -> player.team.season.league.id == id
-        {:team_id, id} -> player.team.id == id
-        {:position_id, id} -> player.position.id == id
+        {:league_id, id} ->
+          player.team.season.league.id == id
+
+        {:team_id, id} ->
+          player.team.id == id
+
+        {:position_id, id} ->
+          player.position.id == id
+
+        {:search_name, value} ->
+          String.contains?(String.downcase(player.display_name), String.downcase(value))
       end)
     end)
     |> Enum.sort_by(fn player ->

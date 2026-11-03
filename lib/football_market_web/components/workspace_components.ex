@@ -19,6 +19,7 @@ defmodule FootballMarketWeb.WorkspaceComponents do
             <a href="/players" aria-current={@destination == "/players" && "page"}>Jugadores</a>
             <a href="/ranking" aria-current={@destination == "/ranking" && "page"}>Ranking</a>
             <a href="/portfolio" aria-current={@destination == "/portfolio" && "page"}>Portafolio</a>
+            <a href="/transactions" aria-current={@destination == "/transactions" && "page"}>Operaciones</a>
             <a
               href="/conditional-orders"
               aria-current={@destination == "/conditional-orders" && "page"}
@@ -67,9 +68,18 @@ defmodule FootballMarketWeb.WorkspaceComponents do
   attr :initial_recipient_unavailable, :boolean, default: false
   attr :trade_quantity, :string, default: ""
   attr :positions, :list, default: []
+  attr :portfolio_unavailable, :boolean, default: false
+  attr :issuer_inventory, :list, default: []
+  attr :issuer_inventory_unavailable, :boolean, default: false
   attr :trade_error, :string, default: nil
   attr :notice, :string, default: nil
   attr :complete, :boolean, default: false
+  attr :search_query, :string, default: ""
+  attr :quote_history, :list, default: []
+  attr :quote_history_unavailable, :boolean, default: false
+  attr :quote_date, :string, default: ""
+  attr :dated_quote, :any, default: nil
+  attr :trade_record, :any, default: nil
 
   def player_card(assigns) do
     ~H"""
@@ -92,6 +102,10 @@ defmodule FootballMarketWeb.WorkspaceComponents do
         Valor por token <strong>{money(@quote.unit_price)} créditos</strong>
         <span>· Vigente desde {Calendar.strftime(@quote.effective_at, "%d/%m/%Y %H:%M UTC")}</span>
       </p>
+      <details :if={@quote} id="quote-provenance">
+        <summary>Procedencia de la cotización</summary>
+        <.quote_details quote={@quote} />
+      </details>
       <p :if={!@quote && @card.statistics.recorded_match_count > 0} id="player-quote-missing">
         Aún no hay una cotización disponible. Se habilitarán las operaciones cuando se publique.
       </p>
@@ -121,16 +135,78 @@ defmodule FootballMarketWeb.WorkspaceComponents do
         <dt :if={@card.statistics.assists != nil}>Asistencias</dt>
         <dd :if={@card.statistics.assists != nil}>{@card.statistics.assists}</dd>
       </dl>
+      <details id="player-freshness">
+        <summary>Frescura y estado de valuación</summary>
+        <p>
+          Temporada: <code>{@card.statistics.season_id}</code> · cobertura {@card.statistics.coverage}
+        </p>
+        <pre>{inspect(@card.statistics_status, pretty: true)}</pre>
+      </details>
+      <section id="quote-history">
+        <h3>Historial de cotizaciones</h3>
+        <form phx-submit="quote_date">
+          <label for="quote-history-date">Buscar cotización al cierre de una fecha</label>
+          <input id="quote-history-date" type="date" name="date" value={@quote_date} required />
+          <button type="submit">Consultar fecha</button>
+        </form>
+        <p :if={@dated_quote == :invalid} role="alert">
+          Ingresá una fecha válida con formato AAAA-MM-DD.
+        </p>
+        <p :if={@dated_quote == :missing} role="status">No hay cotización para esa fecha.</p>
+        <p :if={@dated_quote == :unavailable} role="alert">
+          La consulta de cotización no está disponible temporalmente.
+        </p>
+        <p :if={@dated_quote not in [nil, :missing, :invalid, :unavailable]} role="status">
+          Cotización al {@quote_date}: {money(@dated_quote.unit_price)} créditos · vigente desde {timestamp(
+            @dated_quote.effective_at
+          )}.
+        </p>
+        <details :if={is_map(@dated_quote)} id="dated-quote-provenance">
+          <summary>Procedencia de la cotización consultada</summary>
+          <.quote_details quote={@dated_quote} />
+        </details>
+        <p :if={@quote_history_unavailable} id="quote-history-unavailable" role="alert">
+          El historial de cotizaciones no está disponible temporalmente.
+        </p>
+        <p :if={@quote_history == [] && !@quote_history_unavailable} id="quote-history-empty">
+          No hay cotizaciones registradas.
+        </p>
+        <details :if={@quote_history != []}>
+          <summary>Ver {length(@quote_history)} cotizaciones</summary>
+          <ol>
+            <li :for={item <- @quote_history}>
+              <strong>{money(item.unit_price)} créditos</strong>
+              · {timestamp(item.effective_at)}
+              <details>
+                <summary>Detalles técnicos</summary><.quote_details quote={item} />
+              </details>
+            </li>
+          </ol>
+        </details>
+      </section>
       <section id="player-position-summary" aria-label="Tu posición en este jugador">
         <h3>Tu posición</h3>
-        <%= if position = Enum.find(@positions, &(&1.player_id == @card.player.id)) do %>
-          <p>
-            <strong>{position.quantity} tokens</strong><span :if={@quote}> · Valor estimado {money(
-              Decimal.mult(@quote.unit_price, position.quantity)
-            )} créditos</span>
-          </p>
-        <% else %>
-          <p>Todavía no tenés tokens de este jugador.</p>
+        <%= cond do %>
+          <% @initial_recipient_unavailable ||
+               (@initial_recipient && @issuer_inventory_unavailable) ||
+               (!@initial_recipient && @portfolio_unavailable) -> %>
+            <p id="player-position-unavailable" role="alert">
+              Tus tenencias no están disponibles temporalmente.
+            </p>
+          <% @initial_recipient -> %>
+            <%= if item = Enum.find(@issuer_inventory, &(&1.player_id == @card.player.id)) do %>
+              <p><strong>{item.quantity} tokens</strong> del inventario inicial</p>
+            <% else %>
+              <p>Todavía no tenés tokens de este jugador.</p>
+            <% end %>
+          <% position = Enum.find(@positions, &(&1.player_id == @card.player.id)) -> %>
+            <p>
+              <strong>{position.quantity} tokens</strong><span :if={@quote}> · Valor estimado {money(
+                Decimal.mult(@quote.unit_price, position.quantity)
+              )} créditos</span>
+            </p>
+          <% true -> %>
+            <p>Todavía no tenés tokens de este jugador.</p>
         <% end %>
       </section>
       <a
@@ -191,6 +267,31 @@ defmodule FootballMarketWeb.WorkspaceComponents do
       </form>
       <p :if={@trade_error} id="trade-error" role="alert">{@trade_error}</p>
       <p :if={@notice} id="trade-notice" role="status">{@notice}</p>
+      <details :if={@complete && @trade_record} id="trade-confirmation">
+        <summary>Detalles de la operación confirmada</summary>
+        <dl>
+          <dt>Operación</dt><dd><code>{@trade_record.id}</code></dd>
+          <dt>Jugador</dt><dd><code>{@trade_record.player_id}</code></dd>
+          <dt>Cuenta compradora/vendedora</dt><dd>
+            <code>{Map.get(@trade_record, :buyer_id) || Map.get(@trade_record, :seller_id)}</code>
+          </dd>
+          <dt>Cuenta destinataria</dt><dd><code>{Map.get(@trade_record, :recipient_id)}</code></dd>
+          <dt>Referencia de solicitud</dt><dd><code>{@trade_record.request_key}</code></dd>
+          <dt>Tipo</dt><dd>
+            {if @trade_record.type in ["sale", "sell"], do: "Venta", else: "Compra"}
+          </dd>
+          <dt>Cantidad</dt><dd>{@trade_record.quantity}</dd>
+          <dt>Precio unitario</dt><dd>{money(@trade_record.unit_price)} créditos</dd>
+          <dt>Total</dt><dd>{money(@trade_record.total)} créditos</dd>
+          <dt>Completada</dt><dd>{timestamp(@trade_record.completed_at)}</dd>
+          <dt>Cotización efectiva</dt><dd>{timestamp(@trade_record.quote_effective_at)}</dd>
+          <dt>Cotización</dt><dd><code>{@trade_record.quote_id}</code></dd>
+          <dt>Regla</dt><dd>{@trade_record.rule_id} · versión {@trade_record.rule_version}</dd>
+          <dt>Configuración</dt><dd><code>{@trade_record.configuration_version_id}</code></dd>
+          <dt>Mapeo</dt><dd><code>{@trade_record.mapping_id}</code></dd>
+          <dt>Secuencia de rendimiento</dt><dd>{@trade_record.performance_sequence}</dd>
+        </dl>
+      </details>
       <button :if={@complete || @trade_error} id="new-trade" phx-click="new_trade">Nueva operación</button>
     </article>
     """
@@ -214,6 +315,25 @@ defmodule FootballMarketWeb.WorkspaceComponents do
 
   defp scraping_status(%{state: "cooldown"}), do: "La actualización se reintentará más tarde."
   defp scraping_status(_), do: "Estado de actualización de estadísticas no disponible."
+
+  attr :quote, :map, required: true
+
+  def quote_details(assigns) do
+    ~H"""
+    <dl>
+      <dt>Precio unitario</dt><dd>{money(@quote.unit_price)} créditos</dd>
+      <dt>Vigente desde</dt><dd>{timestamp(@quote.effective_at)}</dd>
+      <dt>Identificador</dt><dd><code>{@quote.id}</code></dd>
+      <dt>Jugador</dt><dd><code>{@quote.player_id}</code></dd>
+      <dt>Estrategia</dt><dd>{@quote.rule_id} · versión {@quote.rule_version}</dd>
+      <dt>Configuración</dt><dd><code>{@quote.configuration_version_id}</code></dd>
+      <dt>Mapeo</dt><dd><code>{@quote.mapping_id}</code></dd>
+      <dt>Cálculo</dt><dd><code>{@quote.calculation_id}</code></dd>
+      <dt>Secuencia de rendimiento</dt><dd>{@quote.performance_sequence}</dd>
+      <dt>Registrada</dt><dd>{timestamp(@quote.inserted_at)}</dd>
+    </dl>
+    """
+  end
 
   attr :ranking, :map, default: nil
   attr :error, :string, default: nil
@@ -239,6 +359,11 @@ defmodule FootballMarketWeb.WorkspaceComponents do
           <li :for={entry <- @ranking.entries} id={"ranking-player-#{entry.player_id}"}>
             <a href={~p"/players?player_id=#{entry.player_id}"}>Jugador {entry.player_id}</a>
             · {Decimal.to_string(entry.unit_price, :normal)} créditos
+            · Efectiva {timestamp(Map.get(entry, :effective_at))} ·
+            <details>
+              <summary>Referencia de cotización</summary><code>{Map.get(entry, :quote_id) ||
+                Map.get(entry, "quote_id") || "Sin datos"}</code>
+            </details>
           </li>
         </ol>
       </div>
@@ -305,6 +430,142 @@ defmodule FootballMarketWeb.WorkspaceComponents do
         </div>
       </section>
     </section>
+    """
+  end
+
+  attr :allocation, :map, default: nil
+  attr :portfolio_history, :map, default: nil
+
+  def portfolio_tables(assigns) do
+    ~H"""
+    <div
+      :if={@allocation}
+      class="table-scroll"
+      role="region"
+      aria-label="Distribución de posiciones"
+      tabindex="0"
+    >
+      <dl id="portfolio-allocation-totals" aria-label="Totales de distribución">
+        <dt>Valor de mercado</dt><dd>{exact_money(@allocation.totals.market_value)}</dd>
+        <dt>Costo base</dt><dd>{exact_money(@allocation.totals.cost_basis)}</dd>
+        <dt>Compras</dt><dd>{exact_money(@allocation.totals.purchase_expenditure)}</dd>
+        <dt>Ventas</dt><dd>{exact_money(@allocation.totals.sale_proceeds)}</dd>
+        <dt>Invertido neto</dt><dd>{exact_money(@allocation.totals.net_invested)}</dd>
+        <dt>Realizada</dt><dd>{exact_money(@allocation.totals.realized_profit_loss)}</dd>
+        <dt>No realizada</dt><dd>{exact_money(@allocation.totals.unrealized_profit_loss)}</dd>
+        <dt>Resultado total</dt><dd>{exact_money(@allocation.totals.total_profit_loss)}</dd>
+        <dt>Valuación</dt><dd>
+          {if @allocation.totals.valuation_complete, do: "Completa", else: "Incompleta"}
+        </dd>
+      </dl>
+      <p
+        :if={!@allocation.totals.valuation_complete}
+        id="allocation-missing-quotes"
+        role="status"
+      >
+        Cotización pendiente para: {Enum.join(
+          @allocation.totals.missing_quote_player_ids,
+          ", "
+        )}. Los valores faltantes se muestran como huecos.
+      </p>
+      <table :if={@allocation.positions != []} id="portfolio-allocation-table">
+        <caption>Distribución actual del portafolio · {@allocation.as_of}</caption>
+        <thead>
+          <tr>
+            <th>Jugador</th><th>Cantidad</th><th>Costo promedio</th><th>Costo base</th><th>
+              Valor de mercado
+            </th><th>
+              Ganancia/pérdida realizada
+            </th><th>No realizada</th><th>Peso</th><th>Cotización y secuencia</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr :for={item <- @allocation.positions}>
+            <th scope="row">
+              <a href={~p"/players?player_id=#{item.player_id}"}>{item.player_name}</a>
+            </th>
+            <td>{item.quantity}</td><td>{exact_money(item.average_unit_cost)}</td><td>
+              {exact_money(item.cost_basis)}
+            </td><td>
+              {exact_money(item.market_value)}
+            </td><td>{exact_money(item.realized_profit_loss)}</td><td>
+              {exact_money(item.unrealized_profit_loss)}
+            </td><td>
+              {if item.weight,
+                do: exact_money(Decimal.mult(item.weight, Decimal.new(100))) <> "%",
+                else: "Sin datos"}
+            </td>
+            <td>
+              <details>
+                <summary>Ver cotización</summary><pre>{inspect(item.quote, pretty: true)}</pre>
+              </details>
+            </td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <th>Totales</th><td></td><td></td><td>
+              {exact_money(@allocation.totals.cost_basis)}
+            </td><td>
+              {exact_money(@allocation.totals.market_value)}
+            </td><td>{exact_money(@allocation.totals.realized_profit_loss)}</td><td>
+              {exact_money(@allocation.totals.unrealized_profit_loss)}
+            </td><td></td><td>
+              Resultado total: {exact_money(@allocation.totals.total_profit_loss)}
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    <div
+      :if={@portfolio_history && @portfolio_history.points != []}
+      class="table-scroll"
+      role="region"
+      aria-label="Historial diario del portafolio"
+      tabindex="0"
+    >
+      <table id="portfolio-history-table">
+        <caption>
+          Historial diario · {@portfolio_history.from} a {@portfolio_history.to} ({@portfolio_history.timezone}) · intervalo {@portfolio_history.interval} · consultado {DateTime.to_iso8601(
+            @portfolio_history.as_of
+          )}
+        </caption>
+        <thead>
+          <tr>
+            <th>Fecha</th><th>Corte UTC</th><th>Valor de mercado</th><th>Costo base</th><th>
+              Compras
+            </th><th>
+              Ventas
+            </th><th>Invertido neto</th><th>Realizada</th><th>No realizada</th><th>Total</th><th>
+              Valuación
+            </th><th>Jugadores sin cotización</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr :for={point <- @portfolio_history.points}>
+            <th scope="row">{point.date}</th><td>{timestamp(point.cutoff_at)}</td><td>
+              {exact_money(point.market_value)}
+            </td><td>
+              {exact_money(point.cost_basis)}
+            </td><td>{exact_money(point.purchase_expenditure)}</td><td>
+              {exact_money(point.sale_proceeds)}
+            </td><td>{exact_money(point.net_invested)}</td><td>
+              {exact_money(point.realized_profit_loss)}
+            </td><td>{exact_money(point.unrealized_profit_loss)}</td><td>
+              {exact_money(point.total_profit_loss)}
+            </td><td>
+              {if point.valuation_complete, do: "Completa", else: "Incompleta"}{if point.partial,
+                do: " · parcial",
+                else: ""}
+            </td><td>
+              {if point.missing_quote_player_ids == [],
+                do: "—",
+                else: Enum.join(point.missing_quote_player_ids, ", ")}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
     """
   end
 
@@ -475,7 +736,11 @@ defmodule FootballMarketWeb.WorkspaceComponents do
   def position_name("FW"), do: "Delantero"
   def position_name(value), do: value
 
+  defp exact_money(nil), do: "Sin datos"
+  defp exact_money(value), do: value |> Decimal.normalize() |> Decimal.to_string(:normal)
   defp money(value), do: value |> Decimal.round(2) |> Decimal.to_string(:normal)
+  defp timestamp(nil), do: "Sin datos"
+  defp timestamp(value), do: Calendar.strftime(value, "%Y-%m-%d %H:%M:%S UTC")
 
   defp estimated_total(quantity, unit_price) do
     case Integer.parse(quantity) do

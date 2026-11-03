@@ -1,11 +1,11 @@
 ---
-id: TASK-084
+id: TASK-085
 title: Assign initial player inventory to the primary account
 type: task
 checkpoint: CP2
 priority: high
 workflow: thinflow-v1
-status: review
+status: blocked
 depends_on: none
 active_run: none
 ---

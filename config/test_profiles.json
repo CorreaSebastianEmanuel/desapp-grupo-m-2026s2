@@ -2767,6 +2767,13 @@
       "profile": "unit"
     },
     {
+      "id": "44d981f932f2ed566be040fa",
+      "runner": "exunit",
+      "file": "test/football_market_web/live/catalog_scouting_live_test.exs",
+      "case_id": "FootballMarketWeb.CatalogScoutingLiveTest:test resetting catalog filters restores the unfiltered catalog and default page size",
+      "profile": "integration"
+    },
+    {
       "id": "4587214922e9a6ee2cb0ec5d",
       "runner": "exunit",
       "file": "test/football_market/catalog/ingestion/canonical_test.exs",

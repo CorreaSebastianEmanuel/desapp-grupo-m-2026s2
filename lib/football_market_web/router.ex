@@ -27,13 +27,6 @@ defmodule FootballMarketWeb.Router do
     get "/docs", ApiDocsController, :index
   end
 
-  if Application.compile_env(:football_market, :local_admin_enabled, false) do
-    scope "/__local", FootballMarketWeb do
-      pipe_through :browser
-      live "/ops", LocalAdminLive, :index
-    end
-  end
-
   scope "/", FootballMarketWeb do
     pipe_through :browser
     get "/sign-in", SessionController, :new
@@ -45,6 +38,27 @@ defmodule FootballMarketWeb.Router do
 
   pipeline :workspace do
     plug FootballMarketWeb.Plugs.BrowserAuth
+  end
+
+  pipeline :administrator do
+    plug FootballMarketWeb.Plugs.BrowserAuth, :administrator
+  end
+
+  scope "/", FootballMarketWeb do
+    pipe_through [:browser, :workspace, :administrator]
+
+    live_session :administrator,
+      session: {FootballMarketWeb.Plugs.BrowserAuth, :live_session, []},
+      on_mount: [
+        {FootballMarketWeb.Live.BrowserAuth, :workspace},
+        {FootballMarketWeb.Live.BrowserAuth, :administrator}
+      ] do
+      live "/administration", AdministrationLive, :index
+
+      if Application.compile_env(:football_market, :local_admin_enabled, false) do
+        live "/__local/ops", LocalAdminLive, :index
+      end
+    end
   end
 
   scope "/", FootballMarketWeb do

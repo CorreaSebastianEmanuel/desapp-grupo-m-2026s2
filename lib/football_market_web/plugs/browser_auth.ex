@@ -4,8 +4,13 @@ defmodule FootballMarketWeb.Plugs.BrowserAuth do
   import Phoenix.Controller
   alias FootballMarket.Accounts.BrowserSessions
   def init(options), do: options
-  def destination(path) when path in ["/portfolio", "/conditional-orders"], do: path
+
+  def destination(path) when path in ["/portfolio", "/conditional-orders", "/administration"],
+    do: path
+
   def destination(_), do: "/portfolio"
+
+  def call(conn, :administrator), do: administrator(conn, [])
 
   def call(conn, _) do
     conn = put_resp_header(conn, "cache-control", "no-store")
@@ -33,6 +38,22 @@ defmodule FootballMarketWeb.Plugs.BrowserAuth do
               URI.encode_www_form(destination(conn.request_path)) <> "&notice=ended"
         )
         |> halt()
+    end
+  end
+
+  def administrator(conn, _) do
+    actor = conn.assigns.browser_actor
+
+    domain_actor = %FootballMarket.Accounts.AuthenticatedActor{
+      account_id: actor.account_id,
+      authentication_method: :browser,
+      credential_id: actor.session_id
+    }
+
+    if FootballMarket.Accounts.administrator?(domain_actor) do
+      conn
+    else
+      conn |> put_status(403) |> html("<main><h1>Acceso restringido</h1></main>") |> halt()
     end
   end
 

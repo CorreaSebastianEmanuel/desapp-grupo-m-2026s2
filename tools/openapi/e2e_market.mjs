@@ -5,16 +5,16 @@ import {join} from 'node:path';
 const [base] = process.argv.slice(2);
 const {E2E_EMAIL: email, E2E_PASSWORD: password, E2E_PLAYER: player,
   E2E_NAME: name, E2E_RANKING: ranking, E2E_FILTERS: filtersJson,
-  E2E_STRATEGY: strategy, E2E_IPC: ipc} = process.env;
+  E2E_STRATEGY: strategy, E2E_ADMIN: adminEmail, E2E_VERSION: version, E2E_IPC: ipc} = process.env;
 let browser;
 let phase = 'prerequisites';
 try {
   browser = await chromium.launch({headless: true, args: ['--no-sandbox'], timeout: 10000});
-  const context = await browser.newContext();
+  const context = await browser.newContext({timezoneId: 'America/Argentina/Buenos_Aires'});
   context.setDefaultTimeout(15000);
   const page = await context.newPage();
   phase = 'authentication';
-  for (const path of ['/players', '/ranking', '/portfolio']) {
+  for (const path of ['/players', '/ranking', '/portfolio', '/administration', '/__local/ops']) {
     const denied = await context.request.get(base + path, {maxRedirects: 0});
     assert.equal(denied.status(), 303);
     assert.match(denied.headers().location, /^\/sign-in/);
@@ -69,6 +69,29 @@ try {
   await page.getByLabel('Buscar cotización al cierre de una fecha', {exact: true}).fill(new Date().toISOString().slice(0, 10));
   await page.getByRole('button', {name: 'Consultar fecha', exact: true}).click();
   await page.locator('#quote-history [role=status]').waitFor();
+  phase = 'rejected-then-corrected-purchase';
+  assert.equal((await context.request.get(base + '/administration')).status(), 403);
+  assert.equal((await context.request.get(base + '/__local/ops')).status(), 403);
+  const uuid = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+  await page.locator('#quote-provenance summary').click();
+  assert(!uuid.test(await page.locator('#quote-provenance').innerText()));
+  assert.match(await page.locator('#quote-provenance').innerText(), /Equilibrada.*versión/s);
+  await page.getByLabel('Cantidad de tokens', {exact: true}).fill('101');
+  await page.getByRole('button', {name: 'Comprar tokens', exact: true}).click();
+  await page.waitForSelector('#trade-error');
+  await page.getByLabel('Cantidad de tokens', {exact: true}).fill('1');
+  await page.getByRole('button', {name: 'Comprar tokens', exact: true}).dblclick();
+  await page.waitForSelector('#trade-notice');
+  assert.match(await page.locator('#player-position-summary').innerText(), /1 tokens/);
+  await page.getByRole('button', {name: 'Nueva operación', exact: true}).click();
+  await page.getByLabel('Cantidad de tokens', {exact: true}).fill('2');
+  await page.getByRole('button', {name: 'Vender tokens', exact: true}).click();
+  await page.waitForSelector('#trade-error');
+  await page.getByLabel('Cantidad de tokens', {exact: true}).fill('1');
+  await page.getByRole('button', {name: 'Vender tokens', exact: true}).click();
+  await page.waitForSelector('#trade-notice');
+  await page.reload();
+  await page.waitForSelector('.phx-connected #player-card');
   phase = 'conditional-order';
   await page.locator('#player-card').getByRole('link', {name: 'Crear orden', exact: true}).click();
   await page.waitForSelector('.phx-connected #conditional-order-form');
@@ -77,7 +100,8 @@ try {
   assert(!selectedPlayer.includes(player));
   await page.getByLabel('Cantidad', {exact: true}).fill('3');
   await page.getByLabel('Precio máximo por token (créditos)', {exact: true}).fill('10');
-  await page.getByLabel('Vencimiento (fecha y hora UTC)', {exact: true}).fill(new Date(Date.now() + 3600000).toISOString());
+  assert.equal(await page.locator('#order-expires-at').getAttribute('type'), 'datetime-local');
+  await page.getByLabel('Vencimiento (fecha y hora UTC)', {exact: true}).fill(new Date(Date.now() + 3600000).toISOString().slice(0, 19));
   await page.getByRole('button', {name: 'Crear orden condicional', exact: true}).click();
   await page.waitForSelector('#order-notice');
   const portfolio = await context.newPage();
@@ -117,10 +141,13 @@ try {
   await page.getByRole('link', {name: 'Ranking', exact: true}).click();
   phase = 'ranking-ready';
   await page.waitForSelector('.phx-connected #ranking-strategy');
-  assert((await page.locator('#ranking-strategy').innerText()).includes(strategy));
+  assert((await page.locator('#ranking-strategy').innerText()).includes(strategy === 'balanced' ? 'Equilibrada' : 'Por posición'));
   phase = 'ranking-entries';
   const visibleRanking = await page.locator('#ranking-entries li').evaluateAll(rows => rows.map(row => row.id.replace('ranking-player-', '')));
   assert.deepEqual(visibleRanking, JSON.parse(ranking));
+  assert.equal(await page.locator(`#ranking-player-${player} a`).innerText(), name);
+  assert(!uuid.test(await page.locator('#ranking-strategy').innerText()));
+  assert(!uuid.test(await page.locator('#ranking-entries').innerText()));
   phase = 'transactions-navigation';
   await page.getByRole('link', {name: 'Operaciones', exact: true}).click();
   await page.waitForSelector('.phx-connected #transactions');
@@ -154,9 +181,32 @@ try {
           return `${node.tagName.toLowerCase()}#${node.id}.${node.className} right=${node.getBoundingClientRect().right} parent=${parent?.tagName.toLowerCase()}#${parent?.id}.${parent?.className} parentRight=${parent?.getBoundingClientRect().right}`;
         })
     }));
+    const metrics = await page.locator('#portfolio-allocation-totals').evaluate(el => ({display: getComputedStyle(el).display, columns: getComputedStyle(el).gridTemplateColumns.split(' ').length, cards: [...el.children].map(card => ({width: card.getBoundingClientRect().width, height: card.getBoundingClientRect().height}))}));
+    assert.equal(metrics.display, 'grid');
+    assert.equal(metrics.cards.length, 9);
+    assert(metrics.cards.every(card => card.width >= 150 && card.height >= 60));
+    if (viewport.width >= 768) assert(metrics.columns >= 2);
+    assert(!/23:59:59|T\d\d:\d\d/.test(await page.locator('#portfolio-history-table').innerText()));
     assert(dimensions.scrollWidth <= dimensions.width, `viewport overflow: ${JSON.stringify(dimensions)}`);
     assert.equal(await page.getByRole('navigation', {name: 'Espacio de trabajo'}).isVisible(), true);
   }
+  phase = 'administrator-activation';
+  const adminContext = await browser.newContext({viewport: {width: 390, height: 844}});
+  const adminPage = await adminContext.newPage();
+  await adminPage.goto(base + '/sign-in');
+  await adminPage.getByLabel('Correo electrónico', {exact: true}).fill(adminEmail);
+  await adminPage.getByLabel('Contraseña', {exact: true}).fill('quote-fixture-password');
+  await adminPage.getByRole('button', {name: 'Iniciar sesión', exact: true}).click();
+  await adminPage.waitForSelector('.phx-connected #workspace');
+  await adminPage.getByRole('link', {name: 'Administración', exact: true}).click();
+  await adminPage.waitForSelector('.phx-connected #administration');
+  await adminPage.locator(`#configuration-${version} button`).click();
+  await adminPage.waitForSelector(`#configuration-${version} .active-configuration`);
+  assert.match(await adminPage.locator('#activation-notice').innerText(), /próximo cierre/);
+  assert(await adminPage.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+  await adminPage.reload();
+  await adminPage.waitForSelector(`#configuration-${version} .active-configuration`);
+  await adminContext.close();
   await context.close();
   process.stdout.write('E2E_MARKET status=complete\n');
 } catch {

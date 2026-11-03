@@ -5,6 +5,7 @@ defmodule FootballMarketWeb.WorkspaceComponents do
   attr :destination, :string, required: true
   attr :credit_balance, :any, required: true
   attr :credit_balance_unavailable, :boolean, required: true
+  attr :administrator, :boolean, default: false
   slot :inner_block, required: true
 
   def shell(assigns) do
@@ -24,6 +25,7 @@ defmodule FootballMarketWeb.WorkspaceComponents do
               href="/conditional-orders"
               aria-current={@destination == "/conditional-orders" && "page"}
             >Órdenes condicionales</a>
+            <a :if={@administrator} href="/administration">Administración</a>
           </nav>
           <div class="workspace-account">
             <div class="workspace-account-details">
@@ -138,9 +140,18 @@ defmodule FootballMarketWeb.WorkspaceComponents do
       <details id="player-freshness">
         <summary>Frescura y estado de valuación</summary>
         <p>
-          Temporada: <code>{@card.statistics.season_id}</code> · cobertura {@card.statistics.coverage}
+          Temporada {@card.player.team.season.start_year}–{@card.player.team.season.end_year} · {coverage_name(
+            @card.statistics.coverage
+          )}
         </p>
-        <pre>{inspect(@card.statistics_status, pretty: true)}</pre>
+        <p :if={@card.statistics_status}>{scraping_status(@card.statistics_status.refresh)}</p>
+        <p :if={@card.statistics_status} id="player-valuation-status">
+          {valuation_status(@card.statistics_status.valuation)}
+        </p>
+        <p :if={@quote}>Última valuación publicada: {timestamp(@quote.effective_at)}.</p>
+        <p>
+          Las estadísticas se actualizan por separado; las cotizaciones se recalculan en el cierre del mercado.
+        </p>
       </details>
       <section id="quote-history">
         <h3>Historial de cotizaciones</h3>
@@ -178,7 +189,7 @@ defmodule FootballMarketWeb.WorkspaceComponents do
               <strong>{money(item.unit_price)} créditos</strong>
               · {timestamp(item.effective_at)}
               <details>
-                <summary>Detalles técnicos</summary><.quote_details quote={item} />
+                <summary>Procedencia</summary><.quote_details quote={item} />
               </details>
             </li>
           </ol>
@@ -270,13 +281,7 @@ defmodule FootballMarketWeb.WorkspaceComponents do
       <details :if={@complete && @trade_record} id="trade-confirmation">
         <summary>Detalles de la operación confirmada</summary>
         <dl>
-          <dt>Operación</dt><dd><code>{@trade_record.id}</code></dd>
-          <dt>Jugador</dt><dd><code>{@trade_record.player_id}</code></dd>
-          <dt>Cuenta compradora/vendedora</dt><dd>
-            <code>{Map.get(@trade_record, :buyer_id) || Map.get(@trade_record, :seller_id)}</code>
-          </dd>
-          <dt>Cuenta destinataria</dt><dd><code>{Map.get(@trade_record, :recipient_id)}</code></dd>
-          <dt>Referencia de solicitud</dt><dd><code>{@trade_record.request_key}</code></dd>
+          <dt>Jugador</dt><dd>{@card.player.display_name}</dd>
           <dt>Tipo</dt><dd>
             {if @trade_record.type in ["sale", "sell"], do: "Venta", else: "Compra"}
           </dd>
@@ -285,14 +290,12 @@ defmodule FootballMarketWeb.WorkspaceComponents do
           <dt>Total</dt><dd>{money(@trade_record.total)} créditos</dd>
           <dt>Completada</dt><dd>{timestamp(@trade_record.completed_at)}</dd>
           <dt>Cotización efectiva</dt><dd>{timestamp(@trade_record.quote_effective_at)}</dd>
-          <dt>Cotización</dt><dd><code>{@trade_record.quote_id}</code></dd>
-          <dt>Regla</dt><dd>{@trade_record.rule_id} · versión {@trade_record.rule_version}</dd>
-          <dt>Configuración</dt><dd><code>{@trade_record.configuration_version_id}</code></dd>
-          <dt>Mapeo</dt><dd><code>{@trade_record.mapping_id}</code></dd>
-          <dt>Secuencia de rendimiento</dt><dd>{@trade_record.performance_sequence}</dd>
+          <dt>Estrategia</dt><dd>
+            {strategy_name(@trade_record.rule_id)} · versión {@trade_record.rule_version}
+          </dd>
         </dl>
       </details>
-      <button :if={@complete || @trade_error} id="new-trade" phx-click="new_trade">Nueva operación</button>
+      <button :if={@complete} id="new-trade" phx-click="new_trade">Nueva operación</button>
     </article>
     """
   end
@@ -323,13 +326,8 @@ defmodule FootballMarketWeb.WorkspaceComponents do
     <dl>
       <dt>Precio unitario</dt><dd>{money(@quote.unit_price)} créditos</dd>
       <dt>Vigente desde</dt><dd>{timestamp(@quote.effective_at)}</dd>
-      <dt>Identificador</dt><dd><code>{@quote.id}</code></dd>
-      <dt>Jugador</dt><dd><code>{@quote.player_id}</code></dd>
-      <dt>Estrategia</dt><dd>{@quote.rule_id} · versión {@quote.rule_version}</dd>
-      <dt>Configuración</dt><dd><code>{@quote.configuration_version_id}</code></dd>
-      <dt>Mapeo</dt><dd><code>{@quote.mapping_id}</code></dd>
-      <dt>Cálculo</dt><dd><code>{@quote.calculation_id}</code></dd>
-      <dt>Secuencia de rendimiento</dt><dd>{@quote.performance_sequence}</dd>
+      <dt>Estrategia</dt><dd>{strategy_name(@quote.rule_id)} · versión {@quote.rule_version}</dd>
+      <dt>Fuente</dt><dd>{quote_source(@quote)}</dd>
       <dt>Registrada</dt><dd>{timestamp(@quote.inserted_at)}</dd>
     </dl>
     """
@@ -350,19 +348,23 @@ defmodule FootballMarketWeb.WorkspaceComponents do
       </div>
       <div :if={@ranking}>
         <p id="ranking-strategy">
-          Estrategia activa: {@ranking.configuration.strategy_id} · Fórmula {@ranking.configuration.formula_version} · Configuración {@ranking.configuration.id}
+          Estrategia activa: {strategy_name(@ranking.configuration.strategy_id)} · Fórmula {@ranking.configuration.formula_version}
         </p>
         <p :if={@ranking.entries == []} id="ranking-empty">
           No hay cotizaciones válidas para la estrategia activa.
         </p>
         <ol id="ranking-entries">
           <li :for={entry <- @ranking.entries} id={"ranking-player-#{entry.player_id}"}>
-            <a href={~p"/players?player_id=#{entry.player_id}"}>Jugador {entry.player_id}</a>
+            <a href={~p"/players?player_id=#{entry.player_id}"}>{entry.player_name}</a>
             · {Decimal.to_string(entry.unit_price, :normal)} créditos
             · Efectiva {timestamp(Map.get(entry, :effective_at))} ·
             <details>
-              <summary>Referencia de cotización</summary><code>{Map.get(entry, :quote_id) ||
-                Map.get(entry, "quote_id") || "Sin datos"}</code>
+              <summary>Referencia de cotización</summary>
+              <p>
+                {Decimal.to_string(entry.unit_price, :normal)} créditos por token · {timestamp(
+                  entry.effective_at
+                )} · {strategy_name(@ranking.configuration.strategy_id)} · versión {@ranking.configuration.formula_version}. Fuente: rendimiento deportivo.
+              </p>
             </details>
           </li>
         </ol>
@@ -404,7 +406,7 @@ defmodule FootballMarketWeb.WorkspaceComponents do
             La distribución estará disponible cuando todos tus jugadores tengan una cotización actual.
           </p>
           <p :if={@allocation.positions != []} class="chart-as-of">
-            Distribución al {DateTime.to_iso8601(@allocation.as_of)} UTC · Porcentaje del valor de mercado
+            Distribución al {timestamp(@allocation.as_of)} · Porcentaje del valor de mercado
           </p>
         </div>
       </section>
@@ -425,7 +427,7 @@ defmodule FootballMarketWeb.WorkspaceComponents do
             label={label}
           />
           <p class="chart-as-of">
-            Valores diarios del {@history.from} al {@history.to} (UTC). Cada punto corresponde al horario indicado.
+            Valores diarios del {@history.from} al {@history.to} (UTC). Cada punto corresponde al cierre del día; el día actual es parcial.
           </p>
         </div>
       </section>
@@ -445,18 +447,40 @@ defmodule FootballMarketWeb.WorkspaceComponents do
       aria-label="Distribución de posiciones"
       tabindex="0"
     >
-      <dl id="portfolio-allocation-totals" aria-label="Totales de distribución">
-        <dt>Valor de mercado</dt><dd>{exact_money(@allocation.totals.market_value)}</dd>
-        <dt>Costo base</dt><dd>{exact_money(@allocation.totals.cost_basis)}</dd>
-        <dt>Compras</dt><dd>{exact_money(@allocation.totals.purchase_expenditure)}</dd>
-        <dt>Ventas</dt><dd>{exact_money(@allocation.totals.sale_proceeds)}</dd>
-        <dt>Invertido neto</dt><dd>{exact_money(@allocation.totals.net_invested)}</dd>
-        <dt>Realizada</dt><dd>{exact_money(@allocation.totals.realized_profit_loss)}</dd>
-        <dt>No realizada</dt><dd>{exact_money(@allocation.totals.unrealized_profit_loss)}</dd>
-        <dt>Resultado total</dt><dd>{exact_money(@allocation.totals.total_profit_loss)}</dd>
-        <dt>Valuación</dt><dd>
-          {if @allocation.totals.valuation_complete, do: "Completa", else: "Incompleta"}
-        </dd>
+      <dl
+        id="portfolio-allocation-totals"
+        class="portfolio-metrics"
+        aria-label="Totales de distribución en créditos"
+      >
+        <div class="portfolio-metric">
+          <dt>Valor de mercado</dt><dd>{exact_money(@allocation.totals.market_value)}</dd>
+        </div>
+        <div class="portfolio-metric">
+          <dt>Costo base</dt><dd>{exact_money(@allocation.totals.cost_basis)}</dd>
+        </div>
+        <div class="portfolio-metric">
+          <dt>Compras</dt><dd>{exact_money(@allocation.totals.purchase_expenditure)}</dd>
+        </div>
+        <div class="portfolio-metric">
+          <dt>Ventas</dt><dd>{exact_money(@allocation.totals.sale_proceeds)}</dd>
+        </div>
+        <div class="portfolio-metric">
+          <dt>Invertido neto</dt><dd>{exact_money(@allocation.totals.net_invested)}</dd>
+        </div>
+        <div class="portfolio-metric">
+          <dt>Realizada</dt><dd>{exact_money(@allocation.totals.realized_profit_loss)}</dd>
+        </div>
+        <div class="portfolio-metric">
+          <dt>No realizada</dt><dd>{exact_money(@allocation.totals.unrealized_profit_loss)}</dd>
+        </div>
+        <div class="portfolio-metric">
+          <dt>Resultado total</dt><dd>{exact_money(@allocation.totals.total_profit_loss)}</dd>
+        </div>
+        <div class="portfolio-metric">
+          <dt>Valuación</dt><dd>
+            {if @allocation.totals.valuation_complete, do: "Completa", else: "Incompleta"}
+          </dd>
+        </div>
       </dl>
       <p
         :if={!@allocation.totals.valuation_complete}
@@ -469,14 +493,14 @@ defmodule FootballMarketWeb.WorkspaceComponents do
         )}. Los valores faltantes se muestran como huecos.
       </p>
       <table :if={@allocation.positions != []} id="portfolio-allocation-table">
-        <caption>Distribución actual del portafolio · {@allocation.as_of}</caption>
+        <caption>Distribución actual del portafolio · {timestamp(@allocation.as_of)}</caption>
         <thead>
           <tr>
             <th>Jugador</th><th>Cantidad</th><th>Costo promedio</th><th>Costo base</th><th>
               Valor de mercado
             </th><th>
               Ganancia/pérdida realizada
-            </th><th>No realizada</th><th>Peso</th><th>Cotización y secuencia</th>
+            </th><th>No realizada</th><th>Peso</th><th>Cotización</th>
           </tr>
         </thead>
         <tbody>
@@ -497,7 +521,11 @@ defmodule FootballMarketWeb.WorkspaceComponents do
             </td>
             <td>
               <details>
-                <summary>Ver cotización</summary><pre>{inspect(item.quote, pretty: true)}</pre>
+                <summary>Ver cotización</summary><p :if={item.quote}>
+                  {exact_money(item.quote.unit_price)} créditos por token · vigente desde {timestamp(
+                    item.quote.effective_at
+                  )}
+                </p><p :if={!item.quote}>Sin cotización disponible</p>
               </details>
             </td>
           </tr>
@@ -526,13 +554,13 @@ defmodule FootballMarketWeb.WorkspaceComponents do
     >
       <table id="portfolio-history-table">
         <caption>
-          Historial diario · {@portfolio_history.from} a {@portfolio_history.to} ({@portfolio_history.timezone}) · intervalo {@portfolio_history.interval} · consultado {DateTime.to_iso8601(
+          Historial diario · {@portfolio_history.from} a {@portfolio_history.to} ({@portfolio_history.timezone}) · consultado {timestamp(
             @portfolio_history.as_of
           )}
         </caption>
         <thead>
           <tr>
-            <th>Fecha</th><th>Corte UTC</th><th>Valor de mercado</th><th>Costo base</th><th>
+            <th>Día (UTC)</th><th>Corte</th><th>Valor de mercado</th><th>Costo base</th><th>
               Compras
             </th><th>
               Ventas
@@ -543,7 +571,7 @@ defmodule FootballMarketWeb.WorkspaceComponents do
         </thead>
         <tbody>
           <tr :for={point <- @portfolio_history.points}>
-            <th scope="row">{point.date}</th><td>{timestamp(point.cutoff_at)}</td><td>
+            <th scope="row">{point.date}</th><td>{daily_cutoff(point)}</td><td>
               {exact_money(point.market_value)}
             </td><td>
               {exact_money(point.cost_basis)}
@@ -595,18 +623,22 @@ defmodule FootballMarketWeb.WorkspaceComponents do
       </svg>
       <p class="chart-scale">{chart_scale(@points, @metric)}</p>
       <details>
-        <summary>Ver valores de {@label} y horarios UTC</summary>
+        <summary>Ver valores diarios de {@label} (UTC)</summary>
         <div class="table-scroll chart-table">
           <table>
             <caption>{@label} · Créditos</caption>
             <thead>
               <tr>
-                <th scope="col">Corte UTC</th><th scope="col">Valor</th>
+                <th scope="col">Día (UTC)</th><th scope="col">Valor</th>
               </tr>
             </thead>
             <tbody>
               <tr :for={point <- @points}>
-                <th scope="row">{DateTime.to_iso8601(point.cutoff_at)}</th>
+                <th scope="row">
+                  {point.date}{if Map.get(point, :partial, false),
+                    do: " · parcial hasta " <> Calendar.strftime(point.cutoff_at, "%H:%M UTC"),
+                    else: ""}
+                </th>
                 <td>{chart_value(Map.get(point, @metric))}</td>
               </tr>
             </tbody>
@@ -726,6 +758,27 @@ defmodule FootballMarketWeb.WorkspaceComponents do
   defp first_chart_date([]), do: ""
   defp last_chart_date([]), do: ""
   defp last_chart_date(points), do: points |> List.last() |> then(&Date.to_iso8601(&1.date))
+
+  def strategy_name("balanced"), do: "Equilibrada"
+  def strategy_name("position_aware"), do: "Por posición"
+  def strategy_name("initial_issuance"), do: "Emisión inicial"
+  def strategy_name(value), do: value
+
+  defp quote_source(%{rule_id: "initial_issuance"}), do: "Emisión inicial del mercado"
+  defp quote_source(_), do: "Rendimiento deportivo registrado"
+  defp valuation_status(%{state: "pending"}), do: "Valuación pendiente para el próximo cierre."
+  defp valuation_status(%{state: "running"}), do: "Valuación en curso."
+  defp valuation_status(%{state: "completed"}), do: "Valuación completada."
+  defp valuation_status(%{state: "failed"}), do: "La valuación requiere revisión."
+  defp valuation_status(%{state: "not_requested"}), do: "No hay una nueva valuación solicitada."
+  defp valuation_status(_), do: "Estado de valuación no disponible."
+  defp coverage_name("unavailable"), do: "Sin estadísticas registradas"
+  defp coverage_name(_), do: "Estadísticas registradas; la cobertura puede ser parcial"
+
+  defp daily_cutoff(%{partial: true, cutoff_at: cutoff}),
+    do: "Parcial hasta " <> Calendar.strftime(cutoff, "%H:%M UTC")
+
+  defp daily_cutoff(_), do: "Cierre del día UTC"
 
   def position_name("GK"), do: "Arquero"
   def position_name("DEF"), do: "Defensor"

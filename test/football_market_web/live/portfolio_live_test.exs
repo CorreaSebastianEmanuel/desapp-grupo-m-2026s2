@@ -123,7 +123,7 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
 
     [first] = first_page.data
     assert has_element?(view, "#transaction-#{first.id}")
-    assert has_element?(view, "#transaction-#{first.id}", first.quote_id)
+    refute has_element?(view, "#transaction-#{first.id}", first.quote_id)
     assert has_element?(view, "#transaction-#{first.id} td:nth-child(3)", "1")
     assert has_element?(view, "#transaction-#{first.id} td:nth-child(4)", "1")
     assert has_element?(view, "#transaction-#{first.id} td:nth-child(5)", "1")
@@ -265,7 +265,8 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
     assert html =~ "Sin datos"
     assert length(Regex.scan(~r/M[0-9.]+,[0-9.]+/, html)) == 2
     assert html =~ "Escala: 1 a 2 créditos."
-    assert html =~ "2026-10-30T12:00:00Z"
+    assert html =~ "2026-10-30"
+    refute html =~ "2026-10-30T12:00:00Z"
 
     incomplete_allocation =
       render_component(&FootballMarketWeb.WorkspaceComponents.portfolio_charts/1, %{
@@ -337,7 +338,8 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
     assert html =~ "Valor de mercado del portafolio por día"
     assert html =~ "Ganancia/pérdida realizada por día"
     assert html =~ "Ganancia/pérdida no realizada por día"
-    assert html =~ "2026-10-30T12:00:00Z"
+    assert html =~ "2026-10-30"
+    refute html =~ "2026-10-30T12:00:00Z"
 
     unavailable =
       render_component(&FootballMarketWeb.WorkspaceComponents.portfolio_charts/1, %{
@@ -421,15 +423,15 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
 
     for value <- [
           later.id,
-          later.player_id,
-          later.rule_id,
           later.configuration_version_id,
           later.mapping_id,
-          later.calculation_id,
-          to_string(later.performance_sequence)
+          later.calculation_id
         ] do
-      assert has_element?(view, "#quote-provenance", value)
+      refute has_element?(view, "#quote-provenance", value)
     end
+
+    assert has_element?(view, "#quote-provenance", "Equilibrada · versión 1")
+    assert has_element?(view, "#quote-provenance", "Rendimiento deportivo")
 
     statistics = view |> element("#player-statistics") |> render() |> LazyHTML.from_fragment()
 
@@ -447,31 +449,18 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
     assert is_nil(card.statistics.assists)
     refute has_element?(view, "#player-statistics dt", "Asistencias")
 
-    assert has_element?(view, "#player-freshness", card.statistics.season_id)
-    assert has_element?(view, "#player-freshness", to_string(card.statistics.coverage))
-
-    for value <- [
-          card.statistics_status.scope.player_id,
-          card.statistics_status.scope.season_id,
-          card.statistics_status.scope.league_code,
-          card.statistics_status.refresh.state,
-          card.statistics_status.freshness,
-          card.statistics_status.source_mode,
-          to_string(card.statistics_status.ttl_seconds),
-          card.statistics_status.valuation.state
-        ] do
-      assert has_element?(view, "#player-freshness pre", value)
-    end
-
-    assert has_element?(view, "#quote-history", earlier.id)
-    assert has_element?(view, "#quote-history", later.id)
+    refute has_element?(view, "#player-freshness", card.statistics.season_id)
+    refute has_element?(view, "#player-freshness pre")
+    assert has_element?(view, "#player-freshness", "cierre del mercado")
+    refute has_element?(view, "#quote-history", earlier.id)
+    refute has_element?(view, "#quote-history", later.id)
     assert_quote_details(view, "#quote-provenance", later)
-    assert_quote_details(view, "#quote-history li", later, later.id)
-    assert_quote_details(view, "#quote-history li", earlier, earlier.id)
+    assert_quote_details(view, "#quote-history li", later, "2.50 créditos")
+    assert_quote_details(view, "#quote-history li", earlier, "1.25 créditos")
     render_submit(view, "quote_date", %{"date" => Date.to_iso8601(day)})
     assert has_element?(view, "#quote-history [role=status]", "1.25 créditos")
     assert_quote_details(view, "#dated-quote-provenance", earlier)
-    assert has_element?(view, "#dated-quote-provenance", earlier.id)
+    refute has_element?(view, "#dated-quote-provenance", earlier.id)
     refute has_element?(view, "#dated-quote-provenance", later.id)
     refute has_element?(view, "#quote-history [role=status]", "2.50 créditos")
     assert has_element?(view, "#quote-history [role=status]", "12:00:00 UTC")
@@ -520,9 +509,9 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
       Market.transaction_history(PurchasesCase.actor(f.buyer), %{page_size: 1, cursor: nil})
 
     [record] = history.data
-    assert has_element?(view, "#trade-confirmation", record.id)
-    assert has_element?(view, "#trade-confirmation", record.quote_id)
-    assert has_element?(view, "#trade-confirmation", key)
+    refute has_element?(view, "#trade-confirmation", record.id)
+    refute has_element?(view, "#trade-confirmation", record.quote_id)
+    refute has_element?(view, "#trade-confirmation", key)
     assert has_element?(view, "#trade-confirmation", "3.00 créditos")
     assert has_element?(view, "#trade-confirmation", "1.00 créditos")
 
@@ -537,22 +526,14 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
       |> Enum.map(fn node -> node |> LazyHTML.text() |> String.trim() end)
 
     assert confirmation == [
-             purchase.id,
-             purchase.player_id,
-             purchase.buyer_id,
-             purchase.recipient_id,
-             key,
+             f.player.display_name,
              "Compra",
              "3",
              "1.00 créditos",
              "3.00 créditos",
              Calendar.strftime(purchase.completed_at, "%Y-%m-%d %H:%M:%S UTC"),
              Calendar.strftime(purchase.quote_effective_at, "%Y-%m-%d %H:%M:%S UTC"),
-             purchase.quote_id,
-             "#{purchase.rule_id} · versión #{purchase.rule_version}",
-             to_string(purchase.configuration_version_id),
-             to_string(purchase.mapping_id),
-             to_string(purchase.performance_sequence)
+             "Emisión inicial · versión #{purchase.rule_version}"
            ]
 
     assert has_element?(view, "#credit-balance", "Créditos disponibles: 97.00")
@@ -613,39 +594,85 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
     assert actual == [
              Decimal.to_string(quote.unit_price, :normal) <> " créditos",
              Calendar.strftime(quote.effective_at, "%Y-%m-%d %H:%M:%S UTC"),
-             quote.id,
-             quote.player_id,
-             "#{quote.rule_id} · versión #{quote.rule_version}",
-             quote.configuration_version_id,
-             quote.mapping_id,
-             quote.calculation_id,
-             to_string(quote.performance_sequence),
+             "Equilibrada · versión #{quote.rule_version}",
+             "Rendimiento deportivo registrado",
              Calendar.strftime(quote.inserted_at, "%Y-%m-%d %H:%M:%S UTC")
            ]
   end
 
-  test "business failures remain safe and allow starting a corrected trade" do
+  test "definitive buy and sale failures allow corrected quantities in the same session" do
     f = FootballMarket.MarketCase.fixture()
     assert {:ok, _} = Market.initialize_player(f.player.id)
+    PurchasesCase.fund(f.buyer, "3")
+    PurchasesCase.fund(f.owner, "100")
     {:ok, view, _} = live(authenticated_conn(f.buyer), "/players?player_id=#{f.player.id}")
-
-    render_submit(view, "trade", %{
-      side: "buy",
-      quantity: "1",
-      request_key: trade_key(view)
-    })
-
-    assert has_element?(view, "#trade-error", "créditos suficientes")
-    view |> element("#new-trade") |> render_click()
-
-    render_submit(view, "trade", %{
-      side: "sell",
-      quantity: "1",
-      request_key: trade_key(view)
-    })
-
+    original_key = trade_key(view)
+    render_submit(view, "trade", %{side: "buy", quantity: "0", request_key: original_key})
     assert has_element?(view, "#trade-error")
-    refute has_element?(view, "#trade-notice")
+    render_submit(view, "trade", %{side: "buy", quantity: "4", request_key: trade_key(view)})
+    assert has_element?(view, "#trade-error", "créditos suficientes")
+    refute trade_key(view) == original_key
+    render_submit(view, "trade", %{side: "buy", quantity: "3", request_key: trade_key(view)})
+    assert has_element?(view, "#player-position-summary", "3 tokens")
+    view |> element("#new-trade") |> render_click()
+    render_submit(view, "trade", %{side: "sell", quantity: "4", request_key: trade_key(view)})
+    assert has_element?(view, "#trade-error")
+    render_submit(view, "trade", %{side: "sell", quantity: "1", request_key: trade_key(view)})
+    assert has_element?(view, "#player-position-summary", "2 tokens")
+    view |> element("#new-trade") |> render_click()
+    PurchasesCase.fund(f.buyer, "1000")
+    render_submit(view, "trade", %{side: "buy", quantity: "101", request_key: trade_key(view)})
+    assert has_element?(view, "#trade-error", "tokens disponibles")
+    key = trade_key(view)
+    render_submit(view, "trade", %{side: "buy", quantity: "1", request_key: key})
+    render_submit(view, "trade", %{side: "buy", quantity: "1", request_key: key})
+    assert has_element?(view, "#player-position-summary", "3 tokens")
+    assert Repo.aggregate(FootballMarket.Market.Purchase, :count) == 2
+    assert Repo.aggregate(FootballMarket.Market.Sale, :count) == 1
+  end
+
+  test "uncertain failures preserve the intent and request key until the same submission resolves" do
+    f = FootballMarket.MarketCase.fixture()
+    assert {:ok, _} = Market.initialize_player(f.player.id)
+    PurchasesCase.fund(f.buyer, "100")
+    key = Ecto.UUID.generate()
+
+    socket = %Phoenix.LiveView.Socket{
+      assigns: %{
+        __changed__: %{},
+        actor: %{account_id: f.buyer.id, session_id: Ecto.UUID.generate()},
+        card: %{player: f.player},
+        trade_key: key,
+        trade_intent: nil,
+        trade_complete: false
+      }
+    }
+
+    {:ok, {:noreply, socket}} =
+      Repo.transaction(fn ->
+        FootballMarketWeb.WorkspaceLive.handle_event(
+          "trade",
+          %{"side" => "buy", "quantity" => "3", "request_key" => key},
+          socket
+        )
+      end)
+
+    assert socket.assigns.trade_key == key
+    assert socket.assigns.trade_intent == {f.player.id, "buy", 3}
+
+    assert {:noreply, ^socket} =
+             FootballMarketWeb.WorkspaceLive.handle_event("new_trade", %{}, socket)
+
+    {:noreply, changed} =
+      FootballMarketWeb.WorkspaceLive.handle_event(
+        "trade",
+        %{"side" => "buy", "quantity" => "2", "request_key" => key},
+        socket
+      )
+
+    assert changed.assigns.trade_error =~ "otros datos"
+    assert changed.assigns.trade_key == key
+    assert Repo.aggregate(FootballMarket.Market.Purchase, :count) == 0
   end
 
   test "ranking and card routes require browser authentication" do
@@ -667,6 +694,7 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
       for n <- [3, 1] do
         %{
           player_id: Integer.to_string(n),
+          player_name: "Nombre real #{n}",
           quote_id: "quote-#{n}",
           effective_at: ~U[2026-11-02 12:00:00Z],
           unit_price: Decimal.new(n)
@@ -678,8 +706,10 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
         ranking: %{configuration: configuration, entries: entries}
       )
 
-    assert html =~ "Estrategia activa: balanced"
-    assert html =~ "quote-3"
+    assert html =~ "Estrategia activa: Equilibrada"
+    assert html =~ "Nombre real 3"
+    refute html =~ configuration.id
+    refute html =~ "quote-3"
     assert html =~ "2026-11-02 12:00:00 UTC"
     assert html =~ "Referencia de cotización"
     assert html =~ "<details>"

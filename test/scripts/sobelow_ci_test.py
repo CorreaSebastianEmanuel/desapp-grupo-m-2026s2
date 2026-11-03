@@ -417,6 +417,11 @@ end
     def test_exception_requires_exact_rule_location_confidence_and_source_bytes(self):
         exception = control.EXCEPTIONS[0]
         finding = {k: v for k, v in exception.items() if k != "sha256"}
+        source = (ROOT / exception["file"]).read_bytes()
+        current_sources = {exception["file"]: hashlib.sha256(source).hexdigest()}
+        self.assertEqual(control.classify([finding], current_sources), ([finding], []))
+        changed_sources = {exception["file"]: hashlib.sha256(source + b"\n").hexdigest()}
+        self.assertEqual(control.classify([finding], changed_sources), ([], [finding]))
         sources = {exception["file"]: exception["sha256"]}
         self.assertEqual(control.classify([finding], sources), ([finding], []))
         for key, value in (("line", finding["line"] + 1), ("file", "lib/new.ex"),

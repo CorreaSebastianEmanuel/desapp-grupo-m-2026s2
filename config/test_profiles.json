@@ -282,6 +282,13 @@
       "profile": "integration"
     },
     {
+      "id": "06e5a9bba889a8a65eed7251",
+      "runner": "exunit",
+      "file": "test/football_market_web/live/administration_live_test.exs",
+      "case_id": "FootballMarketWeb.AdministrationLiveTest:test administrator inspects immutable versions activates with seen selection and handles stale sessions",
+      "profile": "integration"
+    },
+    {
       "id": "073929c5669dc3c588ab8658",
       "runner": "exunit",
       "file": "test/ci/application_coverage_contract_test.exs",
@@ -692,6 +699,13 @@
       "runner": "exunit",
       "file": "test/football_market_web/request_logger_test.exs",
       "case_id": "FootballMarketWeb.RequestLoggerTest:test default runtime handler uses JSON and preserves the environment level",
+      "profile": "integration"
+    },
+    {
+      "id": "107a9c011b1988d81114c820",
+      "runner": "exunit",
+      "file": "test/football_market_web/live/administration_live_test.exs",
+      "case_id": "FootballMarketWeb.AdministrationLiveTest:test connected mount rechecks designation rather than trusting a signed disconnected render",
       "profile": "integration"
     },
     {
@@ -1983,6 +1997,13 @@
       "profile": "integration"
     },
     {
+      "id": "3069ce178ae2caaf09b39790",
+      "runner": "exunit",
+      "file": "test/football_market_web/live/conditional_orders_live_test.exs",
+      "case_id": "FootballMarketWeb.ConditionalOrdersLiveTest:test UTC picker preserves the selected instant and rejects past or malformed expiry",
+      "profile": "integration"
+    },
+    {
       "id": "3070d63919b8529908c06e6f",
       "runner": "python",
       "file": "test/scripts/agentflow_models_test.py",
@@ -2634,13 +2655,6 @@
       "profile": "integration"
     },
     {
-      "id": "41de5988c8f9ba597d70bbb8",
-      "runner": "exunit",
-      "file": "test/football_market_web/live/portfolio_live_test.exs",
-      "case_id": "FootballMarketWeb.PortfolioLiveTest:test business failures remain safe and allow starting a corrected trade",
-      "profile": "integration"
-    },
-    {
       "id": "41e1ebf2a8b4d4b0a6d2c987",
       "runner": "exunit",
       "file": "test/football_market/accounts/api_key_persistence_test.exs",
@@ -2870,6 +2884,13 @@
       "file": "test/football_market/valuation/position_aware/config_test.exs",
       "case_id": "FootballMarket.Valuation.PositionAware.ConfigTest:test direct feature views reject unknown scopes, missing metrics and malformed values without exceptions",
       "profile": "unit"
+    },
+    {
+      "id": "483a4431d6814a21bbd9d3d0",
+      "runner": "exunit",
+      "file": "test/football_market_web/live/administration_live_test.exs",
+      "case_id": "FootballMarketWeb.AdministrationLiveTest:test connected administrator callbacks lose authority after designation changes or logout",
+      "profile": "integration"
     },
     {
       "id": "485e72b65e5f63134fed23b8",
@@ -3625,6 +3646,13 @@
       "runner": "exunit",
       "file": "test/football_market/catalog/catalog_test.exs",
       "case_id": "FootballMarket.CatalogTest:test creates players and permits only same-season reassignment",
+      "profile": "integration"
+    },
+    {
+      "id": "5be91ad3054f17844eef3b93",
+      "runner": "exunit",
+      "file": "test/football_market_web/live/portfolio_live_test.exs",
+      "case_id": "FootballMarketWeb.PortfolioLiveTest:test definitive buy and sale failures allow corrected quantities in the same session",
       "profile": "integration"
     },
     {
@@ -6470,6 +6498,13 @@
       "profile": "unit"
     },
     {
+      "id": "a77208e2c4abfb758d9dd41d",
+      "runner": "exunit",
+      "file": "test/football_market_web/live/administration_live_test.exs",
+      "case_id": "FootballMarketWeb.AdministrationLiveTest:test designation fails closed and signup or submitted account identity cannot grant administration",
+      "profile": "integration"
+    },
+    {
       "id": "a7abd96a7475c4eca024ceb3",
       "runner": "python",
       "file": "test/scripts/sonar_checkpoint_gate_test.py",
@@ -7790,6 +7825,13 @@
       "runner": "exunit",
       "file": "test/football_market/market/portfolio/positions_test.exs",
       "case_id": "FootballMarket.Market.PortfolioTest:test trade history is read through one combined statement so committed trades cannot interleave",
+      "profile": "integration"
+    },
+    {
+      "id": "c9921f3276869a37591c6665",
+      "runner": "exunit",
+      "file": "test/football_market_web/live/portfolio_live_test.exs",
+      "case_id": "FootballMarketWeb.PortfolioLiveTest:test uncertain failures preserve the intent and request key until the same submission resolves",
       "profile": "integration"
     },
     {

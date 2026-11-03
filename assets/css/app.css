@@ -418,3 +418,20 @@ body { background:#edf1ee; color:#1e3029; font-family:system-ui,-apple-system,"S
 .local-admin footer { margin-top:24px; }
 @media(max-width:640px) { .local-admin-header { align-items:flex-start; flex-direction:column; } .local-admin-header h1 { font-size:28px; } .local-admin-panel { padding:14px; } .local-admin-flow { grid-template-columns:1fr; } .local-admin-job-grid { grid-template-columns:1fr; } .local-admin-queue { padding:12px; } }
 @media(prefers-reduced-motion:reduce) { .local-admin-panel, .local-admin .job-state-executing::before, .local-admin .run-state-executing::before { animation:none; } .local-admin tbody tr { transition:none; } }
+
+/* Exact financial summaries stay readable on narrow screens. */
+#portfolio-allocation-totals.portfolio-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+.portfolio-metric {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid #dce3e8;
+  border-radius: 12px;
+  background: #f7f9fb;
+}
+.portfolio-metric dt { font-size: .85rem; color: #526174; }
+.portfolio-metric dd { margin: .4rem 0 0; font-size: 1.35rem; font-weight: 700; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }

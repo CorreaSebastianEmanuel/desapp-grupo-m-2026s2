@@ -58,6 +58,39 @@ defmodule FootballMarketWeb.ConditionalOrdersLiveTest do
     refute has_element?(view, "#conditional-order-#{order.id} button")
   end
 
+  test "UTC picker preserves the selected instant and rejects past or malformed expiry" do
+    f = fixture()
+
+    {:ok, view, _} =
+      live(authenticated_conn(f.buyer), "/conditional-orders?player_id=#{f.player.id}")
+
+    assert has_element?(view, "#order-expires-at[type=datetime-local][step='1']")
+    assert has_element?(view, "label[for=order-expires-at]", "UTC")
+    expiry = DateTime.utc_now() |> DateTime.add(3600) |> DateTime.truncate(:second)
+
+    values = %{
+      "player_id" => f.player.id,
+      "quantity" => "1",
+      "maximum_unit_price" => "0.01",
+      "expires_at" => "2000-01-01T12:00"
+    }
+
+    for invalid <- [values["expires_at"], "invalid"] do
+      render_submit(view, "create_order", %{values | "expires_at" => invalid})
+      assert has_element?(view, "#order-error")
+      assert {:ok, []} = ConditionalOrders.list(C.actor(f.buyer))
+    end
+
+    render_submit(view, "create_order", %{
+      values
+      | "expires_at" => expiry |> DateTime.to_naive() |> NaiveDateTime.to_iso8601()
+    })
+
+    assert has_element?(view, "#order-notice", "Orden creada")
+    assert {:ok, [order]} = ConditionalOrders.list(C.actor(f.buyer))
+    assert DateTime.compare(order.expires_at, expiry) == :eq
+  end
+
   test "reload hints and reconnect recover committed owner-scoped states and outcomes" do
     f = fixture()
     other = FootballMarket.BrowserSessionCase.account("other-orders@example.com")
@@ -80,7 +113,7 @@ defmodule FootballMarketWeb.ConditionalOrdersLiveTest do
     assert result.status == "executed"
     assert has_element?(view, "#conditional-order-#{executed.id}", "Detalles de ejecución")
     assert has_element?(view, "#conditional-order-#{executed.id}", result.execution.purchase_id)
-    assert has_element?(view, "#conditional-order-#{executed.id}", result.execution.quote_id)
+    refute has_element?(view, "#conditional-order-#{executed.id}", result.execution.quote_id)
     assert has_element?(view, "#conditional-order-#{executed.id}", "Completada")
 
     PurchasesCase.fund(f.buyer, "0")
@@ -169,6 +202,9 @@ defmodule FootballMarketWeb.ConditionalOrdersLiveTest do
   end
 
   defp future_expiry do
-    DateTime.utc_now() |> DateTime.add(3600, :second) |> DateTime.to_iso8601()
+    DateTime.utc_now()
+    |> DateTime.add(3600, :second)
+    |> DateTime.to_naive()
+    |> NaiveDateTime.to_iso8601()
   end
 end

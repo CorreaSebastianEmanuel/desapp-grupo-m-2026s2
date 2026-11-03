@@ -8,6 +8,22 @@ defmodule FootballMarket.Accounts do
   alias FootballMarket.Accounts.{ApiKey, Authentication, PasswordCredential, User}
   alias FootballMarket.Repo
 
+  @doc "Checks the explicitly configured existing primary account; malformed designations deny access."
+  def administrator?(%FootballMarket.Accounts.AuthenticatedActor{account_id: account_id}) do
+    with [designated] <- Application.get_env(:football_market, :initial_issuance_recipients, []),
+         {:ok, id} <- Ecto.UUID.cast(designated),
+         {:ok, actor_id} <- Ecto.UUID.cast(account_id),
+         true <- id == actor_id do
+      Repo.exists?(from u in User, where: u.id == ^id)
+    else
+      _ -> false
+    end
+  rescue
+    _ in [DBConnection.ConnectionError, Postgrex.Error] -> false
+  end
+
+  def administrator?(_), do: false
+
   @doc "Registers a user and its password credential atomically."
   def register_user(attrs) when is_map(attrs) do
     email = Map.get(attrs, :email, Map.get(attrs, "email"))

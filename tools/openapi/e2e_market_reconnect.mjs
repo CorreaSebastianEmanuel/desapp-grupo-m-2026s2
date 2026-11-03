@@ -42,7 +42,7 @@ try {
   await page.waitForSelector('.phx-connected #conditional-order-form');
   await page.getByLabel('Cantidad', {exact: true}).fill('3');
   await page.getByLabel('Precio máximo por token (créditos)', {exact: true}).fill('10.00');
-  await page.getByLabel('Vencimiento (fecha y hora UTC)', {exact: true}).fill(new Date(Date.now() + 3600000).toISOString());
+  await page.getByLabel('Vencimiento (fecha y hora UTC)', {exact: true}).fill(new Date(Date.now() + 3600000).toISOString().slice(0, 19));
   await page.getByRole('button', {name: 'Crear orden condicional', exact: true}).click();
   await page.waitForSelector('#order-notice');
 

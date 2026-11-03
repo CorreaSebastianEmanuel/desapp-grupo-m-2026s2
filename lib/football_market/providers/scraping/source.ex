@@ -144,6 +144,25 @@ defmodule FootballMarket.Providers.Scraping.Source do
       state[:player_source_id] || discover_player_id!(request, context, state, revision, row)
 
     state = Map.put(state, :player_source_id, player_id)
+    {profile_data, recent} = player_profile(player_id, request, context, state, revision, row)
+    scoped_rows = scoped_profile_rows(recent, row, request)
+    details = profile_match_details(scoped_rows, profile_data, player_id, state)
+
+    {facts, eligible_ids} =
+      translate_profile_details(
+        details,
+        scoped_rows,
+        player_id,
+        state,
+        request,
+        context,
+        row
+      )
+
+    {facts, eligible_ids == [], state}
+  end
+
+  defp player_profile(player_id, request, context, state, revision, row) do
     profile = portion!("player_data:" <> player_id, request, context, state, revision, row)
     profile_data = map!(profile["data"] || profile)
     require!(source_id!(profile_data["id"]) == player_id)
@@ -172,68 +191,80 @@ defmodule FootballMarket.Providers.Scraping.Source do
 
     require!(is_nil(cursor) or DateTime.compare(oldest_profile_kickoff, boundary) == :lt)
 
-    scoped_profile_rows =
-      Enum.filter(recent, fn match ->
-        match["playedInMatch"] == true and
-          source_id!(match["leagueId"]) == source_id!(row.competition) and
-          in_season_window?(get_in(match, ["matchDate", "utcTime"]), request.scope)
-      end)
+    {profile_data, recent}
+  end
 
-    details =
-      Enum.map(scoped_profile_rows, fn profile_row ->
-        match_id = source_id!(profile_row["id"])
+  defp scoped_profile_rows(recent, row, request) do
+    Enum.filter(recent, fn match ->
+      match["playedInMatch"] == true and
+        source_id!(match["leagueId"]) == source_id!(row.competition) and
+        in_season_window?(get_in(match, ["matchDate", "utcTime"]), request.scope)
+    end)
+  end
 
-        {:ok, kickoff} =
-          FootballMarket.Providers.Instant.normalize(
-            get_in(profile_row, ["matchDate", "utcTime"])
-          )
+  defp profile_match_details(scoped_profile_rows, profile_data, player_id, state) do
+    Enum.map(scoped_profile_rows, fn profile_row ->
+      match_id = source_id!(profile_row["id"])
 
-        home = profile_row["isHomeTeam"] == true
+      {:ok, kickoff} =
+        FootballMarket.Providers.Instant.normalize(get_in(profile_row, ["matchDate", "utcTime"]))
 
-        team = %{
-          "id" => source_id!(profile_row["teamId"]),
-          "name" => id!(profile_row["teamName"])
-        }
+      home = profile_row["isHomeTeam"] == true
 
-        opponent = %{
-          "id" => source_id!(profile_row["opponentTeamId"]),
-          "name" => id!(profile_row["opponentTeamName"])
-        }
+      team = %{
+        "id" => source_id!(profile_row["teamId"]),
+        "name" => id!(profile_row["teamName"])
+      }
 
-        general = %{
-          "matchId" => match_id,
-          "parentLeagueId" => source_id!(profile_row["leagueId"]),
-          "finished" => true,
-          "matchTimeUTCDate" => get_in(profile_row, ["matchDate", "utcTime"]),
-          "homeTeam" => if(home, do: team, else: opponent),
-          "awayTeam" => if(home, do: opponent, else: team)
-        }
+      opponent = %{
+        "id" => source_id!(profile_row["opponentTeamId"]),
+        "name" => id!(profile_row["opponentTeamName"])
+      }
 
-        stats = %{
-          "id" => player_id,
-          "name" => id!(profile_data["name"]),
-          "teamId" => team["id"],
-          "currentTeamId" => team["id"],
-          "usualPosition" => profile_position_id(profile_row, state),
-          "positionId" => profile_position_id(profile_row, state),
-          "stats" =>
-            [
-              {"minutes_played", profile_row["minutesPlayed"]},
-              {"goals", profile_row["goals"]},
-              {"assists", profile_row["assists"]},
-              {"yellow_cards", profile_row["yellowCards"]},
-              {"red_cards", profile_row["redCards"]}
-            ]
-            |> Enum.flat_map(fn {key, value} ->
-              if is_integer(value),
-                do: [%{"stats" => [%{"key" => key, "stat" => %{"value" => value}}]}],
-                else: []
-            end)
-        }
+      general = %{
+        "matchId" => match_id,
+        "parentLeagueId" => source_id!(profile_row["leagueId"]),
+        "finished" => true,
+        "matchTimeUTCDate" => get_in(profile_row, ["matchDate", "utcTime"]),
+        "homeTeam" => if(home, do: team, else: opponent),
+        "awayTeam" => if(home, do: opponent, else: team)
+      }
 
-        {match_id, general, %{player_id => stats}, kickoff}
-      end)
+      stats = %{
+        "id" => player_id,
+        "name" => id!(profile_data["name"]),
+        "teamId" => team["id"],
+        "currentTeamId" => team["id"],
+        "usualPosition" => profile_position_id(profile_row, state),
+        "positionId" => profile_position_id(profile_row, state),
+        "stats" =>
+          [
+            {"minutes_played", profile_row["minutesPlayed"]},
+            {"goals", profile_row["goals"]},
+            {"assists", profile_row["assists"]},
+            {"yellow_cards", profile_row["yellowCards"]},
+            {"red_cards", profile_row["redCards"]}
+          ]
+          |> Enum.flat_map(fn {key, value} ->
+            if is_integer(value),
+              do: [%{"stats" => [%{"key" => key, "stat" => %{"value" => value}}]}],
+              else: []
+          end)
+      }
 
+      {match_id, general, %{player_id => stats}, kickoff}
+    end)
+  end
+
+  defp translate_profile_details(
+         details,
+         scoped_profile_rows,
+         player_id,
+         state,
+         request,
+         context,
+         row
+       ) do
     kickoffs = Enum.map(details, &elem(&1, 3))
     require!(kickoffs == Enum.sort(kickoffs, {:desc, DateTime}))
 
@@ -260,63 +291,72 @@ defmodule FootballMarket.Providers.Scraping.Source do
         player_id
       )
 
-    translated =
-      Enum.map(selected, fn {match_id, general, player_stats, _kickoff} ->
-        match = %{
-          "id" => match_id,
-          "status" => "completed",
-          "kickoff" => general["matchTimeUTCDate"],
-          "home" => source_id!(general["homeTeam"]["id"]),
-          "away" => source_id!(general["awayTeam"]["id"])
-        }
-
-        numeric_player_id =
-          case Integer.parse(player_id) do
-            {value, ""} -> value
-            _ -> nil
-          end
-
-        players = Map.get(player_stats, player_id) || Map.get(player_stats, numeric_player_id)
-
-        if is_map(players) do
-          profile_row = Enum.find(scoped_profile_rows, &(source_id!(&1["id"]) == match_id))
-
-          player =
-            players
-            |> Map.put_new("id", player_id)
-            |> Map.put_new("currentTeamId", players["teamId"])
-            |> put_historical_position(profile_row["lineupPositionId"])
-            |> put_profile_metric(profile_row, "yellow_cards", "yellowCards")
-            |> put_profile_metric(profile_row, "red_cards", "redCards")
-            |> Map.update!("id", &source_id!/1)
-            |> Map.update!("teamId", &source_id!/1)
-            |> Map.update!("currentTeamId", &source_id!/1)
-            |> maybe_normalize_position()
-
-          {match, [player]}
-        else
-          {match, []}
-        end
-      end)
-
-    teams =
-      selected
-      |> Enum.flat_map(fn {_id, general, _stats, _kickoff} ->
-        [general["homeTeam"], general["awayTeam"]]
-      end)
-      |> Enum.uniq_by(& &1["id"])
-      |> Enum.map(fn team ->
-        %{
-          "id" => source_id!(team["id"]),
-          "name" => team["name"] || team["shortName"] || source_id!(team["id"]),
-          "shortCode" => team["shortName"] || team["name"] || source_id!(team["id"])
-        }
-      end)
+    translated = translate_selected(selected, scoped_profile_rows, player_id)
+    teams = translated_teams(selected)
 
     facts = Translator.performances(request, context, translation_row, teams, translated)
     eligible_ids = Enum.map(selected, fn {match_id, _, _, _} -> match_id end)
 
-    {facts, eligible_ids == [], state}
+    {facts, eligible_ids}
+  end
+
+  defp translate_selected(selected, profile_rows, player_id) do
+    numeric_player_id = numeric_id(player_id)
+
+    Enum.map(selected, fn {match_id, general, player_stats, _kickoff} ->
+      match = %{
+        "id" => match_id,
+        "status" => "completed",
+        "kickoff" => general["matchTimeUTCDate"],
+        "home" => source_id!(general["homeTeam"]["id"]),
+        "away" => source_id!(general["awayTeam"]["id"])
+      }
+
+      players = Map.get(player_stats, player_id) || Map.get(player_stats, numeric_player_id)
+      {match, translate_player(players, match_id, profile_rows, player_id)}
+    end)
+  end
+
+  defp numeric_id(player_id) do
+    case Integer.parse(player_id) do
+      {value, ""} -> value
+      _ -> nil
+    end
+  end
+
+  defp translate_player(players, match_id, profile_rows, player_id) when is_map(players) do
+    profile_row = Enum.find(profile_rows, &(source_id!(&1["id"]) == match_id))
+
+    player =
+      players
+      |> Map.put_new("id", player_id)
+      |> Map.put_new("currentTeamId", players["teamId"])
+      |> put_historical_position(profile_row["lineupPositionId"])
+      |> put_profile_metric(profile_row, "yellow_cards", "yellowCards")
+      |> put_profile_metric(profile_row, "red_cards", "redCards")
+      |> Map.update!("id", &source_id!/1)
+      |> Map.update!("teamId", &source_id!/1)
+      |> Map.update!("currentTeamId", &source_id!/1)
+      |> maybe_normalize_position()
+
+    [player]
+  end
+
+  defp translate_player(_players, _match_id, _profile_rows, _player_id), do: []
+
+  defp translated_teams(selected) do
+    selected
+    |> Enum.flat_map(fn {_id, general, _stats, _kickoff} ->
+      [general["homeTeam"], general["awayTeam"]]
+    end)
+    |> Enum.uniq_by(& &1["id"])
+    |> Enum.map(fn team ->
+      %{
+        "id" => source_id!(team["id"]),
+        "name" => team["name"] || team["shortName"] || source_id!(team["id"]),
+        "shortCode" => team["shortName"] || team["name"] || source_id!(team["id"])
+      }
+    end)
   end
 
   defp player_position_row(row, position_code, profile_rows, details, player_id)
@@ -556,9 +596,10 @@ defmodule FootballMarket.Providers.Scraping.Source do
   end
 
   defp put_historical_position(player, position_id) do
-    if not is_nil(position_id),
-      do: Map.put(player, "positionId", source_id!(position_id)),
-      else: player
+    case position_id do
+      nil -> player
+      value -> Map.put(player, "positionId", source_id!(value))
+    end
   end
 
   defp put_profile_metric(player, profile_row, key, profile_key) do

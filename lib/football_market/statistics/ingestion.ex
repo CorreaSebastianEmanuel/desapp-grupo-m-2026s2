@@ -84,9 +84,7 @@ defmodule FootballMarket.Statistics.Ingestion do
 
   defp complete_scope?(result, player_source_id) do
     with :ok <- validate_scope_kind(result, player_source_id),
-         :ok <- validate_complete_evidence(result.completeness) do
-      :ok
-    end
+         do: validate_complete_evidence(result.completeness)
   end
 
   defp validate_scope_kind(

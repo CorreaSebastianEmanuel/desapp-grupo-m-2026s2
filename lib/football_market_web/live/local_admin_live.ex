@@ -22,6 +22,16 @@ defmodule FootballMarketWeb.LocalAdminLive do
   ]
   @hidden_queues ["catalog_scout"]
   @primary_queues ["catalog_sync", "statistics_import", "quote_calculation"]
+  @worker_labels %{
+    "CatalogSync" => "Carga de catálogo",
+    "StatisticsImport" => "Importación de estadísticas",
+    "CalculationDispatch" => "Despacho de cálculos derivados",
+    "ConditionalOrderEvaluation" => "Evaluación de órdenes condicionales",
+    "ConditionalOrderRecovery" => "Recuperación de órdenes condicionales",
+    "QuoteCalculation" => "Cálculo de cotización",
+    "QuoteClose" => "Cierre de cotizaciones",
+    "QuoteRecovery" => "Recuperación de cotizaciones"
+  }
   @tables [
     {"Usuarios", FootballMarket.Accounts.User},
     {"Ligas", Catalog.League},
@@ -305,18 +315,9 @@ defmodule FootballMarketWeb.LocalAdminLive do
       )
       |> Repo.all()
 
-    run_ids =
-      jobs
-      |> Enum.map(&get_in(&1.args || %{}, ["run_id"]))
-      |> Enum.filter(&is_binary/1)
-      |> Enum.uniq()
+    run_ids = job_run_ids(jobs)
 
-    calculation_intent_ids =
-      jobs
-      |> Enum.filter(&String.ends_with?(&1.worker, "CalculationDispatch"))
-      |> Enum.map(&get_in(&1.args || %{}, ["intent_id"]))
-      |> Enum.filter(&is_binary/1)
-      |> Enum.uniq()
+    calculation_intent_ids = calculation_intent_ids(jobs)
 
     calculation_runs =
       from(i in CalculationIntent,
@@ -359,14 +360,7 @@ defmodule FootballMarketWeb.LocalAdminLive do
         Map.get(runs, get_in(job.args || %{}, ["run_id"])) ||
           calculation_run(job, calculation_runs, runs)
 
-      context =
-        Map.get(quote_contexts, get_in(job.args || %{}, ["request_id"])) ||
-          if(
-            job.worker == "FootballMarket.Workers.QuoteClose" and
-              get_in(job.args || %{}, ["mode"]) == "manual",
-            do: "Cierre manual de cotizaciones · todas las ligas",
-            else: job_context(run, players, job.worker)
-          )
+      context = context_for_job(job, run, players, quote_contexts)
 
       job
       |> Map.put(:context, context)
@@ -375,6 +369,32 @@ defmodule FootballMarketWeb.LocalAdminLive do
     end)
   rescue
     _ -> []
+  end
+
+  defp job_run_ids(jobs), do: unique_job_arg(jobs, "run_id")
+
+  defp calculation_intent_ids(jobs) do
+    jobs
+    |> Enum.filter(&String.ends_with?(&1.worker, "CalculationDispatch"))
+    |> unique_job_arg("intent_id")
+  end
+
+  defp unique_job_arg(jobs, key) do
+    jobs
+    |> Enum.map(&get_in(&1.args || %{}, [key]))
+    |> Enum.filter(&is_binary/1)
+    |> Enum.uniq()
+  end
+
+  defp context_for_job(job, run, players, quote_contexts) do
+    Map.get(quote_contexts, get_in(job.args || %{}, ["request_id"])) ||
+      manual_quote_close_context(job) || job_context(run, players, job.worker)
+  end
+
+  defp manual_quote_close_context(job) do
+    if job.worker == "FootballMarket.Workers.QuoteClose" and
+         get_in(job.args || %{}, ["mode"]) == "manual",
+       do: "Cierre manual de cotizaciones · todas las ligas"
   end
 
   defp quote_job_contexts(jobs) do
@@ -410,13 +430,19 @@ defmodule FootballMarketWeb.LocalAdminLive do
   end
 
   defp calculation_run(job, calculation_runs, runs) do
-    if String.ends_with?(job.worker, "CalculationDispatch") do
-      intent_id = get_in(job.args || %{}, ["intent_id"])
+    intent_id =
+      if String.ends_with?(job.worker, "CalculationDispatch"),
+        do: get_in(job.args || %{}, ["intent_id"])
 
-      case Enum.find(calculation_runs, fn {id, _run} -> id == intent_id end) do
-        {_id, run} -> Map.get(runs, run.id)
-        nil -> nil
-      end
+    find_calculation_run(intent_id, calculation_runs, runs)
+  end
+
+  defp find_calculation_run(nil, _calculation_runs, _runs), do: nil
+
+  defp find_calculation_run(intent_id, calculation_runs, runs) do
+    case Enum.find(calculation_runs, fn {id, _run} -> id == intent_id end) do
+      {_id, run} -> Map.get(runs, run.id)
+      nil -> nil
     end
   end
 
@@ -793,17 +819,9 @@ defmodule FootballMarketWeb.LocalAdminLive do
   end
 
   defp worker_label(worker) do
-    case worker |> String.trim_leading("Elixir.") |> String.split(".") |> List.last() do
-      "CatalogSync" -> "Carga de catálogo"
-      "StatisticsImport" -> "Importación de estadísticas"
-      "CalculationDispatch" -> "Despacho de cálculos derivados"
-      "ConditionalOrderEvaluation" -> "Evaluación de órdenes condicionales"
-      "ConditionalOrderRecovery" -> "Recuperación de órdenes condicionales"
-      "QuoteCalculation" -> "Cálculo de cotización"
-      "QuoteClose" -> "Cierre de cotizaciones"
-      "QuoteRecovery" -> "Recuperación de cotizaciones"
-      name -> name
-    end
+    name = worker |> String.trim_leading("Elixir.") |> String.split(".") |> List.last()
+
+    Map.get(@worker_labels, name, name)
   end
 
   defp quote_state_label("pending"), do: "Pendiente"

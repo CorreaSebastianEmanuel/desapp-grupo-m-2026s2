@@ -1107,6 +1107,7 @@ defmodule FootballMarket.WorkflowScope do
       "test/football_market_web/live/local_admin_live_test.exs",
       "test/football_market_web/live/portfolio_live_test.exs",
       "test/support/freshness_case.ex",
+      "test/support/e2e/fixtures.ex",
       "test/support/providers/scraping_fixture_data.ex",
       "test/support/workflow_scope.ex",
       "tools/openapi/workspace_browser.mjs"

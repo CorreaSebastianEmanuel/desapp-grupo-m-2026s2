@@ -163,12 +163,15 @@ defmodule FootballMarket.Providers.FootballDataOrg do
 
   defp translate_team(_, _, _, _, _), do: {:error, %{category: :invalid_response}}
 
+  defp position_code(nil), do: "UNK"
+  defp position_code(position), do: @positions[position]
+
   defp squad(rows, season_ref, team_id) do
     Enum.reduce_while(rows, {:ok, []}, fn row, {:ok, acc} ->
       with %{"id" => id, "name" => name, "position" => position}
            when is_integer(id) and id > 0 and is_binary(name) and byte_size(name) > 0 <- row,
            position_code when is_binary(position_code) <-
-             if(is_nil(position), do: "UNK", else: @positions[position]) do
+             position_code(position) do
         player = %{
           ref: "football-data.org:player:#{id}",
           season_ref: "football-data.org:season:#{season_ref}",

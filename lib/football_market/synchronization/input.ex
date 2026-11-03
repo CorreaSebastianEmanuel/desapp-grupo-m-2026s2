@@ -57,46 +57,19 @@ defmodule FootballMarket.Synchronization.Input do
          true <- trigger in [:manual, :initial, :scheduled],
          {:ok, player_id, player_source_id, player_name, player_team_name, player_position_code} <-
            player_target(operation, options) do
-      material = %{
-        "version" => if(operation == :catalog, do: 1, else: 2),
-        "source_ref" => ref,
-        "fixture_ref" => fixture,
-        "source_identity" => identity,
-        "scope" => json(scope_values),
-        "timeout_ms" => request.timeout_ms,
-        "instructions" => instructions
-      }
-
-      material =
-        if operation == :statistics,
-          do: Map.put(material, "operation", "statistics"),
-          else: material
-
-      material =
-        if player_id do
-          material
-          |> Map.put("player_id", player_id)
-          |> Map.put("player_source_id", player_source_id)
-          |> maybe_put("player_name", player_name)
-          |> maybe_put("player_team_name", player_team_name)
-          |> maybe_put("player_position_code", player_position_code)
-        else
-          material
-        end
-
-      input_scope =
-        if player_id, do: Map.put(scope_values, :player_id, player_id), else: scope_values
-
-      {:ok,
-       %{
-         scope: input_scope,
-         operation: operation,
-         material: material,
-         digest: digest(material),
-         policy: policy,
-         trigger: trigger,
-         source: source
-       }}
+      build_input(%{
+        operation: operation,
+        request: request,
+        scope: scope_values,
+        policy: policy,
+        trigger: trigger,
+        source: source,
+        source_ref: ref,
+        fixture_ref: fixture,
+        identity: identity,
+        instructions: instructions,
+        player: {player_id, player_source_id, player_name, player_team_name, player_position_code}
+      })
     else
       {:error, field} when is_atom(field) -> {:error, field}
       _ -> {:error, :source_ref}
@@ -106,6 +79,67 @@ defmodule FootballMarket.Synchronization.Input do
   end
 
   def normalize(_, _, _), do: {:error, :request}
+
+  defp build_input(input) do
+    %{
+      operation: operation,
+      request: request,
+      scope: scope_values,
+      policy: policy,
+      trigger: trigger,
+      source: source,
+      source_ref: ref,
+      fixture_ref: fixture,
+      identity: identity,
+      instructions: instructions,
+      player: player
+    } = input
+
+    {player_id, _, _, _, _} = player
+
+    material = %{
+      "version" => if(operation == :catalog, do: 1, else: 2),
+      "source_ref" => ref,
+      "fixture_ref" => fixture,
+      "source_identity" => identity,
+      "scope" => json(scope_values),
+      "timeout_ms" => request.timeout_ms,
+      "instructions" => instructions
+    }
+
+    material =
+      if operation == :statistics,
+        do: Map.put(material, "operation", "statistics"),
+        else: material
+
+    material = add_player_material(material, player)
+    input_scope = add_player_scope(scope_values, player_id)
+
+    {:ok,
+     %{
+       scope: input_scope,
+       operation: operation,
+       material: material,
+       digest: digest(material),
+       policy: policy,
+       trigger: trigger,
+       source: source
+     }}
+  end
+
+  defp add_player_material(material, {nil, _, _, _, _}), do: material
+
+  defp add_player_material(material, {player_id, source_id, name, team, position}) do
+    material
+    |> Map.put("player_id", player_id)
+    |> Map.put("player_source_id", source_id)
+    |> maybe_put("player_name", name)
+    |> maybe_put("player_team_name", team)
+    |> maybe_put("player_position_code", position)
+  end
+
+  defp add_player_scope(scope, nil), do: scope
+  defp add_player_scope(scope, player_id), do: Map.put(scope, :player_id, player_id)
 
   def resolve(ref) do
     sources =
@@ -222,31 +256,51 @@ defmodule FootballMarket.Synchronization.Input do
   end
 
   defp player_target(:statistics, options) do
-    case {Keyword.get(options, :player_id), Keyword.get(options, :player_source_id),
-          Keyword.get(options, :player_name), Keyword.get(options, :player_team_name),
-          Keyword.get(options, :player_position_code)} do
+    case player_values(options) do
       {nil, nil, nil, nil, nil} ->
         {:ok, nil, nil, nil, nil, nil}
 
-      {player_id, source_id, name, team, position_code}
-      when is_binary(player_id) and (is_binary(source_id) or is_nil(source_id)) and
-             (is_binary(name) or is_nil(name)) and (is_binary(team) or is_nil(team)) and
-             (is_binary(position_code) or is_nil(position_code)) ->
-        with {:ok, uuid} <- Ecto.UUID.cast(player_id),
-             true <- is_nil(source_id) or Provenance.safe_text?(source_id),
-             true <- is_nil(name) or Provenance.safe_text?(name),
-             true <- is_nil(team) or Provenance.safe_text?(team),
-             true <- is_nil(position_code) or position_code in ["GK", "DEF", "MID", "FWD"],
-             true <- is_binary(source_id) or (is_binary(name) and is_binary(team)),
-             true <- (is_nil(name) and is_nil(team)) or (is_binary(name) and is_binary(team)) do
-          {:ok, String.downcase(uuid), source_id, name, team, position_code}
-        else
-          _ -> {:error, :player_target}
-        end
+      {player_id, source_id, name, team, position_code} ->
+        validate_player_target(player_id, source_id, name, team, position_code)
 
       _ ->
         {:error, :player_target}
     end
+  end
+
+  defp player_values(options) do
+    Enum.map(
+      [:player_id, :player_source_id, :player_name, :player_team_name, :player_position_code],
+      &Keyword.get(options, &1)
+    )
+    |> List.to_tuple()
+  end
+
+  defp validate_player_target(player_id, source_id, name, team, position_code)
+       when is_binary(player_id) do
+    with true <- optional_text?(source_id),
+         true <- optional_text?(name),
+         true <- optional_text?(team),
+         true <- optional_position?(position_code),
+         true <- valid_player_identity?(source_id, name, team),
+         {:ok, uuid} <- Ecto.UUID.cast(player_id) do
+      {:ok, String.downcase(uuid), source_id, name, team, position_code}
+    else
+      _ -> {:error, :player_target}
+    end
+  end
+
+  defp validate_player_target(_, _, _, _, _), do: {:error, :player_target}
+
+  defp optional_text?(nil), do: true
+  defp optional_text?(value), do: is_binary(value) and Provenance.safe_text?(value)
+
+  defp optional_position?(nil), do: true
+  defp optional_position?(value), do: value in ["GK", "DEF", "MID", "FWD"]
+
+  defp valid_player_identity?(source_id, name, team) do
+    (is_binary(source_id) or (is_binary(name) and is_binary(team))) and
+      ((is_nil(name) and is_nil(team)) or (is_binary(name) and is_binary(team)))
   end
 
   defp maybe_put(map, _key, nil), do: map

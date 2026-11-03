@@ -40,33 +40,34 @@ defmodule FootballMarket.Statistics.Freshness.Settings do
         {provider, _} = input.source.provider
         label = provider.provider_label()
 
-        if provider == FootballMarket.Providers.Scraping do
-          source_id = Catalog.provider_player_id(player.id, label)
+        case provider do
+          FootballMarket.Providers.Scraping ->
+            scraping_input(player, scope, options, timeout_ms, label, ttl, cooldown)
 
-          targeted_options =
-            Keyword.merge(options,
-              player_id: player.id,
-              player_source_id: source_id,
-              player_name: player.display_name,
-              player_team_name: player.team.name,
-              player_position_code: player.position && player.position.code
-            )
-
-          scraping_scope = Map.put(scope, :timeout_ms, timeout_ms)
-
-          case Input.normalize(:statistics, scraping_scope, targeted_options) do
-            {:ok, targeted_input} ->
-              {:ok, %{input: targeted_input, provider: label, ttl: ttl, cooldown: cooldown}}
-
-            _ ->
-              {:error, :invalid_configuration}
-          end
-        else
-          {:ok, %{input: input, provider: label, ttl: ttl, cooldown: cooldown}}
+          _ ->
+            {:ok, %{input: input, provider: label, ttl: ttl, cooldown: cooldown}}
         end
 
       _ ->
         {:error, :invalid_configuration}
+    end
+  end
+
+  defp scraping_input(player, scope, options, timeout_ms, label, ttl, cooldown) do
+    source_id = Catalog.provider_player_id(player.id, label)
+
+    targeted_options =
+      Keyword.merge(options,
+        player_id: player.id,
+        player_source_id: source_id,
+        player_name: player.display_name,
+        player_team_name: player.team.name,
+        player_position_code: player.position && player.position.code
+      )
+
+    case Input.normalize(:statistics, Map.put(scope, :timeout_ms, timeout_ms), targeted_options) do
+      {:ok, input} -> {:ok, %{input: input, provider: label, ttl: ttl, cooldown: cooldown}}
+      _ -> {:error, :invalid_configuration}
     end
   end
 end

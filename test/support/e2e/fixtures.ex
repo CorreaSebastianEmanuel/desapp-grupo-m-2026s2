@@ -206,10 +206,11 @@ defmodule FootballMarket.E2E.Fixtures do
 
   defp expire_browser_clock(dir, clock) do
     wait_for_expiration_request(dir)
+    ttl = Application.get_env(:football_market, :browser_session_ttl_seconds, 900)
 
     :persistent_term.put(
       {FootballMarket.BrowserTestClock, :now},
-      DateTime.add(clock, 901, :second)
+      DateTime.add(clock, ttl + 1, :second)
     )
 
     File.write!(Path.join(dir, "expired"), "ready")

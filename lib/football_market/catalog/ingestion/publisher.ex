@@ -143,17 +143,7 @@ defmodule FootballMarket.Catalog.Ingestion.Publisher do
       []
     )
 
-    for {row, attrs, operation} <- candidate.operations do
-      persisted = persist_operation(row, attrs, operation, season)
-
-      if operation == :insert and match?(%Player{}, persisted) do
-        case Market.initialize_primary_player_in_transaction(persisted.id) do
-          %{outcome: _status} -> :ok
-          {:ok, _status} -> :ok
-          {:error, reason} -> Repo.rollback({:initial_player_issuance_failed, reason})
-        end
-      end
-    end
+    persist_operations(candidate.operations, season)
 
     hook(:after_catalog)
 
@@ -213,6 +203,24 @@ defmodule FootballMarket.Catalog.Ingestion.Publisher do
       if(changes, do: :accepted_with_changes, else: :accepted_unchanged)
     )
   end
+
+  defp persist_operations(operations, season) do
+    Enum.each(operations, fn {row, attrs, operation} ->
+      row
+      |> persist_operation(attrs, operation, season)
+      |> maybe_initialize_primary(operation)
+    end)
+  end
+
+  defp maybe_initialize_primary(%Player{id: id}, :insert) do
+    case Market.initialize_primary_player_in_transaction(id) do
+      %{outcome: _status} -> :ok
+      {:ok, _status} -> :ok
+      {:error, reason} -> Repo.rollback({:initial_player_issuance_failed, reason})
+    end
+  end
+
+  defp maybe_initialize_primary(_row, _operation), do: :ok
 
   defp begin_binding(scope, binding, target) do
     target_field = String.to_existing_atom(Atom.to_string(binding.kind) <> "_id")

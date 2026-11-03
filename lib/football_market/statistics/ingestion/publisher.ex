@@ -350,10 +350,7 @@ defmodule FootballMarket.Statistics.Ingestion.Publisher do
             team_id: target.id
           }
 
-          case Repo.insert(SourceBinding.changeset(%SourceBinding{}, attrs)) do
-            {:ok, binding} -> binding
-            {:error, _changeset} -> nil
-          end
+          insert_source_binding(attrs)
         end
 
       _ ->
@@ -381,14 +378,18 @@ defmodule FootballMarket.Statistics.Ingestion.Publisher do
         player_id: target.id
       }
 
-      case Repo.insert(SourceBinding.changeset(%SourceBinding{}, attrs)) do
-        {:ok, binding} -> binding
-        {:error, _changeset} -> nil
-      end
+      insert_source_binding(attrs)
     end
   end
 
   defp maybe_bind_fotmob_player(_, _, _, _, _, _), do: nil
+
+  defp insert_source_binding(attrs) do
+    case Repo.insert(SourceBinding.changeset(%SourceBinding{}, attrs)) do
+      {:ok, binding} -> binding
+      {:error, _changeset} -> nil
+    end
+  end
 
   defp unique_team_by_source_name(source_name, season_id) do
     key = normalized_team_name(source_name)

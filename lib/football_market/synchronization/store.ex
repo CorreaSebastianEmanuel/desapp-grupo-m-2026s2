@@ -54,7 +54,7 @@ defmodule FootballMarket.Synchronization.Store do
           lock: "FOR UPDATE"
       )
 
-    if active && (active.input_digest != input.digest || active.input != input.material) do
+    if conflicting_active?(active, input) do
       {:error, %{category: :scope_busy, run_id: active.id, recovery: :wait_for_active_run}}
     else
       {run, disposition} =
@@ -70,6 +70,11 @@ defmodule FootballMarket.Synchronization.Store do
       %{run_id: run.id, status: state_atom(run.state), disposition: disposition}
     end
   end
+
+  defp conflicting_active?(nil, _input), do: false
+
+  defp conflicting_active?(active, input),
+    do: active.input_digest != input.digest or active.input != input.material
 
   def prepare!(run, eligible_at) do
     receipt =

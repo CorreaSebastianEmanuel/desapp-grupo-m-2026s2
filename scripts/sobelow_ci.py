@@ -14,20 +14,24 @@ COMMAND = ["mix", "sobelow", "--private", "--no-config", "--strict",
            "--format", "json", "--exit", "low", "--threshold", "low", "--summary"]
 LEVELS = ("high_confidence", "medium_confidence", "low_confidence")
 # Exact findings on reviewed source bytes; changes require fresh individual triage.
+# The router already adds Phoenix secure browser headers; CSP needs a separate policy review.
+# Catalog SQL identifiers come only from the fixed filter_columns allowlist; values are bound.
+# Statistics fixture reads use a fixed repository path and verify the fixture inventory digest.
+# Synchronization fixture_path is server configuration from a resolved source, never request input.
 EXCEPTIONS = [
     {
         "type": "Config.CSP: Missing Content-Security-Policy",
         "file": "lib/football_market_web/router.ex",
         "line": 11,
         "confidence": "high_confidence",
-        "sha256": "a15f9f96845fd846169676c389471bdc0b160830c4a3f89d0f558fa406bb2ab8"
+        "sha256": "210ab2996cf4c007bde28c8f993d04624800f6e6493da8488c69d1c88976d5a0"
     },
     {
         "type": "SQL.Query: SQL injection",
         "file": "lib/football_market/catalog.ex",
-        "line": 180,
+        "line": 244,
         "confidence": "low_confidence",
-        "sha256": "8f8a7e546be03d6b2a59bcd3f84e5106afc3317fe7f0adbd29eff3da9a4bf8c9"
+        "sha256": "e7ba12f1d93540da160b2d8cfd4e59454ea4a2c32c3e8a6ff5ea23909f7919e2"
     },
     {
         "type": "DOS.StringToAtom: Unsafe `String.to_atom`",
@@ -53,16 +57,16 @@ EXCEPTIONS = [
     {
         "type": "Traversal.FileModule: Directory Traversal in `File.read`",
         "file": "lib/football_market/statistics/ingestion/publisher.ex",
-        "line": 333,
+        "line": 477,
         "confidence": "low_confidence",
-        "sha256": "2745d6bed95ad8dea1b76c3725f6a1b7de577e0cc20b03c028f7d2119e5f5cca"
+        "sha256": "feac8e3a5ae7a178875da144111671c1cb7ded5bfdab0aac0ba4c5bace8a15ea"
     },
     {
         "type": "Traversal.FileModule: Directory Traversal in `File.read`",
         "file": "lib/football_market/synchronization/input.ex",
-        "line": 121,
+        "line": 184,
         "confidence": "low_confidence",
-        "sha256": "9d9caae800e25ac6bd91de963fb786826bb0e4e682b94035a4b31dca06cef2a6"
+        "sha256": "07c0e94ced8fa476b0369db76ea20c356a8f706710a12ee1d69b7886403a2beb"
     },
     {
         "type": "XSS.HTML: XSS in `html`",

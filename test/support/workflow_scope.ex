@@ -1087,6 +1087,7 @@ defmodule FootballMarket.WorkflowScope do
       "priv/repo/migrations/20261102000200_add_unknown_catalog_position.exs",
       "priv/repo/migrations/20261102000300_extend_browser_session_deadline.exs",
       "scripts/dialyzer_exceptions.json",
+      "scripts/sobelow_ci.py",
       "specs/085-assign-initial-player-inventory-to-the-primary-account/",
       "test/football_market/accounts/browser_sessions_test.exs",
       "test/football_market/catalog/ingestion/isolation_test.exs",

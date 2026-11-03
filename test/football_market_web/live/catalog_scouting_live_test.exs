@@ -78,6 +78,26 @@ defmodule FootballMarketWeb.CatalogScoutingLiveTest do
     assert has_element?(invalid_view, "[role=alert]", "búsqueda no está disponible")
   end
 
+  test "resetting catalog filters restores the unfiltered catalog and default page size" do
+    fixture = FootballMarket.CatalogFilterCase.build!()
+    user = account("catalog-reset@example.com")
+
+    query =
+      URI.encode_query(%{q: "Tie", league_id: fixture.target.team.season.league.id, page_size: 1})
+
+    {:ok, view, _html} = live(authenticated_conn(user), "/players?#{query}")
+
+    assert has_element?(view, "#catalog-reset", "Limpiar filtros")
+    view |> element("#catalog-reset") |> render_click()
+    assert_patch(view, "/players")
+    assert has_element?(view, ~s(#player-search[value=""]))
+    assert has_element?(view, ~s(#catalog-page-size option[value="25"][selected]))
+    refute has_element?(view, ~s(#catalog-league option[selected]))
+    refute has_element?(view, "#catalog-reset")
+    assert has_element?(view, "h2", "Todos los jugadores")
+    assert has_element?(view, "#player-search-results tbody tr")
+  end
+
   defp authenticated_conn(user) do
     {:ok, anonymous} = FootballMarket.Accounts.BrowserSessions.create_anonymous()
     {:ok, handle} = FootballMarket.Accounts.BrowserSessions.authenticate(anonymous, user.id)

@@ -13,20 +13,35 @@ defmodule FootballMarketWeb.WorkspaceComponents do
     <section id="workspace" phx-hook="WorkspaceSession">
       <div id="connection-notice" role="alert" hidden>Se perdió la conexión. Reconectando…</div>
       <div id="private-workspace" data-private-workspace>
-        <header>
+        <a class="skip-link" href="#workspace-main">Saltar al contenido</a>
+        <header class="workspace-sidebar">
           <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">FM</span>
           Football Market</a>
+          <p class="nav-caption">TU MERCADO</p>
           <nav aria-label="Espacio de trabajo">
-            <a href="/players" aria-current={@destination == "/players" && "page"}>Jugadores</a>
-            <a href="/ranking" aria-current={@destination == "/ranking" && "page"}>Ranking</a>
-            <a href="/portfolio" aria-current={@destination == "/portfolio" && "page"}>Portafolio</a>
-            <a href="/transactions" aria-current={@destination == "/transactions" && "page"}>Operaciones</a>
-            <a
-              href="/conditional-orders"
-              aria-current={@destination == "/conditional-orders" && "page"}
-            >Órdenes condicionales</a>
-            <a :if={@administrator} href="/administration">Administración</a>
+            <.link
+              :for={
+                {path, label, icon} <- [
+                  {"/players", "Jugadores", "hero-user-group"},
+                  {"/ranking", "Ranking", "hero-trophy"},
+                  {"/portfolio", "Portafolio", "hero-chart-pie"},
+                  {"/transactions", "Operaciones", "hero-arrows-right-left"},
+                  {"/conditional-orders", "Órdenes condicionales", "hero-adjustments-horizontal"}
+                ]
+              }
+              navigate={path}
+              aria-current={@destination == path && "page"}
+            >
+              <.icon name={icon} class="nav-icon" /><span>{label}</span>
+            </.link>
+            <a :if={@administrator} href="/administration">
+              <.icon name="hero-cog-6-tooth" class="nav-icon" /><span>Administración</span>
+            </a>
           </nav>
+          <div class="sidebar-note">
+            <span class="sidebar-note-mark" aria-hidden="true">↗</span>
+            <strong>Tu visión del juego.</strong><p>Cada posición empieza con un jugador.</p>
+          </div>
           <div class="workspace-account">
             <div class="workspace-account-details">
               <span class="account-email">{@actor.email}</span>
@@ -51,7 +66,7 @@ defmodule FootballMarketWeb.WorkspaceComponents do
             </form>
           </div>
         </header>
-        <main id="workspace-main">{render_slot(@inner_block)}</main>
+        <main id="workspace-main" tabindex="-1">{render_slot(@inner_block)}</main>
         <footer class="workspace-footer">
           Football Market <span>Tokens de jugadores · Cotizaciones según rendimiento</span>
         </footer>
@@ -87,7 +102,8 @@ defmodule FootballMarketWeb.WorkspaceComponents do
     ~H"""
     <p :if={@error} role="alert">{@error}</p>
     <article :if={@card} id="player-card">
-      <h2>{@card.player.display_name}</h2>
+      <p class="eyebrow">PERFIL DEL JUGADOR</p>
+      <h1>{@card.player.display_name}</h1>
       <p class="player-subtitle">
         {position_name(@card.player.position.code)} · {@card.player.team.name} · {@card.player.team.season.league.name}
       </p>
@@ -153,48 +169,6 @@ defmodule FootballMarketWeb.WorkspaceComponents do
           Las estadísticas se actualizan por separado; las cotizaciones se recalculan en el cierre del mercado.
         </p>
       </details>
-      <section id="quote-history">
-        <h3>Historial de cotizaciones</h3>
-        <form phx-submit="quote_date">
-          <label for="quote-history-date">Buscar cotización al cierre de una fecha</label>
-          <input id="quote-history-date" type="date" name="date" value={@quote_date} required />
-          <button type="submit">Consultar fecha</button>
-        </form>
-        <p :if={@dated_quote == :invalid} role="alert">
-          Ingresá una fecha válida con formato AAAA-MM-DD.
-        </p>
-        <p :if={@dated_quote == :missing} role="status">No hay cotización para esa fecha.</p>
-        <p :if={@dated_quote == :unavailable} role="alert">
-          La consulta de cotización no está disponible temporalmente.
-        </p>
-        <p :if={@dated_quote not in [nil, :missing, :invalid, :unavailable]} role="status">
-          Cotización al {@quote_date}: {money(@dated_quote.unit_price)} créditos · vigente desde {timestamp(
-            @dated_quote.effective_at
-          )}.
-        </p>
-        <details :if={is_map(@dated_quote)} id="dated-quote-provenance">
-          <summary>Procedencia de la cotización consultada</summary>
-          <.quote_details quote={@dated_quote} />
-        </details>
-        <p :if={@quote_history_unavailable} id="quote-history-unavailable" role="alert">
-          El historial de cotizaciones no está disponible temporalmente.
-        </p>
-        <p :if={@quote_history == [] && !@quote_history_unavailable} id="quote-history-empty">
-          No hay cotizaciones registradas.
-        </p>
-        <details :if={@quote_history != []}>
-          <summary>Ver {length(@quote_history)} cotizaciones</summary>
-          <ol>
-            <li :for={item <- @quote_history}>
-              <strong>{money(item.unit_price)} créditos</strong>
-              · {timestamp(item.effective_at)}
-              <details>
-                <summary>Procedencia</summary><.quote_details quote={item} />
-              </details>
-            </li>
-          </ol>
-        </details>
-      </section>
       <section id="player-position-summary" aria-label="Tu posición en este jugador">
         <h3>Tu posición</h3>
         <%= cond do %>
@@ -295,7 +269,54 @@ defmodule FootballMarketWeb.WorkspaceComponents do
           </dd>
         </dl>
       </details>
-      <button :if={@complete} id="new-trade" phx-click="new_trade">Nueva operación</button>
+      <button
+        :if={@complete}
+        id="new-trade"
+        class="secondary-button"
+        phx-click="new_trade"
+      >Nueva operación</button>
+      <section id="quote-history">
+        <h3>Historial de cotizaciones</h3>
+        <form phx-submit="quote_date">
+          <label for="quote-history-date">Buscar cotización al cierre de una fecha</label>
+          <input id="quote-history-date" type="date" name="date" value={@quote_date} required />
+          <button type="submit">Consultar fecha</button>
+        </form>
+        <p :if={@dated_quote == :invalid} role="alert">
+          Ingresá una fecha válida con formato AAAA-MM-DD.
+        </p>
+        <p :if={@dated_quote == :missing} role="status">No hay cotización para esa fecha.</p>
+        <p :if={@dated_quote == :unavailable} role="alert">
+          La consulta de cotización no está disponible temporalmente.
+        </p>
+        <p :if={@dated_quote not in [nil, :missing, :invalid, :unavailable]} role="status">
+          Cotización al {@quote_date}: {money(@dated_quote.unit_price)} créditos · vigente desde {timestamp(
+            @dated_quote.effective_at
+          )}.
+        </p>
+        <details :if={is_map(@dated_quote)} id="dated-quote-provenance">
+          <summary>Procedencia de la cotización consultada</summary>
+          <.quote_details quote={@dated_quote} />
+        </details>
+        <p :if={@quote_history_unavailable} id="quote-history-unavailable" role="alert">
+          El historial de cotizaciones no está disponible temporalmente.
+        </p>
+        <p :if={@quote_history == [] && !@quote_history_unavailable} id="quote-history-empty">
+          No hay cotizaciones registradas.
+        </p>
+        <details :if={@quote_history != []}>
+          <summary>Ver {length(@quote_history)} cotizaciones</summary>
+          <ol>
+            <li :for={item <- @quote_history}>
+              <strong>{money(item.unit_price)} créditos</strong>
+              · {timestamp(item.effective_at)}
+              <details>
+                <summary>Procedencia</summary><.quote_details quote={item} />
+              </details>
+            </li>
+          </ol>
+        </details>
+      </section>
     </article>
     """
   end
@@ -339,7 +360,11 @@ defmodule FootballMarketWeb.WorkspaceComponents do
   def ranking_view(assigns) do
     ~H"""
     <section id="ranking">
+      <p class="eyebrow">EXPLORÁ EL MERCADO</p>
       <h1>Ranking de estrategia activa</h1>
+      <p class="section-description">
+        Compará las cotizaciones según la estrategia de valuación vigente.
+      </p>
       <p :if={@error} role="alert">{@error}</p>
       <div :if={!@ranking && !@error} id="ranking-unavailable" class="empty-state">
         <h2>El ranking todavía no está disponible</h2>
@@ -545,55 +570,61 @@ defmodule FootballMarketWeb.WorkspaceComponents do
         </tfoot>
       </table>
     </div>
-    <div
+    <details
       :if={@portfolio_history && @portfolio_history.points != []}
-      class="table-scroll"
-      role="region"
-      aria-label="Historial diario del portafolio"
-      tabindex="0"
+      id="portfolio-history-details"
+      class="portfolio-data-details"
     >
-      <table id="portfolio-history-table">
-        <caption>
-          Historial diario · {@portfolio_history.from} a {@portfolio_history.to} ({@portfolio_history.timezone}) · consultado {timestamp(
-            @portfolio_history.as_of
-          )}
-        </caption>
-        <thead>
-          <tr>
-            <th>Día (UTC)</th><th>Corte</th><th>Valor de mercado</th><th>Costo base</th><th>
-              Compras
-            </th><th>
-              Ventas
-            </th><th>Invertido neto</th><th>Realizada</th><th>No realizada</th><th>Total</th><th>
-              Valuación
-            </th><th>Jugadores sin cotización</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr :for={point <- @portfolio_history.points}>
-            <th scope="row">{point.date}</th><td>{daily_cutoff(point)}</td><td>
-              {exact_money(point.market_value)}
-            </td><td>
-              {exact_money(point.cost_basis)}
-            </td><td>{exact_money(point.purchase_expenditure)}</td><td>
-              {exact_money(point.sale_proceeds)}
-            </td><td>{exact_money(point.net_invested)}</td><td>
-              {exact_money(point.realized_profit_loss)}
-            </td><td>{exact_money(point.unrealized_profit_loss)}</td><td>
-              {exact_money(point.total_profit_loss)}
-            </td><td>
-              {if point.valuation_complete, do: "Completa", else: "Incompleta"}{if point.partial,
-                do: " · parcial",
-                else: ""}
-            </td><td>
-              {if point.missing_quote_player_ids == [],
-                do: "—",
-                else: Enum.join(point.missing_quote_player_ids, ", ")}
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+      <summary>Ver historial diario completo <span>Valores y detalle de cada día</span></summary>
+      <div
+        class="table-scroll"
+        role="region"
+        aria-label="Historial diario del portafolio"
+        tabindex="0"
+      >
+        <table id="portfolio-history-table">
+          <caption>
+            Historial diario · {@portfolio_history.from} a {@portfolio_history.to} ({@portfolio_history.timezone}) · consultado {timestamp(
+              @portfolio_history.as_of
+            )}
+          </caption>
+          <thead>
+            <tr>
+              <th>Día (UTC)</th><th>Corte</th><th>Valor de mercado</th><th>Costo base</th><th>
+                Compras
+              </th><th>
+                Ventas
+              </th><th>Invertido neto</th><th>Realizada</th><th>No realizada</th><th>Total</th><th>
+                Valuación
+              </th><th>Jugadores sin cotización</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr :for={point <- @portfolio_history.points}>
+              <th scope="row">{point.date}</th><td>{daily_cutoff(point)}</td><td>
+                {exact_money(point.market_value)}
+              </td><td>
+                {exact_money(point.cost_basis)}
+              </td><td>{exact_money(point.purchase_expenditure)}</td><td>
+                {exact_money(point.sale_proceeds)}
+              </td><td>{exact_money(point.net_invested)}</td><td>
+                {exact_money(point.realized_profit_loss)}
+              </td><td>{exact_money(point.unrealized_profit_loss)}</td><td>
+                {exact_money(point.total_profit_loss)}
+              </td><td>
+                {if point.valuation_complete, do: "Completa", else: "Incompleta"}{if point.partial,
+                  do: " · parcial",
+                  else: ""}
+              </td><td>
+                {if point.missing_quote_player_ids == [],
+                  do: "—",
+                  else: Enum.join(point.missing_quote_player_ids, ", ")}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
     """
   end
 

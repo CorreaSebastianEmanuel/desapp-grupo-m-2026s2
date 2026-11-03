@@ -680,7 +680,11 @@ defmodule FootballMarketWeb.WorkspaceLive do
                 <p>
                   Seleccioná fecha y hora en UTC, independientemente de la zona horaria de tu dispositivo.
                 </p>
-                <button type="submit" disabled={!@selected_player || !@selected_quote}>Crear orden condicional</button>
+                <button
+                  type="submit"
+                  phx-disable-with="Creando orden…"
+                  disabled={!@selected_player || !@selected_quote}
+                >Crear orden condicional</button>
               </form>
 
               <p :if={@order_error} id="order-error" role="alert">{@order_error}</p>
@@ -750,7 +754,9 @@ defmodule FootballMarketWeb.WorkspaceLive do
         </section>
       <% else %>
         <section :if={@destination == "/transactions"} id="transactions">
+          <p class="eyebrow">TU ACTIVIDAD</p>
           <h1>Historial de operaciones</h1>
+          <p class="section-description">Tus compras y ventas, con el detalle de cada movimiento.</p>
           <form id="transaction-page-size" phx-change="transaction_page_size">
             <label for="transaction-size">Operaciones por página</label>
             <select id="transaction-size" name="page_size">
@@ -844,7 +850,8 @@ defmodule FootballMarketWeb.WorkspaceLive do
             />
             <div :if={!@card} class="catalog-heading">
               <div>
-                <h1>Jugadores</h1>
+                <p class="eyebrow">DESCUBRÍ TU PRÓXIMA POSICIÓN</p>
+                <h1>Jugadores<span class="title-dot" aria-hidden="true">.</span></h1>
                 <p class="catalog-intro">
                   Buscá jugadores en el catálogo, compará sus clubes y ligas, y elegí uno para operar.
                 </p>
@@ -858,11 +865,14 @@ defmodule FootballMarketWeb.WorkspaceLive do
                     id="player-search"
                     name="player_search"
                     type="search"
-                    placeholder="Por ejemplo, Demo BL1 Defender o Demo PL Forward"
+                    placeholder="Buscá por nombre o apellido…"
                     autocomplete="off"
                     value={@player_search}
                   />
-                  <button type="submit">Buscar jugadores</button>
+                  <button type="submit" phx-disable-with="Buscando…"><.icon
+                    name="hero-magnifying-glass"
+                    class="button-icon"
+                  />Buscar jugadores</button>
                 </div>
                 <div class="catalog-filters">
                   <label for="catalog-league">Liga</label>
@@ -902,6 +912,14 @@ defmodule FootballMarketWeb.WorkspaceLive do
                     {size}
                   </option></select>
                 </div>
+                <.link
+                  :if={@player_search != "" || map_size(@catalog_filters) > 0}
+                  patch="/players"
+                  id="catalog-reset"
+                  class="text-link filter-reset"
+                >
+                  Limpiar filtros <span aria-hidden="true">↺</span>
+                </.link>
               </form>
               <p :if={!@search_performed} class="catalog-hint">
                 Ingresá al menos 2 caracteres y buscá en el catálogo.
@@ -914,8 +932,11 @@ defmodule FootballMarketWeb.WorkspaceLive do
               :if={!@card && @search_performed && @player_results != []}
               class="catalog-results-heading"
             >
-              <h2>Resultados para “{@player_search}”</h2>
-              <span>{@player_results |> length()} jugadores</span>
+              <h2 :if={@player_search == ""}>Todos los jugadores</h2>
+              <h2 :if={@player_search != ""}>Resultados para “{@player_search}”</h2>
+              <span>{length(@player_results)} {if length(@player_results) == 1,
+                do: "jugador",
+                else: "jugadores"}</span>
             </div>
             <p
               :if={
@@ -1022,7 +1043,8 @@ defmodule FootballMarketWeb.WorkspaceLive do
               <p id="no-positions">
                 Todavía no tenés posiciones de operaciones. El inventario inicial se muestra por separado abajo.
               </p>
-              <a class="text-link" href="/conditional-orders">Crear una orden condicional →</a>
+              <.link class="primary-button" navigate="/players">Explorar jugadores
+              <span aria-hidden="true">→</span></.link>
             </div>
             <div
               :if={@positions != []}
@@ -1125,7 +1147,7 @@ defmodule FootballMarketWeb.WorkspaceLive do
                 name="to"
                 value={@portfolio_to}
               />
-              <button type="submit">Actualizar período</button>
+              <button type="submit" phx-disable-with="Actualizando…">Actualizar período</button>
             </form>
             <p :if={@portfolio_range_invalid} id="portfolio-range-invalid" role="alert">
               El período debe tener fechas válidas y un rango permitido.

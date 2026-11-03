@@ -48,6 +48,8 @@ defmodule FootballMarketWeb.AdministrationLiveTest do
     Application.put_env(:football_market, :initial_issuance_recipients, [user.id])
     assert Accounts.administrator?(actor)
     refute Accounts.administrator?(actor(other))
+    {:ok, investor_workspace, _} = live(authenticated_conn(other), "/portfolio")
+    refute has_element?(investor_workspace, ~s(nav a[href="/administration"]))
     refute Accounts.administrator?(%{account_id: user.id})
 
     for path <- ["/administration", "/__local/ops"] do
@@ -69,6 +71,9 @@ defmodule FootballMarketWeb.AdministrationLiveTest do
       Configurations.create(
         ValuationConfigurationCase.rules(position.id, "balanced", %{goals: 3})
       )
+
+    {:ok, admin_workspace, _} = live(authenticated_conn(user), "/portfolio")
+    assert has_element?(admin_workspace, ~s(nav a[href="/administration"]), "Administración")
 
     {:ok, one, _} = live(authenticated_conn(user), "/administration")
     {:ok, two, _} = live(authenticated_conn(user), "/administration")

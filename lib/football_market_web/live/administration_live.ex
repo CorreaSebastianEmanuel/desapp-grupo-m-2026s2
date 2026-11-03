@@ -47,11 +47,14 @@ defmodule FootballMarketWeb.AdministrationLive do
   def render(assigns) do
     ~H"""
     <main id="administration" class="local-admin">
-      <a href="/portfolio">Volver al portafolio</a>
-      <h1>Administración del mercado</h1>
-      <p>
-        Seleccioná una configuración existente. La activación no modifica cotizaciones históricas ni recalcula precios de inmediato.
-      </p>
+      <a href="/portfolio" class="text-link">← Volver al portafolio</a>
+      <header class="local-admin-header">
+        <p class="eyebrow">CONFIGURACIÓN DEL MERCADO</p>
+        <h1>Administración del mercado</h1>
+        <p>
+          Seleccioná una configuración existente. La activación no modifica cotizaciones históricas ni recalcula precios de inmediato.
+        </p>
+      </header>
       <p :if={@notice} id="activation-notice" role="status">{@notice}</p>
       <p :if={@versions == []}>No hay versiones disponibles.</p>
       <section

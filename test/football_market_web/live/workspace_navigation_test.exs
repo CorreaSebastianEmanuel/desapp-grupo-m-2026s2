@@ -23,6 +23,9 @@ defmodule FootballMarketWeb.WorkspaceNavigationTest do
 
       {:ok, view, html} = live(conn, path)
       assert html =~ user.email
+      assert has_element?(view, ~s(a.skip-link[href="#workspace-main"]))
+      assert has_element?(view, ~s(main#workspace-main[tabindex="-1"]))
+      assert has_element?(view, ~s(nav a[href="/players"][data-phx-link="redirect"]))
       assert has_element?(view, "h1", heading)
       active_label = if path == "/transactions", do: "Operaciones", else: heading
       assert has_element?(view, "a[aria-current=page]", active_label)
@@ -38,6 +41,7 @@ defmodule FootballMarketWeb.WorkspaceNavigationTest do
         :empty_portfolio ->
           assert has_element?(view, "#no-positions")
           refute has_element?(view, "#portfolio-positions")
+          assert has_element?(view, ~s(.empty-state a[href="/players"]), "Explorar jugadores")
 
         :empty_transactions ->
           assert has_element?(view, "#transactions-empty")

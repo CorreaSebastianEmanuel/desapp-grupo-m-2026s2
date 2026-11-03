@@ -29,8 +29,8 @@ try {
   phase = 'catalog-search';
   await page.waitForSelector('.phx-connected #player-catalog-search');
   await page.getByLabel('Nombre del jugador', {exact: true}).fill(name);
-  await page.getByRole('button', {name: 'Buscar jugadores', exact: true}).click();
   await page.waitForURL(url => url.searchParams.get('q') === name);
+  assert.equal(await page.locator('#player-search').getAttribute('phx-debounce'), '300');
   phase = 'combined-catalog-filters';
   const filters = JSON.parse(filtersJson);
   await page.locator('#catalog-league').selectOption(filters.league_id);
@@ -93,7 +93,7 @@ try {
   await page.reload();
   await page.waitForSelector('.phx-connected #player-card');
   phase = 'conditional-order';
-  await page.locator('#player-card').getByRole('link', {name: 'Crear orden', exact: true}).click();
+  await page.locator('#player-card').getByRole('link', {name: 'Crear orden condicional', exact: true}).click();
   await page.waitForSelector('.phx-connected #conditional-order-form');
   const selectedPlayer = await page.locator('#selected-player').innerText();
   assert.match(selectedPlayer, new RegExp(name));
@@ -111,7 +111,7 @@ try {
   await portfolio.waitForSelector(`#portfolio-position-${player}`);
   assert.equal(await portfolio.locator(`#portfolio-position-${player} td`).first().innerText(), '3');
   await page.waitForFunction(() => document.querySelector('#order-list')?.textContent.includes('Ejecutada'));
-  await page.locator('#order-list details summary').first().click();
+  await page.locator('#order-list').getByText('Detalles de ejecución', {exact: true}).click();
   assert.match(await page.locator('#order-list').innerText(), /Cotización/);
   phase = 'sell-player-navigation';
   await portfolio.locator(`#portfolio-position-${player} a`).click();
@@ -145,7 +145,7 @@ try {
   phase = 'ranking-entries';
   const visibleRanking = await page.locator('#ranking-entries li').evaluateAll(rows => rows.map(row => row.id.replace('ranking-player-', '')));
   assert.deepEqual(visibleRanking, JSON.parse(ranking));
-  assert.equal(await page.locator(`#ranking-player-${player} a`).innerText(), name);
+  assert.equal(await page.locator(`#ranking-player-${player} a strong`).innerText(), name);
   assert(!uuid.test(await page.locator('#ranking-strategy').innerText()));
   assert(!uuid.test(await page.locator('#ranking-entries').innerText()));
   phase = 'transactions-navigation';
@@ -162,7 +162,15 @@ try {
   assert.match(await page.locator('#transactions tbody').innerText(), /Compra|Venta/);
   phase = 'portfolio-analytics';
   await page.getByRole('link', {name: 'Portafolio', exact: true}).click();
-  await page.waitForSelector('.phx-connected #portfolio-history-range');
+  await page.waitForSelector('.phx-connected #portfolio-panel-positions');
+  assert.equal(await page.locator('#portfolio-panel-performance').isVisible(), false);
+  assert.equal(await page.locator('#portfolio-panel-details').isVisible(), false);
+  await page.getByRole('link', {name: 'Rendimiento', exact: true}).click();
+  await page.waitForSelector('#portfolio-panel-performance', {state: 'visible'});
+  assert.equal(await page.locator('#portfolio-panel-positions').isVisible(), false);
+  await page.getByRole('link', {name: 'Detalle financiero', exact: true}).click();
+  await page.waitForSelector('#portfolio-panel-details', {state: 'visible'});
+  await page.waitForSelector('#portfolio-history-range');
   assert.equal(await page.locator('#portfolio-allocation-table').count(), 1);
   assert.equal(await page.locator('#portfolio-history-table').count(), 1);
   assert.equal(await page.locator('#portfolio-history-table').isVisible(), false);

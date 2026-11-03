@@ -70,6 +70,7 @@ try {
   assert.match(expired.headers().location, /^\/sign-in/);
   phase = 'expired-sign-in-navigation';
   await page.goto(`${base}/portfolio`);
+  await page.waitForURL(url => url.pathname === '/sign-in');
   assert.equal(await page.locator('#workspace').count(), 0);
   phase = 'expired-sign-in-form';
   await page.getByRole('heading', {name: 'Iniciar sesión', exact: true}).waitFor();

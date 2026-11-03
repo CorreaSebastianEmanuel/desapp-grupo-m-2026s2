@@ -1717,6 +1717,13 @@
       "profile": "integration"
     },
     {
+      "id": "29b01933c2fa356e4a213598",
+      "runner": "exunit",
+      "file": "test/football_market/market/purchases/rejection_test.exs",
+      "case_id": "FootballMarket.Market.Purchases.RejectionTest:test initial issuance value cannot authorize purchases before a performance quote",
+      "profile": "integration"
+    },
+    {
       "id": "29bcf441591d901be93f4e0d",
       "runner": "exunit",
       "file": "test/football_market_web/api_authentication_test.exs",
@@ -5644,6 +5651,13 @@
       "profile": "unit"
     },
     {
+      "id": "9122cbdda45057c2c1cc175e",
+      "runner": "exunit",
+      "file": "test/football_market/market/conditional_orders/evaluation_test.exs",
+      "case_id": "FootballMarket.Market.ConditionalOrders.EvaluationTest:test initial issuance value cannot execute a conditional purchase",
+      "profile": "integration"
+    },
+    {
       "id": "9138563090b5e6f15d1d1c41",
       "runner": "shell",
       "file": "test/scripts/ci_unit_tests_test.sh",
@@ -8351,6 +8365,13 @@
       "file": "test/football_market/providers/scraping/equivalence_test.exs",
       "case_id": "FootballMarket.Providers.ScrapingEquivalenceTest:test existing consumer reads equivalent facts with separate qualified provenance",
       "profile": "unit"
+    },
+    {
+      "id": "d4a04af502bac048d26f9d74",
+      "runner": "exunit",
+      "file": "test/football_market_web/live/portfolio_live_test.exs",
+      "case_id": "FootballMarketWeb.PortfolioLiveTest:test player detail blocks buying until a performance quote exists",
+      "profile": "integration"
     },
     {
       "id": "d4d9539c53f032387f2d8010",

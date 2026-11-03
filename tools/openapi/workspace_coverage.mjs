@@ -7,10 +7,12 @@ mkdirSync(new URL('../../cover/workspace/', import.meta.url), {recursive: true})
 const result = spawnSync(process.execPath, [
   '--test', '--experimental-test-coverage',
   '--test-coverage-include=assets/js/workspace_session.js',
+  '--test-coverage-include=assets/js/player_media.js',
   '--test-coverage-lines=100', '--test-coverage-branches=100', '--test-coverage-functions=100',
   '--test-reporter=spec', '--test-reporter-destination=stdout',
   '--test-reporter=lcov', '--test-reporter-destination=cover/workspace/lcov.info',
-  'tools/openapi/workspace_session.test.mjs'
+  'tools/openapi/workspace_session.test.mjs',
+  'tools/openapi/player_media.test.mjs'
 ], {cwd: root, stdio: 'inherit'});
 if (result.error) {
   console.error('Workspace JavaScript coverage could not start.');

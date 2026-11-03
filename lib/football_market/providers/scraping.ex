@@ -23,7 +23,7 @@ defmodule FootballMarket.Providers.Scraping do
     end
   end
 
-  def provider_label, do: "fotmob-shaped-offline"
+  def provider_label, do: "fotmob-public-html-v1"
 
   def read(request, context, state) when is_map(state) do
     if state[:mode] in [:fixture, :live] do

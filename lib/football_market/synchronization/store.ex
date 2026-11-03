@@ -45,11 +45,16 @@ defmodule FootballMarket.Synchronization.Store do
           where:
             r.league_code == ^scope.league_code and r.start_year == ^scope.start_year and
               r.end_year == ^scope.end_year and r.operation == ^Atom.to_string(input.operation) and
-              r.state in @active,
+              r.state in @active and
+              fragment(
+                "coalesce(?->>'player_id', '') = ?",
+                r.input,
+                ^(input.material["player_id"] || "")
+              ),
           lock: "FOR UPDATE"
       )
 
-    if active && (active.input_digest != input.digest || active.input != input.material) do
+    if conflicting_active?(active, input) do
       {:error, %{category: :scope_busy, run_id: active.id, recovery: :wait_for_active_run}}
     else
       {run, disposition} =
@@ -65,6 +70,11 @@ defmodule FootballMarket.Synchronization.Store do
       %{run_id: run.id, status: state_atom(run.state), disposition: disposition}
     end
   end
+
+  defp conflicting_active?(nil, _input), do: false
+
+  defp conflicting_active?(active, input),
+    do: active.input_digest != input.digest or active.input != input.material
 
   def prepare!(run, eligible_at) do
     receipt =
@@ -284,7 +294,7 @@ defmodule FootballMarket.Synchronization.Store do
           Repo.insert!(
             struct!(
               Run,
-              Map.merge(scope, %{
+              Map.merge(Map.take(scope, [:league_code, :start_year, :end_year]), %{
                 operation: Atom.to_string(input.operation),
                 correlation_id: Context.current(),
                 source_ref: input.material["source_ref"],

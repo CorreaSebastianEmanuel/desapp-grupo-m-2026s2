@@ -81,7 +81,7 @@ defmodule FootballMarket.Providers.Validator do
     Catalog.require!(is_map(evidence) and not is_struct(evidence), :completeness)
     Catalog.require!(Enum.sort(Map.keys(evidence)) == Enum.sort(fields), :completeness)
     Catalog.require!(evidence.version == 1 and evidence.scope == request.scope, :completeness)
-    Catalog.require!(evidence.full_scope == true, :completeness)
+    Catalog.require!(evidence.full_scope in [true, "player"], :completeness)
     Catalog.require!(is_nil(request.scope.from) and is_nil(request.scope.to), :completeness)
     Catalog.require!(Provenance.safe_text?(evidence.terminal_witness), :completeness)
     Catalog.require!(Provenance.safe_text?(evidence.assessment_reference), :completeness)

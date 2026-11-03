@@ -1,7 +1,7 @@
 defmodule FootballMarket.Catalog.Ingestion.Publisher do
   @moduledoc "Atomic scope-coordinated catalog and acceptance publication."
   import Ecto.Query
-  alias FootballMarket.Repo
+  alias FootballMarket.{Market, Repo}
   alias FootballMarket.Catalog.{League, Season, Team, Player}
 
   alias FootballMarket.Catalog.Ingestion.{
@@ -51,16 +51,33 @@ defmodule FootballMarket.Catalog.Ingestion.Publisher do
       end)
 
     case transaction do
-      {:ok, outcome} -> {:ok, outcome}
-      {:error, {status, reason}} -> failure(status, result, reason)
+      {:ok, outcome} ->
+        {:ok, outcome}
+
+      {:error, {:initial_player_issuance_failed, _reason}} ->
+        failure(:persistence_failure, result, :publication_failed)
+
+      {:error, {status, reason}} ->
+        failure(status, result, reason)
     end
   rescue
+    error in Ecto.ConstraintError ->
+      if String.starts_with?(error.constraint, [
+           "catalog_ingestion_scopes_",
+           "teams_season_",
+           "players_season_"
+         ]) do
+        recover_scope_race(result, Canonical.encode(result))
+      else
+        failure(:persistence_failure, result, :publication_failed)
+      end
+
     error in Postgrex.Error ->
       if error.postgres && error.postgres.code == :unique_violation,
-        do: failure(:reconciliation_conflict, result, :business_identity_conflict),
+        do: recover_scope_race(result, Canonical.encode(result)),
         else: failure(:persistence_failure, result, :publication_failed)
 
-    _ ->
+    _error ->
       failure(:persistence_failure, result, :publication_failed)
   end
 
@@ -85,6 +102,19 @@ defmodule FootballMarket.Catalog.Ingestion.Publisher do
 
     <<key::signed-64, _::binary>> = bytes
     Ecto.Adapters.SQL.query!(Repo, "SELECT pg_advisory_xact_lock($1)", [key])
+  end
+
+  defp recover_scope_race(result, encoded) do
+    case scope_row(result.scope) do
+      nil ->
+        failure(:persistence_failure, result, :publication_failed)
+
+      scope ->
+        case Repo.get_by(Observation, scope_id: scope.id, delivery_digest: encoded.digest) do
+          nil -> failure(:concurrent_change, result, :scope_revision_changed)
+          observation -> {:ok, outcome(observation, result.scope, :replay)}
+        end
+    end
   end
 
   defp order!(nil, _), do: :ok
@@ -143,9 +173,7 @@ defmodule FootballMarket.Catalog.Ingestion.Publisher do
       []
     )
 
-    for {row, attrs, operation} <- candidate.operations do
-      persist_operation(row, attrs, operation, season)
-    end
+    persist_operations(candidate.operations, season)
 
     hook(:after_catalog)
 
@@ -205,6 +233,24 @@ defmodule FootballMarket.Catalog.Ingestion.Publisher do
       if(changes, do: :accepted_with_changes, else: :accepted_unchanged)
     )
   end
+
+  defp persist_operations(operations, season) do
+    Enum.each(operations, fn {row, attrs, operation} ->
+      row
+      |> persist_operation(attrs, operation, season)
+      |> maybe_initialize_primary(operation)
+    end)
+  end
+
+  defp maybe_initialize_primary(%Player{id: id}, :insert) do
+    case Market.initialize_primary_player_in_transaction(id) do
+      %{outcome: _status} -> :ok
+      {:ok, _status} -> :ok
+      {:error, reason} -> Repo.rollback({:initial_player_issuance_failed, reason})
+    end
+  end
+
+  defp maybe_initialize_primary(_row, _operation), do: :ok
 
   defp begin_binding(scope, binding, target) do
     target_field = String.to_existing_atom(Atom.to_string(binding.kind) <> "_id")

@@ -19,7 +19,7 @@ defmodule FootballMarket.Statistics.Freshness.ConcurrencyTest do
     :ok
   end
 
-  test "committed concurrent reads of different players share one run job receipt and trigger" do
+  test "committed concurrent reads of different players share one league-scoped job" do
     Case.with_statistics_store(fn repo ->
       Sandbox.unboxed_run(Repo, fn ->
         f = FreshnessCase.fixture()

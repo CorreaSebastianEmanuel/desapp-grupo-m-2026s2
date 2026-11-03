@@ -26,6 +26,41 @@ defmodule FootballMarket.Synchronization.InputTest do
     refute Jason.encode!(input.material) =~ "display_name"
   end
 
+  test "targets statistics input and execution to one player" do
+    player_id = Ecto.UUID.generate()
+
+    assert {:ok, input} =
+             Input.normalize(:statistics, Fixtures.scope(),
+               source_ref: "fixture",
+               player_id: player_id,
+               player_source_id: "fotmob-123"
+             )
+
+    assert input.scope.player_id == player_id
+    assert input.material["player_id"] == player_id
+    assert input.material["player_source_id"] == "fotmob-123"
+    assert {:ok, options} = Input.execution(input.material)
+    assert Keyword.fetch!(options, :player_id) == player_id
+    assert Keyword.fetch!(options, :player_source_id) == "fotmob-123"
+    assert Keyword.fetch!(options, :provider) == Fixtures.source().provider
+  end
+
+  test "rejects incomplete or unsafe player targets" do
+    for options <- [
+          [player_id: Ecto.UUID.generate()],
+          [player_source_id: "fotmob-123"],
+          [player_id: "invalid", player_source_id: "fotmob-123"],
+          [player_id: Ecto.UUID.generate(), player_source_id: "Bearer secret"]
+        ] do
+      assert {:error, :player_target} =
+               Input.normalize(
+                 :statistics,
+                 Fixtures.scope(),
+                 Keyword.put(options, :source_ref, "fixture")
+               )
+    end
+  end
+
   test "rejects missing sources, unknown options, invalid scopes and execution policy" do
     for {scope, options} <- [
           {Fixtures.scope(), []},

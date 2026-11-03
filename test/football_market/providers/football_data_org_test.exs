@@ -61,7 +61,7 @@ defmodule FootballMarket.Providers.FootballDataOrgTest do
     assert replay.bindings == candidate.bindings
   end
 
-  test "rejects missing, empty, or malformed squad data before publication" do
+  test "rejects empty squads and unsupported position labels before publication" do
     assert FootballDataOrg.valid_token?("valid-token")
     refute FootballDataOrg.valid_token?("  invalid-token  ")
     refute FootballDataOrg.valid_token?(nil)
@@ -89,6 +89,65 @@ defmodule FootballMarket.Providers.FootballDataOrgTest do
 
     assert {:error, %{category: :invalid_response}} =
              FootballDataOrg.read(request, context, invalid_position)
+  end
+
+  test "preserves a player with no reported position under the neutral catalog role" do
+    {:ok, request} = Request.normalize(:catalog, @scope)
+
+    context = %{
+      deadline_us: System.monotonic_time(:microsecond) + 30_000_000,
+      runtime: {Runtime, nil},
+      positions: %{
+        "GK" => "Goalkeeper",
+        "DEF" => "Defender",
+        "MID" => "Midfielder",
+        "FWD" => "Forward",
+        "UNK" => "Sin posición"
+      }
+    }
+
+    state = %{
+      token: "runtime-only-token",
+      get: fn url, _, _ -> response(url, "missing_position") end,
+      sleep: fn _ -> :ok end
+    }
+
+    assert {:ok, candidate} = FootballDataOrg.read(request, context, state)
+
+    assert Enum.any?(candidate.facts.positions, &(&1.code == "UNK" and &1.name == "Sin posición"))
+
+    assert Enum.any?(candidate.facts.players, fn player ->
+             player.display_name == "Unclassified Player" and player.position_ref == "UNK"
+           end)
+
+    assert {:ok, result} =
+             Validator.validate(candidate, request, context, FootballDataOrg.provider_label())
+
+    assert Enum.any?(result.facts.players, &(&1.position_ref == "UNK"))
+  end
+
+  test "normalizes detailed defender and midfield position labels" do
+    {:ok, request} = Request.normalize(:catalog, @scope)
+
+    context = %{
+      deadline_us: System.monotonic_time(:microsecond) + 30_000_000,
+      runtime: {Runtime, nil},
+      positions: %{
+        "DEF" => "Defender",
+        "MID" => "Midfielder",
+        "FWD" => "Forward"
+      }
+    }
+
+    state = %{
+      token: "runtime-only-token",
+      get: fn url, _, _ -> response(url, "detailed_position") end,
+      sleep: fn _ -> :ok end
+    }
+
+    assert {:ok, candidate} = FootballDataOrg.read(request, context, state)
+    assert Enum.any?(candidate.facts.players, &(&1.position_ref == "DEF"))
+    assert Enum.any?(candidate.facts.players, &(&1.position_ref == "MID"))
   end
 
   test "honors a provider rate-limit reset without retrying the HTTP request" do
@@ -170,46 +229,10 @@ defmodule FootballMarket.Providers.FootballDataOrgTest do
   end
 
   defp response(url, mode \\ "valid") do
+    path = URI.parse(url).path
+
     body =
-      cond do
-        URI.parse(url).path =~ "/competitions/" ->
-          %{
-            "count" => 2,
-            "competition" => %{"code" => "PL"},
-            "season" => %{"id" => 733, "startDate" => "2026-08-01", "endDate" => "2027-05-30"},
-            "teams" => [
-              %{"id" => 65, "name" => "Arsenal FC"},
-              %{"id" => 66, "name" => "Aston Villa FC"}
-            ]
-          }
-
-        mode == "empty" ->
-          %{"id" => 65, "name" => "Arsenal FC", "tla" => "ARS", "squad" => []}
-
-        mode == "invalid_position" ->
-          %{
-            "id" => 65,
-            "name" => "Arsenal FC",
-            "tla" => "ARS",
-            "squad" => [%{"id" => 9001, "name" => "Alex Keeper", "position" => "Coach"}]
-          }
-
-        String.ends_with?(URI.parse(url).path, "/66") ->
-          %{
-            "id" => 66,
-            "name" => "Aston Villa FC",
-            "tla" => "AVL",
-            "squad" => [%{"id" => 9002, "name" => "Bea Forward", "position" => "Offence"}]
-          }
-
-        true ->
-          %{
-            "id" => 65,
-            "name" => "Arsenal FC",
-            "tla" => "ARS",
-            "squad" => [%{"id" => 9001, "name" => "Alex Keeper", "position" => "Goalkeeper"}]
-          }
-      end
+      if path =~ "/competitions/", do: competition_response(), else: team_response(path, mode)
 
     headers =
       if mode == "reset",
@@ -217,5 +240,65 @@ defmodule FootballMarket.Providers.FootballDataOrgTest do
         else: []
 
     {:ok, 200, headers, Jason.encode!(body)}
+  end
+
+  defp competition_response do
+    %{
+      "count" => 2,
+      "competition" => %{"code" => "PL"},
+      "season" => %{"id" => 733, "startDate" => "2026-08-01", "endDate" => "2027-05-30"},
+      "teams" => [
+        %{"id" => 65, "name" => "Arsenal FC"},
+        %{"id" => 66, "name" => "Aston Villa FC"}
+      ]
+    }
+  end
+
+  defp team_response(path, mode) do
+    cond do
+      mode == "empty" ->
+        %{"id" => 65, "name" => "Arsenal FC", "tla" => "ARS", "squad" => []}
+
+      mode == "invalid_position" ->
+        team_with_players("ARS", [%{"id" => 9001, "name" => "Alex Keeper", "position" => "Coach"}])
+
+      mode == "missing_position" and String.ends_with?(path, "/65") ->
+        missing_position_team()
+
+      mode == "detailed_position" and String.ends_with?(path, "/65") ->
+        detailed_position_team()
+
+      String.ends_with?(path, "/66") ->
+        team_with_players("AVL", [
+          %{"id" => 9002, "name" => "Bea Forward", "position" => "Offence"}
+        ])
+
+      true ->
+        team_with_players("ARS", [
+          %{"id" => 9001, "name" => "Alex Keeper", "position" => "Goalkeeper"}
+        ])
+    end
+  end
+
+  defp team_with_players(code, players),
+    do: %{
+      "id" => if(code == "ARS", do: 65, else: 66),
+      "name" => if(code == "ARS", do: "Arsenal FC", else: "Aston Villa FC"),
+      "tla" => code,
+      "squad" => players
+    }
+
+  defp missing_position_team do
+    team_with_players("ARS", [
+      %{"id" => 9001, "name" => "Alex Keeper", "position" => "Goalkeeper"},
+      %{"id" => 9003, "name" => "Unclassified Player", "position" => nil}
+    ])
+  end
+
+  defp detailed_position_team do
+    team_with_players("ARS", [
+      %{"id" => 9004, "name" => "Casey Defender", "position" => "Centre-Back"},
+      %{"id" => 9005, "name" => "Drew Midfielder", "position" => "Central Midfield"}
+    ])
   end
 end

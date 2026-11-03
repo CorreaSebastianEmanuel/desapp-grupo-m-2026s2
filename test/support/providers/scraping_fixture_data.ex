@@ -219,7 +219,7 @@ defmodule FootballMarket.Providers.ScrapingFixtureData do
     assert {:ok, result} = outcome, c["id"] <> ": " <> inspect(outcome)
     facts = expected_facts(c, expected)
     FactOracle.assert_facts!(result.facts, facts, correspondence(facts))
-    assert result.provenance.provider == "fotmob-shaped-offline"
+    assert result.provenance.provider == "fotmob-public-html-v1"
     assert result.provenance.fixture_id == c["id"]
     assert result.provenance.retrieved_at == ~U[2026-10-06 12:00:00.000000Z]
 
@@ -251,7 +251,7 @@ defmodule FootballMarket.Providers.ScrapingFixtureData do
 
   defp assert_valid_bindings(bindings, c) do
     Enum.each(bindings, fn binding ->
-      assert binding.provider == "fotmob-shaped-offline"
+      assert binding.provider == "fotmob-public-html-v1"
 
       assert {binding.league_code, binding.start_year, binding.end_year} ==
                {c["league"], c["year"], c["year"] + 1}

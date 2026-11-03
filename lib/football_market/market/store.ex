@@ -23,6 +23,12 @@ defmodule FootballMarket.Market.Store do
     end
   end
 
+  def initialize_in_transaction(%{player_id: player, recipient_id: recipient}) do
+    if Repo.in_transaction?(),
+      do: initialize_locked(player, recipient),
+      else: Error.new(:invalid_input, :transaction_required)
+  end
+
   defp issue(player, recipient, fixed) do
     [[instant]] = Repo.query!("SELECT clock_timestamp() AT TIME ZONE 'UTC'").rows
     now = DateTime.from_naive!(instant, "Etc/UTC")

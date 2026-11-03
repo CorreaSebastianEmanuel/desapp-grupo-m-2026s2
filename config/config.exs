@@ -13,6 +13,8 @@ config :football_market,
   development_seed_enabled: false,
   initial_issuance_recipients: []
 
+config :football_market, :browser_session_ttl_seconds, 28_800
+
 # argon2_elixir represents the 65,536 KiB profile as exponent 16.
 config :argon2_elixir,
   t_cost: 2,

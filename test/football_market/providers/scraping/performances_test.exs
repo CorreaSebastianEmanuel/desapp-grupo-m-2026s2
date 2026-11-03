@@ -29,4 +29,204 @@ defmodule FootballMarket.Providers.ScrapingPerformancesTest do
     assert {:ok, result} = Data.assert_case!(c, %{portions: portions})
     refute inspect(result) =~ "FAKE_SENTINEL"
   end
+
+  test "player mode fetches only one profile and its match details" do
+    c = Data.case!("performance-PL-2024")
+
+    state =
+      Data.state(c, %{
+        owner: self(),
+        player_name: "Alex Example",
+        player_team_name: "Alpha",
+        player_position_code: "FW"
+      })
+
+    scope_key = {:performances, c["league"], c["year"], c["year"] + 1}
+
+    assessment = %{
+      state.assessment
+      | scopes:
+          Map.update!(state.assessment.scopes, scope_key, fn row ->
+            %{row | positions: %{"keeper" => "GK"}}
+          end)
+    }
+
+    state = %{state | assessment: assessment}
+
+    match = Jason.decode!(state.portions["match:m1"].body)
+    player = get_in(match, ["content", "playerStats", "p1"])
+
+    player =
+      player
+      |> Map.put("positionId", nil)
+      |> Map.update!("stats", fn groups ->
+        Enum.map(groups, fn group ->
+          Map.update!(group, "stats", fn stats ->
+            stats
+            |> Map.new(&{&1["key"], &1})
+            |> Map.drop(["yellow_cards", "red_cards"])
+          end)
+        end)
+      end)
+
+    match = put_in(match, ["content", "playerStats", "p1"], player)
+    match_body = Jason.encode!(match)
+
+    portions =
+      state.portions
+      |> Map.put("player_search:Alex Example", %{
+        body:
+          Jason.encode!([
+            %{
+              "title" => %{"key" => "all", "value" => "All"},
+              "suggestions" => [
+                %{
+                  "type" => "player",
+                  "id" => "p1",
+                  "name" => "Alex Example",
+                  "teamName" => "Alpha"
+                }
+              ]
+            },
+            %{
+              "title" => %{"key" => "players", "value" => "Players"},
+              "suggestions" => [
+                %{
+                  "type" => "player",
+                  "id" => "p1",
+                  "name" => "Alex Example",
+                  "teamName" => "Alpha"
+                }
+              ]
+            }
+          ]),
+        observation: state.portions["match:m1"].observation
+      })
+      |> Map.put("player_data:p1", %{
+        body:
+          Jason.encode!(%{
+            "id" => "p1",
+            "name" => "Alex Example",
+            "statSeasons" => [
+              %{
+                "seasonName" => "2024/2025",
+                "tournaments" => [%{"tournamentId" => "PL"}]
+              }
+            ],
+            "initialMatchesPage" => %{
+              "matches" => [
+                %{
+                  "id" => "m1",
+                  "leagueId" => "PL",
+                  "teamId" => "t1",
+                  "teamName" => "Alpha",
+                  "opponentTeamId" => "t2",
+                  "opponentTeamName" => "Beta",
+                  "isHomeTeam" => true,
+                  "matchDate" => %{"utcTime" => "2024-10-01T12:00:00Z"},
+                  "playedInMatch" => true,
+                  "lineupPositionId" => nil,
+                  "minutesPlayed" => 90,
+                  "goals" => 1,
+                  "assists" => 0,
+                  "yellowCards" => 1,
+                  "redCards" => 0,
+                  "matchPageUrl" => "/matches/alpha-beta/m1"
+                }
+              ],
+              "previous" => nil
+            }
+          }),
+        observation: state.portions["match:m1"].observation
+      })
+      |> Map.put("match_details:m1", %{state.portions["match:m1"] | body: match_body})
+
+    result =
+      FootballMarket.Providers.performances(Data.request(c),
+        provider: {FootballMarket.Providers.Scraping, %{state | portions: portions}},
+        positions: Data.positions(),
+        runtime: {FootballMarket.Providers.FixtureRuntime, %{}}
+      )
+
+    assert {:ok, result} = result
+    assert result.completeness.full_scope == "player"
+    assert Enum.all?(result.facts.performances, &(&1.player_ref == "player:p1"))
+    assert hd(result.facts.performances).position_ref == "FW"
+    assert hd(result.facts.performances).minutes_played == 90
+    assert hd(result.facts.performances).counts.goals == 1
+    assert hd(result.facts.performances).counts.assists == 0
+    assert hd(result.facts.performances).counts.yellow_cards == 1
+    assert hd(result.facts.performances).counts.red_cards == 0
+    assert Enum.map(result.facts.matches, & &1.ref) == ["match:m1"]
+
+    assert_receive {:scraping_fetch, "player_search:Alex Example", _pid}
+    assert_receive {:scraping_fetch, "player_data:p1", _pid}
+    refute_receive {:scraping_fetch, "match_details:m1", _pid}
+    refute_receive {:scraping_fetch, "schedule", _pid}
+  end
+
+  test "player mode rejects a history page that cannot prove season coverage" do
+    c = Data.case!("performance-PL-2024")
+    state = Data.state(c, %{owner: self(), player_source_id: "p1"})
+
+    portions =
+      Map.put(state.portions, "player_data:p1", %{
+        body:
+          Jason.encode!(%{
+            "id" => "p1",
+            "initialMatchesPage" => %{
+              "matches" => [
+                %{
+                  "id" => "m1",
+                  "leagueId" => "PL",
+                  "matchDate" => %{"utcTime" => "2024-10-01T12:00:00Z"},
+                  "playedInMatch" => true
+                }
+              ],
+              "previous" => "older-page"
+            }
+          }),
+        observation: state.portions["match:m1"].observation
+      })
+
+    assert {:error, %{category: :invalid_response}} =
+             FootballMarket.Providers.performances(Data.request(c),
+               provider: {FootballMarket.Providers.Scraping, %{state | portions: portions}},
+               positions: Data.positions(),
+               runtime: {FootballMarket.Providers.FixtureRuntime, %{}}
+             )
+
+    assert_receive {:scraping_fetch, "player_data:p1", _pid}
+    refute_receive {:scraping_fetch, "schedule", _pid}
+  end
+
+  test "player mode classifies a profile without the requested league season as unsupported" do
+    c = Data.case!("performance-PL-2024")
+    state = Data.state(c, %{owner: self(), player_source_id: "p1"})
+
+    portions =
+      Map.put(state.portions, "player_data:p1", %{
+        body:
+          Jason.encode!(%{
+            "id" => "p1",
+            "statSeasons" => [
+              %{
+                "seasonName" => "2023/2024",
+                "tournaments" => [%{"tournamentId" => "PL"}]
+              }
+            ]
+          }),
+        observation: state.portions["match:m1"].observation
+      })
+
+    assert {:error, %{category: :unsupported_capability}} =
+             FootballMarket.Providers.performances(Data.request(c),
+               provider: {FootballMarket.Providers.Scraping, %{state | portions: portions}},
+               positions: Data.positions(),
+               runtime: {FootballMarket.Providers.FixtureRuntime, %{}}
+             )
+
+    assert_receive {:scraping_fetch, "player_data:p1", _pid}
+    refute_receive {:scraping_fetch, "schedule", _pid}
+  end
 end

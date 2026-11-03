@@ -12,10 +12,13 @@ defmodule FootballMarket.Accounts.BrowserSessionsTest do
     assert {:error, :invalid} = BrowserSessions.authenticate(anonymous, user.id, now)
 
     assert {:ok, actor} =
-             BrowserSessions.validate(handle, DateTime.add(now, 899_999_999, :microsecond))
+             BrowserSessions.validate(handle, DateTime.add(now, 28_799_999_999, :microsecond))
 
     assert actor.account_id == user.id
-    assert {:error, :expired} = BrowserSessions.validate(handle, DateTime.add(now, 900, :second))
+
+    assert {:error, :expired} =
+             BrowserSessions.validate(handle, DateTime.add(now, 28_800, :second))
+
     assert {:error, :invalid} = BrowserSessions.validate(handle <> "tampered", now)
     assert :ok = BrowserSessions.revoke(handle, now)
     assert :ok = BrowserSessions.revoke(handle, now)
@@ -51,9 +54,9 @@ defmodule FootballMarket.Accounts.BrowserSessionsTest do
     {:ok, actor} = BrowserSessions.validate(handle, now)
 
     assert {:error, :expired} =
-             BrowserSessions.validate(handle, DateTime.add(now, 900_000_001, :microsecond))
+             BrowserSessions.validate(handle, DateTime.add(now, 28_800_000_001, :microsecond))
 
-    assert {:ok, same} = BrowserSessions.validate(handle, DateTime.add(now, 899, :second))
+    assert {:ok, same} = BrowserSessions.validate(handle, DateTime.add(now, 28_799, :second))
     assert same.expires_at == actor.expires_at
 
     assert byte_size(

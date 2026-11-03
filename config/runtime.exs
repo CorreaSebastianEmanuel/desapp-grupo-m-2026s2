@@ -34,6 +34,15 @@ end
 
 config :football_market, :quote_mapping_id, System.get_env("QUOTE_MAPPING_ID")
 
+primary_account_id = System.get_env("MARKET_PRIMARY_ACCOUNT_ID")
+
+config :football_market,
+       :initial_issuance_recipients,
+       if(is_binary(primary_account_id) and byte_size(primary_account_id) > 0,
+         do: [primary_account_id],
+         else: []
+       )
+
 if config_env() == :dev do
   # Reload browser tabs when matching files change.
   config :football_market, FootballMarketWeb.Endpoint,

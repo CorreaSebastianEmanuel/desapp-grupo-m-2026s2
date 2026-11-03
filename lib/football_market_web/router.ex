@@ -27,6 +27,13 @@ defmodule FootballMarketWeb.Router do
     get "/docs", ApiDocsController, :index
   end
 
+  if Application.compile_env(:football_market, :local_admin_enabled, false) do
+    scope "/__local", FootballMarketWeb do
+      pipe_through :browser
+      live "/ops", LocalAdminLive, :index
+    end
+  end
+
   scope "/", FootballMarketWeb do
     pipe_through :browser
     get "/sign-in", SessionController, :new

@@ -3,7 +3,7 @@ defmodule FootballMarket.Statistics.Freshness.Refresh do
   import Ecto.Query
   alias FootballMarket.Repo
   alias FootballMarket.Statistics.Ingestion.ScopeCheck
-  alias FootballMarket.Synchronization.{Run, Store}
+  alias FootballMarket.Synchronization.{Input, Run, Store}
 
   @active ~w(queued executing retry_wait)
   @reasons ~w(exhausted exhausted_unconfirmed non_retryable input_drift missing_configuration
@@ -11,10 +11,16 @@ defmodule FootballMarket.Statistics.Freshness.Refresh do
               immutable_conflict persistence_failure interrupted)
 
   def ensure(player, settings, now) do
+    submit(player, settings, now, false)
+  end
+
+  def refresh_now(player, settings, now), do: submit(player, settings, now, true)
+
+  defp submit(player, settings, now, force) do
     Repo.transaction(fn ->
       Repo.query!("SET LOCAL lock_timeout = '100ms'")
       if not Store.try_lock_scope(settings.input.scope), do: Repo.rollback(:busy)
-      decide(player, settings, now)
+      decide(player, settings, now, force)
     end)
     |> case do
       {:ok, refresh} -> refresh
@@ -35,7 +41,7 @@ defmodule FootballMarket.Statistics.Freshness.Refresh do
     %{state: state, run_id: run && run.id, reason: reason, next_attempt_at: next_attempt_at}
   end
 
-  defp decide(player, settings, now) do
+  defp decide(player, settings, now, force) do
     query = runs(settings.input)
     active = Repo.one(from r in query, where: r.state in @active)
 
@@ -46,7 +52,16 @@ defmodule FootballMarket.Statistics.Freshness.Refresh do
       active ->
         status("busy", nil, "scope_busy")
 
-      fresh?(ScopeCheck.find(settings.provider, player.season_id), settings.ttl, now) ->
+      not force and
+          fresh?(
+            ScopeCheck.find(
+              settings.provider,
+              player.season_id,
+              settings.input.material["player_id"]
+            ),
+            settings.ttl,
+            now
+          ) ->
         status("idle")
 
       true ->
@@ -56,11 +71,18 @@ defmodule FootballMarket.Statistics.Freshness.Refresh do
               where:
                 r.source_ref == ^settings.input.material["source_ref"] and
                   r.input_digest == ^settings.input.digest and r.input == ^settings.input.material,
-              order_by: [desc_nulls_last: r.finished_at, desc: r.requested_at, desc: r.id],
+              order_by: [desc: r.requested_at, desc_nulls_last: r.finished_at, desc: r.id],
               limit: 1
           )
 
         retry_or_admit(latest, settings, now)
+    end
+  end
+
+  defp retry_or_admit(%{state: "failed", reason: "missing_configuration"} = run, settings, now) do
+    case Input.execution(run.input) do
+      {:ok, _options} -> admit(settings.input, now)
+      _ -> status("blocked", run, safe_reason(run))
     end
   end
 
@@ -110,11 +132,13 @@ defmodule FootballMarket.Statistics.Freshness.Refresh do
 
   defp runs(input) do
     scope = input.scope
+    player_id = input.material["player_id"] || ""
 
     from r in Run,
       where:
         r.operation == "statistics" and r.league_code == ^scope.league_code and
-          r.start_year == ^scope.start_year and r.end_year == ^scope.end_year
+          r.start_year == ^scope.start_year and r.end_year == ^scope.end_year and
+          fragment("coalesce(?->>'player_id', '') = ?", r.input, ^player_id)
   end
 
   defp safe_reason(run) do

@@ -961,6 +961,13 @@
       "profile": "integration"
     },
     {
+      "id": "1730386829c5176c3db5e1b5",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/import_test.exs",
+      "case_id": "FootballMarket.Quotes.ImportTest:test manual close admits pending import requests before their scheduled close",
+      "profile": "integration"
+    },
+    {
       "id": "173692e38eb39a85b90302a1",
       "runner": "exunit",
       "file": "test/football_market/providers/scraping/assessment_test.exs",
@@ -987,13 +994,6 @@
       "file": "test/scripts/agentflow_providers_test.py",
       "case_id": "test.scripts.agentflow_providers_test.SelectionTest.test_provider_configuration_is_external_and_validated",
       "profile": "unit"
-    },
-    {
-      "id": "17a169f382595b04406e61fa",
-      "runner": "exunit",
-      "file": "test/football_market/statistics/freshness/context_test.exs",
-      "case_id": "FootballMarket.Statistics.Freshness.ContextTest:test a trusted manual retry can recover a permanent failure with unchanged inputs",
-      "profile": "integration"
     },
     {
       "id": "17a2a9c755cd4915a3355bb8",
@@ -1801,6 +1801,13 @@
       "profile": "integration"
     },
     {
+      "id": "2c7ece62d9c94307430c7e53",
+      "runner": "exunit",
+      "file": "test/football_market/synchronization/input_test.exs",
+      "case_id": "FootballMarket.Synchronization.InputTest:test rejects incomplete or unsafe player targets",
+      "profile": "unit"
+    },
+    {
       "id": "2d3830e4fad0f7c2228ee60f",
       "runner": "node",
       "file": "tools/openapi/validate.test.mjs",
@@ -1868,6 +1875,13 @@
       "runner": "exunit",
       "file": "test/ci/credo_ci_contract_test.exs",
       "case_id": "FootballMarket.CredoCiContractTest:test wrapper preserves complete lists and both revisions and removes stale output",
+      "profile": "unit"
+    },
+    {
+      "id": "2eb6fc39f852642b4e8f99da",
+      "runner": "exunit",
+      "file": "test/football_market/providers/football_data_org_test.exs",
+      "case_id": "FootballMarket.Providers.FootballDataOrgTest:test rejects empty squads and unsupported position labels before publication",
       "profile": "unit"
     },
     {
@@ -2100,6 +2114,13 @@
       "file": "test/football_market/valuation/configurations/codec_test.exs",
       "case_id": "FootballMarket.Valuation.Configurations.CodecTest:test typed canonical JSON round-trip preserves arbitrary exact values across contexts",
       "profile": "unit"
+    },
+    {
+      "id": "3405cee05cf3cdeec65f5cc1",
+      "runner": "exunit",
+      "file": "test/football_market/catalog/ingestion/publication_test.exs",
+      "case_id": "FootballMarket.Catalog.Ingestion.PublicationTest:test a newly cataloged player receives initial inventory once at the configured account",
+      "profile": "integration"
     },
     {
       "id": "340c530c33de4f318d8d34a3",
@@ -3551,6 +3572,13 @@
       "profile": "unit"
     },
     {
+      "id": "5a6240da4dd4784585c8d3d7",
+      "runner": "exunit",
+      "file": "test/football_market_web/live/local_admin_live_test.exs",
+      "case_id": "FootballMarketWeb.LocalAdminLiveTest:test statistics queue shows a failed synchronization result beside completed delivery",
+      "profile": "integration"
+    },
+    {
       "id": "5a83388aa6002ce9dce23512",
       "runner": "exunit",
       "file": "test/football_market/valuation/configurations/immutability_test.exs",
@@ -4447,13 +4475,6 @@
       "profile": "unit"
     },
     {
-      "id": "75595a69223ca99ff290044c",
-      "runner": "exunit",
-      "file": "test/football_market/statistics/freshness/concurrency_test.exs",
-      "case_id": "FootballMarket.Statistics.Freshness.ConcurrencyTest:test committed concurrent reads of different players share one run job receipt and trigger",
-      "profile": "integration"
-    },
-    {
       "id": "7575b71a5f09b91c6126a833",
       "runner": "exunit",
       "file": "test/football_market/statistics/scope_test.exs",
@@ -4832,6 +4853,13 @@
       "profile": "unit"
     },
     {
+      "id": "7fb5aaa5cd4f3a9d17328b71",
+      "runner": "exunit",
+      "file": "test/football_market/statistics/ingestion/acceptance_test.exs",
+      "case_id": "FootballMarket.Statistics.Ingestion.AcceptanceTest:test first accepted player-scoped import assigns initial inventory to the primary account",
+      "profile": "integration"
+    },
+    {
       "id": "7fbebd57ae90e841a10c1d8c",
       "runner": "python",
       "file": "test/scripts/agentflow_stage_checks_test.py",
@@ -4944,6 +4972,13 @@
       "profile": "unit"
     },
     {
+      "id": "8284bf3d94ab17b8724f237f",
+      "runner": "exunit",
+      "file": "test/football_market/synchronization/input_test.exs",
+      "case_id": "FootballMarket.Synchronization.InputTest:test targets statistics input and execution to one player",
+      "profile": "unit"
+    },
+    {
       "id": "82a3f249da28a9b855c3d420",
       "runner": "exunit",
       "file": "test/football_market/accounts/authentication_test.exs",
@@ -5047,6 +5082,13 @@
       "file": "test/scripts/thinflow_test.py",
       "case_id": "test.scripts.thinflow_test.CandidateTest.test_prepare_check_evaluate_and_freshness",
       "profile": "unit"
+    },
+    {
+      "id": "84f0494b5c84aad4cd3c1409",
+      "runner": "exunit",
+      "file": "test/football_market/catalog/ingestion/isolation_test.exs",
+      "case_id": "FootballMarket.Catalog.Ingestion.IsolationTest:test catalog source IDs do not imply a FotMob binding and local reads survive provider failure",
+      "profile": "integration"
     },
     {
       "id": "8508ccd62f908db155b39113",
@@ -5791,10 +5833,24 @@
       "profile": "integration"
     },
     {
+      "id": "995b182affc2041c4d3dbc25",
+      "runner": "exunit",
+      "file": "test/football_market/providers/scraping/performances_test.exs",
+      "case_id": "FootballMarket.Providers.ScrapingPerformancesTest:test player mode fetches only one profile and its match details",
+      "profile": "unit"
+    },
+    {
       "id": "99915390535bc6124196c594",
       "runner": "exunit",
       "file": "test/football_market/synchronization/input_test.exs",
       "case_id": "FootballMarket.Synchronization.InputTest:test instruction collection order is irrelevant while full input changes are distinct",
+      "profile": "unit"
+    },
+    {
+      "id": "9a058cb2b0376f9a3bb5cec5",
+      "runner": "exunit",
+      "file": "test/football_market/providers/scraping/performances_test.exs",
+      "case_id": "FootballMarket.Providers.ScrapingPerformancesTest:test player mode classifies a profile without the requested league season as unsupported",
       "profile": "unit"
     },
     {
@@ -5830,6 +5886,13 @@
       "runner": "exunit",
       "file": "test/football_market/observability/job_context_test.exs",
       "case_id": "FootballMarket.Observability.JobContextTest:test delayed dispatch and quote recovery retain lineage even if the root job is removed",
+      "profile": "integration"
+    },
+    {
+      "id": "9aa012f6b12bd5ac6f5ac1ae",
+      "runner": "exunit",
+      "file": "test/football_market/statistics/freshness/context_test.exs",
+      "case_id": "FootballMarket.Statistics.Freshness.ContextTest:test a corrected missing configuration is re-enqueued and can recover",
       "profile": "integration"
     },
     {
@@ -5998,13 +6061,6 @@
       "runner": "exunit",
       "file": "test/ci/credo_inventory_test.exs",
       "case_id": "FootballMarket.CredoInventoryTest:test a completed Credo analysis with default-priority findings remains complete and fails",
-      "profile": "unit"
-    },
-    {
-      "id": "9e9d0b0c3abce5a141ccd0e2",
-      "runner": "exunit",
-      "file": "test/football_market/providers/football_data_org_test.exs",
-      "case_id": "FootballMarket.Providers.FootballDataOrgTest:test rejects missing, empty, or malformed squad data before publication",
       "profile": "unit"
     },
     {
@@ -7415,6 +7471,13 @@
       "profile": "unit"
     },
     {
+      "id": "c23111271a7868c988211bac",
+      "runner": "exunit",
+      "file": "test/football_market/providers/scraping/performances_test.exs",
+      "case_id": "FootballMarket.Providers.ScrapingPerformancesTest:test player mode rejects a history page that cannot prove season coverage",
+      "profile": "unit"
+    },
+    {
       "id": "c26db5d098f995078a8c5a12",
       "runner": "exunit",
       "file": "test/football_market/quotes/recovery_test.exs",
@@ -8066,6 +8129,13 @@
       "profile": "integration"
     },
     {
+      "id": "d1765e24f86e343b7d354e50",
+      "runner": "exunit",
+      "file": "test/football_market_web/live/local_admin_live_test.exs",
+      "case_id": "FootballMarketWeb.LocalAdminLiveTest:test local operations page reports database, queues, jobs, and catalog state",
+      "profile": "integration"
+    },
+    {
       "id": "d17b6414046f9d310408c23e",
       "runner": "python",
       "file": "test/scripts/application_coverage_test.py",
@@ -8073,10 +8143,10 @@
       "profile": "unit"
     },
     {
-      "id": "d1938405b9758e6cda6ffd9e",
+      "id": "d23733deb47d7f3b5b189199",
       "runner": "exunit",
-      "file": "test/football_market/catalog/ingestion/isolation_test.exs",
-      "case_id": "FootballMarket.Catalog.Ingestion.IsolationTest:test accepted local reads stay available when a subsequent provider fails",
+      "file": "test/football_market_web/live/local_admin_live_test.exs",
+      "case_id": "FootballMarketWeb.LocalAdminLiveTest:test failed synchronization details identify provider rate limiting",
       "profile": "integration"
     },
     {
@@ -8127,6 +8197,13 @@
       "file": "test/football_market/ranking/order_test.exs",
       "case_id": "FootballMarket.Ranking.OrderTest:test zero entries have no positions and UTC timestamps preserve microseconds",
       "profile": "integration"
+    },
+    {
+      "id": "d38665adab1636d5d77c2bd3",
+      "runner": "exunit",
+      "file": "test/football_market/providers/football_data_org_test.exs",
+      "case_id": "FootballMarket.Providers.FootballDataOrgTest:test preserves a player with no reported position under the neutral catalog role",
+      "profile": "unit"
     },
     {
       "id": "d3aa0ae43acbeba18875dea3",
@@ -8514,6 +8591,13 @@
       "profile": "integration"
     },
     {
+      "id": "dc0265175af6b336086fd5df",
+      "runner": "exunit",
+      "file": "test/football_market/providers/football_data_org_test.exs",
+      "case_id": "FootballMarket.Providers.FootballDataOrgTest:test normalizes detailed defender and midfield position labels",
+      "profile": "unit"
+    },
+    {
       "id": "dc094d550aa5d8f9123fc17c",
       "runner": "exunit",
       "file": "test/football_market/market/storage_test.exs",
@@ -8892,6 +8976,13 @@
       "profile": "unit"
     },
     {
+      "id": "e4526b863a4dc789221b33f6",
+      "runner": "exunit",
+      "file": "test/football_market/statistics/ingestion/acceptance_test.exs",
+      "case_id": "FootballMarket.Statistics.Ingestion.AcceptanceTest:test player-scoped acceptance rolls back when the primary account is not configured",
+      "profile": "integration"
+    },
+    {
       "id": "e4bef48b98c4e8141af1f60a",
       "runner": "exunit",
       "file": "test/football_market/accounts/authentication_test.exs",
@@ -9022,6 +9113,13 @@
       "runner": "exunit",
       "file": "test/ci/profile_integration_sentinel_test.exs",
       "case_id": "FootballMarket.ProfileIntegrationSentinelTest:test writes opaque completion evidence only for the selected integration profile",
+      "profile": "integration"
+    },
+    {
+      "id": "e75d8ee1278b6e3691880e6e",
+      "runner": "exunit",
+      "file": "test/football_market/catalog/ingestion/publication_test.exs",
+      "case_id": "FootballMarket.Catalog.Ingestion.PublicationTest:test new catalog players roll back when the primary account is not configured",
       "profile": "integration"
     },
     {
@@ -9338,6 +9436,13 @@
       "file": "test/scripts/agentflow_models_test.py",
       "case_id": "test.scripts.agentflow_models_test.LauncherTest.test_start_dry_run_does_not_mutate_or_launch",
       "profile": "unit"
+    },
+    {
+      "id": "ef7d8fa8ea1e18070068f5b8",
+      "runner": "exunit",
+      "file": "test/football_market/statistics/freshness/concurrency_test.exs",
+      "case_id": "FootballMarket.Statistics.Freshness.ConcurrencyTest:test committed concurrent reads of different players share one league-scoped job",
+      "profile": "integration"
     },
     {
       "id": "ef80e9c7dcac1f7b92d028ee",

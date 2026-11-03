@@ -131,9 +131,11 @@ defmodule FootballMarket.Statistics.Freshness.ContextTest do
     assert Freshness.for_player(f.player).refresh.state == "queued"
   end
 
-  test "a trusted manual retry can recover a permanent failure with unchanged inputs", f do
-    FreshnessCase.fail!(f, "access_refused")
-    assert Freshness.for_player(f.player).refresh.state == "blocked"
+  test "a corrected missing configuration is re-enqueued and can recover", f do
+    failed = FreshnessCase.fail!(f, "access_refused")
+    Repo.update!(Ecto.Changeset.change(failed, reason: "missing_configuration"))
+
+    assert Freshness.for_player(f.player).refresh.state == "queued"
     {:ok, admitted} = Synchronization.request_statistics(f.scope, f.options)
     run = Repo.get!(Run, admitted.run_id)
     FootballMarket.Workers.StatisticsImport.perform(Repo.get!(Oban.Job, run.job_id))

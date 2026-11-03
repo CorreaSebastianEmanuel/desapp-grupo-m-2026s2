@@ -101,6 +101,8 @@ defmodule FootballMarket.Market.ScopeTest do
              initial_recipient?: 1,
              initialize_player: 1,
              initialize_player: 2,
+             initialize_primary_player: 1,
+             initialize_primary_player_in_transaction: 1,
              list_conditional_orders: 1,
              portfolio: 1,
              portfolio_allocation: 1,
@@ -196,7 +198,7 @@ defmodule FootballMarket.Market.ScopeTest do
     # Pin the approved configuration, including the fail-closed issuance default.
     # Git HEAD changes after publication and is not a stable content oracle.
     assert Base.encode16(:crypto.hash(:sha256, source), case: :lower) ==
-             "b2f9904816f5efed3b630e782e7519058f96b18dc8b5d101dcbeb81ec8577251"
+             "4716d52eddb5f0a36b1335e296e4b9ca39b55d2e8b4798032b746d7fab5876f6"
   end
 
   # Evaluate the actual allowlist function without loading the unit test module

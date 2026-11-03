@@ -161,7 +161,11 @@ defmodule FootballMarketWeb.BrowserFeedbackTest do
     assert {:error, :denied} = owned_resource(socket, other.id)
     assert {:ok, :owned} = owned_resource(socket, user.id)
     refute inspect(socket.assigns) =~ handle
-    :persistent_term.put({FootballMarket.BrowserTestClock, :now}, DateTime.add(now, 900, :second))
+
+    :persistent_term.put(
+      {FootballMarket.BrowserTestClock, :now},
+      DateTime.add(now, 28_800, :second)
+    )
 
     for result <- [
           Lifecycle.handle_event("private", %{"account_id" => other.id}, socket),

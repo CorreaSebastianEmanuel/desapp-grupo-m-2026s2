@@ -25,6 +25,42 @@ defmodule FootballMarket.Providers.ScrapingAssessmentTest do
 
     Data.assert_case!(Data.case!("access-scoped"))
     assert Scraping.Assessment.actual() == before
+
+    today = Date.utc_today()
+    start_year = if today.month >= 7, do: today.year, else: today.year - 1
+    end_year = start_year + 1
+    assessment = Scraping.Assessment.local_development()
+    scope = %{league_code: "BL1", start_year: start_year, end_year: end_year}
+    assert {:ok, request} = Request.normalize(:performances, scope)
+
+    assert {:ok, revision, row} =
+             Scraping.Assessment.admit(request, %{mode: :live, assessment: assessment})
+
+    assert revision == assessment.revision
+    assert row.witness == "fotmob-authorized-player-profile-v1"
+    assert row.metrics.goals.status == :verified
+
+    for {league_code, competition} <- %{
+          "PL" => "47",
+          "BL1" => "54",
+          "PD" => "87",
+          "SA" => "55",
+          "FL1" => "53"
+        } do
+      assert {:ok, league_scope} =
+               Request.normalize(:performances, %{scope | league_code: league_code})
+
+      assert {:ok, _, scoped_row} =
+               Scraping.Assessment.admit(league_scope, %{mode: :live, assessment: assessment})
+
+      assert scoped_row.competition == competition
+    end
+
+    previous_season = %{scope | start_year: start_year - 1, end_year: end_year - 1}
+    assert {:ok, outside_scope} = Request.normalize(:performances, previous_season)
+
+    assert {:error, %{category: :unsupported_capability}} =
+             Scraping.Assessment.admit(outside_scope, %{mode: :live, assessment: assessment})
   end
 
   test "live catalog and performances use assessed HTTPS documents through the existing pipeline" do

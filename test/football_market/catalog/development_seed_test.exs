@@ -238,6 +238,8 @@ defmodule FootballMarket.Catalog.DevelopmentSeedTest do
 
   describe "empty catalog" do
     test "creates the complete catalog and exposes it through public lookups" do
+      existing_positions = Repo.aggregate(Position, :count)
+
       assert {:ok,
               %{
                 total: 44,
@@ -249,7 +251,7 @@ defmodule FootballMarket.Catalog.DevelopmentSeedTest do
       assert Repo.aggregate(League, :count) == 5
       assert Repo.aggregate(Season, :count) == 5
       assert Repo.aggregate(Team, :count) == 10
-      assert Repo.aggregate(Position, :count) == 4
+      assert Repo.aggregate(Position, :count) == existing_positions + 4
       assert Repo.aggregate(Player, :count) == 20
 
       manifest = Manifest.definition()
@@ -581,6 +583,8 @@ defmodule FootballMarket.Catalog.DevelopmentSeedTest do
     end
 
     test "a named late database failure returns a typed error and rolls back all inserts" do
+      existing_positions = Repo.aggregate(Position, :count)
+
       Ecto.Adapters.SQL.query!(Repo, """
       CREATE FUNCTION reject_last_demo_player() RETURNS trigger AS $$
       BEGIN
@@ -609,7 +613,7 @@ defmodule FootballMarket.Catalog.DevelopmentSeedTest do
       assert Repo.aggregate(League, :count) == 0
       assert Repo.aggregate(Season, :count) == 0
       assert Repo.aggregate(Team, :count) == 0
-      assert Repo.aggregate(Position, :count) == 0
+      assert Repo.aggregate(Position, :count) == existing_positions
       assert Repo.aggregate(Player, :count) == 0
     end
   end

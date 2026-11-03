@@ -102,11 +102,49 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
              "Todavía no tenés posiciones de operaciones"
            )
 
+    {:ok, issuer_card, _} = live(authenticated_conn(owner), "/players?player_id=#{player.id}")
+    assert has_element?(issuer_card, "#player-position-summary", "97 tokens")
+    refute has_element?(issuer_card, "#player-position-summary", "Todavía no tenés tokens")
+    refute has_element?(issuer_card, "#player-position-summary", "Valor estimado")
+    refute has_element?(issuer_card, "#trade-form")
+
+    {:ok, card} = Catalog.player_card(player.id)
+
+    for unavailable <- [
+          %{initial_recipient_unavailable: true},
+          %{initial_recipient: true, issuer_inventory_unavailable: true},
+          %{portfolio_unavailable: true}
+        ] do
+      html =
+        render_component(
+          &FootballMarketWeb.WorkspaceComponents.player_card/1,
+          Map.merge(%{card: card, request_key: "unavailable-holdings"}, unavailable)
+        )
+
+      assert html =~ "Tus tenencias no están disponibles temporalmente"
+      refute html =~ "Todavía no tenés tokens de este jugador"
+    end
+
     {:ok, buyer_view, _} = live(authenticated_conn(buyer), "/portfolio")
     assert has_element?(buyer_view, "#credit-balance", "Créditos disponibles: 97.00")
     assert has_element?(buyer_view, "#portfolio-position-#{player.id}", "3")
     assert has_element?(buyer_view, "#no-initial-issuer-inventory")
     refute has_element?(buyer_view, "#initial-issuer-inventory-#{player.id}")
+
+    {:ok, buyer_card, _} = live(authenticated_conn(buyer), "/players?player_id=#{player.id}")
+    assert has_element?(buyer_card, "#player-position-summary", "3 tokens")
+    assert has_element?(buyer_card, "#player-position-summary", "Valor estimado")
+
+    assert {:ok, _} =
+             Market.purchase(PurchasesCase.actor(buyer), %{
+               player_id: player.id,
+               quantity: 97,
+               request_key: "issuer-inventory-exhausted"
+             })
+
+    send(issuer_card.pid, :portfolio_changed)
+    assert has_element?(issuer_card, "#player-position-summary", "Todavía no tenés tokens")
+    refute has_element?(issuer_card, "#player-position-summary", "97 tokens")
   end
 
   test "portfolio chart marks missing quote data as a gap, not zero" do

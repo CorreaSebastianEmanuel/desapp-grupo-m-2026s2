@@ -5,7 +5,7 @@ type: task
 checkpoint: CP2
 priority: high
 workflow: thinflow-v1
-status: wip
+status: review
 depends_on: none
 active_run: f0110e84
 ---

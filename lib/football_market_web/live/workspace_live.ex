@@ -307,7 +307,10 @@ defmodule FootballMarketWeb.WorkspaceLive do
             _ -> nil
           end
 
-        socket |> assign(card: card, quote: quote, card_error: nil) |> reload_portfolio()
+        socket
+        |> assign(card: card, quote: quote, card_error: nil)
+        |> reload_portfolio()
+        |> reload_issuer_inventory()
 
       _ ->
         assign(socket, card: nil, card_error: "No se pudo cargar la ficha del jugador.")
@@ -506,6 +509,9 @@ defmodule FootballMarketWeb.WorkspaceLive do
               initial_recipient_unavailable={@initial_recipient_unavailable}
               trade_quantity={@trade_quantity}
               positions={@positions}
+              portfolio_unavailable={@portfolio_unavailable}
+              issuer_inventory={@issuer_inventory}
+              issuer_inventory_unavailable={@issuer_inventory_unavailable}
               trade_error={@trade_error}
               notice={@trade_notice}
               complete={@trade_complete}

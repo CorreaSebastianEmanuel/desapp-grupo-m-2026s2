@@ -67,6 +67,9 @@ defmodule FootballMarketWeb.WorkspaceComponents do
   attr :initial_recipient_unavailable, :boolean, default: false
   attr :trade_quantity, :string, default: ""
   attr :positions, :list, default: []
+  attr :portfolio_unavailable, :boolean, default: false
+  attr :issuer_inventory, :list, default: []
+  attr :issuer_inventory_unavailable, :boolean, default: false
   attr :trade_error, :string, default: nil
   attr :notice, :string, default: nil
   attr :complete, :boolean, default: false
@@ -115,14 +118,27 @@ defmodule FootballMarketWeb.WorkspaceComponents do
       </dl>
       <section id="player-position-summary" aria-label="Tu posición en este jugador">
         <h3>Tu posición</h3>
-        <%= if position = Enum.find(@positions, &(&1.player_id == @card.player.id)) do %>
-          <p>
-            <strong>{position.quantity} tokens</strong><span :if={@quote}> · Valor estimado {money(
-              Decimal.mult(@quote.unit_price, position.quantity)
-            )} créditos</span>
-          </p>
-        <% else %>
-          <p>Todavía no tenés tokens de este jugador.</p>
+        <%= cond do %>
+          <% @initial_recipient_unavailable ||
+               (@initial_recipient && @issuer_inventory_unavailable) ||
+               (!@initial_recipient && @portfolio_unavailable) -> %>
+            <p id="player-position-unavailable" role="alert">
+              Tus tenencias no están disponibles temporalmente.
+            </p>
+          <% @initial_recipient -> %>
+            <%= if item = Enum.find(@issuer_inventory, &(&1.player_id == @card.player.id)) do %>
+              <p><strong>{item.quantity} tokens</strong> del inventario inicial</p>
+            <% else %>
+              <p>Todavía no tenés tokens de este jugador.</p>
+            <% end %>
+          <% position = Enum.find(@positions, &(&1.player_id == @card.player.id)) -> %>
+            <p>
+              <strong>{position.quantity} tokens</strong><span :if={@quote}> · Valor estimado {money(
+                Decimal.mult(@quote.unit_price, position.quantity)
+              )} créditos</span>
+            </p>
+          <% true -> %>
+            <p>Todavía no tenés tokens de este jugador.</p>
         <% end %>
       </section>
       <a

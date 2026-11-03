@@ -8,7 +8,8 @@ Build a market where football performance determines historical player quotes an
 - Statistics are imported through replaceable external-provider adapters and persisted locally.
 - At least two configurable valuation strategies exist; every quote stores its strategy version and effective date.
 - Every player starts with 100 tokens owned by one superuser at one credit each.
-- Users buy at the current quote from available inventory and sell only owned tokens.
+- The one-credit issuance value is a starting reference only; purchases are unavailable until a positive performance-derived quote is published.
+- Users buy at the current performance quote from available inventory and sell only owned tokens.
 - Portfolio shows quantity, average purchase price, current value, profit/loss, and history.
 
 ## Invariants

@@ -17,6 +17,7 @@ defmodule FootballMarket.Market.PortfolioQuoteTest do
       })
 
     FootballMarket.PurchasesCase.fund(buyer, "100")
+    QuotesCase.dated_quote(f, DateTime.utc_now(), "1")
 
     assert {:ok, purchase} =
              Market.purchase(FootballMarket.PurchasesCase.actor(buyer), %{

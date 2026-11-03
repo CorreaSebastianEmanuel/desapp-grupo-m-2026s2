@@ -1190,6 +1190,27 @@ defmodule FootballMarket.WorkflowScope do
     ]
   end
 
+  def paths("specs/087-performance-quote-required-before-purchase") do
+    [
+      "backlog/TASK-087-require-performance-quote-before-purchase.md",
+      "docs/PRODUCT.md",
+      "lib/football_market/market/purchase_transaction.ex",
+      "lib/football_market_web/components/workspace_components.ex",
+      "lib/football_market_web/live/workspace_live.ex",
+      "specs/068-atomic-idempotent-token-purchase/contracts/purchase.md",
+      "specs/068-atomic-idempotent-token-purchase/spec.md",
+      "specs/087-performance-quote-required-before-purchase/",
+      "test/football_market/market/conditional_orders/evaluation_test.exs",
+      "test/football_market/market/conditional_orders/quote_order_test.exs",
+      "test/football_market/market/portfolio/quote_test.exs",
+      "test/football_market/market/purchases/quote_order_test.exs",
+      "test/football_market/market/purchases/rejection_test.exs",
+      "test/football_market_web/live/portfolio_live_test.exs",
+      "test/support/purchases/case.ex",
+      "test/support/workflow_scope.ex"
+    ]
+  end
+
   def paths(_), do: []
 
   def allows_path?(feature, path) do

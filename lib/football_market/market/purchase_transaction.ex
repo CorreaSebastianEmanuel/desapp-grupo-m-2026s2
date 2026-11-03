@@ -81,11 +81,25 @@ defmodule FootballMarket.Market.PurchaseTransaction do
 
   def current_quote!(player_id) do
     case Quotes.latest(player_id) do
-      {:ok, q} -> if Settlement.exact_positive?(q.unit_price), do: q, else: nil
+      {:ok, q} -> if performance_quote?(q), do: q, else: nil
       {:error, :temporarily_unavailable} -> Settlement.reject(:temporarily_unavailable)
       _ -> nil
     end
   end
+
+  defp performance_quote?(%{
+         calculation_id: calculation_id,
+         configuration_version_id: configuration_version_id,
+         mapping_id: mapping_id,
+         performance_sequence: sequence,
+         unit_price: price
+       }) do
+    not is_nil(calculation_id) and not is_nil(configuration_version_id) and
+      not is_nil(mapping_id) and is_integer(sequence) and sequence > 0 and
+      Settlement.exact_positive?(price)
+  end
+
+  defp performance_quote?(_), do: false
 
   def eligible(_, _, _, _, nil), do: {:error, :quote_unavailable}
 

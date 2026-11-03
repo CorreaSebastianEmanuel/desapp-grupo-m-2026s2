@@ -383,6 +383,9 @@ defmodule FootballMarketWeb.WorkspaceLive do
   defp trade_error(:insufficient_inventory), do: "No hay suficientes tokens disponibles."
   defp trade_error(:insufficient_holdings), do: "No tenés tantos tokens para vender."
 
+  defp trade_error(:quote_unavailable),
+    do: "Todavía no hay una cotización de rendimiento válida para comprar este jugador."
+
   defp trade_error(:self_purchase),
     do:
       "Esta cuenta aporta el inventario inicial. Para comprar, ingresá con una cuenta inversora."

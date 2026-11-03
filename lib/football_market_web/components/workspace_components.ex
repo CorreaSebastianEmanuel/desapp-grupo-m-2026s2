@@ -117,7 +117,10 @@ defmodule FootballMarketWeb.WorkspaceComponents do
         {scraping_status(@card.statistics_status.refresh)}
       </p>
       <p :if={@quote} id="player-quote">
-        Valor por token <strong>{money(@quote.unit_price)} créditos</strong>
+        {if performance_quote?(@quote),
+          do: "Cotización actual por token",
+          else: "Valor inicial por token"}
+        <strong>{money(@quote.unit_price)} créditos</strong>
         <span>· Vigente desde {Calendar.strftime(@quote.effective_at, "%d/%m/%Y %H:%M UTC")}</span>
       </p>
       <details :if={@quote} id="quote-provenance">
@@ -126,6 +129,14 @@ defmodule FootballMarketWeb.WorkspaceComponents do
       </details>
       <p :if={!@quote && @card.statistics.recorded_match_count > 0} id="player-quote-missing">
         Aún no hay una cotización disponible. Se habilitarán las operaciones cuando se publique.
+      </p>
+      <p
+        :if={@quote && !performance_quote?(@quote)}
+        id="player-performance-quote-unavailable"
+        class="statistics-notice"
+        role="status"
+      >
+        No hay una cotización de rendimiento disponible. No se pueden comprar tokens hasta que se publique una cotización positiva.
       </p>
       <p
         :if={@card.statistics.recorded_match_count == 0 && @quote}
@@ -164,7 +175,12 @@ defmodule FootballMarketWeb.WorkspaceComponents do
         <p :if={@card.statistics_status} id="player-valuation-status">
           {valuation_status(@card.statistics_status.valuation)}
         </p>
-        <p :if={@quote}>Última valuación publicada: {timestamp(@quote.effective_at)}.</p>
+        <p :if={performance_quote?(@quote)}>
+          Última cotización de rendimiento publicada: {timestamp(@quote.effective_at)}.
+        </p>
+        <p :if={@quote && !performance_quote?(@quote)}>
+          El valor mostrado corresponde a la emisión inicial; todavía no hay una valuación de rendimiento publicada.
+        </p>
         <p>
           Las estadísticas se actualizan por separado; las cotizaciones se recalculan en el cierre del mercado.
         </p>
@@ -239,7 +255,7 @@ defmodule FootballMarketWeb.WorkspaceComponents do
             name="side"
             value="buy"
             class="trade-action-buy"
-            disabled={@credit_balance_unavailable}
+            disabled={@credit_balance_unavailable || !performance_quote?(@quote)}
           >Comprar tokens</button>
           <button
             type="submit"
@@ -794,6 +810,18 @@ defmodule FootballMarketWeb.WorkspaceComponents do
   def strategy_name("position_aware"), do: "Por posición"
   def strategy_name("initial_issuance"), do: "Emisión inicial"
   def strategy_name(value), do: value
+
+  defp performance_quote?(%{
+         calculation_id: calculation_id,
+         configuration_version_id: configuration_version_id,
+         mapping_id: mapping_id,
+         performance_sequence: sequence
+       }),
+       do:
+         not is_nil(calculation_id) and not is_nil(configuration_version_id) and
+           not is_nil(mapping_id) and is_integer(sequence) and sequence > 0
+
+  defp performance_quote?(_), do: false
 
   defp quote_source(%{rule_id: "initial_issuance"}), do: "Emisión inicial del mercado"
   defp quote_source(_), do: "Rendimiento deportivo registrado"

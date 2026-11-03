@@ -26,6 +26,23 @@ defmodule FootballMarket.Market.ConditionalOrders.EvaluationTest do
            ]).rows == [[Decimal.new("94")]]
   end
 
+  test "initial issuance value cannot execute a conditional purchase", f do
+    assert {:ok, _} = FootballMarket.Market.initialize_player(f.other.id)
+
+    order =
+      ConditionalOrdersCase.order!(f, %{
+        player_id: f.other.id,
+        maximum_unit_price: "2.00"
+      })
+
+    before = ConditionalOrdersCase.snapshot()
+    assert {:ok, pending} = Orders.evaluate(order.id)
+    assert pending.status == "pending"
+    assert pending.execution == nil
+    assert before == ConditionalOrdersCase.snapshot()
+    assert Repo.query!("SELECT count(*) FROM market_purchases").rows == [[0]]
+  end
+
   test "high absent invalid and nonpositive quotes cannot execute; expiry dominates all", f do
     o = ConditionalOrdersCase.order!(f, %{maximum_unit_price: "0.01"})
     before = ConditionalOrdersCase.snapshot()

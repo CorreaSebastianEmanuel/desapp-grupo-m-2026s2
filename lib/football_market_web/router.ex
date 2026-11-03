@@ -47,6 +47,7 @@ defmodule FootballMarketWeb.Router do
       session: {FootballMarketWeb.Plugs.BrowserAuth, :live_session, []},
       on_mount: [{FootballMarketWeb.Live.BrowserAuth, :workspace}] do
       live "/portfolio", WorkspaceLive, :portfolio
+      live "/transactions", WorkspaceLive, :transactions
       live "/ranking", WorkspaceLive, :ranking
       live "/players", WorkspaceLive, :players
       live "/conditional-orders", WorkspaceLive, :conditional_orders

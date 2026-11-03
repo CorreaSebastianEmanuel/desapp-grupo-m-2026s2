@@ -105,6 +105,12 @@ defmodule FootballMarket.E2E.Fixtures do
             {"E2E_PLAYER", f.player.id},
             {"E2E_NAME", f.player.display_name},
             {"E2E_RANKING", Jason.encode!(Enum.map(ranking.entries, & &1.player_id))},
+            {"E2E_FILTERS",
+             Jason.encode!(%{
+               league_id: f.player.team.season.league.id,
+               team_id: f.player.team.id,
+               position_id: f.player.position.id
+             })},
             {"E2E_STRATEGY", f.configuration.strategy_id},
             {"E2E_IPC", dir}
           ],

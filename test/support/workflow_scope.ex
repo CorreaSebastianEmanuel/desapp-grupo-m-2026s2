@@ -27,6 +27,34 @@ defmodule FootballMarket.WorkflowScope do
     end
   end
 
+  def paths("specs/084-complete-api-and-frontend-parity") do
+    [
+      "assets/css/app.css",
+      "backlog/TASK-084-complete-api-and-frontend-parity.md",
+      "config/test_profiles.json",
+      "docs/WORKFLOW_LESSONS.md",
+      "lib/football_market/catalog.ex",
+      "lib/football_market/catalog/player_cursor.ex",
+      "lib/football_market/catalog/query.ex",
+      "lib/football_market_web/components/workspace_components.ex",
+      "lib/football_market_web/live/workspace_live.ex",
+      "lib/football_market_web/router.ex",
+      "specs/084-complete-api-and-frontend-parity/",
+      "test/ci/workflow_scope_test.exs",
+      "test/football_market/catalog/player_cursor_test.exs",
+      "test/football_market/catalog/player_pagination_test.exs",
+      "test/football_market_web/live/catalog_scouting_live_test.exs",
+      "test/football_market_web/live/conditional_orders_live_test.exs",
+      "test/football_market_web/live/portfolio_live_test.exs",
+      "test/football_market_web/live/workspace_navigation_test.exs",
+      "test/e2e/portfolio_analytics_test.exs",
+      "test/support/catalog_filter_case.ex",
+      "test/support/e2e/fixtures.ex",
+      "test/support/workflow_scope.ex",
+      "tools/openapi/e2e_market.mjs"
+    ]
+  end
+
   def paths("specs/083-show-initial-issuer-inventory-separately-from-investor-portfolio") do
     [
       "assets/css/app.css",

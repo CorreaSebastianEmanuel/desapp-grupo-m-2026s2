@@ -1,6 +1,7 @@
 defmodule FootballMarket.Catalog do
   @moduledoc "The persistence boundary for the local football catalog."
 
+  import Ecto.Query
   import Ecto.Changeset
 
   alias FootballMarket.Catalog.{League, Player, PlayerCursor, Position, Query, Season, Team}
@@ -130,6 +131,44 @@ defmodule FootballMarket.Catalog do
          }
        }}
     end
+  end
+
+  def filter_options do
+    leagues =
+      Repo.all(
+        from league in FootballMarket.Catalog.League,
+          order_by: league.name,
+          select: {league.id, league.name}
+      )
+
+    teams =
+      Repo.all(
+        from team in Team,
+          join: season in assoc(team, :season),
+          join: league in assoc(season, :league),
+          order_by: [asc: league.name, asc: team.name],
+          select: {team.id, team.name, league.id, league.name}
+      )
+
+    positions =
+      Repo.all(
+        from position in Position,
+          order_by: position.name,
+          select: {position.id, position.code, position.name}
+      )
+
+    {:ok,
+     %{
+       leagues: Enum.map(leagues, fn {id, name} -> %{id: id, name: name} end),
+       teams:
+         Enum.map(teams, fn {id, name, league_id, league_name} ->
+           %{id: id, name: name, league_id: league_id, league_name: league_name}
+         end),
+       positions:
+         Enum.map(positions, fn {id, code, name} -> %{id: id, code: code, name: name} end)
+     }}
+  rescue
+    _ -> {:error, :temporarily_unavailable}
   end
 
   def search_players(term) when is_binary(term) do

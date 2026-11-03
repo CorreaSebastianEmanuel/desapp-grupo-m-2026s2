@@ -31,6 +31,37 @@ defmodule FootballMarket.Catalog.PlayerCursorTest do
              PlayerCursor.decode(cursor, %{league_id: filters.league_id})
   end
 
+  test "name-search v3 cursors bind the name and every catalog filter" do
+    anchor = %{name: "alice", id: Ecto.UUID.generate()}
+
+    filters = %{
+      search_name: "Ali",
+      league_id: Ecto.UUID.generate(),
+      position_id: Ecto.UUID.generate()
+    }
+
+    cursor = PlayerCursor.encode(anchor, filters)
+
+    assert {:ok, ^anchor} = PlayerCursor.decode(cursor, filters)
+
+    assert {:error, :invalid_cursor} =
+             PlayerCursor.decode(cursor, %{filters | search_name: "Alice"})
+
+    assert {:error, :invalid_cursor} =
+             PlayerCursor.decode(cursor, Map.delete(filters, :position_id))
+
+    assert {:error, :invalid_cursor} =
+             PlayerCursor.decode(cursor, Map.put(filters, :team_id, Ecto.UUID.generate()))
+  end
+
+  test "legacy filtered v2 cursors cannot skip a newly supplied name criterion" do
+    filters = %{team_id: Ecto.UUID.generate()}
+    cursor = PlayerCursor.encode(%{name: "alice", id: Ecto.UUID.generate()}, filters)
+
+    assert {:error, :invalid_cursor} =
+             PlayerCursor.decode(cursor, Map.put(filters, :search_name, "alice"))
+  end
+
   test "rejects malformed v2 payloads and all filter-set mismatches" do
     id = Ecto.UUID.generate()
     team_id = Ecto.UUID.generate()

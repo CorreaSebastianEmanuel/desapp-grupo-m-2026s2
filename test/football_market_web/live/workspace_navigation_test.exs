@@ -11,6 +11,7 @@ defmodule FootballMarketWeb.WorkspaceNavigationTest do
 
     for {path, heading, expectation} <- [
           {"/portfolio", "Portafolio", :empty_portfolio},
+          {"/transactions", "Historial de operaciones", :empty_transactions},
           {"/conditional-orders", "Órdenes condicionales", :page}
         ] do
       conn =
@@ -23,7 +24,8 @@ defmodule FootballMarketWeb.WorkspaceNavigationTest do
       {:ok, view, html} = live(conn, path)
       assert html =~ user.email
       assert has_element?(view, "h1", heading)
-      assert has_element?(view, "a[aria-current=page]", heading)
+      active_label = if path == "/transactions", do: "Operaciones", else: heading
+      assert has_element?(view, "a[aria-current=page]", active_label)
 
       assert length(view |> element("nav") |> render() |> String.split("aria-current=\"page\"")) ==
                2
@@ -36,6 +38,9 @@ defmodule FootballMarketWeb.WorkspaceNavigationTest do
         :empty_portfolio ->
           assert has_element?(view, "#no-positions")
           refute has_element?(view, "#portfolio-positions")
+
+        :empty_transactions ->
+          assert has_element?(view, "#transactions-empty")
       end
 
       refute html =~ "Buy"

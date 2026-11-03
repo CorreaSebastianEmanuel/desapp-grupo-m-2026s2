@@ -3334,6 +3334,13 @@
       "profile": "integration"
     },
     {
+      "id": "55453535f12a43ce034fd114",
+      "runner": "exunit",
+      "file": "test/football_market/catalog/player_cursor_test.exs",
+      "case_id": "FootballMarket.Catalog.PlayerCursorTest:test name-search v3 cursors bind the name and every catalog filter",
+      "profile": "unit"
+    },
+    {
       "id": "5560df37468dbdb1930bfc94",
       "runner": "python",
       "file": "test/scripts/agentflow_providers_test.py",
@@ -3999,6 +4006,13 @@
       "profile": "integration"
     },
     {
+      "id": "66ccf0488fb14d6304598565",
+      "runner": "exunit",
+      "file": "test/e2e/portfolio_analytics_test.exs",
+      "case_id": "FootballMarket.E2E.PortfolioAnalyticsTest:test portfolio tables preserve exact empty open closed and incomplete financial projections",
+      "profile": "e2e"
+    },
+    {
       "id": "6782124ab4af5c75b9087510",
       "runner": "exunit",
       "file": "test/football_market/ranking/snapshot_test.exs",
@@ -4248,6 +4262,13 @@
       "runner": "exunit",
       "file": "test/football_market/valuation/position_aware/outcomes_test.exs",
       "case_id": "FootballMarket.Valuation.PositionAware.OutcomesTest:test empty, unknown, malformed week and unmapped historical role remain distinct",
+      "profile": "integration"
+    },
+    {
+      "id": "6e8216e76f6834ddb9fbe6c4",
+      "runner": "exunit",
+      "file": "test/football_market_web/live/portfolio_live_test.exs",
+      "case_id": "FootballMarketWeb.PortfolioLiveTest:test authenticated transaction history displays purchase details and paginates",
       "profile": "integration"
     },
     {
@@ -4585,6 +4606,13 @@
       "file": "test/scripts/agentflow_completion_test.py",
       "case_id": "test.scripts.agentflow_completion_test.AgentflowCompletionTest.test_explicit_complete_both_reports_required",
       "profile": "unit"
+    },
+    {
+      "id": "79afde948d45a54835f3d7ed",
+      "runner": "exunit",
+      "file": "test/football_market_web/live/catalog_scouting_live_test.exs",
+      "case_id": "FootballMarketWeb.CatalogScoutingLiveTest:test catalog browsing combines name and labeled filters and retains page state through detail navigation",
+      "profile": "integration"
     },
     {
       "id": "79b140f482f92168ba55ebc9",
@@ -5355,6 +5383,13 @@
       "file": "test/scripts/profile_safe_diagnostics_test.py",
       "case_id": "test.scripts.profile_safe_diagnostics_test.SafeProfileDiagnosticsTest.test_rejects_evidence_outside_protected_directory",
       "profile": "unit"
+    },
+    {
+      "id": "8c6c74d2a8b48019a99d010d",
+      "runner": "exunit",
+      "file": "test/football_market/catalog/player_pagination_test.exs",
+      "case_id": "FootballMarket.Catalog.PlayerPaginationTest:test name search composes with catalog filters and paginates beyond ten matches",
+      "profile": "integration"
     },
     {
       "id": "8ce0cec81fc79cf41fb1b7d4",
@@ -9130,6 +9165,13 @@
       "profile": "integration"
     },
     {
+      "id": "eade2edfea793423a4c806ca",
+      "runner": "exunit",
+      "file": "test/football_market/catalog/player_cursor_test.exs",
+      "case_id": "FootballMarket.Catalog.PlayerCursorTest:test legacy filtered v2 cursors cannot skip a newly supplied name criterion",
+      "profile": "unit"
+    },
+    {
       "id": "eb0b2d456aeb5f78e894dac4",
       "runner": "python",
       "file": "test/scripts/application_coverage_test.py",
@@ -9372,6 +9414,13 @@
       "runner": "exunit",
       "file": "test/football_market/catalog/development_seed_test.exs",
       "case_id": "FootballMarket.Catalog.DevelopmentSeedTest:test repeat and partial convergence a matching partial hierarchy is reused and only missing descendants are created",
+      "profile": "integration"
+    },
+    {
+      "id": "f1675da3855487eaa03f1ba4",
+      "runner": "exunit",
+      "file": "test/football_market_web/live/portfolio_live_test.exs",
+      "case_id": "FootballMarketWeb.PortfolioLiveTest:test player details expose recorded statistics provenance and the exact selected dated quote",
       "profile": "integration"
     },
     {

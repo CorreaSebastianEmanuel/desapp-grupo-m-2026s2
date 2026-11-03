@@ -2,7 +2,16 @@ defmodule FootballMarket.Synchronization.Input do
   @moduledoc "Closed source resolution and versioned, non-secret canonical identity."
   alias FootballMarket.Providers.{Request, Provenance}
   alias FootballMarket.Synchronization.Policy
-  @test Mix.env() == :test
+
+  @allowed_providers [FootballMarket.Providers.Scraping, FootballMarket.Providers.FootballDataOrg] ++
+                       if(Mix.env() == :test,
+                         do: [
+                           FootballMarket.IngestionFixtureAdapter,
+                           FootballMarket.IngestionReplacementAdapter,
+                           FootballMarket.Synchronization.ScriptAdapter
+                         ],
+                         else: []
+                       )
 
   def normalize(scope, options), do: normalize(:catalog, scope, options)
 
@@ -76,20 +85,10 @@ defmodule FootballMarket.Synchronization.Input do
 
     case Map.fetch(sources, ref) do
       {:ok, %{provider: {module, _}} = source} ->
-        allowed =
-          [FootballMarket.Providers.Scraping] ++
-            if(@test,
-              do: [
-                FootballMarket.IngestionFixtureAdapter,
-                FootballMarket.IngestionReplacementAdapter,
-                FootballMarket.Synchronization.ScriptAdapter
-              ],
-              else: []
-            )
-
-        if module in allowed and valid_source_runtime?(source),
-          do: {:ok, source},
-          else: {:error, :source_ref}
+        if module in @allowed_providers and valid_source_runtime?(source) and
+             valid_provider_source?(source),
+           do: {:ok, source},
+           else: {:error, :source_ref}
 
       _ ->
         {:error, :source_ref}
@@ -111,19 +110,43 @@ defmodule FootballMarket.Synchronization.Input do
     end
   end
 
+  defp valid_provider_source?(%{provider: {FootballMarket.Providers.FootballDataOrg, state}}),
+    do: FootballMarket.Providers.FootballDataOrg.valid_token?(state[:token])
+
+  defp valid_provider_source?(_), do: true
+
   def source_identity(source) do
-    with path when is_binary(path) <- source[:fixture_path],
-         {:ok, bytes} <- File.read(path) do
-      {:ok,
-       %{
-         "artifact_digest" => digest(bytes),
-         "configuration_digest" =>
-           digest(
-             :erlang.term_to_binary(Map.take(source, [:provider, :runtime]), [:deterministic])
-           )
-       }}
-    else
-      _ -> {:error, :fixture_ref}
+    case source[:fixture_path] do
+      path when is_binary(path) ->
+        case File.read(path) do
+          {:ok, bytes} ->
+            {:ok,
+             %{
+               "artifact_digest" => digest(bytes),
+               "configuration_digest" =>
+                 digest(
+                   :erlang.term_to_binary(Map.take(source, [:provider, :runtime]), [
+                     :deterministic
+                   ])
+                 )
+             }}
+
+          _ ->
+            {:error, :fixture_ref}
+        end
+
+      nil ->
+        case {source[:provider], source[:identity]} do
+          {{module, _}, identity} when is_atom(module) and is_map(identity) ->
+            {:ok,
+             %{
+               "configuration_digest" =>
+                 digest(:erlang.term_to_binary({module, identity}, [:deterministic]))
+             }}
+
+          _ ->
+            {:error, :fixture_ref}
+        end
     end
   end
 

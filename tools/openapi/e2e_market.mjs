@@ -138,6 +138,9 @@ try {
   await page.waitForSelector('.phx-connected #portfolio-history-range');
   assert.equal(await page.locator('#portfolio-allocation-table').count(), 1);
   assert.equal(await page.locator('#portfolio-history-table').count(), 1);
+  assert.equal(await page.locator('#portfolio-history-table').isVisible(), false);
+  await page.locator('#portfolio-history-details > summary').click();
+  assert.equal(await page.locator('#portfolio-history-table').isVisible(), true);
   assert.match(await page.locator('#portfolio-allocation-table thead').innerText(), /Costo base.*Valor de mercado.*Peso/s);
   assert.match(await page.locator('#portfolio-history-table thead').innerText(), /Compras.*Ventas.*Realizada.*No realizada.*Jugadores sin cotización/s);
   phase = 'responsive-viewports';

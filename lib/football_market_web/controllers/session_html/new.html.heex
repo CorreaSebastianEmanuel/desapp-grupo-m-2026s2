@@ -1,6 +1,6 @@
 <div class="auth-page">
   <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">FM</span> Football Market</a>
-  <main class="workspace-form">
+  <main class="workspace-form" id="auth-main">
     <p class="eyebrow">TU ESPACIO DE TRABAJO</p>
     <h1>Iniciar sesión</h1>
     <p class="muted">Accedé a tu portafolio y administrá tus órdenes condicionales.</p>
@@ -13,6 +13,7 @@
         id="email"
         name="email"
         type="email"
+        placeholder="vos@ejemplo.com"
         autocomplete="username"
         value={@email}
         aria-invalid={to_string(@invalid)}

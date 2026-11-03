@@ -1412,6 +1412,12 @@
       "reason": "Maintained first-party application implementation source: lib/football_market_web/gettext.ex."
     },
     {
+      "path": "lib/football_market_web/live/administration_live.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Authenticated administrator selection implementation."
+    },
+    {
       "path": "lib/football_market_web/live/browser_auth.ex",
       "role": "application",
       "disposition": "include",
@@ -3600,6 +3606,12 @@
       "role": "test",
       "disposition": "exclude",
       "reason": "Focused Task-031 controller acceptance test."
+    },
+    {
+      "path": "test/football_market_web/live/administration_live_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Behavioral regression tests for administrator permissions and activation."
     },
     {
       "path": "test/football_market_web/live/browser_session_lifecycle_test.exs",

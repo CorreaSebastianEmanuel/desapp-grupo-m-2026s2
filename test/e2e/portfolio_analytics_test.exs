@@ -100,7 +100,7 @@ defmodule FootballMarket.E2E.PortfolioAnalyticsTest do
                  ["2", "1", "2", "2", "0", "0", "100%"]
 
         {:ok, quote} = FootballMarket.Quotes.latest(f.player.id)
-        assert html_has?(opened, "#portfolio-allocation-table", quote.id)
+        refute html_has?(opened, "#portfolio-allocation-table", quote.id)
         assert html_has?(opened, "#portfolio-allocation-table", f.player.display_name)
 
         {:ok, page} = Market.transaction_history(actor, %{page_size: 100, cursor: nil})

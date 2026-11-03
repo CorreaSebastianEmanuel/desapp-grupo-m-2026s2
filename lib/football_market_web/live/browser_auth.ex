@@ -4,11 +4,27 @@ defmodule FootballMarketWeb.Live.BrowserAuth do
   import Phoenix.Component
   alias FootballMarket.Accounts.BrowserSessions
 
+  def on_mount(:administrator, _params, _session, socket) do
+    socket |> assign(:administrator_required, true) |> guard()
+  end
+
   def on_mount(:workspace, _params, session, socket) do
     case initial_result(socket, session) do
       {:ok, actor} -> mount_actor(actor, socket)
       _ -> {:halt, ended(socket)}
     end
+  end
+
+  defp administrator_guard(socket) do
+    actor = %FootballMarket.Accounts.AuthenticatedActor{
+      account_id: socket.assigns.actor.account_id,
+      authentication_method: :browser,
+      credential_id: socket.assigns.actor.session_id
+    }
+
+    if FootballMarket.Accounts.administrator?(actor),
+      do: {:cont, socket},
+      else: {:halt, redirect(socket, to: "/portfolio")}
   end
 
   defp initial_result(socket, session) do
@@ -52,8 +68,15 @@ defmodule FootballMarketWeb.Live.BrowserAuth do
 
   def guard(socket) do
     case BrowserSessions.revalidate(socket.assigns.actor.session_id) do
-      {:ok, actor} -> {:cont, assign(socket, :actor, actor)}
-      _ -> {:halt, ended(socket)}
+      {:ok, actor} ->
+        socket = assign(socket, :actor, actor)
+
+        if socket.assigns[:administrator_required],
+          do: administrator_guard(socket),
+          else: {:cont, socket}
+
+      _ ->
+        {:halt, ended(socket)}
     end
   end
 

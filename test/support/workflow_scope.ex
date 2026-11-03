@@ -27,6 +27,35 @@ defmodule FootballMarket.WorkflowScope do
     end
   end
 
+  def paths("specs/086-administrator-issuer-and-readable-investor-frontend") do
+    [
+      "assets/css/app.css",
+      "backlog/TASK-086-administrator-issuer-and-readable-investor-frontend.md",
+      "config/application_coverage_inventory.json",
+      "config/credo_inventory.json",
+      "config/test_profiles.json",
+      "lib/football_market/accounts.ex",
+      "lib/football_market/valuation/configurations.ex",
+      "lib/football_market_web/components/workspace_components.ex",
+      "lib/football_market_web/live/administration_live.ex",
+      "lib/football_market_web/live/browser_auth.ex",
+      "lib/football_market_web/live/workspace_live.ex",
+      "lib/football_market_web/plugs/browser_auth.ex",
+      "lib/football_market_web/router.ex",
+      "scripts/dialyzer_exceptions.json",
+      "specs/086-administrator-issuer-and-readable-investor-frontend/",
+      "test/e2e/portfolio_analytics_test.exs",
+      "test/football_market_web/live/administration_live_test.exs",
+      "test/football_market_web/live/conditional_orders_live_test.exs",
+      "test/football_market_web/live/local_admin_live_test.exs",
+      "test/football_market_web/live/portfolio_live_test.exs",
+      "test/support/e2e/fixtures.ex",
+      "test/support/workflow_scope.ex",
+      "tools/openapi/e2e_market.mjs",
+      "tools/openapi/e2e_market_reconnect.mjs"
+    ]
+  end
+
   def paths("specs/084-complete-api-and-frontend-parity") do
     [
       "assets/css/app.css",

@@ -28,6 +28,7 @@ defmodule FootballMarketWeb.WorkspaceLive do
 
     {:ok,
      assign(socket,
+       profiles: %{},
        card: nil,
        card_error: nil,
        quote: nil,
@@ -99,7 +100,22 @@ defmodule FootballMarketWeb.WorkspaceLive do
       |> reload_credit_balance()
       |> reload_initial_recipient()
 
-    {:noreply, load_destination(socket, destination, params)}
+    {:noreply, socket |> load_destination(destination, params) |> load_profiles()}
+  end
+
+  defp load_profiles(socket) do
+    a = socket.assigns
+
+    ids =
+      case a.destination do
+        "/players" -> if a.card, do: [a.card.player.id], else: Enum.map(a.player_results, & &1.id)
+        "/ranking" -> if a.ranking, do: Enum.map(a.ranking.entries, & &1.player_id), else: []
+        "/transactions" -> Enum.map(a.transactions, & &1.player_id)
+        "/conditional-orders" -> Enum.map(a.orders, & &1.player_id)
+        _ -> Enum.map(a.positions ++ a.issuer_inventory, & &1.player_id)
+      end
+
+    assign(socket, :profiles, Catalog.Profiles.get_many(ids))
   end
 
   defp load_destination(socket, "/conditional-orders", params),
@@ -701,9 +717,17 @@ defmodule FootballMarketWeb.WorkspaceLive do
               <ul id="order-list">
                 <li :for={order <- @orders} id={"conditional-order-#{order.id}"}>
                   <article>
-                    <h3>Compra de {order.player_name}</h3>
+                    <div class="order-card-heading">
+                      <.link navigate={~p"/players?player_id=#{order.player_id}"}><.player_identity
+                        id={"order-face-#{order.id}"}
+                        name={order.player_name}
+                        profile={Map.get(@profiles, order.player_id)}
+                        subtitle="Orden de compra"
+                      /></.link><span class={"status-badge status-#{order.status}"}>{order_status(
+                        order.status
+                      )}</span>
+                    </div>
                     <dl>
-                      <dt>Identificador de orden</dt><dd><code>{order.id}</code></dd>
                       <dt>Cantidad</dt><dd>{order.quantity}</dd>
                       <dt>Precio máximo por token</dt><dd>{money(order.maximum_unit_price)}</dd>
                       <dt>Creada</dt><dd>{timestamp(order.created_at)}</dd>
@@ -715,8 +739,12 @@ defmodule FootballMarketWeb.WorkspaceLive do
                       <dt>Vencimiento alcanzado</dt><dd>
                         {if order.expiry_reached, do: "Sí", else: "No"}
                       </dd>
-                      <dt>Jugador</dt><dd><code>{order.player_id}</code></dd>
                     </dl>
+                    <details class="order-reference">
+                      <summary>Referencia de la orden</summary><p>
+                        Identificador de orden: <code>{order.id}</code>
+                      </p><p>Jugador: <code>{order.player_id}</code></p>
+                    </details>
                     <p :if={order.expiry_reached} class="expiry-reached">
                       Venció el plazo. El estado se actualizará cuando se procese la evaluación.
                     </p>
@@ -745,6 +773,7 @@ defmodule FootballMarketWeb.WorkspaceLive do
                       type="button"
                       phx-click="cancel_order"
                       phx-value-id={order.id}
+                      phx-disable-with="Cancelando…"
                     >Cancelar orden</button>
                   </article>
                 </li>
@@ -791,9 +820,18 @@ defmodule FootballMarketWeb.WorkspaceLive do
               </thead>
               <tbody>
                 <tr :for={transaction <- @transactions} id={"transaction-#{transaction.id}"}>
-                  <td>{if transaction.type == "purchase", do: "Compra", else: "Venta"}</td>
                   <td>
-                    <a href={~p"/players?player_id=#{transaction.player_id}"}>{transaction.player_name}</a>
+                    <span class={"status-badge status-#{transaction.type}"}>{if transaction.type ==
+                                                                                  "purchase",
+                                                                                do: "Compra",
+                                                                                else: "Venta"}</span>
+                  </td>
+                  <td>
+                    <.link navigate={~p"/players?player_id=#{transaction.player_id}"}><.player_identity
+                      id={"activity-#{transaction.id}"}
+                      name={transaction.player_name}
+                      profile={Map.get(@profiles, transaction.player_id)}
+                    /></.link>
                   </td>
                   <td>{transaction.quantity}</td><td>{exact_money(transaction.unit_price)}</td><td>
                     {exact_money(transaction.total)}
@@ -827,6 +865,7 @@ defmodule FootballMarketWeb.WorkspaceLive do
             <.player_card
               card={@card}
               quote={@quote}
+              profile={@card && Map.get(@profiles, @card.player.id)}
               error={@card_error}
               request_key={@trade_key}
               search_query={@catalog_state_query}
@@ -998,9 +1037,20 @@ defmodule FootballMarketWeb.WorkspaceLive do
                 <tbody>
                   <tr :for={player <- @player_results}>
                     <th scope="row">
-                      <strong>{player.display_name}</strong><span>{position_name(player.position.code)}</span>
+                      <.player_identity
+                        id={"catalog-#{player.id}"}
+                        name={player.display_name}
+                        profile={Map.get(@profiles, player.id)}
+                        subtitle={position_name(player.position.code)}
+                      />
                     </th>
-                    <td>{player.team.name}</td>
+                    <td>
+                      <.club_identity
+                        id={"catalog-club-#{player.id}"}
+                        name={player.team.name}
+                        profile={Map.get(@profiles, player.id)}
+                      />
+                    </td>
                     <td>{player.team.season.league.name}</td>
                     <td>
                       <a href={"/players?player_id=#{player.id}" <> if(@catalog_state_query == "", do: "", else: "&" <> @catalog_state_query)}>Ver ficha y operar</a>
@@ -1016,7 +1066,12 @@ defmodule FootballMarketWeb.WorkspaceLive do
             >Siguiente página</a>
           </section>
         <% else %>
-          <.ranking_view :if={@destination == "/ranking"} ranking={@ranking} error={@ranking_error} />
+          <.ranking_view
+            :if={@destination == "/ranking"}
+            ranking={@ranking}
+            error={@ranking_error}
+            profiles={@profiles}
+          />
           <section :if={@destination == "/portfolio"} id="portfolio">
             <p class="eyebrow">ESPACIO DE TRABAJO / PORTAFOLIO</p>
             <h1>Portafolio</h1>
@@ -1033,6 +1088,21 @@ defmodule FootballMarketWeb.WorkspaceLive do
               end)
               |> exact_money()} créditos</strong>
               <span>Según la cotización actual; el saldo disponible se muestra arriba.</span>
+              <dl :if={@allocation} class="portfolio-highlight-metrics">
+                <div>
+                  <dt>Ganancia/pérdida realizada</dt><dd class={
+                    profit_class(@allocation.totals.realized_profit_loss)
+                  }>
+                    {money(@allocation.totals.realized_profit_loss)}
+                  </dd>
+                </div><div>
+                  <dt>Ganancia/pérdida no realizada</dt><dd class={
+                    profit_class(@allocation.totals.unrealized_profit_loss)
+                  }>
+                    {money(@allocation.totals.unrealized_profit_loss)}
+                  </dd>
+                </div>
+              </dl>
             </section>
             <p :if={@portfolio_unavailable} id="portfolio-unavailable" role="alert">
               Los datos del portafolio no están disponibles temporalmente. Probá de nuevo en unos instantes.
@@ -1069,19 +1139,28 @@ defmodule FootballMarketWeb.WorkspaceLive do
                 <tbody>
                   <tr :for={position <- @positions} id={"portfolio-position-#{position.player_id}"}>
                     <th scope="row">
-                      <a href={~p"/players?player_id=#{position.player_id}"}>{position.player_name}</a>
+                      <.link navigate={~p"/players?player_id=#{position.player_id}"}><.player_identity
+                        id={"holding-#{position.player_id}"}
+                        name={position.player_name}
+                        profile={Map.get(@profiles, position.player_id)}
+                      /></.link>
                     </th>
                     <td>{position.quantity}</td>
                     <td>{exact_money(position.average_unit_cost)}</td>
                     <td>{exact_money(position.current_quote)}</td>
                     <td>{exact_money(position.current_value)}</td>
-                    <td>{exact_money(position.realized_profit_loss)}</td>
-                    <td>{exact_money(position.unrealized_profit_loss)}</td>
+                    <td class={profit_class(position.realized_profit_loss)}>
+                      {exact_money(position.realized_profit_loss)}
+                    </td>
+                    <td class={profit_class(position.unrealized_profit_loss)}>
+                      {exact_money(position.unrealized_profit_loss)}
+                    </td>
                   </tr>
                 </tbody>
               </table>
             </div>
             <section
+              :if={@initial_recipient || @issuer_inventory != [] || @issuer_inventory_unavailable}
               id="initial-issuer-inventory"
               aria-labelledby="initial-issuer-inventory-heading"
             >

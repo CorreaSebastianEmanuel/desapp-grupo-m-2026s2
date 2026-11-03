@@ -214,7 +214,7 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
     {:ok, buyer_view, _} = live(authenticated_conn(buyer), "/portfolio")
     assert has_element?(buyer_view, "#credit-balance", "Créditos disponibles: 97.00")
     assert has_element?(buyer_view, "#portfolio-position-#{player.id}", "3")
-    assert has_element?(buyer_view, "#no-initial-issuer-inventory")
+    refute has_element?(buyer_view, "#initial-issuer-inventory")
     refute has_element?(buyer_view, "#initial-issuer-inventory-#{player.id}")
 
     {:ok, buyer_card, _} = live(authenticated_conn(buyer), "/players?player_id=#{player.id}")
@@ -706,13 +706,14 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
         ranking: %{configuration: configuration, entries: entries}
       )
 
-    assert html =~ "Estrategia activa: Equilibrada"
+    text = html |> LazyHTML.from_fragment() |> LazyHTML.text() |> String.replace(~r/\s+/, " ")
+    assert text =~ "Estrategia activa: Equilibrada"
     assert html =~ "Nombre real 3"
     refute html =~ configuration.id
     refute html =~ "quote-3"
     assert html =~ "2026-11-02 12:00:00 UTC"
     assert html =~ "Referencia de cotización"
-    assert html =~ "<details>"
+    assert html =~ "class=\"ranking-reference\""
     assert [_, first, second] = Regex.run(~r/ranking-player-(3).*ranking-player-(1)/s, html)
     assert {first, second} == {"3", "1"}
 

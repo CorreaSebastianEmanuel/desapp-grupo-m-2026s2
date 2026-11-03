@@ -93,7 +93,7 @@ try {
   await page.reload();
   await page.waitForSelector('.phx-connected #player-card');
   phase = 'conditional-order';
-  await page.locator('#player-card').getByRole('link', {name: 'Crear orden', exact: true}).click();
+  await page.locator('#player-card').getByRole('link', {name: 'Crear orden condicional', exact: true}).click();
   await page.waitForSelector('.phx-connected #conditional-order-form');
   const selectedPlayer = await page.locator('#selected-player').innerText();
   assert.match(selectedPlayer, new RegExp(name));
@@ -111,7 +111,7 @@ try {
   await portfolio.waitForSelector(`#portfolio-position-${player}`);
   assert.equal(await portfolio.locator(`#portfolio-position-${player} td`).first().innerText(), '3');
   await page.waitForFunction(() => document.querySelector('#order-list')?.textContent.includes('Ejecutada'));
-  await page.locator('#order-list details summary').first().click();
+  await page.locator('#order-list').getByText('Detalles de ejecución', {exact: true}).click();
   assert.match(await page.locator('#order-list').innerText(), /Cotización/);
   phase = 'sell-player-navigation';
   await portfolio.locator(`#portfolio-position-${player} a`).click();
@@ -145,7 +145,7 @@ try {
   phase = 'ranking-entries';
   const visibleRanking = await page.locator('#ranking-entries li').evaluateAll(rows => rows.map(row => row.id.replace('ranking-player-', '')));
   assert.deepEqual(visibleRanking, JSON.parse(ranking));
-  assert.equal(await page.locator(`#ranking-player-${player} a`).innerText(), name);
+  assert.equal(await page.locator(`#ranking-player-${player} a strong`).innerText(), name);
   assert(!uuid.test(await page.locator('#ranking-strategy').innerText()));
   assert(!uuid.test(await page.locator('#ranking-entries').innerText()));
   phase = 'transactions-navigation';

@@ -4,6 +4,8 @@
 
 Reviewed the current repair delta in `lib/football_market/catalog/ingestion/publisher.ex`, `lib/football_market/providers/scraping/assessment.ex`, and the affected E2E support. Catalog publication now maps `{:initial_player_issuance_failed, reason}` transaction rollbacks to the expected persistence failure outcome. The E2E catalog workflow establishes the configured primary account before publication, asserts the 100-token issuance, recipient holding, and initial quote, and scopes its immutable-state snapshot to actual immutable rows. Scraping assessment changes the four verified profile metrics from a `MapSet` membership check to list membership; each configured performance metric is still classified against the same four-element set.
 
+Re-reviewed the current worktree delta in catalog scouting, quote import/recovery, synchronization inspection/integrity/recovery/retry tests, and ingestion test support. Those suites now establish the persisted configured recipient before workflows that publish catalog players, assert the new issuance alongside preserved existing financial state, and retain exact snapshot comparisons after replay. The workflow scope includes the affected test modules. No blocking regression was found in these changes.
+
 The previously reported missing-configuration finding remains resolved. I found no new blocking implementation defect in this repair delta.
 
 ## Acceptance evidence
@@ -18,7 +20,7 @@ The previously reported missing-configuration finding remains resolved. I found 
 | Atomic issuance; no league-wide mass issuance | Issuance is invoked inside the catalog/statistics transactions and errors roll them back. Statistics acceptance without player scope skips issuance. New missing-configuration rollback tests assert no accepted catalog/statistics state remains. |
 | Missing, ambiguous, or nonexistent recipient configuration | Missing designation returns an error; ambiguous lists are rejected; `Input.validate/3` rejects malformed identifiers and `Store` rejects nonexistent users. The local admin reports configuration status. |
 | Local-only operator route and eight-hour browser sessions | Router gates `/__local/ops` behind local-admin configuration; session migration and lifecycle tests cover the extended deadline. |
-| Local candidate evidence | Candidate receipt `.agentflow/runs/thinflow/TASK-085/candidate.json` selects the high tier and reports passing CI contracts, harness tests, format, compile, and unit profile. Recomputing `material_digest` over the receipt selection and current selected files yields `f55f77f51c03baa4021cf40921e83e2f5633f1189e94aefe14b9ac343fb255ac`, matching the receipt digest and binding the current repair delta. `git diff --check` passed. |
+| Local candidate evidence | Candidate receipt `.agentflow/runs/thinflow/TASK-085/candidate.json` selects the high tier with no unmapped paths and reports passing CI contracts, harness tests, format, compile, and unit profile. Recomputing `material_digest` over the receipt selection and current selected files yields `19b6d17c9530766eec0f5de8f3977870c51f3fea47e87860e67de55cdf3707ad`, matching the receipt digest and binding the current repair delta. All five evidence files match their recorded SHA-256 hashes; logs show 27 CI contract tests and 382 harness tests passed. `git diff --check` passed. |
 
 ## Findings
 

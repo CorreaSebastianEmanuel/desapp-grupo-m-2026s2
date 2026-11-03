@@ -1,6 +1,13 @@
 defmodule FootballMarket.Synchronization.IntegrityTest do
   use FootballMarket.DataCase, async: false
   @moduletag :integration
+
+  setup do
+    restore = FootballMarket.IngestionFixtures.setup_primary_account!()
+    on_exit(restore)
+    :ok
+  end
+
   alias FootballMarket.Synchronization
   alias FootballMarket.Synchronization.{Fixtures, Run}
 
@@ -176,7 +183,7 @@ defmodule FootballMarket.Synchronization.IntegrityTest do
         })
 
       assert {:ok, %{state: "succeeded"}} = Synchronization.get_run(run.id)
-      assert snapshot() == before
+      assert_existing_financial_state(before, snapshot())
     end
 
     source = %{
@@ -201,7 +208,7 @@ defmodule FootballMarket.Synchronization.IntegrityTest do
           args: %{"run_id" => run.id, "delivery_id" => run.delivery_id}
         })
 
-      assert snapshot() == before
+      assert_existing_financial_state(before, snapshot())
     end
 
     assert {:ok, %{state: "failed", reason: "exhausted"}} =
@@ -440,7 +447,12 @@ defmodule FootballMarket.Synchronization.IntegrityTest do
       )
 
     assert Repo.aggregate(FootballMarket.Catalog.Player, :count) == baseline_player_count + 2
-    assert snapshot() == before_external_state
+    imported_state = snapshot()
+    assert_existing_financial_state(before_external_state, imported_state)
+
+    assert length(imported_state["market_issuances"]) ==
+             length(before_external_state["market_issuances"]) + 2
+
     refute inspect(Synchronization.get_run(initial_run.id)) =~ token
 
     :ok = FootballMarket.Workers.CatalogSync.perform(initial_job)
@@ -472,7 +484,7 @@ defmodule FootballMarket.Synchronization.IntegrityTest do
     assert Repo.get!(FootballMarket.Catalog.Player, player_binding.player_id).display_name ==
              "Updated Catalog Player"
 
-    assert snapshot() == before_external_state
+    assert snapshot() == imported_state
     refute inspect(Synchronization.get_run(update_run.id)) =~ token
 
     player = Repo.get!(FootballMarket.Catalog.Player, player_binding.player_id)
@@ -514,7 +526,7 @@ defmodule FootballMarket.Synchronization.IntegrityTest do
              "Legacy Conflict Player"
 
     assert Repo.aggregate(FootballMarket.Catalog.Player, :count) == baseline_player_count + 3
-    assert snapshot() == before_external_state
+    assert snapshot() == imported_state
 
     assert Enum.map(statistics.players, fn player ->
              persisted = Repo.get!(FootballMarket.Catalog.Player, player.id)
@@ -539,5 +551,16 @@ defmodule FootballMarket.Synchronization.IntegrityTest do
          []
        ).rows}
     end
+  end
+
+  defp assert_existing_financial_state(before, after_state) do
+    market_tables = ~w(market_quotes market_holdings market_issuances)
+
+    for table <- market_tables do
+      preserved = MapSet.new(before[table])
+      assert Enum.all?(preserved, &(&1 in after_state[table]))
+    end
+
+    assert Map.drop(after_state, market_tables) == Map.drop(before, market_tables)
   end
 end

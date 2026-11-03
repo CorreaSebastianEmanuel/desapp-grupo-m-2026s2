@@ -3033,6 +3033,13 @@
       "profile": "integration"
     },
     {
+      "id": "4c22dcdc9c80fb7afa386c3b",
+      "runner": "exunit",
+      "file": "test/football_market/catalog/profiles_test.exs",
+      "case_id": "FootballMarket.Catalog.ProfilesTest:test profiles preserve public context and use only the requested player's provider bindings",
+      "profile": "integration"
+    },
+    {
       "id": "4c41eb9f059fa32115b2d562",
       "runner": "exunit",
       "file": "test/football_market/market/purchases/concurrency_test.exs",
@@ -4032,6 +4039,13 @@
       "file": "test/football_market/valuation/position_aware/outcomes_test.exs",
       "case_id": "FootballMarket.Valuation.PositionAware.OutcomesTest:test US3.6 every group requirement set and shared reference union must exactly match",
       "profile": "integration"
+    },
+    {
+      "id": "6601f9cae41ba4df285f160b",
+      "runner": "node",
+      "file": "tools/openapi/player_media.test.mjs",
+      "case_id": "LiveView patches handle cached images and detach listeners from replaced images",
+      "profile": "unit"
     },
     {
       "id": "6628675e77002c4fab0f1414",
@@ -5161,6 +5175,13 @@
       "profile": "unit"
     },
     {
+      "id": "85e398220714f8ebac822755",
+      "runner": "exunit",
+      "file": "test/football_market/providers/media_test.exs",
+      "case_id": "FootballMarket.Providers.MediaTest:test public image URLs require known providers and numeric source identities",
+      "profile": "unit"
+    },
+    {
       "id": "85eb72a625f579a75cf5f2cf",
       "runner": "exunit",
       "file": "test/football_market_web/api_authentication_test.exs",
@@ -5299,6 +5320,13 @@
       "file": "test/football_market_web/controllers/player_controller_test.exs",
       "case_id": "FootballMarketWeb.PlayerControllerTest:test strict parameters, error precedence, duplicates, and unknowns",
       "profile": "integration"
+    },
+    {
+      "id": "8921e06caab2d75704f72282",
+      "runner": "node",
+      "file": "tools/openapi/player_media.test.mjs",
+      "case_id": "missing and failed images keep the fallback, successful images reveal the photo",
+      "profile": "unit"
     },
     {
       "id": "8946439de0564e50f92b78c3",

@@ -30,7 +30,12 @@ defmodule FootballMarketWeb.WorkspaceNavigationTest do
       active_label = if path == "/transactions", do: "Operaciones", else: heading
       assert has_element?(view, "a[aria-current=page]", active_label)
 
-      assert length(view |> element("nav") |> render() |> String.split("aria-current=\"page\"")) ==
+      assert length(
+               view
+               |> element(~s(nav[aria-label="Espacio de trabajo"]))
+               |> render()
+               |> String.split("aria-current=\"page\"")
+             ) ==
                2
 
       case expectation do

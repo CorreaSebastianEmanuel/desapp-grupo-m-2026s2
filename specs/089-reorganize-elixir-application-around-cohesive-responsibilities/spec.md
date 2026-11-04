@@ -16,6 +16,8 @@ The audit found that `FootballMarket.Statistics.Ingestion.Publisher` combines pe
 
 ## Scope
 
+- Refresh only the existing Sobelow fixture-read exception for Publisher at its new exact line and source hash. The complete suffix beginning with `fixture_artifact!/1` is byte-identical to `origin/main`; the reader uses a fixed repository path and validates the fixture inventory digest. Extend the existing exception regression to check the moved fixture reader source hash, alongside its original control, and refusal on changed identity. Hosted CI found the stale exception; its isolated reconnect E2E passed locally (one test), so no reconnect behavior change is introduced.
+
 - Vendor only `elixir-essentials`, `ecto-essentials`, and `code-quality` with the installer helper and an explicit repository-local destination.
 - Extract FotMob source binding from statistics ingestion publication and portfolio chart/table rendering from the general workspace component module, based on the audited callers and responsibility boundaries.
 - Preserve the existing `WorkspaceLive` and `Quotes` module boundaries for the reasons recorded above.

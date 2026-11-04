@@ -57,9 +57,9 @@ EXCEPTIONS = [
     {
         "type": "Traversal.FileModule: Directory Traversal in `File.read`",
         "file": "lib/football_market/statistics/ingestion/publisher.ex",
-        "line": 477,
+        "line": 356,
         "confidence": "low_confidence",
-        "sha256": "feac8e3a5ae7a178875da144111671c1cb7ded5bfdab0aac0ba4c5bace8a15ea"
+        "sha256": "2a6063cab6ace14ce5ead0fc8f95c210dad6bfc8d61e37e22d9b157d42709bc4"
     },
     {
         "type": "Traversal.FileModule: Directory Traversal in `File.read`",

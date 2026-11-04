@@ -415,20 +415,23 @@ end
                 control.validate_summary(bad)
 
     def test_exception_requires_exact_rule_location_confidence_and_source_bytes(self):
-        exception = control.EXCEPTIONS[0]
-        finding = {k: v for k, v in exception.items() if k != "sha256"}
-        source = (ROOT / exception["file"]).read_bytes()
-        current_sources = {exception["file"]: hashlib.sha256(source).hexdigest()}
-        self.assertEqual(control.classify([finding], current_sources), ([finding], []))
-        changed_sources = {exception["file"]: hashlib.sha256(source + b"\n").hexdigest()}
-        self.assertEqual(control.classify([finding], changed_sources), ([], [finding]))
-        sources = {exception["file"]: exception["sha256"]}
-        self.assertEqual(control.classify([finding], sources), ([finding], []))
-        for key, value in (("line", finding["line"] + 1), ("file", "lib/new.ex"),
-                           ("type", "New.Rule"), ("confidence", "low_confidence")):
-            changed = {**finding, key: value}
-            self.assertEqual(control.classify([changed], sources), ([], [changed]))
-        self.assertEqual(control.classify([finding], {exception["file"]: "changed"}), ([], [finding]))
+        moved_fixture = next(item for item in control.EXCEPTIONS
+                             if item["file"] == "lib/football_market/statistics/ingestion/publisher.ex")
+        for exception in (control.EXCEPTIONS[0], moved_fixture):
+            with self.subTest(file=exception["file"], line=exception["line"]):
+                finding = {k: v for k, v in exception.items() if k != "sha256"}
+                source = (ROOT / exception["file"]).read_bytes()
+                current_sources = {exception["file"]: hashlib.sha256(source).hexdigest()}
+                self.assertEqual(control.classify([finding], current_sources), ([finding], []))
+                changed_sources = {exception["file"]: hashlib.sha256(source + b"\n").hexdigest()}
+                self.assertEqual(control.classify([finding], changed_sources), ([], [finding]))
+                sources = {exception["file"]: exception["sha256"]}
+                self.assertEqual(control.classify([finding], sources), ([finding], []))
+                for key, value in (("line", finding["line"] + 1), ("file", "lib/new.ex"),
+                                   ("type", "New.Rule"), ("confidence", "high_confidence" if finding["confidence"] != "high_confidence" else "low_confidence")):
+                    changed = {**finding, key: value}
+                    self.assertEqual(control.classify([changed], sources), ([], [changed]))
+                self.assertEqual(control.classify([finding], {exception["file"]: "changed"}), ([], [finding]))
 
     def test_workflow_requires_control_and_retains_evidence_in_existing_aggregate(self):
         ruby = '''require "yaml"; require "json";

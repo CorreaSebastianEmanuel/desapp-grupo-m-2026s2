@@ -1,32 +1,23 @@
 # Independent evaluation — TASK-089
 
-Reviewed the compact spec, backlog task, REVIEW.md, repository baseline documents and constitution, complete candidate diff (including staged and untracked files), affected implementation/tests, and the current ThinFlow candidate receipt. No TASK-089 feedback or prior evaluation exists. Implementation was not modified; no other evaluator was invoked. Workflow logs were not consulted.
+## Re-review scope
+
+Reviewed the compact outcome spec, backlog task, REVIEW.md, repository baseline documents and constitution, prior independent evaluation, and the repair delta against HEAD. This re-review covers the four changed files: the Sobelow exception, its regression tests, the explicit workflow scope allowance, and the corresponding spec amendment. The previously accepted implementation extraction and vendoring remain unchanged; their resolved acceptance findings are retained. No skill, other evaluator, or agent session was invoked. Only this evaluation was edited.
 
 ## Acceptance and evidence
 
-| Acceptance | Evidence | Result |
+| Surface | Validated evidence | Result |
 | --- | --- | --- |
-| Vendor only the three selected skills with pinned source, license and attribution | Candidate adds exactly the requested skill directories plus LICENSE and UPSTREAM.md. Independently fetched all seven upstream source files at `f69eb69a7bd66f5d45921f1c220e35b87bf934b4`: six match byte-for-byte; the changeset snippet preserves upstream bytes inside the documented Markdown wrapper. Installed instructions respect existing project boundaries. Historical installer invocation cannot be established from source alone. | PASS |
-| Cohesive binding/rendering modules and colocated tests | `FotMobBinding` receives the existing binding helpers unchanged except trailing whitespace; Publisher preserves short-circuit order and delegates within the same transaction. `PortfolioComponents` contains the removed templates/chart helpers unchanged, with the same timestamp formatter. Tests reside beside their respective ingestion/component areas. | PASS |
-| Retain reviewed WorkspaceLive and Quotes boundaries | Spec records dispositions for all four named hotspots. WorkspaceLive retains state, events and URLs, changing only component references; Quotes is untouched and retains its Mappings, Calculation, Evaluation, Conversion and Store collaborators and transaction/fencing orchestration. | PASS |
-| Preserve existing observable and integrity contracts | Mechanical extraction comparison, repository-wide caller search, identical moved component assertions after module-name substitution, and 15 passing targeted database/LiveView tests. No changes to schemas, money calculations, locks, quote history, provider contracts or retry paths. Existing HTML identifiers and templates are retained. | PASS |
-| Reconcile inventories and documentation without weakening gates | New runtime modules remain included in application coverage and Credo; new test files have explicit profiles. Three database-free render tests move intact from integration to unit. Workflow allowance enumerates concrete paths and tests refuse unrelated files. ThinFlow policy and required commands are unchanged. Launcher repair is explicitly scoped and preserves approval arguments while rejecting incompatible read-only mode. | PASS |
+| Exact Sobelow exception | Publisher's complete suffix beginning at `fixture_artifact!/1` is byte-identical to `origin/main`. `File.read(path)` is at line 356; the full source SHA-256 is `2a6063cab6ace14ce5ead0fc8f95c210dad6bfc8d61e37e22d9b157d42709bc4`, matching the exception. The reader uses a fixed repository path and checks the inventory digest. Rule and confidence remain unchanged. | PASS |
+| Fail-closed regression coverage | Independently ran `python3 -m unittest discover -s test/scripts -p sobelow_ci_test.py`: 12 tests passed. The extended test checks actual source bytes for both the original control and moved reader, and rejects changed source, rule, location, file, or confidence. | PASS |
+| Bounded workflow allowance | Only the two named Sobelow script/test paths were added. Independently ran `MIX_ENV=test mix test test/ci/workflow_scope_test.exs`: 9 tests passed, seed 409787. No ThinFlow policy or quality gate was weakened. | PASS |
+| Current local candidate | Called `thinflow.readiness(..., require_evaluation=False)` successfully. Task, branch, actual diff selection, material digest, ordered successful checks, and linked evidence hashes match the current candidate. | PASS |
 
-## Risk and deterministic evidence
+Current candidate digest: `bb3ac47375367010b903907ed48bdd7cef781bb3d53b321fbef8026afdfcfcf2`.
 
-High risk is appropriate for persistence, financial rendering and launcher changes. Recomputed selection has no unmapped paths and selects `ci-contracts`, `harness-tests`, `format`, `compile`, and `unit-profile`. Called `thinflow.readiness(..., require_evaluation=False)` successfully: branch, task, material digest, policy/selection, ordered checks and every evidence-file SHA-256 match the current candidate. Candidate digest: `bbcdd8afd34c88d8000175ceae6deadf468f161860b9b0b6a2622bf80a65a257`.
+Inspected the candidate's named local evidence: CI contracts report 27 passed; harness tests report 382 tests, OK; format and compile have successful zero-exit receipts and empty output; the unit profile reports 712 expected/discovered/executed/passed, audit count 86, status complete. Selection remains high risk with `ci-contracts`, `harness-tests`, `format`, `compile`, and `unit-profile`, with no unmapped paths. `git diff --check HEAD` passed.
 
-Inspected the linked check evidence: 27 CI contract tests passed; 382 Python harness tests finished OK; unit receipt reports 712 expected/discovered/executed/passed, status complete, audit count 86. Format and compile are naturally silent on success; their receipt records exit zero and hashes of the empty output. Harness discrepancy diagnostics are exercised refusal fixtures within a successful native unittest run, not evidence of a failed candidate profile.
-
-The selected unit profile does not exercise the extracted database binding or the retained LiveView composition. To resolve that uncovered regression surface, independently ran:
-
-```sh
-MIX_ENV=test mix test test/football_market/statistics/ingestion/fotmob_binding_test.exs test/football_market/statistics/ingestion/integrity_test.exs test/football_market_web/live/portfolio_live_test.exs
-```
-
-Result: **15 passed**, seed 831677. No full suite was rerun. `git diff --check HEAD` also passed.
-
-Web rendering remains in Phoenix components, catalog binding remains at the ingestion persistence edge, and transaction ownership remains in Publisher. No new provider calls, SQL interpolation, authorization bypass, credential handling, dependencies or processes were introduced. The launcher retains automatic approval and other configuration arguments; its existing regression case now checks sandbox omission, idempotence and read-only refusal.
+Initial independent targeted runs encountered sandbox-denied Mix TCP locking; rerunning with local socket access produced the passing results above. Expected analyzer refusal diagnostics in the successful Python tests are negative controls.
 
 ## Blocking findings
 
@@ -34,10 +25,10 @@ None.
 
 ## Advisory findings
 
-- **Test characterization:** `test/football_market/statistics/ingestion/fotmob_binding_test.exs:13` says binding occurs “only” for a unique normalized team, but supplies just one matching team. Optional follow-up: assert no binding for zero or multiple normalized matches. Inspection confirms the unchanged implementation already returns nil unless exactly one team matches; this is not an introduced behavioral defect.
+No new advisory findings in the repair delta.
 
 ## Residual risks
 
-Targeted checks do not re-execute every ingestion replay/concurrency branch or browser journey. Static comparison shows the extracted behavior is retained; full hosted verification remains necessary. Installer execution and the historical breadth/order of the builder's audit cannot be independently reconstructed from versioned artifacts. Vendored content, documented hotspot decisions and delivered boundaries are directly reviewable. The exact published PR head must pass `ThinFlow required`, followed by human review and merge; this evaluation does not claim those future gates have run.
+The repair introduces no application behavior change. This re-review does not repeat the previously accepted ingestion and financial-rendering checks or claim a new full browser run. Hosted CI must still validate the exact published PR head through `ThinFlow required`, followed by human review and merge.
 
 Verdict: PASS

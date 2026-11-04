@@ -1262,6 +1262,7 @@ defmodule FootballMarket.WorkflowScope do
       "lib/football_market_web/components/workspace_components.ex",
       "lib/football_market_web/live/workspace_live.ex",
       "scripts/agentflow_codex.py",
+      "scripts/sobelow_ci.py",
       "specs/089-reorganize-elixir-application-around-cohesive-responsibilities/spec.md",
       "test/ci/workflow_scope_test.exs",
       "test/e2e/portfolio_analytics_test.exs",
@@ -1269,6 +1270,7 @@ defmodule FootballMarket.WorkflowScope do
       "test/football_market_web/components/portfolio_components_test.exs",
       "test/football_market_web/live/portfolio_live_test.exs",
       "test/scripts/agentflow_models_test.py",
+      "test/scripts/sobelow_ci_test.py",
       "test/support/workflow_scope.ex"
     ]
   end

@@ -1211,6 +1211,37 @@ defmodule FootballMarket.WorkflowScope do
     ]
   end
 
+  def paths(
+        "specs/088-restore-integration-profile-and-required-ci-after-performance-quote-changes"
+      ) do
+    [
+      ".github/workflows/quality-baseline.yml",
+      "backlog/TASK-088-restore-integration-profile-and-required-ci-after-performance-quote-changes.md",
+      "backlog/feedback/TASK-088.md",
+      "docs/WORKFLOW_LESSONS.md",
+      "specs/088-restore-integration-profile-and-required-ci-after-performance-quote-changes/spec.md",
+      "test/ci/fixtures/quality-baseline.sha256",
+      "test/ci/quality_baseline_contract_test.exs",
+      "test/ci/workflow_scope_test.exs",
+      "test/football_market/market/analytics/store_test.exs",
+      "test/football_market/market/conditional_orders/contention_test.exs",
+      "test/football_market/market/conditional_orders/evaluation_test.exs",
+      "test/football_market/market/conditional_orders/storage_test.exs",
+      "test/football_market/market/order_evaluation/contention_test.exs",
+      "test/football_market/market/order_evaluation/delivery_test.exs",
+      "test/football_market/market/order_evaluation/eligibility_test.exs",
+      "test/football_market/market/order_evaluation/recovery_test.exs",
+      "test/football_market/market/purchases/concurrency_test.exs",
+      "test/football_market/market/sales/quote_order_test.exs",
+      "test/football_market/market/sales/transfer_test.exs",
+      "test/football_market/providers/scope_test.exs",
+      "test/football_market_web/live/conditional_orders_live_test.exs",
+      "test/football_market_web/live/portfolio_live_test.exs",
+      "test/support/workflow_scope.ex",
+      "tools/openapi/workspace_browser.mjs"
+    ]
+  end
+
   def paths(_), do: []
 
   def allows_path?(feature, path) do

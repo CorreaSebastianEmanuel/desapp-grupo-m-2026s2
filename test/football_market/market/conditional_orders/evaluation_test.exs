@@ -21,9 +21,12 @@ defmodule FootballMarket.Market.ConditionalOrders.EvaluationTest do
 
     assert Repo.query!("SELECT count(*) FROM market_purchases").rows == [[2]]
 
-    assert Repo.query!("SELECT amount FROM market_credit_balances WHERE user_id=$1", [
-             Ecto.UUID.dump!(f.buyer.id)
-           ]).rows == [[Decimal.new("94")]]
+    assert [[balance]] =
+             Repo.query!("SELECT amount FROM market_credit_balances WHERE user_id=$1", [
+               Ecto.UUID.dump!(f.buyer.id)
+             ]).rows
+
+    assert Decimal.equal?(balance, "94")
   end
 
   test "initial issuance value cannot execute a conditional purchase", f do

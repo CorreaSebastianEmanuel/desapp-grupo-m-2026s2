@@ -211,6 +211,34 @@ defmodule FootballMarket.WorkflowScopeTest do
       refute WorkflowScope.allows_path?(player_card_feature, path)
     end
 
+    repair_feature =
+      "specs/088-restore-integration-profile-and-required-ci-after-performance-quote-changes"
+
+    repair_paths = WorkflowScope.paths(repair_feature)
+    assert length(repair_paths) == length(Enum.uniq(repair_paths))
+
+    for path <- [
+          ".github/workflows/quality-baseline.yml",
+          "backlog/feedback/TASK-088.md",
+          "docs/WORKFLOW_LESSONS.md",
+          "test/ci/fixtures/quality-baseline.sha256",
+          "test/ci/quality_baseline_contract_test.exs",
+          "test/ci/workflow_scope_test.exs"
+        ] do
+      assert WorkflowScope.allows_path?(repair_feature, path)
+    end
+
+    for path <- [
+          ".github/workflows/sonarcloud.yml",
+          ".github/workflows/unplanned.yml",
+          ".agentflow/thinflow.json",
+          "scripts/application_coverage.py",
+          "config/test_profiles.json",
+          "lib/football_market/market/purchase_transaction.ex"
+        ] do
+      refute WorkflowScope.allows_path?(repair_feature, path)
+    end
+
     parity_feature = "specs/084-complete-api-and-frontend-parity"
     parity_paths = WorkflowScope.paths(parity_feature)
     assert length(parity_paths) == length(Enum.uniq(parity_paths))

@@ -9,6 +9,8 @@ defmodule FootballMarket.Market.OrderEvaluation.RecoveryTest do
   setup do: OrderEvaluationCase.fixture()
 
   test "lost job and >100 members survive continuation loss and fresh BEAM restart", f do
+    baseline = OrderEvaluationCase.jobs()
+
     orders =
       for index <- 1..102 do
         order = OrderEvaluationCase.order!(f, %{maximum_unit_price: "0.01"})
@@ -36,7 +38,7 @@ defmodule FootballMarket.Market.OrderEvaluation.RecoveryTest do
              "SELECT count(*) FROM market_conditional_buy_orders WHERE status='expired'"
            ).rows == [[50]]
 
-    assert length(OrderEvaluationCase.jobs()) == 103
+    assert length(OrderEvaluationCase.jobs() -- baseline) == 103
     Repo.query!("DELETE FROM oban_jobs")
 
     FootballMarket.MarketCase.fresh(f.schema, """

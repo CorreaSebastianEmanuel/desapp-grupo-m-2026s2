@@ -16,9 +16,8 @@ defmodule FootballMarket.Market.Sales.TransferTest do
     assert Decimal.equal?(s.total, Decimal.mult(s.unit_price, 3))
     assert Repo.query!("SELECT sum(quantity) FROM market_holdings").rows == [[100]]
 
-    assert Repo.query!("SELECT sum(amount) FROM market_credit_balances").rows == [
-             [Decimal.new("10")]
-           ]
+    assert [[total_credits]] = Repo.query!("SELECT sum(amount) FROM market_credit_balances").rows
+    assert Decimal.equal?(total_credits, "10")
 
     assert Repo.query!("SELECT count(*) FROM market_credit_entries").rows == [[2]]
     assert Repo.query!("SELECT count(*) FROM market_token_transfers").rows == [[1]]

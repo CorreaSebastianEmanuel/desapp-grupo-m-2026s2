@@ -564,7 +564,7 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
              "3.00 créditos",
              Calendar.strftime(purchase.completed_at, "%Y-%m-%d %H:%M:%S UTC"),
              Calendar.strftime(purchase.quote_effective_at, "%Y-%m-%d %H:%M:%S UTC"),
-             "Emisión inicial · versión #{purchase.rule_version}"
+             "Equilibrada · versión #{purchase.rule_version}"
            ]
 
     assert has_element?(view, "#credit-balance", "Créditos disponibles: 97.00")

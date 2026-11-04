@@ -22,6 +22,7 @@ defmodule FootballMarket.Market.ConditionalOrders.ContentionTest do
 
   test "different player locks still serialize a shared buyer balance", f do
     {:ok, _} = Market.initialize_player(f.other.id)
+    PurchasesCase.performance_quote!(f.other)
     PurchasesCase.fund(f.buyer, "5")
     first = ConditionalOrdersCase.order!(f)
     second = ConditionalOrdersCase.order!(f, %{player_id: f.other.id})

@@ -1215,8 +1215,14 @@ defmodule FootballMarket.WorkflowScope do
         "specs/088-restore-integration-profile-and-required-ci-after-performance-quote-changes"
       ) do
     [
+      ".github/workflows/quality-baseline.yml",
       "backlog/TASK-088-restore-integration-profile-and-required-ci-after-performance-quote-changes.md",
+      "backlog/feedback/TASK-088.md",
+      "docs/WORKFLOW_LESSONS.md",
       "specs/088-restore-integration-profile-and-required-ci-after-performance-quote-changes/spec.md",
+      "test/ci/fixtures/quality-baseline.sha256",
+      "test/ci/quality_baseline_contract_test.exs",
+      "test/ci/workflow_scope_test.exs",
       "test/football_market/market/analytics/store_test.exs",
       "test/football_market/market/conditional_orders/contention_test.exs",
       "test/football_market/market/conditional_orders/evaluation_test.exs",

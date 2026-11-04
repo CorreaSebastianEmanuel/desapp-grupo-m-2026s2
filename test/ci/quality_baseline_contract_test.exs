@@ -71,6 +71,8 @@ defmodule FootballMarket.QualityBaselineContractTest do
            ]
 
     assert document["jobs"]["quality-baseline"]["runs-on"] == "ubuntu-24.04"
+    assert document["jobs"]["quality-baseline"]["timeout-minutes"] == 60
+    assert document["jobs"]["end-to-end"]["timeout-minutes"] == 10
     assert document["jobs"]["sonarcloud"]["uses"] == "./.github/workflows/sonarcloud.yml"
 
     assert Enum.sort(document["jobs"]["thinflow-required"]["needs"]) == [

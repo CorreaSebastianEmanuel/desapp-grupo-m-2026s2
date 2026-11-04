@@ -1,6 +1,7 @@
 defmodule FootballMarketWeb.WorkspaceLive do
   use FootballMarketWeb, :live_view
   import FootballMarketWeb.WorkspaceComponents
+  alias FootballMarketWeb.PortfolioComponents
 
   alias FootballMarket.Accounts.AuthenticatedActor
 
@@ -1265,7 +1266,7 @@ defmodule FootballMarketWeb.WorkspaceLive do
               hidden={@portfolio_tab != "performance"}
               aria-labelledby="portfolio-tab-performance"
             >
-              <.portfolio_charts
+              <PortfolioComponents.portfolio_charts
                 allocation={@allocation}
                 allocation_unavailable={@allocation_unavailable}
                 history={@portfolio_history}
@@ -1281,7 +1282,10 @@ defmodule FootballMarketWeb.WorkspaceLive do
               <p class="section-description">
                 Costos, resultados y valores diarios del período seleccionado.
               </p>
-              <.portfolio_tables allocation={@allocation} portfolio_history={@portfolio_history} />
+              <PortfolioComponents.portfolio_tables
+                allocation={@allocation}
+                portfolio_history={@portfolio_history}
+              />
             </div>
           </section>
         <% end %>

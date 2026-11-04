@@ -190,6 +190,12 @@ def sandbox_launch_args(args: list[str], mode: str, approval_policy: str | None 
         else:
             clean.append(arg)
             index += 1
+    # Codex's automatic approval flag already selects workspace-write and
+    # conflicts with an explicit --sandbox, even for that same mode.
+    if "--approve-for-me" in clean:
+        if mode != "workspace-write":
+            raise RuntimeError("Unable to resolve sandbox policy")
+        return clean
     return [*clean, "--sandbox", mode]
 
 try:

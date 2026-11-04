@@ -60,6 +60,24 @@ defmodule FootballMarket.WorkflowScopeTest do
     assert WorkflowScope.paths(nil) == []
     assert WorkflowScope.paths("specs/unknown") == []
 
+    organization_feature =
+      "specs/089-reorganize-elixir-application-around-cohesive-responsibilities"
+
+    organization_paths = WorkflowScope.paths(organization_feature)
+    assert length(organization_paths) == length(Enum.uniq(organization_paths))
+
+    for path <- [
+          "lib/football_market/statistics/ingestion/fotmob_binding.ex",
+          "lib/football_market_web/components/portfolio_components.ex",
+          "test/football_market_web/components/portfolio_components_test.exs",
+          "test/support/workflow_scope.ex"
+        ] do
+      assert WorkflowScope.allows_path?(organization_feature, path)
+    end
+
+    refute WorkflowScope.allows_path?(organization_feature, "lib/football_market/market.ex")
+    refute WorkflowScope.allows_path?(organization_feature, "test/support/unplanned.ex")
+
     for feature <- [
           "specs/065-separate-unit-and-end-to-end-test-profiles",
           "specs/065-statistics-ingestion-pipeline",
@@ -369,6 +387,24 @@ defmodule FootballMarket.WorkflowScopeTest do
     end
 
     assert WorkflowScope.paths("specs/unknown") == []
+
+    organization_feature =
+      "specs/089-reorganize-elixir-application-around-cohesive-responsibilities"
+
+    organization_paths = WorkflowScope.paths(organization_feature)
+    assert length(organization_paths) == length(Enum.uniq(organization_paths))
+
+    for path <- [
+          "lib/football_market/statistics/ingestion/fotmob_binding.ex",
+          "lib/football_market_web/components/portfolio_components.ex",
+          "test/football_market_web/components/portfolio_components_test.exs",
+          "test/support/workflow_scope.ex"
+        ] do
+      assert WorkflowScope.allows_path?(organization_feature, path)
+    end
+
+    refute WorkflowScope.allows_path?(organization_feature, "lib/football_market/market.ex")
+    refute WorkflowScope.allows_path?(organization_feature, "test/support/unplanned.ex")
   end
 
   test "Credo inventory enforcement allowance is limited to the implementation plan" do

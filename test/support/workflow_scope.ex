@@ -1242,6 +1242,39 @@ defmodule FootballMarket.WorkflowScope do
     ]
   end
 
+  def paths("specs/089-reorganize-elixir-application-around-cohesive-responsibilities") do
+    [
+      ".agents/skills/LICENSE.elixir-phoenix-skills",
+      ".agents/skills/UPSTREAM.md",
+      ".agents/skills/code-quality/SKILL.md",
+      ".agents/skills/code-quality/assets/refactoring_checklist.md",
+      ".agents/skills/ecto-essentials/SKILL.md",
+      ".agents/skills/ecto-essentials/assets/changeset_snippets.ex.md",
+      ".agents/skills/ecto-essentials/assets/migration_checklist.md",
+      ".agents/skills/elixir-essentials/SKILL.md",
+      "backlog/TASK-089-reorganize-elixir-application-around-cohesive-responsibilities.md",
+      "config/application_coverage_inventory.json",
+      "config/credo_inventory.json",
+      "config/test_profiles.json",
+      "lib/football_market/statistics/ingestion/fotmob_binding.ex",
+      "lib/football_market/statistics/ingestion/publisher.ex",
+      "lib/football_market_web/components/portfolio_components.ex",
+      "lib/football_market_web/components/workspace_components.ex",
+      "lib/football_market_web/live/workspace_live.ex",
+      "scripts/agentflow_codex.py",
+      "scripts/sobelow_ci.py",
+      "specs/089-reorganize-elixir-application-around-cohesive-responsibilities/spec.md",
+      "test/ci/workflow_scope_test.exs",
+      "test/e2e/portfolio_analytics_test.exs",
+      "test/football_market/statistics/ingestion/fotmob_binding_test.exs",
+      "test/football_market_web/components/portfolio_components_test.exs",
+      "test/football_market_web/live/portfolio_live_test.exs",
+      "test/scripts/agentflow_models_test.py",
+      "test/scripts/sobelow_ci_test.py",
+      "test/support/workflow_scope.ex"
+    ]
+  end
+
   def paths(_), do: []
 
   def allows_path?(feature, path) do

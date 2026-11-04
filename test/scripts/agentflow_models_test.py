@@ -229,6 +229,10 @@ class LauncherTest(DeliveryFixture):
         self.assertEqual(full_access[full_access.index('--sandbox') + 1], 'danger-full-access')
         workspace_write = sandbox_launch_args(['exec', '--approve-for-me', '--json'], 'workspace-write', 'never')
         self.assertIn('--approve-for-me', workspace_write)
+        self.assertNotIn('--sandbox', workspace_write)
+        self.assertEqual(sandbox_launch_args(workspace_write, 'workspace-write', 'never'), workspace_write)
+        with self.assertRaisesRegex(RuntimeError, 'sandbox policy'):
+            sandbox_launch_args(['exec', '--approve-for-me'], 'read-only')
         for approval in ('on-request', 'untrusted', None):
             with self.subTest(approval=approval), self.assertRaisesRegex(RuntimeError, 'approval policy'):
                 sandbox_launch_args(['exec', '--approve-for-me'], 'danger-full-access', approval)
@@ -236,6 +240,7 @@ class LauncherTest(DeliveryFixture):
             with self.subTest(preserved_approval=approval):
                 shaped = sandbox_launch_args(['exec', '--approve-for-me'], 'workspace-write', approval)
                 self.assertIn('--approve-for-me', shaped)
+                self.assertNotIn('--sandbox', shaped)
 
     def test_sandbox_cli_and_config_disagreement_refuses(self):
         from scripts.agentflow_codex import resolve_sandbox_mode

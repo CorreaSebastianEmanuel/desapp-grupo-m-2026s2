@@ -4286,6 +4286,13 @@
       "profile": "unit"
     },
     {
+      "id": "6ca370d7331b9451fcc8e8d3",
+      "runner": "exunit",
+      "file": "test/football_market/statistics/ingestion/fotmob_binding_test.exs",
+      "case_id": "FootballMarket.Statistics.Ingestion.FotMobBindingTest:test FotMob team names bind only to the unique normalized local team",
+      "profile": "integration"
+    },
+    {
       "id": "6cd8843f1feefd5b4c5430dc",
       "runner": "exunit",
       "file": "test/football_market_web/controllers/session_controller_test.exs",
@@ -5196,6 +5203,13 @@
       "profile": "integration"
     },
     {
+      "id": "8604378c2fb7bd15e68a1fa7",
+      "runner": "exunit",
+      "file": "test/football_market_web/components/portfolio_components_test.exs",
+      "case_id": "FootballMarketWeb.PortfolioComponentsTest:test portfolio chart marks missing quote data as a gap, not zero",
+      "profile": "unit"
+    },
+    {
       "id": "861c052d977853f0d952135f",
       "runner": "python",
       "file": "test/scripts/agentflow_completion_test.py",
@@ -5327,6 +5341,13 @@
       "file": "test/football_market_web/controllers/player_controller_test.exs",
       "case_id": "FootballMarketWeb.PlayerControllerTest:test strict parameters, error precedence, duplicates, and unknowns",
       "profile": "integration"
+    },
+    {
+      "id": "891045c2425c599365e5f2bb",
+      "runner": "exunit",
+      "file": "test/football_market_web/components/portfolio_components_test.exs",
+      "case_id": "FootballMarketWeb.PortfolioComponentsTest:test portfolio charts render accessible populated values and report unavailable reads",
+      "profile": "unit"
     },
     {
       "id": "8921e06caab2d75704f72282",
@@ -6498,13 +6519,6 @@
       "profile": "integration"
     },
     {
-      "id": "a6c5d99f5efed11c4132d48f",
-      "runner": "exunit",
-      "file": "test/football_market_web/live/portfolio_live_test.exs",
-      "case_id": "FootballMarketWeb.PortfolioLiveTest:test portfolio charts render accessible populated values and report unavailable reads",
-      "profile": "integration"
-    },
-    {
       "id": "a6d0349886415e2b42adb480",
       "runner": "shell",
       "file": "test/scripts/local_services_failure_test.sh",
@@ -6628,6 +6642,13 @@
       "runner": "exunit",
       "file": "test/ci/credo_remediation_contract_test.exs",
       "case_id": "FootballMarket.CredoRemediationContractTest:test contract rejects omitted inputs, hidden exclusions and modified rules",
+      "profile": "unit"
+    },
+    {
+      "id": "a971d7acd2b7841b1b57529e",
+      "runner": "exunit",
+      "file": "test/football_market_web/components/portfolio_components_test.exs",
+      "case_id": "FootballMarketWeb.PortfolioComponentsTest:test portfolio charts offer accessible empty allocation and history states",
       "profile": "unit"
     },
     {
@@ -8276,13 +8297,6 @@
       "profile": "integration"
     },
     {
-      "id": "d2d8c2f3f5a04b9f93cbc3db",
-      "runner": "exunit",
-      "file": "test/football_market_web/live/portfolio_live_test.exs",
-      "case_id": "FootballMarketWeb.PortfolioLiveTest:test portfolio charts offer accessible empty allocation and history states",
-      "profile": "integration"
-    },
-    {
       "id": "d330a00eae23a6f6cc9f4faa",
       "runner": "exunit",
       "file": "test/football_market/ranking/order_test.exs",
@@ -9708,13 +9722,6 @@
       "runner": "exunit",
       "file": "test/football_market/market/analytics/store_test.exs",
       "case_id": "FootballMarket.Market.Analytics.StoreTest:test future quotes are excluded and full sale retains profit after allocation disappears",
-      "profile": "integration"
-    },
-    {
-      "id": "f3e50c7a58dc097299987b00",
-      "runner": "exunit",
-      "file": "test/football_market_web/live/portfolio_live_test.exs",
-      "case_id": "FootballMarketWeb.PortfolioLiveTest:test portfolio chart marks missing quote data as a gap, not zero",
       "profile": "integration"
     },
     {

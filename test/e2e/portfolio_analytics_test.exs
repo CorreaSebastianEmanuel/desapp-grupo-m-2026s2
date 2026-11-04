@@ -121,7 +121,7 @@ defmodule FootballMarket.E2E.PortfolioAnalyticsTest do
 
         incomplete =
           Phoenix.LiveViewTest.render_component(
-            &FootballMarketWeb.WorkspaceComponents.portfolio_tables/1,
+            &FootballMarketWeb.PortfolioComponents.portfolio_tables/1,
             allocation: allocation,
             portfolio_history: history
           )

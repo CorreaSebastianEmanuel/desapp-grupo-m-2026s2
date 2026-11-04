@@ -890,6 +890,12 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/statistics/ingestion/canonical.ex."
     },
     {
+      "path": "lib/football_market/statistics/ingestion/fotmob_binding.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/statistics/ingestion/fotmob_binding.ex."
+    },
+    {
       "path": "lib/football_market/statistics/ingestion/identity.ex",
       "role": "application",
       "disposition": "include",
@@ -1260,6 +1266,12 @@
       "role": "application",
       "disposition": "include",
       "reason": "Maintained first-party application implementation source: lib/football_market_web/components/layouts.ex."
+    },
+    {
+      "path": "lib/football_market_web/components/portfolio_components.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market_web/components/portfolio_components.ex."
     },
     {
       "path": "lib/football_market_web/components/workspace_components.ex",
@@ -3122,6 +3134,12 @@
       "reason": "Test code, not application behavior: test/football_market/statistics/ingestion/fixtures_test.exs."
     },
     {
+      "path": "test/football_market/statistics/ingestion/fotmob_binding_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Test code, not application behavior: test/football_market/statistics/ingestion/fotmob_binding_test.exs."
+    },
+    {
       "path": "test/football_market/statistics/ingestion/integrity_test.exs",
       "role": "test",
       "disposition": "exclude",
@@ -3528,6 +3546,12 @@
       "role": "test",
       "disposition": "exclude",
       "reason": "Test code, not application behavior: test/football_market_web/browser_return_test.exs."
+    },
+    {
+      "path": "test/football_market_web/components/portfolio_components_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Test code, not application behavior: test/football_market_web/components/portfolio_components_test.exs."
     },
     {
       "path": "test/football_market_web/controllers/conditional_order_controller_test.exs",

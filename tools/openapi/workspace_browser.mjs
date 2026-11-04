@@ -123,7 +123,9 @@ try {
     await page.keyboard.press('Enter');
     await page.waitForSelector('.phx-connected #workspace');
     assert((await page.locator('body').innerText()).includes(email));
-    assert.equal(await page.locator('[aria-current=page]').count(), 1);
+    const workspaceNav = page.getByRole('navigation', {name: 'Espacio de trabajo', exact:true});
+    assert.equal(await workspaceNav.locator('[aria-current=page]').count(), 1);
+    assert.equal(await workspaceNav.locator('[aria-current=page]').getAttribute('href'), '/portfolio');
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
     phase = 'stale-authenticated-submission';
     const stale = await page.evaluate(async ([second, password]) => {
@@ -203,8 +205,16 @@ try {
     phase = 'secret-transport';
     const cookies = await ctx.cookies();
     assert(cookies.some(c => c.name === '_football_market_key' && c.httpOnly && c.sameSite === 'Lax'));
+    phase = 'secret-document-cookie';
     assert.equal(await page.evaluate(() => document.cookie), '');
-    assert.equal(await page.evaluate(() => localStorage.length + sessionStorage.length), 0);
+    phase = 'secret-web-storage';
+    // LiveView persists its navigation position after the history journey.
+    // Only that numeric framework value may survive; credentials and all
+    // other application data remain forbidden in either storage area.
+    assert(await page.evaluate(() => localStorage.length === 0 &&
+      Object.entries(sessionStorage).every(([key, value]) =>
+        key === 'phx:nav-history-position' && /^(0|[1-9][0-9]*)$/.test(value))));
+    phase = 'secret-dom-password';
     assert(!(await page.content()).includes(password));
     phase = 'expired-transport-recovery';
     await ctx.setOffline(true);

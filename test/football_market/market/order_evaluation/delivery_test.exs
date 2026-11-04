@@ -8,8 +8,12 @@ defmodule FootballMarket.Market.OrderEvaluation.DeliveryTest do
   setup do: OrderEvaluationCase.fixture()
 
   test "creation atomically records safe durable wake; enqueue failure rolls back", f do
+    baseline = OrderEvaluationCase.jobs()
     order = OrderEvaluationCase.order!(f)
-    assert [%{args: %{"source" => "order", "order_id" => id}}] = OrderEvaluationCase.jobs()
+
+    assert [%{args: %{"source" => "order", "order_id" => id}}] =
+             OrderEvaluationCase.jobs() -- baseline
+
     assert id == order.id
     assert OrderEvaluationCase.status(order) == "pending"
     before = ConditionalOrdersCase.snapshot()

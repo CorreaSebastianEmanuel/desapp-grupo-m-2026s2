@@ -10,6 +10,7 @@ defmodule FootballMarket.Market.Purchases.ConcurrencyTest do
 
   test "different players cannot double spend one buyer balance", f do
     assert {:ok, _} = Market.initialize_player(f.other.id)
+    PurchasesCase.performance_quote!(f.other)
     PurchasesCase.fund(f.buyer, "3")
     other = %{f | player: f.other}
 
@@ -26,9 +27,10 @@ defmodule FootballMarket.Market.Purchases.ConcurrencyTest do
     assert Enum.count(results, &match?({:ok, _}, &1)) == 1
     assert Enum.count(results, &match?({:error, %{kind: :insufficient_funds}}, &1)) == 1
 
-    assert Repo.query!("SELECT min(amount) FROM market_credit_balances").rows == [
-             [Decimal.new(0)]
-           ]
+    assert [[minimum_balance]] =
+             Repo.query!("SELECT min(amount) FROM market_credit_balances").rows
+
+    assert Decimal.equal?(minimum_balance, "0")
 
     assert Repo.query!("SELECT sum(quantity) FROM market_holdings GROUP BY player_id").rows == [
              [100],

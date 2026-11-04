@@ -10,6 +10,7 @@ defmodule FootballMarket.Market.OrderEvaluation.ContentionTest do
 
   test "shared-user cross-player balances cannot overspend under overlapping wakes", f do
     assert {:ok, _} = FootballMarket.Market.initialize_player(f.other.id)
+    PurchasesCase.performance_quote!(f.other)
     PurchasesCase.fund(f.buyer, "3")
     first = OrderEvaluationCase.order!(f)
     second = OrderEvaluationCase.order!(f, %{player_id: f.other.id})

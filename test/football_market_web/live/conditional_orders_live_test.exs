@@ -108,6 +108,7 @@ defmodule FootballMarketWeb.ConditionalOrdersLiveTest do
     assert cancelled.status == "cancelled"
     assert has_element?(view, "#conditional-order-#{order.id}", "Cancelada")
 
+    PurchasesCase.performance_quote!(f.player)
     executed = C.order!(f, %{maximum_unit_price: "999.99"})
     assert {:ok, result} = ConditionalOrders.evaluate(executed.id)
     assert result.status == "executed"

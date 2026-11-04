@@ -18,13 +18,16 @@ defmodule FootballMarket.Market.Sales.QuoteOrderTest do
     PurchasesCase.fund(seller, "100")
     {:ok, _} = Configurations.activate(f.configuration.id, nil)
 
+    performance_quote =
+      QuotesCase.dated_quote(f, DateTime.add(DateTime.utc_now(), -60), "1.00")
+
     # Seed real seller holdings and market credits through the purchase contract.
     seed = Map.put(f, :buyer, seller)
     assert {:ok, _} = PurchasesCase.purchase(seed)
     # Extra market credits so a sale can cover the quote that races commit.
     PurchasesCase.fund(f.user, "10")
 
-    Map.merge(ns, Map.merge(f, %{seller: seller}))
+    Map.merge(ns, Map.merge(f, %{seller: seller, performance_quote: performance_quote}))
   end
 
   test "quote committed first prices the sale exactly at the newly retained quote", f do
@@ -83,7 +86,7 @@ defmodule FootballMarket.Market.Sales.QuoteOrderTest do
 
     assert {:ok, s} = Task.await(sale, 20_000)
     assert {:ok, _} = Task.await(quote, 20_000)
-    assert s.quote_id == f.issuance.initial_quote_id
+    assert s.quote_id == f.performance_quote.id
     assert Decimal.equal?(s.total, "3")
     assert {:ok, latest} = Quotes.latest(f.player.id)
     assert Decimal.equal?(latest.unit_price, "1.25")

@@ -97,6 +97,8 @@ defmodule FootballMarket.Market.ConditionalOrders.StorageTest do
       # Determine preceding version from the migration file list; no data reset.
       f = MarketCase.fixture()
       {:ok, _} = FootballMarket.Market.initialize_player(f.player.id)
+      FootballMarket.OrderEvaluationCase.isolate_oban(schema)
+      PurchasesCase.performance_quote!(f.player)
       PurchasesCase.fund(f.buyer, "10")
 
       {:ok, row} =

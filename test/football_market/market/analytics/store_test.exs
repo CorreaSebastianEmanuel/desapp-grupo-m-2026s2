@@ -72,6 +72,7 @@ defmodule FootballMarket.Market.Analytics.StoreTest do
   end
 
   test "history uses bounded batched SQL independent of the number of points", f do
+    QuotesCase.dated_quote(f, DateTime.add(DateTime.utc_now(), -60), "1")
     assert {:ok, _} = buy(f, "analytics-batch-buy", 1)
     owner = self()
     id = "analytics-query-count-#{Ecto.UUID.generate()}"

@@ -35,10 +35,10 @@ EXCEPTIONS = [
     },
     {
         "type": "DOS.StringToAtom: Unsafe `String.to_atom`",
-        "file": "lib/football_market/quotes.ex",
-        "line": 387,
+        "file": "lib/football_market/quotes/admission.ex",
+        "line": 361,
         "confidence": "low_confidence",
-        "sha256": "19919db18bc88da2525814a3280ea278482292a18f26e0d129a869607ce741e2"
+        "sha256": "e7551b1514505aff3eb443c1e36f6593d19e0a8ca2feb94e78769f051c3fa7be"
     },
     {
         "type": "SQL.Query: SQL injection",
@@ -56,10 +56,10 @@ EXCEPTIONS = [
     },
     {
         "type": "Traversal.FileModule: Directory Traversal in `File.read`",
-        "file": "lib/football_market/statistics/ingestion/publisher.ex",
-        "line": 356,
+        "file": "lib/football_market/statistics/ingestion/observations.ex",
+        "line": 41,
         "confidence": "low_confidence",
-        "sha256": "2a6063cab6ace14ce5ead0fc8f95c210dad6bfc8d61e37e22d9b157d42709bc4"
+        "sha256": "91a9fae41bac6cd23ec4d419f36f647fa3886957392551733b8fcb288f85343d"
     },
     {
         "type": "Traversal.FileModule: Directory Traversal in `File.read`",

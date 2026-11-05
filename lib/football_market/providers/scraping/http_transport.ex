@@ -1,18 +1,18 @@
 defmodule FootballMarket.Providers.Scraping.HttpTransport do
   @moduledoc "Assessed HTTPS document transport with bounded streaming and no retries."
   @behaviour FootballMarket.Providers.Scraping.Transport
-  alias FootballMarket.Providers.Scraping.{Admission, Assessment, FixtureTransport}
+  alias FootballMarket.Providers.Scraping.{Admission, Assessment, Budget}
 
   @max_document_bytes 2_000_000
 
   def acquire(request, context, state) do
     with {:ok, _, _} <- Assessment.admit(request, state),
          {:ok, table} <- admission_table(state) do
-      FixtureTransport.acquire(request, context, Map.put(state, :admission, table))
+      Budget.acquire(request, context, Map.put(state, :admission, table))
     end
   end
 
-  def release(lease, state), do: FixtureTransport.release(lease, state)
+  def release(lease, state), do: Budget.release(lease, state)
 
   def fetch(key, context, state) do
     with :ok <- before_deadline(context),

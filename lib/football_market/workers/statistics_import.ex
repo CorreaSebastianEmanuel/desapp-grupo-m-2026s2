@@ -3,8 +3,8 @@ defmodule FootballMarket.Workers.StatisticsImport do
   use Oban.Worker, queue: :statistics_import, max_attempts: 1
 
   @impl Oban.Worker
-  def perform(job), do: FootballMarket.Workers.CatalogSync.perform(job)
+  def perform(job), do: FootballMarket.Synchronization.Execution.perform(job)
 
   @impl Oban.Worker
-  def timeout(job), do: FootballMarket.Workers.CatalogSync.timeout(job)
+  def timeout(job), do: FootballMarket.Synchronization.Execution.timeout(job)
 end

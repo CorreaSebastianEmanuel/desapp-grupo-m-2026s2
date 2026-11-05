@@ -16,7 +16,18 @@ defmodule FootballMarket.Providers.ScrapingSafetyTest do
       | Path.wildcard("lib/football_market/providers/scraping/*.ex")
     ]
 
-    assert length(files) == 9
+    expected = [
+      "lib/football_market/providers/scraping.ex"
+      | Enum.map(
+          ~w(admission assessment budget disabled_transport document fixture_transport http_transport player_profile source translator transport),
+          &"lib/football_market/providers/scraping/#{&1}.ex"
+        )
+    ]
+
+    assert Enum.sort(files) == Enum.sort(expected)
+
+    refute File.read!("lib/football_market/providers/scraping/http_transport.ex") =~
+             "FixtureTransport"
 
     for file <- files do
       source = File.read!(file)

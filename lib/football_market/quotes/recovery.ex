@@ -47,7 +47,18 @@ defmodule FootballMarket.Quotes.Recovery do
     |> Keyword.get(:oban_name, Oban)
   end
 
-  def pending_evaluations, do: FootballMarket.Quotes.pending_evaluations()
+  def pending_evaluations do
+    now = Store.database_now!()
+
+    {:ok,
+     Repo.all(
+       from e in Evaluation,
+         where: e.state == "pending" or (e.state == "leased" and e.lease_until <= ^now),
+         order_by: [asc: e.inserted_at, asc: e.id]
+     )}
+  rescue
+    _ -> {:error, :temporarily_unavailable}
+  end
 
   def claim_evaluation(event_id, lease_seconds \\ 300)
 

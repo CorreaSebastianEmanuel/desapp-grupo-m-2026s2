@@ -56,12 +56,6 @@
       "reason": "Build or runtime configuration, not application implementation: config/test.exs."
     },
     {
-      "path": "lib/football_market.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market.ex."
-    },
-    {
       "path": "lib/football_market/accounts.ex",
       "role": "application",
       "disposition": "include",
@@ -182,6 +176,12 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/catalog/ingestion/reconciler.ex."
     },
     {
+      "path": "lib/football_market/catalog/ingestion/records.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/catalog/ingestion/records.ex."
+    },
+    {
       "path": "lib/football_market/catalog/ingestion/scope.ex",
       "role": "application",
       "disposition": "include",
@@ -266,6 +266,12 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/infrastructure/configuration.ex."
     },
     {
+      "path": "lib/football_market/infrastructure/local_operations.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/infrastructure/local_operations.ex."
+    },
+    {
       "path": "lib/football_market/infrastructure/provider_rate_limit.ex",
       "role": "application",
       "disposition": "include",
@@ -324,12 +330,6 @@
       "role": "application",
       "disposition": "include",
       "reason": "Conditional buy order application source: lib/football_market/market/conditional_order_input.ex."
-    },
-    {
-      "path": "lib/football_market/market/conditional_order_projection.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Conditional buy order application source: lib/football_market/market/conditional_order_projection.ex."
     },
     {
       "path": "lib/football_market/market/conditional_order_store.ex",
@@ -698,10 +698,22 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/providers/scraping/assessment.ex."
     },
     {
+      "path": "lib/football_market/providers/scraping/budget.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/providers/scraping/budget.ex."
+    },
+    {
       "path": "lib/football_market/providers/scraping/disabled_transport.ex",
       "role": "application",
       "disposition": "include",
       "reason": "Maintained first-party application implementation source: lib/football_market/providers/scraping/disabled_transport.ex."
+    },
+    {
+      "path": "lib/football_market/providers/scraping/document.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/providers/scraping/document.ex."
     },
     {
       "path": "lib/football_market/providers/scraping/fixture_transport.ex",
@@ -714,6 +726,12 @@
       "role": "application",
       "disposition": "include",
       "reason": "Maintained first-party application implementation source: lib/football_market/providers/scraping/http_transport.ex."
+    },
+    {
+      "path": "lib/football_market/providers/scraping/player_profile.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/providers/scraping/player_profile.ex."
     },
     {
       "path": "lib/football_market/providers/scraping/source.ex",
@@ -752,10 +770,22 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/quotes.ex."
     },
     {
+      "path": "lib/football_market/quotes/admission.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/quotes/admission.ex."
+    },
+    {
       "path": "lib/football_market/quotes/calculation.ex",
       "role": "application",
       "disposition": "include",
       "reason": "Maintained first-party application implementation source: lib/football_market/quotes/calculation.ex."
+    },
+    {
+      "path": "lib/football_market/quotes/calculation_request.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/quotes/calculation_request.ex."
     },
     {
       "path": "lib/football_market/quotes/closing.ex",
@@ -770,10 +800,34 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/quotes/conversion.ex."
     },
     {
+      "path": "lib/football_market/quotes/engine.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/quotes/engine.ex."
+    },
+    {
+      "path": "lib/football_market/quotes/evaluation.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/quotes/evaluation.ex."
+    },
+    {
       "path": "lib/football_market/quotes/evidence_codec.ex",
       "role": "application",
       "disposition": "include",
       "reason": "Maintained first-party application implementation source: lib/football_market/quotes/evidence_codec.ex."
+    },
+    {
+      "path": "lib/football_market/quotes/import_requests.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/quotes/import_requests.ex."
+    },
+    {
+      "path": "lib/football_market/quotes/mapping.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/quotes/mapping.ex."
     },
     {
       "path": "lib/football_market/quotes/mappings.ex",
@@ -800,10 +854,16 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/quotes/recovery.ex."
     },
     {
-      "path": "lib/football_market/quotes/schemas.ex",
+      "path": "lib/football_market/quotes/replay.ex",
       "role": "application",
       "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/quotes/schemas.ex."
+      "reason": "Maintained first-party application implementation source: lib/football_market/quotes/replay.ex."
+    },
+    {
+      "path": "lib/football_market/quotes/result.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/quotes/result.ex."
     },
     {
       "path": "lib/football_market/quotes/store.ex",
@@ -890,6 +950,30 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/statistics/ingestion/canonical.ex."
     },
     {
+      "path": "lib/football_market/statistics/ingestion/check.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/statistics/ingestion/check.ex."
+    },
+    {
+      "path": "lib/football_market/statistics/ingestion/fact_observation.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/statistics/ingestion/fact_observation.ex."
+    },
+    {
+      "path": "lib/football_market/statistics/ingestion/fact_provenance.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/statistics/ingestion/fact_provenance.ex."
+    },
+    {
+      "path": "lib/football_market/statistics/ingestion/fixture_artifact.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/statistics/ingestion/fixture_artifact.ex."
+    },
+    {
       "path": "lib/football_market/statistics/ingestion/fotmob_binding.ex",
       "role": "application",
       "disposition": "include",
@@ -902,10 +986,28 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/statistics/ingestion/identity.ex."
     },
     {
+      "path": "lib/football_market/statistics/ingestion/match_binding.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/statistics/ingestion/match_binding.ex."
+    },
+    {
+      "path": "lib/football_market/statistics/ingestion/observations.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/statistics/ingestion/observations.ex."
+    },
+    {
       "path": "lib/football_market/statistics/ingestion/outcome.ex",
       "role": "application",
       "disposition": "include",
       "reason": "Maintained first-party application implementation source: lib/football_market/statistics/ingestion/outcome.ex."
+    },
+    {
+      "path": "lib/football_market/statistics/ingestion/position_basis.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/statistics/ingestion/position_basis.ex."
     },
     {
       "path": "lib/football_market/statistics/ingestion/positions.ex",
@@ -926,10 +1028,10 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/statistics/ingestion/publisher.ex."
     },
     {
-      "path": "lib/football_market/statistics/ingestion/schemas.ex",
+      "path": "lib/football_market/statistics/ingestion/records.ex",
       "role": "application",
       "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/statistics/ingestion/schemas.ex."
+      "reason": "Maintained first-party application implementation source: lib/football_market/statistics/ingestion/records.ex."
     },
     {
       "path": "lib/football_market/statistics/ingestion/scope_check.ex",
@@ -990,6 +1092,12 @@
       "role": "application",
       "disposition": "include",
       "reason": "Maintained first-party application implementation source: lib/football_market/synchronization/dispatcher.ex."
+    },
+    {
+      "path": "lib/football_market/synchronization/execution.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/synchronization/execution.ex."
     },
     {
       "path": "lib/football_market/synchronization/execution_guard.ex",
@@ -1062,6 +1170,12 @@
       "role": "application",
       "disposition": "include",
       "reason": "Maintained first-party application implementation source: lib/football_market/valuation/balanced.ex."
+    },
+    {
+      "path": "lib/football_market/valuation/calculation_request.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/valuation/calculation_request.ex."
     },
     {
       "path": "lib/football_market/valuation/calculation_requests.ex",
@@ -1242,6 +1356,18 @@
       "role": "application",
       "disposition": "include",
       "reason": "Maintained first-party application implementation source: lib/football_market/workers/quote_calculation.ex."
+    },
+    {
+      "path": "lib/football_market/workers/quote_close.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/workers/quote_close.ex."
+    },
+    {
+      "path": "lib/football_market/workers/quote_recovery.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/workers/quote_recovery.ex."
     },
     {
       "path": "lib/football_market/workers/statistics_import.ex",
@@ -1452,6 +1578,66 @@
       "role": "application",
       "disposition": "include",
       "reason": "Local operations admin LiveView implementation."
+    },
+    {
+      "path": "lib/football_market_web/live/local_operations_projection.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market_web/live/local_operations_projection.ex."
+    },
+    {
+      "path": "lib/football_market_web/live/workspace/orders.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market_web/live/workspace/orders.ex."
+    },
+    {
+      "path": "lib/football_market_web/live/workspace/pages.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market_web/live/workspace/pages.ex."
+    },
+    {
+      "path": "lib/football_market_web/live/workspace/players.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market_web/live/workspace/players.ex."
+    },
+    {
+      "path": "lib/football_market_web/live/workspace/portfolio.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market_web/live/workspace/portfolio.ex."
+    },
+    {
+      "path": "lib/football_market_web/live/workspace/presentation.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market_web/live/workspace/presentation.ex."
+    },
+    {
+      "path": "lib/football_market_web/live/workspace/ranking.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market_web/live/workspace/ranking.ex."
+    },
+    {
+      "path": "lib/football_market_web/live/workspace/session.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market_web/live/workspace/session.ex."
+    },
+    {
+      "path": "lib/football_market_web/live/workspace/trading.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market_web/live/workspace/trading.ex."
+    },
+    {
+      "path": "lib/football_market_web/live/workspace/transactions.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market_web/live/workspace/transactions.ex."
     },
     {
       "path": "lib/football_market_web/live/workspace_live.ex",

@@ -416,7 +416,7 @@ end
 
     def test_exception_requires_exact_rule_location_confidence_and_source_bytes(self):
         moved_fixture = next(item for item in control.EXCEPTIONS
-                             if item["file"] == "lib/football_market/statistics/ingestion/publisher.ex")
+                             if item["file"] == "lib/football_market/statistics/ingestion/observations.ex")
         for exception in (control.EXCEPTIONS[0], moved_fixture):
             with self.subTest(file=exception["file"], line=exception["line"]):
                 finding = {k: v for k, v in exception.items() if k != "sha256"}

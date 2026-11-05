@@ -188,7 +188,17 @@ defmodule FootballMarket.Providers.ScrapingAssessmentTest do
     assert {:ok, lease} = Scraping.HttpTransport.acquire(request, context, state)
     task = Task.async(fn -> Scraping.HttpTransport.acquire(request, context, state) end)
     assert {:error, %{category: :rate_limited}} = Task.await(task)
+
+    assert {:error, %{category: :rate_limited}} =
+             Scraping.FixtureTransport.acquire(request, context, state)
+
     Scraping.HttpTransport.release(lease, state)
+    assert {:ok, fixture_lease} = Scraping.FixtureTransport.acquire(request, context, state)
+
+    assert {:error, %{category: :rate_limited}} =
+             Scraping.HttpTransport.acquire(request, context, state)
+
+    Scraping.FixtureTransport.release(fixture_lease, state)
   end
 
   test "live request deadline cancels the HTTP callback before it can publish" do

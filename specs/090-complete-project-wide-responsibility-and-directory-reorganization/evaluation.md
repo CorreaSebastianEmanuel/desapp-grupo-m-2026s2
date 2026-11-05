@@ -40,4 +40,16 @@ None requiring a code change. The stale supplemental Credo evidence was resolved
 
 This is a broad mechanical reorganization. Focused integration checks do not establish exhaustive browser, concurrency or external-provider equivalence. Static/dynamic reference review cannot prove the absence of arbitrary external module consumers. Full hosted quality/integration/E2E requirements still apply to the exact PR head; human merge remains required. This verdict establishes candidate readiness for those gates, not task completion or permission to merge.
 
+## Re-review — valuation inventory repair
+
+Reviewed the repair delta against the compact spec, TASK-090, REVIEW.md and repository guidance. This re-review covers the three changed files since the evaluated implementation commit `833ad3c`; the preceding evaluation records the original implementation review and its evidence. Resolved surfaces were not re-audited.
+
+The repair adds `calculation_request.ex` to the exact valuation source inventory and registers `test/football_market/valuation/scope_test.exs` in TASK-090's workflow scope. Inspected the moved Ecto schema against its former definition in `statistics/ingestion/schemas.ex`: module identity, table, primary key and fields are unchanged. The schema is correctly grouped with existing persistence/configuration inventory entries; all pure-valuation AST, forbidden dependency and immutable-fact assertions remain unchanged. The spec records this repair without adding behavior or weakening a gate.
+
+Fresh independent execution: `MIX_ENV=test MIX_PUBSUB_DISABLED=1 mix test test/football_market/valuation/scope_test.exs test/ci/workflow_scope_test.exs` completed with **12 passed**, seed 864487. The initial sandbox attempt stopped before tests because Mix's TCP filesystem lock was denied; the authorized retry completed successfully.
+
+Validated current candidate evidence through `thinflow.readiness(..., require_evaluation=False)`: ready, high risk, no unmapped paths, all five required checks present with matching evidence hashes. Current material digest is `b1864ebd304971e3dda35e2f4e5f06e240aea9673227532a4e8997b55f564789`, superseding the original digest above. Inspected the named receipt/log evidence: 27 CI contract tests, 382 harness tests, formatter/compiler success, and the complete unit profile with 712 expected/discovered/executed/passed. These are saved candidate results, not newly rerun full profiles.
+
+Blocking findings: none. The repaired candidate is ready for exact-head hosted CI and human merge. Hosted checks and human merge remain outstanding delivery requirements.
+
 Verdict: PASS

@@ -1352,6 +1352,7 @@ defmodule FootballMarket.WorkflowScope do
       "test/football_market/providers/scraping/assessment_test.exs",
       "test/football_market/providers/scraping/safety_test.exs",
       "test/football_market/synchronization/scope_test.exs",
+      "test/football_market/valuation/scope_test.exs",
       "test/football_market_web/live/local_admin_live_test.exs",
       "test/football_market_web/live/workspace_navigation_test.exs",
       "test/scripts/sobelow_ci_test.py",

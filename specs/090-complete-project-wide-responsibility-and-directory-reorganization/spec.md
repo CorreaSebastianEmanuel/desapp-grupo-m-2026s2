@@ -49,6 +49,8 @@ High: financial confirmation and ingestion transactions, provider admission/secu
 
 ## Decisions
 
+- Hosted integration exposed a stale valuation source inventory assertion after relocating the CalculationRequest schema. Include `calculation_request.ex` alongside the existing persistence/configuration inventory entries, retaining all pure-valuation dependency assertions. Register the exact affected scope test path; no application behavior or gate policy changes.
+
 - Use plain stateless modules and function components, not new LiveView processes; session/PubSub remains in the existing LiveView.
 - Transaction participants never begin a replacement transaction or change lock order. Publishers and Engine retain their original atomic boundaries; Store owns reusable locked lease validation.
 - Preserve script, setup, test-profile and browser launch interfaces. Retain cohesive small auth boundaries and related DTO families; module length alone is not a defect.

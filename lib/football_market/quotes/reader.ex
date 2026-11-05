@@ -2,6 +2,7 @@ defmodule FootballMarket.Quotes.Reader do
   @moduledoc "Local immutable quote reads in authoritative player sequence order."
   import Ecto.Query
   alias FootballMarket.{Repo, Catalog.Player, Market.Quote}
+  alias FootballMarket.Quotes.Calculation
 
   def list_history(player_id) do
     with {:ok, id} <- player_identity(player_id) do
@@ -65,5 +66,28 @@ defmodule FootballMarket.Quotes.Reader do
     else
       _ -> {:error, :player_not_found}
     end
+  end
+
+  def get_calculation(id) do
+    with {:ok, id} <- Ecto.UUID.cast(id),
+         %Calculation{} = calculation <- Repo.get(Calculation, id) do
+      {:ok, calculation}
+    else
+      _ -> {:error, :not_found}
+    end
+  rescue
+    _ -> {:error, :temporarily_unavailable}
+  end
+
+  def get_request(id) do
+    with {:ok, id} <- Ecto.UUID.cast(id),
+         %FootballMarket.Quotes.CalculationRequest{} = request <-
+           Repo.get(FootballMarket.Quotes.CalculationRequest, id) do
+      {:ok, request}
+    else
+      _ -> {:error, :not_found}
+    end
+  rescue
+    _ -> {:error, :temporarily_unavailable}
   end
 end

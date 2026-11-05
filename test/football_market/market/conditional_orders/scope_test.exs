@@ -35,7 +35,7 @@ defmodule FootballMarket.Market.ConditionalOrders.ScopeTest do
     web = File.read!("lib/football_market_web/controllers/conditional_order_controller.ex")
     refute web =~ ~r/Repo|Postgrex|Decimal|Ecto.Query/
 
-    for name <- ~w(conditional_order_input conditional_order_projection) do
+    for name <- ~w(conditional_order_input) do
       source = File.read!("lib/football_market/market/#{name}.ex")
       refute source =~ ~r/Repo|Postgrex|DBConnection|Application|System|DateTime\.utc_now/
     end

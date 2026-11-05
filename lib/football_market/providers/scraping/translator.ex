@@ -1,7 +1,7 @@
 defmodule FootballMarket.Providers.Scraping.Translator do
   @moduledoc "Fixed-key source translation, preserving identities and unknown metric semantics."
   alias FootballMarket.Providers.Request
-  alias FootballMarket.Providers.Scraping.Source
+  alias FootballMarket.Providers.Scraping.Document
 
   def base(request, context, row, teams) do
     %{
@@ -57,9 +57,9 @@ defmodule FootballMarket.Providers.Scraping.Translator do
     red_cards: "red_cards"
   }
   def eligible!(match, request) do
-    Source.id!(match["id"])
+    Document.id!(match["id"])
 
-    Source.require!(
+    Document.require!(
       match["status"] in ["completed", "scheduled", "live", "postponed", "abandoned"]
     )
 
@@ -110,25 +110,27 @@ defmodule FootballMarket.Providers.Scraping.Translator do
     player_groups = Enum.group_by(players, & &1.ref)
 
     for {_, declarations} <- player_groups,
-        do: Source.require!(length(Enum.uniq(declarations)) == 1)
+        do: Document.require!(length(Enum.uniq(declarations)) == 1)
 
     players = Enum.uniq(players)
 
     performances =
       for {m, ps} <- details, p <- ps do
         stats =
-          for group <- Source.list!(p["stats"]), stat <- stats_entries!(group["stats"]), do: stat
+          for group <- Document.list!(p["stats"]),
+              stat <- stats_entries!(group["stats"]),
+              do: stat
 
         stats = Enum.filter(stats, &(&1["key"] in ["minutes_played" | Map.values(@metric_keys)]))
         keys = Enum.map(stats, & &1["key"])
-        Source.require!(length(keys) == length(Enum.uniq(keys)))
+        Document.require!(length(keys) == length(Enum.uniq(keys)))
         measured = Map.new(stats, &{&1["key"], &1["stat"]["value"]})
 
         counts =
           Map.new(@metric_keys, &metric_value(&1, measured, row))
 
         %{
-          ref: "performance:" <> Source.id!(m["id"]) <> ":" <> Source.id!(p["id"]),
+          ref: "performance:" <> Document.id!(m["id"]) <> ":" <> Document.id!(p["id"]),
           match_ref: ref(:match, m["id"]),
           player_ref: ref(:player, p["id"]),
           team_ref: ref(:team, p["teamId"]),
@@ -149,7 +151,7 @@ defmodule FootballMarket.Providers.Scraping.Translator do
 
   defp stats_entries!(stats) when is_list(stats), do: stats
   defp stats_entries!(stats) when is_map(stats), do: Map.values(stats)
-  defp stats_entries!(stats), do: Source.list!(stats)
+  defp stats_entries!(stats), do: Document.list!(stats)
 
   defp position_ref(player, row) do
     if is_nil(player["positionId"]), do: nil, else: position!(player["positionId"], row)
@@ -158,7 +160,7 @@ defmodule FootballMarket.Providers.Scraping.Translator do
   def position!(id, row) do
     key = if is_integer(id), do: Integer.to_string(id), else: id
     position = row.positions[key]
-    Source.require!(is_binary(position))
+    Document.require!(is_binary(position))
     position
   end
 
@@ -173,7 +175,7 @@ defmodule FootballMarket.Providers.Scraping.Translator do
     end
   end
 
-  def ref(kind, id), do: Atom.to_string(kind) <> ":" <> Source.id!(id)
+  def ref(kind, id), do: Atom.to_string(kind) <> ":" <> Document.id!(id)
 
   def bindings(facts, row) do
     [

@@ -41,7 +41,7 @@ defmodule FootballMarket.Synchronization.ScopeTest do
 
       text =
         case file do
-          "lib/football_market/workers/catalog_sync.ex" ->
+          "lib/football_market/synchronization/execution.ex" ->
             assert text =~ "FootballMarket.Statistics.Ingestion.import_scope"
 
             String.replace(
@@ -98,7 +98,15 @@ defmodule FootballMarket.Synchronization.ScopeTest do
                ~r/FootballMarketWeb|FootballMarket\.(Market|Statistics|Valuation|Trading)|Redix|PubSub|String\.to_atom\(|\.performances\(/
     end
 
-    assert File.read!("lib/football_market/workers/catalog_sync.ex") =~ "Ingestion.import_catalog"
+    assert File.read!("lib/football_market/synchronization/execution.ex") =~
+             "Ingestion.import_catalog"
+
+    for worker <- ["catalog_sync", "statistics_import"] do
+      source = File.read!("lib/football_market/workers/#{worker}.ex")
+      assert source =~ "FootballMarket.Synchronization.Execution.perform(job)"
+      assert source =~ "FootballMarket.Synchronization.Execution.timeout(job)"
+    end
+
     plugins = Application.fetch_env!(:football_market, Oban)[:plugins]
 
     assert [

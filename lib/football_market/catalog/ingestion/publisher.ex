@@ -1,10 +1,11 @@
 defmodule FootballMarket.Catalog.Ingestion.Publisher do
   @moduledoc "Atomic scope-coordinated catalog and acceptance publication."
   import Ecto.Query
-  alias FootballMarket.{Market, Repo}
-  alias FootballMarket.Catalog.{League, Season, Team, Player}
+  alias FootballMarket.Repo
+  alias FootballMarket.Catalog.{League, Season}
 
   alias FootballMarket.Catalog.Ingestion.{
+    Records,
     Scope,
     SourceBinding,
     Observation,
@@ -130,8 +131,8 @@ defmodule FootballMarket.Catalog.Ingestion.Publisher do
   end
 
   defp accept(result, current, encoded, instructions) do
-    {league, league_state} = league!(result.facts.league)
-    {season, season_state} = season!(league, result.scope)
+    {league, league_state} = Records.league!(result.facts.league)
+    {season, season_state} = Records.season!(league, result.scope)
     # Stable table order serializes shared canonical creation and legacy row mutations.
     Repo.one!(from l in League, where: l.id == ^league.id, lock: "FOR UPDATE")
     Repo.one!(from s in Season, where: s.id == ^season.id, lock: "FOR UPDATE")
@@ -173,7 +174,7 @@ defmodule FootballMarket.Catalog.Ingestion.Publisher do
       []
     )
 
-    persist_operations(candidate.operations, season)
+    Records.persist_operations(candidate.operations, season)
 
     hook(:after_catalog)
 
@@ -234,24 +235,6 @@ defmodule FootballMarket.Catalog.Ingestion.Publisher do
     )
   end
 
-  defp persist_operations(operations, season) do
-    Enum.each(operations, fn {row, attrs, operation} ->
-      row
-      |> persist_operation(attrs, operation, season)
-      |> maybe_initialize_primary(operation)
-    end)
-  end
-
-  defp maybe_initialize_primary(%Player{id: id}, :insert) do
-    case Market.initialize_primary_player_in_transaction(id) do
-      %{outcome: _status} -> :ok
-      {:ok, _status} -> :ok
-      {:error, reason} -> Repo.rollback({:initial_player_issuance_failed, reason})
-    end
-  end
-
-  defp maybe_initialize_primary(_row, _operation), do: :ok
-
   defp begin_binding(scope, binding, target) do
     target_field = String.to_existing_atom(Atom.to_string(binding.kind) <> "_id")
 
@@ -267,73 +250,6 @@ defmodule FootballMarket.Catalog.Ingestion.Publisher do
     %SourceBinding{}
     |> SourceBinding.changeset(Map.put(attrs, target_field, target))
     |> Repo.insert!()
-  end
-
-  defp league!(fact) do
-    row =
-      Repo.one(
-        from l in League,
-          where: fragment("lower(btrim(?))", l.code) == ^Reconciler.normalize(fact.code)
-      )
-
-    {row, state} =
-      if row do
-        {row, "unchanged"}
-      else
-        now = DateTime.utc_now()
-
-        {count, _} =
-          Repo.insert_all(
-            League,
-            [
-              %{
-                id: Ecto.UUID.generate(),
-                code: fact.code,
-                name: fact.name,
-                inserted_at: now,
-                updated_at: now
-              }
-            ],
-            on_conflict: :nothing
-          )
-
-        {Repo.one(
-           from l in League,
-             where: fragment("lower(btrim(?))", l.code) == ^Reconciler.normalize(fact.code)
-         ), if(count == 1, do: "created", else: "unchanged")}
-      end
-
-    if is_nil(row) or Reconciler.normalize(row.name) != Reconciler.normalize(fact.name),
-      do: Reconciler.conflict(:canonical_league_conflict)
-
-    {row, state}
-  end
-
-  defp season!(league, scope) do
-    keys = [league_id: league.id, start_year: scope.start_year, end_year: scope.end_year]
-
-    case Repo.get_by(Season, keys) do
-      nil ->
-        now = DateTime.utc_now()
-
-        {count, _} =
-          Repo.insert_all(
-            Season,
-            [
-              Map.merge(Map.new(keys), %{
-                id: Ecto.UUID.generate(),
-                inserted_at: now,
-                updated_at: now
-              })
-            ],
-            on_conflict: :nothing
-          )
-
-        {Repo.get_by!(Season, keys), if(count == 1, do: "created", else: "unchanged")}
-
-      row ->
-        {row, "unchanged"}
-    end
   end
 
   defp outcome(observation, scope, status) do
@@ -378,17 +294,6 @@ defmodule FootballMarket.Catalog.Ingestion.Publisher do
     end
   end
 
-  defp player_changeset(row, attrs, operation, season) do
-    if operation == :insert,
-      do:
-        Player.create_changeset(
-          row,
-          Map.put(attrs, :catalog_identity, row.catalog_identity),
-          season.id
-        ),
-      else: Player.update_changeset(row, attrs, season.id)
-  end
-
   defp classify_delivery(result, current, encoded, captured_revision, instructions) do
     replay =
       if current,
@@ -407,21 +312,6 @@ defmodule FootballMarket.Catalog.Ingestion.Publisher do
       true ->
         order!(current, result)
         accept(result, current, encoded, instructions)
-    end
-  end
-
-  defp persist_operation(row, attrs, operation, season) do
-    if operation != :unchanged do
-      cs =
-        case row do
-          %Team{} ->
-            Team.changeset(row, attrs)
-
-          %Player{} ->
-            player_changeset(row, attrs, operation, season)
-        end
-
-      if operation == :insert, do: Repo.insert!(cs), else: Repo.update!(cs)
     end
   end
 end

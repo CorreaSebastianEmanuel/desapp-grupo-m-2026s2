@@ -1,0 +1,204 @@
+<section :if={@destination == "/portfolio"} id="portfolio">
+  <p class="eyebrow">ESPACIO DE TRABAJO / PORTAFOLIO</p>
+  <h1>Portafolio</h1>
+  <p class="section-description">Tus jugadores, posiciones y rendimiento.</p>
+  <section
+    :if={@positions != []}
+    id="portfolio-value-summary"
+    aria-label="Valor estimado de tus posiciones"
+  >
+    <p>Valor estimado de tus posiciones</p>
+    <strong>{@positions
+    |> Enum.reduce(Decimal.new(0), fn position, total ->
+      Decimal.add(total, position.current_value)
+    end)
+    |> exact_money()} créditos</strong>
+    <span>Según la cotización actual; el saldo disponible se muestra arriba.</span>
+    <dl :if={@allocation} class="portfolio-highlight-metrics">
+      <div>
+        <dt>Ganancia/pérdida realizada</dt><dd class={
+          profit_class(@allocation.totals.realized_profit_loss)
+        }>
+          {money(@allocation.totals.realized_profit_loss)}
+        </dd>
+      </div><div>
+        <dt>Ganancia/pérdida no realizada</dt><dd class={
+          profit_class(@allocation.totals.unrealized_profit_loss)
+        }>
+          {money(@allocation.totals.unrealized_profit_loss)}
+        </dd>
+      </div>
+    </dl>
+  </section>
+  <nav class="portfolio-tabs" aria-label="Secciones del portafolio">
+    <.link
+      :for={
+        {tab, label} <- [
+          {"positions", "Mis jugadores"},
+          {"performance", "Rendimiento"},
+          {"details", "Detalle financiero"}
+        ]
+      }
+      id={"portfolio-tab-#{tab}"}
+      patch={"/portfolio?" <> URI.encode_query(%{"tab" => tab, "from" => @portfolio_from, "to" => @portfolio_to})}
+      aria-current={if @portfolio_tab == tab, do: "page", else: nil}
+    >
+      {label}
+    </.link>
+  </nav>
+  <div
+    id="portfolio-panel-positions"
+    hidden={@portfolio_tab != "positions"}
+    aria-labelledby="portfolio-tab-positions"
+  >
+    <p :if={@portfolio_unavailable} id="portfolio-unavailable" role="alert">
+      Los datos del portafolio no están disponibles temporalmente. Probá de nuevo en unos instantes.
+    </p>
+    <div :if={@positions == [] && !@portfolio_unavailable} class="empty-state">
+      <span class="empty-symbol" aria-hidden="true">◎</span>
+      <h2>Tu portafolio empieza acá</h2>
+      <p id="no-positions">
+        Todavía no tenés posiciones de operaciones. El inventario inicial se muestra por separado abajo.
+      </p>
+      <.link class="primary-button" navigate="/players">Explorar jugadores
+      <span aria-hidden="true">→</span></.link>
+    </div>
+    <div
+      :if={@positions != []}
+      class="table-scroll"
+      role="region"
+      aria-label="Posiciones del portafolio"
+      tabindex="0"
+    >
+      <table id="portfolio-positions">
+        <caption>Posiciones · Valores en créditos</caption>
+        <thead>
+          <tr>
+            <th scope="col">Jugador</th>
+            <th scope="col">Cantidad</th>
+            <th scope="col">Costo promedio (créditos/token)</th>
+            <th scope="col">Cotización (créditos/token)</th>
+            <th scope="col">Valor estimado (créditos)</th>
+            <th scope="col">Ganancia/pérdida realizada</th>
+            <th scope="col">Ganancia/pérdida no realizada</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr :for={position <- @positions} id={"portfolio-position-#{position.player_id}"}>
+            <th scope="row">
+              <.link navigate={~p"/players?player_id=#{position.player_id}"}><.player_identity
+                id={"holding-#{position.player_id}"}
+                name={position.player_name}
+                profile={Map.get(@profiles, position.player_id)}
+              /></.link>
+            </th>
+            <td>{position.quantity}</td>
+            <td>{exact_money(position.average_unit_cost)}</td>
+            <td>{exact_money(position.current_quote)}</td>
+            <td>{exact_money(position.current_value)}</td>
+            <td class={profit_class(position.realized_profit_loss)}>
+              {exact_money(position.realized_profit_loss)}
+            </td>
+            <td class={profit_class(position.unrealized_profit_loss)}>
+              {exact_money(position.unrealized_profit_loss)}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <section
+      :if={@initial_recipient || @issuer_inventory != [] || @issuer_inventory_unavailable}
+      id="initial-issuer-inventory"
+      aria-labelledby="initial-issuer-inventory-heading"
+    >
+      <h2 id="initial-issuer-inventory-heading">Inventario inicial emitido</h2>
+      <p class="section-description">
+        Tokens que aún conservás de la emisión inicial del mercado.
+      </p>
+      <p :if={@issuer_inventory_unavailable} id="issuer-inventory-unavailable" role="alert">
+        El inventario inicial no está disponible temporalmente. Probá de nuevo en unos instantes.
+      </p>
+      <p
+        :if={@issuer_inventory == [] && !@issuer_inventory_unavailable}
+        id="no-initial-issuer-inventory"
+        class="empty-state"
+      >
+        No te quedan tokens de la emisión inicial.
+      </p>
+      <div
+        :if={@issuer_inventory != []}
+        class="table-scroll"
+        role="region"
+        aria-label="Inventario inicial emitido"
+        tabindex="0"
+      >
+        <table>
+          <caption>Tokens restantes de la emisión inicial</caption>
+          <thead>
+            <tr>
+              <th scope="col">Jugador</th>
+              <th scope="col">Cantidad restante</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              :for={item <- @issuer_inventory}
+              id={"initial-issuer-inventory-#{item.player_id}"}
+            >
+              <th scope="row">
+                <a href={~p"/players?player_id=#{item.player_id}"}>{item.player_name}</a>
+              </th>
+              <td>{item.quantity}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+  <div hidden={@portfolio_tab == "positions"}>
+    <form id="portfolio-history-range" phx-submit="portfolio_range">
+      <label for="portfolio-from">Desde</label><input
+        id="portfolio-from"
+        type="date"
+        name="from"
+        value={@portfolio_from}
+      />
+      <label for="portfolio-to">Hasta</label><input
+        id="portfolio-to"
+        type="date"
+        name="to"
+        value={@portfolio_to}
+      />
+      <button type="submit" phx-disable-with="Actualizando…">Actualizar período</button>
+    </form>
+    <p :if={@portfolio_range_invalid} id="portfolio-range-invalid" role="alert">
+      El período debe tener fechas válidas y un rango permitido.
+    </p>
+  </div>
+  <div
+    id="portfolio-panel-performance"
+    hidden={@portfolio_tab != "performance"}
+    aria-labelledby="portfolio-tab-performance"
+  >
+    <PortfolioComponents.portfolio_charts
+      allocation={@allocation}
+      allocation_unavailable={@allocation_unavailable}
+      history={@portfolio_history}
+      history_unavailable={@history_unavailable}
+    />
+  </div>
+  <div
+    id="portfolio-panel-details"
+    hidden={@portfolio_tab != "details"}
+    aria-labelledby="portfolio-tab-details"
+  >
+    <h2>Detalle financiero</h2>
+    <p class="section-description">
+      Costos, resultados y valores diarios del período seleccionado.
+    </p>
+    <PortfolioComponents.portfolio_tables
+      allocation={@allocation}
+      portfolio_history={@portfolio_history}
+    />
+  </div>
+</section>

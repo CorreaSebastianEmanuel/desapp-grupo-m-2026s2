@@ -1,0 +1,156 @@
+<section id="conditional-orders">
+  <p class="eyebrow">ESPACIO DE TRABAJO / ÓRDENES</p>
+  <h1>Órdenes condicionales</h1>
+  <p>
+    Las órdenes no reservan créditos ni tokens. Alcanzar el precio indicado no garantiza una compra.
+  </p>
+
+  <div class="orders-layout">
+    <div class="order-compose">
+      <h2>Nueva orden</h2>
+      <p class="muted">Elegí un jugador, un precio máximo y el vencimiento.</p>
+      <form id="conditional-order-form" phx-submit="create_order">
+        <p :if={!@selected_player}>Primero elegí un jugador del catálogo.</p>
+        <a :if={!@selected_player} class="text-link" href="/players">Buscar jugadores →</a>
+        <p
+          :if={@selected_player}
+          class="selected-order-player"
+          id="selected-player"
+          role="status"
+        >
+          {@selected_player.display_name} · {@selected_player.team.name} · {@selected_player.team.season.league.name}
+          <a href="/players">Cambiar jugador</a>
+        </p>
+        <p :if={@selected_player && @selected_quote} id="order-current-quote">
+          Cotización actual: <strong>{money(@selected_quote.unit_price)} créditos por token</strong>.
+          La orden se ejecuta solo si el precio llega a tu máximo y hay saldo e inventario.
+        </p>
+        <p :if={@selected_player && !@selected_quote} id="order-no-quote" role="status">
+          Este jugador no tiene cotización disponible; no se puede crear una orden todavía.
+        </p>
+        <input
+          id="order-player-id"
+          name="player_id"
+          type="hidden"
+          value={@order_form["player_id"]}
+        />
+        <label for="order-quantity">Cantidad</label>
+        <input
+          id="order-quantity"
+          name="quantity"
+          type="number"
+          min="1"
+          max="100"
+          step="1"
+          required
+          value={@order_form["quantity"]}
+        />
+
+        <label for="order-maximum-unit-price">Precio máximo por token (créditos)</label>
+        <input
+          id="order-maximum-unit-price"
+          name="maximum_unit_price"
+          type="number"
+          min="0.01"
+          step="0.01"
+          required
+          value={@order_form["maximum_unit_price"]}
+        />
+
+        <label for="order-expires-at">Vencimiento (fecha y hora UTC)</label>
+        <input
+          id="order-expires-at"
+          name="expires_at"
+          type="datetime-local"
+          step="1"
+          required
+          value={@order_form["expires_at"]}
+        />
+        <p>
+          Seleccioná fecha y hora en UTC, independientemente de la zona horaria de tu dispositivo.
+        </p>
+        <button
+          type="submit"
+          phx-disable-with="Creando orden…"
+          disabled={!@selected_player || !@selected_quote}
+        >Crear orden condicional</button>
+      </form>
+
+      <p :if={@order_error} id="order-error" role="alert">{@order_error}</p>
+      <p :if={@order_notice} id="order-notice" role="status">{@order_notice}</p>
+      <p :if={@orders_unavailable} id="orders-unavailable" role="alert">
+        Las órdenes no están disponibles temporalmente. Probá de nuevo en unos instantes.
+      </p>
+    </div>
+    <div class="orders-history">
+      <h2>Tus órdenes</h2>
+      <p :if={@orders == [] && !@orders_unavailable} id="no-orders">
+        No tenés órdenes condicionales.
+      </p>
+      <ul id="order-list">
+        <li :for={order <- @orders} id={"conditional-order-#{order.id}"}>
+          <article>
+            <div class="order-card-heading">
+              <.link navigate={~p"/players?player_id=#{order.player_id}"}><.player_identity
+                id={"order-face-#{order.id}"}
+                name={order.player_name}
+                profile={Map.get(@profiles, order.player_id)}
+                subtitle="Orden de compra"
+              /></.link><span class={"status-badge status-#{order.status}"}>{order_status(
+                order.status
+              )}</span>
+            </div>
+            <dl>
+              <dt>Cantidad</dt><dd>{order.quantity}</dd>
+              <dt>Precio máximo por token</dt><dd>{money(order.maximum_unit_price)}</dd>
+              <dt>Creada</dt><dd>{timestamp(order.created_at)}</dd>
+              <dt>Vence</dt><dd>{timestamp(order.expires_at)}</dd>
+              <dt>Estado</dt><dd>{order_status(order.status)}</dd>
+              <dt>Completada</dt><dd>
+                {if order.completed_at, do: timestamp(order.completed_at), else: "—"}
+              </dd>
+              <dt>Vencimiento alcanzado</dt><dd>
+                {if order.expiry_reached, do: "Sí", else: "No"}
+              </dd>
+            </dl>
+            <details class="order-reference">
+              <summary>Referencia de la orden</summary><p>
+                Identificador de orden: <code>{order.id}</code>
+              </p><p>Jugador: <code>{order.player_id}</code></p>
+            </details>
+            <p :if={order.expiry_reached} class="expiry-reached">
+              Venció el plazo. El estado se actualizará cuando se procese la evaluación.
+            </p>
+            <details :if={order.status == "executed" && order.execution}>
+              <summary>Detalles de ejecución</summary>
+              <dl>
+                <dt>Precio unitario</dt><dd>{money(order.execution.unit_price)}</dd>
+                <dt>Total</dt><dd>{money(order.execution.total)}</dd>
+                <dt>Completada</dt><dd>{timestamp(order.completed_at)}</dd>
+                <dt>Operación</dt><dd>
+                  <code>{Map.get(order.execution, :purchase_id)}</code>
+                </dd>
+                <dt>Cotización utilizada</dt><dd>
+                  {money(order.execution.unit_price)} créditos por token
+                </dd>
+                <dt>Completada</dt><dd>
+                  {timestamp(Map.get(order.execution, :completed_at))}
+                </dd>
+              </dl>
+            </details>
+            <p :if={order.status == "rejected"}>
+              Rechazada: {readable_reason(order.rejection_reason)}.
+            </p>
+            <button
+              :if={order.status == "pending" && !order.expiry_reached}
+              type="button"
+              phx-click="cancel_order"
+              phx-value-id={order.id}
+              phx-disable-with="Cancelando…"
+            >Cancelar orden</button>
+          </article>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>

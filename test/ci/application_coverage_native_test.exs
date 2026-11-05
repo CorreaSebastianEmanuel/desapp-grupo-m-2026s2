@@ -79,7 +79,8 @@ defmodule FootballMarket.ApplicationCoverageNativeTest do
 
     assert Enum.any?(
              entries,
-             &(&1["path"] == "lib/football_market.ex" and &1["disposition"] == "include")
+             &(&1["path"] == "lib/football_market/quotes/engine.ex" and
+                 &1["disposition"] == "include")
            )
 
     assert Enum.any?(

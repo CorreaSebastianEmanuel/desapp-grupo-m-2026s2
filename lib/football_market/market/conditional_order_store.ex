@@ -6,7 +6,6 @@ defmodule FootballMarket.Market.ConditionalOrderStore do
 
   alias FootballMarket.Market.{
     ConditionalOrder,
-    ConditionalOrderProjection,
     Error,
     Issuance,
     Purchase,
@@ -213,7 +212,9 @@ defmodule FootballMarket.Market.ConditionalOrderStore do
     execution =
       if order.purchase_id, do: purchase(Repo.get!(Purchase, order.purchase_id)), else: nil
 
-    record |> Map.put(:execution, execution) |> ConditionalOrderProjection.at(now)
+    record
+    |> Map.put(:execution, execution)
+    |> Map.put(:expiry_reached, DateTime.compare(now, record.expires_at) != :lt)
   end
 
   defp purchase(p),

@@ -86,4 +86,22 @@ defmodule FootballMarket.Quotes.EvidenceCodec do
   end
 
   defp decode_metrics(_), do: {:error, :invalid_evidence}
+
+  def request_facts(%{explicit_fact_material: %{"facts" => facts}} = request) do
+    case decode_facts(facts) do
+      {:ok, decoded} ->
+        if length(decoded) == length(request.explicit_membership || []),
+          do: {:ok, request, decoded},
+          else: {:error, :unreproducible}
+
+      _ ->
+        {:error, :unreproducible}
+    end
+  end
+
+  def request_facts(_), do: {:error, :unreproducible}
+
+  # FR-010: repeating identical inputs is a retry of the retained logical
+  # calculation. A retained TERMINAL admission outcome re-returns itself
+  # unchanged instead of claiming `unreproducible` for missing history.
 end

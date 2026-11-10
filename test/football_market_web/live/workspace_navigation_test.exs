@@ -12,6 +12,8 @@ defmodule FootballMarketWeb.WorkspaceNavigationTest do
     for {path, heading, expectation} <- [
           {"/portfolio", "Portafolio", :empty_portfolio},
           {"/transactions", "Historial de operaciones", :empty_transactions},
+          {"/players", "Jugadores", :players},
+          {"/ranking", "Ranking", :ranking},
           {"/conditional-orders", "Órdenes condicionales", :page}
         ] do
       conn =
@@ -39,6 +41,15 @@ defmodule FootballMarketWeb.WorkspaceNavigationTest do
                2
 
       case expectation do
+        :players ->
+          assert has_element?(view, "#player-catalog")
+          assert has_element?(view, "#player-search")
+          refute has_element?(view, "#portfolio")
+
+        :ranking ->
+          assert has_element?(view, "#ranking")
+          refute has_element?(view, "#player-catalog")
+
         :page ->
           assert has_element?(view, "#conditional-order-form")
           refute html =~ "not available yet"

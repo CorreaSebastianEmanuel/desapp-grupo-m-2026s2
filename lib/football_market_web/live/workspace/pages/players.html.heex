@@ -1,0 +1,208 @@
+<section id="player-catalog">
+  <p :if={@card} class="catalog-back-link">
+    <a :if={@catalog_state_query != ""} href={"/players?" <> @catalog_state_query}>← Volver a resultados</a>
+    <a :if={@player_search == ""} href="/players">← Buscar otro jugador</a>
+  </p>
+  <.player_card
+    card={@card}
+    quote={@quote}
+    profile={@card && Map.get(@profiles, @card.player.id)}
+    error={@card_error}
+    request_key={@trade_key}
+    search_query={@catalog_state_query}
+    quote_history={@quote_history}
+    quote_history_unavailable={@quote_history_unavailable}
+    quote_date={@quote_date}
+    dated_quote={@dated_quote}
+    trade_record={@trade_record}
+    credit_balance={@credit_balance}
+    credit_balance_unavailable={@credit_balance_unavailable}
+    initial_recipient={@initial_recipient}
+    initial_recipient_unavailable={@initial_recipient_unavailable}
+    trade_quantity={@trade_quantity}
+    positions={@positions}
+    portfolio_unavailable={@portfolio_unavailable}
+    issuer_inventory={@issuer_inventory}
+    issuer_inventory_unavailable={@issuer_inventory_unavailable}
+    trade_error={@trade_error}
+    notice={@trade_notice}
+    complete={@trade_complete}
+  />
+  <div :if={!@card} class="catalog-heading">
+    <div>
+      <p class="eyebrow">DESCUBRÍ TU PRÓXIMA POSICIÓN</p>
+      <h1>Jugadores<span class="title-dot" aria-hidden="true">.</span></h1>
+      <p class="catalog-intro">
+        Buscá jugadores en el catálogo, compará sus clubes y ligas, y elegí uno para operar.
+      </p>
+    </div>
+  </div>
+  <div :if={!@card} class="catalog-search-card">
+    <form id="player-catalog-search" phx-submit="search_players" phx-change="search_players">
+      <label for="player-search">Nombre del jugador</label>
+      <div class="player-search-controls">
+        <input
+          id="player-search"
+          phx-debounce="300"
+          name="player_search"
+          type="search"
+          placeholder="Buscá por nombre o apellido…"
+          autocomplete="off"
+          value={@player_search}
+        />
+        <button type="submit" phx-disable-with="Buscando…"><.icon
+          name="hero-magnifying-glass"
+          class="button-icon"
+        />Buscar jugadores</button>
+      </div>
+      <p class="search-feedback" role="status">Actualizando resultados…</p>
+      <div class="catalog-filters">
+        <label for="catalog-league">Liga</label>
+        <select id="catalog-league" name="league_id"><option value="">
+          Todas las ligas
+        </option><option
+          :for={item <- @catalog_filter_options.leagues}
+          value={item.id}
+          selected={@catalog_filters["league_id"] == item.id}
+        >
+          {item.name}
+        </option></select>
+        <label for="catalog-team">Club</label>
+        <select id="catalog-team" name="team_id"><option value="">Todos los clubes</option><option
+          :for={item <- @catalog_filter_options.teams}
+          value={item.id}
+          selected={@catalog_filters["team_id"] == item.id}
+        >
+          {item.name} · {item.league_name}
+        </option></select>
+        <label for="catalog-position">Posición</label>
+        <select id="catalog-position" name="position_id"><option value="">
+          Todas las posiciones
+        </option><option
+          :for={item <- @catalog_filter_options.positions}
+          value={item.id}
+          selected={@catalog_filters["position_id"] == item.id}
+        >
+          {item.name}
+        </option></select>
+        <label for="catalog-page-size">Resultados por página</label>
+        <select id="catalog-page-size" name="page_size"><option
+          :for={size <- 1..100}
+          value={size}
+          selected={size == @catalog_page_size}
+        >
+          {size}
+        </option></select>
+      </div>
+      <.link
+        :if={@player_search != "" || map_size(@catalog_filters) > 0}
+        patch="/players"
+        id="catalog-reset"
+        class="text-link filter-reset"
+      >
+        Limpiar filtros <span aria-hidden="true">↺</span>
+      </.link>
+    </form>
+    <p :if={!@search_performed} class="catalog-hint">
+      Ingresá al menos 2 caracteres y buscá en el catálogo.
+    </p>
+  </div>
+  <p :if={!@card && @player_search_unavailable} role="alert">
+    La búsqueda no está disponible temporalmente. Probá de nuevo en unos instantes.
+  </p>
+  <div
+    :if={!@card && @search_performed && @player_results != []}
+    class="catalog-results-heading"
+  >
+    <h2 :if={@player_search == ""}>Todos los jugadores</h2>
+    <h2 :if={@player_search != ""}>Resultados para “{@player_search}”</h2>
+    <span>{length(@player_results)} {if length(@player_results) == 1,
+      do: "jugador",
+      else: "jugadores"}</span>
+  </div>
+  <p
+    :if={!@card && @search_performed && @player_results == [] && !@player_search_unavailable}
+    class="catalog-hint"
+  >
+    No encontramos jugadores. Probá con otro nombre.
+  </p>
+  <p
+    :if={!@card && @scouting_status && @scouting_status.state in [:queued, :scouting]}
+    id="catalog-scout-status"
+    role="status"
+  >
+    Estamos buscando en las fuentes configuradas. Volvé a buscar en unos instantes.
+  </p>
+  <p
+    :if={!@card && @scouting_status && @scouting_status.state == :unavailable}
+    id="catalog-scout-status"
+    role="status"
+  >
+    La búsqueda ampliada no está disponible porque no hay fuentes configuradas. Podés buscar en el catálogo local.
+  </p>
+  <p
+    :if={
+      !@card && @scouting_status &&
+        @scouting_status.state in [:cached_miss, :provider_failure, :rate_limited]
+    }
+    id="catalog-scout-status"
+    role="status"
+  >
+    La búsqueda de este nombre está pausada. Probá de nuevo después de {DateTime.to_iso8601(
+      @scouting_status.next_attempt_at
+    )}.
+  </p>
+  <p
+    :if={!@card && @scouting_status && @scouting_status.state == :rejected}
+    id="catalog-scout-status"
+    role="status"
+  >
+    Ingresá un nombre de jugador con al menos dos letras.
+  </p>
+  <div
+    :if={!@card && @player_results != []}
+    class="player-table-wrap"
+    id="player-search-results"
+    role="region"
+    aria-label="Resultados de búsqueda de jugadores"
+    tabindex="0"
+  >
+    <table class="player-table">
+      <thead>
+        <tr>
+          <th scope="col">Jugador</th><th scope="col">Club</th><th scope="col">Liga</th><th scope="col">
+            <span class="sr-only">Acción</span>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr :for={player <- @player_results}>
+          <th scope="row">
+            <.player_identity
+              id={"catalog-#{player.id}"}
+              name={player.display_name}
+              profile={Map.get(@profiles, player.id)}
+              subtitle={position_name(player.position.code)}
+            />
+          </th>
+          <td>
+            <.club_identity
+              id={"catalog-club-#{player.id}"}
+              name={player.team.name}
+              profile={Map.get(@profiles, player.id)}
+            />
+          </td>
+          <td>{player.team.season.league.name}</td>
+          <td>
+            <a href={"/players?player_id=#{player.id}" <> if(@catalog_state_query == "", do: "", else: "&" <> @catalog_state_query)}>Ver ficha y operar</a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <a
+    :if={@catalog_pagination && @catalog_pagination.has_more}
+    id="catalog-next"
+    href={"/players?" <> URI.encode_query(Map.merge(Map.take(%{"q" => @player_search}, ["q"]), @catalog_filters) |> Map.put("page_size", @catalog_page_size) |> Map.put("cursor", @catalog_pagination.next_cursor))}
+  >Siguiente página</a>
+</section>

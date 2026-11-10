@@ -2,6 +2,7 @@ defmodule FootballMarket.Quotes.Store do
   @moduledoc "Transactional persistence primitives for quote confirmation."
   import Ecto.Query
   alias FootballMarket.{Repo, Market.Quote}
+  alias FootballMarket.Catalog.Player
   alias FootballMarket.Quotes.{Calculation, Evaluation}
 
   def lock_player!(player_id) do
@@ -54,5 +55,39 @@ defmodule FootballMarket.Quotes.Store do
 
     FootballMarket.Market.OrderEvaluation.enqueue!(%{"source" => "quote", "event_id" => event.id})
     event
+  end
+
+  def initialized_player(player_id, season_id) do
+    case Repo.get(Player, player_id) do
+      %Player{season_id: ^season_id} = player ->
+        if Repo.exists?(
+             from q in Quote, where: q.player_id == ^player.id and q.rule_id == "initial_issuance"
+           ), do: {:ok, player}, else: {:error, :player_not_initialized}
+
+      _ ->
+        {:error, :player_not_found}
+    end
+  end
+
+  def ensure_confirmation_lease!(nil), do: :ok
+
+  def ensure_confirmation_lease!({request_id, fence}) do
+    request =
+      Repo.one(
+        from r in FootballMarket.Quotes.CalculationRequest,
+          where: r.id == ^request_id,
+          lock: "FOR UPDATE"
+      )
+
+    # `now()` is fixed at transaction start. This confirmation may have waited
+    # for the player lock, so check lease expiry against the current DB clock.
+    now = database_clock_now!()
+
+    if request && request.state == "running" && request.lease_fence == fence &&
+         request.lease_until && DateTime.compare(request.lease_until, now) == :gt do
+      request
+    else
+      Repo.rollback(:stale_fence)
+    end
   end
 end

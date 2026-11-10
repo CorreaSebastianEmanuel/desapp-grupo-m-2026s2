@@ -57,6 +57,23 @@ defmodule FootballMarket.WorkflowScopeTest do
     assert length(paths) == length(Enum.uniq(paths))
     refute "lib/football_market/market.ex" in paths
     refute "test/scripts/unplanned_test.py" in paths
+    feature = "specs/090-complete-project-wide-responsibility-and-directory-reorganization"
+
+    for path <- [
+          "lib/football_market/quotes/engine.ex",
+          "lib/football_market_web/live/workspace/pages/players.html.heex",
+          "lib/football_market/infrastructure/local_operations.ex",
+          "lib/football_market/valuation/calculation_request.ex",
+          "lib/football_market.ex"
+        ] do
+      assert WorkflowScope.allows_path?(feature, path)
+    end
+
+    assert length(WorkflowScope.paths(feature)) == length(Enum.uniq(WorkflowScope.paths(feature)))
+    refute WorkflowScope.allows_path?(feature, "lib/football_market/market.ex")
+    refute WorkflowScope.allows_path?(feature, "lib/football_market/quotes/unplanned.ex")
+    refute WorkflowScope.allows_path?(feature, ".github/workflows/quality-baseline.yml")
+
     assert WorkflowScope.paths(nil) == []
     assert WorkflowScope.paths("specs/unknown") == []
 

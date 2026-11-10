@@ -1,0 +1,74 @@
+<section :if={@destination == "/transactions"} id="transactions">
+  <p class="eyebrow">TU ACTIVIDAD</p>
+  <h1>Historial de operaciones</h1>
+  <p class="section-description">Tus compras y ventas, con el detalle de cada movimiento.</p>
+  <form id="transaction-page-size" phx-change="transaction_page_size">
+    <label for="transaction-size">Operaciones por página</label>
+    <select id="transaction-size" name="page_size">
+      <option
+        :for={size <- 1..100}
+        value={size}
+        selected={size == @transaction_page_size}
+      >
+        {size}
+      </option>
+    </select>
+  </form>
+  <p :if={@transaction_error} role="alert">El historial no está disponible temporalmente.</p>
+  <p :if={@transactions == [] && !@transaction_error} id="transactions-empty">
+    Todavía no hay operaciones.
+  </p>
+  <div
+    :if={@transactions != []}
+    class="table-scroll"
+    role="region"
+    aria-label="Historial de operaciones"
+    tabindex="0"
+  >
+    <table>
+      <caption>Compras y ventas · Valores en créditos</caption>
+      <thead>
+        <tr>
+          <th>Tipo</th><th>Jugador</th><th>Cantidad</th><th>Precio unitario</th><th>Total</th><th>
+            Cotización
+          </th><th>Fecha</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr :for={transaction <- @transactions} id={"transaction-#{transaction.id}"}>
+          <td>
+            <span class={"status-badge status-#{transaction.type}"}>{if transaction.type ==
+                                                                          "purchase",
+                                                                        do: "Compra",
+                                                                        else: "Venta"}</span>
+          </td>
+          <td>
+            <.link navigate={~p"/players?player_id=#{transaction.player_id}"}><.player_identity
+              id={"activity-#{transaction.id}"}
+              name={transaction.player_name}
+              profile={Map.get(@profiles, transaction.player_id)}
+            /></.link>
+          </td>
+          <td>{transaction.quantity}</td><td>{exact_money(transaction.unit_price)}</td><td>
+            {exact_money(transaction.total)}
+          </td>
+          <td>
+            <details>
+              <summary>Ver referencia</summary><p>
+                {exact_money(transaction.unit_price)} créditos por token · operación del {timestamp(
+                  transaction.completed_at
+                )}
+              </p>
+            </details>
+          </td>
+          <td>{timestamp(transaction.completed_at)}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <a
+    :if={@transaction_pagination && @transaction_pagination.has_more}
+    id="transactions-next"
+    href={"/transactions?" <> URI.encode_query(%{"page_size" => @transaction_page_size, "cursor" => @transaction_pagination.next_cursor})}
+  >Siguiente página</a>
+</section>

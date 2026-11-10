@@ -79,6 +79,22 @@ defmodule FootballMarketWeb.LocalAdminLiveTest do
     assert html =~ "Ejecutar ahora"
     assert html =~ "cinco ligas europeas"
 
+    before_jobs = Repo.aggregate(Oban.Job, :count)
+    render_click(view, "run_support_job", %{"job" => "unrecognized"})
+    assert Repo.aggregate(Oban.Job, :count) == before_jobs
+    assert has_element?(view, "#local-admin-notice", "No se pudo encolar ese job auxiliar.")
+
+    {:ok, retryable} = Oban.insert(Oban, FootballMarket.Workers.ConditionalOrderRecovery.new(%{}))
+    Repo.update!(Ecto.Changeset.change(retryable, state: "cancelled"))
+    render_click(view, "run_job", %{"id" => Integer.to_string(retryable.id)})
+    assert Repo.get!(Oban.Job, retryable.id).state == "available"
+
+    {:ok, primary} = Oban.insert(Oban, FootballMarket.Workers.QuoteRecovery.new(%{}))
+    Repo.update!(Ecto.Changeset.change(primary, state: "cancelled"))
+    render_click(view, "run_job", %{"id" => Integer.to_string(primary.id)})
+    assert Repo.get!(Oban.Job, primary.id).state == "cancelled"
+    assert has_element?(view, "#local-admin-notice", "No se pudo ejecutar ese job.")
+
     render_click(view, "run_support_job", %{"job" => "quote_recovery"})
 
     assert Repo.exists?(

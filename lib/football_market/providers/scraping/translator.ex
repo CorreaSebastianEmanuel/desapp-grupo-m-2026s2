@@ -124,6 +124,16 @@ defmodule FootballMarket.Providers.Scraping.Translator do
         stats = Enum.filter(stats, &(&1["key"] in ["minutes_played" | Map.values(@metric_keys)]))
         keys = Enum.map(stats, & &1["key"])
         Document.require!(length(keys) == length(Enum.uniq(keys)))
+
+        Enum.each(stats, fn entry ->
+          stat = Document.map!(entry["stat"])
+
+          Document.require!(
+            is_nil(stat["value"]) or
+              (is_integer(stat["value"]) and stat["type"] in [nil, "integer"])
+          )
+        end)
+
         measured = Map.new(stats, &{&1["key"], &1["stat"]["value"]})
 
         counts =

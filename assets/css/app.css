@@ -763,3 +763,8 @@ tfoot { background: #f4f8f1; font-weight: 650; }
 .search-feedback { display: none; margin-top: 10px; font-size: 13px; color: var(--green); }
 .phx-change-loading .search-feedback, .phx-submit-loading .search-feedback { display: block; }
 @media (max-width: 700px) { .portfolio-tabs a { padding: 10px 8px; font-size: 13px; } }
+
+#administration article { padding:18px 0; border-top:1px solid var(--line); overflow-wrap:anywhere; }
+#administration pre { overflow:auto; max-width:100%; }
+#configuration-form input { width:100px; min-height:44px; padding:8px; border:1px solid var(--line); border-radius:6px; }
+#configuration-form button { margin-top:16px; }

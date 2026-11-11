@@ -113,6 +113,7 @@ defmodule FootballMarket.Quotes.Engine do
         "mapping_id" => mapping.id
       }
       |> Map.merge(identity_context)
+      |> Map.merge(Valuation.StatisticsReader.enrichment_identity(facts))
 
     reject_nested_confirmation!()
 
@@ -222,6 +223,7 @@ defmodule FootballMarket.Quotes.Engine do
         "mapping_id" => attributes.mapping.id
       }
       |> Map.merge(Map.get(attributes, :identity_context, %{}))
+      |> Map.merge(Valuation.StatisticsReader.enrichment_identity(attributes.facts))
 
     context = %{
       identity: identity,

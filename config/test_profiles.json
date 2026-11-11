@@ -667,6 +667,13 @@
       "profile": "unit"
     },
     {
+      "id": "0fe363951dd2ae4679e84ee7",
+      "runner": "exunit",
+      "file": "test/football_market_web/administration_browser_test.exs",
+      "case_id": "FootballMarketWeb.AdministrationBrowserTest:test real Chromium provisions edits and independently selects both immutable strategy families",
+      "profile": "integration"
+    },
+    {
       "id": "100d7315a0fed07f015d3af8",
       "runner": "exunit",
       "file": "test/football_market/valuation/missing_data_test.exs",
@@ -2795,6 +2802,13 @@
       "profile": "integration"
     },
     {
+      "id": "4524b00d62497fec2177ea0f",
+      "runner": "exunit",
+      "file": "test/football_market/statistics/ingestion/enrichment_test.exs",
+      "case_id": "FootballMarket.Statistics.Ingestion.EnrichmentTest:test additive evidence is immutable idempotent and preserves original and enriched calculation replay",
+      "profile": "integration"
+    },
+    {
       "id": "4587214922e9a6ee2cb0ec5d",
       "runner": "exunit",
       "file": "test/football_market/catalog/ingestion/canonical_test.exs",
@@ -2982,6 +2996,13 @@
       "file": "test/football_market/providers/ingestion_contract_test.exs",
       "case_id": "FootballMarket.Providers.IngestionContractTest:test completeness requires a full unbounded scope, terminal witness and detail for every eligible match",
       "profile": "unit"
+    },
+    {
+      "id": "4ac59392f997709c3949a716",
+      "runner": "exunit",
+      "file": "test/football_market/valuation/configurations/concurrency_test.exs",
+      "case_id": "FootballMarket.Valuation.Configurations.ConcurrencyTest:test concurrent explicit provisioning creates exactly one preset per family without activation",
+      "profile": "integration"
     },
     {
       "id": "4b34903a1d2343605b04e827",
@@ -4979,6 +5000,13 @@
       "profile": "integration"
     },
     {
+      "id": "8132ebffce9ccb59d2ebd87e",
+      "runner": "exunit",
+      "file": "test/football_market_web/live/administration_live_test.exs",
+      "case_id": "FootballMarketWeb.AdministrationLiveTest:test administrator saves edited immutable rules and versions remain grouped by two families",
+      "profile": "integration"
+    },
+    {
       "id": "81b57e0c9e3be4457d83e0a4",
       "runner": "exunit",
       "file": "test/football_market/valuation/configurations/concurrency_test.exs",
@@ -6103,6 +6131,13 @@
       "runner": "exunit",
       "file": "test/football_market/market/order_evaluation/scope_test.exs",
       "case_id": "FootballMarket.Market.OrderEvaluation.ScopeTest:test singleton cursor exists and invalid identity or ordinal is rejected",
+      "profile": "integration"
+    },
+    {
+      "id": "9d1cb17945fec39e4daaa75a",
+      "runner": "exunit",
+      "file": "test/football_market/valuation/configurations/presets_test.exs",
+      "case_id": "FootballMarket.Valuation.Configurations.PresetsTest:test explicit preset setup is idempotent and custom edits retain immutable versions and selection",
       "profile": "integration"
     },
     {
@@ -10330,6 +10365,7 @@
     "test/support/valuation_scorers.ex": "Fixture/support helper; cases owned by its importing native suite.",
     "test/support/workflow_scope.ex": "Fixture/support helper; cases owned by its importing native suite.",
     "test/test_helper.exs": "Fixture/support helper; cases owned by its importing native suite.",
+    "tools/openapi/administration_browser.mjs": "Chromium helper for the registered integration administration browser case.",
     "tools/openapi/browser.mjs": "Fixture/support helper; cases owned by its importing native suite.",
     "tools/openapi/e2e_browser.mjs": "Fixture/support helper; cases owned by its importing native suite.",
     "tools/openapi/e2e_catalog_scouting.mjs": "Real Chromium catalog scouting journey helper; invoked by the E2E catalog scouting suite.",

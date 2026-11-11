@@ -5,6 +5,42 @@ defmodule FootballMarket.Valuation.Configurations.ConcurrencyTest do
   alias FootballMarket.{Repo, ValuationCase}
   alias FootballMarket.Valuation.Configurations
 
+  test "concurrent explicit provisioning creates exactly one preset per family without activation" do
+    c = private_schema()
+    assert {:error, :missing_standard_positions} = Configurations.Store.provision_presets()
+    assert {:ok, %{versions: []}} = Configurations.list()
+
+    for {code, role} <- Configurations.Presets.roles() do
+      {:ok, _} = FootballMarket.Catalog.create_position(%{code: code, name: Atom.to_string(role)})
+    end
+
+    parent = self()
+    ready = make_ref()
+
+    workers =
+      for _ <- 1..2 do
+        Task.async(fn ->
+          in_client(c.schema, fn ->
+            barrier(parent, ready, :ready)
+            Configurations.Store.provision_presets()
+          end)
+        end)
+      end
+
+    for worker <- workers do
+      pid = worker.pid
+      assert_receive {^ready, ^pid, :ready}, 5000
+    end
+
+    for worker <- workers, do: send(worker.pid, {ready, :go})
+    results = Enum.map(workers, &Task.await(&1, 10_000))
+    assert [{:ok, first}, {:ok, second}] = results
+    assert first == second
+    assert {:ok, %{versions: versions, active_version_id: nil}} = Configurations.list()
+    assert length(versions) == 2
+    assert {:ok, []} = Configurations.history()
+  end
+
   test "distinct committed backends serialize both first activation and competing targets" do
     c = private_schema()
     f = ValuationCase.fixture()

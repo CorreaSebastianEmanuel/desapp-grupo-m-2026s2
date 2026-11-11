@@ -205,7 +205,9 @@ defmodule FootballMarket.Quotes.Membership do
 
   defp rows_for_scope(player_id, season_id, from, to) do
     query = """
-    SELECT p.id, to_jsonb(p) || jsonb_build_object(
+    SELECT p.id, to_jsonb(p) || COALESCE(
+      (SELECT e.values FROM performance_enrichments e WHERE e.performance_id=p.id ORDER BY e.revision DESC LIMIT 1),
+      '{}'::jsonb) || jsonb_build_object(
       'match_identity', m.match_identity, 'kickoff_at', m.kickoff_at,
       'home_team_id', m.home_team_id, 'away_team_id', m.away_team_id
     ) AS fact_material

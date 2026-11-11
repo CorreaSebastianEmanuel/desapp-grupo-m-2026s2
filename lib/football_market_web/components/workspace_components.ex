@@ -280,14 +280,13 @@ defmodule FootballMarketWeb.WorkspaceComponents do
               <div>
                 <dt>Partidos registrados</dt><dd>{@card.statistics.recorded_match_count}</dd>
               </div>
-              <div :if={@card.statistics.minutes_played != nil}>
-                <dt>Minutos jugados</dt><dd>{@card.statistics.minutes_played}</dd>
-              </div>
-              <div :if={@card.statistics.goals != nil}>
-                <dt>Goles</dt><dd>{@card.statistics.goals}</dd>
-              </div>
-              <div :if={@card.statistics.assists != nil}>
-                <dt>Asistencias</dt><dd>{@card.statistics.assists}</dd>
+              <div
+                :for={metric <- [:minutes_played | FootballMarket.Statistics.Input.metrics()]}
+                data-metric={metric}
+              >
+                <dt>{metric_name(metric)}</dt>
+                <dd>{Map.get(@card.statistics, metric) || "Desconocido"}</dd>
+                <small>{metric_coverage_label(@card.statistics.metric_coverage[metric])}</small>
               </div>
             </dl>
             <p
@@ -673,6 +672,43 @@ defmodule FootballMarketWeb.WorkspaceComponents do
     </section>
     """
   end
+
+  def metric_name(metric) do
+    %{
+      minutes_played: "Minutos jugados",
+      goals: "Goles",
+      assists: "Asistencias",
+      shots_on_target: "Tiros al arco",
+      tackles: "Entradas",
+      interceptions: "Intercepciones",
+      saves: "Atajadas",
+      goals_conceded: "Goles recibidos en cancha",
+      yellow_cards: "Tarjetas amarillas",
+      red_cards: "Tarjetas rojas"
+    }[metric]
+  end
+
+  def metric_coverage_label(%{status: "complete", known_match_count: known}),
+    do: "#{known} partidos con datos"
+
+  def metric_coverage_label(%{
+        status: "partial",
+        known_match_count: known,
+        unknown_match_count: unknown
+      }),
+      do: "Cobertura parcial: #{known} con datos, #{unknown} desconocidos"
+
+  def metric_coverage_label(_), do: "Sin datos disponibles"
+
+  def role_name(role),
+    do:
+      %{
+        overall: "General",
+        goalkeeper: "Arquero",
+        defender: "Defensor",
+        midfielder: "Mediocampista",
+        forward: "Delantero"
+      }[role]
 
   def strategy_name("balanced"), do: "Equilibrada"
   def strategy_name("position_aware"), do: "Por posición"

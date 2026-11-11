@@ -47,8 +47,15 @@ defmodule FootballMarket.Valuation.StatisticsReader do
          {:ok, match} <- Statistics.get_match(fact.match_id) do
       authoritative = snapshot(row, match)
 
-      if authoritative == %{fact | group: nil},
-        do: {:ok, authoritative},
+      candidate = Map.put(fact.metrics, :minutes_played, fact.minutes)
+      retained = Statistics.retained_metric_versions(row)
+
+      same_identity =
+        Map.drop(Map.from_struct(authoritative), [:metrics, :minutes, :group]) ==
+          Map.drop(Map.from_struct(fact), [:metrics, :minutes, :group])
+
+      if same_identity and candidate in retained,
+        do: {:ok, %{fact | group: nil}},
         else: Error.new(:inconsistent_replay, :altered_fact, [fact.performance_id])
     else
       _ -> Error.new(:unavailable_replay, :original_fact_unavailable, [fact.performance_id])
@@ -63,6 +70,23 @@ defmodule FootballMarket.Valuation.StatisticsReader do
         %Decimal.Context{precision: 131_072, emax: :infinity, emin: :infinity},
         fun
       )
+
+  def enrichment_identity(facts) do
+    enriched =
+      Enum.any?(facts, fn fact ->
+        {:ok, row} = read(fn -> Statistics.get_performance(fact.player_id, fact.match_id) end)
+
+        Map.take(row, Statistics.Enrichment.fields()) !=
+          Map.put(fact.metrics, :minutes_played, fact.minutes)
+      end)
+
+    if enriched do
+      digest = facts |> FootballMarket.Valuation.Evidence.canonical() |> :erlang.term_to_binary()
+      %{"enriched_fact_digest" => :crypto.hash(:sha256, digest) |> Base.encode16(case: :lower)}
+    else
+      %{}
+    end
+  end
 
   def snapshot(row, match) do
     %Fact{

@@ -124,22 +124,21 @@ defmodule FootballMarket.Statistics.Ingestion.Records do
   defp retain_existing_performance!(fact, count, existing, team) do
     same_position = same_retained_position?(fact, existing)
 
-    same_counts =
-      Enum.all?(
-        FootballMarket.Statistics.Input.metrics(),
-        &(Map.get(existing, &1) == Map.get(fact.counts, &1))
-      )
-
     same_participation =
       existing.participation ==
         (fact.participation && Atom.to_string(fact.participation))
 
-    unless same_position and same_counts and same_participation and
-             existing.team_id == team.id and
-             existing.minutes_played == fact.minutes_played,
+    unless same_position and same_participation and
+             existing.team_id == team.id,
            do: Repo.rollback(:immutable_conflict)
 
-    {{fact, existing.id, :performance, :existing}, count}
+    state =
+      FootballMarket.Statistics.Enrichment.additions!(
+        existing,
+        Map.put(fact.counts, :minutes_played, fact.minutes_played)
+      )
+
+    {{fact, existing.id, :performance, state}, count + if(state == :existing, do: 0, else: 1)}
   end
 
   defp same_retained_position?(fact, existing) do

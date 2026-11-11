@@ -1540,7 +1540,7 @@
     "/api/transactions": {
       "get": {
         "summary": "List authenticated user transactions",
-        "description": "Returns the authenticated user\u2019s immutable purchases and sales, newest completion first, with stable type and operation ID tie-breaks. Purchases are scoped by buyer_id and sales by seller_id. Cursor tokens are opaque, encrypted, and owner-bound. A continuation page remains anchored while newer operations are appended. Money values are exact decimal strings. This read does not mutate financial records.",
+        "description": "Returns the authenticated user’s immutable purchases and sales, newest completion first, with stable type and operation ID tie-breaks. Purchases are scoped by buyer_id and sales by seller_id. Cursor tokens are opaque, encrypted, and owner-bound. A continuation page remains anchored while newer operations are appended. Money values are exact decimal strings. This read does not mutate financial records.",
         "operationId": "listTransactions",
         "security": [
           {
@@ -1576,7 +1576,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Transaction history page. data contains only the authenticated user\u2019s purchases and sales.",
+            "description": "Transaction history page. data contains only the authenticated user’s purchases and sales.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2205,6 +2205,330 @@
                 "type": "integer",
                 "minimum": 0,
                 "nullable": true
+              },
+              "shots_on_target": {
+                "type": "integer",
+                "minimum": 0,
+                "nullable": true
+              },
+              "tackles": {
+                "type": "integer",
+                "minimum": 0,
+                "nullable": true
+              },
+              "interceptions": {
+                "type": "integer",
+                "minimum": 0,
+                "nullable": true
+              },
+              "saves": {
+                "type": "integer",
+                "minimum": 0,
+                "nullable": true
+              },
+              "goals_conceded": {
+                "type": "integer",
+                "minimum": 0,
+                "nullable": true
+              },
+              "yellow_cards": {
+                "type": "integer",
+                "minimum": 0,
+                "nullable": true
+              },
+              "red_cards": {
+                "type": "integer",
+                "minimum": 0,
+                "nullable": true
+              },
+              "metric_coverage": {
+                "type": "object",
+                "description": "Coverage among recorded local matches only. Unavailable means none of the recorded matches has a known value; partial totals remain null.",
+                "required": [
+                  "minutes_played",
+                  "goals",
+                  "assists",
+                  "shots_on_target",
+                  "tackles",
+                  "interceptions",
+                  "saves",
+                  "goals_conceded",
+                  "yellow_cards",
+                  "red_cards"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "minutes_played": {
+                    "type": "object",
+                    "required": [
+                      "status",
+                      "known_match_count",
+                      "unknown_match_count"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "complete",
+                          "partial",
+                          "unavailable"
+                        ]
+                      },
+                      "known_match_count": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "unknown_match_count": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    }
+                  },
+                  "goals": {
+                    "type": "object",
+                    "required": [
+                      "status",
+                      "known_match_count",
+                      "unknown_match_count"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "complete",
+                          "partial",
+                          "unavailable"
+                        ]
+                      },
+                      "known_match_count": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "unknown_match_count": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    }
+                  },
+                  "assists": {
+                    "type": "object",
+                    "required": [
+                      "status",
+                      "known_match_count",
+                      "unknown_match_count"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "complete",
+                          "partial",
+                          "unavailable"
+                        ]
+                      },
+                      "known_match_count": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "unknown_match_count": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    }
+                  },
+                  "shots_on_target": {
+                    "type": "object",
+                    "required": [
+                      "status",
+                      "known_match_count",
+                      "unknown_match_count"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "complete",
+                          "partial",
+                          "unavailable"
+                        ]
+                      },
+                      "known_match_count": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "unknown_match_count": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    }
+                  },
+                  "tackles": {
+                    "type": "object",
+                    "required": [
+                      "status",
+                      "known_match_count",
+                      "unknown_match_count"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "complete",
+                          "partial",
+                          "unavailable"
+                        ]
+                      },
+                      "known_match_count": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "unknown_match_count": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    }
+                  },
+                  "interceptions": {
+                    "type": "object",
+                    "required": [
+                      "status",
+                      "known_match_count",
+                      "unknown_match_count"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "complete",
+                          "partial",
+                          "unavailable"
+                        ]
+                      },
+                      "known_match_count": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "unknown_match_count": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    }
+                  },
+                  "saves": {
+                    "type": "object",
+                    "required": [
+                      "status",
+                      "known_match_count",
+                      "unknown_match_count"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "complete",
+                          "partial",
+                          "unavailable"
+                        ]
+                      },
+                      "known_match_count": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "unknown_match_count": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    }
+                  },
+                  "goals_conceded": {
+                    "type": "object",
+                    "required": [
+                      "status",
+                      "known_match_count",
+                      "unknown_match_count"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "complete",
+                          "partial",
+                          "unavailable"
+                        ]
+                      },
+                      "known_match_count": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "unknown_match_count": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    }
+                  },
+                  "yellow_cards": {
+                    "type": "object",
+                    "required": [
+                      "status",
+                      "known_match_count",
+                      "unknown_match_count"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "complete",
+                          "partial",
+                          "unavailable"
+                        ]
+                      },
+                      "known_match_count": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "unknown_match_count": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    }
+                  },
+                  "red_cards": {
+                    "type": "object",
+                    "required": [
+                      "status",
+                      "known_match_count",
+                      "unknown_match_count"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "complete",
+                          "partial",
+                          "unavailable"
+                        ]
+                      },
+                      "known_match_count": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "unknown_match_count": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    }
+                  }
+                }
               }
             },
             "additionalProperties": false

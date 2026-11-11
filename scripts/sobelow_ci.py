@@ -45,21 +45,21 @@ EXCEPTIONS = [
         "file": "lib/football_market/quotes/membership.ex",
         "line": 194,
         "confidence": "low_confidence",
-        "sha256": "bffa364a8de8551773f7ec4ebe0eb1b036d3c56962a7a31d3bae0570eddd3f46"
+        "sha256": "1568bb2a7cee60567d68e72acc32e9783bc4b0ae41dfef8d3da7c9c1b74d3962"
     },
     {
         "type": "SQL.Query: SQL injection",
         "file": "lib/football_market/quotes/membership.ex",
-        "line": 218,
+        "line": 220,
         "confidence": "low_confidence",
-        "sha256": "bffa364a8de8551773f7ec4ebe0eb1b036d3c56962a7a31d3bae0570eddd3f46"
+        "sha256": "1568bb2a7cee60567d68e72acc32e9783bc4b0ae41dfef8d3da7c9c1b74d3962"
     },
     {
         "type": "Traversal.FileModule: Directory Traversal in `File.read`",
         "file": "lib/football_market/statistics/ingestion/observations.ex",
         "line": 41,
         "confidence": "low_confidence",
-        "sha256": "91a9fae41bac6cd23ec4d419f36f647fa3886957392551733b8fcb288f85343d"
+        "sha256": "1380cd6e3958fecff5d4e975f96fc247896992784d65068be335156c91c5f23f"
     },
     {
         "type": "Traversal.FileModule: Directory Traversal in `File.read`",

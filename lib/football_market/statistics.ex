@@ -188,7 +188,7 @@ defmodule FootballMarket.Statistics do
     with {:ok, id} <- Input.identifier(player_id, :player_id),
          {:ok, bounds} <- Input.bounds(opts),
          {:ok, _} <- get(Player, id, :player_id) do
-      {:ok, Repo.all(Query.history(id, bounds))}
+      {:ok, Repo.all(Query.history(id, bounds)) |> FootballMarket.Statistics.Enrichment.overlay()}
     end
   end
 
@@ -197,13 +197,16 @@ defmodule FootballMarket.Statistics do
     Decimal.Context.with(
       %Decimal.Context{precision: 131_072, emax: :infinity, emin: :infinity},
       fn ->
-        rows = Repo.all(Query.recorded_season(id, season_id))
+        rows =
+          Repo.all(Query.recorded_season(id, season_id))
+          |> FootballMarket.Statistics.Enrichment.overlay()
 
         {:ok,
          Map.merge(recorded_totals(rows), %{
            season_id: season_id,
            recorded_match_count: length(rows),
-           coverage: "recorded_local_facts"
+           coverage: "recorded_local_facts",
+           metric_coverage: metric_coverage(rows)
          })}
       end
     )
@@ -212,11 +215,33 @@ defmodule FootballMarket.Statistics do
   end
 
   defp recorded_totals(rows) do
-    Map.new([:minutes_played, :goals, :assists], fn metric ->
+    Map.new([:minutes_played | Input.metrics()], fn metric ->
       values = Enum.map(rows, &Map.fetch!(&1, metric))
       {metric, complete_total(values)}
     end)
   end
+
+  defp metric_coverage(rows) do
+    Map.new([:minutes_played | Input.metrics()], fn metric ->
+      known = Enum.count(rows, &is_integer(Map.get(&1, metric)))
+
+      status =
+        cond do
+          known == 0 -> "unavailable"
+          known == length(rows) -> "complete"
+          true -> "partial"
+        end
+
+      {metric,
+       %{status: status, known_match_count: known, unknown_match_count: length(rows) - known}}
+    end)
+  end
+
+  def retained_metric_versions(row),
+    do: [
+      FootballMarket.Statistics.Enrichment.values(row)
+      | FootballMarket.Statistics.Enrichment.versions(row.id)
+    ]
 
   defp complete_total(values) do
     if values != [] and Enum.all?(values, &is_integer/1), do: Enum.sum(values)

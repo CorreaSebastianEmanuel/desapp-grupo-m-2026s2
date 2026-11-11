@@ -38,7 +38,7 @@ try {
   await page.locator('#catalog-position').selectOption(filters.position_id);
   await page.locator('#catalog-page-size').selectOption('1');
   await page.getByRole('button', {name: 'Buscar jugadores', exact: true}).click();
-  await page.waitForURL(url => url.searchParams.get('team_id') === filters.team_id);
+  await page.waitForURL(url => Object.entries(filters).every(([key, value]) => url.searchParams.get(key) === value) && url.searchParams.get('page_size') === '1' && url.searchParams.get('q') === name);
   const searchUrl = page.url();
   for (const viewport of [{width: 1280, height: 800}, {width: 768, height: 1024}, {width: 390, height: 844}]) {
     await page.setViewportSize(viewport);
@@ -63,6 +63,10 @@ try {
   await page.waitForSelector('.phx-connected #player-card');
   assert.match(await page.locator('#player-quote').innerText(), /Vigente desde/);
   assert.match(await page.locator('#player-statistics').innerText(), /Partidos registrados/);
+  assert.match(await page.locator('#player-statistics').innerText(), /Tiros al arco/);
+  assert.match(await page.locator('#player-statistics').innerText(), /Intercepciones/);
+  assert.equal(await page.locator('#player-statistics [data-metric="goals"] dd').innerText(), '1');
+  assert.equal(await page.locator('#player-statistics [data-metric="saves"] dd').innerText(), 'Desconocido');
   assert.equal(await page.locator('#quote-provenance').count(), 1);
   assert.equal(await page.locator('#quote-history').count(), 1);
   assert.equal(await page.locator('#player-freshness').count(), 1);
@@ -211,7 +215,7 @@ try {
   await adminPage.waitForSelector('.phx-connected #workspace');
   await adminPage.getByRole('link', {name: 'Administración', exact: true}).click();
   await adminPage.waitForSelector('.phx-connected #administration');
-  await adminPage.locator(`#configuration-${version} button`).click();
+  await adminPage.locator(`#configuration-${version} button[phx-click="activate"]`).click();
   await adminPage.waitForSelector(`#configuration-${version} .active-configuration`);
   assert.match(await adminPage.locator('#activation-notice').innerText(), /próximo cierre/);
   assert(await adminPage.evaluate(() => document.documentElement.scrollWidth <= innerWidth));

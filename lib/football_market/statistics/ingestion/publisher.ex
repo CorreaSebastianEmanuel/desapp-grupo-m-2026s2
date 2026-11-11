@@ -110,7 +110,7 @@ defmodule FootballMarket.Statistics.Ingestion.Publisher do
           accepted_check_id: check.id,
           changed_performance_ids:
             performances
-            |> Enum.filter(&(elem(&1, 3) == :new))
+            |> Enum.filter(&(elem(&1, 3) != :existing))
             |> Enum.map(&elem(&1, 1))
             |> Enum.sort(),
           requested_at: now
@@ -118,7 +118,9 @@ defmodule FootballMarket.Statistics.Ingestion.Publisher do
       end
 
     if intent do
-      changed_ids = performances |> Enum.filter(&(elem(&1, 3) == :new)) |> Enum.map(&elem(&1, 1))
+      changed_ids =
+        performances |> Enum.filter(&(elem(&1, 3) != :existing)) |> Enum.map(&elem(&1, 1))
+
       FootballMarket.Quotes.Membership.snapshot_import!(intent.id, changed_ids)
     end
 

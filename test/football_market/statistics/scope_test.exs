@@ -10,7 +10,7 @@ defmodule FootballMarket.Statistics.ScopeTest do
         |> Enum.reject(&(&1 == "lib/football_market/statistics/ingestion.ex"))
     ]
 
-    assert length(files) == 7
+    assert length(files) == 8
 
     for path <- files do
       source = File.read!(path)

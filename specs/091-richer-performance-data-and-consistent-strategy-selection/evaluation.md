@@ -1,56 +1,30 @@
-# Independent evaluation — TASK-091
+# Independent repair re-evaluation — TASK-091
 
-Evaluated 2026-11-11 as the sole independent evaluator. Reviewed the compact spec, backlog task, REVIEW.md, repository baseline documents and constitution, the entire candidate diff and affected implementation/tests. No TASK-091 feedback or earlier evaluation exists. Implementation was not modified; no other agent was invoked.
+Reviewed the compact outcome spec, backlog task and Feedback 1, REVIEW.md, product/architecture/checkpoint documents, workflow lessons and constitution; inspected the repair diff against `44de988`, affected implementation/tests, and the specifically named local ThinFlow evidence. This supersedes the prior FAIL. No implementation changes, other skills, delegation or `agentflow verify` were used.
 
-## Acceptance and evidence
+## Acceptance and repair assessment
 
-| Acceptance | Assessment | Evidence |
-| --- | --- | --- |
-| Authorized linked match acquisition and identity | PASS | PlayerProfile uses Document.portion!/6, preserving assessment, deadline and transport budget enforcement. Match/player/team, competition, season, kickoff and historical position checks fail closed. ScrapingPerformancesTest exercises linked acquisition, identity mutations, unknown positions, missing metrics and bounded dates. |
-| Nine counters, minutes and coverage semantics | PASS | Translator admits only assessed integer counters; Statistics totals require every retained value and report known/unknown match counts separately. PlayerDetailTest asserts verified zero, unavailable and partial coverage. Existing valuation requirements continue rejecting absent inputs. |
-| Additive immutable enrichment and replay | PASS | Original performance/provenance rows remain unchanged; publisher transactions append check-linked cumulative snapshots and later calculation intents. Database triggers reject rewrites, subtraction, invalid shapes/types and non-additive revisions. EnrichmentTest exercises two enrichment revisions, repeat imports, omissions/conflicts, frozen import membership, distinct calculations, old and enriched replay, and forged evidence rejection. |
-| Explicit presets and custom immutable versions | PASS | Presets match the approved weights/references. Store serializes provisioning, keys calibration plus role mapping and never activates or schedules recalculation. PresetsTest and ConcurrencyTest cover authorization, missing mappings, idempotence, concurrent provisioning, invalid edits, preserved identities and unchanged jobs/quotes. |
-| Two families, inspectable versions and separate activation | PASS | Administration groups saved identities by the two registry families, displays origin, equivalent rules, active identity, effective rules/mappings and empty states. Existing expected-selection locking remains intact. LiveView and real Chromium cases cover editing, independent activation and persisted selection. |
-| Shared read, API and Spanish player card | PASS | PlayerController/PlayerJSON pass the shared Catalog/Statistics projection through without removing existing fields; OpenAPI includes the added counters and coverage. Player card labels unknowns explicitly and retains the local-recorded disclaimer. PlayerDetailTest verifies domain projection; the affected market browser journey verifies displayed goals, unknown saves and new metric labels. |
-| Focused regressions and inventories | PASS | New source, helper and test entries appear in coverage/Credo/profile inventories and exact workflow scope. Current deterministic selected checks pass; targeted integration and both affected browser journeys also passed during this evaluation. |
+| Surface | Assessment |
+| --- | --- |
+| Unavailable originals / immutable replay | StatisticsReader now handles unavailable performance reads without a match error and binds supplied failure facts to a deterministic digest. Original authentication still rejects unavailable facts. Ranking regressions assert unreproducible status, nil score/price, no quote/ranking, retained evidence, stable repeated identity, distinct changed-input identity and safe replay. |
+| Configuration namespace / valuation purity | Historical 33-path inventory remains intact; the current exact namespace adds only Editor and Presets. AST checks admit only the reviewed StatisticsReader SHA-256 call, with wrong algorithm, argument, operation and owner negative controls. Existing write/time/provider restrictions remain. |
+| Player-card compatibility | Assertions enumerate all ten metrics with exact Spanish labels, known/unknown values and coverage, retaining surrounding quote, provenance and financial checks. |
+| Native feedback recovery | Supported v2 rewinds back up state before removing the execution tree and retain preceding results. Recovery requires ThinFlow, completed v2 state and a matching latest feedback/non-final position; final publication retries and unsupported schemas remain protected. Five added controls cover backup, refusal, recovery and idempotence. |
+| Inventories and scope | Manifest changes add five Python cases and replace the renamed namespace case without dropping its integration coverage. WorkflowScope registers the explicit repair paths. No timeout or selection policy changed. |
+| Original approved outcome | Unchanged provider import/identity validation, additive immutable metric evidence, presets/editor, separate activation and shared read/API/card behavior retain the earlier review assessment. The affected enrichment, preset and browser surfaces are included in the complete integration inventory. Resolved findings were not reopened. |
 
-## Risk, architecture and security
+## Current evidence
 
-High risk is appropriate for immutable statistical evidence, quote reproducibility and administrator configuration. Recomputed ThinFlow selection matches the receipt: application, delivery-docs, delivery-harness and runtime-and-toolchain rules; no unmapped paths. Web code delegates commands to the configuration domain with administrator checks; provider payload translation remains inside the adapter. Persistence and publication retain transaction ownership and season/selection serialization. Quotes consume retained evidence; existing admitted snapshots and historical quotes are not updated. Save/provision and activate remain separate, with existing nightly admission behavior preserved.
+Executed `scripts.thinflow.readiness(..., require_evaluation=False)` successfully. Candidate `.agentflow/runs/thinflow/TASK-091/candidate.json` has current material digest `bd372a6f6f12cb37826b4a54e987384e7e2ccb32a6bdffc31ecc7a133362b954`. Recomputed policy/selection, branch/task identity, ordered check membership, zero exits and evidence-file hashes validate. High risk is appropriate; no paths are unmapped. Recorded selected results: 27 CI-contract tests, 387 harness tests, format, compile, and 717/717 unit cases passed. Format and compile logs are empty with successful recorded exits.
 
-The Sobelow delta refreshes only reviewed exact source hashes and a relocated fixed SQL query. Its values remain parameter-bound; fixture reads retain the fixed inventory-validated path. Dialyzer changes refresh the two documented pre-existing exceptions in dev/test; reviewed native message and source hashes match the current files. No broad suppression or workflow-policy relaxation was introduced.
+The prior B1 is closed by `.agentflow/runs/7f342332/thinflow/integration-round2/result.json` and `native-receipt.json`: the unchanged `sh scripts/test_profile.sh integration` exited 0 in 1756.33 seconds, within the existing 1800-second ceiling. Native status is complete: 749 expected/discovered/executed/passed, comprising 740 ExUnit and nine shell cases across 192 audited files. Verified receipt SHA-256, current manifest SHA-256/count, all seven requested affected module memberships, and equal before/after material digests matching the current candidate. The wrapper invokes the native profile directly and adds observation rather than changing selection or timeout. The earlier failed result is preserved; it is superseded by complete current evidence.
 
-## Deterministic evidence and targeted checks
+Independently executed `python3 -m unittest test.scripts.agentflow_feedback_test`: 17 tests passed. No full profile was rerun during this evaluation; integration results above are inspected native evidence, not a claim of evaluator execution.
 
-Validated `scripts.thinflow.readiness(..., require_evaluation=False)` against the current workspace both before and after targeted testing. Candidate digest: `fb0ff6fa6710a6faf38eaaab05fbca59f49d24bcf6a577054f0d74c871162ed7`. Receipt: `.agentflow/runs/thinflow/TASK-091/candidate.json`. Task/branch, policy selection, current material digest, ordered check membership, successful exit codes and every evidence-file SHA-256 matched. Format and compile are successful silent commands; their empty stdout files are consistent with their recorded zero exits. Unit receipt accounts for all 712 expected/discovered/executed/passed cases; CI contracts report 27 passed; harness evidence reports 382 tests, OK.
+## Findings and residual risk
 
-The selected unit profile does not execute the integration-tagged enrichment/configuration/browser cases, and no supplemental receipt was available. To resolve that specific evidence gap, ran only:
+No blocking findings. No advisory findings requiring action. Web/domain/persistence/provider boundaries, immutable original authentication, separate configuration activation and nightly calculation behavior remain intact. Analyzer exception files and bound implementation sources are unchanged by the repair.
 
-```sh
-MIX_ENV=test mix test test/football_market/providers/scraping/performances_test.exs test/football_market/statistics/ingestion/enrichment_test.exs test/football_market/valuation/configurations/presets_test.exs test/football_market/valuation/configurations/concurrency_test.exs test/football_market/catalog/player_detail_test.exs test/football_market_web/live/administration_live_test.exs test/football_market_web/administration_browser_test.exs
-```
-
-Result: **19 passed**, seed 62297, 39.7 seconds, including actual Chromium provisioning/editing/selection.
-
-The changed `tools/openapi/e2e_market.mjs` also needed execution evidence for the player-card assertions and adjusted activation selector:
-
-```sh
-MIX_ENV=test mix test test/e2e/portfolio_analytics_test.exs:57 --include e2e
-```
-
-Result: **1 passed, 2 excluded**, seed 108853, 25.0 seconds. This ran the actual market browser journey. No full suite was rerun.
-
-## Blocking findings
-
-None.
-
-## Advisory findings
-
-None.
-
-## Residual risks
-
-- Deterministic provider fixtures establish translation and refusal behavior, not universal live source coverage. Missing fields and mismatched/reused match links continue to fail closed or remain unknown; live availability remains an external dependency.
-- Evaluation covers the current workspace candidate. The exact published PR head must still pass hosted `ThinFlow required`, followed by human merge. This report does not claim either has occurred.
+Provider fixtures do not establish universal live metric availability. Local readiness does not establish hosted exact-head success. The exact PR head must still pass `ThinFlow required`, followed by human merge; neither is claimed here. This candidate is ready for those gates.
 
 Verdict: PASS

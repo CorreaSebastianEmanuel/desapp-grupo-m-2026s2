@@ -74,10 +74,16 @@ defmodule FootballMarket.Valuation.StatisticsReader do
   def enrichment_identity(facts) do
     enriched =
       Enum.any?(facts, fn fact ->
-        {:ok, row} = read(fn -> Statistics.get_performance(fact.player_id, fact.match_id) end)
+        case read(fn -> Statistics.get_performance(fact.player_id, fact.match_id) end) do
+          {:ok, row} ->
+            Map.take(row, Statistics.Enrichment.fields()) !=
+              Map.put(fact.metrics, :minutes_played, fact.minutes)
 
-        Map.take(row, Statistics.Enrichment.fields()) !=
-          Map.put(fact.metrics, :minutes_played, fact.minutes)
+          {:error, _} ->
+            # Bind unavailable-original failure evidence to its exact inputs too.
+            # originals/1 still rejects it; this digest never authenticates a fact.
+            true
+        end
       end)
 
     if enriched do

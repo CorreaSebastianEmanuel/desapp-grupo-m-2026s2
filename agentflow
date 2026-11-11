@@ -376,6 +376,9 @@ def rewind_run(task, run, stage):
     state=read_run_state(run) or state
     order=workflow_step_order(SPEC_RUNS/run/"workflow.yml")
     if stage not in order: raise SystemExit(f"Stage {stage} is not present in the saved workflow")
+    execution=state.get("execution")
+    if execution is not None and (not isinstance(execution,dict) or type(execution.get("version")) is not int or execution["version"] != 2):
+        raise SystemExit("Unsupported Spec Kit execution checkpoint; refusing feedback rewind")
     index=order.index(stage)
     stamp=datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     state_path=SPEC_RUNS/run/"state.json"
@@ -384,6 +387,10 @@ def rewind_run(task, run, stage):
     retained=set(order[:index])
     if "product_check" in retained: retained.add("human_product_check")
     state["step_results"]={k:v for k,v in state.get("step_results",{}).items() if k in retained}
+    # Spec Kit v2 traverses its execution tree rather than the legacy views.
+    # The backup above retains that tree; resume rebuilds the remaining steps
+    # from the captured workflow, index and retained prior results.
+    state.pop("execution",None)
     state["error"]=None; state["updated_at"]=datetime.now(timezone.utc).isoformat()
     state.setdefault("inputs",{})["spec"]=task_context(task)
     state_path.write_text(json.dumps(state,indent=2)+"\n",encoding="utf-8")
@@ -394,6 +401,24 @@ def rewind_run(task, run, stage):
     inputs_path.write_text(json.dumps(inputs,indent=2)+"\n",encoding="utf-8")
     with (SPEC_RUNS/run/"log.jsonl").open("a",encoding="utf-8") as log:
         log.write(json.dumps({"event":"feedback_rewind","stage":stage,"timestamp":state["updated_at"]})+"\n")
+    return True
+
+def recover_completed_feedback_rewind(task, run):
+    """Recover the v2 no-op replay of an explicitly requested ThinFlow repair."""
+    state=read_run_state(run)
+    if not is_thinflow(task) or not state or state.get("status") != "completed": return False
+    execution=state.get("execution")
+    if not isinstance(execution,dict) or type(execution.get("version")) is not int or execution["version"] != 2: return False
+    path=feedback_path(task)
+    if not path.is_file(): return False
+    stages=re.findall(r"(?m)^- Restart from: ([a-z_]+)\s*$",path.read_text(encoding="utf-8"))
+    stage=state.get("current_step_id")
+    order=workflow_step_order(SPEC_RUNS/run/"workflow.yml")
+    if not stages or stages[-1] != stage or stage not in order[:-1]: return False
+    if state.get("current_step_index") != order.index(stage):
+        raise SystemExit("Feedback checkpoint position is inconsistent; refusing recovery")
+    rewind_run(task,run,stage)
+    print(f"Recovered the requested feedback rewind to {stage}; retained the same run and feedback entry")
     return True
 
 IMPACT_STAGE={'product':'product','architecture':'architecture','verification':'architecture',
@@ -812,6 +837,7 @@ def resume(a):
     state=read_run_state(run)
     session_feature(task,head_ref=branch,allow_missing=bool(state and state.get("current_step_id")=="product"))
     recover_orphaned_run(task,run)
+    recover_completed_feedback_rewind(task,run)
     field(task,"status","wip")
     print(f"Resuming {a.task.upper()} — run {run}")
     state=read_run_state(run)

@@ -1362,11 +1362,14 @@ defmodule FootballMarket.WorkflowScope do
 
   def paths("specs/091-richer-performance-data-and-consistent-strategy-selection") do
     [
+      "agentflow",
       "assets/css/app.css",
       "backlog/TASK-091-richer-performance-data-and-consistent-strategy-selection.md",
+      "backlog/feedback/TASK-091.md",
       "config/application_coverage_inventory.json",
       "config/credo_inventory.json",
       "config/test_profiles.json",
+      "docs/WORKFLOW_LESSONS.md",
       "lib/football_market/providers/scraping/assessment.ex",
       "lib/football_market/providers/scraping/player_profile.ex",
       "lib/football_market/providers/scraping/translator.ex",
@@ -1394,12 +1397,17 @@ defmodule FootballMarket.WorkflowScope do
       "test/ci/workflow_scope_test.exs",
       "test/football_market/catalog/player_detail_test.exs",
       "test/football_market/providers/scraping/performances_test.exs",
+      "test/football_market/ranking/selection_test.exs",
       "test/football_market/statistics/ingestion/enrichment_test.exs",
       "test/football_market/statistics/scope_test.exs",
       "test/football_market/valuation/configurations/concurrency_test.exs",
       "test/football_market/valuation/configurations/presets_test.exs",
+      "test/football_market/valuation/configurations/scope_test.exs",
+      "test/football_market/valuation/scope_test.exs",
       "test/football_market_web/administration_browser_test.exs",
       "test/football_market_web/live/administration_live_test.exs",
+      "test/football_market_web/live/portfolio_live_test.exs",
+      "test/scripts/agentflow_feedback_test.py",
       "test/support/workflow_scope.ex",
       "tools/openapi/administration_browser.mjs",
       "tools/openapi/e2e_market.mjs"

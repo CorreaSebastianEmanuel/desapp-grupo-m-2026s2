@@ -842,6 +842,13 @@
       "profile": "unit"
     },
     {
+      "id": "12dfb4cd01ce6fd0d81ea900",
+      "runner": "python",
+      "file": "test/scripts/agentflow_feedback_test.py",
+      "case_id": "test.scripts.agentflow_feedback_test.FeedbackTest.test_completed_pointer_without_feedback_does_not_implicitly_rewind",
+      "profile": "unit"
+    },
+    {
       "id": "1354917910da7b51cca32011",
       "runner": "exunit",
       "file": "test/e2e/catalog_sync_test.exs",
@@ -2823,6 +2830,13 @@
       "profile": "unit"
     },
     {
+      "id": "45a69698b42f9f7cd19fd13a",
+      "runner": "exunit",
+      "file": "test/football_market/valuation/configurations/scope_test.exs",
+      "case_id": "FootballMarket.Valuation.Configurations.ScopeTest:test exact historical 33-path inventory and current namespace preserve exclusions and purity",
+      "profile": "integration"
+    },
+    {
       "id": "45b45806f3cc2cac7f170e32",
       "runner": "exunit",
       "file": "test/football_market/catalog/constraints_test.exs",
@@ -2862,6 +2876,13 @@
       "runner": "exunit",
       "file": "test/football_market/providers/scraping/assessment_test.exs",
       "case_id": "FootballMarket.Providers.ScrapingAssessmentTest:test publication rejects expiry, withdrawal and revision changes during final validation",
+      "profile": "unit"
+    },
+    {
+      "id": "46e5228d091f3ec7d9b954bb",
+      "runner": "python",
+      "file": "test/scripts/agentflow_feedback_test.py",
+      "case_id": "test.scripts.agentflow_feedback_test.FeedbackTest.test_unknown_execution_schema_refuses_rewind_without_mutation",
       "profile": "unit"
     },
     {
@@ -3493,6 +3514,13 @@
       "file": "test/football_market/catalog/ingestion/identity_test.exs",
       "case_id": "FootballMarket.Catalog.Ingestion.IdentityTest:test duplicate extra cross-season and contradictory instructions cannot hide behind replay",
       "profile": "integration"
+    },
+    {
+      "id": "565a4b1d73b45a373f1934cb",
+      "runner": "python",
+      "file": "test/scripts/agentflow_feedback_test.py",
+      "case_id": "test.scripts.agentflow_feedback_test.FeedbackTest.test_completed_final_stage_preserves_publication_retry",
+      "profile": "unit"
     },
     {
       "id": "568c1efff2029e9360a03de5",
@@ -8402,6 +8430,13 @@
       "profile": "integration"
     },
     {
+      "id": "d452a85c8418e113c299418e",
+      "runner": "python",
+      "file": "test/scripts/agentflow_feedback_test.py",
+      "case_id": "test.scripts.agentflow_feedback_test.FeedbackTest.test_replayed_feedback_recovery_is_idempotent_without_another_feedback_entry",
+      "profile": "unit"
+    },
+    {
       "id": "d468f36764873928f784320f",
       "runner": "exunit",
       "file": "test/football_market/market/analytics/projection_test.exs",
@@ -8540,13 +8575,6 @@
       "file": "test/football_market/valuation/position_aware/config_test.exs",
       "case_id": "FootballMarket.Valuation.PositionAware.ConfigTest:test every malformed Decimal field, container and nested tail fails without callbacks throwing",
       "profile": "unit"
-    },
-    {
-      "id": "d7a714b14d39eddfe0b23dd8",
-      "runner": "exunit",
-      "file": "test/football_market/valuation/configurations/scope_test.exs",
-      "case_id": "FootballMarket.Valuation.Configurations.ScopeTest:test exact 33-path active inventory preserves inherited exclusions and module purity",
-      "profile": "integration"
     },
     {
       "id": "d7b8f7e8d2ff5fb3a4e2d297",
@@ -9848,6 +9876,13 @@
       "runner": "exunit",
       "file": "test/football_market/providers/fixture_preservation_test.exs",
       "case_id": "FootballMarket.Providers.FixturePreservationTest:test fixture refactor preserves all four expanded terms against independent baseline fingerprints",
+      "profile": "unit"
+    },
+    {
+      "id": "f6a56cc03084072ad52daaed",
+      "runner": "python",
+      "file": "test/scripts/agentflow_feedback_test.py",
+      "case_id": "test.scripts.agentflow_feedback_test.FeedbackTest.test_feedback_rewind_invalidates_native_tree_and_preserves_checkpoint_backup",
       "profile": "unit"
     },
     {

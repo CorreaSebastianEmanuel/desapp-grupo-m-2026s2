@@ -82,6 +82,12 @@ defmodule FootballMarket.WorkflowScopeTest do
           "lib/football_market/statistics/enrichment.ex",
           "lib/football_market/valuation/configurations/editor.ex",
           "scripts/sobelow_ci.py",
+          "backlog/feedback/TASK-091.md",
+          "docs/WORKFLOW_LESSONS.md",
+          "test/football_market/ranking/selection_test.exs",
+          "test/football_market/valuation/configurations/scope_test.exs",
+          "test/football_market/valuation/scope_test.exs",
+          "test/football_market_web/live/portfolio_live_test.exs",
           "test/support/workflow_scope.ex"
         ] do
       assert WorkflowScope.allows_path?(strategies_feature, path)

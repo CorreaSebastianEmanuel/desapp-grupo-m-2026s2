@@ -72,6 +72,10 @@ defmodule FootballMarket.Valuation.ScopeTest do
 
           node
 
+        {{:., _, [:crypto, _]}, _, _} = node ->
+          assert permitted_crypto_call?(path, node), path
+          node
+
         {{:., _, [_, function]}, _, _} = node ->
           refute function in [
                    :insert,
@@ -100,13 +104,30 @@ defmodule FootballMarket.Valuation.ScopeTest do
       end)
 
       refute Regex.match?(
-               ~r/FootballMarketWeb|FootballMarket\.(Providers|Quotes|Trading|Cache)|:rand\.|:crypto\.|\bspawn\(/,
+               ~r/FootballMarketWeb|FootballMarket\.(Providers|Quotes|Trading|Cache)|:rand\.|\bspawn\(/,
                source
              )
     end
 
     scorer_source = File.read!("test/support/valuation_scorers.ex")
     refute scorer_source =~ ~r/\b(Repo|Catalog|Statistics|Providers|System|DateTime)\b/
+
+    reader = "lib/football_market/valuation/statistics_reader.ex"
+    assert permitted_crypto_call?(reader, Code.string_to_quoted!(":crypto.hash(:sha256, digest)"))
+
+    for source <- [
+          ":crypto.hash(:md5, digest)",
+          ":crypto.hash(:sha256, random_bytes)",
+          ":crypto.strong_rand_bytes(32)",
+          ":crypto.rand_uniform(1, 10)"
+        ] do
+      refute permitted_crypto_call?(reader, Code.string_to_quoted!(source))
+    end
+
+    refute permitted_crypto_call?(
+             "lib/football_market/valuation/scorer.ex",
+             Code.string_to_quoted!(":crypto.hash(:sha256, digest)")
+           )
   end
 
   test "prepare, evaluate, score and replay leave immutable stored facts unchanged" do
@@ -157,4 +178,12 @@ defmodule FootballMarket.Valuation.ScopeTest do
 
     fn feature -> elem(Code.eval_quoted(body, active_feature: feature), 0) end
   end
+
+  defp permitted_crypto_call?(
+         "lib/football_market/valuation/statistics_reader.ex",
+         {{:., _, [:crypto, :hash]}, _, [:sha256, {:digest, _, nil}]}
+       ),
+       do: true
+
+  defp permitted_crypto_call?(_, _), do: false
 end

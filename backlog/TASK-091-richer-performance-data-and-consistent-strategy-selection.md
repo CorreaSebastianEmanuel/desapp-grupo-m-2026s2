@@ -12,6 +12,8 @@ active_run: 7f342332
 
 ## Outcome
 
+Latest product direction (2026-11-12): Administration shares the workspace sidebar and design and offers only two fixed, automatically available formulas, General and Por posición. Strategy creation, names and editing are explicitly deferred by the user. Historical configurations/selection remain immutable; the compact spec and latest feedback decision supersede earlier editor proposals below.
+
 Enrich authorized player scraping with verified per-match metrics already supported by the valuation domain, expose metric availability in player detail, and make the two supported strategies and their immutable configuration versions understandable and consistently provisioned across local installations. Provide two versioned predefined configurations alongside an administrator editor that saves custom weights and references as new immutable versions. Diagnose configuration counts without deleting history or silently changing active rules. The user approved the initial numerical calibration below after reviewing the weights, weekly references and meaning of excluded metrics, and explicitly requested implementation.
 
 ## Investigation

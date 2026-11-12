@@ -39,11 +39,6 @@ defmodule FootballMarketWeb.AdministrationLiveTest do
       Application.put_env(:football_market, :initial_issuance_recipients, designation)
       refute Accounts.administrator?(actor)
       assert {:error, :forbidden} = Configurations.inspect_for(actor)
-      assert {:error, :forbidden} = Configurations.provision_presets_for(actor)
-
-      assert {:error, :forbidden} =
-               Configurations.save_custom_for(actor, Ecto.UUID.generate(), %{})
-
       assert {:error, :forbidden} = Configurations.activate_for(actor, Ecto.UUID.generate(), nil)
 
       assert authenticated_conn(user) |> get("/administration") |> html_response(403) =~
@@ -69,20 +64,19 @@ defmodule FootballMarketWeb.AdministrationLiveTest do
   test "administrator inspects immutable versions activates with seen selection and handles stale sessions" do
     user = account()
     Application.put_env(:football_market, :initial_issuance_recipients, [user.id])
-    {:ok, position} = Catalog.create_position(FootballMarket.CatalogCase.position_attrs())
-    {:ok, first} = Configurations.create(ValuationConfigurationCase.rules(position.id))
-
-    {:ok, second} =
-      Configurations.create(
-        ValuationConfigurationCase.rules(position.id, "balanced", %{goals: 3})
-      )
+    {:ok, %{versions: [first, second]}} = Configurations.inspect_for(actor(user))
 
     {:ok, admin_workspace, _} = live(authenticated_conn(user), "/portfolio")
     assert has_element?(admin_workspace, ~s(nav a[href="/administration"]), "Administración")
 
     {:ok, one, _} = live(authenticated_conn(user), "/administration")
     {:ok, two, _} = live(authenticated_conn(user), "/administration")
-    assert has_element?(one, "details", "Ver reglas")
+    assert has_element?(one, "details", "Ver cómo calcula")
+    assert has_element?(one, ".workspace-sidebar nav a[aria-current=page]", "Administración")
+    assert has_element?(one, ".workspace-account .account-email", user.email)
+    assert has_element?(one, "#credit-balance")
+    refute has_element?(one, "#configuration-form")
+    refute has_element?(one, "#provision-presets")
     quotes_before = Repo.all(FootballMarket.Market.Quote)
     jobs_before = Repo.aggregate(Oban.Job, :count)
     render_click(one, "activate", %{"version_id" => first.id})
@@ -140,27 +134,34 @@ defmodule FootballMarketWeb.AdministrationLiveTest do
     assert {:error, {:redirect, %{to: "/portfolio"}}} = live(conn)
   end
 
-  test "administrator saves edited immutable rules and versions remain grouped by two families" do
+  test "administration offers only fixed formulas and ignores obsolete editing events" do
     user = account()
     Application.put_env(:football_market, :initial_issuance_recipients, [user.id])
     {:ok, position} = Catalog.create_position(FootballMarket.CatalogCase.position_attrs())
     {:ok, base} = Configurations.create(ValuationConfigurationCase.rules(position.id))
+    {:ok, _} = Configurations.activate(base.id, nil)
     {:ok, view, _} = live(authenticated_conn(user), "/administration")
-    assert has_element?(view, "#configuration-counts", "2 familias")
-    assert has_element?(view, "#strategy-position_aware", "todavía no tiene versiones")
-    assert has_element?(view, "#no-active-configuration")
-    view |> element("#configuration-#{base.id} button", "Editar") |> render_click()
-    assert has_element?(view, "#configuration-form")
-    params = FootballMarket.Valuation.Configurations.Editor.values(base)
-    params = put_in(params, ["weights", "overall", "goals"], "2.75")
-    view |> form("#configuration-form", configuration: params) |> render_submit()
-    assert has_element?(view, "#activation-notice", "personalizada guardada")
-    assert {:ok, %{versions: versions, active_version_id: nil}} = Configurations.list()
-    assert length(versions) == 2
-    assert Enum.all?(versions, &(&1.strategy_id == "balanced"))
-    custom = Enum.find(versions, &(&1.id != base.id))
-    assert Decimal.equal?(custom.config.weights.goals, Decimal.new("2.75"))
-    assert has_element?(view, "#configuration-#{custom.id}", "Personalizada")
+    assert has_element?(view, "#configuration-counts", "2 fórmulas base")
+    assert has_element?(view, "#strategy-balanced h2", "General")
+    assert has_element?(view, "#strategy-position_aware h2", "Por posición")
+    assert has_element?(view, "#legacy-active-configuration")
+    refute has_element?(view, "#configuration-#{base.id}")
+    assert {:ok, %{versions: versions}} = Configurations.list()
+    assert length(versions) == 3
+
+    for {event, params} <- [
+          {"edit", %{"version_id" => base.id}},
+          {"save_custom", %{"configuration" => %{"weights" => %{}}}},
+          {"provision_presets", %{}}
+        ] do
+      render_click(view, event, params)
+      refute has_element?(view, "#configuration-form")
+      assert {:ok, %{versions: ^versions}} = Configurations.list()
+    end
+
+    render_click(view, "activate", %{"version_id" => base.id})
+    assert {:ok, %{id: active}} = Configurations.active()
+    assert active == base.id
 
     assert {:ok, %{version: ^base}} =
              Configurations.get(base.id)

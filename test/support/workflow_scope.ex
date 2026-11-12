@@ -1408,6 +1408,7 @@ defmodule FootballMarket.WorkflowScope do
       "test/football_market_web/live/administration_live_test.exs",
       "test/football_market_web/live/portfolio_live_test.exs",
       "test/scripts/agentflow_feedback_test.py",
+      "test/support/e2e/fixtures.ex",
       "test/support/workflow_scope.ex",
       "tools/openapi/administration_browser.mjs",
       "tools/openapi/e2e_market.mjs"

@@ -23,20 +23,51 @@ defmodule FootballMarket.Valuation.Configurations.Store do
     end
   end
 
-  def provision_presets do
+  def ensure_presets do
     Repo.transaction(fn ->
       Repo.one!(from l in SelectionLock, where: l.id == 1, lock: "FOR UPDATE")
 
-      positions =
-        Repo.all(
-          from p in Position, where: p.code in ^Map.keys(Presets.roles()), lock: "FOR KEY SHARE"
-        )
+      Enum.each(
+        [{"GK", "Goalkeeper"}, {"DEF", "Defender"}, {"MID", "Midfielder"}, {"FWD", "Forward"}],
+        &ensure_position/1
+      )
 
-      if length(positions) != 4, do: Repo.rollback(:missing_standard_positions)
-      mapping = Enum.map(positions, &{&1.id, Presets.roles()[&1.code]})
-
-      Enum.map(Presets.families(), &provision_preset!(&1, mapping))
+      preset_versions_locked()
     end)
+  end
+
+  defp ensure_position({code, name}) do
+    case FootballMarket.Catalog.get_position_by_code(code) do
+      {:ok, _} -> :ok
+      {:error, :not_found} -> create_position(code, name)
+    end
+  end
+
+  defp create_position(code, name) do
+    case FootballMarket.Catalog.create_position(%{code: code, name: name}) do
+      {:ok, _} -> :ok
+      {:error, _} -> Repo.rollback(:missing_standard_positions)
+    end
+  end
+
+  def provision_presets do
+    Repo.transaction(fn ->
+      Repo.one!(from l in SelectionLock, where: l.id == 1, lock: "FOR UPDATE")
+      preset_versions_locked()
+    end)
+  end
+
+  defp preset_versions_locked do
+    positions =
+      Repo.all(
+        from p in Position,
+          where: fragment("upper(btrim(?))", p.code) in ^Map.keys(Presets.roles()),
+          lock: "FOR KEY SHARE"
+      )
+
+    if length(positions) != 4, do: Repo.rollback(:missing_standard_positions)
+    mapping = Enum.map(positions, &{&1.id, Presets.roles()[String.upcase(String.trim(&1.code))]})
+    Enum.map(Presets.families(), &provision_preset!(&1, mapping))
   end
 
   defp provision_preset!(family, mapping) do

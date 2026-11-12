@@ -80,7 +80,8 @@ defmodule FootballMarket.WorkflowScopeTest do
 
     for path <- [
           "lib/football_market/statistics/enrichment.ex",
-          "lib/football_market/valuation/configurations/editor.ex",
+          "lib/football_market/valuation/configurations/presets.ex",
+          "test/support/e2e/fixtures.ex",
           "scripts/sobelow_ci.py",
           "backlog/feedback/TASK-091.md",
           "docs/WORKFLOW_LESSONS.md",

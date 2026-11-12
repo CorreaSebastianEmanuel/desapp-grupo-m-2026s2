@@ -5,14 +5,10 @@ defmodule FootballMarket.Valuation.Configurations.ConcurrencyTest do
   alias FootballMarket.{Repo, ValuationCase}
   alias FootballMarket.Valuation.Configurations
 
-  test "concurrent explicit provisioning creates exactly one preset per family without activation" do
+  test "concurrent automatic preparation creates canonical roles and exactly two bases without activation" do
     c = private_schema()
     assert {:error, :missing_standard_positions} = Configurations.Store.provision_presets()
     assert {:ok, %{versions: []}} = Configurations.list()
-
-    for {code, role} <- Configurations.Presets.roles() do
-      {:ok, _} = FootballMarket.Catalog.create_position(%{code: code, name: Atom.to_string(role)})
-    end
 
     parent = self()
     ready = make_ref()
@@ -22,7 +18,7 @@ defmodule FootballMarket.Valuation.Configurations.ConcurrencyTest do
         Task.async(fn ->
           in_client(c.schema, fn ->
             barrier(parent, ready, :ready)
-            Configurations.Store.provision_presets()
+            Configurations.Store.ensure_presets()
           end)
         end)
       end
@@ -38,6 +34,11 @@ defmodule FootballMarket.Valuation.Configurations.ConcurrencyTest do
     assert first == second
     assert {:ok, %{versions: versions, active_version_id: nil}} = Configurations.list()
     assert length(versions) == 2
+
+    for code <- Map.keys(Configurations.Presets.roles()) do
+      assert {:ok, _} = FootballMarket.Catalog.get_position_by_code(code)
+    end
+
     assert {:ok, []} = Configurations.history()
   end
 

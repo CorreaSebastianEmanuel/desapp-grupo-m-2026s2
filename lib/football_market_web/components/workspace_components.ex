@@ -145,7 +145,11 @@ defmodule FootballMarketWeb.WorkspaceComponents do
             >
               <.icon name={icon} class="nav-icon" /><span>{label}</span>
             </.link>
-            <a :if={@administrator} href="/administration">
+            <a
+              :if={@administrator}
+              href="/administration"
+              aria-current={@destination == "/administration" && "page"}
+            >
               <.icon name="hero-cog-6-tooth" class="nav-icon" /><span>Administración</span>
             </a>
           </nav>

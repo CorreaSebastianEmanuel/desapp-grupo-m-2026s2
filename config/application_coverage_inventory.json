@@ -1202,12 +1202,6 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/valuation/configurations/codec.ex."
     },
     {
-      "path": "lib/football_market/valuation/configurations/editor.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/valuation/configurations/editor.ex."
-    },
-    {
       "path": "lib/football_market/valuation/configurations/presets.ex",
       "role": "application",
       "disposition": "include",

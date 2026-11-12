@@ -85,13 +85,6 @@ defmodule FootballMarket.E2E.Fixtures do
     FootballMarket.PurchasesCase.fund(credentials.user, "100")
     FootballMarket.PurchasesCase.fund(f.user, "100")
 
-    {:ok, alternate} =
-      FootballMarket.Valuation.Configurations.create(
-        FootballMarket.ValuationConfigurationCase.rules(f.player.position.id, "balanced", %{
-          goals: 3
-        })
-      )
-
     {:ok, ranking} = FootballMarket.Ranking.read()
     dir = Path.join(System.tmp_dir!(), "market-e2e-" <> Ecto.UUID.generate())
     File.mkdir!(dir)
@@ -121,7 +114,6 @@ defmodule FootballMarket.E2E.Fixtures do
              })},
             {"E2E_STRATEGY", f.configuration.strategy_id},
             {"E2E_ADMIN", f.user.email},
-            {"E2E_VERSION", alternate.id},
             {"E2E_IPC", dir}
           ],
           stderr_to_stdout: true
@@ -138,6 +130,9 @@ defmodule FootballMarket.E2E.Fixtures do
       assert id == f.player.id
       assert Repo.aggregate(FootballMarket.Market.Purchase, :count) == 2
       assert Repo.aggregate(FootballMarket.Market.Sale, :count) == 2
+      assert {:ok, active} = FootballMarket.Valuation.Configurations.active()
+      assert active.strategy_id == "position_aware"
+      assert is_binary(active.preset_key)
       :ok
     after
       Task.shutdown(watcher, :brutal_kill)

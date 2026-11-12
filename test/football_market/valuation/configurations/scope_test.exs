@@ -10,11 +10,10 @@ defmodule FootballMarket.Valuation.Configurations.ScopeTest do
     assert length(inventory) == 33
     assert Enum.all?(inventory, &File.regular?/1)
     production = Enum.filter(inventory, &String.starts_with?(&1, "lib/"))
-    # TASK-025 remains historical; TASK-091 adds exactly these reviewed owners.
+    # TASK-025 remains historical; TASK-091 adds only the fixed-preset owner.
     current_production =
       production ++
         [
-          "lib/football_market/valuation/configurations/editor.ex",
           "lib/football_market/valuation/configurations/presets.ex"
         ]
 

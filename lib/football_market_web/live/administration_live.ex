@@ -1,272 +1,212 @@
 defmodule FootballMarketWeb.AdministrationLive do
-  @moduledoc "Authenticated selection of existing immutable valuation versions."
+  @moduledoc "Two fixed valuation formulas within the authenticated workspace."
   use FootballMarketWeb, :live_view
 
-  import FootballMarketWeb.WorkspaceComponents,
-    only: [strategy_name: 1, metric_name: 1, role_name: 1]
+  import FootballMarketWeb.WorkspaceComponents, only: [shell: 1, metric_name: 1, role_name: 1]
 
-  alias FootballMarket.Accounts.AuthenticatedActor
   alias FootballMarket.Valuation.Configurations
-  alias FootballMarket.Valuation.Configurations.{Presets, Editor}
+  alias FootballMarketWeb.Workspace.Session
 
-  def mount(_, _, socket),
-    do: {:ok, socket |> assign(notice: nil, editing: nil, editor_values: nil) |> reload()}
+  def mount(_, _, socket) do
+    {:ok,
+     socket
+     |> assign(notice: nil)
+     |> Session.reload_credit_balance()
+     |> reload()}
+  end
 
   def handle_event("activate", %{"version_id" => id}, socket) do
-    result = Configurations.activate_for(actor(socket), id, socket.assigns.active_version_id)
-
     notice =
-      case result do
+      case Configurations.activate_for(
+             Session.domain_actor(socket.assigns.actor),
+             id,
+             socket.assigns.active_version_id
+           ) do
         {:ok, _} ->
           "Estrategia activa actualizada. Las cotizaciones cambian en el próximo cierre."
 
         {:error, %{reason: :stale_selection}} ->
-          "Otra sesión cambió la selección. Revisá la versión activa e intentá de nuevo."
+          "Otra sesión cambió la selección. Revisá la estrategia activa e intentá de nuevo."
 
         _ ->
-          "No se pudo activar la versión seleccionada."
+          "No se pudo activar la estrategia seleccionada."
       end
 
     {:noreply, socket |> assign(notice: notice) |> reload()}
   end
 
-  def handle_event("provision_presets", _, socket) do
-    notice =
-      case Configurations.provision_presets_for(actor(socket)) do
-        {:ok, _} ->
-          "Predefinidas disponibles. Elegí una versión para activarla por separado."
-
-        {:error, :missing_standard_positions} ->
-          "Faltan posiciones estándar (GK, DEF, MID, FWD). Completá el catálogo antes de instalar."
-
-        _ ->
-          "No se pudieron instalar las predefinidas."
-      end
-
-    {:noreply, socket |> assign(notice: notice) |> reload()}
-  end
-
-  def handle_event("edit", %{"version_id" => id}, socket) do
-    case Enum.find(socket.assigns.versions, &(&1.id == id)) do
-      nil ->
-        {:noreply, assign(socket, notice: "Versión no disponible.")}
-
-      version ->
-        {:noreply, assign(socket, editing: version, editor_values: Editor.values(version))}
-    end
-  end
-
-  def handle_event("save_custom", %{"configuration" => params}, socket) do
-    case socket.assigns.editing &&
-           Configurations.save_custom_for(actor(socket), socket.assigns.editing.id, params) do
-      {:ok, _} ->
-        {:noreply,
-         socket
-         |> assign(
-           editing: nil,
-           editor_values: nil,
-           notice:
-             "Nueva versión personalizada guardada. Activala por separado; no se recalcularon precios."
-         )
-         |> reload()}
-
-      _ ->
-        {:noreply,
-         assign(socket,
-           editor_values: params,
-           notice:
-             "Revisá los valores: pesos decimales, referencias positivas para las métricas incluidas y al menos una métrica por grupo."
-         )}
-    end
-  end
-
-  def handle_event("cancel_edit", _, socket),
-    do: {:noreply, assign(socket, editing: nil, editor_values: nil)}
-
-  defp included_value(""), do: "Excluida"
-  defp included_value(value), do: value
-
-  defp distinct_rules(versions, family) do
-    versions
-    |> Enum.filter(&(&1.strategy_id == family))
-    |> Enum.uniq_by(&Presets.equivalent_key/1)
-    |> length()
-  end
-
-  defp equivalent_versions(version, versions),
-    do:
-      Enum.filter(
-        versions,
-        &(&1.id != version.id and Presets.equivalent_key(&1) == Presets.equivalent_key(version))
-      )
+  def handle_event(_, _, socket),
+    do: {:noreply, assign(socket, notice: "Elegí una de las dos estrategias disponibles.")}
 
   defp reload(socket) do
-    case Configurations.inspect_for(actor(socket)) do
+    case Configurations.inspect_for(Session.domain_actor(socket.assigns.actor)) do
       {:ok, data} ->
-        assign(socket, versions: data.versions, active_version_id: data.active_version_id)
+        assign(socket,
+          versions: data.versions,
+          active_version_id: data.active_version_id,
+          configurations_unavailable: false
+        )
 
       _ ->
-        assign(socket, versions: [], active_version_id: nil)
+        assign(socket, versions: [], active_version_id: nil, configurations_unavailable: true)
     end
   end
 
-  defp actor(socket) do
-    %AuthenticatedActor{
-      account_id: socket.assigns.actor.account_id,
-      authentication_method: :browser,
-      credential_id: socket.assigns.actor.session_id
-    }
-  end
+  defp title("balanced"), do: "General"
+  defp title("position_aware"), do: "Por posición"
+  defp description("balanced"), do: "Los mismos criterios para todos los jugadores."
+
+  defp description("position_aware"),
+    do: "Un peso diferente para cada métrica según la posición del jugador."
+
+  defp groups(%{strategy_id: "balanced"}), do: [:overall]
+  defp groups(_), do: [:goalkeeper, :defender, :midfielder, :forward]
+  defp weights(%{strategy_id: "balanced"} = version, :overall), do: version.config.weights
+  defp weights(version, group), do: Map.fetch!(version.config.weights, group)
+  defp number(nil), do: "Excluida"
+  defp number(%Decimal{} = value), do: Decimal.to_string(value, :normal)
+  defp number(value), do: to_string(value)
+
+  defp legacy_selection?(versions, id),
+    do: not is_nil(id) and Enum.all?(versions, &(&1.id != id))
 
   def render(assigns) do
     ~H"""
-    <main id="administration" class="local-admin">
-      <a href="/portfolio" class="text-link">← Volver al portafolio</a>
-      <header class="local-admin-header">
-        <p class="eyebrow">CONFIGURACIÓN DEL MERCADO</p>
-        <h1>Administración del mercado</h1>
-        <p>
-          Seleccioná una configuración existente. La activación no modifica cotizaciones históricas ni recalcula precios de inmediato.
-        </p>
-      </header>
-      <p :if={@notice} id="activation-notice" role="status">{@notice}</p>
-      <p :if={is_nil(@active_version_id)} id="no-active-configuration">
-        Sin configuración activa. Guardar o instalar no activa reglas.
-      </p>
-      <p :if={@versions == []}>No hay versiones disponibles.</p>
-      <p id="configuration-counts">
-        2 familias de estrategia · {length(@versions)} versiones guardadas
-      </p>
-      <button id="provision-presets" phx-click="provision_presets">Instalar predefinidas v1</button>
-      <p>
-        Calibración educativa inicial editable. Referencias de conteos semanales UTC con tope de uno por métrica. Un resultado no positivo no genera cotización positiva.
-      </p>
-      <section :for={family <- Presets.families()} id={"strategy-#{family}"} class="local-admin-panel">
-        <h2>{strategy_name(family)}</h2>
-        <p>
-          {Enum.count(@versions, &(&1.strategy_id == family))} versiones de esta fórmula · {distinct_rules(
-            @versions,
-            family
-          )} conjuntos de reglas diferentes
-        </p>
-        <p :if={!Enum.any?(@versions, &(&1.strategy_id == family))}>
-          Esta familia todavía no tiene versiones guardadas.
-        </p>
-        <article
-          :for={{version, index} <- Enum.with_index(@versions, 1)}
-          :if={version.strategy_id == family}
-          id={"configuration-#{version.id}"}
-        >
-          <h3>Fórmula {version.formula_version} · Configuración {index}</h3>
-          <p>{if version.preset_key, do: "Predefinida educativa v1", else: "Personalizada"}</p>
-          <p>Identidad: <code>{version.id}</code></p>
-          <p>Guardada {Calendar.strftime(version.created_at, "%d/%m/%Y %H:%M UTC")}</p>
-          <p :if={version.id == @active_version_id} class="active-configuration">Activa</p>
-          <p
-            :for={equivalent <- equivalent_versions(version, @versions)}
-            class="equivalent-configuration"
-          >
-            Reglas equivalentes a {equivalent.id}; conserva su identidad e historial.
-          </p>
-          <details>
-            <summary>Ver reglas de esta versión</summary>
-            <p>
-              Las métricas excluidas no son requisitos. Faltantes requeridos producen datos insuficientes. Las posiciones corresponden al partido histórico.
+    <.shell
+      actor={@actor}
+      destination="/administration"
+      administrator={true}
+      credit_balance={@credit_balance}
+      credit_balance_unavailable={@credit_balance_unavailable}
+    >
+      <section id="administration" aria-labelledby="administration-heading">
+        <header class="page-heading">
+          <div>
+            <p class="eyebrow">ESPACIO DE TRABAJO / ADMINISTRACIÓN</p>
+            <h1 id="administration-heading">Estrategias del mercado</h1>
+            <p class="section-description">
+              Dos formas de valorar el rendimiento. Elegí la que mejor represente tu visión del juego.
             </p>
-            <div class="table-scroll">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Métrica</th><th>Referencia semanal</th><th :for={
-                      group <- Editor.groups(version)
-                    }>
-                      {role_name(group)}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr :for={metric <- FootballMarket.Valuation.Request.metrics()}>
-                    <th>{metric_name(metric)}</th>
-                    <td>
-                      {get_in(Editor.values(version), ["references", Atom.to_string(metric)])
-                      |> included_value()}
-                    </td>
-                    <td :for={group <- Editor.groups(version)}>
-                      {get_in(Editor.values(version), [
-                        "weights",
-                        Atom.to_string(group),
-                        Atom.to_string(metric)
-                      ])
-                      |> included_value()}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <p :for={{position_id, group} <- version.position_mapping}>
-              Posición {position_id}: {role_name(group)}
-            </p>
-            <pre>{Jason.encode!(version.rules, pretty: true)}</pre>
-          </details>
-          <button phx-click="edit" phx-value-version_id={version.id}>Editar como nueva versión</button>
-          <button
-            :if={version.id != @active_version_id}
-            phx-click="activate"
-            phx-value-version_id={version.id}
-          >Activar configuración {index}</button>
-        </article>
-      </section>
-      <section :if={@editing} id="configuration-editor" class="local-admin-panel">
-        <h2>Nueva versión de {strategy_name(@editing.strategy_id)}</h2>
-        <p>
-          Basada en {@editing.id}. Vacío excluye la métrica; cero es un peso incluido que exige datos. Las referencias deben ser positivas para las métricas incluidas y vacías para las excluidas de todos los grupos.
-        </p>
-        <form id="configuration-form" phx-submit="save_custom">
-          <div class="table-scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th>Métrica</th><th>Referencia semanal</th><th :for={
-                    group <- Editor.groups(@editing)
-                  }>
-                    {role_name(group)}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr :for={metric <- FootballMarket.Valuation.Request.metrics()}>
-                  <th>{metric_name(metric)}</th>
-                  <td>
-                    <input
-                      aria-label={"Referencia: " <> metric_name(metric)}
-                      name={"configuration[references][#{metric}]"}
-                      value={get_in(@editor_values, ["references", Atom.to_string(metric)])}
-                      inputmode="decimal"
-                    />
-                  </td>
-                  <td :for={group <- Editor.groups(@editing)}>
-                    <input
-                      aria-label={role_name(group) <> ": " <> metric_name(metric)}
-                      name={"configuration[weights][#{group}][#{metric}]"}
-                      value={
-                        get_in(@editor_values, [
-                          "weights",
-                          Atom.to_string(group),
-                          Atom.to_string(metric)
-                        ])
-                      }
-                      inputmode="decimal"
-                    />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
           </div>
-          <button type="submit">Guardar nueva versión</button>
-          <button type="button" phx-click="cancel_edit">Cancelar</button>
-        </form>
+          <span id="configuration-counts" class="strategy-count">2 fórmulas base</span>
+        </header>
+
+        <p :if={@notice} id="activation-notice" class="strategy-notice" role="status">{@notice}</p>
+        <p
+          :if={@configurations_unavailable}
+          id="configuration-unavailable"
+          class="strategy-notice"
+          role="alert"
+        >
+          No se pudieron preparar las estrategias. Revisá las posiciones del catálogo e intentá de nuevo.
+        </p>
+        <p
+          :if={!@configurations_unavailable and is_nil(@active_version_id)}
+          id="no-active-configuration"
+          class="strategy-notice"
+        >
+          Todavía no hay una estrategia activa. Elegí una para los próximos cierres.
+        </p>
+        <p
+          :if={!@configurations_unavailable and legacy_selection?(@versions, @active_version_id)}
+          id="legacy-active-configuration"
+          class="strategy-notice"
+        >
+          Hay una configuración anterior activa. Elegí General o Por posición para usar una de las dos bases en los próximos cierres.
+        </p>
+
+        <div class="strategy-grid">
+          <section :for={version <- @versions} id={"strategy-#{version.strategy_id}"}>
+            <article
+              id={"configuration-#{version.id}"}
+              class={["strategy-card", version.id == @active_version_id && "strategy-card-active"]}
+            >
+              <div class="strategy-card-top">
+                <span class="strategy-symbol" aria-hidden="true">
+                  <.icon
+                    name={
+                      if version.strategy_id == "balanced", do: "hero-scale", else: "hero-user-group"
+                    }
+                    class="strategy-icon"
+                  />
+                </span>
+                <span :if={version.id == @active_version_id} class="active-configuration">
+                  <span class="status-dot"></span>Activa
+                </span>
+                <span :if={version.id != @active_version_id} class="strategy-origin">Predefinida</span>
+              </div>
+              <h2>{title(version.strategy_id)}</h2>
+              <p class="strategy-description">{description(version.strategy_id)}</p>
+              <p class="strategy-summary">
+                {if version.strategy_id == "balanced",
+                  do: "Goles y asistencias, con descuentos por tarjetas.",
+                  else: "Goles, asistencias y acciones de ataque, defensa o arco según el rol."}
+              </p>
+              <div class="strategy-actions">
+                <button
+                  :if={version.id != @active_version_id}
+                  class="primary-button"
+                  phx-click="activate"
+                  phx-value-version_id={version.id}
+                >Usar {title(version.strategy_id)}</button>
+                <span :if={version.id == @active_version_id} class="strategy-selected">
+                  Seleccionada para el próximo cierre
+                </span>
+              </div>
+              <details class="strategy-rules">
+                <summary>Ver cómo calcula</summary>
+                <p>
+                  Las métricas excluidas no son requisitos. Un dato requerido faltante produce datos insuficientes.
+                </p>
+                <div
+                  class="table-scroll"
+                  role="region"
+                  aria-label={"Reglas de " <> title(version.strategy_id)}
+                  tabindex="0"
+                >
+                  <table>
+                    <thead>
+                      <tr>
+                        <th scope="col">Métrica</th><th scope="col">Referencia semanal</th>
+                        <th :for={group <- groups(version)} scope="col">{role_name(group)}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr :for={metric <- FootballMarket.Valuation.Request.metrics()}>
+                        <th scope="row">{metric_name(metric)}</th>
+                        <td>{number(Map.get(version.references, metric))}</td>
+                        <td :for={group <- groups(version)}>
+                          {number(Map.get(weights(version, group), metric))}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p>
+                  La posición es la registrada en cada partido. Cada aporte semanal tiene un tope de uno antes de aplicar su peso.
+                </p>
+                <details class="strategy-version">
+                  <summary>Información de la versión</summary>
+                  <p>
+                    Fórmula {version.formula_version} · Guardada {Calendar.strftime(
+                      version.created_at,
+                      "%d/%m/%Y %H:%M UTC"
+                    )}
+                  </p>
+                  <p>Identificador: <code>{version.id}</code></p>
+                </details>
+              </details>
+            </article>
+          </section>
+        </div>
+        <aside class="strategy-footnote">
+          <.icon name="hero-information-circle" class="button-icon" />
+          <p>
+            Cambiar la estrategia conserva las cotizaciones históricas. La elegida se aplica en el próximo cierre nocturno; un resultado no positivo no publica una cotización positiva.
+          </p>
+        </aside>
       </section>
-    </main>
+    </.shell>
     """
   end
 end

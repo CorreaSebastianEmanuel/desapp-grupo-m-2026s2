@@ -3,28 +3,28 @@ defmodule FootballMarket.Valuation.Configurations do
   alias FootballMarket.Valuation.Configurations.Store
 
   def inspect_for(actor) do
-    if FootballMarket.Accounts.administrator?(actor), do: list(), else: {:error, :forbidden}
+    if FootballMarket.Accounts.administrator?(actor) do
+      with {:ok, bases} <- Store.ensure_presets(),
+           {:ok, data} <- list(),
+           do: {:ok, %{data | versions: bases}}
+    else
+      {:error, :forbidden}
+    end
   end
 
   def activate_for(actor, target, expected) do
-    if FootballMarket.Accounts.administrator?(actor),
-      do: activate(target, expected),
-      else: {:error, :forbidden}
-  end
-
-  def provision_presets_for(actor) do
-    if FootballMarket.Accounts.administrator?(actor),
-      do: Store.provision_presets(),
-      else: {:error, :forbidden}
-  end
-
-  def save_custom_for(actor, base_id, values) do
     if FootballMarket.Accounts.administrator?(actor) do
-      with {:ok, %{version: version}} <- get(base_id),
-           {:ok, rules} <- FootballMarket.Valuation.Configurations.Editor.rules(version, values),
-           do: create(rules)
+      activate_base(target, expected)
     else
       {:error, :forbidden}
+    end
+  end
+
+  defp activate_base(target, expected) do
+    with {:ok, bases} <- Store.ensure_presets() do
+      if Enum.any?(bases, &(&1.id == target)),
+        do: activate(target, expected),
+        else: {:error, :unsupported_configuration}
     end
   end
 

@@ -342,7 +342,6 @@
     "lib/football_market/valuation/calculation_requests.ex",
     "lib/football_market/valuation/configurations.ex",
     "lib/football_market/valuation/configurations/codec.ex",
-    "lib/football_market/valuation/configurations/editor.ex",
     "lib/football_market/valuation/configurations/presets.ex",
     "lib/football_market/valuation/configurations/registry.ex",
     "lib/football_market/valuation/configurations/rules.ex",

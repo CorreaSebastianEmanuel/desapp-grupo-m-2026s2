@@ -28,7 +28,10 @@ defmodule FootballMarket.Catalog.PlayerDetailTest do
         FootballMarket.StatisticsCase.performance_attrs(f, match, %{
           minutes_played: 90,
           goals: 0,
-          assists: 1
+          assists: 1,
+          shots_on_target: 0,
+          tackles: 3,
+          yellow_cards: 0
         })
       )
 
@@ -36,6 +39,17 @@ defmodule FootballMarket.Catalog.PlayerDetailTest do
     assert detail.statistics.goals == 0
     assert detail.statistics.assists == 1
     assert detail.statistics.minutes_played == 90
+    assert detail.statistics.shots_on_target == 0
+    assert detail.statistics.tackles == 3
+
+    assert detail.statistics.metric_coverage.shots_on_target == %{
+             status: "complete",
+             known_match_count: 1,
+             unknown_match_count: 0
+           }
+
+    assert detail.statistics.metric_coverage.saves.status == "unavailable"
+    assert detail.statistics.saves == nil
 
     {:ok, match} =
       FootballMarket.Statistics.record_match(FootballMarket.StatisticsCase.match_attrs(f))
@@ -50,6 +64,14 @@ defmodule FootballMarket.Catalog.PlayerDetailTest do
     assert detail.statistics.minutes_played == 120
     assert detail.statistics.goals == 2
     assert detail.statistics.assists == nil
+    assert detail.statistics.shots_on_target == nil
+
+    assert detail.statistics.metric_coverage.shots_on_target == %{
+             status: "partial",
+             known_match_count: 1,
+             unknown_match_count: 1
+           }
+
     assert detail.statistics.season_id == player.season_id
     assert detail.statistics.coverage == "recorded_local_facts"
     assert {:ok, other} = FootballMarket.Catalog.player_card(List.last(f.players).id)

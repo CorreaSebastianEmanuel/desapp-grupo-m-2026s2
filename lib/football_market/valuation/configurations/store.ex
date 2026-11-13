@@ -4,6 +4,7 @@ defmodule FootballMarket.Valuation.Configurations.Store do
   alias FootballMarket.Repo
   alias FootballMarket.Catalog.Position
   alias FootballMarket.Valuation.Error
+  alias FootballMarket.Valuation.Configurations.Presets
 
   alias FootballMarket.Valuation.Configurations.{
     Rules,
@@ -22,6 +23,68 @@ defmodule FootballMarket.Valuation.Configurations.Store do
     end
   end
 
+  def ensure_presets do
+    Repo.transaction(fn ->
+      Repo.one!(from l in SelectionLock, where: l.id == 1, lock: "FOR UPDATE")
+
+      Enum.each(
+        [{"GK", "Goalkeeper"}, {"DEF", "Defender"}, {"MID", "Midfielder"}, {"FWD", "Forward"}],
+        &ensure_position/1
+      )
+
+      preset_versions_locked()
+    end)
+  end
+
+  defp ensure_position({code, name}) do
+    case FootballMarket.Catalog.get_position_by_code(code) do
+      {:ok, _} -> :ok
+      {:error, :not_found} -> create_position(code, name)
+    end
+  end
+
+  defp create_position(code, name) do
+    case FootballMarket.Catalog.create_position(%{code: code, name: name}) do
+      {:ok, _} -> :ok
+      {:error, _} -> Repo.rollback(:missing_standard_positions)
+    end
+  end
+
+  def provision_presets do
+    Repo.transaction(fn ->
+      Repo.one!(from l in SelectionLock, where: l.id == 1, lock: "FOR UPDATE")
+      preset_versions_locked()
+    end)
+  end
+
+  defp preset_versions_locked do
+    positions =
+      Repo.all(
+        from p in Position,
+          where: fragment("upper(btrim(?))", p.code) in ^Map.keys(Presets.roles()),
+          lock: "FOR KEY SHARE"
+      )
+
+    if length(positions) != 4, do: Repo.rollback(:missing_standard_positions)
+    mapping = Enum.map(positions, &{&1.id, Presets.roles()[String.upcase(String.trim(&1.code))]})
+    Enum.map(Presets.families(), &provision_preset!(&1, mapping))
+  end
+
+  defp provision_preset!(family, mapping) do
+    key = Presets.key(family, mapping)
+    existing = Repo.one(from p in "valuation_presets", where: p.key == ^key, select: p.version_id)
+
+    if existing do
+      {:ok, %{version: version}} = get(uuid(existing))
+      version
+    else
+      {:ok, rules} = Rules.validate(Presets.rules(family, mapping))
+      version = create_locked(rules)
+      Repo.insert_all("valuation_presets", [%{key: key, version_id: Ecto.UUID.dump!(version.id)}])
+      %{version | preset_key: key}
+    end
+  end
+
   # One statement includes the anchor even for an empty version set. MVCC fixes
   # the versions and latest committed selection to the same snapshot.
   defp snapshot(filter) do
@@ -34,14 +97,19 @@ defmodule FootballMarket.Valuation.Configurations.Store do
           order_by: [asc: v.created_at, asc: v.id],
           select:
             {v,
+             fragment("(SELECT key FROM valuation_presets WHERE version_id = ? LIMIT 1)", v.id),
              fragment(
                "(SELECT new_version_id FROM valuation_selection_changes ORDER BY change_order DESC LIMIT 1)"
              )}
       )
 
     case rows do
-      [] -> raise "valuation serialization anchor missing"
-      [{_, active} | _] -> {for({v, _} <- rows, v != nil, do: decode(v)), uuid(active)}
+      [] ->
+        raise "valuation serialization anchor missing"
+
+      [{_, _, active} | _] ->
+        {for({v, preset, _} <- rows, v != nil, do: %{decode(v) | preset_key: preset}),
+         uuid(active)}
     end
   end
 

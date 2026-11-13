@@ -902,6 +902,12 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/statistics/count.ex."
     },
     {
+      "path": "lib/football_market/statistics/enrichment.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/statistics/enrichment.ex."
+    },
+    {
       "path": "lib/football_market/statistics/error.ex",
       "role": "application",
       "disposition": "include",
@@ -1194,6 +1200,12 @@
       "role": "application",
       "disposition": "include",
       "reason": "Maintained first-party application implementation source: lib/football_market/valuation/configurations/codec.ex."
+    },
+    {
+      "path": "lib/football_market/valuation/configurations/presets.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/valuation/configurations/presets.ex."
     },
     {
       "path": "lib/football_market/valuation/configurations/registry.ex",
@@ -1968,6 +1980,18 @@
       "role": "migration",
       "disposition": "exclude",
       "reason": "Non-application migration or test source: priv/repo/migrations/20261102000300_extend_browser_session_deadline.exs."
+    },
+    {
+      "path": "priv/repo/migrations/20261110000100_add_performance_enrichments_and_presets.exs",
+      "role": "migration",
+      "disposition": "exclude",
+      "reason": "Database migration, not application implementation: priv/repo/migrations/20261110000100_add_performance_enrichments_and_presets.exs."
+    },
+    {
+      "path": "priv/repo/migrations/20261110000200_guard_additive_performance_evidence.exs",
+      "role": "migration",
+      "disposition": "exclude",
+      "reason": "Database migration, not application implementation: priv/repo/migrations/20261110000200_guard_additive_performance_evidence.exs."
     },
     {
       "path": "scripts/application_coverage_native.exs",
@@ -3314,6 +3338,12 @@
       "reason": "Test code, not application behavior: test/football_market/statistics/ingestion/concurrency_test.exs."
     },
     {
+      "path": "test/football_market/statistics/ingestion/enrichment_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Test source, not application implementation: test/football_market/statistics/ingestion/enrichment_test.exs."
+    },
+    {
       "path": "test/football_market/statistics/ingestion/fixtures_test.exs",
       "role": "test",
       "disposition": "exclude",
@@ -3560,6 +3590,12 @@
       "reason": "Test code, not application behavior: test/football_market/valuation/configurations/outcomes_test.exs."
     },
     {
+      "path": "test/football_market/valuation/configurations/presets_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Test source, not application implementation: test/football_market/valuation/configurations/presets_test.exs."
+    },
+    {
       "path": "test/football_market/valuation/configurations/replay_test.exs",
       "role": "test",
       "disposition": "exclude",
@@ -3702,6 +3738,12 @@
       "role": "test",
       "disposition": "exclude",
       "reason": "Conditional evaluation test source: test/football_market/workers/conditional_order_evaluation_test.exs."
+    },
+    {
+      "path": "test/football_market_web/administration_browser_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Test source, not application implementation: test/football_market_web/administration_browser_test.exs."
     },
     {
       "path": "test/football_market_web/api_authentication_performance_test.exs",

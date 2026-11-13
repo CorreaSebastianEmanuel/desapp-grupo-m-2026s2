@@ -5,6 +5,7 @@ defmodule FootballMarket.Valuation.Configurations.Version do
   schema "valuation_configuration_versions" do
     field :strategy_id, :string
     field :formula_version, :string
+    field :preset_key, :string, virtual: true
     field :rules, :map
     field :created_at, :utc_datetime_usec, read_after_writes: true
     field :config, :map, virtual: true

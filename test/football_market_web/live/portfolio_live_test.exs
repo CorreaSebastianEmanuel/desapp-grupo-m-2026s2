@@ -326,19 +326,38 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
 
     statistics = view |> element("#player-statistics") |> render() |> LazyHTML.from_fragment()
 
-    expected_statistics =
-      [
-        card.statistics.recorded_match_count,
-        card.statistics.minutes_played,
-        card.statistics.goals,
-        card.statistics.assists
-      ]
-      |> Enum.reject(&is_nil/1)
-      |> Enum.map(&to_string/1)
+    metrics = [
+      {:minutes_played, "Minutos jugados", 123},
+      {:goals, "Goles", 1},
+      {:assists, "Asistencias", nil},
+      {:shots_on_target, "Tiros al arco", nil},
+      {:tackles, "Entradas", nil},
+      {:interceptions, "Intercepciones", nil},
+      {:saves, "Atajadas", nil},
+      {:goals_conceded, "Goles recibidos en cancha", nil},
+      {:yellow_cards, "Tarjetas amarillas", nil},
+      {:red_cards, "Tarjetas rojas", nil}
+    ]
 
-    assert Enum.map(LazyHTML.query(statistics, "dd"), &LazyHTML.text/1) == expected_statistics
-    assert is_nil(card.statistics.assists)
-    refute has_element?(view, "#player-statistics dt", "Asistencias")
+    assert Enum.count(LazyHTML.query(statistics, "dd")) == 11
+    assert has_element?(view, "#player-statistics dt", "Partidos registrados")
+
+    assert statistics |> LazyHTML.query("div:first-child dd") |> LazyHTML.text() ==
+             to_string(card.statistics.recorded_match_count)
+
+    for {metric, label, value} <- metrics do
+      selector = "[data-metric=#{metric}]"
+      assert Map.fetch!(card.statistics, metric) == value
+      assert statistics |> LazyHTML.query("#{selector} dt") |> LazyHTML.text() == label
+
+      expected = if is_nil(value), do: "Desconocido", else: to_string(value)
+      assert statistics |> LazyHTML.query("#{selector} dd") |> LazyHTML.text() == expected
+
+      coverage = if is_nil(value), do: "Sin datos disponibles", else: "1 partidos con datos"
+      assert statistics |> LazyHTML.query("#{selector} small") |> LazyHTML.text() == coverage
+    end
+
+    assert has_element?(view, "#player-statistics-coverage", "la cobertura puede ser parcial")
 
     refute has_element?(view, "#player-freshness", card.statistics.season_id)
     refute has_element?(view, "#player-freshness pre")

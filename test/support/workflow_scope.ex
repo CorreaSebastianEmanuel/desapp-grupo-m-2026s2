@@ -1360,6 +1360,61 @@ defmodule FootballMarket.WorkflowScope do
     ]
   end
 
+  def paths("specs/091-richer-performance-data-and-consistent-strategy-selection") do
+    [
+      "agentflow",
+      "assets/css/app.css",
+      "backlog/TASK-091-richer-performance-data-and-consistent-strategy-selection.md",
+      "backlog/feedback/TASK-091.md",
+      "config/application_coverage_inventory.json",
+      "config/credo_inventory.json",
+      "config/test_profiles.json",
+      "docs/WORKFLOW_LESSONS.md",
+      "lib/football_market/providers/scraping/assessment.ex",
+      "lib/football_market/providers/scraping/player_profile.ex",
+      "lib/football_market/providers/scraping/translator.ex",
+      "lib/football_market/quotes/engine.ex",
+      "lib/football_market/quotes/membership.ex",
+      "lib/football_market/statistics.ex",
+      "lib/football_market/statistics/enrichment.ex",
+      "lib/football_market/statistics/ingestion/observations.ex",
+      "lib/football_market/statistics/ingestion/publisher.ex",
+      "lib/football_market/statistics/ingestion/records.ex",
+      "lib/football_market/valuation/configurations.ex",
+      "lib/football_market/valuation/configurations/editor.ex",
+      "lib/football_market/valuation/configurations/presets.ex",
+      "lib/football_market/valuation/configurations/store.ex",
+      "lib/football_market/valuation/configurations/version.ex",
+      "lib/football_market/valuation/statistics_reader.ex",
+      "lib/football_market_web/components/workspace_components.ex",
+      "lib/football_market_web/live/administration_live.ex",
+      "priv/repo/migrations/20261110000100_add_performance_enrichments_and_presets.exs",
+      "priv/repo/migrations/20261110000200_guard_additive_performance_evidence.exs",
+      "priv/static/openapi.json",
+      "scripts/dialyzer_exceptions.json",
+      "scripts/sobelow_ci.py",
+      "specs/091-richer-performance-data-and-consistent-strategy-selection/",
+      "test/ci/workflow_scope_test.exs",
+      "test/football_market/catalog/player_detail_test.exs",
+      "test/football_market/providers/scraping/performances_test.exs",
+      "test/football_market/ranking/selection_test.exs",
+      "test/football_market/statistics/ingestion/enrichment_test.exs",
+      "test/football_market/statistics/scope_test.exs",
+      "test/football_market/valuation/configurations/concurrency_test.exs",
+      "test/football_market/valuation/configurations/presets_test.exs",
+      "test/football_market/valuation/configurations/scope_test.exs",
+      "test/football_market/valuation/scope_test.exs",
+      "test/football_market_web/administration_browser_test.exs",
+      "test/football_market_web/live/administration_live_test.exs",
+      "test/football_market_web/live/portfolio_live_test.exs",
+      "test/scripts/agentflow_feedback_test.py",
+      "test/support/e2e/fixtures.ex",
+      "test/support/workflow_scope.ex",
+      "tools/openapi/administration_browser.mjs",
+      "tools/openapi/e2e_market.mjs"
+    ]
+  end
+
   def paths(_), do: []
 
   def allows_path?(feature, path) do

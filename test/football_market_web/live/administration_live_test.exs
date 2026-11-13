@@ -64,20 +64,19 @@ defmodule FootballMarketWeb.AdministrationLiveTest do
   test "administrator inspects immutable versions activates with seen selection and handles stale sessions" do
     user = account()
     Application.put_env(:football_market, :initial_issuance_recipients, [user.id])
-    {:ok, position} = Catalog.create_position(FootballMarket.CatalogCase.position_attrs())
-    {:ok, first} = Configurations.create(ValuationConfigurationCase.rules(position.id))
-
-    {:ok, second} =
-      Configurations.create(
-        ValuationConfigurationCase.rules(position.id, "balanced", %{goals: 3})
-      )
+    {:ok, %{versions: [first, second]}} = Configurations.inspect_for(actor(user))
 
     {:ok, admin_workspace, _} = live(authenticated_conn(user), "/portfolio")
     assert has_element?(admin_workspace, ~s(nav a[href="/administration"]), "Administración")
 
     {:ok, one, _} = live(authenticated_conn(user), "/administration")
     {:ok, two, _} = live(authenticated_conn(user), "/administration")
-    assert has_element?(one, "details", "Ver reglas")
+    assert has_element?(one, "details", "Ver cómo calcula")
+    assert has_element?(one, ".workspace-sidebar nav a[aria-current=page]", "Administración")
+    assert has_element?(one, ".workspace-account .account-email", user.email)
+    assert has_element?(one, "#credit-balance")
+    refute has_element?(one, "#configuration-form")
+    refute has_element?(one, "#provision-presets")
     quotes_before = Repo.all(FootballMarket.Market.Quote)
     jobs_before = Repo.aggregate(Oban.Job, :count)
     render_click(one, "activate", %{"version_id" => first.id})
@@ -133,6 +132,40 @@ defmodule FootballMarketWeb.AdministrationLiveTest do
     conn = authenticated_conn(user) |> get("/administration")
     Application.put_env(:football_market, :initial_issuance_recipients, [])
     assert {:error, {:redirect, %{to: "/portfolio"}}} = live(conn)
+  end
+
+  test "administration offers only fixed formulas and ignores obsolete editing events" do
+    user = account()
+    Application.put_env(:football_market, :initial_issuance_recipients, [user.id])
+    {:ok, position} = Catalog.create_position(FootballMarket.CatalogCase.position_attrs())
+    {:ok, base} = Configurations.create(ValuationConfigurationCase.rules(position.id))
+    {:ok, _} = Configurations.activate(base.id, nil)
+    {:ok, view, _} = live(authenticated_conn(user), "/administration")
+    assert has_element?(view, "#configuration-counts", "2 fórmulas base")
+    assert has_element?(view, "#strategy-balanced h2", "General")
+    assert has_element?(view, "#strategy-position_aware h2", "Por posición")
+    assert has_element?(view, "#legacy-active-configuration")
+    refute has_element?(view, "#configuration-#{base.id}")
+    assert {:ok, %{versions: versions}} = Configurations.list()
+    assert length(versions) == 3
+
+    for {event, params} <- [
+          {"edit", %{"version_id" => base.id}},
+          {"save_custom", %{"configuration" => %{"weights" => %{}}}},
+          {"provision_presets", %{}}
+        ] do
+      render_click(view, event, params)
+      refute has_element?(view, "#configuration-form")
+      assert {:ok, %{versions: ^versions}} = Configurations.list()
+    end
+
+    render_click(view, "activate", %{"version_id" => base.id})
+    assert {:ok, %{id: active}} = Configurations.active()
+    assert active == base.id
+
+    assert {:ok, %{version: ^base}} =
+             Configurations.get(base.id)
+             |> then(fn {:ok, data} -> {:ok, Map.take(data, [:version])} end)
   end
 
   defp actor(user),

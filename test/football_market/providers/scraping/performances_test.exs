@@ -47,7 +47,7 @@ defmodule FootballMarket.Providers.ScrapingPerformancesTest do
       state.assessment
       | scopes:
           Map.update!(state.assessment.scopes, scope_key, fn row ->
-            %{row | positions: %{"keeper" => "GK"}}
+            %{row | positions: %{"keeper" => "GK", "attack" => "FW"}}
           end)
     }
 
@@ -58,13 +58,24 @@ defmodule FootballMarket.Providers.ScrapingPerformancesTest do
 
     player =
       player
-      |> Map.put("positionId", nil)
+      |> Map.put("positionId", "attack")
       |> Map.update!("stats", fn groups ->
         Enum.map(groups, fn group ->
           Map.update!(group, "stats", fn stats ->
             stats
             |> Map.new(&{&1["key"], &1})
             |> Map.drop(["yellow_cards", "red_cards"])
+          end)
+        end)
+      end)
+
+    player = Map.put(player, "currentTeamId", "a")
+
+    player =
+      update_in(player, ["stats"], fn groups ->
+        Enum.map(groups, fn group ->
+          update_in(group, ["stats"], fn stats ->
+            stats |> put_in(["goals", "stat", "value"], 1)
           end)
         end)
       end)
@@ -118,9 +129,9 @@ defmodule FootballMarket.Providers.ScrapingPerformancesTest do
                 %{
                   "id" => "m1",
                   "leagueId" => "PL",
-                  "teamId" => "t1",
+                  "teamId" => "a",
                   "teamName" => "Alpha",
-                  "opponentTeamId" => "t2",
+                  "opponentTeamId" => "b",
                   "opponentTeamName" => "Beta",
                   "isHomeTeam" => true,
                   "matchDate" => %{"utcTime" => "2024-10-01T12:00:00Z"},
@@ -161,8 +172,64 @@ defmodule FootballMarket.Providers.ScrapingPerformancesTest do
 
     assert_receive {:scraping_fetch, "player_search:Alex Example", _pid}
     assert_receive {:scraping_fetch, "player_data:p1", _pid}
-    refute_receive {:scraping_fetch, "match_details:m1", _pid}
+    assert_receive {:scraping_fetch, "match_details:m1", _pid}
     refute_receive {:scraping_fetch, "schedule", _pid}
+    assert hd(result.facts.performances).counts.shots_on_target == 0
+    assert hd(result.facts.performances).counts.tackles == 0
+    assert hd(result.facts.performances).counts.interceptions == 0
+
+    for mutate <- [
+          &put_in(&1, ["general", "matchId"], "wrong"),
+          &put_in(&1, ["general", "parentLeagueId"], "wrong"),
+          &put_in(&1, ["general", "season"], "2023/2024"),
+          &put_in(&1, ["general", "matchTimeUTCDate"], "2024-10-02T12:00:00Z"),
+          &put_in(&1, ["general", "finished"], false),
+          &put_in(&1, ["general", "homeTeam", "id"], "wrong"),
+          &put_in(&1, ["content", "playerStats", "p1", "id"], "wrong"),
+          &put_in(&1, ["content", "playerStats", "p1", "teamId"], "wrong"),
+          fn data ->
+            data
+            |> put_in(["content", "playerStats", "p1", "positionId"], "unknown")
+            |> put_in(["content", "playerStats", "p1", "usualPosition"], "unknown")
+          end
+        ] do
+      changed = put_in(portions, ["match_details:m1", :body], Jason.encode!(mutate.(match)))
+
+      assert {:error, %{category: :invalid_response}} =
+               FootballMarket.Providers.performances(Data.request(c),
+                 provider: {FootballMarket.Providers.Scraping, %{state | portions: changed}},
+                 positions: Data.positions(),
+                 runtime: {FootballMarket.Providers.FixtureRuntime, %{}}
+               )
+    end
+
+    missing =
+      update_in(match, ["content", "playerStats", "p1", "stats"], fn groups ->
+        Enum.map(groups, fn group ->
+          Map.update!(group, "stats", &Map.delete(&1, "ShotsOnTarget"))
+        end)
+      end)
+
+    changed = put_in(portions, ["match_details:m1", :body], Jason.encode!(missing))
+
+    assert {:ok, partial} =
+             FootballMarket.Providers.performances(Data.request(c),
+               provider: {FootballMarket.Providers.Scraping, %{state | portions: changed}},
+               positions: Data.positions(),
+               runtime: {FootballMarket.Providers.FixtureRuntime, %{}}
+             )
+
+    assert hd(partial.facts.performances).counts.shots_on_target == nil
+
+    assert {:ok, bounded} =
+             FootballMarket.Providers.performances(
+               Map.put(Data.request(c), :from, "2024-10-02T00:00:00Z"),
+               provider: {FootballMarket.Providers.Scraping, %{state | portions: portions}},
+               positions: Data.positions(),
+               runtime: {FootballMarket.Providers.FixtureRuntime, %{}}
+             )
+
+    assert bounded.facts.matches == []
   end
 
   test "player mode rejects a history page that cannot prove season coverage" do

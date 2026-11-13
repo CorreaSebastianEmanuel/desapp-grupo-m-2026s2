@@ -5,6 +5,43 @@ defmodule FootballMarket.Valuation.Configurations.ConcurrencyTest do
   alias FootballMarket.{Repo, ValuationCase}
   alias FootballMarket.Valuation.Configurations
 
+  test "concurrent automatic preparation creates canonical roles and exactly two bases without activation" do
+    c = private_schema()
+    assert {:error, :missing_standard_positions} = Configurations.Store.provision_presets()
+    assert {:ok, %{versions: []}} = Configurations.list()
+
+    parent = self()
+    ready = make_ref()
+
+    workers =
+      for _ <- 1..2 do
+        Task.async(fn ->
+          in_client(c.schema, fn ->
+            barrier(parent, ready, :ready)
+            Configurations.Store.ensure_presets()
+          end)
+        end)
+      end
+
+    for worker <- workers do
+      pid = worker.pid
+      assert_receive {^ready, ^pid, :ready}, 5000
+    end
+
+    for worker <- workers, do: send(worker.pid, {ready, :go})
+    results = Enum.map(workers, &Task.await(&1, 10_000))
+    assert [{:ok, first}, {:ok, second}] = results
+    assert first == second
+    assert {:ok, %{versions: versions, active_version_id: nil}} = Configurations.list()
+    assert length(versions) == 2
+
+    for code <- Map.keys(Configurations.Presets.roles()) do
+      assert {:ok, _} = FootballMarket.Catalog.get_position_by_code(code)
+    end
+
+    assert {:ok, []} = Configurations.history()
+  end
+
   test "distinct committed backends serialize both first activation and competing targets" do
     c = private_schema()
     f = ValuationCase.fixture()

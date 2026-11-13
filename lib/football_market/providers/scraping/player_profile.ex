@@ -10,7 +10,15 @@ defmodule FootballMarket.Providers.Scraping.PlayerProfile do
     state = Map.put(state, :player_source_id, player_id)
     {profile_data, recent} = player_profile(player_id, request, context, state, revision, row)
     scoped_rows = scoped_profile_rows(recent, row, request)
-    details = profile_match_details(scoped_rows, profile_data, player_id, state)
+
+    details =
+      profile_match_details(
+        scoped_rows,
+        profile_data,
+        player_id,
+        state,
+        {request, context, revision, row}
+      )
 
     {facts, eligible_ids} =
       translate_profile_details(
@@ -66,14 +74,15 @@ defmodule FootballMarket.Providers.Scraping.PlayerProfile do
     end)
   end
 
-  defp profile_match_details(scoped_profile_rows, profile_data, player_id, state) do
+  defp profile_match_details(scoped_profile_rows, profile_data, player_id, state, acquisition) do
     Enum.map(scoped_profile_rows, fn profile_row ->
       match_id = source_id!(profile_row["id"])
 
       {:ok, kickoff} =
         FootballMarket.Providers.Instant.normalize(get_in(profile_row, ["matchDate", "utcTime"]))
 
-      home = profile_row["isHomeTeam"] == true
+      require!(is_boolean(profile_row["isHomeTeam"]))
+      home = profile_row["isHomeTeam"]
 
       team = %{
         "id" => source_id!(profile_row["teamId"]),
@@ -110,21 +119,119 @@ defmodule FootballMarket.Providers.Scraping.PlayerProfile do
             {"red_cards", profile_row["redCards"]}
           ]
           |> Enum.flat_map(fn {key, value} ->
-            if is_integer(value),
-              do: [%{"stats" => [%{"key" => key, "stat" => %{"value" => value}}]}],
-              else: []
+            case value do
+              nil ->
+                []
+
+              count when is_integer(count) ->
+                [%{"stats" => [%{"key" => key, "stat" => %{"value" => count}}]}]
+
+              _ ->
+                throw({:invalid, :profile_metric})
+            end
           end)
       }
 
-      {match_id, general, %{player_id => stats}, kickoff}
+      case profile_row["matchPageUrl"] do
+        nil -> {match_id, general, %{player_id => stats}, kickoff}
+        path -> match_details!(match_id, path, general, stats, kickoff, state, acquisition)
+      end
     end)
+  end
+
+  defp match_details!(
+         match_id,
+         path,
+         expected,
+         profile_player,
+         kickoff,
+         state,
+         {request, context, revision, row}
+       ) do
+    state = Map.put(state, :match_page_urls, %{match_id => path})
+    data = portion!("match_details:" <> match_id, request, context, state, revision, row)
+    general = map!(data["general"])
+    require!(source_id!(general["matchId"]) == match_id)
+    require!(source_id!(general["parentLeagueId"]) == source_id!(row.competition))
+    require!(general["finished"] == true)
+
+    require!(
+      is_nil(general["season"]) or
+        season_matches?(
+          general["season"],
+          request.scope.start_year,
+          request.scope.end_year,
+          row.season
+        )
+    )
+
+    {:ok, actual} = FootballMarket.Providers.Instant.normalize(general["matchTimeUTCDate"])
+    require!(DateTime.compare(actual, kickoff) == :eq)
+
+    for side <- ["homeTeam", "awayTeam"] do
+      require!(source_id!(general[side]["id"]) == expected[side]["id"])
+    end
+
+    players = map!(data["content"]["playerStats"])
+    player_id = profile_player["id"]
+    player = map!(players[player_id])
+    require!(source_id!(player["id"]) == player_id)
+    require!(source_id!(player["teamId"]) == profile_player["teamId"])
+
+    player =
+      player |> merge_profile_stats!(profile_player) |> historical_position!(profile_player, row)
+
+    {match_id, general, %{player_id => player}, kickoff}
+  end
+
+  defp historical_position!(player, profile_player, row) do
+    expected_position = profile_player["positionId"]
+
+    if expected_position &&
+         not String.starts_with?(to_string(expected_position), "catalog-position:") do
+      require!(source_id!(player["positionId"]) == source_id!(expected_position))
+    end
+
+    role = player["usualPosition"] && source_id!(player["usualPosition"])
+
+    position = source_id!(player["positionId"])
+
+    player =
+      cond do
+        Map.has_key?(row.positions, position) -> player
+        role && Map.has_key?(row.positions, role) -> Map.put(player, "positionId", role)
+        true -> throw({:invalid, :historical_position})
+      end
+
+    # The match document supplies historical position, never today's catalog role.
+    require!(not is_nil(player["positionId"]))
+    player
+  end
+
+  defp merge_profile_stats!(player, profile) do
+    measured = fn p ->
+      for group <- list!(p["stats"]),
+          stat <- stat_entries!(group["stats"]),
+          into: %{},
+          do: {stat["key"], stat["stat"]["value"]}
+    end
+
+    values = measured.(player)
+
+    extras =
+      Enum.flat_map(measured.(profile), fn {key, value} ->
+        require!(is_nil(values[key]) or values[key] == value)
+        if is_nil(values[key]), do: [%{"key" => key, "stat" => %{"value" => value}}], else: []
+      end)
+
+    Map.update!(player, "stats", &(&1 ++ [%{"stats" => extras}]))
   end
 
   defp translate_profile_details(
          details,
          scoped_profile_rows,
          player_id,
-         state,
+         _state,
          request,
          context,
          row
@@ -146,19 +253,10 @@ defmodule FootballMarket.Providers.Scraping.PlayerProfile do
              ))
       end)
 
-    translation_row =
-      player_position_row(
-        row,
-        state[:player_position_code],
-        scoped_profile_rows,
-        selected,
-        player_id
-      )
-
     translated = translate_selected(selected, scoped_profile_rows, player_id)
     teams = translated_teams(selected)
 
-    facts = Translator.performances(request, context, translation_row, teams, translated)
+    facts = Translator.performances(request, context, row, teams, translated)
     eligible_ids = Enum.map(selected, fn {match_id, _, _, _} -> match_id end)
 
     {facts, eligible_ids}
@@ -195,7 +293,7 @@ defmodule FootballMarket.Providers.Scraping.PlayerProfile do
       players
       |> Map.put_new("id", player_id)
       |> Map.put_new("currentTeamId", players["teamId"])
-      |> put_historical_position(profile_row["lineupPositionId"])
+      |> Map.put_new("positionId", profile_row["lineupPositionId"])
       |> put_profile_metric(profile_row, "yellow_cards", "yellowCards")
       |> put_profile_metric(profile_row, "red_cards", "redCards")
       |> Map.update!("id", &source_id!/1)
@@ -222,37 +320,6 @@ defmodule FootballMarket.Providers.Scraping.PlayerProfile do
       }
     end)
   end
-
-  defp player_position_row(row, position_code, profile_rows, details, player_id)
-       when is_binary(position_code) do
-    ids =
-      Enum.flat_map(details, fn {match_id, _general, stats, _kickoff} ->
-        profile_row = Enum.find(profile_rows, &(source_id!(&1["id"]) == match_id))
-        player = Map.get(stats, player_id)
-
-        [
-          profile_row["lineupPositionId"],
-          player && player["usualPosition"],
-          player && player["positionId"]
-        ]
-      end)
-      |> Enum.reject(&is_nil/1)
-      |> Enum.map(&source_id!/1)
-      |> Enum.uniq()
-
-    positions = Enum.reduce(ids, row.positions, &Map.put_new(&2, &1, position_code))
-
-    positions =
-      if FootballMarket.Providers.Provenance.safe_text?(position_code) do
-        Map.put_new(positions, "catalog-position:" <> position_code, position_code)
-      else
-        positions
-      end
-
-    %{row | positions: positions}
-  end
-
-  defp player_position_row(row, _position_code, _profile_rows, _details, _player_id), do: row
 
   defp profile_position_id(profile_row, state) do
     case profile_row["lineupPositionId"] do
@@ -344,7 +411,9 @@ defmodule FootballMarket.Providers.Scraping.PlayerProfile do
     boundary = DateTime.new!(Date.new!(scope.start_year, 7, 1), ~T[00:00:00], "Etc/UTC")
     ending = DateTime.new!(Date.new!(scope.end_year, 7, 1), ~T[00:00:00], "Etc/UTC")
 
-    DateTime.compare(instant, boundary) != :lt and DateTime.compare(instant, ending) == :lt
+    DateTime.compare(instant, boundary) != :lt and DateTime.compare(instant, ending) == :lt and
+      (is_nil(scope.from) or DateTime.compare(instant, scope.from) != :lt) and
+      (is_nil(scope.to) or DateTime.compare(instant, scope.to) != :gt)
   end
 
   defp validate_profile_season!(profile, request, row) do
@@ -365,13 +434,6 @@ defmodule FootballMarket.Providers.Scraping.PlayerProfile do
 
     unless found do
       throw({:source_failure, %{category: :unsupported_capability}})
-    end
-  end
-
-  defp put_historical_position(player, position_id) do
-    case position_id do
-      nil -> player
-      value -> Map.put(player, "positionId", source_id!(value))
     end
   end
 

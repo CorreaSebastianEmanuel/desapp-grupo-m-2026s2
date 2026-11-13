@@ -53,20 +53,15 @@ defmodule FootballMarket.Providers.Scraping.Assessment do
     end_year = start_year + 1
     reviewed_at = DateTime.utc_now() |> DateTime.truncate(:second)
 
-    profile_metrics = [:goals, :assists, :yellow_cards, :red_cards]
-
     metrics =
       Map.new(Performances.count_keys(), fn key ->
-        if key in profile_metrics do
-          {key,
-           %{
-             status: :verified,
-             meaning: @meanings[key],
-             evidence: "FotMob authorized public player profile match-history fields"
-           }}
-        else
-          {key, %{status: :unavailable, meaning: @meanings[key], evidence: nil}}
-        end
+        {key,
+         %{
+           status: :verified,
+           meaning: @meanings[key],
+           evidence:
+             "FotMob authorized per-player match stats (integer stat.value); profile goals/assists/cards. Observed 2026-11-10: match 5881220, players 194165 and 27299; missing fields remain unknown."
+         }}
       end)
 
     row = %{
@@ -74,7 +69,7 @@ defmodule FootballMarket.Providers.Scraping.Assessment do
       witness: "fotmob-authorized-player-profile-v1",
       competition: "54",
       season: "#{start_year}/#{end_year}",
-      positions: %{"38" => "DEF"},
+      positions: %{"0" => "GK", "1" => "DEF", "2" => "MID", "3" => "FWD"},
       documents: %{
         "player_page" => "https://www.fotmob.com/players",
         "player_search" => "https://www.fotmob.com/api/data/search/suggest"
@@ -84,7 +79,7 @@ defmodule FootballMarket.Providers.Scraping.Assessment do
 
     %{
       mode: :live,
-      revision: "local-fotmob-top-five-#{start_year}-v4",
+      revision: "local-fotmob-top-five-#{start_year}-v5",
       permission: :granted,
       withdrawn: false,
       conditions: :satisfied,

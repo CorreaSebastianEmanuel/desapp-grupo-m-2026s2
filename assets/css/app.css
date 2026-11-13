@@ -552,12 +552,37 @@ tfoot { background: #f4f8f1; font-weight: 650; }
 
 .local-admin .local-admin-header button { background:var(--lime); border-color:var(--lime); color:var(--forest); }
 
-/* Authenticated strategy administration shares the operations visual language. */
-#administration > .text-link { display:inline-block; min-height:44px; margin-bottom:12px; }
-#administration .local-admin-header { display:block; }
-#administration .active-configuration { display:inline-flex; padding:5px 12px; margin-top:12px; border-radius:20px; background:var(--lime); color:var(--forest); font-size:12px; font-weight:700; }
-#administration .local-admin-panel > p { color:var(--muted); font-size:12px; }
-#administration .local-admin-panel > .active-configuration { color:var(--forest); }
+/* Fixed strategies use the same cards, hierarchy and navigation as the workspace. */
+#administration { min-width: 0; }
+.strategy-count, .strategy-origin { display: inline-flex; flex: none; padding: 7px 11px; border: 1px solid var(--line); border-radius: 99px; color: var(--muted); font-size: 11px; font-weight: 650; white-space: nowrap; }
+.strategy-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 22px; margin: 26px 0; }
+.strategy-grid > section { min-width: 0; }
+.strategy-card { min-width: 0; padding: 28px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); box-shadow: 0 6px 24px #102d2505; }
+.strategy-card-active { border-color: var(--green); box-shadow: 0 0 0 1px var(--green); }
+.strategy-card-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 24px; }
+.strategy-symbol { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 13px; background: #eef3e8; color: var(--green); }
+.strategy-icon { width: 25px; height: 25px; }
+.strategy-card h2 { margin: 0 0 10px; font-size: 24px; letter-spacing: -.04em; }
+.strategy-description { min-height: 48px; margin: 0; font-size: 14px; color: var(--muted); }
+.strategy-summary { min-height: 42px; margin: 18px 0 24px; font-size: 12px; color: var(--muted); }
+.strategy-actions { display: flex; align-items: center; min-height: 46px; margin-bottom: 24px; }
+.strategy-actions .primary-button { width: 100%; }
+.strategy-selected { display: flex; justify-content: center; align-items: center; width: 100%; min-height: 46px; padding: 10px; border: 1px solid #b7cfb5; border-radius: 10px; background: #f0f6ed; color: var(--green); font-size: 12px; font-weight: 650; text-align: center; }
+#administration .active-configuration { display: inline-flex; align-items: center; gap: 6px; padding: 7px 11px; border-radius: 99px; background: var(--lime); color: var(--forest); font-size: 11px; font-weight: 700; }
+.strategy-rules { border-top: 1px solid var(--line); padding-top: 8px; }
+.strategy-rules > p, .strategy-version p { margin: 12px 0; color: var(--muted); font-size: 12px; }
+.strategy-rules .table-scroll { max-width: 100%; overflow-x: auto; margin: 18px 0; }
+.strategy-rules table { width: 100%; border-collapse: collapse; text-align: left; font-size: 11px; }
+.strategy-rules th, .strategy-rules td { padding: 10px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.strategy-rules th { font-weight: 600; color: var(--muted); }
+.strategy-version { margin-top: 18px; padding-top: 8px; border-top: 1px solid var(--line); }
+.strategy-version summary { font-size: 11px; color: var(--muted); }
+.strategy-notice { margin: 16px 0; padding: 14px 18px; border: 1px solid #d7e3c9; border-radius: 10px; background: #f2f7e9; color: #3c5936; font-size: 13px; }
+.strategy-footnote { display: flex; align-items: flex-start; gap: 12px; max-width: 850px; margin-top: 28px; color: var(--muted); }
+.strategy-footnote .button-icon { flex: none; margin-top: 2px; }
+.strategy-footnote p { margin: 0; font-size: 12px; line-height: 1.7; }
+@media(max-width:1100px) { .strategy-grid { grid-template-columns: 1fr; } .strategy-description, .strategy-summary { min-height: 0; } }
+@media(max-width:640px) { #administration .page-heading { align-items: flex-start; flex-direction: column; gap: 16px; } .strategy-card { padding: 22px 18px; } .strategy-grid { gap: 18px; } }
 
 /* Shared identity, readable hierarchy, and interaction feedback. */
 .workspace-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: 70px; border-bottom: 1px solid var(--line); padding: 12px clamp(24px, 3vw, 48px); background: #ffffffb8; font-size: 13px; color: var(--muted); }
@@ -763,3 +788,4 @@ tfoot { background: #f4f8f1; font-weight: 650; }
 .search-feedback { display: none; margin-top: 10px; font-size: 13px; color: var(--green); }
 .phx-change-loading .search-feedback, .phx-submit-loading .search-feedback { display: block; }
 @media (max-width: 700px) { .portfolio-tabs a { padding: 10px 8px; font-size: 13px; } }
+

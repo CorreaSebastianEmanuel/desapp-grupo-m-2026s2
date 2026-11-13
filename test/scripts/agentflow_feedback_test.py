@@ -1,4 +1,5 @@
 """Feedback ownership, pending impact and no-mutation conflicts."""
+import json
 from types import SimpleNamespace
 from unittest.mock import patch
 from test.scripts.agentflow_branch_test import AGENTFLOW
@@ -11,6 +12,84 @@ class FeedbackTest(DeliveryFixture):
         self.task=self.root/'backlog/TASK-003-example.md'
         for name,value in {'ROOT':self.root,'BACKLOG':self.root/'backlog','FEEDBACK':self.root/'backlog/feedback','RUNS':self.root/'.agentflow/runs'}.items():
             patcher=patch.object(AGENTFLOW,name,value);patcher.start();self.addCleanup(patcher.stop)
+
+    def native_run(self, *, stage='qa_ready', feedback=False):
+        run='native-feedback'
+        runs=self.root/'.specify/workflows/runs'
+        directory=runs/run
+        directory.mkdir(parents=True)
+        patcher=patch.object(AGENTFLOW,'SPEC_RUNS',runs)
+        patcher.start();self.addCleanup(patcher.stop)
+        text=self.task.read_text()
+        text=text.replace('active_run: none',f'active_run: {run}')
+        if 'workflow:' not in text:
+            text=text.replace('active_run:', 'workflow: thinflow-v1\nactive_run:')
+        else:
+            text=text.replace('workflow: agentflow-v2','workflow: thinflow-v1')
+        self.task.write_text(text)
+        order=['outcome_ready','develop','candidate_ready','qa','qa_ready']
+        source=''.join(f'- id: {step}\n  type: shell\n  run: "true"\n' for step in order)
+        (directory/'workflow.yml').write_text('steps:\n'+source)
+        state={'status':'completed','current_step_id':stage,'current_step_index':order.index(stage),
+               'step_results':{step:{'status':'completed','output':step} for step in order},
+               'inputs':{'spec':'old'},
+               'execution':{'version':2,'offset':0,'initial':{},'sequence':{
+                   'source':source,'nodes':[{'phase':'done','active':False} for _ in order]}}}
+        (directory/'state.json').write_text(json.dumps(state))
+        (directory/'inputs.json').write_text(json.dumps({'inputs':{'spec':'old'}}))
+        (directory/'log.jsonl').write_text('')
+        if feedback:
+            path=AGENTFLOW.feedback_path(self.task)
+            path.parent.mkdir(parents=True,exist_ok=True)
+            path.write_text('# Feedback\n\n## Feedback 1\n\n- Restart from: develop\n- Impact: implementation\n\nRepair the cited regression.\n')
+        return run,directory,state
+
+    def test_feedback_rewind_invalidates_native_tree_and_preserves_checkpoint_backup(self):
+        run,directory,state=self.native_run()
+        original=(directory/'workflow.yml').read_bytes()
+        self.assertTrue(AGENTFLOW.rewind_run(self.task,run,'develop'))
+        after=json.loads((directory/'state.json').read_text())
+        self.assertNotIn('execution',after)
+        self.assertEqual(after['status'],'paused')
+        self.assertEqual(after['current_step_index'],1)
+        self.assertEqual(after['step_results'],{'outcome_ready':state['step_results']['outcome_ready']})
+        backup=next(directory.glob('state.before-feedback-*.json'))
+        self.assertEqual(json.loads(backup.read_text())['execution'],state['execution'])
+        self.assertEqual((directory/'workflow.yml').read_bytes(),original)
+
+    def test_replayed_feedback_recovery_is_idempotent_without_another_feedback_entry(self):
+        run,directory,_=self.native_run(stage='develop',feedback=True)
+        feedback=AGENTFLOW.feedback_path(self.task).read_bytes()
+        self.assertTrue(AGENTFLOW.recover_completed_feedback_rewind(self.task,run))
+        self.assertFalse(AGENTFLOW.recover_completed_feedback_rewind(self.task,run))
+        self.assertEqual(AGENTFLOW.feedback_path(self.task).read_bytes(),feedback)
+        after=json.loads((directory/'state.json').read_text())
+        self.assertEqual(after['status'],'paused')
+        self.assertNotIn('execution',after)
+
+    def test_completed_final_stage_preserves_publication_retry(self):
+        run,directory,_=self.native_run(feedback=True)
+        before=(directory/'state.json').read_bytes()
+        self.assertFalse(AGENTFLOW.recover_completed_feedback_rewind(self.task,run))
+        self.assertEqual((directory/'state.json').read_bytes(),before)
+
+    def test_completed_pointer_without_feedback_does_not_implicitly_rewind(self):
+        run,directory,_=self.native_run(stage='develop')
+        before=(directory/'state.json').read_bytes()
+        self.assertFalse(AGENTFLOW.recover_completed_feedback_rewind(self.task,run))
+        self.assertEqual((directory/'state.json').read_bytes(),before)
+
+    def test_unknown_execution_schema_refuses_rewind_without_mutation(self):
+        run,directory,state=self.native_run()
+        for version in [3,2.0,True]:
+            with self.subTest(version=version):
+                state['execution']['version']=version
+                (directory/'state.json').write_text(json.dumps(state))
+                before=(directory/'state.json').read_bytes()
+                with self.assertRaisesRegex(SystemExit,'Unsupported Spec Kit execution checkpoint'):
+                    AGENTFLOW.rewind_run(self.task,run,'develop')
+                self.assertEqual((directory/'state.json').read_bytes(),before)
+                self.assertEqual(list(directory.glob('state.before-feedback-*.json')),[])
 
     def test_requested_stage_conflict_leaves_feedback_and_task_untouched(self):
         before=self.task.read_bytes()

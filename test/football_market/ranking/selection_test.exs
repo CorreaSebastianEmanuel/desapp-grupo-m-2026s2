@@ -117,6 +117,29 @@ defmodule FootballMarket.Ranking.SelectionTest do
     fact = FootballMarket.Valuation.StatisticsReader.snapshot(f.performance, f.match)
     missing = %{fact | match_id: Ecto.UUID.generate(), performance_id: Ecto.UUID.generate()}
 
+    absent_performance = %{fact | player_id: List.last(f.base.players).id}
+    absent_player = %{fact | player_id: Ecto.UUID.generate()}
+
+    assert {:error, :absent_performance} =
+             FootballMarket.Statistics.get_performance(
+               absent_performance.player_id,
+               fact.match_id
+             )
+
+    assert FootballMarket.Valuation.StatisticsReader.enrichment_identity([fact]) == %{}
+
+    for unavailable <- [missing, absent_performance, absent_player] do
+      assert {:error, %{kind: :unavailable_replay, reason: :original_fact_unavailable}} =
+               FootballMarket.Valuation.StatisticsReader.originals([unavailable])
+
+      identity = FootballMarket.Valuation.StatisticsReader.enrichment_identity([unavailable])
+      assert %{"enriched_fact_digest" => digest} = identity
+      assert digest =~ ~r/\A[0-9a-f]{64}\z/
+
+      assert FootballMarket.Valuation.StatisticsReader.enrichment_identity([unavailable]) ==
+               identity
+    end
+
     assert {:ok, %{calculation: calculation}} =
              FootballMarket.Quotes.request_membership(
                f.subject,
@@ -130,7 +153,46 @@ defmodule FootballMarket.Ranking.SelectionTest do
     assert calculation.player_id == f.player.id
     assert calculation.configuration_version_id == f.configuration.id
     assert calculation.unit_price == nil
+    assert calculation.reason == "original_unavailable"
+    assert calculation.score == nil
+    assert calculation.membership == [missing.performance_id]
+
+    assert calculation.evidence["facts"] ==
+             FootballMarket.Quotes.EvidenceCodec.encode_facts([missing])
+
+    assert {:ok, %{calculation: ^calculation, score: nil}} =
+             FootballMarket.Quotes.replay(calculation.id)
+
+    assert {:ok, %{calculation: repeated}} =
+             FootballMarket.Quotes.request_membership(
+               f.subject,
+               {:version, f.configuration.id},
+               f.mapping.id,
+               [missing],
+               Ecto.UUID.generate()
+             )
+
+    assert repeated.id == calculation.id
+    assert repeated.evidence == calculation.evidence
+
+    changed = put_in(missing.metrics.goals, 9)
+
+    assert {:ok, %{calculation: different}} =
+             FootballMarket.Quotes.request_membership(
+               f.subject,
+               {:version, f.configuration.id},
+               f.mapping.id,
+               [changed],
+               Ecto.UUID.generate()
+             )
+
+    refute different.id == calculation.id
+    refute different.canonical_identity == calculation.canonical_identity
+    assert different.status == "unreproducible"
+    assert different.unit_price == nil
+    assert {:ok, ^calculation} = FootballMarket.Quotes.get_calculation(calculation.id)
     refute FootballMarket.Repo.get_by(FootballMarket.Market.Quote, calculation_id: calculation.id)
+    refute FootballMarket.Repo.get_by(FootballMarket.Market.Quote, calculation_id: different.id)
     assert {:ok, %{configuration: active, entries: []}} = Ranking.read()
     assert active.id == f.configuration.id
   end

@@ -60,7 +60,9 @@ defmodule FootballMarket.Statistics.Ingestion.Observations do
       })
   end
 
-  def observe_fact!(result, {fact, id, kind, _state}, check, receipt, artifact, encoded) do
+  def observe_fact!(result, {fact, id, kind, state}, check, receipt, artifact, encoded) do
+    if kind == :performance, do: FootballMarket.Statistics.Enrichment.append!(id, state, check)
+
     provenance =
       Repo.get_by(
         FactProvenance,

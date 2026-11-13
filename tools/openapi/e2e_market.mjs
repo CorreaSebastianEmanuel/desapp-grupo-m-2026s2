@@ -5,7 +5,7 @@ import {join} from 'node:path';
 const [base] = process.argv.slice(2);
 const {E2E_EMAIL: email, E2E_PASSWORD: password, E2E_PLAYER: player,
   E2E_NAME: name, E2E_RANKING: ranking, E2E_FILTERS: filtersJson,
-  E2E_STRATEGY: strategy, E2E_ADMIN: adminEmail, E2E_VERSION: version, E2E_IPC: ipc} = process.env;
+  E2E_STRATEGY: strategy, E2E_ADMIN: adminEmail, E2E_IPC: ipc} = process.env;
 let browser;
 let phase = 'prerequisites';
 try {
@@ -38,7 +38,7 @@ try {
   await page.locator('#catalog-position').selectOption(filters.position_id);
   await page.locator('#catalog-page-size').selectOption('1');
   await page.getByRole('button', {name: 'Buscar jugadores', exact: true}).click();
-  await page.waitForURL(url => url.searchParams.get('team_id') === filters.team_id);
+  await page.waitForURL(url => Object.entries(filters).every(([key, value]) => url.searchParams.get(key) === value) && url.searchParams.get('page_size') === '1' && url.searchParams.get('q') === name);
   const searchUrl = page.url();
   for (const viewport of [{width: 1280, height: 800}, {width: 768, height: 1024}, {width: 390, height: 844}]) {
     await page.setViewportSize(viewport);
@@ -63,6 +63,10 @@ try {
   await page.waitForSelector('.phx-connected #player-card');
   assert.match(await page.locator('#player-quote').innerText(), /Vigente desde/);
   assert.match(await page.locator('#player-statistics').innerText(), /Partidos registrados/);
+  assert.match(await page.locator('#player-statistics').innerText(), /Tiros al arco/);
+  assert.match(await page.locator('#player-statistics').innerText(), /Intercepciones/);
+  assert.equal(await page.locator('#player-statistics [data-metric="goals"] dd').innerText(), '1');
+  assert.equal(await page.locator('#player-statistics [data-metric="saves"] dd').innerText(), 'Desconocido');
   assert.equal(await page.locator('#quote-provenance').count(), 1);
   assert.equal(await page.locator('#quote-history').count(), 1);
   assert.equal(await page.locator('#player-freshness').count(), 1);
@@ -211,12 +215,18 @@ try {
   await adminPage.waitForSelector('.phx-connected #workspace');
   await adminPage.getByRole('link', {name: 'Administración', exact: true}).click();
   await adminPage.waitForSelector('.phx-connected #administration');
-  await adminPage.locator(`#configuration-${version} button`).click();
+  assert.equal(await adminPage.locator('#administration article').count(), 2);
+  assert.equal(await adminPage.locator('#legacy-active-configuration').count(), 1);
+  assert.equal(await adminPage.locator('#configuration-form, #provision-presets').count(), 0);
+  const fixedCard = adminPage.locator('#strategy-position_aware article');
+  const version = (await fixedCard.getAttribute('id')).replace('configuration-', '');
+  await adminPage.locator(`#configuration-${version} button[phx-click="activate"]`).click();
   await adminPage.waitForSelector(`#configuration-${version} .active-configuration`);
   assert.match(await adminPage.locator('#activation-notice').innerText(), /próximo cierre/);
   assert(await adminPage.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
   await adminPage.reload();
   await adminPage.waitForSelector(`#configuration-${version} .active-configuration`);
+  assert.equal(await adminPage.locator('#legacy-active-configuration').count(), 0);
   await adminContext.close();
   await context.close();
   process.stdout.write('E2E_MARKET status=complete\n');

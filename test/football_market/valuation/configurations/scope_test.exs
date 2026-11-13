@@ -5,11 +5,18 @@ defmodule FootballMarket.Valuation.Configurations.ScopeTest do
   alias FootballMarket.{Valuation, ValuationCase}
   alias FootballMarket.Valuation.Configurations
 
-  test "exact 33-path active inventory preserves inherited exclusions and module purity" do
+  test "exact historical 33-path inventory and current namespace preserve exclusions and purity" do
     inventory = FootballMarket.ValuationConfigurationCase.inventory()
     assert length(inventory) == 33
     assert Enum.all?(inventory, &File.regular?/1)
     production = Enum.filter(inventory, &String.starts_with?(&1, "lib/"))
+    # TASK-025 remains historical; TASK-091 adds only the fixed-preset owner.
+    current_production =
+      production ++
+        [
+          "lib/football_market/valuation/configurations/presets.ex"
+        ]
+
     new_root = ~w(configurations managed managed_types)
 
     actual =
@@ -18,7 +25,7 @@ defmodule FootballMarket.Valuation.Configurations.ScopeTest do
 
     assert Enum.sort(actual) ==
              Enum.sort(
-               production --
+               current_production --
                  ["lib/football_market/valuation.ex", "lib/football_market/valuation/request.ex"]
              )
 
@@ -55,7 +62,7 @@ defmodule FootballMarket.Valuation.Configurations.ScopeTest do
              )
     end
 
-    for path <- production do
+    for path <- current_production do
       source = File.read!(path)
 
       refute source =~

@@ -74,6 +74,35 @@ defmodule FootballMarket.WorkflowScopeTest do
     refute WorkflowScope.allows_path?(feature, "lib/football_market/quotes/unplanned.ex")
     refute WorkflowScope.allows_path?(feature, ".github/workflows/quality-baseline.yml")
 
+    strategies_feature = "specs/091-richer-performance-data-and-consistent-strategy-selection"
+    strategy_paths = WorkflowScope.paths(strategies_feature)
+    assert length(strategy_paths) == length(Enum.uniq(strategy_paths))
+
+    for path <- [
+          "lib/football_market/statistics/enrichment.ex",
+          "lib/football_market/valuation/configurations/presets.ex",
+          "test/support/e2e/fixtures.ex",
+          "scripts/sobelow_ci.py",
+          "backlog/feedback/TASK-091.md",
+          "docs/WORKFLOW_LESSONS.md",
+          "test/football_market/ranking/selection_test.exs",
+          "test/football_market/valuation/configurations/scope_test.exs",
+          "test/football_market/valuation/scope_test.exs",
+          "test/football_market_web/live/portfolio_live_test.exs",
+          "test/support/workflow_scope.ex"
+        ] do
+      assert WorkflowScope.allows_path?(strategies_feature, path)
+    end
+
+    for path <- [
+          "lib/football_market/market/purchases.ex",
+          "lib/football_market/providers/unplanned.ex",
+          "config/unplanned.json",
+          ".github/workflows/quality-baseline.yml"
+        ] do
+      refute WorkflowScope.allows_path?(strategies_feature, path)
+    end
+
     assert WorkflowScope.paths(nil) == []
     assert WorkflowScope.paths("specs/unknown") == []
 

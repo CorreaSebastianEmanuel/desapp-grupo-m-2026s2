@@ -835,6 +835,13 @@
       "profile": "unit"
     },
     {
+      "id": "12dfb4cd01ce6fd0d81ea900",
+      "runner": "python",
+      "file": "test/scripts/agentflow_feedback_test.py",
+      "case_id": "test.scripts.agentflow_feedback_test.FeedbackTest.test_completed_pointer_without_feedback_does_not_implicitly_rewind",
+      "profile": "unit"
+    },
+    {
       "id": "1354917910da7b51cca32011",
       "runner": "exunit",
       "file": "test/e2e/catalog_sync_test.exs",
@@ -2305,6 +2312,13 @@
       "profile": "integration"
     },
     {
+      "id": "38a5ccd9c69c11e438fb745d",
+      "runner": "exunit",
+      "file": "test/football_market_web/live/administration_live_test.exs",
+      "case_id": "FootballMarketWeb.AdministrationLiveTest:test administration offers only fixed formulas and ignores obsolete editing events",
+      "profile": "integration"
+    },
+    {
       "id": "38afe949775a0e8a40d38135",
       "runner": "exunit",
       "file": "test/football_market/catalog/player_catalog_index_test.exs",
@@ -2401,6 +2415,13 @@
       "file": "test/scripts/agentflow_metrics_test.py",
       "case_id": "test.scripts.agentflow_metrics_test.MetricsTest.test_replayed_events_are_not_counted_twice",
       "profile": "unit"
+    },
+    {
+      "id": "3ac9becf13bfce2653c65a48",
+      "runner": "exunit",
+      "file": "test/football_market/valuation/configurations/presets_test.exs",
+      "case_id": "FootballMarket.Valuation.Configurations.PresetsTest:test authorized inspection prepares exactly two fixed bases idempotently without activating or pricing",
+      "profile": "integration"
     },
     {
       "id": "3ae3cd4af675d354c2ad3cf0",
@@ -2795,6 +2816,13 @@
       "profile": "integration"
     },
     {
+      "id": "4524b00d62497fec2177ea0f",
+      "runner": "exunit",
+      "file": "test/football_market/statistics/ingestion/enrichment_test.exs",
+      "case_id": "FootballMarket.Statistics.Ingestion.EnrichmentTest:test additive evidence is immutable idempotent and preserves original and enriched calculation replay",
+      "profile": "integration"
+    },
+    {
       "id": "4587214922e9a6ee2cb0ec5d",
       "runner": "exunit",
       "file": "test/football_market/catalog/ingestion/canonical_test.exs",
@@ -2807,6 +2835,13 @@
       "file": "test/scripts/workflow_artifact_probe_test.py",
       "case_id": "test.scripts.workflow_artifact_probe_test.WorkflowArtifactProbeTest.test_develop_ignores_documented_url_with_file_suffix",
       "profile": "unit"
+    },
+    {
+      "id": "45a69698b42f9f7cd19fd13a",
+      "runner": "exunit",
+      "file": "test/football_market/valuation/configurations/scope_test.exs",
+      "case_id": "FootballMarket.Valuation.Configurations.ScopeTest:test exact historical 33-path inventory and current namespace preserve exclusions and purity",
+      "profile": "integration"
     },
     {
       "id": "45b45806f3cc2cac7f170e32",
@@ -2848,6 +2883,13 @@
       "runner": "exunit",
       "file": "test/football_market/providers/scraping/assessment_test.exs",
       "case_id": "FootballMarket.Providers.ScrapingAssessmentTest:test publication rejects expiry, withdrawal and revision changes during final validation",
+      "profile": "unit"
+    },
+    {
+      "id": "46e5228d091f3ec7d9b954bb",
+      "runner": "python",
+      "file": "test/scripts/agentflow_feedback_test.py",
+      "case_id": "test.scripts.agentflow_feedback_test.FeedbackTest.test_unknown_execution_schema_refuses_rewind_without_mutation",
       "profile": "unit"
     },
     {
@@ -3474,6 +3516,13 @@
       "profile": "integration"
     },
     {
+      "id": "565a4b1d73b45a373f1934cb",
+      "runner": "python",
+      "file": "test/scripts/agentflow_feedback_test.py",
+      "case_id": "test.scripts.agentflow_feedback_test.FeedbackTest.test_completed_final_stage_preserves_publication_retry",
+      "profile": "unit"
+    },
+    {
       "id": "568c1efff2029e9360a03de5",
       "runner": "exunit",
       "file": "test/football_market/market/storage_test.exs",
@@ -4025,6 +4074,13 @@
       "file": "test/scripts/agentflow_evidence_test.py",
       "case_id": "test.scripts.agentflow_evidence_test.EvidenceTest.test_handled_signal_inventory_stays_nonpass_and_retains_completed_rows",
       "profile": "unit"
+    },
+    {
+      "id": "65754d6624f49a9d49ca5de2",
+      "runner": "exunit",
+      "file": "test/football_market_web/administration_browser_test.exs",
+      "case_id": "FootballMarketWeb.AdministrationBrowserTest:test real Chromium navigates the shared responsive workspace and selects only two fixed formulas",
+      "profile": "integration"
     },
     {
       "id": "6581eda324845a0826787bab",
@@ -8031,6 +8087,13 @@
       "profile": "unit"
     },
     {
+      "id": "cc9bb4c8aa45c40eeb7b8933",
+      "runner": "exunit",
+      "file": "test/football_market/valuation/configurations/concurrency_test.exs",
+      "case_id": "FootballMarket.Valuation.Configurations.ConcurrencyTest:test concurrent automatic preparation creates canonical roles and exactly two bases without activation",
+      "profile": "integration"
+    },
+    {
       "id": "cca9d59b19e157e4b28772fa",
       "runner": "python",
       "file": "test/scripts/test_profile_components_test.py",
@@ -8367,6 +8430,13 @@
       "profile": "integration"
     },
     {
+      "id": "d452a85c8418e113c299418e",
+      "runner": "python",
+      "file": "test/scripts/agentflow_feedback_test.py",
+      "case_id": "test.scripts.agentflow_feedback_test.FeedbackTest.test_replayed_feedback_recovery_is_idempotent_without_another_feedback_entry",
+      "profile": "unit"
+    },
+    {
       "id": "d468f36764873928f784320f",
       "runner": "exunit",
       "file": "test/football_market/market/analytics/projection_test.exs",
@@ -8505,13 +8575,6 @@
       "file": "test/football_market/valuation/position_aware/config_test.exs",
       "case_id": "FootballMarket.Valuation.PositionAware.ConfigTest:test every malformed Decimal field, container and nested tail fails without callbacks throwing",
       "profile": "unit"
-    },
-    {
-      "id": "d7a714b14d39eddfe0b23dd8",
-      "runner": "exunit",
-      "file": "test/football_market/valuation/configurations/scope_test.exs",
-      "case_id": "FootballMarket.Valuation.Configurations.ScopeTest:test exact 33-path active inventory preserves inherited exclusions and module purity",
-      "profile": "integration"
     },
     {
       "id": "d7b8f7e8d2ff5fb3a4e2d297",
@@ -8850,6 +8913,13 @@
       "profile": "unit"
     },
     {
+      "id": "df378efba3df8adf9d243a5e",
+      "runner": "exunit",
+      "file": "test/football_market/valuation/configurations/presets_test.exs",
+      "case_id": "FootballMarket.Valuation.Configurations.PresetsTest:test automatic preparation reuses normalized canonical role identities",
+      "profile": "integration"
+    },
+    {
       "id": "df5de5b1d3adcab03557c3e8",
       "runner": "exunit",
       "file": "test/football_market/valuation/replay_test.exs",
@@ -9127,6 +9197,13 @@
       "runner": "exunit",
       "file": "test/football_market/synchronization/inspection_test.exs",
       "case_id": "FootballMarket.Synchronization.InspectionTest:test unchanged and complete empty imports retain attribution and historical replay counts",
+      "profile": "integration"
+    },
+    {
+      "id": "e5591d9ba0016662fe9e6050",
+      "runner": "exunit",
+      "file": "test/football_market/valuation/configurations/presets_test.exs",
+      "case_id": "FootballMarket.Valuation.Configurations.PresetsTest:test conflicting catalog identities roll back automatic preparation without guessed mappings",
       "profile": "integration"
     },
     {
@@ -9816,6 +9893,13 @@
       "profile": "unit"
     },
     {
+      "id": "f6a56cc03084072ad52daaed",
+      "runner": "python",
+      "file": "test/scripts/agentflow_feedback_test.py",
+      "case_id": "test.scripts.agentflow_feedback_test.FeedbackTest.test_feedback_rewind_invalidates_native_tree_and_preserves_checkpoint_backup",
+      "profile": "unit"
+    },
+    {
       "id": "f6b1d2c6868a44f494ad2d2c",
       "runner": "exunit",
       "file": "test/football_market/valuation/position_aware/formula_test.exs",
@@ -9870,6 +9954,13 @@
       "file": "test/scripts/agentflow_branch_test.py",
       "case_id": "test.scripts.agentflow_branch_test.AgentflowBranchTest.test_explicit_base_accepts_stacked_start_and_publication",
       "profile": "unit"
+    },
+    {
+      "id": "f792eba355a111db83436aa7",
+      "runner": "exunit",
+      "file": "test/football_market/valuation/configurations/presets_test.exs",
+      "case_id": "FootballMarket.Valuation.Configurations.PresetsTest:test historical custom versions are retained but cannot be selected through Administration",
+      "profile": "integration"
     },
     {
       "id": "f7c1739c1f09e9d2c11824c3",
@@ -10330,6 +10421,7 @@
     "test/support/valuation_scorers.ex": "Fixture/support helper; cases owned by its importing native suite.",
     "test/support/workflow_scope.ex": "Fixture/support helper; cases owned by its importing native suite.",
     "test/test_helper.exs": "Fixture/support helper; cases owned by its importing native suite.",
+    "tools/openapi/administration_browser.mjs": "Chromium helper for the registered integration administration browser case.",
     "tools/openapi/browser.mjs": "Fixture/support helper; cases owned by its importing native suite.",
     "tools/openapi/e2e_browser.mjs": "Fixture/support helper; cases owned by its importing native suite.",
     "tools/openapi/e2e_catalog_scouting.mjs": "Real Chromium catalog scouting journey helper; invoked by the E2E catalog scouting suite.",

@@ -64,7 +64,7 @@ config :tailwind,
 config :logger, :default_formatter,
   format: "$time $metadata[$level] $message\n",
   metadata:
-    ~w(event correlation_id request_id method route status duration_ms queue_time_ms job_id worker queue attempt max_attempts execution_state error_kind run_id delivery_id intent_id calculation_request_id)a
+    ~w(actor_id parameters event correlation_id request_id method route status duration_ms queue_time_ms job_id worker queue attempt max_attempts execution_state error_kind run_id delivery_id intent_id calculation_request_id)a
 
 # Use Jason for JSON parsing in Phoenix and redact opaque catalog continuations
 # before controller parameter logging can expose them.

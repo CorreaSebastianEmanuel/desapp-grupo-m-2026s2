@@ -366,6 +366,13 @@
       "profile": "unit"
     },
     {
+      "id": "08d7437f4df09c3692c4836a",
+      "runner": "exunit",
+      "file": "test/football_market_web/request_logger_test.exs",
+      "case_id": "FootballMarketWeb.RequestLoggerTest:test JWT and API key identities are verified and request identity overrides are excluded",
+      "profile": "integration"
+    },
+    {
       "id": "08fa62d1b3094ba68f7cf0ed",
       "runner": "python",
       "file": "test/scripts/test_profile_runner_test.py",
@@ -3024,6 +3031,13 @@
       "file": "test/football_market/providers/ingestion_contract_test.exs",
       "case_id": "FootballMarket.Providers.IngestionContractTest:test completeness requires a full unbounded scope, terminal witness and detail for every eligible match",
       "profile": "unit"
+    },
+    {
+      "id": "4ac608602cc7015e1e7a5eff",
+      "runner": "exunit",
+      "file": "test/football_market_web/request_logger_test.exs",
+      "case_id": "FootballMarketWeb.RequestLoggerTest:test query and path parameters retain only typed safe values",
+      "profile": "integration"
     },
     {
       "id": "4b34903a1d2343605b04e827",
@@ -9207,6 +9221,13 @@
       "profile": "integration"
     },
     {
+      "id": "e5680d6e78aa2dd5e533be6b",
+      "runner": "exunit",
+      "file": "test/football_market_web/request_logger_test.exs",
+      "case_id": "FootballMarketWeb.RequestLoggerTest:test every published router service emits one anonymous audit on rejection or response",
+      "profile": "integration"
+    },
+    {
       "id": "e5a7b4906e5cc29e8ee9a617",
       "runner": "exunit",
       "file": "test/football_market/observability/context_test.exs",
@@ -10206,6 +10227,13 @@
       "file": "test/scripts/agentflow_providers_test.py",
       "case_id": "test.scripts.agentflow_providers_test.ShimTest.test_both_provider_shims_spawn_the_exact_preflight_context",
       "profile": "unit"
+    },
+    {
+      "id": "fc5af84b42e7876063db8978",
+      "runner": "exunit",
+      "file": "test/football_market_web/request_logger_test.exs",
+      "case_id": "FootballMarketWeb.RequestLoggerTest:test browser login workspace and logout retain account identity without session secrets",
+      "profile": "integration"
     },
     {
       "id": "fc615bfb19dcd4c53165da84",

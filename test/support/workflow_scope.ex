@@ -1415,6 +1415,24 @@ defmodule FootballMarket.WorkflowScope do
     ]
   end
 
+  def paths("specs/037-immutable-service-and-financial-audit") do
+    [
+      "backlog/TASK-037-immutable-service-and-financial-audit.md",
+      "backlog/feedback/TASK-037.md",
+      "config/config.exs",
+      "config/test_profiles.json",
+      "docs/WORKFLOW_LESSONS.md",
+      "lib/football_market/observability/json_formatter.ex",
+      "lib/football_market_web/controllers/session_controller.ex",
+      "lib/football_market_web/request_logger.ex",
+      "specs/037-immutable-service-and-financial-audit/",
+      "test/ci/workflow_scope_test.exs",
+      "test/football_market/observability/json_formatter_test.exs",
+      "test/football_market_web/request_logger_test.exs",
+      "test/support/workflow_scope.ex"
+    ]
+  end
+
   def paths(_), do: []
 
   def allows_path?(feature, path) do

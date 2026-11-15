@@ -55,3 +55,9 @@ operation/method, safe parameters and execution time.
   values are omitted, including search text and pagination cursors.
 - Logger is operational evidence, not a database transaction participant. Existing
   append-only financial records remain the durable financial evidence.
+- The first hosted run of PR #102 exposed two integration-only configuration
+  controls still pinned to TASK-036's logging metadata. Reconcile the exact approved
+  declaration with TASK-037's `actor_id` and `parameters`; retain the configuration
+  hash and prove removing either audit field or adding raw arguments is rejected.
+  Validate the affected integration controls before a fresh independent evaluation
+  and publication to the same PR.

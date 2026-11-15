@@ -1,5 +1,41 @@
 # Independent evaluation — TASK-037
 
+## Repair re-review — 2026-11-15
+
+Reviewed the compact outcome spec, task, REVIEW.md, repository baseline documents
+and constitution, current repair diff, affected configuration boundary and workflow
+scope implementation, and current local ThinFlow candidate evidence. This re-review
+is limited to the repair delta and affected surfaces; the original evaluation below
+records the unchanged HTTP implementation assessment. No implementation code,
+skills, additional evaluator sessions or agents were used or changed.
+
+The repair normalizes only the exact approved metadata declaration including
+`actor_id` and `parameters`, retaining the existing configuration SHA-256 oracle.
+Mutation controls reject removal of either field, addition of `raw_arguments`,
+removal of route metadata and unrelated configuration changes. The task allowance
+adds only the affected market scope test; existing negative workflow-scope controls
+remain intact. No HTTP or financial runtime code changes in this repair.
+
+Executed `MIX_ENV=test mix test test/football_market/market/scope_test.exs
+test/ci/workflow_scope_test.exs`: **12 passed**, exit 0, seed 115766. The initial
+sandbox attempt could not acquire Mix's TCP filesystem lock; the retry with local
+TCP access ran successfully. These tests cover both previously failing integration
+controls and the strengthened mutation checks. No full suite was rerun.
+
+Validated current candidate `.agentflow/runs/thinflow/TASK-037/candidate.json`,
+digest `93b09cb9e0f115f5f749569215a07f8fcbb4b3a16fbb5ed8b6c8a3cd10a3f0dd`,
+using `scripts.thinflow.readiness(..., require_evaluation=False)`: ready, high risk.
+Branch, actual diff selection, material digest, ordered check membership, successful
+statuses and all referenced evidence hashes match. Selected format, compile,
+unit-profile, ci-contracts and harness-tests receipts pass; logs report 717 unit
+cases, 27 CI-contract cases and 387 harness tests. This is receipt validation,
+not a claim to have rerun those suites during re-review.
+
+Blocking findings: none. Advisory findings: none. The repair is ready for exact-head
+hosted CI and human merge; neither is asserted complete here.
+
+## Original implementation evaluation (prior candidate)
+
 Reviewed the compact specification, task, feedback 1, REVIEW.md, repository baseline
 documents and constitution, complete candidate diff, implementation, tests and local
 ThinFlow receipt. No implementation changes, additional agents or full-suite reruns.

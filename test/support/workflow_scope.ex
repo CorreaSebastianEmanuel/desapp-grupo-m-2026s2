@@ -1427,6 +1427,7 @@ defmodule FootballMarket.WorkflowScope do
       "lib/football_market_web/request_logger.ex",
       "specs/037-immutable-service-and-financial-audit/",
       "test/ci/workflow_scope_test.exs",
+      "test/football_market/market/scope_test.exs",
       "test/football_market/observability/json_formatter_test.exs",
       "test/football_market_web/request_logger_test.exs",
       "test/support/workflow_scope.ex"

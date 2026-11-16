@@ -16,6 +16,8 @@ defmodule FootballMarket.Observability.JSONFormatterTest do
         event: "http.request.stop",
         status: 200,
         duration_ms: 7,
+        actor_id: "account",
+        parameters: %{"quantity" => 2},
         correlation_id: "trace",
         secret: "private",
         args: %{token: "private"}
@@ -31,6 +33,8 @@ defmodule FootballMarket.Observability.JSONFormatterTest do
              "event" => "http.request.stop",
              "status" => 200,
              "duration_ms" => 7,
+             "actor_id" => "account",
+             "parameters" => %{"quantity" => 2},
              "correlation_id" => "trace"
            }
 

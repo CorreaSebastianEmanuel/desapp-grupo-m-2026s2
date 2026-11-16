@@ -5,11 +5,14 @@ defmodule FootballMarketWeb.SessionController do
   alias FootballMarketWeb.Plugs.BrowserAuth
   plug :put_view, html: FootballMarketWeb.SessionHTML
   plug :no_store
+  plug :audit_actor when action == :delete
 
   def new(conn, params) do
     case BrowserSessions.validate(get_session(conn, :browser_handle)) do
-      {:ok, _} ->
-        redirect303(conn, BrowserAuth.destination(params["return_to"]))
+      {:ok, actor} ->
+        conn
+        |> assign(:browser_actor, actor)
+        |> redirect303(BrowserAuth.destination(params["return_to"]))
 
       {:error, :unavailable} ->
         form(
@@ -47,8 +50,10 @@ defmodule FootballMarketWeb.SessionController do
 
   def create(conn, params) do
     case BrowserSessions.validate(get_session(conn, :browser_handle)) do
-      {:ok, _} ->
-        redirect303(conn, BrowserAuth.destination(params["return_to"]))
+      {:ok, actor} ->
+        conn
+        |> assign(:browser_actor, actor)
+        |> redirect303(BrowserAuth.destination(params["return_to"]))
 
       {:error, :unavailable} ->
         form(
@@ -65,8 +70,8 @@ defmodule FootballMarketWeb.SessionController do
 
   def new_registration(conn, _params) do
     case BrowserSessions.validate(get_session(conn, :browser_handle)) do
-      {:ok, _} ->
-        redirect303(conn, "/portfolio")
+      {:ok, actor} ->
+        conn |> assign(:browser_actor, actor) |> redirect303("/portfolio")
 
       {:error, :unavailable} ->
         registration_form(
@@ -83,8 +88,8 @@ defmodule FootballMarketWeb.SessionController do
 
   def create_registration(conn, params) do
     case BrowserSessions.validate(get_session(conn, :browser_handle)) do
-      {:ok, _} ->
-        redirect303(conn, "/portfolio")
+      {:ok, actor} ->
+        conn |> assign(:browser_actor, actor) |> redirect303("/portfolio")
 
       {:error, :unavailable} ->
         registration_form(
@@ -128,6 +133,7 @@ defmodule FootballMarketWeb.SessionController do
       Plug.CSRFProtection.delete_csrf_token()
 
       conn
+      |> assign(:audit_account_id, user.id)
       |> clear_session()
       |> configure_session(renew: true)
       |> put_session(:browser_handle, handle)
@@ -199,5 +205,13 @@ defmodule FootballMarketWeb.SessionController do
   defp notice_message(_), do: nil
 
   defp redirect303(conn, path), do: conn |> put_status(303) |> redirect(to: path)
+
+  defp audit_actor(conn, _) do
+    case BrowserSessions.validate(get_session(conn, :browser_handle)) do
+      {:ok, actor} -> assign(conn, :browser_actor, actor)
+      _ -> conn
+    end
+  end
+
   defp no_store(conn, _), do: put_resp_header(conn, "cache-control", "no-store")
 end

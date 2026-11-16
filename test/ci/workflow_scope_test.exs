@@ -57,6 +57,28 @@ defmodule FootballMarket.WorkflowScopeTest do
     assert length(paths) == length(Enum.uniq(paths))
     refute "lib/football_market/market.ex" in paths
     refute "test/scripts/unplanned_test.py" in paths
+    audit_feature = "specs/037-immutable-service-and-financial-audit"
+    audit_paths = WorkflowScope.paths(audit_feature)
+    assert audit_paths == Enum.sort(Enum.uniq(audit_paths))
+
+    for path <- [
+          "lib/football_market_web/request_logger.ex",
+          "lib/football_market_web/controllers/session_controller.ex",
+          "lib/football_market/observability/json_formatter.ex",
+          "test/football_market_web/request_logger_test.exs",
+          "test/support/workflow_scope.ex"
+        ] do
+      assert WorkflowScope.allows_path?(audit_feature, path)
+    end
+
+    for path <- [
+          "lib/football_market/market/purchases.ex",
+          "lib/football_market_web/unplanned.ex",
+          ".github/workflows/quality-baseline.yml"
+        ] do
+      refute WorkflowScope.allows_path?(audit_feature, path)
+    end
+
     feature = "specs/090-complete-project-wide-responsibility-and-directory-reorganization"
 
     for path <- [

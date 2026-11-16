@@ -1,12 +1,12 @@
 defmodule FootballMarket.Observability.JSONFormatter do
   @moduledoc "JSON lines using Logger's existing report conversion and truncation."
 
-  @fields ~w(event correlation_id request_id method route status duration_ms queue_time_ms job_id worker queue attempt max_attempts execution_state error_kind run_id delivery_id intent_id calculation_request_id)a
+  @fields ~w(actor_id event correlation_id request_id method route status duration_ms queue_time_ms job_id worker queue attempt max_attempts execution_state error_kind run_id delivery_id intent_id calculation_request_id)a
 
   def options do
     [
       format: {__MODULE__, :format},
-      metadata: @fields,
+      metadata: [:parameters | @fields],
       utc_log: true,
       colors: [enabled: false]
     ]
@@ -24,6 +24,12 @@ defmodule FootballMarket.Observability.JSONFormatter do
     fields =
       for {key, value} <- metadata, key in @fields, scalar?(value), into: %{} do
         {key, normalize(value)}
+      end
+
+    fields =
+      case Keyword.fetch(metadata, :parameters) do
+        {:ok, parameters} when is_map(parameters) -> Map.put(fields, :parameters, parameters)
+        _ -> fields
       end
 
     record =

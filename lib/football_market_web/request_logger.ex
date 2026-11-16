@@ -60,6 +60,8 @@ defmodule FootballMarketWeb.RequestLogger do
         method: state.method,
         route: route(conn),
         status: status,
+        actor_id: actor_id(conn),
+        parameters: parameters(conn),
         duration_ms:
           System.convert_time_unit(
             System.monotonic_time() - state.started_at,
@@ -70,14 +72,50 @@ defmodule FootballMarketWeb.RequestLogger do
     end)
   end
 
+  defp actor_id(conn) do
+    actor = conn.assigns[:authenticated_actor] || conn.assigns[:browser_actor]
+    account_id = if actor, do: actor.account_id, else: conn.assigns[:audit_account_id]
+    account_id || "anonymous"
+  end
+
+  # Never inspect raw request bytes or accept arbitrary strings, even under a safe key.
+  defp parameters(conn) do
+    [conn.query_params, conn.body_params, conn.path_params]
+    |> Enum.reject(&is_struct/1)
+    |> Enum.reduce(%{}, &Map.merge(&2, &1))
+    |> Enum.filter(fn {key, value} -> safe_parameter?(key, value) end)
+    |> Map.new()
+  end
+
+  defp safe_parameter?(key, value)
+       when key in ~w(id player_id league_id team_id position_id) and is_binary(value) and
+              byte_size(value) == 36,
+       do: match?({:ok, _}, Ecto.UUID.cast(value))
+
+  defp safe_parameter?(key, value) when key in ~w(quantity page_size) do
+    (is_integer(value) and value >= 0 and value < 100_000_000_000_000_000_000) or
+      (is_binary(value) and byte_size(value) <= 20 and Regex.match?(~r/\A[0-9]+\z/, value))
+  end
+
+  defp safe_parameter?("maximum_unit_price", value) when is_binary(value),
+    do: byte_size(value) <= 40 and Regex.match?(~r/\A[0-9]+(?:\.[0-9]+)?\z/, value)
+
+  defp safe_parameter?(key, value) when key in ~w(date from to) and is_binary(value),
+    do: match?({:ok, _}, Date.from_iso8601(value))
+
+  defp safe_parameter?("expires_at", value) when is_binary(value),
+    do: byte_size(value) <= 40 and match?({:ok, _, _}, DateTime.from_iso8601(value))
+
+  defp safe_parameter?(_, _), do: false
+
   defp route(%{private: %{phoenix_router: router}} = conn) do
     decoded = Enum.map(conn.path_info, &URI.decode/1)
 
     case Phoenix.Router.route_info(router, conn.method, decoded, conn.host) do
       %{route: route} -> route
-      _ -> nil
+      _ -> "unmatched"
     end
   end
 
-  defp route(_), do: nil
+  defp route(_), do: "unmatched"
 end

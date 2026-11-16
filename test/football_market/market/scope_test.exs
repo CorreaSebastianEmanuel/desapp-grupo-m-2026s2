@@ -169,9 +169,11 @@ defmodule FootballMarket.Market.ScopeTest do
           String.replace(source, "t_cost: 2", "t_cost: 1"),
           String.replace(
             source,
-            "~w(event correlation_id",
-            "~w(raw_arguments event correlation_id"
+            "~w(actor_id parameters event correlation_id",
+            "~w(raw_arguments actor_id parameters event correlation_id"
           ),
+          String.replace(source, "~w(actor_id parameters event", "~w(parameters event"),
+          String.replace(source, "~w(actor_id parameters event", "~w(actor_id event"),
           String.replace(source, "method route status", "method status"),
           source <> "\nconfig :football_market, unplanned: true\n"
         ] do
@@ -181,9 +183,9 @@ defmodule FootballMarket.Market.ScopeTest do
   end
 
   defp assert_config_boundary(source) do
-    # Normalize only TASK-036's complete approved logging metadata declaration.
+    # Normalize only TASK-036/TASK-037's complete approved logging metadata declaration.
     logging_metadata =
-      "  metadata:\n    ~w(event correlation_id request_id method route status duration_ms queue_time_ms job_id worker queue attempt max_attempts execution_state error_kind run_id delivery_id intent_id calculation_request_id)a"
+      "  metadata:\n    ~w(actor_id parameters event correlation_id request_id method route status duration_ms queue_time_ms job_id worker queue attempt max_attempts execution_state error_kind run_id delivery_id intent_id calculation_request_id)a"
 
     source = String.replace(source, logging_metadata, "  metadata: [:request_id]")
 

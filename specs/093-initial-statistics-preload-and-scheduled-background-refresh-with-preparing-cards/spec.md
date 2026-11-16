@@ -26,7 +26,7 @@ Configured player statistics are preloaded asynchronously after application star
 
 - Medium: background admission touches durable synchronization and LiveView state. Existing scope locks, TTL, retry policy, and persisted Oban jobs remain authoritative.
 
-## Decisions
+## Material Decisions
 
 - Reuse the configured statistics freshness TTL (24 hours by default) and provider bindings; the recurring pass checks hourly, and only stale or never-checked player scopes are admitted.
 - Serialize the preload pass on the existing statistics import queue and deduplicate its wake jobs. The pass itself only admits existing per-player import jobs.

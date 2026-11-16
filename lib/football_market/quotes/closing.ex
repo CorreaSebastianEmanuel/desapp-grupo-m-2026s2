@@ -125,7 +125,8 @@ defmodule FootballMarket.Quotes.Closing do
       Repo.update_all(
         from(r in CalculationRequest,
           where:
-            r.source == "import" and r.season_id == ^season_id and r.state == "pending" and
+            r.source == "import" and r.season_id == ^season_id and
+              (r.state == "pending" or (r.initial_only and r.state in ["running", "retrying"])) and
               is_nil(r.admitted_at) and r.inserted_at <= ^due
         ),
         set: [admitted_at: due]

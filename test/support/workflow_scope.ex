@@ -1434,6 +1434,36 @@ defmodule FootballMarket.WorkflowScope do
     ]
   end
 
+  def paths("specs/092-automatic-first-performance-quote-after-accepted-statistics") do
+    [
+      "backlog/TASK-092-automatic-first-performance-quote-after-accepted-statistics.md",
+      "backlog/TASK-093-initial-statistics-preload-and-scheduled-background-refresh-with-preparing-cards.md",
+      "config/application_coverage_inventory.json",
+      "config/credo_inventory.json",
+      "config/test_profiles.json",
+      "docs/ARCHITECTURE.md",
+      "docs/CP2_ARCHITECTURE.md",
+      "docs/PLAYER_SEARCH_WORKFLOW.md",
+      "lib/football_market/infrastructure/local_operations.ex",
+      "lib/football_market/quotes/calculation_request.ex",
+      "lib/football_market/quotes/closing.ex",
+      "lib/football_market/quotes/engine.ex",
+      "lib/football_market/quotes/import_requests.ex",
+      "lib/football_market/quotes/recovery.ex",
+      "lib/football_market/quotes/store.ex",
+      "lib/football_market_web/components/workspace_components.ex",
+      "lib/football_market_web/live/administration_live.ex",
+      "lib/football_market_web/live/local_admin_live.ex",
+      "priv/repo/migrations/20261116000000_add_initial_quote_eligibility.exs",
+      "specs/092-automatic-first-performance-quote-after-accepted-statistics/spec.md",
+      "test/football_market/quotes/initial_test.exs",
+      "test/football_market_web/live/administration_live_test.exs",
+      "test/football_market_web/live/local_admin_live_test.exs",
+      "test/football_market_web/live/portfolio_live_test.exs",
+      "test/support/workflow_scope.ex"
+    ]
+  end
+
   def paths(_), do: []
 
   def allows_path?(feature, path) do

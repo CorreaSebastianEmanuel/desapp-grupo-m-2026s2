@@ -361,7 +361,19 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
 
     refute has_element?(view, "#player-freshness", card.statistics.season_id)
     refute has_element?(view, "#player-freshness pre")
-    assert has_element?(view, "#player-freshness", "cierre del mercado")
+
+    assert has_element?(
+             view,
+             "#player-freshness",
+             "La primera cotización se prepara en segundo plano"
+           )
+
+    assert has_element?(
+             view,
+             "#player-freshness",
+             "Las siguientes se recalculan en el cierre del mercado"
+           )
+
     refute has_element?(view, "#quote-history", earlier.id)
     refute has_element?(view, "#quote-history", later.id)
     assert_quote_details(view, "#quote-provenance", later)
@@ -396,6 +408,37 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
                quantity: 1,
                request_key: "purchase-before-performance-quote"
              })
+  end
+
+  test "pending valuation distinguishes initial preparation from later nightly updates" do
+    f = FootballMarket.QuotesCase.fixture()
+    {:ok, card} = Catalog.player_card(f.player.id)
+    card = put_in(card.statistics_status.valuation.state, "pending")
+
+    issuance =
+      Repo.get_by!(FootballMarket.Market.Quote,
+        player_id: f.player.id,
+        rule_id: "initial_issuance"
+      )
+
+    render_status = fn quote ->
+      render_component(&FootballMarketWeb.WorkspaceComponents.player_card/1,
+        card: card,
+        quote: quote,
+        request_key: "initial-status"
+      )
+      |> LazyHTML.from_fragment()
+      |> LazyHTML.query("#player-valuation-status")
+      |> LazyHTML.text()
+    end
+
+    for quote <- [nil, issuance] do
+      assert render_status.(quote) =~ "Primera cotización en preparación"
+      refute render_status.(quote) =~ "próximo cierre"
+    end
+
+    quote = FootballMarket.QuotesCase.dated_quote(f, DateTime.utc_now())
+    assert render_status.(quote) =~ "Valuación pendiente para el próximo cierre"
   end
 
   test "buy and sell forms use immutable retry terms and immediately reload owner positions" do

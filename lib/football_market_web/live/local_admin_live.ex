@@ -287,7 +287,11 @@ defmodule FootballMarketWeb.LocalAdminLive do
                     <td>
                       {if request.admitted_at,
                         do: timestamp(request.admitted_at),
-                        else: "Espera el cierre diario"}
+                        else:
+                          if(request.initial_only,
+                            do: "Primera cotización en preparación",
+                            else: "Espera el cierre diario"
+                          )}
                     </td>
                     <td>
                       {if request.mapping_id, do: "Configurada", else: "Falta mapping de conversión"}
@@ -399,6 +403,10 @@ defmodule FootballMarketWeb.LocalAdminLive do
     do: "Importación histórica sin snapshot original"
 
   defp quote_request_detail(%{reason: reason}) when is_binary(reason), do: reason
+
+  defp quote_request_detail(%{initial_only: true, admitted_at: nil}),
+    do: "Primer cálculo asíncrono desde estadísticas verificadas"
+
   defp quote_request_detail(_), do: "Cálculo sujeto al cierre diario de liga/temporada"
 
   defp reload_data(socket),

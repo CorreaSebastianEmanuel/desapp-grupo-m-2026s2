@@ -23,6 +23,7 @@ defmodule FootballMarket.Quotes.CalculationRequest do
     field :lease_until, :utc_datetime_usec
     field :next_attempt_at, :utc_datetime_usec
     field :reason, :string
+    field :initial_only, :boolean, default: false
     field :admitted_at, :utc_datetime_usec
     field :inserted_at, :utc_datetime_usec
   end

@@ -69,6 +69,18 @@ defmodule FootballMarket.Quotes.Store do
     end
   end
 
+  def ensure_initial_eligibility!(%{initial_only: true, admitted_at: nil} = request) do
+    if Repo.exists?(
+         from q in Quote,
+           where: q.player_id == ^request.player_id and not is_nil(q.calculation_id)
+       ),
+       do: Repo.rollback(:initial_quote_already_published)
+
+    :ok
+  end
+
+  def ensure_initial_eligibility!(_request), do: :ok
+
   def ensure_confirmation_lease!(nil), do: :ok
 
   def ensure_confirmation_lease!({request_id, fence}) do

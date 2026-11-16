@@ -294,6 +294,36 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
     refute unavailable =~ "No hay cotización para esa fecha"
   end
 
+  test "player card prepares while statistics import runs and reloads after completion" do
+    f = FootballMarket.FreshnessCase.fixture()
+    user = account("statistics-preload-card@example.com")
+    {:ok, view, _} = live(authenticated_conn(user), "/players?player_id=#{f.player.id}")
+
+    assert has_element?(view, "#player-statistics-preparing", "actualizará automáticamente")
+    refute has_element?(view, "#player-statistics-unavailable")
+
+    FootballMarket.FreshnessCase.perform!(f)
+    send(view.pid, :statistics_card_refresh)
+
+    assert has_element?(view, "#player-statistics")
+    refute has_element?(view, "#player-statistics-preparing")
+    refute has_element?(view, "#player-statistics-unavailable")
+  end
+
+  test "player card replaces preparing state with the explicit provider failure state" do
+    f = FootballMarket.FreshnessCase.fixture()
+    user = account("statistics-preload-failure@example.com")
+    {:ok, view, _} = live(authenticated_conn(user), "/players?player_id=#{f.player.id}")
+
+    assert has_element?(view, "#player-statistics-preparing")
+    FootballMarket.FreshnessCase.fail!(f, "access_refused")
+    send(view.pid, :statistics_card_refresh)
+
+    assert has_element?(view, "#player-statistics-unavailable")
+    assert has_element?(view, "#player-scraping-status", "necesita revisión")
+    refute has_element?(view, "#player-statistics-preparing")
+  end
+
   test "player details expose recorded statistics provenance and the exact selected dated quote" do
     f = FootballMarket.QuotesCase.fixture()
     day = Date.add(Date.utc_today(), -2)

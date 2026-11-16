@@ -1388,6 +1388,12 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/workers/statistics_import.ex."
     },
     {
+      "path": "lib/football_market/workers/statistics_preload.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Durable startup and scheduled player statistics preload worker."
+    },
+    {
       "path": "lib/football_market_web.ex",
       "role": "application",
       "disposition": "include",

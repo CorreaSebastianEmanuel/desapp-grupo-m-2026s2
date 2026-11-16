@@ -28,6 +28,7 @@ defmodule FootballMarketWeb.WorkspaceLive do
      assign(socket,
        profiles: %{},
        card: nil,
+       statistics_refresh_timer: nil,
        card_error: nil,
        quote: nil,
        quote_history: [],
@@ -100,7 +101,11 @@ defmodule FootballMarketWeb.WorkspaceLive do
       |> Session.reload_credit_balance()
       |> Session.reload_initial_recipient()
 
-    {:noreply, socket |> load_destination(destination, params) |> load_profiles()}
+    {:noreply,
+     socket
+     |> load_destination(destination, params)
+     |> load_profiles()
+     |> maybe_schedule_statistics_refresh()}
   end
 
   defp load_profiles(socket) do
@@ -172,6 +177,26 @@ defmodule FootballMarketWeb.WorkspaceLive do
     end
   end
 
+  def handle_info(
+        :statistics_card_refresh,
+        %{assigns: %{destination: "/players", card: card}} = socket
+      )
+      when not is_nil(card) do
+    params =
+      URI.decode_query(socket.assigns.catalog_state_query || "")
+      |> Map.put("player_id", card.player.id)
+      |> maybe_put("date", socket.assigns.quote_date)
+
+    {:noreply,
+     socket
+     |> assign(:statistics_refresh_timer, nil)
+     |> Players.load_card(card.player.id, params)
+     |> load_profiles()
+     |> maybe_schedule_statistics_refresh()}
+  end
+
+  def handle_info(:statistics_card_refresh, socket), do: {:noreply, socket}
+
   def handle_info(:portfolio_changed, socket),
     do:
       {:noreply,
@@ -180,6 +205,33 @@ defmodule FootballMarketWeb.WorkspaceLive do
        |> Portfolio.reload_portfolio()
        |> Portfolio.reload_issuer_inventory()
        |> Portfolio.reload_charts()}
+
+  defp maybe_schedule_statistics_refresh(socket) do
+    active? =
+      connected?(socket) and socket.assigns.destination == "/players" and
+        active_statistics_refresh?(socket.assigns.card)
+
+    case {active?, socket.assigns.statistics_refresh_timer} do
+      {true, nil} ->
+        timer = Process.send_after(self(), :statistics_card_refresh, 5_000)
+        assign(socket, :statistics_refresh_timer, timer)
+
+      {false, timer} when is_reference(timer) ->
+        Process.cancel_timer(timer)
+        assign(socket, :statistics_refresh_timer, nil)
+
+      _ ->
+        socket
+    end
+  end
+
+  defp active_statistics_refresh?(%{statistics_status: %{refresh: %{state: state}}}),
+    do: state in ["queued", "executing", "retry_wait"]
+
+  defp active_statistics_refresh?(_), do: false
+
+  defp maybe_put(map, _key, value) when value in [nil, ""], do: map
+  defp maybe_put(map, key, value), do: Map.put(map, key, value)
 
   defp workspace_heading("/conditional-orders"), do: "Órdenes condicionales"
   defp workspace_heading("/players"), do: "Jugadores"

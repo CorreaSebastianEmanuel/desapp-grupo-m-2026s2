@@ -85,6 +85,11 @@ defmodule FootballMarket.Catalog do
 
   def get_player(id), do: Query.by_id(Player, id) |> Repo.one() |> preload_one_player()
 
+  def list_players_for_statistics do
+    Repo.all(from p in Player, order_by: p.id)
+    |> Repo.preload(team: [season: :league], position: [])
+  end
+
   def get_player_detail(id) do
     with true <-
            is_binary(id) and

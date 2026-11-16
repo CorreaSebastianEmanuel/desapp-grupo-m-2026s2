@@ -373,6 +373,7 @@
     "lib/football_market/workers/quote_close.ex",
     "lib/football_market/workers/quote_recovery.ex",
     "lib/football_market/workers/statistics_import.ex",
+    "lib/football_market/workers/statistics_preload.ex",
     "lib/football_market_web.ex",
     "lib/football_market_web/components/core_components.ex",
     "lib/football_market_web/components/layouts.ex",

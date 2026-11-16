@@ -104,12 +104,15 @@ config :football_market, Oban,
   plugins: [
     {Oban.Plugins.Cron,
      crontab: [
+       {"0 * * * *", FootballMarket.Workers.StatisticsPreload},
        {"* * * * *", FootballMarket.Workers.QuoteRecovery},
        {"* * * * *", FootballMarket.Workers.QuoteClose},
        {"* * * * *", FootballMarket.Workers.ConditionalOrderRecovery}
      ]}
   ],
   lifeline: [rescue_after: {5, :minutes}, interval: {1, :minute}]
+
+config :football_market, FootballMarket.Workers.StatisticsPreload, startup: config_env() != :test
 
 # Manual test execution opts into startup wakes explicitly against an owned
 # store; production startup remains enabled independently of catalog syncing.

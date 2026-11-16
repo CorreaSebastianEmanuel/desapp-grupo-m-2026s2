@@ -301,7 +301,15 @@ defmodule FootballMarketWeb.WorkspaceComponents do
               Partidos registrados para esta temporada; la cobertura puede ser parcial.
             </p>
             <p
-              :if={@card.statistics.recorded_match_count == 0}
+              :if={@card.statistics.recorded_match_count == 0 and preparing_statistics?(@card)}
+              id="player-statistics-preparing"
+              class="empty-inline"
+              role="status"
+            >
+              <.icon name="hero-clock" class="section-icon" />Estamos preparando las estadísticas de esta temporada. La ficha se actualizará automáticamente.
+            </p>
+            <p
+              :if={@card.statistics.recorded_match_count == 0 and not preparing_statistics?(@card)}
               id="player-statistics-unavailable"
               class="empty-inline"
             >
@@ -544,6 +552,11 @@ defmodule FootballMarketWeb.WorkspaceComponents do
 
   defp scraping_status(%{state: "cooldown"}), do: "La actualización se reintentará más tarde."
   defp scraping_status(_), do: "Estado de actualización de estadísticas no disponible."
+
+  defp preparing_statistics?(%{statistics_status: %{refresh: %{state: state}}}),
+    do: state in ["queued", "executing", "retry_wait"]
+
+  defp preparing_statistics?(_), do: false
 
   attr :quote, :map, required: true
 

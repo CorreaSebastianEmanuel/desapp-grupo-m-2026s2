@@ -63,9 +63,12 @@ defmodule FootballMarket.Quotes.InitialTest do
     assert quote.configuration_version_id == f.configuration.id
     assert {:ok, [event]} = Quotes.pending_evaluations()
     assert event.quote_id == quote.id
-    assert Repo.get!(Quotes.Calculation, quote.calculation_id).evidence["facts"] != []
+    calculation = Repo.get!(Quotes.Calculation, quote.calculation_id)
+    assert calculation.evidence["facts"] != []
+    assert calculation.evidence["score"] == Decimal.to_string(calculation.score)
     assert {:ok, replay} = Quotes.replay(quote.calculation_id)
-    assert replay
+    assert replay.outcome.status == "successful"
+    assert Decimal.equal?(replay.outcome.price, quote.unit_price)
 
     assert :ok = Quotes.process_import_request(request.id)
     assert {:ok, 0} = Recovery.recover_pending()
@@ -117,6 +120,18 @@ defmodule FootballMarket.Quotes.InitialTest do
       current = Repo.get!(CalculationRequest, request.id)
       assert current.state == "no_quote"
       assert current.reason == reason
+      calculation = Repo.get!(Quotes.Calculation, current.calculation_id)
+
+      if is_nil(goals) do
+        assert calculation.score == nil
+        refute Map.has_key?(calculation.evidence, "score")
+      else
+        assert Decimal.equal?(calculation.score, Decimal.new(0))
+        assert calculation.evidence["score"] == Decimal.to_string(calculation.score)
+      end
+
+      assert {:ok, replay} = Quotes.replay(calculation.id)
+      assert replay.outcome.reason == reason
       assert FootballMarket.QuotesCase.protected_snapshot() == before
       assert performance_quotes(f) == []
     end
@@ -127,9 +142,14 @@ defmodule FootballMarket.Quotes.InitialTest do
     assert {:ok, 1} = Recovery.recover_pending()
     assert :ok = Quotes.process_import_request(rounded.id)
 
-    assert %{state: "no_quote", reason: "nonpositive_converted_result"} =
+    assert %{state: "no_quote", reason: "nonpositive_converted_result", calculation_id: id} =
              Repo.get!(CalculationRequest, rounded.id)
 
+    calculation = Repo.get!(Quotes.Calculation, id)
+    assert Decimal.positive?(calculation.score)
+    assert calculation.evidence["score"] == Decimal.to_string(calculation.score)
+    assert {:ok, replay} = Quotes.replay(id)
+    assert replay.outcome.reason == "nonpositive_converted_result"
     assert performance_quotes(f) == []
 
     Application.put_env(:football_market, :quote_mapping_id, f.mapping.id)

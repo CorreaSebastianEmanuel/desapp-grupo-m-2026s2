@@ -310,7 +310,7 @@ defmodule FootballMarket.Quotes.Engine do
       "mapping_version" => mapping.version,
       "scale" => Decimal.to_string(mapping.scale),
       "rounding_rule" => mapping.rounding_rule,
-      "score" => if(is_nil(score), do: nil, else: Decimal.to_string(score)),
+      "score" => Decimal.to_string(score),
       "facts" => FootballMarket.Quotes.EvidenceCodec.encode_facts(managed.prepared.facts)
     }
   end

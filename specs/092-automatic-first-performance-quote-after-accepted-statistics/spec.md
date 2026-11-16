@@ -29,3 +29,4 @@ High: asynchronous financial publication and concurrent admission/confirmation. 
 - The user approved the first-quote exception to TASK-079. Eligibility is player-wide, across seasons, and ignores issuance quotes; later imports still require close.
 - Persist initial-only eligibility separately from immutable nightly admission. Recheck eligibility under the existing player and request locks immediately before persistence; work superseded by another first quote returns to pending for close without consuming a calculation attempt.
 - Recovery revisits pending unadmitted initial requests when configuration/mapping becomes available. Configuration binds through the existing worker lease; an already bound configuration or mapping is never replaced.
+- Scored evidence serializes the exact Decimal score as a string, including nonpositive and rounded-to-zero outcomes. Failures without a score keep the separate evidence path with no score key; replay preserves both forms.

@@ -4,10 +4,10 @@ title: Immutable service and financial audit
 type: task
 checkpoint: CP3
 priority: critical
-status: review
+status: done
 workflow: thinflow-v1
 depends_on: TASK-031, TASK-036
-active_run: e41b32a0
+active_run: none
 ---
 
 ## Outcome

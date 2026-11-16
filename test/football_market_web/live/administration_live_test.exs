@@ -81,6 +81,13 @@ defmodule FootballMarketWeb.AdministrationLiveTest do
     jobs_before = Repo.aggregate(Oban.Job, :count)
     render_click(one, "activate", %{"version_id" => first.id})
     assert has_element?(one, "#configuration-#{first.id} .active-configuration", "Activa")
+
+    assert has_element?(
+             one,
+             "#activation-notice",
+             "primera cotización se prepara en segundo plano"
+           )
+
     assert has_element?(one, "#activation-notice", "próximo cierre")
     render_click(two, "activate", %{"version_id" => second.id, "expected" => first.id})
     assert has_element?(two, "#activation-notice", "Otra sesión")

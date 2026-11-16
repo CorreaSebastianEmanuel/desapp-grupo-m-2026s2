@@ -667,6 +667,13 @@
       "profile": "integration"
     },
     {
+      "id": "0fc9e144d89a5fa96b6d4b7c",
+      "runner": "exunit",
+      "file": "test/football_market_web/live/local_admin_live_test.exs",
+      "case_id": "FootballMarketWeb.LocalAdminLiveTest:test quote requests show initial preparation separately from nightly admission",
+      "profile": "integration"
+    },
+    {
       "id": "0fcca5e9dbd9942a20cade70",
       "runner": "node",
       "file": "tools/openapi/workspace_session.test.mjs",
@@ -819,6 +826,13 @@
       "file": "test/football_market/market/analytics/projection_test.exs",
       "case_id": "FootballMarket.Market.Analytics.ProjectionTest:test daily replay includes opening trades, carry-forward quotes and retained closed profit",
       "profile": "unit"
+    },
+    {
+      "id": "127c044627eeb876d0987e54",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/initial_test.exs",
+      "case_id": "FootballMarket.Quotes.InitialTest:test accepted statistics publish the first positive quote asynchronously before close",
+      "profile": "integration"
     },
     {
       "id": "129863b220a4c9e394102ed5",
@@ -1126,6 +1140,13 @@
       "runner": "exunit",
       "file": "test/football_market/valuation/position_aware/scope_test.exs",
       "case_id": "FootballMarket.Valuation.PositionAware.ScopeTest:test active allowances equal the exact thirteen paths and preserve legacy exclusions",
+      "profile": "integration"
+    },
+    {
+      "id": "1acbb23af040b1b54083ec06",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/initial_test.exs",
+      "case_id": "FootballMarket.Quotes.InitialTest:test missing strategy or mapping stays pending and recovery admits it after configuration",
       "profile": "integration"
     },
     {
@@ -2242,11 +2263,25 @@
       "profile": "unit"
     },
     {
+      "id": "370e5abc64d32ce986a17ce7",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/initial_test.exs",
+      "case_id": "FootballMarket.Quotes.InitialTest:test recovery after confirmation reuses its quote when request completion was interrupted",
+      "profile": "integration"
+    },
+    {
       "id": "3733a5379e6f9c2525bfc5f3",
       "runner": "python",
       "file": "test/scripts/agentflow_branch_test.py",
       "case_id": "test.scripts.agentflow_branch_test.ConsumerRejectionTest.test_task054_pr_carries_actual_merge_order_and_separate_branch",
       "profile": "unit"
+    },
+    {
+      "id": "3757dc2c6fde2884f2001a46",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/initial_test.exs",
+      "case_id": "FootballMarket.Quotes.InitialTest:test later accepted changes remain pending until nightly admission",
+      "profile": "integration"
     },
     {
       "id": "375942263d5ff152df6f7ee1",
@@ -3082,6 +3117,13 @@
       "profile": "integration"
     },
     {
+      "id": "4bb482127bc62763199d2aca",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/initial_test.exs",
+      "case_id": "FootballMarket.Quotes.InitialTest:test missing metrics and nonpositive results retain explicit no-quote outcomes",
+      "profile": "integration"
+    },
+    {
       "id": "4bb93c02b3066f8da4f3dded",
       "runner": "exunit",
       "file": "test/football_market/quotes/lifecycle_test.exs",
@@ -3653,6 +3695,13 @@
       "runner": "exunit",
       "file": "test/football_market/market/scope_test.exs",
       "case_id": "FootballMarket.Market.ScopeTest:test pure domain, trusted facade and persistence retain narrow dependency and write boundaries",
+      "profile": "integration"
+    },
+    {
+      "id": "5997c74673f3a3b5a959fd20",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/initial_test.exs",
+      "case_id": "FootballMarket.Quotes.InitialTest:test different initial snapshots on separate connections publish only one daytime quote",
       "profile": "integration"
     },
     {
@@ -5620,6 +5669,13 @@
       "runner": "exunit",
       "file": "test/football_market/valuation/position_aware/selection_test.exs",
       "case_id": "FootballMarket.Valuation.PositionAware.SelectionTest:test US5.4 zero boundary and arbitrary-size accepted counts saturate without ceilings",
+      "profile": "integration"
+    },
+    {
+      "id": "8d9d3f4aa0b6e42dd7669b12",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/initial_test.exs",
+      "case_id": "FootballMarket.Quotes.InitialTest:test nightly admission overlapping initial confirmation preserves close authority",
       "profile": "integration"
     },
     {
@@ -9284,10 +9340,24 @@
       "profile": "integration"
     },
     {
+      "id": "e683225e48ac99f931627ffe",
+      "runner": "exunit",
+      "file": "test/football_market/quotes/initial_test.exs",
+      "case_id": "FootballMarket.Quotes.InitialTest:test initial retry retains selected configuration and never duplicates confirmation",
+      "profile": "integration"
+    },
+    {
       "id": "e6a702b82431cd65fe43fbab",
       "runner": "exunit",
       "file": "test/football_market_web/request_logger_test.exs",
       "case_id": "FootballMarketWeb.RequestLoggerTest:test normal static unauthorized and unmatched responses have one terminal event",
+      "profile": "integration"
+    },
+    {
+      "id": "e6b6ab6b0bbaed3c0cde3790",
+      "runner": "exunit",
+      "file": "test/football_market_web/live/portfolio_live_test.exs",
+      "case_id": "FootballMarketWeb.PortfolioLiveTest:test pending valuation distinguishes initial preparation from later nightly updates",
       "profile": "integration"
     },
     {

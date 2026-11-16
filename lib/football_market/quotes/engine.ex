@@ -136,11 +136,15 @@ defmodule FootballMarket.Quotes.Engine do
 
   defp persist_calculation(context) do
     Store.lock_player!(context.player.id)
-    Store.ensure_confirmation_lease!(context.lease)
+    request = Store.ensure_confirmation_lease!(context.lease)
 
     case Repo.one(from c in Calculation, where: c.canonical_identity == ^context.identity) do
-      %Calculation{} = existing -> existing
-      nil -> insert_calculation(context)
+      %Calculation{} = existing ->
+        existing
+
+      nil ->
+        Store.ensure_initial_eligibility!(request)
+        insert_calculation(context)
     end
   end
 
@@ -240,11 +244,15 @@ defmodule FootballMarket.Quotes.Engine do
 
   defp persist_no_score_calculation(context) do
     Store.lock_player!(context.player.id)
-    Store.ensure_confirmation_lease!(context.attributes.lease)
+    request = Store.ensure_confirmation_lease!(context.attributes.lease)
 
     case Repo.one(from c in Calculation, where: c.canonical_identity == ^context.identity) do
-      %Calculation{} = existing -> existing
-      nil -> insert_no_score_calculation(context)
+      %Calculation{} = existing ->
+        existing
+
+      nil ->
+        Store.ensure_initial_eligibility!(request)
+        insert_no_score_calculation(context)
     end
   end
 
@@ -302,7 +310,7 @@ defmodule FootballMarket.Quotes.Engine do
       "mapping_version" => mapping.version,
       "scale" => Decimal.to_string(mapping.scale),
       "rounding_rule" => mapping.rounding_rule,
-      "score" => if(is_nil(score), do: nil, else: Decimal.to_string(score)),
+      "score" => Decimal.to_string(score),
       "facts" => FootballMarket.Quotes.EvidenceCodec.encode_facts(managed.prepared.facts)
     }
   end

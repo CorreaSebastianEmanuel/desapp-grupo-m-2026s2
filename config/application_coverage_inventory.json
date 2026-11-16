@@ -1994,6 +1994,12 @@
       "reason": "Database migration, not application implementation: priv/repo/migrations/20261110000200_guard_additive_performance_evidence.exs."
     },
     {
+      "path": "priv/repo/migrations/20261116000000_add_initial_quote_eligibility.exs",
+      "role": "migration",
+      "disposition": "exclude",
+      "reason": "Database migration, not application implementation: priv/repo/migrations/20261116000000_add_initial_quote_eligibility.exs."
+    },
+    {
       "path": "scripts/application_coverage_native.exs",
       "role": "script",
       "disposition": "exclude",
@@ -3198,6 +3204,12 @@
       "role": "test",
       "disposition": "exclude",
       "reason": "Test source, not application implementation: test/football_market/quotes/import_test.exs."
+    },
+    {
+      "path": "test/football_market/quotes/initial_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Test source, not application implementation: test/football_market/quotes/initial_test.exs."
     },
     {
       "path": "test/football_market/quotes/lifecycle_test.exs",

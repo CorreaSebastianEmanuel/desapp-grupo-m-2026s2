@@ -212,6 +212,7 @@ defmodule FootballMarket.Infrastructure.LocalOperations do
         state: r.state,
         reason: r.reason,
         admitted_at: r.admitted_at,
+        initial_only: r.initial_only,
         mapping_id: r.mapping_id,
         inserted_at: r.inserted_at
       }

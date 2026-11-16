@@ -117,6 +117,33 @@ defmodule FootballMarketWeb.LocalAdminLiveTest do
            )
   end
 
+  test "quote requests show initial preparation separately from nightly admission", %{conn: conn} do
+    administrators = Application.fetch_env!(:football_market, :initial_issuance_recipients)
+    f = FootballMarket.QuotesCase.fixture()
+    Application.put_env(:football_market, :initial_issuance_recipients, administrators)
+    now = DateTime.utc_now()
+
+    request =
+      Repo.insert!(%FootballMarket.Quotes.CalculationRequest{
+        id: Ecto.UUID.generate(),
+        source: "explicit",
+        player_id: f.player.id,
+        season_id: f.player.season_id,
+        week_start: ~U[2026-10-05 00:00:00.000000Z],
+        week_end: ~U[2026-10-12 00:00:00.000000Z],
+        selector: "active",
+        state: "pending",
+        inserted_at: now,
+        initial_only: true
+      })
+
+    {:ok, view, _} = live(conn, "/__local/ops")
+    assert has_element?(view, "td", "Primera cotización en preparación")
+    Repo.update!(Ecto.Changeset.change(request, initial_only: false))
+    render_click(view, "refresh", %{})
+    assert has_element?(view, "td", "Espera el cierre diario")
+  end
+
   test "statistics queue shows a failed synchronization result beside completed delivery", %{
     conn: conn
   } do

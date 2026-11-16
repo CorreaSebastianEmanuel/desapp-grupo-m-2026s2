@@ -23,7 +23,7 @@ defmodule FootballMarketWeb.AdministrationLive do
              socket.assigns.active_version_id
            ) do
         {:ok, _} ->
-          "Estrategia activa actualizada. Las cotizaciones cambian en el próximo cierre."
+          "Estrategia activa actualizada. La primera cotización se prepara en segundo plano; las siguientes cambian en el próximo cierre."
 
         {:error, %{reason: :stale_selection}} ->
           "Otra sesión cambió la selección. Revisá la estrategia activa e intentá de nuevo."
@@ -105,14 +105,14 @@ defmodule FootballMarketWeb.AdministrationLive do
           id="no-active-configuration"
           class="strategy-notice"
         >
-          Todavía no hay una estrategia activa. Elegí una para los próximos cierres.
+          Todavía no hay una estrategia activa. Elegí una para preparar primeras cotizaciones y los próximos cierres.
         </p>
         <p
           :if={!@configurations_unavailable and legacy_selection?(@versions, @active_version_id)}
           id="legacy-active-configuration"
           class="strategy-notice"
         >
-          Hay una configuración anterior activa. Elegí General o Por posición para usar una de las dos bases en los próximos cierres.
+          Hay una configuración anterior activa. Elegí General o Por posición para preparar primeras cotizaciones y usar una de las dos bases en los próximos cierres.
         </p>
 
         <div class="strategy-grid">
@@ -150,7 +150,7 @@ defmodule FootballMarketWeb.AdministrationLive do
                   phx-value-version_id={version.id}
                 >Usar {title(version.strategy_id)}</button>
                 <span :if={version.id == @active_version_id} class="strategy-selected">
-                  Seleccionada para el próximo cierre
+                  Seleccionada para primeras cotizaciones y próximos cierres
                 </span>
               </div>
               <details class="strategy-rules">
@@ -202,7 +202,7 @@ defmodule FootballMarketWeb.AdministrationLive do
         <aside class="strategy-footnote">
           <.icon name="hero-information-circle" class="button-icon" />
           <p>
-            Cambiar la estrategia conserva las cotizaciones históricas. La elegida se aplica en el próximo cierre nocturno; un resultado no positivo no publica una cotización positiva.
+            Cambiar la estrategia conserva las cotizaciones históricas. La elegida se aplica al preparar la primera cotización y en el próximo cierre nocturno; un resultado no positivo no publica una cotización positiva.
           </p>
         </aside>
       </section>

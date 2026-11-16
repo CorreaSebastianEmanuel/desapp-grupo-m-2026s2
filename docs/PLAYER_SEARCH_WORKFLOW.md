@@ -90,7 +90,7 @@ Frontend consulta estado mientras esté pendiente
 Mostrar estadísticas actualizadas, cotización vigente y su fecha de valoración
 ```
 
-La búsqueda puede refrescar estadísticas vencidas durante el día. Los hechos aceptados y su estado se hacen visibles inmediatamente, pero el precio conserva la cotización del último cierre hasta el cálculo nocturno. El TTL de cotización se mide desde esa última cotización; su respaldo usa el ámbito aceptado más reciente por jugador/temporada. Cada solicitud pendiente por hechos cambiados se admite por separado. Completar un partido no dispara una cotización; un disparo postpartido es una posible evolución futura. Fallos de Redis no deshacen importaciones confirmadas: se reintenta invalidación y la caché expira.
+La búsqueda puede refrescar estadísticas vencidas durante el día. Los hechos aceptados y su estado se hacen visibles inmediatamente, y, si el jugador aún no tiene una cotización de rendimiento, se prepara la primera en segundo plano con una estrategia seleccionada y una conversión válida. La emisión inicial no cuenta como cotización de rendimiento. Después de esa primera publicación, el precio conserva la cotización del último cierre hasta el cálculo nocturno. El TTL de cotización se mide desde esa última cotización; su respaldo usa el ámbito aceptado más reciente por jugador/temporada. Cada solicitud pendiente por hechos cambiados se admite por separado. Completar un partido no dispara una cotización; un disparo postpartido es una posible evolución futura. Fallos de Redis no deshacen importaciones confirmadas: se reintenta invalidación y la caché expira.
 
 ## Catálogo
 

@@ -7,17 +7,17 @@ defmodule FootballMarket.Quotes.Recovery do
   alias FootballMarket.Observability.JobContext
 
   def recover_pending do
+    admit_initial!()
     now = Store.database_now!()
 
     request_ids =
       Repo.all(
         from r in CalculationRequest,
           where:
-            ((r.source != "import" or not is_nil(r.admitted_at)) and
-               r.state in ["pending", "running"]) or
-              (r.state == "retrying" and not is_nil(r.next_attempt_at) and
-                 r.next_attempt_at <= ^now and
-                 (r.source != "import" or not is_nil(r.admitted_at))),
+            (r.source != "import" or r.initial_only or not is_nil(r.admitted_at)) and
+              (r.state in ["pending", "running"] or
+                 (r.state == "retrying" and not is_nil(r.next_attempt_at) and
+                    r.next_attempt_at <= ^now)),
           order_by: [asc: r.inserted_at, asc: r.id],
           select: r.id,
           limit: 500
@@ -37,6 +37,35 @@ defmodule FootballMarket.Quotes.Recovery do
     {:ok, length(request_ids)}
   rescue
     _ -> {:error, :temporarily_unavailable}
+  end
+
+  # Optimistic admission is fenced again under the player lock at confirmation.
+  # Keep nightly admission write-once and independent from this eligibility.
+  defp admit_initial! do
+    mapping_id =
+      case Ecto.UUID.cast(Application.get_env(:football_market, :quote_mapping_id)) do
+        {:ok, id} -> Ecto.UUID.dump!(id)
+        _ -> nil
+      end
+
+    with {:ok, _version} <- FootballMarket.Valuation.Configurations.active() do
+      Repo.query!(
+        """
+        UPDATE quote_calculation_requests r
+        SET initial_only = true, mapping_id = COALESCE(r.mapping_id, $1::uuid)
+        WHERE r.source = 'import' AND r.state = 'pending'
+          AND r.admitted_at IS NULL AND r.initial_only = false
+          AND r.snapshot_id IS NOT NULL
+          AND EXISTS (SELECT 1 FROM quote_conversion_mappings m
+                      WHERE m.id = COALESCE(r.mapping_id, $1::uuid))
+          AND NOT EXISTS (SELECT 1 FROM market_quotes q
+                          WHERE q.player_id = r.player_id AND q.calculation_id IS NOT NULL)
+        """,
+        [mapping_id]
+      )
+    end
+
+    :ok
   end
 
   # Follows the dispatcher/job-store isolation contract: tests may substitute an

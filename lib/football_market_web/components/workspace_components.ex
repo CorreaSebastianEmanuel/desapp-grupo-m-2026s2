@@ -371,7 +371,7 @@ defmodule FootballMarketWeb.WorkspaceComponents do
               </p>
               <p :if={@card.statistics_status}>{scraping_status(@card.statistics_status.refresh)}</p>
               <p :if={@card.statistics_status} id="player-valuation-status">
-                {valuation_status(@card.statistics_status.valuation)}
+                {valuation_status(@card.statistics_status.valuation, @quote)}
               </p>
               <p :if={performance_quote?(@quote)}>
                 Última cotización de rendimiento publicada: {timestamp(@quote.effective_at)}.
@@ -380,7 +380,7 @@ defmodule FootballMarketWeb.WorkspaceComponents do
                 El valor mostrado corresponde a la emisión inicial; todavía no hay una valuación de rendimiento publicada.
               </p>
               <p>
-                Las estadísticas se actualizan por separado; las cotizaciones se recalculan en el cierre del mercado.
+                La primera cotización se prepara en segundo plano con estadísticas verificadas y una estrategia seleccionada. Las siguientes se recalculan en el cierre del mercado.
               </p>
             </details>
           </section>
@@ -733,12 +733,22 @@ defmodule FootballMarketWeb.WorkspaceComponents do
 
   defp quote_source(%{rule_id: "initial_issuance"}), do: "Emisión inicial del mercado"
   defp quote_source(_), do: "Rendimiento deportivo registrado"
-  defp valuation_status(%{state: "pending"}), do: "Valuación pendiente para el próximo cierre."
-  defp valuation_status(%{state: "running"}), do: "Valuación en curso."
-  defp valuation_status(%{state: "completed"}), do: "Valuación completada."
-  defp valuation_status(%{state: "failed"}), do: "La valuación requiere revisión."
-  defp valuation_status(%{state: "not_requested"}), do: "No hay una nueva valuación solicitada."
-  defp valuation_status(_), do: "Estado de valuación no disponible."
+
+  defp valuation_status(%{state: "pending"}, quote) do
+    if performance_quote?(quote),
+      do: "Valuación pendiente para el próximo cierre.",
+      else:
+        "Primera cotización en preparación; requiere estadísticas verificadas, estrategia y conversión configuradas."
+  end
+
+  defp valuation_status(%{state: "running"}, _quote), do: "Valuación en curso."
+  defp valuation_status(%{state: "completed"}, _quote), do: "Valuación completada."
+  defp valuation_status(%{state: "failed"}, _quote), do: "La valuación requiere revisión."
+
+  defp valuation_status(%{state: "not_requested"}, _quote),
+    do: "No hay una nueva valuación solicitada."
+
+  defp valuation_status(_, _quote), do: "Estado de valuación no disponible."
   defp coverage_name("unavailable"), do: "Sin estadísticas registradas"
   defp coverage_name(_), do: "Estadísticas registradas; la cobertura puede ser parcial"
 

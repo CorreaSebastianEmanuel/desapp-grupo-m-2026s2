@@ -81,8 +81,31 @@ defmodule FootballMarket.Quotes.ImportRequests do
       {:ok, %{calculation: calc}} ->
         finish_request(req, calc.status, calc.reason, calc.id, fence)
 
+      {:error, :initial_quote_already_published} ->
+        defer_until_close(req, fence)
+
       {:error, _} ->
         retry_request(req, fence)
+    end
+  end
+
+  defp defer_until_close(req, fence) do
+    Repo.transaction(fn ->
+      current = Store.ensure_confirmation_lease!({req.id, fence})
+
+      Repo.update!(
+        Ecto.Changeset.change(current,
+          state: "pending",
+          initial_only: false,
+          attempt_count: current.attempt_count - 1,
+          lease_until: nil,
+          next_attempt_at: nil
+        )
+      )
+    end)
+    |> case do
+      {:ok, _} -> :ok
+      _ -> {:error, :stale_worker}
     end
   end
 
@@ -148,7 +171,8 @@ defmodule FootballMarket.Quotes.ImportRequests do
 
   defp claim_import_locked(nil, _now), do: Repo.rollback(:not_found)
 
-  defp claim_import_locked(%{source: "import", admitted_at: nil}, _now), do: :not_due
+  defp claim_import_locked(%{source: "import", admitted_at: nil, initial_only: false}, _now),
+    do: :not_due
 
   defp claim_import_locked(%{state: state}, _now)
        when state in [

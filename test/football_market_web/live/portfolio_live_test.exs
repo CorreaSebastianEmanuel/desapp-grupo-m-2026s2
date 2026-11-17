@@ -270,7 +270,7 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
     assert has_element?(
              card,
              "#player-statistics-unavailable",
-             "Todavía no hay estadísticas cargadas"
+             "no configurada"
            )
 
     refute has_element?(card, "#player-statistics")
@@ -299,7 +299,12 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
     user = account("statistics-preload-card@example.com")
     {:ok, view, _} = live(authenticated_conn(user), "/players?player_id=#{f.player.id}")
 
-    assert has_element?(view, "#player-statistics-preparing", "actualizará automáticamente")
+    assert has_element?(
+             view,
+             "#player-statistics-preparing",
+             "Preparando estadísticas verificadas"
+           )
+
     refute has_element?(view, "#player-statistics-unavailable")
 
     FootballMarket.FreshnessCase.perform!(f)
@@ -320,8 +325,94 @@ defmodule FootballMarketWeb.PortfolioLiveTest do
     send(view.pid, :statistics_card_refresh)
 
     assert has_element?(view, "#player-statistics-unavailable")
-    assert has_element?(view, "#player-scraping-status", "necesita revisión")
+    assert has_element?(view, "#player-scraping-status", "no está autorizado")
     refute has_element?(view, "#player-statistics-preparing")
+    render_patch(view, "/players")
+    assert has_element?(view, "#player-catalog")
+  end
+
+  test "first load expires by twenty seconds, keeps observing and reveals late success" do
+    f = FootballMarket.FreshnessCase.fixture()
+    user = account("statistics-timeout@example.com")
+    {:ok, view, _} = live(authenticated_conn(user), "/players?player_id=#{f.player.id}")
+    {:ok, second, _} = live(authenticated_conn(user), "/players?player_id=#{f.player.id}")
+    assert Repo.aggregate(FootballMarket.Synchronization.Run, :count) == 1
+    assert has_element?(second, "#player-statistics-preparing")
+
+    :sys.replace_state(view.pid, fn state ->
+      put_in(
+        state.socket.assigns.statistics_wait,
+        {f.player.id, System.monotonic_time(:millisecond) - 20_000}
+      )
+    end)
+
+    send(view.pid, :statistics_card_refresh)
+    assert has_element?(view, "#player-statistics-preparing", "sigue en segundo plano")
+    FootballMarket.FreshnessCase.perform!(f)
+    send(view.pid, :statistics_card_refresh)
+    assert has_element?(view, "#player-statistics")
+    refute has_element?(view, "#player-statistics-preparing")
+    {:ok, immediate, _} = live(authenticated_conn(user), "/players?player_id=#{f.player.id}")
+    assert has_element?(immediate, "#player-statistics")
+    refute has_element?(immediate, "#player-statistics-preparing")
+  end
+
+  test "statistics presentation distinguishes verified empty and rejected evidence and retains stored values" do
+    f = FootballMarket.FreshnessCase.fixture()
+    user = account("statistics-evidence@example.com")
+    {:ok, card} = Catalog.player_card(f.player.id)
+
+    for {state, reason, freshness, text} <- [
+          {"idle", nil, "fresh", "Sin participaciones verificadas"},
+          {"blocked", "unsupported_capability", "never_checked",
+           "no ofrece cobertura verificable"},
+          {"blocked", "invalid_response", "never_checked", "evidencia inconsistente"},
+          {"blocked", "access_refused", "never_checked", "no está autorizado"},
+          {"cooldown", "timeout", "never_checked", "no está disponible temporalmente"}
+        ] do
+      status = %{
+        card.statistics_status
+        | freshness: freshness,
+          refresh: %{card.statistics_status.refresh | state: state, reason: reason}
+      }
+
+      html =
+        render_component(&FootballMarketWeb.WorkspaceComponents.player_card/1,
+          card: %{card | statistics_status: status}
+        )
+
+      assert html =~ text
+      refute html =~ "id=\"player-statistics\""
+    end
+
+    FootballMarket.FreshnessCase.perform!(f)
+    {:ok, stored} = Catalog.player_card(f.player.id)
+
+    status = %{
+      stored.statistics_status
+      | freshness: "stale",
+        refresh: %{
+          stored.statistics_status.refresh
+          | state: "blocked",
+            reason: "invalid_response"
+        }
+    }
+
+    html =
+      render_component(&FootballMarketWeb.WorkspaceComponents.player_card/1,
+        card: %{stored | statistics_status: status}
+      )
+
+    assert html =~ "id=\"player-statistics\""
+    assert html =~ "evidencia inconsistente"
+    refute html =~ "id=\"player-statistics-preparing\""
+    {:ok, view, _} = live(authenticated_conn(user), "/players?player_id=#{f.player.id}")
+
+    assert has_element?(
+             view,
+             "#player-statistics [data-metric=minutes_played] dd",
+             to_string(stored.statistics.minutes_played)
+           )
   end
 
   test "player details expose recorded statistics provenance and the exact selected dated quote" do

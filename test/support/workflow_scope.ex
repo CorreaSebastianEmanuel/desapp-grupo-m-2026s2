@@ -1489,6 +1489,29 @@ defmodule FootballMarket.WorkflowScope do
     ]
   end
 
+  def paths(
+        "specs/094-reliable-scraped-statistics-on-player-cards-with-bounded-first-load-waiting"
+      ) do
+    [
+      "backlog/TASK-094-reliable-scraped-statistics-on-player-cards-with-bounded-first-load-waiting.md",
+      "backlog/feedback/TASK-094.md",
+      "config/synchronization.exs",
+      "config/test_profiles.json",
+      "lib/football_market/providers/scraping/assessment.ex",
+      "lib/football_market/providers/scraping/player_profile.ex",
+      "lib/football_market_web/components/workspace_components.ex",
+      "lib/football_market_web/live/workspace_live.ex",
+      "specs/094-reliable-scraped-statistics-on-player-cards-with-bounded-first-load-waiting/",
+      "test/football_market/providers/scraping/performances_test.exs",
+      "test/football_market/statistics/freshness/context_test.exs",
+      "test/football_market/synchronization/integrity_test.exs",
+      "test/football_market_web/live/portfolio_live_test.exs",
+      "test/football_market_web/workspace_browser_test.exs",
+      "test/support/workflow_scope.ex",
+      "tools/openapi/player_statistics_browser.mjs"
+    ]
+  end
+
   def paths(_), do: []
 
   def allows_path?(feature, path) do

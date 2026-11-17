@@ -97,6 +97,143 @@ defmodule FootballMarket.Synchronization.IntegrityTest do
     assert snapshot() == before
   end
 
+  test "corrected assessed player evidence recovers through worker publication without rewriting rejection" do
+    alias FootballMarket.Providers.ScrapingFixtureData, as: Data
+    alias FootballMarket.Statistics.Freshness
+    original = Application.fetch_env(:football_market, Freshness)
+
+    on_exit(fn ->
+      case original do
+        {:ok, value} -> Application.put_env(:football_market, Freshness, value)
+        :error -> Application.delete_env(:football_market, Freshness)
+      end
+    end)
+
+    for {code, name} <- Data.positions() do
+      unless Repo.get_by(FootballMarket.Catalog.Position, code: code),
+        do: FootballMarket.Catalog.create_position(%{code: code, name: name})
+    end
+
+    catalog = Data.case!("catalog-PL-2024")
+
+    assert {:ok, _} =
+             FootballMarket.Catalog.Ingestion.import_catalog(Data.request(catalog),
+               provider: {FootballMarket.Providers.Scraping, Data.state(catalog)},
+               runtime: {FootballMarket.Providers.FixtureRuntime, %{}}
+             )
+
+    player =
+      Repo.get_by!(FootballMarket.Catalog.Player,
+        display_name: "Alex Example",
+        position_id: Repo.get_by!(FootballMarket.Catalog.Position, code: "FW").id
+      )
+
+    # Today's catalog role must never determine the historical match role.
+    player =
+      Repo.update!(
+        Ecto.Changeset.change(player,
+          position_id: Repo.get_by!(FootballMarket.Catalog.Position, code: "GK").id
+        )
+      )
+
+    {:ok, player} = FootballMarket.Catalog.get_player_detail(player.id)
+    data = Data.case!("performance-PL-2024")
+    state = Data.state(data)
+    observation = state.portions["match:m1"].observation
+
+    match =
+      Jason.decode!(state.portions["match:m1"].body)
+      |> put_in(["content", "playerStats", "p1", "positionId"], 115)
+      |> put_in(["content", "playerStats", "p1", "usualPosition"], 3)
+
+    profile = %{
+      "id" => "p1",
+      "name" => "Alex Example",
+      "statSeasons" => [
+        %{"seasonName" => "2023/2024", "tournaments" => [%{"tournamentId" => "PL"}]}
+      ],
+      "initialMatchesPage" => %{
+        "previous" => nil,
+        "matches" => [
+          %{
+            "id" => "m1",
+            "leagueId" => "PL",
+            "teamId" => "a",
+            "teamName" => "Alpha",
+            "opponentTeamId" => "b",
+            "opponentTeamName" => "Beta",
+            "isHomeTeam" => true,
+            "playedInMatch" => true,
+            "matchDate" => %{"utcTime" => "2024-10-01T12:00:00Z"},
+            "lineupPositionId" => 105,
+            "matchPageUrl" => "/matches/alpha-beta/m1"
+          }
+        ]
+      }
+    }
+
+    portions =
+      state.portions
+      |> Map.put("player_data:p1", %{body: Jason.encode!(profile), observation: observation})
+      |> Map.put("match_details:m1", %{body: Jason.encode!(match), observation: observation})
+
+    state = %{state | portions: portions, fixture_id: nil}
+
+    source = %{
+      provider: {FootballMarket.Providers.Scraping, state},
+      runtime: {FootballMarket.Providers.FixtureRuntime, %{}},
+      identity: %{parser: 1}
+    }
+
+    Application.put_env(:football_market, Synchronization, sources: %{"scraping" => source})
+
+    Application.put_env(:football_market, Freshness,
+      refresh_options_by_scope: %{{"PL", 2024, 2025} => [source_ref: "scraping"]}
+    )
+
+    first = Freshness.for_player(player)
+    rejected = Repo.get!(Run, first.refresh.run_id)
+
+    assert :ok =
+             FootballMarket.Workers.StatisticsImport.perform(Repo.get!(Oban.Job, rejected.job_id))
+
+    rejected = Repo.get!(Run, rejected.id)
+    assert rejected.state == "failed"
+    assert rejected.outcome["category"] == "invalid_response"
+    assert Freshness.for_player(player).refresh.state == "blocked"
+    assert Repo.aggregate(FootballMarket.Statistics.Performance, :count) == 0
+
+    corrected =
+      update_in(
+        state.assessment.scopes[{:performances, "PL", 2024, 2025}].positions,
+        &Map.put(&1, "3", "FW")
+      )
+
+    source = %{
+      source
+      | provider: {FootballMarket.Providers.Scraping, corrected},
+        identity: %{parser: 2}
+    }
+
+    Application.put_env(:football_market, Synchronization, sources: %{"scraping" => source})
+    next = Freshness.for_player(player)
+    accepted = Repo.get!(Run, next.refresh.run_id)
+    refute accepted.id == rejected.id
+    assert Freshness.for_player(player).refresh.run_id == accepted.id
+
+    assert :ok =
+             FootballMarket.Workers.StatisticsImport.perform(Repo.get!(Oban.Job, accepted.job_id))
+
+    assert Repo.get!(Run, accepted.id).state == "succeeded",
+           inspect(Repo.get!(Run, accepted.id).outcome)
+
+    assert Repo.get!(Run, rejected.id) == rejected
+    assert Repo.aggregate(FootballMarket.Statistics.Performance, :count) == 1
+    {:ok, card} = FootballMarket.Catalog.player_card(player.id)
+    assert card.statistics.recorded_match_count == 1
+    assert card.statistics.minutes_played == 90
+  end
+
   test "every trigger rechecks current scraper access without authorizing retrieval" do
     alias FootballMarket.Providers.ScrapingFixtureData, as: Data
     case_data = Data.case!("access-scoped")

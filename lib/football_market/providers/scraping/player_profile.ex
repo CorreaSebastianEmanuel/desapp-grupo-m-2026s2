@@ -31,6 +31,8 @@ defmodule FootballMarket.Providers.Scraping.PlayerProfile do
         row
       )
 
+    validate_profile_season!(profile_data, request, row, details)
+
     {facts, eligible_ids == [], state}
   end
 
@@ -38,7 +40,10 @@ defmodule FootballMarket.Providers.Scraping.PlayerProfile do
     profile = portion!("player_data:" <> player_id, request, context, state, revision, row)
     profile_data = map!(profile["data"] || profile)
     require!(source_id!(profile_data["id"]) == player_id)
-    validate_profile_season!(profile_data, request, row)
+
+    if is_nil(profile_data["initialMatchesPage"]),
+      do: validate_profile_season!(profile_data, request, row, [])
+
     page = map!(profile_data["initialMatchesPage"])
     recent = list!(profile_data["recentMatches"] || page["matches"])
 
@@ -179,32 +184,68 @@ defmodule FootballMarket.Providers.Scraping.PlayerProfile do
     require!(source_id!(player["teamId"]) == profile_player["teamId"])
 
     player =
-      player |> merge_profile_stats!(profile_player) |> historical_position!(profile_player, row)
+      player
+      |> merge_profile_stats!(profile_player)
+      |> corroborate_lineup!(data["content"]["lineup"], expected, row)
+      |> historical_position!(profile_player, row)
 
     {match_id, general, %{player_id => player}, kickoff}
   end
 
   defp historical_position!(player, profile_player, row) do
-    expected_position = profile_player["positionId"]
+    position = normalized_role!(player, row)
+    expected = row.positions[to_string(profile_player["positionId"])]
+    require!(is_nil(expected) or expected == row.positions[position])
+    Map.put(player, "positionId", position)
+  end
 
-    if expected_position &&
-         not String.starts_with?(to_string(expected_position), "catalog-position:") do
-      require!(source_id!(player["positionId"]) == source_id!(expected_position))
+  defp normalized_role!(player, row) do
+    position = source_id!(player["positionId"])
+    role = optional_position(player["usualPosition"])
+    mapped = row.positions[position]
+    fallback = row.positions[role]
+    require!(is_nil(mapped) or is_nil(fallback) or mapped == fallback)
+
+    cond do
+      mapped -> position
+      fallback -> role
+      true -> throw({:invalid, :historical_position})
+    end
+  end
+
+  defp optional_position(nil), do: nil
+  defp optional_position(value), do: source_id!(value)
+
+  defp corroborate_lineup!(player, nil, _expected, _row), do: player
+
+  defp corroborate_lineup!(player, lineup, expected, row) do
+    entries =
+      for side <- ["homeTeam", "awayTeam"],
+          team = map!(lineup[side]),
+          entry <- list!(team["starters"] || []) ++ list!(team["subs"] || []),
+          source_id!(entry["id"]) == source_id!(player["id"]),
+          do: {side, team, entry}
+
+    require!(length(entries) == 1)
+    [{side, team, entry}] = entries
+    require!(expected[side]["id"] == source_id!(player["teamId"]))
+    require!(is_nil(team["id"]) or source_id!(team["id"]) == expected[side]["id"])
+
+    if entry["positionId"] && player["positionId"],
+      do: require!(source_id!(entry["positionId"]) == source_id!(player["positionId"]))
+
+    require!(
+      is_nil(entry["teamId"]) or source_id!(entry["teamId"]) == source_id!(player["teamId"])
+    )
+
+    lineup_role = entry["usualPlayingPositionId"]
+
+    if lineup_role do
+      require!(
+        row.positions[source_id!(lineup_role)] == row.positions[normalized_role!(player, row)]
+      )
     end
 
-    role = player["usualPosition"] && source_id!(player["usualPosition"])
-
-    position = source_id!(player["positionId"])
-
-    player =
-      cond do
-        Map.has_key?(row.positions, position) -> player
-        role && Map.has_key?(row.positions, role) -> Map.put(player, "positionId", role)
-        true -> throw({:invalid, :historical_position})
-      end
-
-    # The match document supplies historical position, never today's catalog role.
-    require!(not is_nil(player["positionId"]))
     player
   end
 
@@ -416,7 +457,7 @@ defmodule FootballMarket.Providers.Scraping.PlayerProfile do
       (is_nil(scope.to) or DateTime.compare(instant, scope.to) != :gt)
   end
 
-  defp validate_profile_season!(profile, request, row) do
+  defp validate_profile_season!(profile, request, row, details) do
     seasons = list!(profile["statSeasons"])
 
     found =
@@ -432,7 +473,18 @@ defmodule FootballMarket.Providers.Scraping.PlayerProfile do
           end)
       end)
 
-    unless found do
+    # A complete profile history plus independently acquired match evidence can
+    # supersede a stale summary; summary absence alone never proves an empty season.
+    corroborated =
+      details != [] and
+        Enum.all?(details, fn {id, _, _, _} ->
+          Enum.any?(
+            profile["recentMatches"] || get_in(profile, ["initialMatchesPage", "matches"]) || [],
+            &(source_id!(&1["id"]) == id and is_binary(&1["matchPageUrl"]))
+          )
+        end)
+
+    unless found or corroborated do
       throw({:source_failure, %{category: :unsupported_capability}})
     end
   end

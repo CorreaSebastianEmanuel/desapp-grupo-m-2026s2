@@ -174,7 +174,7 @@ defmodule FootballMarket.Statistics.Freshness.ContextTest do
   end
 
   test "permanent failures block reads from retrying but changed configured inputs recover", f do
-    failed = FreshnessCase.fail!(f, "access_refused")
+    failed = FreshnessCase.fail!(f, "invalid_response")
     Process.put(:synchronization_now, DateTime.add(failed.finished_at, 86_400, :second))
     assert Freshness.for_player(f.player).refresh.state == "blocked"
     assert Repo.aggregate(Run, :count) == 1
@@ -186,6 +186,9 @@ defmodule FootballMarket.Statistics.Freshness.ContextTest do
 
     assert Freshness.for_player(f.player).refresh.state == "queued"
     assert Repo.aggregate(Run, :count) == 2
+    FreshnessCase.perform!(f)
+    assert Freshness.for_player(f.player).freshness == "fresh"
+    assert Repo.get!(Run, failed.id) == failed
   end
 
   test "a different active input is busy and does not borrow its run or provider freshness", f do

@@ -4132,6 +4132,13 @@
       "profile": "integration"
     },
     {
+      "id": "64d46d759fc674c9fb38f04d",
+      "runner": "exunit",
+      "file": "test/football_market/synchronization/integrity_test.exs",
+      "case_id": "FootballMarket.Synchronization.IntegrityTest:test corrected assessed player evidence recovers through worker publication without rewriting rejection",
+      "profile": "integration"
+    },
+    {
       "id": "65489618ea91f9624328fe31",
       "runner": "exunit",
       "file": "test/football_market/statistics/ingestion/acceptance_test.exs",
@@ -4423,6 +4430,13 @@
       "runner": "exunit",
       "file": "test/football_market_web/controllers/session_controller_test.exs",
       "case_id": "FootballMarketWeb.SessionControllerTest:test real wall clock cookie retention does not truncate the remaining lifetime",
+      "profile": "integration"
+    },
+    {
+      "id": "6ce69b8d0fcd3c689eea6530",
+      "runner": "exunit",
+      "file": "test/football_market_web/live/portfolio_live_test.exs",
+      "case_id": "FootballMarketWeb.PortfolioLiveTest:test first load expires by twenty seconds, keeps observing and reveals late success",
       "profile": "integration"
     },
     {
@@ -7653,6 +7667,13 @@
       "profile": "integration"
     },
     {
+      "id": "c01463fcd72c4c1ee01f3022",
+      "runner": "exunit",
+      "file": "test/football_market_web/live/portfolio_live_test.exs",
+      "case_id": "FootballMarketWeb.PortfolioLiveTest:test statistics presentation distinguishes verified empty and rejected evidence and retains stored values",
+      "profile": "integration"
+    },
+    {
       "id": "c02e79f34a5cf17265574335",
       "runner": "exunit",
       "file": "test/football_market/statistics/freshness/concurrency_test.exs",
@@ -8960,6 +8981,13 @@
       "file": "test/scripts/ci_unit_tests_test.sh",
       "case_id": "complete",
       "profile": "unit"
+    },
+    {
+      "id": "dd0c8a525fa108378cc8f692",
+      "runner": "exunit",
+      "file": "test/football_market_web/workspace_browser_test.exs",
+      "case_id": "FootballMarketWeb.WorkspaceBrowserTest:test real browser observes bounded first load and late worker publication without reload",
+      "profile": "integration"
     },
     {
       "id": "dd2a4b914e9b36e5140e7bf0",
@@ -10553,6 +10581,7 @@
     "tools/openapi/e2e_catalog_scouting.mjs": "Real Chromium catalog scouting journey helper; invoked by the E2E catalog scouting suite.",
     "tools/openapi/e2e_market.mjs": "Real Chromium market journey helper; invoked by the E2E portfolio suite.",
     "tools/openapi/e2e_market_reconnect.mjs": "Real Chromium offline commit and reconnect recovery journey helper; invoked by the E2E browser reconnect suite.",
+    "tools/openapi/player_statistics_browser.mjs": "Real Chromium first-load deadline, worker publication, retained values and failure navigation journey; owned by WorkspaceBrowserTest.",
     "tools/openapi/profile_reporter.mjs": "Fixture/support helper; cases owned by its importing native suite.",
     "tools/openapi/validate.mjs": "Fixture/support helper; cases owned by its importing native suite.",
     "tools/openapi/workspace_browser.mjs": "Fixture/support helper; cases owned by its importing native suite.",

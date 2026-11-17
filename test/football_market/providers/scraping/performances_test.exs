@@ -59,6 +59,7 @@ defmodule FootballMarket.Providers.ScrapingPerformancesTest do
     player =
       player
       |> Map.put("positionId", "attack")
+      |> Map.put("usualPosition", "attack")
       |> Map.update!("stats", fn groups ->
         Enum.map(groups, fn group ->
           Map.update!(group, "stats", fn stats ->
@@ -203,6 +204,150 @@ defmodule FootballMarket.Providers.ScrapingPerformancesTest do
                )
     end
 
+    absent_profile =
+      Jason.decode!(portions["player_data:p1"].body)
+      |> update_in(["initialMatchesPage", "matches"], fn [entry] ->
+        [Map.put(entry, "playedInMatch", false)]
+      end)
+
+    absent_portions = put_in(portions, ["player_data:p1", :body], Jason.encode!(absent_profile))
+    assert {:ok, no_participation} = player_result(c, %{state | portions: absent_portions})
+    assert no_participation.facts.performances == []
+    assert no_participation.completeness.complete_empty
+
+    # Observed Haaland shape: profile 105, match 115, assessed usual role 3.
+    tactical =
+      match
+      |> put_in(["content", "playerStats", "p1", "positionId"], 115)
+      |> put_in(["content", "playerStats", "p1", "usualPosition"], 3)
+      |> put_in(["content", "lineup"], %{
+        "homeTeam" => %{
+          "id" => "a",
+          "starters" => [%{"id" => "p1", "positionId" => 115, "usualPlayingPositionId" => 3}]
+        },
+        "awayTeam" => %{"id" => "b", "starters" => []}
+      })
+
+    profile = Jason.decode!(portions["player_data:p1"].body)
+
+    profile =
+      update_in(profile, ["initialMatchesPage", "matches"], fn [entry] ->
+        [Map.put(entry, "lineupPositionId", 105)]
+      end)
+
+    tactical_portions =
+      portions
+      |> put_in(["player_data:p1", :body], Jason.encode!(profile))
+      |> put_in(["match_details:m1", :body], Jason.encode!(tactical))
+
+    tactical_assessment =
+      update_in(assessment.scopes[scope_key].positions, &Map.put(&1, "3", "FW"))
+
+    tactical_state = %{state | assessment: tactical_assessment, portions: tactical_portions}
+    assert {:ok, corroborated} = player_result(c, tactical_state)
+    assert hd(corroborated.facts.performances).position_ref == "FW"
+
+    numeric_portions =
+      Map.new(tactical_portions, fn {key, portion} ->
+        {String.replace(key, "p1", "737066"),
+         %{portion | body: String.replace(portion.body, "p1", "737066")}}
+      end)
+
+    numeric_match =
+      Jason.decode!(numeric_portions["match_details:m1"].body)
+      |> put_in(["content", "playerStats", "737066", "id"], 737_066)
+
+    numeric_portions =
+      put_in(numeric_portions, ["match_details:m1", :body], Jason.encode!(numeric_match))
+
+    assert {:ok, _} =
+             player_result(
+               c,
+               Map.merge(tactical_state, %{portions: numeric_portions, player_source_id: "737066"})
+             )
+
+    for mutate <- [
+          &put_in(&1, ["content", "lineup", "homeTeam", "id"], "wrong"),
+          &put_in(&1, ["content", "lineup", "homeTeam", "starters"], []),
+          &put_in(&1, ["content", "lineup", "homeTeam", "starters"], [
+            %{"id" => "p1", "positionId" => 105, "usualPlayingPositionId" => 3}
+          ]),
+          &put_in(&1, ["content", "lineup", "homeTeam", "starters"], [
+            %{"id" => "p1", "positionId" => 115, "usualPlayingPositionId" => "keeper"}
+          ]),
+          &put_in(&1, ["content", "playerStats", "p1", "positionId"], nil),
+          &put_in(&1, ["content", "playerStats", "p1", "usualPosition"], "unknown"),
+          &put_in(&1, ["content", "playerStats", "p1", "positionId"], "keeper")
+        ] do
+      changed =
+        put_in(tactical_portions, ["match_details:m1", :body], Jason.encode!(mutate.(tactical)))
+
+      assert {:error, %{category: :invalid_response}} =
+               player_result(c, %{tactical_state | portions: changed})
+    end
+
+    contradictory =
+      update_in(profile, ["initialMatchesPage", "matches"], fn [entry] ->
+        [Map.put(entry, "lineupPositionId", "keeper")]
+      end)
+
+    changed = put_in(tactical_portions, ["player_data:p1", :body], Jason.encode!(contradictory))
+
+    assert {:error, %{category: :invalid_response}} =
+             player_result(c, %{tactical_state | portions: changed})
+
+    # Observed Anselmino shape: November 2026 match, stale 2025/2026 summary.
+    current_case = Map.put(c, "year", 2026)
+
+    current_assessment = %{
+      tactical_assessment
+      | scopes: %{
+          {:performances, "PL", 2026, 2027} => %{
+            tactical_assessment.scopes[scope_key]
+            | season: "2026/2027"
+          }
+        }
+    }
+
+    current_portions =
+      Map.new(tactical_portions, fn {key, portion} ->
+        {key,
+         %{
+           portion
+           | body:
+               portion.body
+               |> String.replace("2024-10-01", "2026-11-08")
+               |> String.replace("2024/2025", "2025/2026")
+         }}
+      end)
+
+    current_match = Jason.decode!(current_portions["match_details:m1"].body)
+    current_match = put_in(current_match, ["general", "season"], "2026/2027")
+
+    current_portions =
+      put_in(current_portions, ["match_details:m1", :body], Jason.encode!(current_match))
+
+    current_state = %{tactical_state | assessment: current_assessment, portions: current_portions}
+    assert {:ok, recovered} = player_result(current_case, current_state)
+    assert hd(recovered.facts.matches).kickoff_at == ~U[2026-11-08 12:00:00.000000Z]
+    incomplete_profile = Jason.decode!(current_portions["player_data:p1"].body)
+
+    for mutate <- [
+          &put_in(&1, ["initialMatchesPage", "previous"], "more"),
+          &update_in(&1, ["initialMatchesPage", "matches"], fn [entry] ->
+            [Map.put(entry, "playedInMatch", false)]
+          end)
+        ] do
+      changed =
+        put_in(
+          current_portions,
+          ["player_data:p1", :body],
+          Jason.encode!(mutate.(incomplete_profile))
+        )
+
+      assert {:error, _} = player_result(current_case, %{current_state | portions: changed})
+    end
+
     missing =
       update_in(match, ["content", "playerStats", "p1", "stats"], fn groups ->
         Enum.map(groups, fn group ->
@@ -295,5 +440,13 @@ defmodule FootballMarket.Providers.ScrapingPerformancesTest do
 
     assert_receive {:scraping_fetch, "player_data:p1", _pid}
     refute_receive {:scraping_fetch, "schedule", _pid}
+  end
+
+  defp player_result(c, state) do
+    FootballMarket.Providers.performances(Data.request(c),
+      provider: {FootballMarket.Providers.Scraping, state},
+      positions: Data.positions(),
+      runtime: {FootballMarket.Providers.FixtureRuntime, %{}}
+    )
   end
 end

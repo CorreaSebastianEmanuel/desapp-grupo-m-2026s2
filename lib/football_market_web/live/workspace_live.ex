@@ -29,6 +29,7 @@ defmodule FootballMarketWeb.WorkspaceLive do
        profiles: %{},
        card: nil,
        statistics_refresh_timer: nil,
+       statistics_wait: nil,
        card_error: nil,
        quote: nil,
        quote_history: [],
@@ -206,14 +207,38 @@ defmodule FootballMarketWeb.WorkspaceLive do
        |> Portfolio.reload_issuer_inventory()
        |> Portfolio.reload_charts()}
 
+  defp update_statistics_wait(socket) do
+    now = System.monotonic_time(:millisecond)
+    card = if socket.assigns.destination == "/players", do: socket.assigns.card
+    id = card && card.player.id
+
+    wait =
+      case socket.assigns.statistics_wait do
+        {^id, deadline} when not is_nil(id) -> {id, deadline}
+        _ when not is_nil(id) -> {id, now + 20_000}
+        _ -> nil
+      end
+
+    socket = assign(socket, :statistics_wait, wait)
+
+    if card,
+      do: assign(socket, :card, Map.put(card, :statistics_wait_expired, now >= elem(wait, 1))),
+      else: socket
+  end
+
   defp maybe_schedule_statistics_refresh(socket) do
+    socket = update_statistics_wait(socket)
+    now = System.monotonic_time(:millisecond)
+    wait = socket.assigns.statistics_wait
+
     active? =
       connected?(socket) and socket.assigns.destination == "/players" and
         active_statistics_refresh?(socket.assigns.card)
 
     case {active?, socket.assigns.statistics_refresh_timer} do
       {true, nil} ->
-        timer = Process.send_after(self(), :statistics_card_refresh, 5_000)
+        delay = if now < elem(wait, 1), do: min(1_000, elem(wait, 1) - now), else: 5_000
+        timer = Process.send_after(self(), :statistics_card_refresh, delay)
         assign(socket, :statistics_refresh_timer, timer)
 
       {false, timer} when is_reference(timer) ->
@@ -226,7 +251,7 @@ defmodule FootballMarketWeb.WorkspaceLive do
   end
 
   defp active_statistics_refresh?(%{statistics_status: %{refresh: %{state: state}}}),
-    do: state in ["queued", "executing", "retry_wait"]
+    do: state in ["queued", "executing", "retry_wait", "busy", "cooldown"]
 
   defp active_statistics_refresh?(_), do: false
 

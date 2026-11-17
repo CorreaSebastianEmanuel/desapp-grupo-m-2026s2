@@ -306,14 +306,22 @@ defmodule FootballMarketWeb.WorkspaceComponents do
               class="empty-inline"
               role="status"
             >
-              <.icon name="hero-clock" class="section-icon" />Estamos preparando las estadísticas de esta temporada. La ficha se actualizará automáticamente.
+              <.icon name="hero-clock" class="section-icon" />{if Map.get(
+                                                                    @card,
+                                                                    :statistics_wait_expired,
+                                                                    false
+                                                                  ),
+                                                                  do:
+                                                                    "La preparación sigue en segundo plano. Las estadísticas aparecerán cuando estén verificadas.",
+                                                                  else:
+                                                                    "Preparando estadísticas verificadas…"}
             </p>
             <p
               :if={@card.statistics.recorded_match_count == 0 and not preparing_statistics?(@card)}
               id="player-statistics-unavailable"
               class="empty-inline"
             >
-              <.icon name="hero-clock" class="section-icon" />Todavía no hay estadísticas cargadas para esta temporada.<span :if={
+              <.icon name="hero-clock" class="section-icon" />{empty_statistics_message(@card)}<span :if={
                 !@quote
               }> No se pueden operar tokens por ahora.</span>
             </p>
@@ -534,6 +542,22 @@ defmodule FootballMarketWeb.WorkspaceComponents do
     """
   end
 
+  defp scraping_status(%{reason: "unsupported_capability"}),
+    do: "La fuente no ofrece cobertura verificable para este período."
+
+  defp scraping_status(%{reason: "invalid_response"}),
+    do: "La fuente devolvió evidencia inconsistente; no se aceptaron estadísticas."
+
+  defp scraping_status(%{reason: "access_refused"}),
+    do: "El acceso a la fuente no está autorizado o fue denegado."
+
+  defp scraping_status(%{reason: reason})
+       when reason in ["timeout", "unavailable", "rate_limited"],
+       do:
+         "La fuente no está disponible temporalmente. La actualización se reintentará más tarde."
+
+  defp scraping_status(%{state: "busy"}), do: "Preparación pendiente de trabajo en curso."
+
   defp scraping_status(%{state: "queued"}), do: "Actualización de estadísticas en cola."
 
   defp scraping_status(%{state: state}) when state in ["executing", "retry_wait"],
@@ -554,9 +578,18 @@ defmodule FootballMarketWeb.WorkspaceComponents do
   defp scraping_status(_), do: "Estado de actualización de estadísticas no disponible."
 
   defp preparing_statistics?(%{statistics_status: %{refresh: %{state: state}}}),
-    do: state in ["queued", "executing", "retry_wait"]
+    do: state in ["queued", "executing", "retry_wait", "busy", "cooldown"]
 
   defp preparing_statistics?(_), do: false
+
+  defp empty_statistics_message(%{statistics_status: %{freshness: "fresh"}}),
+    do: "Sin participaciones verificadas en este período"
+
+  defp empty_statistics_message(%{statistics_status: %{refresh: refresh}}),
+    do: scraping_status(refresh)
+
+  defp empty_statistics_message(_),
+    do: "Todavía no hay estadísticas cargadas para esta temporada."
 
   attr :quote, :map, required: true
 

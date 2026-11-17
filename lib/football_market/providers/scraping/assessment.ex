@@ -79,7 +79,7 @@ defmodule FootballMarket.Providers.Scraping.Assessment do
 
     %{
       mode: :live,
-      revision: "local-fotmob-top-five-#{start_year}-v5",
+      revision: "local-fotmob-top-five-#{start_year}-v6",
       permission: :granted,
       withdrawn: false,
       conditions: :satisfied,

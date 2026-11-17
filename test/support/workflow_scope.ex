@@ -1466,6 +1466,29 @@ defmodule FootballMarket.WorkflowScope do
     ]
   end
 
+  def paths(
+        "specs/093-initial-statistics-preload-and-scheduled-background-refresh-with-preparing-cards"
+      ) do
+    [
+      "backlog/TASK-093-initial-statistics-preload-and-scheduled-background-refresh-with-preparing-cards.md",
+      "config/application_coverage_inventory.json",
+      "config/credo_inventory.json",
+      "config/synchronization.exs",
+      "config/test_profiles.json",
+      "lib/football_market/application.ex",
+      "lib/football_market/catalog.ex",
+      "lib/football_market/statistics/freshness/context.ex",
+      "lib/football_market/workers/statistics_preload.ex",
+      "lib/football_market_web/components/workspace_components.ex",
+      "lib/football_market_web/live/workspace_live.ex",
+      "specs/093-initial-statistics-preload-and-scheduled-background-refresh-with-preparing-cards/",
+      "test/football_market/statistics/freshness/context_test.exs",
+      "test/football_market/synchronization/scope_test.exs",
+      "test/football_market_web/live/portfolio_live_test.exs",
+      "test/support/workflow_scope.ex"
+    ]
+  end
+
   def paths(_), do: []
 
   def allows_path?(feature, path) do

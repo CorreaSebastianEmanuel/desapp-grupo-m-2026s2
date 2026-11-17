@@ -32,6 +32,33 @@ defmodule FootballMarket.Statistics.Freshness.ContextTest do
     assert Repo.aggregate(Check, :count) == 0
   end
 
+  test "background preload admits configured stale players once and leaves fresh scopes idle",
+       f do
+    assert :ok = Freshness.preload()
+    assert Repo.aggregate(Run, :count) == 1
+
+    assert :ok = Freshness.preload()
+    assert Repo.aggregate(Run, :count) == 1
+
+    FreshnessCase.perform!(f)
+    assert :ok = Freshness.preload()
+    assert Repo.aggregate(Run, :count) == 1
+  end
+
+  test "startup wake is unique and the worker is registered hourly" do
+    assert {:ok, first} = FootballMarket.Workers.StatisticsPreload.startup()
+    assert {:ok, second} = FootballMarket.Workers.StatisticsPreload.startup()
+    assert first.id == second.id
+
+    {Oban.Plugins.Cron, options} =
+      Enum.find(Application.fetch_env!(:football_market, Oban)[:plugins], fn
+        {Oban.Plugins.Cron, _options} -> true
+        _ -> false
+      end)
+
+    assert {"0 * * * *", FootballMarket.Workers.StatisticsPreload} in options[:crontab]
+  end
+
   test "accepted complete checks set the TTL; exact expiry and TTL changes request refresh", f do
     FreshnessCase.perform!(f)
     row = ScopeCheck.find("synthetic-a", f.player.season_id)

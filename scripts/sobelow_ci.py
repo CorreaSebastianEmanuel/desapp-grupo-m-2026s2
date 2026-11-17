@@ -15,7 +15,8 @@ COMMAND = ["mix", "sobelow", "--private", "--no-config", "--strict",
 LEVELS = ("high_confidence", "medium_confidence", "low_confidence")
 # Exact findings on reviewed source bytes; changes require fresh individual triage.
 # The router already adds Phoenix secure browser headers; CSP needs a separate policy review.
-# Catalog SQL identifiers come only from the fixed filter_columns allowlist; values are bound.
+# Catalog SQL finding was rechecked after TASK-093 inserted a catalog function above it;
+# identifiers still come only from fixed filter_columns and values remain bound.
 # Statistics fixture reads use a fixed repository path and verify the fixture inventory digest.
 # Synchronization fixture_path is server configuration from a resolved source, never request input.
 EXCEPTIONS = [
@@ -29,9 +30,9 @@ EXCEPTIONS = [
     {
         "type": "SQL.Query: SQL injection",
         "file": "lib/football_market/catalog.ex",
-        "line": 244,
+        "line": 249,
         "confidence": "low_confidence",
-        "sha256": "e7ba12f1d93540da160b2d8cfd4e59454ea4a2c32c3e8a6ff5ea23909f7919e2"
+        "sha256": "eab5eabc175e675933c2cd6dc53a982bebc4a4433fd9fa600d7147a886f09301"
     },
     {
         "type": "DOS.StringToAtom: Unsafe `String.to_atom`",

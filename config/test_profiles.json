@@ -2515,6 +2515,13 @@
       "profile": "unit"
     },
     {
+      "id": "3c6115e07a4f4defbb1492bf",
+      "runner": "exunit",
+      "file": "test/football_market/statistics/freshness/context_test.exs",
+      "case_id": "FootballMarket.Statistics.Freshness.ContextTest:test startup wake is unique and the worker is registered hourly",
+      "profile": "integration"
+    },
+    {
       "id": "3c97525d7818f2ce933f3261",
       "runner": "exunit",
       "file": "test/football_market/market/purchases/input_test.exs",
@@ -4447,6 +4454,13 @@
       "profile": "integration"
     },
     {
+      "id": "6daeaa705cf6ec37378fdfd2",
+      "runner": "exunit",
+      "file": "test/football_market/statistics/freshness/context_test.exs",
+      "case_id": "FootballMarket.Statistics.Freshness.ContextTest:test background preload admits configured stale players once and leaves fresh scopes idle",
+      "profile": "integration"
+    },
+    {
       "id": "6e2ba1468642a31a29ba8884",
       "runner": "exunit",
       "file": "test/football_market/quotes/conversion_test.exs",
@@ -5474,6 +5488,13 @@
       "file": "tools/openapi/player_media.test.mjs",
       "case_id": "missing and failed images keep the fallback, successful images reveal the photo",
       "profile": "unit"
+    },
+    {
+      "id": "892493e504f0dfba3da40157",
+      "runner": "exunit",
+      "file": "test/football_market_web/live/portfolio_live_test.exs",
+      "case_id": "FootballMarketWeb.PortfolioLiveTest:test player card replaces preparing state with the explicit provider failure state",
+      "profile": "integration"
     },
     {
       "id": "8946439de0564e50f92b78c3",
@@ -7125,6 +7146,13 @@
       "runner": "exunit",
       "file": "test/football_market/valuation/position_aware/scope_test.exs",
       "case_id": "FootballMarket.Valuation.PositionAware.ReadFailureTest:test public evaluate exposes infrastructure read failure instead of empty football history",
+      "profile": "integration"
+    },
+    {
+      "id": "b187ffe88bd822cbc4c5e68e",
+      "runner": "exunit",
+      "file": "test/football_market_web/live/portfolio_live_test.exs",
+      "case_id": "FootballMarketWeb.PortfolioLiveTest:test player card prepares while statistics import runs and reloads after completion",
       "profile": "integration"
     },
     {

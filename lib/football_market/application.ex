@@ -29,6 +29,7 @@ defmodule FootballMarket.Application do
       {:ok, _} = started ->
         # Startup is a durable wake only; cron repairs a transient enqueue failure.
         enqueue_order_recovery()
+        enqueue_statistics_preload()
         started
 
       error ->
@@ -39,6 +40,17 @@ defmodule FootballMarket.Application do
   defp enqueue_order_recovery do
     options = Application.get_env(:football_market, FootballMarket.Market.OrderEvaluation, [])
     if Keyword.get(options, :startup, true), do: FootballMarket.Market.OrderEvaluation.startup()
+  rescue
+    _ -> :ok
+  catch
+    :exit, _ -> :ok
+  end
+
+  defp enqueue_statistics_preload do
+    options = Application.get_env(:football_market, FootballMarket.Workers.StatisticsPreload, [])
+
+    if Keyword.get(options, :startup, true),
+      do: FootballMarket.Workers.StatisticsPreload.startup()
   rescue
     _ -> :ok
   catch

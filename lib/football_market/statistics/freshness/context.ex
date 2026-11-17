@@ -3,6 +3,24 @@ defmodule FootballMarket.Statistics.Freshness do
   alias FootballMarket.Statistics.Ingestion.ScopeCheck
   alias FootballMarket.Statistics.Freshness.{Settings, Refresh, ValuationStatus}
   alias FootballMarket.Synchronization.Clock
+  alias FootballMarket.Catalog
+
+  def preload do
+    now = Clock.now()
+
+    Catalog.list_players_for_statistics()
+    |> Enum.each(fn player ->
+      case Settings.load(player) do
+        {:ok, settings} ->
+          _ = Refresh.ensure(player, settings, now)
+
+        _ ->
+          :ok
+      end
+    end)
+
+    :ok
+  end
 
   def for_player(player) do
     base = base(player)

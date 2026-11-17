@@ -1483,6 +1483,7 @@ defmodule FootballMarket.WorkflowScope do
       "lib/football_market_web/live/workspace_live.ex",
       "specs/093-initial-statistics-preload-and-scheduled-background-refresh-with-preparing-cards/",
       "test/football_market/statistics/freshness/context_test.exs",
+      "test/football_market/synchronization/scope_test.exs",
       "test/football_market_web/live/portfolio_live_test.exs",
       "test/support/workflow_scope.ex"
     ]

@@ -1,41 +1,47 @@
-# Independent evaluation — TASK-093 repair
+# Independent evaluation — TASK-093, authorized second repair
 
-Reviewed the task, compact spec, current feedback, REVIEW.md, product/architecture/checkpoint documents, workflow lessons, constitution, original implementation and repair delta. This pass focuses on Feedback 1 and affected surfaces. No implementation was modified, other agent invoked, or workflow logs inspected. Only evaluator evidence named by ThinFlow was read under its run directory.
+Reviewed AGENTS.md, REVIEW.md, the product, architecture, checkpoint and workflow documents, constitution, active outcome specification, both feedback entries, original implementation and the repair delta against `e449dab452b185cd1126057dd459ea76e879ad77`. This evaluator did not implement the repair or change implementation, harness policy or workflow state. The user explicitly authorized this second bounded repair; the canonical feedback records that exception and the CLI's fixed-limit refusal.
 
-## Acceptance and evidence
+## Acceptance and repair evidence
 
-| Acceptance | Evidence assessed on this pass | Result |
+| Acceptance or repair requirement | Assessment | Result |
 | --- | --- | --- |
-| Durable deduplicated startup and recurring preload | Application enqueues after supervisor startup; StatisticsPreload persists a unique wake on statistics_import; hourly cron reuses it. Startup uniqueness/registration test passes. | PASS |
-| Local catalog enumeration, scoped TTL and trusted deduplicated/rate-limited admission | Freshness.preload delegates configured players to existing Refresh.ensure and scope locks/TTL/Store admission. Provider execution remains in the existing import worker. Focused admission/deduplication/TTL tests pass. | PASS |
-| Local reads survive provider absence/failure/timeouts | Local reads and accepted facts retain their existing boundaries; affected freshness regression cases pass. Repair changes no read or provider code. | PASS |
-| Preparing during active imports; automatic terminal reload | Projection recognizes queued/executing/retry_wait; connected LiveView schedules a five-second reload and stops when inactive. Completion/failure reload cases pass. | PASS |
-| Administrator configuration and first-performance-quote behavior preserved | No valuation, quote, configuration-selection or trading implementation delta. Existing protected-state assertions pass. | PASS |
-| Focused automated coverage | Current selected checks pass; independent focused execution of freshness context, portfolio LiveView and quality baseline contracts: 40 passed, 10.8 seconds. | PASS |
-| Feedback 1: exact Sobelow reconciliation, controls and affected checks | Byte comparison proves catalog.ex differs from the pre-feature version only by the five-line list_players_for_statistics insertion. Old/new whole-file SHA-256 values exactly equal the old/new exception identities. Query identifiers remain fixed allowlisted constants and values remain bound. Current native Sobelow evidence and control evidence pass their expected positive/negative outcomes; independent native dev/test application Dialyzer passes. | PASS |
+| Durable startup and recurring deduplicated preload | Existing application startup enqueues after supervised Repo/Oban startup. StatisticsPreload persists a unique wake and hourly cron registers the same worker. Runtime implementation is unchanged by this repair. | PASS |
+| Local enumeration, trusted scoped TTL and existing deduplicated/rate-limited admission | Catalog reads local players; Freshness.preload delegates configured players to existing Refresh.ensure. Provider execution remains in the import worker, outside scheduler/page execution. Existing accepted-data and valuation boundaries are unchanged. | PASS |
+| Preparing cards and automatic terminal reload | Existing projection distinguishes queued/executing/retry_wait; connected LiveView schedules reload and stops when inactive. The repair changes no UI or freshness implementation. | PASS |
+| Preserve administrator selection and first-performance-quote behavior | No valuation, quote, financial, configuration-selection or provider runtime delta. | PASS |
+| Reconcile the exact scheduler contract | The existing exact-list assertion now includes the specified hourly StatisticsPreload entry and retains all three original cron entries. No assertion was loosened. Independent focused execution of synchronization and market scope modules: **5 passed**, 0.2 seconds. | PASS |
+| Reconcile scope inventory without broadening permissions | WorkflowScope adds only the exact synchronization/scope_test.exs path under TASK-093. Unknown-feature and unplanned-path behavior remains fail-closed. Both affected scope modules pass independently. | PASS |
+| Current selected readiness and proportional records | Current high-tier deterministic checks pass; the feedback exception and one workflow lesson accurately describe this repair. No new case identity was introduced, so test-profile membership is unchanged. | PASS |
 
-## Risk, boundaries and evidence integrity
+## Independent checks and evidence integrity
 
-Authoritative selection is **high**, correctly overriding the spec's descriptive Medium label: application and delivery-harness paths match high-tier policy, with no unmapped paths. The repair changes only the exact catalog Sobelow line/hash acceptance and its explanatory comment, a canonical workflow lesson, task status and a spec heading. No broader suppression, analyzer flag, classification logic, permission, provider, persistence or financial boundary changed.
+Independently executed `scripts.thinflow.readiness(..., require_evaluation=False)`: **ready**. This recomputed the current selection and material digest, verified task/branch identity, required rows, zero exit codes and every linked evidence-file SHA-256. Current digest: `e3b4583dcfebb9a70670844711f81a5d72e4bad788c0a3280f7d82a36d4e4165`.
 
-Independently called scripts.thinflow.readiness with require_evaluation=False: passed. It recomputed selection/material identity, matched task and branch, checked all selected check results and verified every linked evidence SHA-256. Current material digest: a2cab4fb18e27976e0991d4bd1a92f0f7a233a710a78e4c1dab184c0fe9b82c6. Evidence contains 27 passing CI contract tests, 387 passing harness tests, and a complete unit receipt with expected/discovered/executed/passed all 717. Successful format/compile checks naturally have empty output; neither is treated as a test receipt.
+Authoritative risk is **high** with no unmapped paths. The receipt records successful ci-contracts, harness-tests, format, compile and unit-profile checks. Direct inspection of their linked logs confirms **27 CI contract tests**, **387 harness tests**, and a complete unit receipt with expected/discovered/executed/passed all **717**. Format and compile are successful checks, not test counts.
 
-The native Sobelow source digest was independently recomputed and matches current lib/config/mix inputs. Its complete scan reports 293 discovered, 291 scanned, two built-in ignored files, no unreadable/unparseable/pending files, seven accepted findings and zero blocking findings. Controls reject unsafe SQL, malformed source and forbidden analyzer configuration, and accept corrected SQL. The unchanged classifier still requires exact finding type/file/line/confidence/source digest.
+To verify the concrete repaired contracts, independently ran `env ERL_FLAGS='+S 4:4' mix test test/football_market/synchronization/scope_test.exs test/football_market/market/scope_test.exs`: **5 passed**. The first sandbox attempt was refused by Mix's TCP filesystem lock; the escalated retry ran successfully. Also independently ran `git diff --check`: passed. No full suite was rerun by this evaluator.
 
-The available Dialyzer summary references older commit c21b0ed and was **not** accepted as current evidence. To resolve that concrete evidence gap without a full suite, independently ran scripts.dialyzer_ci.analyze for application in dev and test using the maintained exceptions: dev accepted=6, test accepted=12, both zero blocking/errors. Native reports and classification evidence are under /tmp/task093-independent-qa/{dev,test}/. Unchanged dependency-model analysis was not repeated.
+## Full integration limitation and earlier temporal discrepancy
 
-To resolve the selected unit profile's exclusion of the affected integration cases, independently ran MIX_ENV=test mix test on test/football_market/statistics/freshness/context_test.exs, test/football_market_web/live/portfolio_live_test.exs and test/ci/quality_baseline_contract_test.exs: **40 passed**. git diff --check also passed. No full suite was rerun.
+The full integration attempt **did not pass**. The retained parent observation at `tmp/task093-second-repair/integration-timeout-observation.json` reports exit 1 with `category=timeout`; it explicitly identifies itself as a parent tool-result observation, not a native profile receipt. No complete integration receipt exists, and neither partial counts nor the absence of observed test failures is accepted as profile completion evidence.
+
+The parent also reported an earlier selected-unit attempt failing Providers.DeadlineTest at its 500 ms caller-exit bound, an isolated passing reproduction, and the permitted unchanged retry with pinned schedulers. This evaluator did not reproduce that earlier temporal failure and makes no causal claim about it. The independently hash-verified **current** authoritative receipt is complete with 717/717 unit cases passing. Provider implementation and deadline tests were not modified or suppressed.
+
+The second repair changes only a test expectation, its exact scope inventory and canonical records. The independent targeted regression and current required local checks justify publication of this candidate for hosted CI; they do not replace the incomplete full integration profile.
 
 ## Blocking findings
 
-None.
+None for candidate publication.
 
 ## Advisory findings
 
-No new advisory findings in the repair delta.
+None introduced by the repair delta.
 
 ## Residual risks
 
-Real provider availability, production-scale preload throughput and actual timer delivery are not demonstrated by the focused checks. These are unchanged limitations of the original candidate; this repair adds no runtime behavior. Local readiness does not replace exact-final-head ThinFlow required CI or human merge. Candidate is ready for those gates.
+- Full integration remains unproven locally because of the timeout. The exact final PR head must pass the complete hosted Quality baseline and aggregate ThinFlow required gate before human merge.
+- The earlier deadline-test discrepancy may recur under timing or load conditions; current passing evidence does not establish its cause.
+- Real provider availability, production-scale preload throughput and actual timer-delivery coverage remain unchanged limitations of the original delivery.
 
 Verdict: PASS

@@ -112,6 +112,7 @@ defmodule FootballMarket.Synchronization.ScopeTest do
     assert [
              {Oban.Plugins.Cron,
               crontab: [
+                {"0 * * * *", FootballMarket.Workers.StatisticsPreload},
                 {"* * * * *", FootballMarket.Workers.QuoteRecovery},
                 {"* * * * *", FootballMarket.Workers.QuoteClose},
                 {"* * * * *", FootballMarket.Workers.ConditionalOrderRecovery}

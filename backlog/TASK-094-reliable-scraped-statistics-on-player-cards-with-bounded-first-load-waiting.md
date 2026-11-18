@@ -5,9 +5,9 @@ type: task
 checkpoint: CP3
 priority: critical
 workflow: thinflow-v1
-status: review
+status: done
 depends_on: TASK-093
-active_run: 9ecb0de4
+active_run: none
 ---
 
 ## Current delivery state — 2026-11-18

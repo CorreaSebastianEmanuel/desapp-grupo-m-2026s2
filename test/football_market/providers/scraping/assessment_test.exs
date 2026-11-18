@@ -30,6 +30,7 @@ defmodule FootballMarket.Providers.ScrapingAssessmentTest do
     start_year = if today.month >= 7, do: today.year, else: today.year - 1
     end_year = start_year + 1
     assessment = Scraping.Assessment.local_development()
+    assert assessment.limits == %{concurrency: 1, volume: 60, window_ms: 60_000, cadence_ms: 0}
     scope = %{league_code: "BL1", start_year: start_year, end_year: end_year}
     assert {:ok, request} = Request.normalize(:performances, scope)
 
@@ -164,6 +165,82 @@ defmodule FootballMarket.Providers.ScrapingAssessmentTest do
     state = Map.merge(budget_state, %{assessment: assessment, admission: table})
     assert {:ok, _} = Data.run(c, state)
     assert {:error, %{category: :rate_limited}} = Data.run(c, state)
+  end
+
+  test "HTTP rate limits preserve numeric and dated Retry-After hints" do
+    c = Data.case!("catalog-PL-2024")
+
+    for {value, expected} <- [{"120", 120_000}, {"bad", 60_000}, {"0", 1}] do
+      state =
+        live_state(c,
+          http_start: fn _, _, receiver ->
+            id = make_ref()
+
+            send(
+              receiver,
+              {:http,
+               {id, {~c"HTTP/1.1", 429, ~c"Wait"}, [{~c"Retry-After", String.to_charlist(value)}],
+                ""}}
+            )
+
+            {:ok, id}
+          end
+        )
+
+      assert {:error, %{category: :rate_limited, retry_after_ms: ^expected}} = Data.run(c, state)
+    end
+
+    # FixtureRuntime's supported clock is fixed at this instant.
+    {runtime, clock} = {FootballMarket.Providers.FixtureRuntime, %{}}
+    now = runtime.utc_now(clock)
+
+    date =
+      DateTime.add(now, 120, :second)
+      |> DateTime.to_naive()
+      |> NaiveDateTime.to_erl()
+      |> :httpd_util.rfc1123_date()
+
+    state =
+      live_state(c,
+        http_start: fn _, _, receiver ->
+          id = make_ref()
+
+          send(
+            receiver,
+            {:http, {id, {~c"HTTP/1.1", 429, ~c"Wait"}, [{~c"retry-after", date}], ""}}
+          )
+
+          {:ok, id}
+        end
+      )
+
+    assert {:error, %{category: :rate_limited, retry_after_ms: 120_000}} = Data.run(c, state)
+  end
+
+  test "HTTP access denials remain sanitized non-retryable provider access failures" do
+    for id <- ["catalog-PL-2024", "performance-PL-2024"], code <- [401, 403] do
+      c = Data.case!(id)
+
+      state =
+        live_state(c,
+          http_start: fn _, _, receiver ->
+            request_id = make_ref()
+
+            send(
+              receiver,
+              {:http, {request_id, {~c"HTTP/1.1", code, ~c"Denied"}, [], "private denial body"}}
+            )
+
+            {:ok, request_id}
+          end
+        )
+
+      assert {:error, error} = Data.run(c, state)
+      assert error.category == :authentication_failed
+      refute error.retryable
+      assert error.explanation == "Provider access must be corrected."
+      refute inspect(error) =~ "private denial body"
+    end
   end
 
   test "live admission fails closed without shared state and enforces concurrent leases" do
@@ -458,6 +535,85 @@ defmodule FootballMarket.Providers.ScrapingAssessmentTest do
     after
       0 -> :ok
     end
+  end
+
+  test "historical match resources use the assessed exact identifier and reject unsafe routing" do
+    c = Data.case!("performance-PL-2024")
+    owner = self()
+
+    state =
+      live_state(c,
+        http_start: fn url, _timeout, receiver ->
+          send(owner, {:exact_match_resource, url})
+          request_id = make_ref()
+          send(receiver, {:http, {request_id, {~c"HTTP/1.1", 200, ~c"OK"}, [], "{}"}})
+          {:ok, request_id}
+        end
+      )
+
+    {scope, row} = Enum.at(state.assessment.scopes, 0)
+    row = put_in(row.documents["match_details"], "https://www.fotmob.com/api/data/matchDetails")
+
+    assessment = %{
+      state.assessment
+      | destinations: ["https://www.fotmob.com"],
+        scopes: %{scope => row}
+    }
+
+    {:ok, request} = Request.normalize(:performances, Data.request(c))
+
+    state =
+      Map.merge(state, %{
+        assessment: assessment,
+        request: request,
+        match_page_urls: %{"5881149" => "/matches/paderborn-vs-mainz-05/2sevkk#5881149"}
+      })
+
+    context = %{runtime: {FootballMarket.Providers.FixtureRuntime, %{}}, deadline_us: 5_000_000}
+
+    assert {:ok, %{body: "{}"}} =
+             Scraping.HttpTransport.fetch("match_details:5881149", context, state)
+
+    assert_receive {:exact_match_resource,
+                    "https://www.fotmob.com/api/data/matchDetails?matchId=5881149"}
+
+    for path <- [
+          "https://outside.invalid/matches/a/b#5881149",
+          "/api/data/matchDetails?matchId=5881149",
+          "/matches/../api/private#5881149",
+          "/matches/a/b?unexpected=true#5881149",
+          "/matches/a/b#5881301"
+        ] do
+      rejected = put_in(state.match_page_urls["5881149"], path)
+
+      assert {:error, %{category: :unsupported_capability}} =
+               Scraping.HttpTransport.fetch("match_details:5881149", context, rejected)
+
+      refute_received {:exact_match_resource, _}
+    end
+
+    for base <- [
+          "https://outside.invalid/api/data/matchDetails",
+          "https://www.fotmob.com/api/private",
+          "https://www.fotmob.com/api/data/matchDetails?other=true"
+        ] do
+      assessment = put_in(state.assessment.scopes[scope].documents["match_details"], base)
+
+      assert {:error, %{category: :unsupported_capability}} =
+               Scraping.HttpTransport.fetch("match_details:5881149", context, %{
+                 state
+                 | assessment: assessment
+               })
+
+      refute_received {:exact_match_resource, _}
+    end
+
+    bad_id = Map.put(state, :match_page_urls, %{"5881149&other=1" => "/matches/a/b"})
+
+    assert {:error, %{category: :unsupported_capability}} =
+             Scraping.HttpTransport.fetch("match_details:5881149&other=1", context, bad_id)
+
+    refute_received {:exact_match_resource, _}
   end
 
   defp live_state(c, overrides \\ []) do

@@ -97,12 +97,34 @@ defmodule FootballMarket.Synchronization.Store do
 
     job =
       %{"run_id" => run.id, "delivery_id" => receipt.id}
-      |> worker.new(scheduled_at: eligible_at)
+      |> worker.new(scheduled_at: eligible_at, priority: statistics_priority(run))
       |> JobContext.annotate(JobContext.for_run(run))
       |> insert_job!()
 
     run |> Ecto.Changeset.change(delivery_id: receipt.id, job_id: job.id) |> Repo.update!()
   end
+
+  defp statistics_priority(%{operation: "statistics", original_trigger: "initial"}), do: 2
+  defp statistics_priority(_), do: 0
+
+  def prioritize_statistics(%{operation: "statistics", job_id: id}) when is_integer(id) do
+    name =
+      Application.get_env(:football_market, FootballMarket.Synchronization, [])
+      |> Keyword.get(:oban_name, Oban)
+
+    Repo.update_all(
+      from(j in Oban.Job,
+        where:
+          j.id == ^id and j.priority > 0 and j.state in ["available", "scheduled", "retryable"]
+      ),
+      [set: [priority: 0]],
+      prefix: Oban.config(name).prefix
+    )
+
+    :ok
+  end
+
+  def prioritize_statistics(_), do: :ok
 
   def scope(run), do: Map.take(run, [:league_code, :start_year, :end_year])
   def execution_scope(run), do: Map.put(scope(run), :operation, run.operation)
@@ -232,6 +254,7 @@ defmodule FootballMarket.Synchronization.Store do
 
   def safe_failure({:error, %FootballMarket.Statistics.Ingestion.Outcome{} = outcome}) do
     category = outcome.provider_category || outcome.reason
+    category = if category == :authentication_failed, do: :access_refused, else: category
 
     safe_category =
       if category in [

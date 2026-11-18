@@ -26,6 +26,37 @@ defmodule FootballMarket.Synchronization.RetryTest do
     :ok
   end
 
+  test "busy execution capacity postpones delivery without beginning or consuming an attempt" do
+    assert {:ok, accepted} =
+             Synchronization.request_catalog(Fixtures.scope(), source_ref: "fixture")
+
+    assert {:ok, queued} = Synchronization.get_run(accepted.run_id)
+    job = FootballMarket.Repo.get!(Oban.Job, queued.job_id)
+
+    {:ok, guard} =
+      FootballMarket.Synchronization.ExecutionGuard.acquire(
+        FootballMarket.Synchronization.Store.execution_scope(queued)
+      )
+
+    try do
+      assert {:snooze, 1} = FootballMarket.Workers.CatalogSync.perform(job)
+      assert {:ok, unchanged} = Synchronization.get_run(accepted.run_id)
+      assert unchanged.state == "queued"
+      assert unchanged.attempts == []
+      assert unchanged.remaining_attempts == queued.remaining_attempts
+      assert unchanged.delivery_id == queued.delivery_id
+      assert unchanged.job_id == queued.job_id
+    after
+      GenServer.stop(guard)
+    end
+
+    assert :ok = FootballMarket.Workers.CatalogSync.perform(job)
+    assert {:ok, begun} = Synchronization.get_run(accepted.run_id)
+    assert begun.state == "retry_wait"
+    assert length(begun.attempts) == 1
+    assert begun.remaining_wait_seconds == 60
+  end
+
   test "three begun attempts honor 60/300 second deadlines, stop and retain numbered history" do
     assert {:ok, accepted} =
              Synchronization.request_catalog(Fixtures.scope(), source_ref: "fixture")

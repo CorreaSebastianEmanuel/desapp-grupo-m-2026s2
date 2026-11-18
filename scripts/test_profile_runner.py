@@ -309,7 +309,7 @@ def execute_exunit(execute, profile, files, directory, nonce, postgres_port=None
         partition = {'MIX_TEST_PARTITION': 'profile' + nonce + '_c' + str(index)}
         if postgres_port is not None:
             partition['POSTGRES_PORT'] = postgres_port
-        execute(['mix', 'test.prepare'], partition)
+        # The project's mix test alias prepares this fresh database before ExUnit runs.
         invoke('committed_' + str(index), [file], partition)
     if application_dir:
         Path(application_dir, profile + '-observed.json').write_text(json.dumps(observed) + '\n')

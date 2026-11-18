@@ -123,7 +123,9 @@ defmodule FootballMarket.Synchronization.Case do
             {20_261_016_000_300, "20261016000300_extend_synchronization_operations.exs",
              FootballMarket.Repo.Migrations.ExtendSynchronizationOperations},
             {20_261_026_000_100, "20261026000100_add_synchronization_correlation.exs",
-             FootballMarket.Repo.Migrations.AddSynchronizationCorrelation}
+             FootballMarket.Repo.Migrations.AddSynchronizationCorrelation},
+            {20_261_117_000_000, "20261117000000_scope_active_statistics_imports_by_player.exs",
+             FootballMarket.Repo.Migrations.ScopeActiveStatisticsImportsByPlayer}
           ] do
         Code.require_file("priv/repo/migrations/" <> file)
         Ecto.Migrator.up(Repo, version, module, prefix: schema, log: false)

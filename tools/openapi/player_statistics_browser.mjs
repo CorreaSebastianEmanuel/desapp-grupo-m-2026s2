@@ -30,17 +30,26 @@ try {
     assert(Date.now() - opened < 21500);
     await writeFile(join(ipc, 'deadline-visible'), 'ready', {mode: 0o600});
   }
+  const expectedMessage = process.env.STATISTICS_EXPECTED_MESSAGE;
+  let text;
+  if (expectedMessage) {
+    phase = 'empty-status';
+    await page.locator('#player-statistics-unavailable').filter({hasText: expectedMessage}).waitFor({timeout: 30000});
+    assert.equal(await page.locator('#player-statistics').count(), 0);
+    assert.equal(await page.locator('#player-statistics-preparing').count(), 0);
+  } else {
   phase = 'accepted-values';
   await page.locator('#player-statistics').waitFor({timeout: 30000});
-  const text = await page.locator('#player-statistics').innerText();
+  text = await page.locator('#player-statistics').innerText();
   assert.match(text, /Partidos registrados\s+[1-9]/);
   assert.match(text, /Minutos/);
   if (process.env.STATISTICS_EXPECTED) {
     const expected = JSON.parse(process.env.STATISTICS_EXPECTED);
     assert.equal(await page.locator('#player-statistics > div:first-child dd').innerText(), String(expected.recorded_match_count));
     for (const metric of ['minutes_played', 'goals', 'assists']) {
-      assert.equal(await page.locator(`#player-statistics [data-metric="${metric}"] dd`).innerText(), String(expected[metric]));
+      assert.equal(await page.locator(`#player-statistics [data-metric="${metric}"] dd`).innerText(), expected[metric] === null ? 'Desconocido' : String(expected[metric]));
     }
+  }
   }
   if (ipc) {
     await page.reload();

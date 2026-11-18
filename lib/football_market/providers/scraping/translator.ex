@@ -73,14 +73,17 @@ defmodule FootballMarket.Providers.Scraping.Translator do
     end
   end
 
-  def performances(request, context, row, teams, details) do
+  def performances(request, context, row, teams, details, directory \\ %{}) do
     wanted =
       Enum.flat_map(details, fn {m, ps} ->
         [m["home"], m["away"]] ++ Enum.flat_map(ps, &[&1["teamId"], &1["currentTeamId"]])
       end)
 
     teams = Enum.filter(teams, &(is_map(&1) and &1["id"] in wanted))
-    facts = base(request, context, row, teams)
+
+    facts =
+      base(request, context, row, teams)
+      |> directory_positions(directory, context.positions)
 
     matches =
       for {m, _} <- details do
@@ -100,10 +103,11 @@ defmodule FootballMarket.Providers.Scraping.Translator do
         %{
           ref: ref(:player, p["id"]),
           season_ref: "season",
-          display_name: p["name"],
+          display_name: Document.id!(p["name"]),
           team_ref: ref(:team, p["currentTeamId"]),
-          position_ref: position!(p["usualPosition"], row)
+          position_ref: directory_position(p, directory, row)
         }
+        |> Map.merge(Map.get(directory, ref(:player, p["id"]), %{}))
       end
 
     # A player may have multiple dated appearances, but conflicting profile declarations fail.
@@ -153,6 +157,26 @@ defmodule FootballMarket.Providers.Scraping.Translator do
 
     Map.merge(%{facts | players: players}, %{matches: matches, performances: performances})
   end
+
+  defp directory_positions(facts, overrides, positions) do
+    extra =
+      overrides
+      |> Map.values()
+      |> Enum.map(& &1[:position_ref])
+      |> Enum.reject(&is_nil/1)
+      |> Enum.uniq()
+      |> Enum.map(fn code ->
+        Document.require!(Map.has_key?(positions, code))
+        %{ref: code, code: code, name: positions[code]}
+      end)
+
+    %{facts | positions: Enum.uniq_by(facts.positions ++ extra, & &1.ref)}
+  end
+
+  defp directory_position(player, directory, row),
+    do:
+      get_in(directory, [ref(:player, player["id"]), :position_ref]) ||
+        position!(player["usualPosition"], row)
 
   defp metric_value({key, external}, measured, row) do
     value = if row.metrics[key].status == :verified, do: measured[external], else: nil

@@ -7,7 +7,7 @@ defmodule FootballMarket.Providers.ScopeTest do
     "lib/football_market/providers.ex"
     | ["lib/football_market/providers/football_data_org.ex"] ++
         Enum.map(
-          ~w(adapter types request instant error rate_limit validator catalog performances provenance runner runtime media),
+          ~w(adapter types request instant error rate_limit validator catalog performances provenance runner runtime media player_identity team_identity),
           &"lib/football_market/providers/#{&1}.ex"
         )
   ]

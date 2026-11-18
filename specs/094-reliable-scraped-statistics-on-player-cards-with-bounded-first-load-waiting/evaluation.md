@@ -1,33 +1,17 @@
 # Independent evaluation — TASK-094
 
-## Re-review scope
+No blocking findings. I reviewed the repair delta and affected paths against the outcome spec, backlog task, and REVIEW.md.
 
-Reviewed the compact outcome spec, task, Feedback 1, REVIEW.md, repository contracts, current candidate diff, implementation and local ThinFlow evidence. This re-review addresses the previously reported B1 integration-evidence gap and its affected worker, LiveView, browser and profile-inventory surfaces. No implementation changes, additional evaluator, skill invocation or `agentflow verify` invocation. Resolved parser-policy questions and prior findings are not reopened.
+HTTP 401 and 403 now produce a terminal `access_refused` outcome. The card displays the access-denied message and market discovery keeps the player visible. The regression drives both statuses through the HTTP transport, durable worker, persisted outcome, and card. Its invalid-document control still produces `invalid_response` and hides the unverified player. All three outcomes leave accepted checks and match facts unwritten. [Regression](../../test/football_market_web/live/catalog_scouting_live_test.exs#L138)
 
-## Evidence and acceptance
+The integration timeout repair preserves schema isolation and the full migration sequence. The synchronous fixtures reuse compiled migration modules in each test BEAM, and each committed partition prepares its database through the existing `mix test` alias. The complete run finished in 1,462.54 seconds under the unchanged 1,800-second limit. [Fixture](../../test/support/data_case.ex#L29) · [Mix alias](../../mix.exs#L174)
 
-The prior review found no functional or security blocker in the implementation. Its code assessment remains applicable: stored accepted facts render immediately; first-load presentation observes durable background work with a monotonic 20-second deadline, early reveal and continued observation afterward. Provider IO remains in workers. Status wording distinguishes pending work, verified empty coverage, unsupported coverage, denied access, temporary failure and inconsistent evidence. Existing accepted data survives failures.
+## Evidence checked
 
-The parser retains identity, team, explicit season, kickoff, completeness, authorization and assessed-role checks. Same-match evidence corroborates the existing assessed historical-role fallback; no broad tactical 105/115 mapping or catalog-position substitution was introduced. Versioned parser/assessment identities allow corrected inputs through existing admission without rewriting terminal audit records. Deterministic tests cover both reported source discrepancies and negative controls. No changed financial or quote-scheduling boundary was identified.
+- ThinFlow readiness validated candidate digest `a120c2fe8085c7509fa3753d5659ec3d8a4c35727d48a117bafc7b5527af2d49` and the exit codes and log hashes for CI contracts, harness tests, formatting, compile, and the 740-case unit profile. `git diff --check HEAD` passed.
+- The repository receipt verifier accepted `recovery-final/integration.json` against the current inventory. It recorded 788 expected, discovered, executed, and passed cases across 194 audited ExUnit files, including 779 ExUnit and nine shell cases. Receipt SHA256 is `23a6e211d558270838f692f8d312325b41d9218c9c46afa91694e8333a757e77`. The retained analyses report 703 effective Credo paths, seven reviewed Sobelow baseline findings with zero blockers, and zero blocking Dialyzer findings in dev and test.
+- I recomputed the 24-path runtime digest in `recovery-final/live.json` and matched `6ed0e64db9dd5c54ad49ba633d99689926f229d7927153976767ef9a1ee990e6`. Peke's real FotMob import completed as `accepted_unchanged`; authenticated Chromium verified the persisted 11 matches, 556 minutes, one goal, and one assist, then navigated to the portfolio. This smoke establishes the supported-player path. The deterministic regression covers the access-denial path.
 
-**B1 is resolved.** The newly supplied `.agentflow/runs/thinflow/TASK-094/integration-evidence.json` records the native integration wrapper command, exit 0 and completed discovery sentinel. Its referenced `integration-profile.json` reports 774 expected/discovered/executed/passed cases, comprising 765 ExUnit and nine shell cases, with status `complete` and audit count 193. The actual browser regression is included in this integration inventory and exercises deadline fallback, later worker publication, retained values and navigation after failure; worker recovery and LiveView controls are also included.
-
-Evaluator checks executed successfully:
-
-- `python3 scripts/test_profile_components.py verify-receipts tmp/task094-integration/profiles integration`: passed against the current inventory, including exact counts and component membership.
-- Independently recomputed integration receipt SHA256 `d3c5add8d9316cf1b2d513f1d0d77eac06e26bcbaae22d51f2925cdaebb0a547`; the retained copy matches the original native receipt byte-for-byte. Current inventory SHA256 matches `662ba7819c75f22617928e8fea025de574de9553fa2f3f197a7566565326e607`.
-- `thinflow.readiness(root, "TASK-094", require_evaluation=False)`: passed, validating current candidate digest `bf0ab28f4bb2e466c9deaca9bf012fefc3dda06a13b8a4c1449aa7cfecbd2714`, branch, risk selection, required exit codes and evidence hashes. Selected format, compile, unit-profile, ci-contracts and harness-tests remain passed.
-- Compared modification times of every selected candidate file with the original integration receipt: none was modified afterward. The integration envelope has a null candidate-material digest, so it is not itself a cryptographic source binding; original-receipt identity, current inventory validation, unchanged candidate material and execution provenance support this local re-review.
-- `git diff --check`: passed.
-
-The full integration suite was not rerun by the evaluator; the native completed receipt is the execution evidence. No timeout or focused run is counted as full-profile success.
-
-The spec retains the bounded live authorized-provider → worker → persisted facts → authenticated Chromium smoke for Haaland. The previous independent review matched its runtime/parser hashes and corroborated the durable succeeded run and stored totals: 10 matches, 890 minutes, nine goals and zero assists. That acceptance evidence is unchanged; this re-review does not claim a new live acquisition or browser execution.
-
-## Findings and residual risks
-
-No blocking findings remain. No advisory findings are raised. Required local integration evidence now covers the previously unproven acceptance surfaces.
-
-Live evidence covers one supported player and the recorded revision; provider availability and documents can change. Anselmino’s observed shape is covered deterministically. The integration receipt binds its inventory cryptographically rather than the entire source tree, as documented above. Exact-head hosted `ThinFlow required` and human merge remain mandatory subsequent gates. This verdict establishes readiness for those gates, not merge completion.
+I verified the retained receipts and inspected the repair code and tests. The full profiles and live smoke were run by the builder. Exact-head hosted ThinFlow required and human merge remain pending.
 
 Verdict: PASS

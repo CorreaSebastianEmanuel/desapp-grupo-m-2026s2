@@ -74,8 +74,8 @@ if config_env() == :dev do
       identity: %{
         site: "fotmob.com",
         access: "authorized-public-search-and-html",
-        parser: "player-profile-history-v3",
-        version: 6
+        parser: "player-profile-history-v4",
+        version: 18
       }
     })
 

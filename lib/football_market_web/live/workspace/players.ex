@@ -128,7 +128,9 @@ defmodule FootballMarketWeb.Workspace.Players do
       |> Enum.all?(fn {_key, value} -> match?({:ok, _}, Ecto.UUID.cast(value)) end)
 
     result =
-      if valid_filters?, do: Catalog.list_player_page(opts), else: {:error, :invalid_filters}
+      if valid_filters?,
+        do: Catalog.list_market_player_page(opts),
+        else: {:error, :invalid_filters}
 
     case result do
       {:ok, page} ->

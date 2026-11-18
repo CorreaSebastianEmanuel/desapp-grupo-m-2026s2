@@ -56,6 +56,9 @@ defmodule FootballMarket.Synchronization.Execution do
           stop_guard(guard)
         end
 
+      {:error, :busy} ->
+        {:snooze, 1}
+
       _ ->
         :ok
     end

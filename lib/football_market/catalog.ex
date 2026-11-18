@@ -132,12 +132,21 @@ defmodule FootballMarket.Catalog do
   end
 
   def list_player_page(opts) when is_map(opts) do
+    list_player_page(opts, &Query.player_page/3)
+  end
+
+  @doc "Market discovery omits unverified source rejections while retaining accepted local data."
+  def list_market_player_page(opts) when is_map(opts) do
+    list_player_page(opts, &Query.market_player_page/3)
+  end
+
+  defp list_player_page(opts, query) do
     page_size = Map.fetch!(opts, :page_size)
     filters = Map.get(opts, :filters, %{})
 
     with {:ok, anchor} <- decode_anchor(Map.get(opts, :cursor), filters) do
       rows =
-        Query.player_page(anchor, page_size + 1, filters)
+        query.(anchor, page_size + 1, filters)
         |> Repo.all(player_page_log_options(anchor))
 
       {page_rows, extra} = Enum.split(rows, page_size)

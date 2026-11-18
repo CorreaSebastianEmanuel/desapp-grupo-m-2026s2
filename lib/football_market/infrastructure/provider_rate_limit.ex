@@ -3,6 +3,55 @@ defmodule FootballMarket.Infrastructure.ProviderRateLimit do
   alias Ecto.Adapters.SQL
   alias FootballMarket.Repo
 
+  def reserve_volume(key, limit, window_ms)
+      when is_binary(key) and is_integer(limit) and limit > 0 and
+             is_integer(window_ms) and window_ms > 0 do
+    Repo.transaction(fn ->
+      SQL.query!(
+        Repo,
+        "INSERT INTO provider_rate_limits (credential_key, next_allowed_at, inserted_at, updated_at) " <>
+          "VALUES ($1, clock_timestamp(), clock_timestamp(), clock_timestamp()) ON CONFLICT (credential_key) DO NOTHING",
+        [key]
+      )
+
+      %{rows: [[reserved, blocked]]} =
+        SQL.query!(
+          Repo,
+          "SELECT reservations, blocked_until FROM provider_rate_limits WHERE credential_key = $1 FOR UPDATE",
+          [key]
+        )
+
+      %{rows: [[now]]} = SQL.query!(Repo, "SELECT clock_timestamp()", [])
+
+      retained =
+        Enum.filter(reserved, &(NaiveDateTime.diff(now, &1, :microsecond) < window_ms * 1000))
+
+      full_until =
+        if length(retained) >= limit, do: NaiveDateTime.add(hd(retained), window_ms, :millisecond)
+
+      eligible = max_datetime(max_datetime(full_until, blocked), now)
+      wait = max(div(NaiveDateTime.diff(eligible, now, :microsecond) + 999, 1000), 0)
+
+      if wait == 0 do
+        SQL.query!(
+          Repo,
+          "UPDATE provider_rate_limits SET reservations = $2, updated_at = clock_timestamp() WHERE credential_key = $1",
+          [key, retained ++ [now]]
+        )
+
+        :ok
+      else
+        {:defer, wait}
+      end
+    end)
+    |> case do
+      {:ok, result} -> result
+      _ -> {:error, :unavailable}
+    end
+  rescue
+    _ -> {:error, :unavailable}
+  end
+
   def reserve(key, interval_ms, max_wait_ms)
       when is_binary(key) and is_integer(interval_ms) and interval_ms > 0 and
              is_integer(max_wait_ms) and max_wait_ms >= 0 do

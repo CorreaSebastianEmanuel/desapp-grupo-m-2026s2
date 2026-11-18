@@ -2,7 +2,7 @@ defmodule FootballMarket.Providers.Scraping.Budget do
   @moduledoc "Shared assessed concurrency, volume and cadence leases for scraping transports."
   alias FootballMarket.Providers.Scraping.Assessment
 
-  def acquire(request, context, state) do
+  def acquire(request, context, state, durable_volume \\ false) do
     with {:ok, _, _} <- Assessment.admit(request, state) do
       case state[:admission] do
         nil ->
@@ -11,16 +11,17 @@ defmodule FootballMarket.Providers.Scraping.Budget do
         table ->
           :ets.insert_new(table, {:budget, %{}, 0, nil})
           {runtime, clock} = context.runtime
-          reserve(table, Assessment.current(state).limits, runtime.now_us(clock))
+          reserve(table, Assessment.current(state).limits, runtime.now_us(clock), durable_volume)
       end
     end
   end
 
-  defp reserve(table, limits, now) do
+  defp reserve(table, limits, now, durable_volume) do
     [{:budget, leases, used, next}] = :ets.lookup(table, :budget)
     live = Map.filter(leases, fn {_, owner} -> Process.alive?(owner) end)
 
-    if map_size(live) >= limits.concurrency or used >= limits.volume or
+    if map_size(live) >= limits.concurrency or
+         (not durable_volume and used >= limits.volume) or
          (is_integer(next) and now < next) do
       {:error, %{category: :rate_limited}}
     else
@@ -29,7 +30,7 @@ defmodule FootballMarket.Providers.Scraping.Budget do
 
       if replace(table, leases, used, next, new) == 1,
         do: {:ok, {table, lease}},
-        else: reserve(table, limits, now)
+        else: reserve(table, limits, now, durable_volume)
     end
   end
 

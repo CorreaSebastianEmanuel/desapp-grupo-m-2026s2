@@ -6,11 +6,38 @@ defmodule FootballMarket.Providers.Scraping.HttpTransport do
   @max_document_bytes 2_000_000
 
   def acquire(request, context, state) do
-    with {:ok, _, _} <- Assessment.admit(request, state),
-         {:ok, table} <- admission_table(state) do
-      Budget.acquire(request, context, Map.put(state, :admission, table))
+    with {:ok, assessment, _, _} <- Assessment.admit_snapshot(request, state),
+         {:ok, table} <- admission_table(state),
+         {:ok, lease} <-
+           Budget.acquire(
+             request,
+             context,
+             Map.put(state, :admission, table),
+             not is_nil(assessment.limits[:window_ms])
+           ) do
+      case reserve_volume(assessment.limits) do
+        :ok ->
+          {:ok, lease}
+
+        error ->
+          Budget.release(lease, state)
+          error
+      end
     end
   end
+
+  @volume_key "fotmob-public-player-imports"
+  defp reserve_volume(%{window_ms: window, volume: limit}) do
+    case FootballMarket.Providers.RateLimit.reserve_volume(@volume_key, limit, window) do
+      :ok -> :ok
+      {:defer, wait} -> {:error, %{category: :rate_limited, retry_after_ms: wait}}
+      _ -> {:error, %{category: :unavailable}}
+    end
+  rescue
+    _ -> {:error, %{category: :unavailable}}
+  end
+
+  defp reserve_volume(_), do: :ok
 
   def release(lease, state), do: Budget.release(lease, state)
 
@@ -19,9 +46,9 @@ defmodule FootballMarket.Providers.Scraping.HttpTransport do
          {:ok, assessment, revision, row} <-
            Assessment.admit_snapshot(state[:request], state, state[:assessment_revision]),
          {:ok, uri, destination} <- endpoint(key, row, assessment, state),
-         {:ok, status, body} <- request(uri, context, state),
+         {:ok, status, headers, body} <- request(uri, context, state),
          :ok <- before_deadline(context),
-         :ok <- status(status),
+         :ok <- status(status, headers, context, assessment),
          true <- is_binary(body) and byte_size(body) <= @max_document_bytes do
       {:ok,
        %{
@@ -85,8 +112,13 @@ defmodule FootballMarket.Providers.Scraping.HttpTransport do
     player_search(documents["player_search"], player_name)
   end
 
-  defp dynamic_endpoint("match_details:" <> match_id, _documents, state) do
-    match_page(Map.get(state[:match_page_urls] || %{}, match_id))
+  defp dynamic_endpoint("match_details:" <> match_id, documents, state) do
+    path = Map.get(state[:match_page_urls] || %{}, match_id)
+
+    case documents["match_details"] do
+      nil -> match_page(path)
+      base -> exact_match_resource(base, path, match_id)
+    end
   end
 
   defp dynamic_endpoint(_, _, _), do: nil
@@ -130,6 +162,33 @@ defmodule FootballMarket.Providers.Scraping.HttpTransport do
   end
 
   defp match_page(_), do: nil
+
+  defp exact_match_resource(base, path, match_id)
+       when is_binary(base) and is_binary(path) and is_binary(match_id) do
+    uri = URI.parse(base)
+    profile_uri = URI.parse(path)
+
+    if exact_match_base?(uri) and
+         not is_nil(match_page(path)) and profile_uri.fragment in [nil, match_id] and
+         Regex.match?(~r/\A[0-9]{1,16}\z/, match_id) do
+      %{uri | query: URI.encode_query(%{"matchId" => match_id})} |> URI.to_string()
+    end
+  end
+
+  defp exact_match_resource(_, _, _), do: nil
+
+  defp exact_match_base?(%URI{
+         scheme: "https",
+         host: "www.fotmob.com",
+         port: port,
+         path: "/api/data/matchDetails",
+         userinfo: nil,
+         query: nil,
+         fragment: nil
+       })
+       when port in [nil, 443], do: true
+
+  defp exact_match_base?(_), do: false
 
   defp safe_uri?(%URI{scheme: "https", host: host, userinfo: nil, fragment: nil}),
     do: is_binary(host) and host != ""
@@ -256,16 +315,16 @@ defmodule FootballMarket.Providers.Scraping.HttpTransport do
 
       {:stream_end, headers} ->
         if content_range?(headers),
-          do: {:ok, 206, IO.iodata_to_binary(Enum.reverse(chunks))},
-          else: {:ok, 200, IO.iodata_to_binary(Enum.reverse(chunks))}
+          do: {:ok, 206, headers, IO.iodata_to_binary(Enum.reverse(chunks))},
+          else: {:ok, 200, headers, IO.iodata_to_binary(Enum.reverse(chunks))}
 
       {:error, %{category: _} = failure} ->
         cancel_request(request_id, state)
         {:error, failure}
 
-      {:complete, status, body} when is_integer(status) and is_binary(body) ->
+      {:complete, status, headers, body} when is_integer(status) and is_binary(body) ->
         if byte_size(body) <= @max_document_bytes do
-          {:ok, status, body}
+          {:ok, status, headers, body}
         else
           cancel_request(request_id, state)
           {:error, %{category: :invalid_response}}
@@ -294,9 +353,9 @@ defmodule FootballMarket.Providers.Scraping.HttpTransport do
         {:http, {^request_id, :stream_end, headers}} ->
           {:stream_end, headers}
 
-        {:http, {^request_id, {_version, status, _reason}, _headers, body}}
+        {:http, {^request_id, {_version, status, _reason}, headers, body}}
         when is_integer(status) and is_binary(body) ->
-          {:complete, status, body}
+          {:complete, status, headers, body}
 
         {:http, {^request_id, {:error, reason}}} ->
           {:error, http_error(reason)}
@@ -386,10 +445,51 @@ defmodule FootballMarket.Providers.Scraping.HttpTransport do
 
   defp http_error(_), do: %{category: :unavailable}
 
-  defp status(200), do: :ok
-  defp status(429), do: {:error, %{category: :rate_limited}}
-  defp status(code) when code in 500..599, do: {:error, %{category: :unavailable}}
-  defp status(_), do: {:error, %{category: :invalid_response}}
+  defp status(200, _, _, _), do: :ok
+
+  defp status(code, _, _, _) when code in [401, 403],
+    do: {:error, %{category: :authentication_failed}}
+
+  defp status(429, headers, context, assessment) do
+    delay = max(retry_after(headers, context) || 60_000, 1)
+
+    if assessment.limits[:window_ms],
+      do: FootballMarket.Providers.RateLimit.block(@volume_key, delay)
+
+    {:error, %{category: :rate_limited, retry_after_ms: delay}}
+  end
+
+  defp status(code, _, _, _) when code in 500..599, do: {:error, %{category: :unavailable}}
+  defp status(_, _, _, _), do: {:error, %{category: :invalid_response}}
+
+  defp retry_after(headers, context) do
+    value =
+      Enum.find_value(headers, fn {key, value} ->
+        if String.downcase(to_string(key)) == "retry-after", do: to_string(value)
+      end)
+
+    case value && Integer.parse(value) do
+      {seconds, ""} when seconds >= 0 ->
+        seconds * 1000
+
+      _ ->
+        with value when is_binary(value) <- value,
+             {{_, _, _}, {_, _, _}} = date <-
+               :httpd_util.convert_request_date(String.to_charlist(value)),
+             {:ok, date} <- NaiveDateTime.from_erl(date) do
+          {runtime, clock} = context.runtime
+
+          max(
+            NaiveDateTime.diff(date, DateTime.to_naive(runtime.utc_now(clock)), :millisecond),
+            0
+          )
+        else
+          _ -> nil
+        end
+    end
+  rescue
+    _ -> nil
+  end
 
   defp before_deadline(context) do
     {runtime, runtime_state} = context.runtime

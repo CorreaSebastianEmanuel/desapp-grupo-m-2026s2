@@ -191,6 +191,13 @@
       "profile": "integration"
     },
     {
+      "id": "055069f40d2fe6e0e2b5390f",
+      "runner": "exunit",
+      "file": "test/football_market/providers/scraping/performances_test.exs",
+      "case_id": "FootballMarket.Providers.ScrapingPerformancesTest:test reviewed source identity bypasses a duplicate index but still requires exact profile and match evidence",
+      "profile": "unit"
+    },
+    {
       "id": "05559649b0b2d72c68e61476",
       "runner": "exunit",
       "file": "test/football_market_web/controllers/page_controller_test.exs",
@@ -237,6 +244,13 @@
       "runner": "exunit",
       "file": "test/football_market_web/openapi_contract_test.exs",
       "case_id": "FootballMarketWeb.OpenAPIContractTest:test live success and examples match exact response schemas",
+      "profile": "integration"
+    },
+    {
+      "id": "064703349e27da0ec63da237",
+      "runner": "exunit",
+      "file": "test/football_market/catalog/market_visibility_test.exs",
+      "case_id": "FootballMarket.Catalog.MarketVisibilityTest:test initial pending checks and transient failures do not hide catalog players",
       "profile": "integration"
     },
     {
@@ -856,6 +870,13 @@
       "profile": "unit"
     },
     {
+      "id": "12de94cefa2f205e95c10923",
+      "runner": "exunit",
+      "file": "test/football_market_web/live/catalog_scouting_live_test.exs",
+      "case_id": "FootballMarketWeb.CatalogScoutingLiveTest:test HTTP access denial reaches the worker and card without hiding a player",
+      "profile": "integration"
+    },
+    {
       "id": "12dfb4cd01ce6fd0d81ea900",
       "runner": "python",
       "file": "test/scripts/agentflow_feedback_test.py",
@@ -926,6 +947,13 @@
       "profile": "unit"
     },
     {
+      "id": "14fb71d4b8b5eec9afeab19c",
+      "runner": "exunit",
+      "file": "test/football_market/catalog/market_visibility_test.exs",
+      "case_id": "FootballMarket.Catalog.MarketVisibilityTest:test a later accepted empty player check restores visibility without fabricating performances",
+      "profile": "integration"
+    },
+    {
       "id": "15018ae8c6faf3158f978705",
       "runner": "python",
       "file": "test/scripts/agentflow_feature_test.py",
@@ -994,6 +1022,13 @@
       "file": "test/football_market/catalog/scouting_test.exs",
       "case_id": "FootballMarket.Catalog.ScoutingTest:test catalog misses deduplicate, negative-cache fruitless runs, and reject invalid names",
       "profile": "integration"
+    },
+    {
+      "id": "16a26efd223fdcbb1f122a52",
+      "runner": "exunit",
+      "file": "test/football_market/synchronization/input_test.exs",
+      "case_id": "FootballMarket.Synchronization.InputTest:test unknown directory position can admit statistics without inventing a known position",
+      "profile": "unit"
     },
     {
       "id": "16fa5f8ab7f4b5c582b1ba6d",
@@ -1367,6 +1402,13 @@
       "profile": "unit"
     },
     {
+      "id": "1fa6111e70b0abee1ba2b874",
+      "runner": "exunit",
+      "file": "test/football_market/providers/scraping/performances_test.exs",
+      "case_id": "FootballMarket.Providers.ScrapingPerformancesTest:test complete history and independent unused bench evidence verify an empty season",
+      "profile": "unit"
+    },
+    {
       "id": "1fc980dfb2dafde3d98ff593",
       "runner": "exunit",
       "file": "test/football_market/quotes/immutability_test.exs",
@@ -1589,6 +1631,13 @@
       "file": "test/football_market_web/controllers/player_controller_test.exs",
       "case_id": "FootballMarketWeb.PlayerControllerTest:test single filters use IDs from player JSON and preserve the response shape",
       "profile": "integration"
+    },
+    {
+      "id": "2540cb3aa35ed3a4b4514395",
+      "runner": "exunit",
+      "file": "test/football_market/providers/scraping/performances_test.exs",
+      "case_id": "FootballMarket.Providers.ScrapingPerformancesTest:test an independently verified first-team unused substitute proves reserve-profile identity",
+      "profile": "unit"
     },
     {
       "id": "254b5e76e091ee572937fc84",
@@ -1892,6 +1941,13 @@
       "profile": "unit"
     },
     {
+      "id": "2d9d335e875bde84f92a2b93",
+      "runner": "exunit",
+      "file": "test/football_market/providers/scraping/performances_test.exs",
+      "case_id": "FootballMarket.Providers.ScrapingPerformancesTest:test an empty terminal history without requested season evidence is unsupported, never verified empty",
+      "profile": "unit"
+    },
+    {
       "id": "2da2bbc39a36a38454b4b992",
       "runner": "exunit",
       "file": "test/football_market/market/conditional_orders/scope_test.exs",
@@ -2072,6 +2128,13 @@
       "file": "test/football_market/market/order_evaluation/notifications_test.exs",
       "case_id": "FootballMarket.Market.OrderEvaluation.NotificationsTest:test post-commit owner hints have only identity; no pending/replay signal",
       "profile": "integration"
+    },
+    {
+      "id": "311d33762495f92cfbfe0fd7",
+      "runner": "exunit",
+      "file": "test/football_market/providers/scraping/performances_test.exs",
+      "case_id": "FootballMarket.Providers.ScrapingPerformancesTest:test club suffix equivalence retains exact and unambiguous player identity",
+      "profile": "unit"
     },
     {
       "id": "318422ec91261bdccc00994b",
@@ -2431,6 +2494,13 @@
       "profile": "integration"
     },
     {
+      "id": "3a083b43ba0274ec0cee2990",
+      "runner": "exunit",
+      "file": "test/football_market/infrastructure/provider_rate_limit_test.exs",
+      "case_id": "FootballMarket.Infrastructure.ProviderRateLimitTest:test live scraping volume survives lease-table replacement and propagates provider blocks",
+      "profile": "integration"
+    },
+    {
       "id": "3a177f1e583c223b1e49848c",
       "runner": "python",
       "file": "test/scripts/agentflow_evidence_test.py",
@@ -2515,6 +2585,13 @@
       "profile": "unit"
     },
     {
+      "id": "3c5605351ee32e8781583ea8",
+      "runner": "exunit",
+      "file": "test/football_market/infrastructure/provider_rate_limit_test.exs",
+      "case_id": "FootballMarket.Infrastructure.ProviderRateLimitTest:test rolling import volume is shared, expires and survives caller replacement",
+      "profile": "integration"
+    },
+    {
       "id": "3c6115e07a4f4defbb1492bf",
       "runner": "exunit",
       "file": "test/football_market/statistics/freshness/context_test.exs",
@@ -2527,6 +2604,13 @@
       "file": "test/football_market/market/purchases/input_test.exs",
       "case_id": "FootballMarket.Market.Purchases.InputTest:test money changesets reject nonfinite fractional and floating point input",
       "profile": "unit"
+    },
+    {
+      "id": "3ca1864219c7ae4784bf5d43",
+      "runner": "exunit",
+      "file": "test/football_market/synchronization/concurrency_test.exs",
+      "case_id": "FootballMarket.Synchronization.ConcurrencyTest:test independent callers admit different players in one season and deduplicate each player",
+      "profile": "integration"
     },
     {
       "id": "3cbe27c3d88e9e0c18bf20a4",
@@ -2802,6 +2886,13 @@
       "profile": "unit"
     },
     {
+      "id": "43b896589a7cd8fa902ed4c6",
+      "runner": "exunit",
+      "file": "test/football_market/providers/scraping/performances_test.exs",
+      "case_id": "FootballMarket.Providers.ScrapingPerformancesTest:test corroborated current directory identity preserves dated names and transfer teams",
+      "profile": "unit"
+    },
+    {
       "id": "43e3e0f1a4700f107b242f8f",
       "runner": "python",
       "file": "test/scripts/reconcile_merged_task_test.py",
@@ -2988,6 +3079,13 @@
       "runner": "exunit",
       "file": "test/football_market/valuation/position_aware/config_test.exs",
       "case_id": "FootballMarket.Valuation.PositionAware.ConfigTest:test direct feature views reject unknown scopes, missing metrics and malformed values without exceptions",
+      "profile": "unit"
+    },
+    {
+      "id": "4822f854b1120592efeae4c4",
+      "runner": "exunit",
+      "file": "test/football_market/providers/scraping/performances_test.exs",
+      "case_id": "FootballMarket.Providers.ScrapingPerformancesTest:test official scoped birth dates disambiguate homonyms and still reject duplicate identities",
       "profile": "unit"
     },
     {
@@ -3621,6 +3719,13 @@
       "profile": "integration"
     },
     {
+      "id": "57d324a4800fa12ccdb992dc",
+      "runner": "exunit",
+      "file": "test/football_market/providers/scraping/performances_test.exs",
+      "case_id": "FootballMarket.Providers.ScrapingPerformancesTest:test absent season metadata needs independent complete match or unused bench proof",
+      "profile": "unit"
+    },
+    {
       "id": "57f8289bfee2f5664c034c97",
       "runner": "python",
       "file": "test/scripts/agentflow_providers_test.py",
@@ -3822,6 +3927,13 @@
       "file": "test/football_market/catalog/ingestion/outcome_test.exs",
       "case_id": "FootballMarket.Catalog.Ingestion.OutcomeTest:test all safe provider categories and valid rate delays propagate without catalog writes",
       "profile": "integration"
+    },
+    {
+      "id": "5c6330268bf3a8f013afb42b",
+      "runner": "exunit",
+      "file": "test/football_market/providers/scraping/performances_test.exs",
+      "case_id": "FootballMarket.Providers.ScrapingPerformancesTest:test current directory position stays separate from dated verified match roles",
+      "profile": "unit"
     },
     {
       "id": "5c7b21c68229c030168448c1",
@@ -4228,6 +4340,13 @@
       "file": "test/e2e/portfolio_analytics_test.exs",
       "case_id": "FootballMarket.E2E.PortfolioAnalyticsTest:test portfolio tables preserve exact empty open closed and incomplete financial projections",
       "profile": "e2e"
+    },
+    {
+      "id": "66ef9481334cdb154c22b03f",
+      "runner": "exunit",
+      "file": "test/football_market/catalog/market_visibility_test.exs",
+      "case_id": "FootballMarket.Catalog.MarketVisibilityTest:test a prior source rejection stays hidden while its new version is pending",
+      "profile": "integration"
     },
     {
       "id": "6782124ab4af5c75b9087510",
@@ -4748,6 +4867,13 @@
       "profile": "integration"
     },
     {
+      "id": "772769101791f281d69b6d21",
+      "runner": "exunit",
+      "file": "test/football_market/providers/scraping/performances_test.exs",
+      "case_id": "FootballMarket.Providers.ScrapingPerformancesTest:test anchored consistent histories retain filtered matches and reject contradictory evidence",
+      "profile": "unit"
+    },
+    {
       "id": "774c33c9f37f5b4bd6f1af72",
       "runner": "exunit",
       "file": "test/football_market_web/api_authentication_security_test.exs",
@@ -5091,6 +5217,13 @@
       "profile": "unit"
     },
     {
+      "id": "808ed79907e15988c9cf4bd9",
+      "runner": "exunit",
+      "file": "test/football_market/providers/scraping/performances_test.exs",
+      "case_id": "FootballMarket.Providers.ScrapingPerformancesTest:test first-team identity needs an independent dated match when discovery lists a reserve club",
+      "profile": "unit"
+    },
+    {
       "id": "809a6f9573f769606753fad3",
       "runner": "exunit",
       "file": "test/football_market/synchronization/integrity_test.exs",
@@ -5236,6 +5369,20 @@
       "file": "test/football_market_web/controllers/session_controller_test.exs",
       "case_id": "FootballMarketWeb.SessionControllerTest:test public registration creates an account and returns the user to sign-in",
       "profile": "integration"
+    },
+    {
+      "id": "837bb48bc54c0bb4132e5116",
+      "runner": "exunit",
+      "file": "test/football_market/providers/scraping/performances_test.exs",
+      "case_id": "FootballMarket.Providers.ScrapingPerformancesTest:test club aliases never escape their assessed league",
+      "profile": "unit"
+    },
+    {
+      "id": "8388e2f78b8c46a24a7f6207",
+      "runner": "exunit",
+      "file": "test/football_market/providers/scraping/performances_test.exs",
+      "case_id": "FootballMarket.Providers.ScrapingPerformancesTest:test observed player aliases require exact league, club and unique source identity",
+      "profile": "unit"
     },
     {
       "id": "838fffb1644b52b05f4fdf59",
@@ -6106,6 +6253,13 @@
       "profile": "unit"
     },
     {
+      "id": "99fbcef1bee0163e7cf776c4",
+      "runner": "exunit",
+      "file": "test/football_market/providers/scraping/performances_test.exs",
+      "case_id": "FootballMarket.Providers.ScrapingPerformancesTest:test dated career proof disambiguates exact names at other clubs without choosing by coverage",
+      "profile": "unit"
+    },
+    {
       "id": "9a058cb2b0376f9a3bb5cec5",
       "runner": "exunit",
       "file": "test/football_market/providers/scraping/performances_test.exs",
@@ -6421,6 +6575,13 @@
       "profile": "unit"
     },
     {
+      "id": "a0e3f91edeccef923b57ab91",
+      "runner": "exunit",
+      "file": "test/football_market_web/live/catalog_scouting_live_test.exs",
+      "case_id": "FootballMarketWeb.CatalogScoutingLiveTest:test known unverified players disappear from browsing and searching without scouting or deletion",
+      "profile": "integration"
+    },
+    {
       "id": "a0ee6bbcf1967af49105945b",
       "runner": "node",
       "file": "tools/openapi/workspace_session.test.mjs",
@@ -6621,6 +6782,13 @@
       "runner": "python",
       "file": "test/scripts/task_feature_binding_acceptance_test.py",
       "case_id": "test.scripts.task_feature_binding_acceptance_test.ActualProviderFixtureTest.test_actual_command_two_value_delta_retry_and_source_preservation",
+      "profile": "unit"
+    },
+    {
+      "id": "a4f92b6ea3914098ec58f40a",
+      "runner": "exunit",
+      "file": "test/football_market/providers/scraping/assessment_test.exs",
+      "case_id": "FootballMarket.Providers.ScrapingAssessmentTest:test historical match resources use the assessed exact identifier and reject unsafe routing",
       "profile": "unit"
     },
     {
@@ -7310,6 +7478,13 @@
       "profile": "unit"
     },
     {
+      "id": "b61bdb756b687322ca5fdd48",
+      "runner": "exunit",
+      "file": "test/football_market/synchronization/integrity_test.exs",
+      "case_id": "FootballMarket.Synchronization.IntegrityTest:test FotMob club suffix aliases bind uniquely within the accepted catalog season",
+      "profile": "integration"
+    },
+    {
       "id": "b6751c9be616d1bb7736bb51",
       "runner": "exunit",
       "file": "test/football_market/providers/scraping/assessment_test.exs",
@@ -7912,6 +8087,13 @@
       "profile": "integration"
     },
     {
+      "id": "c60f8f00f8be59c7322fde87",
+      "runner": "exunit",
+      "file": "test/football_market/catalog/market_visibility_test.exs",
+      "case_id": "FootballMarket.Catalog.MarketVisibilityTest:test existing immutable match facts stay visible after a later source failure",
+      "profile": "integration"
+    },
+    {
       "id": "c6235fb12efaf1be2018649a",
       "runner": "exunit",
       "file": "test/football_market_web/controllers/conditional_order_controller_test.exs",
@@ -7986,6 +8168,13 @@
       "runner": "python",
       "file": "test/scripts/agentflow_preflight_test.py",
       "case_id": "test.scripts.agentflow_preflight_test.PreflightTest.test_uses_child_path_and_working_directory",
+      "profile": "unit"
+    },
+    {
+      "id": "c7a61d0f49bfef747a062a17",
+      "runner": "exunit",
+      "file": "test/football_market/providers/scraping/assessment_test.exs",
+      "case_id": "FootballMarket.Providers.ScrapingAssessmentTest:test HTTP rate limits preserve numeric and dated Retry-After hints",
       "profile": "unit"
     },
     {
@@ -8183,6 +8372,13 @@
       "file": "test/football_market/synchronization/integrity_test.exs",
       "case_id": "FootballMarket.Synchronization.IntegrityTest:test Football-Data.org initial, replay, and update publish through durable synchronization",
       "profile": "integration"
+    },
+    {
+      "id": "cc085839efd5eff865efe065",
+      "runner": "exunit",
+      "file": "test/football_market/providers/scraping/performances_test.exs",
+      "case_id": "FootballMarket.Providers.ScrapingPerformancesTest:test secondary search terms retain exact identity and never select a nearby club name",
+      "profile": "unit"
     },
     {
       "id": "cc6a051059d607129894ad96",
@@ -8962,6 +9158,13 @@
       "profile": "integration"
     },
     {
+      "id": "dcbb5fba5703892ba43eb26a",
+      "runner": "exunit",
+      "file": "test/football_market/synchronization/integrity_test.exs",
+      "case_id": "FootballMarket.Synchronization.IntegrityTest:test scoped player aliases bind to their requested catalog player and preserve other names",
+      "profile": "integration"
+    },
+    {
       "id": "dce75c760b8920e55b49d430",
       "runner": "exunit",
       "file": "test/ci/credo_ci_contract_test.exs",
@@ -9172,6 +9375,13 @@
       "profile": "unit"
     },
     {
+      "id": "e1ffe8087e210aaac1ad1827",
+      "runner": "exunit",
+      "file": "test/football_market/providers/scraping/performances_test.exs",
+      "case_id": "FootballMarket.Providers.ScrapingPerformancesTest:test unknown catalog role stays unknown while the historical role still needs evidence",
+      "profile": "unit"
+    },
+    {
       "id": "e227b8617fabd03233e813ab",
       "runner": "python",
       "file": "test/scripts/agentflow_feedback_test.py",
@@ -9249,6 +9459,13 @@
       "profile": "integration"
     },
     {
+      "id": "e34415759d8a3ec2e693c707",
+      "runner": "exunit",
+      "file": "test/football_market/catalog/market_visibility_test.exs",
+      "case_id": "FootballMarket.Catalog.MarketVisibilityTest:test known unverified source failures are hidden before bounding and pagination",
+      "profile": "integration"
+    },
+    {
       "id": "e35c1758e057e7dbfee10e4a",
       "runner": "python",
       "file": "test/scripts/agentflow_feedback_test.py",
@@ -9305,6 +9522,13 @@
       "profile": "integration"
     },
     {
+      "id": "e51062dd749ac40716552c12",
+      "runner": "exunit",
+      "file": "test/football_market/providers/scraping/assessment_test.exs",
+      "case_id": "FootballMarket.Providers.ScrapingAssessmentTest:test HTTP access denials remain sanitized non-retryable provider access failures",
+      "profile": "unit"
+    },
+    {
       "id": "e5187821121483be5fc49165",
       "runner": "exunit",
       "file": "test/football_market/valuation/configurations/managed_test.exs",
@@ -9347,10 +9571,24 @@
       "profile": "unit"
     },
     {
+      "id": "e5ae0eed05b1348bbf286ff3",
+      "runner": "exunit",
+      "file": "test/football_market/providers/scraping/performances_test.exs",
+      "case_id": "FootballMarket.Providers.ScrapingPerformancesTest:test historical match links cannot substitute another match or unfinished facts",
+      "profile": "unit"
+    },
+    {
       "id": "e5b07ae0fe5fa1d58479d756",
       "runner": "python",
       "file": "test/scripts/agentflow_stage_checks_test.py",
       "case_id": "test.scripts.agentflow_stage_checks_test.ManifestContractTest.test_unknown_dependency_fails_before_any_execution",
+      "profile": "unit"
+    },
+    {
+      "id": "e5da73c82cbac2d53ad62638",
+      "runner": "exunit",
+      "file": "test/football_market/providers/scraping/performances_test.exs",
+      "case_id": "FootballMarket.Providers.ScrapingPerformancesTest:test nullable substitute slots require corroborated same-match roles",
       "profile": "unit"
     },
     {
@@ -9550,6 +9788,13 @@
       "profile": "integration"
     },
     {
+      "id": "e94ea9f81d9c288de8e20440",
+      "runner": "exunit",
+      "file": "test/football_market/catalog/market_visibility_test.exs",
+      "case_id": "FootballMarket.Catalog.MarketVisibilityTest:test unrelated players, seasons and catalog operations cannot hide a player",
+      "profile": "integration"
+    },
+    {
       "id": "e9bb06265f4c1b0c2a72d5d2",
       "runner": "python",
       "file": "test/scripts/sonar_elixir_probe_test.py",
@@ -9680,6 +9925,13 @@
       "runner": "exunit",
       "file": "test/football_market_web/live/conditional_orders_live_test.exs",
       "case_id": "FootballMarketWeb.ConditionalOrdersLiveTest:test shows expiry reached before the persisted transition and the expired outcome after reload",
+      "profile": "integration"
+    },
+    {
+      "id": "ed866a172a0788c2089ecfd5",
+      "runner": "exunit",
+      "file": "test/football_market/synchronization/retry_test.exs",
+      "case_id": "FootballMarket.Synchronization.RetryTest:test busy execution capacity postpones delivery without beginning or consuming an attempt",
       "profile": "integration"
     },
     {
@@ -9820,6 +10072,13 @@
       "runner": "python",
       "file": "test/scripts/test_profile_runner_test.py",
       "case_id": "test.scripts.test_profile_runner_test.RunnerTest.test_browser_preflight_supervisor_timeout_emits_safe_timeout_cause",
+      "profile": "unit"
+    },
+    {
+      "id": "f057cf51c9ca830e98477c8e",
+      "runner": "exunit",
+      "file": "test/football_market/providers/scraping/performances_test.exs",
+      "case_id": "FootballMarket.Providers.ScrapingPerformancesTest:test a changed current club requires dated exact career identity and does not prove season coverage",
       "profile": "unit"
     },
     {

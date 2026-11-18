@@ -47,7 +47,7 @@ defmodule FootballMarket.Statistics.Freshness.Refresh do
 
     cond do
       active && active.input == settings.input.material ->
-        status(active.state, active, safe_reason(active), active.next_retry_at)
+        reuse_active(active, settings.input)
 
       active ->
         status("busy", nil, "scope_busy")
@@ -77,6 +77,11 @@ defmodule FootballMarket.Statistics.Freshness.Refresh do
 
         retry_or_admit(latest, settings, now)
     end
+  end
+
+  defp reuse_active(active, input) do
+    if input.trigger != :initial, do: Store.prioritize_statistics(active)
+    status(active.state, active, safe_reason(active), active.next_retry_at)
   end
 
   defp retry_or_admit(%{state: "failed", reason: "missing_configuration"} = run, settings, now) do

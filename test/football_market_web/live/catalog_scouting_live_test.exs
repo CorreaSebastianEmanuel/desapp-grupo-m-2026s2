@@ -98,6 +98,125 @@ defmodule FootballMarketWeb.CatalogScoutingLiveTest do
     assert has_element?(view, "#player-search-results tbody tr")
   end
 
+  test "known unverified players disappear from browsing and searching without scouting or deletion" do
+    f = FootballMarket.FreshnessCase.fixture()
+    failed = FootballMarket.FreshnessCase.fail!(f, "unsupported_capability")
+
+    Repo.update!(
+      Ecto.Changeset.change(failed,
+        input: Map.put(failed.input, "player_id", f.player.id)
+      )
+    )
+
+    {:ok, visible} =
+      FootballMarket.Catalog.create_player(
+        FootballMarket.CatalogCase.player_attrs(f.player.team, f.player.position, %{
+          display_name: "Visible market player"
+        })
+      )
+
+    user = account("catalog-visible@example.com")
+    {:ok, view, _html} = live(authenticated_conn(user), "/players")
+    assert has_element?(view, "#player-search-results a[href*='#{visible.id}']")
+    refute has_element?(view, "#player-search-results a[href*='#{f.player.id}']")
+
+    view
+    |> form("#player-catalog-search", player_search: f.player.display_name)
+    |> render_submit()
+
+    refute has_element?(view, "#player-search-results a[href*='#{f.player.id}']")
+    assert has_element?(view, ".catalog-hint", "No encontramos jugadores")
+    assert Repo.aggregate(FootballMarket.Catalog.ScoutRun, :count) == 0
+    assert {:ok, _} = FootballMarket.Catalog.get_player_detail(f.player.id)
+
+    assert Enum.any?(
+             FootballMarket.Catalog.list_players_for_statistics(),
+             &(&1.id == f.player.id)
+           )
+  end
+
+  test "HTTP access denial reaches the worker and card without hiding a player" do
+    alias FootballMarket.{Catalog, FreshnessCase, Synchronization}
+    alias FootballMarket.Statistics.Freshness
+    alias FootballMarket.Synchronization.Run
+
+    f = FreshnessCase.fixture()
+    user = account("catalog-access-denial@example.com")
+
+    for {code, category, visible?, label} <- [
+          {401, "access_refused", true,
+           "El acceso a la fuente no está autorizado o fue denegado"},
+          {403, "access_refused", true,
+           "El acceso a la fuente no está autorizado o fue denegado"},
+          {200, "invalid_response", false, "La fuente devolvió evidencia inconsistente"}
+        ] do
+      source = %{
+        f.source
+        | provider: {FootballMarket.Providers.Scraping, access_response_state(f.player, code)},
+          runtime: {FootballMarket.Providers.Runtime, nil}
+      }
+
+      config = Application.get_env(:football_market, Synchronization)
+
+      Application.put_env(
+        :football_market,
+        Synchronization,
+        Keyword.put(config, :sources, %{"freshness-fixture" => source})
+      )
+
+      status = Freshness.for_player(f.player)
+      assert status.refresh.state == "queued"
+      run = Repo.get!(Run, status.refresh.run_id)
+
+      assert :ok =
+               FootballMarket.Workers.StatisticsImport.perform(Repo.get!(Oban.Job, run.job_id))
+
+      failed = Repo.get!(Run, run.id)
+      assert failed.state == "failed"
+      assert failed.outcome["status"] == "provider_failure"
+      assert failed.outcome["category"] == category
+      refute failed.outcome["retryable"]
+      assert Repo.aggregate(FootballMarket.Statistics.Ingestion.ScopeCheck, :count) == 0
+      assert Repo.aggregate(FootballMarket.Statistics.Performance, :count) == 0
+
+      assert {:ok, page} =
+               Catalog.list_market_player_page(%{
+                 page_size: 10,
+                 filters: %{search_name: f.player.display_name}
+               })
+
+      assert Enum.any?(page.players, &(&1.id == f.player.id)) == visible?
+
+      {:ok, view, _html} =
+        live(authenticated_conn(user), "/players?player_id=#{f.player.id}")
+
+      assert has_element?(view, "#player-scraping-status", label)
+    end
+  end
+
+  defp access_response_state(player, code) do
+    alias FootballMarket.Providers.ScrapingFixtureData, as: Data
+    assessment = Data.assessment(Map.put(Data.case!("performance-PL-2024"), "year", 2025))
+    [{key, row}] = Map.to_list(assessment.scopes)
+    documents = %{("player_search:" <> player.display_name) => "https://example.test/access"}
+
+    %{
+      mode: :live,
+      assessment: %{
+        assessment
+        | mode: :live,
+          destinations: ["https://example.test"],
+          scopes: %{key => Map.put(row, :documents, documents)}
+      },
+      admission: :ets.new(:http_access_admission, [:public, :set]),
+      http_start: fn _, _, receiver ->
+        id = make_ref()
+        send(receiver, {:http, {id, {~c"HTTP/1.1", code, ~c"Response"}, [], "invalid document"}})
+        {:ok, id}
+      end
+    }
+  end
+
   defp authenticated_conn(user) do
     {:ok, anonymous} = FootballMarket.Accounts.BrowserSessions.create_anonymous()
     {:ok, handle} = FootballMarket.Accounts.BrowserSessions.authenticate(anonymous, user.id)

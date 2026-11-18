@@ -97,6 +97,158 @@ defmodule FootballMarket.Synchronization.IntegrityTest do
     assert snapshot() == before
   end
 
+  test "FotMob club suffix aliases bind uniquely within the accepted catalog season" do
+    alias FootballMarket.Providers.ScrapingFixtureData, as: Data
+    alias FootballMarket.Statistics.Ingestion.FotMobBinding
+    alias FootballMarket.Catalog.Ingestion.{Scope, SourceBinding}
+
+    for {code, name} <- Data.positions() do
+      unless Repo.get_by(FootballMarket.Catalog.Position, code: code),
+        do: FootballMarket.Catalog.create_position(%{code: code, name: name})
+    end
+
+    for league <- ["PL", "FL1", "PD", "SA"] do
+      catalog = Data.case!("catalog-#{league}-2024")
+
+      assert {:ok, _} =
+               FootballMarket.Catalog.Ingestion.import_catalog(Data.request(catalog),
+                 provider: {FootballMarket.Providers.Scraping, Data.state(catalog)},
+                 runtime: {FootballMarket.Providers.FixtureRuntime, %{}}
+               )
+    end
+
+    for {league, name, source_name, duplicate_name, code} <- [
+          {"PL", "Real Madrid CF", "Real Madrid", "Real Madrid FC", "RMA"},
+          {"PL", "Genoa CFC", "Genoa", "Genoa FC", "GEN"},
+          {"FL1", "Le Havre AC", "Le Havre", "Le Havre FC", "HAC"},
+          {"FL1", "Lille OSC", "Lille", "Lille FC", "LIL"},
+          {"PD", "Real Sociedad de Fútbol", "Real Sociedad", "Real Sociedad FC", "RSO"},
+          {"SA", "ACF Fiorentina", "Fiorentina", "Fiorentina FC", "FIO"},
+          {"FL1", "AJ Auxerre", "Auxerre", "Auxerre FC", "AUX"},
+          {"FL1", "OGC Nice", "Nice", "Nice FC", "NCE"},
+          {"FL1", "Angers SCO", "Angers", "Angers FC", "ANG"},
+          {"SA", "Bologna FC 1909", "Bologna", "Bologna FC", "BOL"},
+          {"PD", "Levante UD", "Levante", "Levante FC", "LEV"},
+          {"PD", "RC Deportivo La Coruña", "Deportivo A Coruña", "Deportivo A Coruña FC", "DEP"},
+          {"SA", "AC Milan", "Milan", "Milan FC", "MIL"},
+          {"SA", "AC Monza", "Monza", "Monza FC", "MON"},
+          {"SA", "AS Roma", "Roma", "Roma FC", "ROM"},
+          {"SA", "Como 1907", "Como", "Como FC", "COM"},
+          {"SA", "FC Internazionale Milano", "Inter", "Inter FC", "INT"},
+          {"SA", "US Sassuolo Calcio", "Sassuolo", "Sassuolo FC", "SAS"},
+          {"SA", "Udinese Calcio", "Udinese", "Udinese FC", "UDI"},
+          {"FL1", "Olympique de Marseille", "Marseille", "Marseille FC", "MAR"},
+          {"FL1", "ES Troyes AC", "Troyes", "Troyes FC", "TRY"}
+        ] do
+      scope = Repo.get_by!(Scope, league_code: league, start_year: 2024, end_year: 2025)
+
+      assert {:ok, team} =
+               FootballMarket.Catalog.create_team(%{
+                 name: name,
+                 code: code,
+                 season_id: scope.season_id
+               })
+
+      result = %{
+        provenance: %{provider: "fotmob-public-html-v1"},
+        facts: %{teams: [%{ref: "alias-team", name: source_name}]}
+      }
+
+      assert %SourceBinding{team_id: team_id} =
+               FotMobBinding.maybe_bind(
+                 result,
+                 "team",
+                 "alias-team",
+                 "source-" <> code,
+                 scope,
+                 []
+               )
+
+      assert team_id == team.id
+
+      assert {:ok, _} =
+               FootballMarket.Catalog.create_team(%{
+                 name: duplicate_name,
+                 code: code <> "B",
+                 season_id: scope.season_id
+               })
+
+      before = Repo.aggregate(SourceBinding, :count)
+
+      assert is_nil(
+               FotMobBinding.maybe_bind(
+                 result,
+                 "team",
+                 "alias-team",
+                 "ambiguous-" <> code,
+                 scope,
+                 []
+               )
+             )
+
+      assert Repo.aggregate(SourceBinding, :count) == before
+    end
+  end
+
+  test "scoped player aliases bind to their requested catalog player and preserve other names" do
+    alias FootballMarket.Providers.ScrapingFixtureData, as: Data
+    alias FootballMarket.Statistics.Ingestion.FotMobBinding
+    alias FootballMarket.Catalog.Ingestion.{Scope, SourceBinding}
+
+    for {code, name} <- Data.positions() do
+      unless Repo.get_by(FootballMarket.Catalog.Position, code: code),
+        do: FootballMarket.Catalog.create_position(%{code: code, name: name})
+    end
+
+    catalog = Data.case!("catalog-PD-2024")
+
+    assert {:ok, _} =
+             FootballMarket.Catalog.Ingestion.import_catalog(Data.request(catalog),
+               provider: {FootballMarket.Providers.Scraping, Data.state(catalog)},
+               runtime: {FootballMarket.Providers.FixtureRuntime, %{}}
+             )
+
+    scope = Repo.get_by!(Scope, league_code: "PD", start_year: 2024, end_year: 2025)
+
+    for {short, full, name, code} <- [
+          {"Adam", "Adam Boayar", "Elche CF", "ELC"},
+          {"Abde Rebbach", "Abderrahman Rebbach", "Deportivo Alavés", "ALA"}
+        ] do
+      {:ok, team} =
+        FootballMarket.Catalog.create_team(%{name: name, code: code, season_id: scope.season_id})
+
+      {:ok, player} =
+        FootballMarket.Catalog.create_player(%{
+          display_name: short,
+          catalog_identity: "alias-" <> code,
+          team_id: team.id,
+          season_id: scope.season_id,
+          position_id: Repo.get_by!(FootballMarket.Catalog.Position, code: "FW").id
+        })
+
+      result = %{
+        provenance: %{provider: "fotmob-public-html-v1"},
+        facts: %{players: [%{ref: "p", display_name: full}]}
+      }
+
+      wrong = put_in(result.facts.players, [%{ref: "p", display_name: full <> " Other"}])
+
+      assert is_nil(
+               FotMobBinding.maybe_bind(wrong, "player", "p", "source-" <> code, scope,
+                 player_id: player.id
+               )
+             )
+
+      assert %SourceBinding{player_id: id} =
+               FotMobBinding.maybe_bind(result, "player", "p", "source-" <> code, scope,
+                 player_id: player.id
+               )
+
+      assert id == player.id
+      assert Repo.get!(FootballMarket.Catalog.Player, id).display_name == short
+    end
+  end
+
   test "corrected assessed player evidence recovers through worker publication without rewriting rejection" do
     alias FootballMarket.Providers.ScrapingFixtureData, as: Data
     alias FootballMarket.Statistics.Freshness

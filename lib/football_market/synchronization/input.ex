@@ -296,7 +296,7 @@ defmodule FootballMarket.Synchronization.Input do
   defp optional_text?(value), do: is_binary(value) and Provenance.safe_text?(value)
 
   defp optional_position?(nil), do: true
-  defp optional_position?(value), do: value in ["GK", "DEF", "MID", "FWD"]
+  defp optional_position?(value), do: value in ["GK", "DEF", "MID", "FWD", "UNK"]
 
   defp valid_player_identity?(source_id, name, team) do
     (is_binary(source_id) or (is_binary(name) and is_binary(team))) and

@@ -3,6 +3,8 @@ defmodule FootballMarket.Catalog.Query do
   import Ecto.Query
 
   alias FootballMarket.Catalog.{League, Player, Position, Season, Team}
+  alias FootballMarket.Statistics.{Performance, Ingestion.ScopeCheck}
+  alias FootballMarket.Synchronization.Run
 
   @player_filters [:league_id, :season_id, :team_id, :position_id, :search_name]
 
@@ -81,6 +83,39 @@ defmodule FootballMarket.Catalog.Query do
       where: ilike(player.display_name, ^pattern),
       order_by: [asc: fragment("lower(btrim(?))", player.display_name), asc: player.id],
       limit: ^limit
+  end
+
+  def market_player_page(anchor, limit, filters) do
+    hidden =
+      from run in Run,
+        join: player in Player,
+        on: fragment("?->>'player_id'", run.input) == fragment("?::text", player.id),
+        join: season in Season,
+        on: season.id == player.season_id,
+        join: league in League,
+        on: league.id == season.league_id,
+        left_join: check in ScopeCheck,
+        on:
+          check.player_id == player.id and check.season_id == player.season_id and
+            not is_nil(check.last_checked_at) and not is_nil(check.last_accepted_check_id),
+        left_join: performance in Performance,
+        on: performance.player_id == player.id and performance.season_id == player.season_id,
+        where: run.operation == "statistics",
+        where: run.state == "failed",
+        where: run.league_code == league.code,
+        where: run.start_year == season.start_year,
+        where: run.end_year == season.end_year,
+        where: fragment("?->>'status'", run.outcome) == "provider_failure",
+        where:
+          fragment("?->>'category'", run.outcome) in [
+            "unsupported_capability",
+            "invalid_response"
+          ],
+        where: is_nil(check.id) and is_nil(performance.id),
+        select: player.id,
+        distinct: true
+
+    from player in player_page(anchor, limit, filters), where: player.id not in subquery(hidden)
   end
 
   defp base_players do

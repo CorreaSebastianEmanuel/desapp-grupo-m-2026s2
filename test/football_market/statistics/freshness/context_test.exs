@@ -36,8 +36,16 @@ defmodule FootballMarket.Statistics.Freshness.ContextTest do
        f do
     assert :ok = Freshness.preload()
     assert Repo.aggregate(Run, :count) == 1
+    run = Repo.one!(Run)
+    assert run.original_trigger == "initial"
+    assert Repo.get!(Oban.Job, run.job_id).priority == 2
 
     assert :ok = Freshness.preload()
+    assert Repo.aggregate(Run, :count) == 1
+    assert Repo.get!(Oban.Job, run.job_id).priority == 2
+
+    assert Freshness.for_player(f.player).refresh.run_id == run.id
+    assert Repo.get!(Oban.Job, run.job_id).priority == 0
     assert Repo.aggregate(Run, :count) == 1
 
     FreshnessCase.perform!(f)

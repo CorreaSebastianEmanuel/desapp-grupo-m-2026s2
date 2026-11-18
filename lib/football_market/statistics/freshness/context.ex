@@ -12,7 +12,8 @@ defmodule FootballMarket.Statistics.Freshness do
     |> Enum.each(fn player ->
       case Settings.load(player) do
         {:ok, settings} ->
-          _ = Refresh.ensure(player, settings, now)
+          input = %{settings.input | trigger: :initial}
+          _ = Refresh.ensure(player, %{settings | input: input}, now)
 
         _ ->
           :ok

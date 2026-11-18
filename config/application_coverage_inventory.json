@@ -650,6 +650,12 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/providers/performances.ex."
     },
     {
+      "path": "lib/football_market/providers/player_identity.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/providers/player_identity.ex."
+    },
+    {
       "path": "lib/football_market/providers/provenance.ex",
       "role": "application",
       "disposition": "include",
@@ -750,6 +756,12 @@
       "role": "application",
       "disposition": "include",
       "reason": "Maintained first-party application implementation source: lib/football_market/providers/scraping/transport.ex."
+    },
+    {
+      "path": "lib/football_market/providers/team_identity.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/providers/team_identity.ex."
     },
     {
       "path": "lib/football_market/providers/types.ex",
@@ -2006,6 +2018,18 @@
       "reason": "Database migration, not application implementation: priv/repo/migrations/20261116000000_add_initial_quote_eligibility.exs."
     },
     {
+      "path": "priv/repo/migrations/20261117000000_scope_active_statistics_imports_by_player.exs",
+      "role": "migration",
+      "disposition": "exclude",
+      "reason": "Database migration, not application implementation: priv/repo/migrations/20261117000000_scope_active_statistics_imports_by_player.exs."
+    },
+    {
+      "path": "priv/repo/migrations/20261117000100_add_provider_volume_reservations.exs",
+      "role": "migration",
+      "disposition": "exclude",
+      "reason": "Database migration, not application implementation: priv/repo/migrations/20261117000100_add_provider_volume_reservations.exs."
+    },
+    {
       "path": "scripts/application_coverage_native.exs",
       "role": "script",
       "disposition": "exclude",
@@ -2610,6 +2634,12 @@
       "role": "test",
       "disposition": "exclude",
       "reason": "Test code, not application behavior: test/football_market/catalog/ingestion/retention_test.exs."
+    },
+    {
+      "path": "test/football_market/catalog/market_visibility_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Test code, not application behavior: test/football_market/catalog/market_visibility_test.exs."
     },
     {
       "path": "test/football_market/catalog/player_catalog_index_test.exs",

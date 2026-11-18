@@ -345,8 +345,10 @@ class RunnerTest(unittest.TestCase):
             self.assertEqual(tests[1][0][-1], files[1])
             self.assertRegex(tests[1][1]['MIX_TEST_PARTITION'], r'^profile[a-f0-9]{32}_c0$')
             self.assertEqual(tests[1][1]['POSTGRES_PORT'], '55435')
-            prepare = [(argv, env) for argv, env in calls if argv == ['mix', 'test.prepare']]
-            self.assertEqual(prepare, [(['mix', 'test.prepare'], tests[1][1])])
+            self.assertEqual([argv[:2] for argv, _ in calls],
+                             [['mix', 'run'], ['mix', 'test'], ['mix', 'test']])
+            self.assertIn('test: ["infrastructure.database.test_prepare", "test"]',
+                          Path('mix.exs').read_text())
             calls.clear()
             with patch.dict(os.environ, {'CP1_PROFILE_COVERAGE': '1'}):
                 runner.execute_exunit(execute, 'integration', files, directory, 'a' * 32, '55435')

@@ -9,6 +9,9 @@ defmodule FootballMarket.Providers.RateLimit do
     backend().block(key(token), duration_ms)
   end
 
+  def reserve_volume(provider, limit, window_ms),
+    do: backend().reserve_volume(key(provider), limit, window_ms)
+
   defp backend do
     Application.fetch_env!(:football_market, :provider_rate_limit_backend)
   end

@@ -1489,6 +1489,67 @@ defmodule FootballMarket.WorkflowScope do
     ]
   end
 
+  def paths(
+        "specs/094-reliable-scraped-statistics-on-player-cards-with-bounded-first-load-waiting"
+      ) do
+    [
+      "backlog/TASK-094-reliable-scraped-statistics-on-player-cards-with-bounded-first-load-waiting.md",
+      "backlog/feedback/TASK-094.md",
+      "lib/football_market/catalog.ex",
+      "lib/football_market/catalog/query.ex",
+      "lib/football_market_web/live/workspace/players.ex",
+      "test/football_market/catalog/market_visibility_test.exs",
+      "test/football_market/catalog/player_pagination_test.exs",
+      "test/football_market_web/live/catalog_scouting_live_test.exs",
+      "docs/WORKFLOW_LESSONS.md",
+      "config/application_coverage_inventory.json",
+      "config/credo_inventory.json",
+      "config/synchronization.exs",
+      "scripts/sobelow_ci.py",
+      "scripts/dialyzer_exceptions.json",
+      "scripts/test_profile_runner.py",
+      "test/scripts/test_profile_runner_test.py",
+      "lib/football_market/synchronization/input.ex",
+      "test/football_market/synchronization/input_test.exs",
+      "config/test_profiles.json",
+      "lib/football_market/providers/scraping/assessment.ex",
+      "lib/football_market/providers/scraping/http_transport.ex",
+      "lib/football_market/providers/scraping/translator.ex",
+      "lib/football_market/providers/team_identity.ex",
+      "lib/football_market/providers/player_identity.ex",
+      "test/football_market/providers/scope_test.exs",
+      "lib/football_market/providers/scraping/player_profile.ex",
+      "lib/football_market/statistics/ingestion/fotmob_binding.ex",
+      "lib/football_market_web/components/workspace_components.ex",
+      "lib/football_market_web/live/workspace_live.ex",
+      "priv/repo/migrations/20261117000000_scope_active_statistics_imports_by_player.exs",
+      "specs/094-reliable-scraped-statistics-on-player-cards-with-bounded-first-load-waiting/",
+      "test/football_market/providers/scraping/assessment_test.exs",
+      "test/football_market/providers/scraping/performances_test.exs",
+      "test/football_market/statistics/freshness/context_test.exs",
+      "test/football_market/synchronization/integrity_test.exs",
+      "test/football_market/synchronization/concurrency_test.exs",
+      "test/football_market/synchronization/retry_test.exs",
+      "test/football_market_web/live/portfolio_live_test.exs",
+      "test/football_market_web/workspace_browser_test.exs",
+      "test/support/workflow_scope.ex",
+      "test/support/synchronization/case.ex",
+      "test/support/data_case.ex",
+      "test/support/market_case.ex",
+      "test/support/valuation_configuration_case.ex",
+      "tools/openapi/player_statistics_browser.mjs",
+      "lib/football_market/infrastructure/provider_rate_limit.ex",
+      "lib/football_market/providers/rate_limit.ex",
+      "lib/football_market/providers/scraping/budget.ex",
+      "lib/football_market/statistics/freshness/context.ex",
+      "lib/football_market/statistics/freshness/refresh.ex",
+      "lib/football_market/synchronization/store.ex",
+      "lib/football_market/synchronization/execution.ex",
+      "priv/repo/migrations/20261117000100_add_provider_volume_reservations.exs",
+      "test/football_market/infrastructure/provider_rate_limit_test.exs"
+    ]
+  end
+
   def paths(_), do: []
 
   def allows_path?(feature, path) do

@@ -72,14 +72,15 @@ defmodule FootballMarket.Providers.Scraping.Assessment do
       positions: %{"0" => "GK", "1" => "DEF", "2" => "MID", "3" => "FWD"},
       documents: %{
         "player_page" => "https://www.fotmob.com/players",
-        "player_search" => "https://www.fotmob.com/api/data/search/suggest"
+        "player_search" => "https://www.fotmob.com/api/data/search/suggest",
+        "match_details" => "https://www.fotmob.com/api/data/matchDetails"
       },
       metrics: metrics
     }
 
     %{
       mode: :live,
-      revision: "local-fotmob-top-five-#{start_year}-v5",
+      revision: "local-fotmob-top-five-#{start_year}-v18",
       permission: :granted,
       withdrawn: false,
       conditions: :satisfied,
@@ -88,7 +89,7 @@ defmodule FootballMarket.Providers.Scraping.Assessment do
       reviewed_at: reviewed_at,
       expires_at: DateTime.add(reviewed_at, 30 * 24 * 60 * 60, :second),
       destinations: ["https://www.fotmob.com"],
-      limits: %{concurrency: 1, volume: 20, cadence_ms: 0},
+      limits: %{concurrency: 1, volume: 60, window_ms: 60_000, cadence_ms: 0},
       scopes:
         Map.new(%{"PL" => "47", "BL1" => "54", "PD" => "87", "SA" => "55", "FL1" => "53"}, fn
           {league_code, competition} ->
@@ -139,6 +140,9 @@ defmodule FootballMarket.Providers.Scraping.Assessment do
          true <- compatible_revision?(a, revision),
          %{concurrency: n, volume: v, cadence_ms: c} <- a[:limits],
          true <- valid_limits?(n, v, c),
+         true <-
+           is_nil(a.limits[:window_ms]) or
+             (is_integer(a.limits.window_ms) and a.limits.window_ms > 0),
          true <- valid_destinations?(a[:destinations]),
          %{required: :verified, witness: w, positions: p, metrics: m} = row <-
            Map.get(a[:scopes] || %{}, key),

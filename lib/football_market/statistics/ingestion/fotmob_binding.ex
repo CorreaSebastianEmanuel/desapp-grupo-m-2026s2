@@ -41,7 +41,7 @@ defmodule FootballMarket.Statistics.Ingestion.FotMobBinding do
        when result.provenance.provider == "fotmob-public-html-v1" and not is_nil(scope) do
     case Enum.find(result.facts.teams, &(&1.ref == ref)) do
       %{name: name} when is_binary(name) ->
-        target = unique_team_by_source_name(name, scope.season_id)
+        target = unique_team_by_source_name(name, scope)
 
         if target do
           attrs = %{
@@ -69,9 +69,15 @@ defmodule FootballMarket.Statistics.Ingestion.FotMobBinding do
     target_id = Keyword.get(options, :player_id)
     fact = Enum.find(result.facts.players, &(&1.ref == ref))
     target = if is_binary(target_id), do: Repo.get(Catalog.Player, target_id)
+    team = target && Repo.get(Catalog.Team, target.team_id)
 
-    if fact && target && target.season_id == scope.season_id &&
-         normalized_player_name(fact.display_name) == normalized_player_name(target.display_name) do
+    if fact && target && team && target.season_id == scope.season_id &&
+         FootballMarket.Providers.PlayerIdentity.equivalent?(
+           fact.display_name,
+           target.display_name,
+           scope.league_code,
+           team.name
+         ) do
       attrs = %{
         scope_id: scope.id,
         season_scope_id: scope.season_id,
@@ -95,38 +101,18 @@ defmodule FootballMarket.Statistics.Ingestion.FotMobBinding do
     end
   end
 
-  defp unique_team_by_source_name(source_name, season_id) do
-    key = normalized_team_name(source_name)
+  defp unique_team_by_source_name(source_name, scope) do
+    key = normalized_team_name(source_name, scope.league_code)
 
-    from(team in FootballMarket.Catalog.Team, where: team.season_id == ^season_id)
+    from(team in FootballMarket.Catalog.Team, where: team.season_id == ^scope.season_id)
     |> Repo.all()
-    |> Enum.filter(&(normalized_team_name(&1.name) == key))
+    |> Enum.filter(&(normalized_team_name(&1.name, scope.league_code) == key))
     |> case do
       [team] -> team
       _ -> nil
     end
   end
 
-  defp normalized_team_name(name) do
-    name
-    |> String.downcase()
-    |> :unicode.characters_to_nfd_binary()
-    |> String.replace(~r/\p{Mn}/u, "")
-    |> String.replace(~r/[^a-z0-9]+/u, " ")
-    |> String.split()
-    |> Enum.reject(
-      &(&1 in ["fc", "afc", "sc", "sv", "fsv", "tsg", "vfb", "1", "04", "05", "07", "1899"])
-    )
-    |> Enum.join(" ")
-  end
-
-  defp normalized_player_name(name) do
-    name
-    |> String.downcase()
-    |> :unicode.characters_to_nfd_binary()
-    |> String.replace(~r/\p{Mn}/u, "")
-    |> String.replace(~r/[^a-z0-9]+/u, " ")
-    |> String.split()
-    |> Enum.join(" ")
-  end
+  defp normalized_team_name(name, league),
+    do: FootballMarket.Providers.TeamIdentity.normalize(name, league)
 end

@@ -61,6 +61,27 @@ defmodule FootballMarket.Synchronization.InputTest do
     end
   end
 
+  test "unknown directory position can admit statistics without inventing a known position" do
+    options = [
+      source_ref: "fixture",
+      player_id: Ecto.UUID.generate(),
+      player_source_id: "p1",
+      player_position_code: "UNK"
+    ]
+
+    assert {:ok, input} = Input.normalize(:statistics, Fixtures.scope(), options)
+    assert input.material["player_position_code"] == "UNK"
+    assert {:ok, execution} = Input.execution(input.material)
+    assert execution[:player_position_code] == "UNK"
+
+    assert {:error, :player_target} =
+             Input.normalize(
+               :statistics,
+               Fixtures.scope(),
+               Keyword.put(options, :player_position_code, "unsupported")
+             )
+  end
+
   test "rejects missing sources, unknown options, invalid scopes and execution policy" do
     for {scope, options} <- [
           {Fixtures.scope(), []},

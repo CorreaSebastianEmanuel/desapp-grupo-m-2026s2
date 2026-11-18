@@ -56,6 +56,48 @@ defmodule FootballMarket.Synchronization.ConcurrencyTest do
     end)
   end
 
+  test "independent callers admit different players in one season and deduplicate each player" do
+    FootballMarket.Synchronization.Case.with_store(fn repo ->
+      players = [Ecto.UUID.generate(), Ecto.UUID.generate()]
+
+      results =
+        FootballMarket.Synchronization.Case.race(
+          10,
+          fn index ->
+            player_id = Enum.at(players, rem(index, 2))
+
+            {:ok, input} =
+              FootballMarket.Synchronization.Input.normalize(
+                :statistics,
+                FootballMarket.Synchronization.Fixtures.scope(),
+                source_ref: "fixture",
+                player_id: player_id,
+                player_source_id: "player-#{rem(index, 2)}"
+              )
+
+            {player_id, FootballMarket.Synchronization.Store.admit(input)}
+          end,
+          repo
+        )
+
+      for player_id <- players do
+        admissions = for {^player_id, result} <- results, do: result
+        assert Enum.all?(admissions, &match?({:ok, _}, &1))
+        assert Enum.count(admissions, fn {:ok, run} -> run.disposition == :created end) == 1
+        assert length(Enum.uniq_by(admissions, fn {:ok, run} -> run.run_id end)) == 1
+      end
+
+      assert FootballMarket.Repo.aggregate(FootballMarket.Synchronization.Run, :count) == 2
+      assert FootballMarket.Repo.aggregate(FootballMarket.Synchronization.Trigger, :count) == 10
+
+      run = FootballMarket.Repo.all(FootballMarket.Synchronization.Run) |> hd()
+
+      assert_raise Ecto.ConstraintError, ~r/synchronization_active_scope/, fn ->
+        FootballMarket.Repo.insert!(%{run | id: Ecto.UUID.generate()})
+      end
+    end)
+  end
+
   test "requester termination preserves committed run, prepared delivery and original policy" do
     FootballMarket.Synchronization.Case.with_store(fn repo ->
       parent = self()

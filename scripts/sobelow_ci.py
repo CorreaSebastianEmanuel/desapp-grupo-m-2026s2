@@ -15,7 +15,7 @@ COMMAND = ["mix", "sobelow", "--private", "--no-config", "--strict",
 LEVELS = ("high_confidence", "medium_confidence", "low_confidence")
 # Exact findings on reviewed source bytes; changes require fresh individual triage.
 # The router already adds Phoenix secure browser headers; CSP needs a separate policy review.
-# Catalog SQL finding was rechecked after TASK-093 inserted a catalog function above it;
+# Catalog SQL finding was rechecked after TASK-094 inserted a catalog function above it;
 # identifiers still come only from fixed filter_columns and values remain bound.
 # Statistics fixture reads use a fixed repository path and verify the fixture inventory digest.
 # Synchronization fixture_path is server configuration from a resolved source, never request input.
@@ -30,9 +30,9 @@ EXCEPTIONS = [
     {
         "type": "SQL.Query: SQL injection",
         "file": "lib/football_market/catalog.ex",
-        "line": 249,
+        "line": 258,
         "confidence": "low_confidence",
-        "sha256": "eab5eabc175e675933c2cd6dc53a982bebc4a4433fd9fa600d7147a886f09301"
+        "sha256": "30bc65bf1fd01ec6a4d02525c6f99be9a75515e86dd90dd3f0807d3f8a0be76c"
     },
     {
         "type": "DOS.StringToAtom: Unsafe `String.to_atom`",
@@ -67,7 +67,7 @@ EXCEPTIONS = [
         "file": "lib/football_market/synchronization/input.ex",
         "line": 184,
         "confidence": "low_confidence",
-        "sha256": "07c0e94ced8fa476b0369db76ea20c356a8f706710a12ee1d69b7886403a2beb"
+        "sha256": "e4da9727c0081de43f4ea51465ba9a7c823082d36ff4997134d4382fbadc4514"
     },
     {
         "type": "XSS.HTML: XSS in `html`",

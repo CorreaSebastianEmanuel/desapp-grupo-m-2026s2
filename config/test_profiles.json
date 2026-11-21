@@ -303,6 +303,13 @@
       "profile": "integration"
     },
     {
+      "id": "06eab61b9f6ac9035bb557af",
+      "runner": "exunit",
+      "file": "test/football_market/infrastructure/verification_test.exs",
+      "case_id": "FootballMarket.Infrastructure.VerificationTest:test readiness fails when PostgreSQL or Oban is unavailable",
+      "profile": "unit"
+    },
+    {
       "id": "073929c5669dc3c588ab8658",
       "runner": "exunit",
       "file": "test/ci/application_coverage_contract_test.exs",
@@ -1213,6 +1220,13 @@
       "profile": "unit"
     },
     {
+      "id": "1bcb1aa829eac72b6eccd65a",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/page_controller_test.exs",
+      "case_id": "FootballMarketWeb.PageControllerTest:test not-ready responses use HTTP 503 and expose only dependency statuses",
+      "profile": "integration"
+    },
+    {
       "id": "1be00bc71ffe6806945ea41a",
       "runner": "python",
       "file": "test/scripts/agentflow_metrics_test.py",
@@ -1903,6 +1917,13 @@
       "runner": "exunit",
       "file": "test/football_market/valuation/configurations/canonical_test.exs",
       "case_id": "FootballMarket.Valuation.Configurations.CanonicalTest:test integer and Decimal equal weights retain different evidence at the same score",
+      "profile": "integration"
+    },
+    {
+      "id": "2c5db585578414b103fa4d45",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/page_controller_test.exs",
+      "case_id": "FootballMarketWeb.PageControllerTest:test refused Redis connection preserves liveness and degraded readiness",
       "profile": "integration"
     },
     {
@@ -2953,6 +2974,13 @@
       "runner": "exunit",
       "file": "test/football_market_web/live/catalog_scouting_live_test.exs",
       "case_id": "FootballMarketWeb.CatalogScoutingLiveTest:test resetting catalog filters restores the unfiltered catalog and default page size",
+      "profile": "integration"
+    },
+    {
+      "id": "44f09813239ee3f7fbebfc64",
+      "runner": "exunit",
+      "file": "test/football_market_web/controllers/page_controller_test.exs",
+      "case_id": "FootballMarketWeb.PageControllerTest:test health endpoints are public and report liveness and readiness",
       "profile": "integration"
     },
     {
@@ -4018,6 +4046,13 @@
       "file": "test/football_market/quotes/followup_test.exs",
       "case_id": "FootballMarket.Quotes.FollowupTest:test one quote-keyed pending event survives duplicate delivery and matching acknowledgement",
       "profile": "integration"
+    },
+    {
+      "id": "5e5f88ba2ce14b7a39d79744",
+      "runner": "exunit",
+      "file": "test/football_market_web/router_authentication_policy_test.exs",
+      "case_id": "FootballMarketWeb.RouterAuthenticationPolicyTest:test health endpoints are explicitly public",
+      "profile": "unit"
     },
     {
       "id": "5eff7e05068320aab734f527",
@@ -8318,6 +8353,13 @@
       "profile": "unit"
     },
     {
+      "id": "cad1716c889332e589b48da5",
+      "runner": "exunit",
+      "file": "test/football_market/infrastructure/verification_test.exs",
+      "case_id": "FootballMarket.Infrastructure.VerificationTest:test readiness keeps the application ready when only Redis is unavailable",
+      "profile": "unit"
+    },
+    {
       "id": "cad95800c7c355dbc96518f0",
       "runner": "python",
       "file": "test/scripts/test_inventory_test.py",
@@ -10086,6 +10128,13 @@
       "runner": "python",
       "file": "test/scripts/agentflow_ci_check_test.py",
       "case_id": "test.scripts.agentflow_ci_check_test.EnvironmentTest.test_exact_versions_and_services_are_asserted",
+      "profile": "unit"
+    },
+    {
+      "id": "f09a8c3f4f1a5174d16c8e7a",
+      "runner": "exunit",
+      "file": "test/football_market/infrastructure/verification_test.exs",
+      "case_id": "FootballMarket.Infrastructure.VerificationTest:test readiness fails closed on raised probe errors without exposing diagnostics",
       "profile": "unit"
     },
     {

@@ -27,6 +27,28 @@ defmodule FootballMarket.WorkflowScope do
     end
   end
 
+  def paths("specs/038-application-health-checks") do
+    [
+      "backlog/TASK-038-application-health-checks.md",
+      "backlog/feedback/TASK-038.md",
+      "config/application_coverage_inventory.json",
+      "config/credo_inventory.json",
+      "config/test_profiles.json",
+      "docs/WORKFLOW_LESSONS.md",
+      "lib/football_market/infrastructure/adapters.ex",
+      "lib/football_market/infrastructure/health.ex",
+      "lib/football_market_web/controllers/health_controller.ex",
+      "lib/football_market_web/router.ex",
+      "scripts/sobelow_ci.py",
+      "specs/038-application-health-checks/spec.md",
+      "specs/038-application-health-checks/evaluation.md",
+      "test/football_market/infrastructure/verification_test.exs",
+      "test/football_market_web/controllers/page_controller_test.exs",
+      "test/football_market_web/router_authentication_policy_test.exs",
+      "test/support/workflow_scope.ex"
+    ]
+  end
+
   def paths("specs/086-administrator-issuer-and-readable-investor-frontend") do
     [
       "assets/css/app.css",

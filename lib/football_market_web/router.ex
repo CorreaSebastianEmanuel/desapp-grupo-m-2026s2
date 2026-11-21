@@ -28,6 +28,14 @@ defmodule FootballMarketWeb.Router do
   end
 
   scope "/", FootballMarketWeb do
+    pipe_through :api_public
+
+    get "/health/live", HealthController, :live, metadata: %{authentication_policy: :api_public}
+
+    get "/health/ready", HealthController, :ready, metadata: %{authentication_policy: :api_public}
+  end
+
+  scope "/", FootballMarketWeb do
     pipe_through :browser
     get "/sign-in", SessionController, :new
     post "/sign-in", SessionController, :create

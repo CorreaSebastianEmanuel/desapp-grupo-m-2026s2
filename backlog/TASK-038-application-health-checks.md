@@ -4,10 +4,10 @@ title: Application health checks
 type: task
 checkpoint: CP3
 priority: high
-status: review
+status: done
 workflow: thinflow-v1
 depends_on: TASK-002
-active_run: 31212fbe
+active_run: none
 ---
 
 ## Outcome

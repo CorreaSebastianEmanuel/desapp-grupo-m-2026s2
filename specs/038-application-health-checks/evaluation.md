@@ -1,20 +1,16 @@
 # Independent evaluation — TASK-038
 
-Reviewed the Redis failure-containment repair against the compact outcome spec, task, product feedback, REVIEW.md, candidate diff, and local ThinFlow evidence.
+Reviewed the shared SQL sandbox setup in the working-tree repair and its effect on the public health-route tests. The fixture gives both the test process and the monitored request process access to PostgreSQL for the real readiness query.
 
-## Acceptance
+| Acceptance | Evidence |
+| --- | --- |
+| Public liveness remains available independently of dependencies | The liveness action performs no probes. The router policy test confirms public access, and the refused-Redis test receives HTTP 200 from liveness. |
+| Readiness returns HTTP 200 when PostgreSQL and Oban are ready, including Redis-only degradation | The HTTP tests exercise the real readiness path. A refused Redis connection yields HTTP 200 with Redis degraded, and the monitored request exits normally. |
+| PostgreSQL or Oban unavailability returns HTTP 503 | Probe-policy tests exercise each dependency failure independently. The controller test confirms HTTP 503 for the unavailable result. |
+| Probes are bounded and responses contain only status fields | PostgreSQL executes a live `SELECT 1` with a 500 ms timeout. Redis uses a bounded PING and a 1,500 ms worker deadline. Oban checks the configured instance in its registry. The controller serializes only overall and dependency statuses. |
 
-- The refused Redis connection regression exercises both public HTTP routes through the endpoint. It confirms that the request process survives and exits normally, liveness returns HTTP 200, and readiness returns HTTP 200 with PostgreSQL and Oban ready and Redis degraded.
-- The Redis probe owns the Redix link in a monitored worker. An abnormal startup exit is handled as a dependency failure. The receive deadline bounds the wait and kills the worker on timeout. The worker stops a successfully opened client after the bounded PING.
-- The affected readiness path still issues a live PostgreSQL query with a 500 ms timeout and checks registration of the configured Oban instance. Dependency-policy tests exercise PostgreSQL and Oban unavailability separately, and the controller response test confirms HTTP 503 with status-only JSON.
-- Route-policy and HTTP tests confirm public access. The controller serializes the probe results as status values. Web and infrastructure responsibilities remain separate.
+The focused controller, infrastructure, and route policy run passed all 12 tests with local socket access. ThinFlow validated the current candidate digest and evidence hashes for all five high-risk checks: CI contracts, harness tests, formatting, compilation, and the unit profile. The test fixture repair is present in the evaluated working tree and must be included in the CI candidate.
 
-## Evidence
-
-- Independently ran the page controller, infrastructure verification, and router authentication-policy test files. All 12 tests passed, including the refused-connection regression. The first attempt was denied loopback access by the sandbox. The rerun with local socket access succeeded.
-- ThinFlow's candidate readiness check validated the current high-risk receipt and its ordered local checks: ci-contracts, harness-tests, format, compile, and unit-profile. The focused run also covered the HTTP integration tests.
-- `git diff --check` passed. The current router hash matches the Sobelow exception for the existing browser-header finding.
-
-No blocking findings. PostgreSQL and Oban outage policy was exercised with injected results. A live outage of those services and a stalled Redis peer were outside the focused run. Exact-head hosted CI and human merge remain pending.
+No blocking or advisory findings in the repair delta. Live PostgreSQL and Oban outages and a stalled Redis peer were outside the focused run. Exact-head hosted CI and human merge remain pending.
 
 Verdict: PASS

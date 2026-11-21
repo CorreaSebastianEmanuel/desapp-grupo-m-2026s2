@@ -3,6 +3,11 @@ defmodule FootballMarketWeb.PageControllerTest do
 
   @moduletag :integration
 
+  setup tags do
+    FootballMarket.DataCase.setup_sandbox(tags)
+    :ok
+  end
+
   test "GET / returns the application foundation", %{conn: conn} do
     conn = get(conn, ~p"/")
     html = html_response(conn, 200)

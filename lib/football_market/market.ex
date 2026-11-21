@@ -1,57 +1,59 @@
 defmodule FootballMarket.Market do
-  @moduledoc "Trusted initial allocation for existing local player and user identities."
-  alias FootballMarket.Market.{Input, Store}
+  @moduledoc """
+  Public facade for the Market domain.
 
-  defdelegate purchase(actor, input), to: FootballMarket.Market.Purchases
+  Every market operation enters through this module and delegates to a focused
+  1-file-per-module implementation under `lib/football_market/market/`:
 
-  defdelegate sale(actor, input), to: FootballMarket.Market.Sales
+    * `Initialization` (`initialization.ex`) — one-time 100-token issuance per player
+    * `Trading` (`trading.ex`) — atomic, idempotent token purchases and sales
+    * `Portfolio` (`portfolio.ex`) — current holdings, spendable credit balance, initial inventory
+    * `TransactionHistory` (`transaction_history.ex`) — paginated buy/sell history
+    * `Analytics` (`analytics.ex`) — allocation weights and daily historical portfolio valuation
+    * `ConditionalOrders` (`conditional_orders.ex`) — user-owned conditional buy orders
+    * `OrderEvaluation` (`order_evaluation.ex`) — background evaluation passes & PubSub hints
+    * `Settlement` (`settlement.ex`) & `schemas.ex` — shared money/locking helpers & Ecto schemas
+  """
 
-  defdelegate transaction_history(actor, options),
-    to: FootballMarket.Market.TransactionHistory,
-    as: :list
+  alias FootballMarket.Market.{
+    Analytics,
+    ConditionalOrders,
+    Initialization,
+    Portfolio,
+    Trading,
+    TransactionHistory
+  }
 
-  defdelegate portfolio_allocation(actor), to: FootballMarket.Market.Analytics, as: :allocation
+  # --- Trading ---
 
-  defdelegate portfolio_history(actor, options), to: FootballMarket.Market.Analytics, as: :history
+  defdelegate purchase(actor, input), to: Trading
+  defdelegate sale(actor, input), to: Trading
+  defdelegate transaction_history(actor, options), to: TransactionHistory, as: :list
 
-  defdelegate portfolio(actor), to: FootballMarket.Market.Portfolio, as: :list
+  # --- Portfolio & Balances ---
 
-  defdelegate initial_inventory(actor),
-    to: FootballMarket.Market.InitialInventory,
-    as: :list
+  defdelegate portfolio(actor), to: Portfolio, as: :list
+  defdelegate credit_balance(actor), to: Portfolio
+  defdelegate initial_inventory(actor), to: Portfolio
+  defdelegate initial_recipient?(actor), to: Portfolio
+  defdelegate portfolio_allocation(actor), to: Analytics, as: :allocation
+  defdelegate portfolio_history(actor, options), to: Analytics, as: :history
 
-  defdelegate initial_recipient?(actor),
-    to: FootballMarket.Market.InitialInventory
+  # --- Conditional Buy Orders ---
 
-  defdelegate credit_balance(actor),
-    to: FootballMarket.Market.CreditBalances,
-    as: :available
+  defdelegate create_conditional_order(actor, terms), to: ConditionalOrders, as: :create
+  defdelegate list_conditional_orders(actor), to: ConditionalOrders, as: :list
+  defdelegate get_conditional_order(actor, id), to: ConditionalOrders, as: :get
+  defdelegate cancel_conditional_order(actor, id), to: ConditionalOrders, as: :cancel
+  defdelegate evaluate_conditional_order(id), to: ConditionalOrders, as: :evaluate
 
-  defdelegate create_conditional_order(actor, terms),
-    to: FootballMarket.Market.ConditionalOrders,
-    as: :create
-
-  defdelegate list_conditional_orders(actor),
-    to: FootballMarket.Market.ConditionalOrders,
-    as: :list
-
-  defdelegate get_conditional_order(actor, id),
-    to: FootballMarket.Market.ConditionalOrders,
-    as: :get
-
-  defdelegate cancel_conditional_order(actor, id),
-    to: FootballMarket.Market.ConditionalOrders,
-    as: :cancel
-
-  defdelegate evaluate_conditional_order(id),
-    to: FootballMarket.Market.ConditionalOrders,
-    as: :evaluate
+  # --- Initial Token Issuance ---
 
   def initialize_player(player_id, assertions \\ %{}) do
     designation = Application.get_env(:football_market, :initial_issuance_recipients, [])
 
-    with {:ok, input} <- Input.validate(player_id, designation, assertions),
-         do: Store.initialize(input)
+    with {:ok, input} <- Initialization.validate_input(player_id, designation, assertions),
+         do: Initialization.initialize(input)
   end
 
   def initialize_primary_player(player_id) do
@@ -68,6 +70,11 @@ defmodule FootballMarket.Market do
     primary_player_action(player_id, fn -> initialize_primary_in_transaction(player_id) end)
   end
 
+  def get_initial_issuance(player_id) do
+    with {:ok, id} <- Initialization.validate_player_id(player_id),
+         do: Initialization.get(id)
+  end
+
   defp initialize_primary_in_transaction(player_id) do
     designation = Application.get_env(:football_market, :initial_issuance_recipients, [])
 
@@ -75,24 +82,20 @@ defmodule FootballMarket.Market do
       [] ->
         {:error, :primary_account_not_configured}
 
-      [_] ->
-        with {:ok, input} <- Input.validate(player_id, designation, %{}),
-             do: Store.initialize_in_transaction(input)
+      [_recipient] ->
+        with {:ok, input} <- Initialization.validate_input(player_id, designation, %{}),
+             do: Initialization.initialize_in_transaction(input)
 
-      _ ->
+      _recipients ->
         {:error, :ambiguous_initial_issuance_recipient}
     end
   end
 
-  defp primary_player_action(player_id, initialize) do
+  defp primary_player_action(player_id, initialize_fn) do
     case get_initial_issuance(player_id) do
       {:ok, issuance} -> {:ok, %{outcome: :already_completed, issuance: issuance}}
-      {:error, %{reason: :not_initialized}} -> initialize.()
+      {:error, %{reason: :not_initialized}} -> initialize_fn.()
       {:error, error} -> {:error, error}
     end
-  end
-
-  def get_initial_issuance(player_id) do
-    with {:ok, id} <- Input.identifier(player_id), do: Store.get(id)
   end
 end

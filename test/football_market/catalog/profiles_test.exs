@@ -2,7 +2,7 @@ defmodule FootballMarket.Catalog.ProfilesTest do
   use FootballMarket.DataCase, async: false
   @moduletag :integration
   use FootballMarket.IngestionFixtures
-  alias FootballMarket.Catalog.{Profiles, Player, Ingestion}
+  alias FootballMarket.Catalog.{Ingestion, Player, Query}
   alias FootballMarket.Catalog.Ingestion.{Scope, SourceBinding}
 
   test "profiles preserve public context and use only the requested player's provider bindings" do
@@ -12,7 +12,7 @@ defmodule FootballMarket.Catalog.ProfilesTest do
     scope = Repo.one!(Scope)
 
     assert %{name: "Alex", team: "Alpha", league: "Premier League", photo: nil, crest: nil} =
-             Profiles.get_many([player.id])[player.id]
+             Query.get_profiles([player.id])[player.id]
 
     base = %{
       scope_id: scope.id,
@@ -44,14 +44,14 @@ defmodule FootballMarket.Catalog.ProfilesTest do
       )
     )
 
-    profiles = Profiles.get_many([player.id, player.id, Ecto.UUID.generate()])
+    profiles = Query.get_profiles([player.id, player.id, Ecto.UUID.generate()])
     assert map_size(profiles) == 1
 
     assert profiles[player.id].photo ==
              "https://images.fotmob.com/image_resources/playerimages/737066.png"
 
     assert profiles[player.id].crest == "https://crests.football-data.org/66.png"
-    assert Profiles.get_many([]) == %{}
-    assert Profiles.get_many([Ecto.UUID.generate()]) == %{}
+    assert Query.get_profiles([]) == %{}
+    assert Query.get_profiles([Ecto.UUID.generate()]) == %{}
   end
 end

@@ -4,7 +4,6 @@ defmodule FootballMarket.Market.OrderEvaluation.OrderingTest do
   alias FootballMarket.OrderEvaluationCase
   alias FootballMarket.Repo
   alias FootballMarket.Market.OrderEvaluation
-  alias FootballMarket.Market.OrderEvaluationStore
 
   setup do: OrderEvaluationCase.fixture()
 
@@ -21,7 +20,7 @@ defmodule FootballMarket.Market.OrderEvaluation.OrderingTest do
     )
 
     Repo.query!("ALTER TABLE market_conditional_buy_orders ENABLE TRIGGER market_order_immutable")
-    assert {:ok, _} = OrderEvaluationStore.request_pass()
+    assert {:ok, _} = OrderEvaluation.request_pass()
 
     ids =
       Repo.query!("SELECT order_id FROM market_order_evaluation_members ORDER BY ordinal").rows
@@ -30,10 +29,10 @@ defmodule FootballMarket.Market.OrderEvaluation.OrderingTest do
 
     assert ids == Enum.sort([first.id, second.id])
     late = OrderEvaluationCase.order!(f)
-    assert {:ok, _} = OrderEvaluationStore.request_pass()
+    assert {:ok, _} = OrderEvaluation.request_pass()
     assert Repo.query!("SELECT count(*) FROM market_order_evaluation_members").rows == [[2]]
-    assert {:ok, _} = OrderEvaluationStore.step()
-    assert {:ok, _} = OrderEvaluationStore.step()
+    assert {:ok, _} = OrderEvaluation.step()
+    assert {:ok, _} = OrderEvaluation.step()
     assert OrderEvaluationCase.status(late) == "pending"
     assert :ok = OrderEvaluation.run(false)
     assert OrderEvaluationCase.status(late) == "executed"
@@ -58,7 +57,7 @@ defmodule FootballMarket.Market.OrderEvaluation.OrderingTest do
 
   test "a backdated committed arrival stays outside the captured pass", f do
     first = OrderEvaluationCase.order!(f, %{maximum_unit_price: "0.01"})
-    assert {:ok, _} = OrderEvaluationStore.request_pass()
+    assert {:ok, _} = OrderEvaluation.request_pass()
     late = OrderEvaluationCase.order!(f)
 
     Repo.query!(
@@ -71,10 +70,10 @@ defmodule FootballMarket.Market.OrderEvaluation.OrderingTest do
     )
 
     Repo.query!("ALTER TABLE market_conditional_buy_orders ENABLE TRIGGER market_order_immutable")
-    assert {:ok, _} = OrderEvaluationStore.step()
+    assert {:ok, _} = OrderEvaluation.step()
     assert OrderEvaluationCase.status(first) == "pending"
     assert OrderEvaluationCase.status(late) == "pending"
-    assert {:ok, :idle} = OrderEvaluationStore.step()
+    assert {:ok, :idle} = OrderEvaluation.step()
     assert :ok = OrderEvaluationCase.perform()
     assert OrderEvaluationCase.status(late) == "executed"
   end

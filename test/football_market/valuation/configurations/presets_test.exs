@@ -4,7 +4,6 @@ defmodule FootballMarket.Valuation.Configurations.PresetsTest do
   alias FootballMarket.{Accounts, Catalog, Repo}
   alias FootballMarket.Accounts.AuthenticatedActor
   alias FootballMarket.Valuation.Configurations
-  alias FootballMarket.Valuation.Configurations.Presets
 
   setup do
     {:ok, user} =
@@ -81,7 +80,7 @@ defmodule FootballMarket.Valuation.Configurations.PresetsTest do
              Configurations.inspect_for(f.actor)
 
     rules =
-      Presets.rules("balanced", balanced.position_mapping)
+      Configurations.preset_rules("balanced", balanced.position_mapping)
       |> put_in([:config, :weights, :goals], 99)
 
     assert {:ok, custom} = Configurations.create(rules)

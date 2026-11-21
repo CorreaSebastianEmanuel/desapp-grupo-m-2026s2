@@ -1,7 +1,7 @@
 defmodule FootballMarket.Market.ConditionalOrders.InputTest do
   use ExUnit.Case, async: true
   @moduletag :unit
-  alias FootballMarket.Market.ConditionalOrderInput, as: Input
+  alias FootballMarket.Market.ConditionalOrders
   alias FootballMarket.ConditionalOrdersCase, as: C
 
   test "exact finite cents and whole quantities with immutable allowlist and UTC expiry" do
@@ -10,7 +10,7 @@ defmodule FootballMarket.Market.ConditionalOrders.InputTest do
 
     for quantity <- [1, 100], price <- ["0.01", "1.00", Decimal.new("99.99")] do
       assert {:ok, result} =
-               Input.validate(
+               ConditionalOrders.validate_terms(
                  C.actor(user),
                  C.terms(f, %{quantity: quantity, maximum_unit_price: price})
                )
@@ -20,7 +20,9 @@ defmodule FootballMarket.Market.ConditionalOrders.InputTest do
     end
 
     for expiry <- ["2099-01-01T00:00:00Z", "2099-01-01T00:00:00.1+00:00"] do
-      assert {:ok, parsed} = Input.validate(C.actor(user), C.terms(f, %{expires_at: expiry}))
+      assert {:ok, parsed} =
+               ConditionalOrders.validate_terms(C.actor(user), C.terms(f, %{expires_at: expiry}))
+
       assert elem(parsed.expires_at.microsecond, 1) == 6
     end
 
@@ -43,9 +45,13 @@ defmodule FootballMarket.Market.ConditionalOrders.InputTest do
         do: invalid(user, Map.put(C.terms(f), key, user.id))
 
     for key <- Map.keys(C.terms(f)), do: invalid(user, Map.delete(C.terms(f), key))
-    assert {:error, %{kind: :unauthenticated}} = Input.validate(nil, C.terms(f))
+    assert {:error, %{kind: :unauthenticated}} = ConditionalOrders.validate_terms(nil, C.terms(f))
   end
 
   defp invalid(user, terms),
-    do: assert({:error, %{kind: :invalid_request}} = Input.validate(C.actor(user), terms))
+    do:
+      assert(
+        {:error, %{kind: :invalid_request}} =
+          ConditionalOrders.validate_terms(C.actor(user), terms)
+      )
 end

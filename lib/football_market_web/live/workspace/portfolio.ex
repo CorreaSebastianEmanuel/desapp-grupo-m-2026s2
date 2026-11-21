@@ -2,9 +2,9 @@ defmodule FootballMarketWeb.Workspace.Portfolio do
   @moduledoc false
   import Phoenix.Component, only: [assign: 2]
   import Phoenix.LiveView, only: [push_patch: 2]
-  import FootballMarketWeb.Workspace.Session
+  import FootballMarketWeb.Workspace.Helpers
   alias FootballMarket.Market
-  alias FootballMarket.Market.{Portfolio, InitialInventory, Analytics.Input}
+  alias FootballMarket.Market.{Analytics, Portfolio}
 
   def handle_event("portfolio_range", params, socket) do
     query =
@@ -30,7 +30,7 @@ defmodule FootballMarketWeb.Workspace.Portfolio do
   end
 
   def reload_issuer_inventory(socket) do
-    case InitialInventory.list(domain_actor(socket.assigns.actor)) do
+    case Portfolio.initial_inventory(domain_actor(socket.assigns.actor)) do
       {:ok, inventory} ->
         assign(socket, issuer_inventory: inventory, issuer_inventory_unavailable: false)
 
@@ -82,12 +82,12 @@ defmodule FootballMarketWeb.Workspace.Portfolio do
     end
   end
 
-  defp portfolio_options("", ""), do: Input.range(%{}, Date.utc_today())
+  defp portfolio_options("", ""), do: Analytics.validate_range(%{}, Date.utc_today())
 
   defp portfolio_options(from, to) do
     with {:ok, parsed_from} <- optional_date(from),
          {:ok, parsed_to} <- optional_date(to) do
-      Input.range(%{from: parsed_from, to: parsed_to}, Date.utc_today())
+      Analytics.validate_range(%{from: parsed_from, to: parsed_to}, Date.utc_today())
     end
   end
 

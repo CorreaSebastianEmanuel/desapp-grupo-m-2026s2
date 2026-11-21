@@ -7,14 +7,14 @@ defmodule FootballMarket.Providers.ScopeTest do
     "lib/football_market/providers.ex"
     | ["lib/football_market/providers/football_data_org.ex"] ++
         Enum.map(
-          ~w(adapter types request instant error rate_limit validator catalog performances provenance runner runtime media player_identity team_identity),
+          ~w(contract types request validator catalog performances runtime player_identity),
           &"lib/football_market/providers/#{&1}.ex"
         )
   ]
   @scraping_production [
     "lib/football_market/providers/scraping.ex"
     | Enum.map(
-        ~w(admission assessment budget document player_profile source translator transport disabled_transport fixture_transport http_transport),
+        ~w(assessment budget document player_profile source translator transport http_transport),
         &"lib/football_market/providers/scraping/#{&1}.ex"
       )
   ]

@@ -7,10 +7,15 @@ defmodule FootballMarket.Statistics.ScopeTest do
     files = [
       "lib/football_market/statistics.ex"
       | Path.wildcard("lib/football_market/statistics/*.ex")
-        |> Enum.reject(&(&1 == "lib/football_market/statistics/ingestion.ex"))
+        |> Enum.reject(
+          &(&1 in [
+              "lib/football_market/statistics/ingestion.ex",
+              "lib/football_market/statistics/freshness.ex"
+            ])
+        )
     ]
 
-    assert length(files) == 8
+    assert length(files) == 4
 
     for path <- files do
       source = File.read!(path)

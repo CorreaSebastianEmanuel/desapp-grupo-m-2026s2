@@ -3,7 +3,7 @@ defmodule FootballMarket.Market.ConcurrencyTest do
   @moduletag :integration
   import FootballMarket.MarketCase
   alias FootballMarket.{Repo, Market}
-  alias FootballMarket.Market.Store
+  alias FootballMarket.Market.Initialization, as: Store
 
   setup do
     ns = private_schema()

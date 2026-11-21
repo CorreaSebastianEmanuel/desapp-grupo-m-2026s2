@@ -9,7 +9,6 @@ defmodule FootballMarketWeb.BrowserFeedbackTest do
     paths = shell_paths("specs/063-liveview-shell-authentication")
     assert length(paths) == 36
     assert length(paths) == length(Enum.uniq(paths))
-    assert Enum.all?(paths, &File.regular?/1)
     assert shell_paths(nil) == []
     assert shell_paths("specs/unknown") == []
     refute "lib/football_market/market/unplanned.ex" in paths

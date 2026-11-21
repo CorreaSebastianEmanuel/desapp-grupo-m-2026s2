@@ -1,5 +1,5 @@
 defmodule FootballMarket.Market.Settlement do
-  @moduledoc "Exact credit settlement primitives shared by purchases and sales."
+  @moduledoc "Exact credit settlement and transaction primitives shared across Market."
   import Ecto.Changeset
   alias FootballMarket.Repo
   alias FootballMarket.Market.{CreditBalance, Error}
@@ -59,4 +59,31 @@ defmodule FootballMarket.Market.Settlement do
   end
 
   def reject(kind), do: Repo.rollback(%Error{kind: kind, reason: kind})
+
+  def cast_uuid(value) when is_binary(value) and byte_size(value) == 36,
+    do: Ecto.UUID.cast(value)
+
+  def cast_uuid(_), do: :error
+
+  def clock do
+    [[now]] = Repo.query!("SELECT clock_timestamp() AT TIME ZONE 'UTC'").rows
+    DateTime.from_naive!(now, "Etc/UTC")
+  end
+
+  def isolation! do
+    if Repo.query!("SHOW transaction_isolation").rows != [["read committed"]],
+      do: reject(:invalid_request)
+  end
+
+  def safely(fun, failure_kind \\ :temporarily_unavailable) do
+    fun.()
+  rescue
+    _ in [
+      Postgrex.Error,
+      DBConnection.ConnectionError,
+      Ecto.ConstraintError,
+      Ecto.InvalidChangesetError
+    ] ->
+      Error.new(failure_kind, :storage_rejected)
+  end
 end

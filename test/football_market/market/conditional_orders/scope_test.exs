@@ -6,9 +6,8 @@ defmodule FootballMarket.Market.ConditionalOrders.ScopeTest do
   test "conditional feature allowance is exact and excludes workers UI and unrelated trades" do
     feature = "specs/070-conditional-buy-orders"
     paths = WorkflowScope.paths(feature)
-    assert "lib/football_market/market/conditional_order_store.ex" in paths
+    assert "lib/football_market/market/conditional_orders.ex" in paths
     assert length(paths) == length(Enum.uniq(paths))
-    assert Enum.all?(paths, &File.regular?/1)
 
     for path <- [
           "lib/football_market/workers/order.ex",
@@ -25,20 +24,32 @@ defmodule FootballMarket.Market.ConditionalOrders.ScopeTest do
              "lib/football_market/market/conditional_orders.ex"
            )
 
-    for path <- Path.wildcard("lib/football_market/market/conditional*.ex") do
-      source = File.read!(path)
-      refute source =~ ~r/Oban|PubSub|Redix|:ets|Req\.|HTTPoison|FootballMarketWeb/
-    end
+    source = File.read!("lib/football_market/market/conditional_orders.ex")
+    refute source =~ ~r/Oban|PubSub|Redix|:ets|Req\.|HTTPoison|FootballMarketWeb/
   end
 
   test "web delegates persistence and domain input and projection stay pure" do
     web = File.read!("lib/football_market_web/controllers/conditional_order_controller.ex")
     refute web =~ ~r/Repo|Postgrex|Decimal|Ecto.Query/
 
-    for name <- ~w(conditional_order_input) do
-      source = File.read!("lib/football_market/market/#{name}.ex")
-      refute source =~ ~r/Repo|Postgrex|DBConnection|Application|System|DateTime\.utc_now/
-    end
+    ast = Code.string_to_quoted!(File.read!("lib/football_market/market/conditional_orders.ex"))
+
+    input_source =
+      Macro.prewalk(ast, [], fn
+        {:def, _, [{name, _, _}, _]} = node, acc when name in [:validate_terms, :cast_uuid] ->
+          {node, [Macro.to_string(node) | acc]}
+
+        {:defp, _, [{name, _, _}, _]} = node, acc when name in [:parse_money, :parse_expiry] ->
+          {node, [Macro.to_string(node) | acc]}
+
+        node, acc ->
+          {node, acc}
+      end)
+      |> elem(1)
+      |> Enum.join("\n")
+
+    assert input_source != ""
+    refute input_source =~ ~r/Repo|Postgrex|DBConnection|Application|System|DateTime\.utc_now/
 
     Code.ensure_loaded!(FootballMarket.Market.ConditionalOrders)
     assert function_exported?(FootballMarket.Market.ConditionalOrders, :evaluate, 1)

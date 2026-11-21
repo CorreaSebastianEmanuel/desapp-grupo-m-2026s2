@@ -101,7 +101,7 @@ defmodule FootballMarketWeb.ConditionalOrdersLiveTest do
     refute render(view) =~ other_order.id
 
     order = C.order!(f, %{maximum_unit_price: "0.01"})
-    :ok = FootballMarket.Market.OrderNotifications.changed(order.id)
+    :ok = FootballMarket.Market.OrderEvaluation.notify_changed(order.id)
     assert has_element?(view, "#conditional-order-#{order.id}", "Pendiente")
 
     assert {:ok, cancelled} = ConditionalOrders.cancel(C.actor(f.buyer), order.id)
@@ -148,7 +148,7 @@ defmodule FootballMarketWeb.ConditionalOrdersLiveTest do
 
     assert has_element?(view, "#conditional-order-#{order.id}", "Pendiente")
     Process.sleep(1_100)
-    :ok = FootballMarket.Market.OrderNotifications.changed(order.id)
+    :ok = FootballMarket.Market.OrderEvaluation.notify_changed(order.id)
     assert has_element?(view, "#conditional-order-#{order.id} .expiry-reached")
     refute has_element?(view, "#conditional-order-#{order.id} button")
 

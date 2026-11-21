@@ -43,14 +43,12 @@ defmodule FootballMarket.Market.OrderEvaluation.ScopeTest do
 
     assert before == FootballMarket.ConditionalOrdersCase.snapshot()
 
-    for path <- ~w(order_evaluation order_evaluation_store order_notifications) do
-      refute File.read!("lib/football_market/market/#{path}.ex") =~ "Redix"
-    end
+    refute File.read!("lib/football_market/market/order_evaluation.ex") =~ "Redix"
   end
 
   test "scheduler members enforce active generation, unique order and positive positions", f do
     order = OrderEvaluationCase.order!(f, %{maximum_unit_price: "0.01"})
-    assert {:ok, _} = FootballMarket.Market.OrderEvaluationStore.request_pass()
+    assert {:ok, _} = FootballMarket.Market.OrderEvaluation.request_pass()
 
     [generation, ordinal, order_id, captured] =
       hd(

@@ -19,7 +19,7 @@ defmodule FootballMarket.Providers.ScrapingSafetyTest do
     expected = [
       "lib/football_market/providers/scraping.ex"
       | Enum.map(
-          ~w(admission assessment budget disabled_transport document fixture_transport http_transport player_profile source translator transport),
+          ~w(assessment budget document http_transport player_profile source translator transport),
           &"lib/football_market/providers/scraping/#{&1}.ex"
         )
     ]

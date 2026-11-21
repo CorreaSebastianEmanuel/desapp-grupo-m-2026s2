@@ -2,7 +2,8 @@ defmodule FootballMarket.Observability.JobLoggerTest do
   use ExUnit.Case, async: false
   @moduletag :unit
   import ExUnit.CaptureLog
-  alias FootballMarket.Observability.{Context, JSONFormatter}
+  alias FootballMarket.Observability, as: Context
+  alias FootballMarket.Observability.JSONFormatter
 
   setup do
     previous = Logger.metadata()
@@ -97,7 +98,7 @@ defmodule FootballMarket.Observability.JobLoggerTest do
 
     assert Enum.count(
              :telemetry.list_handlers([:oban, :job, :start]),
-             &(&1.id == {FootballMarket.Observability, FootballMarket.Observability.JobLogger})
+             &(&1.id == {FootballMarket.Observability, FootballMarket.Observability})
            ) == 1
 
     legacy = %{job() | meta: %{}}
@@ -127,7 +128,7 @@ defmodule FootballMarket.Observability.JobLoggerTest do
           state: :success
         })
 
-        FootballMarket.Observability.JobLogger.handle_event(
+        FootballMarket.Observability.handle_event(
           [:oban, :job, :stop],
           :invalid,
           %{job: malformed},
@@ -141,7 +142,7 @@ defmodule FootballMarket.Observability.JobLoggerTest do
 
     assert Enum.any?(
              :telemetry.list_handlers([:oban, :job, :stop]),
-             &(&1.id == {FootballMarket.Observability, FootballMarket.Observability.JobLogger})
+             &(&1.id == {FootballMarket.Observability, FootballMarket.Observability})
            )
   end
 

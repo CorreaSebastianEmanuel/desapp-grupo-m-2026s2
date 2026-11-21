@@ -71,7 +71,7 @@ defmodule FootballMarketWeb.SaleControllerTest do
   end
 
   test "web adapter delegates all financial persistence and OpenAPI matches contract" do
-    source = File.read!("lib/football_market_web/controllers/sale_controller.ex")
+    source = File.read!("lib/football_market_web/controllers/market_controllers.ex")
     refute source =~ "Repo"
     refute source =~ "Decimal"
     api = File.read!("priv/static/openapi.json") |> Jason.decode!()

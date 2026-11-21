@@ -3,6 +3,7 @@ defmodule FootballMarketWeb.Plugs.BrowserAuth do
   import Plug.Conn
   import Phoenix.Controller
   alias FootballMarket.Accounts.BrowserSessions
+
   def init(options), do: options
 
   def destination(path) when path in ["/portfolio", "/conditional-orders", "/administration"],
@@ -28,8 +29,6 @@ defmodule FootballMarketWeb.Plugs.BrowserAuth do
         |> halt()
 
       {:error, _reason} ->
-        # Expired transport may already have been removed by the browser. Use the
-        # same recovery notice for missing/invalid authority without retaining it.
         conn
         |> put_status(303)
         |> redirect(
@@ -58,4 +57,65 @@ defmodule FootballMarketWeb.Plugs.BrowserAuth do
   end
 
   def live_session(conn), do: %{"actor" => conn.assigns.browser_actor}
+end
+
+defmodule FootballMarketWeb.Plugs.BrowserCookie do
+  @moduledoc "Caps cookie retention at the immutable server deadline after session encoding."
+  import Plug.Conn
+  alias FootballMarket.Accounts.BrowserSessions
+
+  def init(options), do: options
+
+  def call(conn, _) do
+    register_before_send(conn, fn conn ->
+      with %{value: _} = cookie <- conn.resp_cookies["_football_market_key"],
+           {:ok, actor} <- BrowserSessions.validate(get_session(conn, :browser_handle)) do
+        remaining = DateTime.diff(actor.expires_at, BrowserSessions.now(), :microsecond)
+        seconds = max(div(remaining + 999_999, 1_000_000), 0)
+
+        %{
+          conn
+          | resp_cookies:
+              Map.put(
+                conn.resp_cookies,
+                "_football_market_key",
+                Map.put(cookie, :max_age, seconds)
+              )
+        }
+      else
+        _ -> conn
+      end
+    end)
+  end
+end
+
+defmodule FootballMarketWeb.Plugs.BrowserOrigin do
+  @moduledoc "Reject cross-origin browser mutations in addition to CSRF protection."
+  import Plug.Conn
+
+  def init(options), do: options
+
+  def call(conn, _) when conn.method in ["POST", "PUT", "PATCH", "DELETE"] do
+    expected =
+      URI.to_string(%URI{scheme: Atom.to_string(conn.scheme), host: conn.host, port: conn.port})
+
+    case get_req_header(conn, "origin") do
+      [] ->
+        conn
+
+      [^expected] ->
+        conn
+
+      _ ->
+        conn
+        |> put_resp_content_type("text/html")
+        |> send_resp(
+          403,
+          ~s(<main><h1>Acceso denegado</h1><p role="alert">No se pudo aceptar esta solicitud.</p><a href="/sign-in">Iniciar sesión</a></main>)
+        )
+        |> halt()
+    end
+  end
+
+  def call(conn, _), do: conn
 end

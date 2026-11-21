@@ -2,7 +2,7 @@ defmodule FootballMarketWeb.Workspace.Players do
   @moduledoc false
   import Phoenix.Component, only: [assign: 2]
   import Phoenix.LiveView, only: [push_patch: 2]
-  import FootballMarketWeb.Workspace.Session
+  import FootballMarketWeb.Workspace.Helpers
   alias FootballMarket.{Catalog, Quotes}
   alias FootballMarketWeb.Workspace.Portfolio
 

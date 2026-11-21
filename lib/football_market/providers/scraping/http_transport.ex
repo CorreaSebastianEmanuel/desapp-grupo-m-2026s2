@@ -1,7 +1,7 @@
 defmodule FootballMarket.Providers.Scraping.HttpTransport do
   @moduledoc "Assessed HTTPS document transport with bounded streaming and no retries."
   @behaviour FootballMarket.Providers.Scraping.Transport
-  alias FootballMarket.Providers.Scraping.{Admission, Assessment, Budget}
+  alias FootballMarket.Providers.Scraping.{Assessment, Budget}
 
   @max_document_bytes 2_000_000
 
@@ -81,7 +81,7 @@ defmodule FootballMarket.Providers.Scraping.HttpTransport do
           else: {:ok, state.admission}
 
       true ->
-        {:ok, Admission.table()}
+        {:ok, Budget.table()}
     end
   rescue
     _ -> {:error, %{category: :rate_limited}}

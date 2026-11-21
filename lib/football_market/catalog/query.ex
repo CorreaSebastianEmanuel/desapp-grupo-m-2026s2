@@ -1,9 +1,15 @@
 defmodule FootballMarket.Catalog.Query do
-  @moduledoc false
+  @moduledoc """
+  Composable Ecto queries for local catalog entities and batched player profile cards.
+  """
+
   import Ecto.Query
 
+  alias FootballMarket.Catalog.Ingestion.SourceBinding
   alias FootballMarket.Catalog.{League, Player, Position, Season, Team}
-  alias FootballMarket.Statistics.{Performance, Ingestion.ScopeCheck}
+  alias FootballMarket.Providers.Media
+  alias FootballMarket.Repo
+  alias FootballMarket.Statistics.{Ingestion.ScopeCheck, Performance}
   alias FootballMarket.Synchronization.Run
 
   @player_filters [:league_id, :season_id, :team_id, :position_id, :search_name]
@@ -145,5 +151,47 @@ defmodule FootballMarket.Catalog.Query do
     from([player, _team, _season, _league, _position] in query,
       where: ilike(player.display_name, ^pattern)
     )
+  end
+
+  # --- Batched Player Profiles ---
+
+  @doc "Loads public identities and optional imagery for a batch of local player IDs."
+  def get_profiles([]), do: %{}
+
+  def get_profiles(ids) do
+    players =
+      Repo.all(
+        from p in Player,
+          where: p.id in ^Enum.uniq(ids),
+          preload: [:position, team: [season: :league]]
+      )
+
+    team_ids = Enum.map(players, fn player -> player.team_id end)
+
+    bindings =
+      Repo.all(
+        from b in SourceBinding,
+          where: b.player_id in ^ids or b.team_id in ^team_ids,
+          order_by: [asc: b.provider, asc: b.source_id]
+      )
+
+    Map.new(players, fn player ->
+      {player.id,
+       %{
+         name: player.display_name,
+         team: player.team.name,
+         league: player.team.season.league.name,
+         position: player.position.code,
+         photo: profile_image(bindings, :player_id, player.id, "player"),
+         crest: profile_image(bindings, :team_id, player.team_id, "team")
+       }}
+    end)
+  end
+
+  defp profile_image(bindings, field, id, kind) do
+    Enum.find_value(bindings, fn binding ->
+      if Map.get(binding, field) == id and binding.kind == kind,
+        do: Media.url(binding.provider, kind, binding.source_id)
+    end)
   end
 end

@@ -14,8 +14,7 @@ ebin = Path.join(root, "_build/test/lib/jason/ebin")
 true = Code.prepend_path(ebin)
 {:module, Jason} = Code.ensure_loaded(Jason)
 
-for file <-
-      ~w(types instant error provenance request adapter catalog performances validator runtime runner),
+for file <- ~w(types contract request catalog performances validator runtime player_identity),
     do: Code.require_file("lib/football_market/providers/#{file}.ex", root)
 
 Code.require_file("lib/football_market/providers.ex", root)

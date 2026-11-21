@@ -5,14 +5,13 @@ defmodule FootballMarket.Market.OrderEvaluation.RetryTest do
   alias FootballMarket.PurchasesCase
   alias FootballMarket.Repo
   alias FootballMarket.Market.OrderEvaluation
-  alias FootballMarket.Market.OrderEvaluationStore
   alias FootballMarket.Workers.ConditionalOrderEvaluation
 
   setup do: OrderEvaluationCase.fixture()
 
   test "financial failure rolls back cursor and every effect; exhaustion stays recoverable", f do
     order = OrderEvaluationCase.order!(f)
-    assert {:ok, _} = OrderEvaluationStore.request_pass()
+    assert {:ok, _} = OrderEvaluation.request_pass()
     before = PurchasesCase.snapshot()
     OrderEvaluationCase.fail_purchase!()
 

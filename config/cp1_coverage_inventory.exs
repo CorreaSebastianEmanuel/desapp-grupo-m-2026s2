@@ -7,12 +7,12 @@
     rationale: "CP1 account facade"
   },
   %{
-    path: "lib/football_market/accounts/api_key.ex",
+    path: "lib/football_market/accounts/schemas.ex",
     module: FootballMarket.Accounts.ApiKey,
     rationale: "API-key value and verification"
   },
   %{
-    path: "lib/football_market/accounts/authenticated_actor.ex",
+    path: "lib/football_market/accounts/schemas.ex",
     module: FootballMarket.Accounts.AuthenticatedActor,
     rationale: "authenticated actor projection"
   },
@@ -22,12 +22,12 @@
     rationale: "credential and JWT authentication"
   },
   %{
-    path: "lib/football_market/accounts/password_credential.ex",
+    path: "lib/football_market/accounts/schemas.ex",
     module: FootballMarket.Accounts.PasswordCredential,
     rationale: "password credential verification"
   },
   %{
-    path: "lib/football_market/accounts/user.ex",
+    path: "lib/football_market/accounts/schemas.ex",
     module: FootballMarket.Accounts.User,
     rationale: "account persistence schema"
   },
@@ -37,12 +37,12 @@
     rationale: "catalog facade"
   },
   %{
-    path: "lib/football_market/catalog/league.ex",
+    path: "lib/football_market/catalog/schemas.ex",
     module: FootballMarket.Catalog.League,
     rationale: "league identity"
   },
   %{
-    path: "lib/football_market/catalog/player.ex",
+    path: "lib/football_market/catalog/schemas.ex",
     module: FootballMarket.Catalog.Player,
     rationale: "player persistence schema"
   },
@@ -52,7 +52,7 @@
     rationale: "catalog cursor behavior"
   },
   %{
-    path: "lib/football_market/catalog/position.ex",
+    path: "lib/football_market/catalog/schemas.ex",
     module: FootballMarket.Catalog.Position,
     rationale: "position identity"
   },
@@ -62,22 +62,22 @@
     rationale: "catalog filtering"
   },
   %{
-    path: "lib/football_market/catalog/season.ex",
+    path: "lib/football_market/catalog/schemas.ex",
     module: FootballMarket.Catalog.Season,
     rationale: "season identity"
   },
   %{
-    path: "lib/football_market/catalog/team.ex",
+    path: "lib/football_market/catalog/schemas.ex",
     module: FootballMarket.Catalog.Team,
     rationale: "team identity"
   },
   %{
-    path: "lib/football_market_web/controllers/api_docs_controller.ex",
+    path: "lib/football_market_web/controllers/pages.ex",
     module: FootballMarketWeb.ApiDocsController,
     rationale: "published API document edge"
   },
   %{
-    path: "lib/football_market_web/controllers/api_docs_html.ex",
+    path: "lib/football_market_web/controllers/pages.ex",
     module: FootballMarketWeb.ApiDocsHTML,
     rationale: "published interactive documentation"
   },
@@ -87,7 +87,7 @@
     rationale: "protected catalog HTTP edge"
   },
   %{
-    path: "lib/football_market_web/controllers/player_json.ex",
+    path: "lib/football_market_web/controllers/api_json.ex",
     module: FootballMarketWeb.PlayerJSON,
     rationale: "catalog response contract"
   },

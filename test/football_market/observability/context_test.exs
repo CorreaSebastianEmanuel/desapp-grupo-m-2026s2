@@ -1,7 +1,7 @@
 defmodule FootballMarket.Observability.ContextTest do
   use ExUnit.Case, async: false
   @moduletag :unit
-  alias FootballMarket.Observability.Context
+  alias FootballMarket.Observability, as: Context
 
   setup do
     previous = Logger.metadata()

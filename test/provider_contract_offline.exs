@@ -3,16 +3,12 @@ root = Path.expand("..", __DIR__)
 
 files = [
   "types",
-  "instant",
-  "error",
-  "provenance",
+  "contract",
   "request",
-  "adapter",
   "catalog",
   "performances",
   "validator",
-  "runtime",
-  "runner"
+  "runtime"
 ]
 
 for file <- files, do: Code.require_file("lib/football_market/providers/#{file}.ex", root)

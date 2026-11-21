@@ -24,39 +24,44 @@ CP2 now includes user portfolio charts and an additional product feature: condit
 
 See [the search workflow](PLAYER_SEARCH_WORKFLOW.md), [ADR-0016](adr/0016-local-search-and-background-refresh.md), [CP2 architecture and workflow](CP2_ARCHITECTURE.md) and [ADR-0017](adr/0017-cp2-charts-and-conditional-orders.md). These documents define target scope, not completed implementation.
 
-## Responsibility and directory map (TASK-090)
+## Responsibility and directory map
+
+See [the Codebase Guide](CODEBASE_GUIDE.md) for a newcomer-friendly Elixir/Phoenix glossary and feature lookup table.
 
 The modular monolith keeps context APIs at `lib/football_market/<context>.ex` and
-implementation under the matching context directory. Accounts owns identities and
-sessions; Catalog owns local catalog/search/ingestion; Market owns issuance,
-settlement, orders and portfolio; Quotes owns quote admission/confirmation/history;
-Valuation owns pure scoring, evidence replay and versioned configuration;
-Statistics owns immutable facts and freshness; Synchronization owns durable import
-execution. Providers owns external documents and translation, Infrastructure owns
-operational adapters, and Observability owns correlation and logging.
+1-file-per-module implementations under each context directory, grouping related
+Ecto schemas into `<context>/schemas.ex`:
 
-- `quotes/{admission,import_requests,engine,replay}.ex` separate explicit input,
-  leased execution, atomic confirmation and historical reproduction. `store.ex`
-  supplies player/lease locks and clocks; `reader.ex` supplies inspections;
-  `recovery.ex` owns event delivery. Dependencies point from the facade to these
-  owners, never back from an implementation to the facade.
-- `catalog/ingestion/records.ex` and
-  `statistics/ingestion/{records,observations}.ex` participate in publisher-owned
-  transactions. Publishers retain receipt/scope/season locks and acceptance;
-  participants neither commit independently nor call providers.
-- `providers/scraping/player_profile.ex` interprets player documents;
-  `source.ex` orchestrates assessed acquisition/completeness; `document.ex` checks
-  each portion and deadline, `budget.ex` supplies shared lease accounting and
-  `http_transport.ex` owns HTTPS allowlisting/bounded streaming.
-- `synchronization/execution.ex` owns shared import execution. Oban adapters stay
-  under `workers/`, with one file per worker and unchanged persisted worker names.
-  Ecto schemas live under their owning namespace; related pure DTO families may
-  share `types.ex`.
-- `football_market_web/live/workspace/` owns destination loading/events and HEEx
-  pages. WorkspaceLive owns callbacks, navigation and subscriptions; web projection
-  stays here. LocalAdminLive calls `Infrastructure.LocalOperations` for operational
-  IO and a web projection for labels. Controllers/plugs/components retain their
-  framework roles; no web module queries Repo or starts Redis clients.
+- `accounts/`: `schemas.ex`, `authentication.ex`, `browser_sessions.ex`.
+- `catalog/`: `schemas.ex`, `query.ex` (including batched profiles), `player_cursor.ex`,
+  `scouting.ex`, `development_seed.ex`, `development_seed_manifest.ex`, and
+  `ingestion/{schemas,canonical,reconciler,publisher,records}.ex`.
+- `market/`: `schemas.ex`, `settlement.ex`, `initialization.ex`, `trading.ex` (unified
+  purchase/sale execution), `portfolio.ex` (positions, credit balance, initial inventory),
+  `transaction_history.ex`, `analytics.ex`, `conditional_orders.ex`, `order_evaluation.ex`.
+- `quotes/`: `schemas.ex`, `mappings.ex` (including cent conversion), `evidence_codec.ex`,
+  `store.ex`, `reader.ex` (including replay), `admission.ex`, `import_requests.ex`,
+  `engine.ex`, `closing.ex`, `recovery.ex`, `membership.ex`.
+- `valuation/`: `schemas.ex`, `types.ex`, `request.ex`, `preparation.ex`,
+  `statistics_reader.ex`, `evidence.ex`, `decimal_math.ex`, `scoring.ex` (including replay),
+  `balanced.ex`, `position_aware.ex`, `managed.ex`, `calculation_requests.ex`,
+  `configurations.ex` (pure registry/rules/codec/presets), `configuration_store.ex`
+  (sole Repo boundary for configs).
+- `statistics/`: `schemas.ex`, `input.ex`, `query.ex`, `freshness.ex`, `ingestion.ex`,
+  and `ingestion/{schemas,canonical,provenance,fotmob_binding,observations,publisher,records}.ex`.
+- `synchronization/`: `schemas.ex`, `input.ex`, `policy.ex`, `clock.ex`, `store.ex`,
+  `scheduler.ex`, `dispatcher.ex`, `execution.ex`, `runtime.ex` (`ExecutionGuard` & `Recovery`).
+- `providers/`: `contract.ex`, `types.ex`, `request.ex`, `validator.ex`,
+  `catalog.ex`, `performances.ex`, `runtime.ex` (deadline runner), `player_identity.ex`
+  (with `TeamIdentity`), `football_data_org.ex`, `scraping.ex`, and
+  `scraping/{transport,budget,assessment,document,source,translator,player_profile,http_transport}.ex`.
+- `ranking.ex`, `observability.ex`, `infrastructure/{configuration,adapters,local_operations}.ex`,
+  and `workers/{sync_workers,quote_workers,order_workers}.ex` (unchanged persisted
+  `FootballMarket.Workers.*` module identities).
+- `football_market_web/`: `controllers/{api_json,market_controllers,pages,player_controller,conditional_order_controller,session_controller}.ex`,
+  `plugs/{authenticate_api,browser_auth}.ex`, `live/{browser_auth,administration_live,local_admin_live,workspace_live}.ex`,
+  `live/workspace/{helpers,orders,players,portfolio,trading}.ex` + `pages/*.html.heex`,
+  and `components/{core_components,layouts,portfolio_components,workspace_components}.ex`.
 - `test/football_market/` and `test/football_market_web/` mirror owners;
   `test/support/` contains shared fixtures/runtime support; `test/scripts/` and
   `tests/` preserve harness/checkpoint contracts. `scripts/`, `tools/openapi/`,

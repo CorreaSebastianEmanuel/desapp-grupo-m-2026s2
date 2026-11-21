@@ -3,16 +3,7 @@ defmodule FootballMarketWeb.WorkspaceLive do
   use FootballMarketWeb, :live_view
   alias FootballMarket.Catalog
 
-  alias FootballMarketWeb.Workspace.{
-    Pages,
-    Players,
-    Trading,
-    Orders,
-    Portfolio,
-    Transactions,
-    Ranking,
-    Session
-  }
+  alias FootballMarketWeb.Workspace.{Helpers, Orders, Pages, Players, Portfolio, Trading}
 
   def mount(_, _, socket) do
     if connected?(socket) and socket.assigns.actor do
@@ -99,8 +90,8 @@ defmodule FootballMarketWeb.WorkspaceLive do
         portfolio_from: params["from"] || "",
         portfolio_to: params["to"] || ""
       )
-      |> Session.reload_credit_balance()
-      |> Session.reload_initial_recipient()
+      |> Helpers.reload_credit_balance()
+      |> Helpers.reload_initial_recipient()
 
     {:noreply,
      socket
@@ -121,7 +112,7 @@ defmodule FootballMarketWeb.WorkspaceLive do
         _ -> Enum.map(a.positions ++ a.issuer_inventory, & &1.player_id)
       end
 
-    assign(socket, :profiles, Catalog.Profiles.get_many(ids))
+    assign(socket, :profiles, Catalog.Query.get_profiles(ids))
   end
 
   defp load_destination(socket, "/conditional-orders", params),
@@ -132,7 +123,7 @@ defmodule FootballMarketWeb.WorkspaceLive do
       assign(socket,
         player_search: params["q"] || "",
         catalog_filters: Map.take(params, ["league_id", "team_id", "position_id"]),
-        catalog_page_size: Session.page_size(params["page_size"]),
+        catalog_page_size: Helpers.page_size(params["page_size"]),
         catalog_state_query: params |> Map.delete("player_id") |> URI.encode_query()
       )
 
@@ -142,9 +133,9 @@ defmodule FootballMarketWeb.WorkspaceLive do
   end
 
   defp load_destination(socket, "/transactions", params),
-    do: Transactions.load_transactions(socket, params)
+    do: Helpers.load_transactions(socket, params)
 
-  defp load_destination(socket, "/ranking", _params), do: Ranking.load_ranking(socket)
+  defp load_destination(socket, "/ranking", _params), do: Helpers.load_ranking(socket)
 
   defp load_destination(socket, _destination, _params),
     do:
@@ -156,7 +147,7 @@ defmodule FootballMarketWeb.WorkspaceLive do
   def handle_info({:conditional_order_changed, _id}, socket) do
     socket =
       socket
-      |> Session.reload_credit_balance()
+      |> Helpers.reload_credit_balance()
       |> Portfolio.reload_portfolio()
       |> Portfolio.reload_issuer_inventory()
       |> Portfolio.reload_charts()
@@ -202,7 +193,7 @@ defmodule FootballMarketWeb.WorkspaceLive do
     do:
       {:noreply,
        socket
-       |> Session.reload_credit_balance()
+       |> Helpers.reload_credit_balance()
        |> Portfolio.reload_portfolio()
        |> Portfolio.reload_issuer_inventory()
        |> Portfolio.reload_charts()}
@@ -277,7 +268,7 @@ defmodule FootballMarketWeb.WorkspaceLive do
     do: Players.handle_event("quote_date", params, socket)
 
   def handle_event("transaction_page_size", params, socket),
-    do: Transactions.handle_event("transaction_page_size", params, socket)
+    do: Helpers.handle_transaction_page_size(params, socket)
 
   def handle_event("select_player", params, socket),
     do: Orders.handle_event("select_player", params, socket)

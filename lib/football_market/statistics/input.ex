@@ -1,5 +1,5 @@
 defmodule FootballMarket.Statistics.Input do
-  @moduledoc false
+  @moduledoc "Input validation for match records, performances, UUIDs, and UTC timestamps."
   alias FootballMarket.Statistics.Error
 
   @metrics [

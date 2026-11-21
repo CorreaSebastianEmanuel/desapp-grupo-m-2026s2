@@ -2,7 +2,7 @@ defmodule FootballMarket.Quotes.ConversionTest do
   use ExUnit.Case, async: true
   @moduletag :unit
 
-  alias FootballMarket.Quotes.Conversion
+  alias FootballMarket.Quotes.Mappings, as: Conversion
 
   test "exact conversion rounds ties away and returns explicit no quote for zero cents" do
     assert {:ok, price} = Conversion.convert(Decimal.new("2"), Decimal.new("1.25"))

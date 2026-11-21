@@ -1,7 +1,7 @@
 defmodule FootballMarket.Statistics.Ingestion.PositionsTest do
   use ExUnit.Case, async: true
   @moduletag :unit
-  alias FootballMarket.Statistics.Ingestion.Positions
+  alias FootballMarket.Statistics.Ingestion.Canonical
 
   @kickoff ~U[2026-03-01 12:00:00Z]
   defp subject,
@@ -31,7 +31,7 @@ defmodule FootballMarket.Statistics.Ingestion.PositionsTest do
       prior("late", "m4", "forward", @kickoff)
     ]
 
-    assert {:ok, result} = Positions.derive(subject(), history)
+    assert {:ok, result} = Canonical.derive_position(subject(), history)
     assert result.position_id == "mid"
     assert result.frequencies == %{"mid" => 2, "forward" => 1}
     assert length(result.basis) == 3
@@ -43,14 +43,14 @@ defmodule FootballMarket.Statistics.Ingestion.PositionsTest do
       prior("b", "m2", "forward", ~U[2026-02-01 00:00:00Z])
     ]
 
-    assert {:ok, %{position_id: nil, reason: :tie}} = Positions.derive(subject(), tied)
+    assert {:ok, %{position_id: nil, reason: :tie}} = Canonical.derive_position(subject(), tied)
 
     later = prior("c", "m3", "forward", ~U[2026-03-02 00:00:00Z])
     equal = prior("same", "current", "forward", @kickoff)
     other_season = %{prior("d", "m4", "mid", ~U[2026-01-01 00:00:00Z]) | season_id: "other"}
 
     assert {:ok, %{position_id: nil, reason: :insufficient_history, basis: []}} =
-             Positions.derive(subject(), [later, equal, other_season])
+             Canonical.derive_position(subject(), [later, equal, other_season])
   end
 
   test "counts one vote per earlier match and excludes other players and proposed rows" do
@@ -63,7 +63,7 @@ defmodule FootballMarket.Statistics.Ingestion.PositionsTest do
               frequencies: %{"mid" => 1},
               basis: [%{performance_id: "a", position_id: "mid"}]
             }} =
-             Positions.derive(subject(), [
+             Canonical.derive_position(subject(), [
                prior("a", "m1", "mid", ~U[2026-01-01 00:00:00Z]),
                same_match,
                other_player

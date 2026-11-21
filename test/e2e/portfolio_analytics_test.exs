@@ -115,9 +115,8 @@ defmodule FootballMarket.E2E.PortfolioAnalyticsTest do
           players: %{f.player.id => f.player.display_name}
         }
 
-        projection = FootballMarket.Market.Analytics.Projection
-        allocation = projection.build(snapshot, :allocation)
-        history = projection.build(snapshot, :history)
+        allocation = FootballMarket.Market.Analytics.build_projection(snapshot, :allocation)
+        history = FootballMarket.Market.Analytics.build_projection(snapshot, :history)
 
         incomplete =
           Phoenix.LiveViewTest.render_component(

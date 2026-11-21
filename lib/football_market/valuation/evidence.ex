@@ -1,21 +1,25 @@
 defmodule FootballMarket.Valuation.Evidence do
-  @moduledoc false
-  alias FootballMarket.Valuation.{Descriptor, DecimalMath}
+  @moduledoc """
+  Canonicalization, struct-shape verification, and config normalization for
+  tamper-evident valuation descriptors and replays.
+  """
+
+  alias FootballMarket.Valuation.{DecimalMath, Descriptor}
 
   def attach(prepared) do
-    %{
-      prepared
-      | descriptor: %Descriptor{
-          request: prepared.request,
-          facts: prepared.facts,
-          scopes: prepared.scopes
-        }
+    descriptor = %Descriptor{
+      request: prepared.request,
+      facts: prepared.facts,
+      scopes: prepared.scopes
     }
+
+    %{prepared | descriptor: descriptor}
   end
 
-  def canonical(%Decimal{} = n) do
-    if DecimalMath.finite?(n) do
-      {numerator, denominator} = DecimalMath.ratio(n)
+  @doc "Converts any valuation term into an exact, order-independent canonical representation."
+  def canonical(%Decimal{} = decimal) do
+    if DecimalMath.finite?(decimal) do
+      {numerator, denominator} = DecimalMath.ratio(decimal)
       divisor = Integer.gcd(abs(numerator), denominator)
       {:decimal, div(numerator, divisor), div(denominator, divisor)}
     else
@@ -23,58 +27,81 @@ defmodule FootballMarket.Valuation.Evidence do
     end
   end
 
-  def canonical(%DateTime{} = dt) do
-    case FootballMarket.Statistics.Input.instant(dt, :instant) do
+  def canonical(%DateTime{} = datetime) do
+    case FootballMarket.Statistics.Input.instant(datetime, :instant) do
       {:ok, value} -> {:instant, DateTime.to_unix(value, :microsecond)}
       _ -> {:invalid_instant}
     end
   end
 
-  def canonical(v) when is_struct(v), do: {:struct, v.__struct__, canonical(Map.from_struct(v))}
+  def canonical(value) when is_struct(value),
+    do: {:struct, value.__struct__, canonical(Map.from_struct(value))}
 
-  def canonical(v) when is_map(v),
-    do: {:map, Enum.map(v, fn {k, x} -> {canonical(k), canonical(x)} end) |> Enum.sort()}
+  def canonical(value) when is_map(value) do
+    entries =
+      value
+      |> Enum.map(fn {key, entry} -> {canonical(key), canonical(entry)} end)
+      |> Enum.sort()
 
-  def canonical(v) when is_list(v) do
-    if proper_list?(v), do: {:list, Enum.map(v, &canonical/1)}, else: {:unsupported}
+    {:map, entries}
   end
 
-  def canonical(v) when is_integer(v), do: {:integer, v}
-  def canonical(v) when is_binary(v), do: {:string, v}
-  def canonical(v) when is_atom(v), do: {:atom, Atom.to_string(v)}
+  def canonical(value) when is_list(value) do
+    if proper_list?(value), do: {:list, Enum.map(value, &canonical/1)}, else: {:unsupported}
+  end
+
+  def canonical(value) when is_integer(value), do: {:integer, value}
+  def canonical(value) when is_binary(value), do: {:string, value}
+  def canonical(value) when is_atom(value), do: {:atom, Atom.to_string(value)}
   def canonical(_), do: {:unsupported}
 
-  def shape?(value, module),
-    do:
-      is_struct(value, module) and
-        Enum.sort(Map.keys(value)) == Enum.sort(Map.keys(module.__struct__()))
-
-  def normalize_config(%Decimal{coef: c, exp: e} = d) do
-    {c, e} = reduce_decimal(c, e)
-    %{d | coef: c, exp: e, sign: if(c == 0, do: 1, else: d.sign)}
+  def shape?(value, module) do
+    is_struct(value, module) and
+      Enum.sort(Map.keys(value)) == Enum.sort(Map.keys(module.__struct__()))
   end
 
-  def normalize_config(v) when is_map(v) and not is_struct(v),
-    do: Map.new(v, fn {k, x} -> {k, normalize_config(x)} end)
+  def normalize_config(%Decimal{coef: coef, exp: exp} = decimal) do
+    {reduced_coef, reduced_exp} = reduce_decimal(coef, exp)
 
-  def normalize_config(v) when is_list(v) do
-    if proper_list?(v), do: Enum.map(v, &normalize_config/1), else: v
+    %{
+      decimal
+      | coef: reduced_coef,
+        exp: reduced_exp,
+        sign: if(reduced_coef == 0, do: 1, else: decimal.sign)
+    }
   end
 
-  def normalize_config(v), do: v
-  defp reduce_decimal(0, _), do: {0, 0}
-  defp reduce_decimal(c, e) when rem(c, 10) == 0, do: reduce_decimal(div(c, 10), e + 1)
-  defp reduce_decimal(c, e), do: {c, e}
-  def valid_config?(%Decimal{} = v), do: DecimalMath.finite?(v)
+  def normalize_config(value) when is_map(value) and not is_struct(value),
+    do: Map.new(value, fn {key, entry} -> {key, normalize_config(entry)} end)
 
-  def valid_config?(v) when is_map(v) and not is_struct(v),
-    do: Enum.all?(v, fn {k, x} -> (is_atom(k) or is_binary(k)) and valid_config?(x) end)
+  def normalize_config(value) when is_list(value) do
+    if proper_list?(value), do: Enum.map(value, &normalize_config/1), else: value
+  end
 
-  def valid_config?(v) when is_list(v), do: proper_list?(v) and Enum.all?(v, &valid_config?/1)
-  def valid_config?(v), do: is_integer(v) or is_binary(v) or is_atom(v)
+  def normalize_config(value), do: value
 
-  # is_list/1 also accepts improper cons cells; check tails before Enumerable traversal.
+  def valid_config?(%Decimal{} = value), do: DecimalMath.finite?(value)
+
+  def valid_config?(value) when is_map(value) and not is_struct(value) do
+    Enum.all?(value, fn {key, entry} ->
+      (is_atom(key) or is_binary(key)) and valid_config?(entry)
+    end)
+  end
+
+  def valid_config?(value) when is_list(value),
+    do: proper_list?(value) and Enum.all?(value, &valid_config?/1)
+
+  def valid_config?(value), do: is_integer(value) or is_binary(value) or is_atom(value)
+
+  # `is_list/1` accepts improper cons cells (`[a | b]`), so verify the list tail first.
   def proper_list?([]), do: true
-  def proper_list?([_ | tail]), do: proper_list?(tail)
+  def proper_list?([_head | tail]), do: proper_list?(tail)
   def proper_list?(_), do: false
+
+  defp reduce_decimal(0, _exp), do: {0, 0}
+
+  defp reduce_decimal(coef, exp) when rem(coef, 10) == 0,
+    do: reduce_decimal(div(coef, 10), exp + 1)
+
+  defp reduce_decimal(coef, exp), do: {coef, exp}
 end

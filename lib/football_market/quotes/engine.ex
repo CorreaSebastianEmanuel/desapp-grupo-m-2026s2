@@ -4,7 +4,7 @@ defmodule FootballMarket.Quotes.Engine do
   alias FootballMarket.{Repo, Valuation}
   alias FootballMarket.Quotes.{Mappings, Store}
 
-  alias FootballMarket.Quotes.{Calculation, Result}
+  alias FootballMarket.Quotes.{Calculation, EvidenceCodec}
 
   def request_membership(
         subject_week,
@@ -46,7 +46,7 @@ defmodule FootballMarket.Quotes.Engine do
       ) do
     case Valuation.evaluate_managed_membership(subject, selector, facts) do
       {:ok, managed} ->
-        with {:ok, result} <- Result.outcome(managed.score, mapping.scale),
+        with {:ok, result} <- EvidenceCodec.outcome(managed.score, mapping.scale),
              do:
                persist(
                  subject,
@@ -61,7 +61,7 @@ defmodule FootballMarket.Quotes.Engine do
 
       {:error, %Valuation.Error{} = error} ->
         with {:ok, configuration_id} <- configuration_id(selector),
-             {:ok, status, reason} <- Result.safe_failure(error) do
+             {:ok, status, reason} <- EvidenceCodec.safe_failure(error) do
           persist_no_score(subject, player, %{
             configuration_id: configuration_id,
             mapping: mapping,

@@ -1,12 +1,14 @@
 defmodule FootballMarket.Valuation.WeekTest do
   use ExUnit.Case, async: true
   @moduletag :unit
-  alias FootballMarket.Valuation.Week
+  alias FootballMarket.Valuation.Request
 
   test "explicit UTC half-open weeks and equivalent offsets at microsecond precision" do
-    assert {:ok, {a, b}} = Week.validate("2026-10-04T21:00:00-03:00", "2026-10-11T21:00:00-03:00")
-    assert {:ok, {^a, ^b}} = Week.validate("2026-10-05T00:00:00Z", "2026-10-12T00:00:00Z")
-    assert {:ok, _} = Week.validate("2025-12-29T00:00:00Z", "2026-01-05T00:00:00Z")
+    assert {:ok, {a, b}} =
+             Request.validate_week("2026-10-04T21:00:00-03:00", "2026-10-11T21:00:00-03:00")
+
+    assert {:ok, {^a, ^b}} = Request.validate_week("2026-10-05T00:00:00Z", "2026-10-12T00:00:00Z")
+    assert {:ok, _} = Request.validate_week("2025-12-29T00:00:00Z", "2026-01-05T00:00:00Z")
 
     for {s, e} <- [
           {nil, nil},
@@ -19,7 +21,7 @@ defmodule FootballMarket.Valuation.WeekTest do
           {"2026-10-12T00:00:00Z", "2026-10-05T00:00:00Z"},
           {"2026-10-05T00:00:00Z", "2026-10-19T00:00:00Z"}
         ] do
-      assert {:error, %{kind: :validation}} = Week.validate(s, e)
+      assert {:error, %{kind: :validation}} = Request.validate_week(s, e)
     end
   end
 end

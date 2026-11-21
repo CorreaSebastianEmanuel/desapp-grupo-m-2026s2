@@ -25,14 +25,12 @@ defmodule FootballMarket.Synchronization.ScopeTest do
       refute "config/config.exs" in paths
       refute "lib/football_market/market/store.ex" in paths
       assert length(paths) == length(Enum.uniq(paths))
-      assert Enum.all?(paths, &File.regular?/1)
     end
   end
 
   test "synchronization production has no financial/statistics/cache/web boundary" do
     files = [
-      "lib/football_market/synchronization.ex",
-      "lib/football_market/workers/catalog_sync.ex"
+      "lib/football_market/synchronization.ex"
       | Path.wildcard("lib/football_market/synchronization/*.ex")
     ]
 
@@ -101,11 +99,11 @@ defmodule FootballMarket.Synchronization.ScopeTest do
     assert File.read!("lib/football_market/synchronization/execution.ex") =~
              "Ingestion.import_catalog"
 
-    for worker <- ["catalog_sync", "statistics_import"] do
-      source = File.read!("lib/football_market/workers/#{worker}.ex")
-      assert source =~ "FootballMarket.Synchronization.Execution.perform(job)"
-      assert source =~ "FootballMarket.Synchronization.Execution.timeout(job)"
-    end
+    sync_workers = File.read!("lib/football_market/workers/sync_workers.ex")
+    assert sync_workers =~ "defmodule FootballMarket.Workers.CatalogSync"
+    assert sync_workers =~ "defmodule FootballMarket.Workers.StatisticsImport"
+    assert sync_workers =~ "FootballMarket.Synchronization.Execution.perform(job)"
+    assert sync_workers =~ "FootballMarket.Synchronization.Execution.timeout(job)"
 
     plugins = Application.fetch_env!(:football_market, Oban)[:plugins]
 

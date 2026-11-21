@@ -5,6 +5,8 @@ UNQ-Desarrollo de Aplicacion- Alquimistas
 
 This repository contains the Phoenix foundation for Football Player Market. PostgreSQL is the authoritative durable store; Redis is only a replaceable connectivity/read-optimization dependency and never authoritative.
 
+> **New to the codebase or Elixir?** Start with the [Codebase Guide](docs/CODEBASE_GUIDE.md) for a 5-minute Elixir/Phoenix glossary, request flow overview, and a "Where do I find X?" index of every feature.
+
 ### Prerequisites
 
 - macOS or Linux, Git, and `curl`

@@ -2,7 +2,7 @@ defmodule FootballMarket.Market.Sales.IdempotencyTest do
   use ExUnit.Case, async: false
   @moduletag :integration
   alias FootballMarket.{SalesCase, Repo}
-  alias FootballMarket.Market.Sales
+  alias FootballMarket.Market.Trading
 
   setup do
     f = SalesCase.fixture()
@@ -43,11 +43,11 @@ defmodule FootballMarket.Market.Sales.IdempotencyTest do
 
     SalesCase.fund(f.owner, "0")
     assert {:ok, ^original} = SalesCase.sale(f)
-    assert {:ok, ^original} = Sales.get_for_seller(f.buyer.id, original.id)
-    assert {:error, :not_found} = Sales.get_for_seller(f.owner.id, original.id)
+    assert {:ok, ^original} = Trading.get_sale(f.buyer.id, original.id)
+    assert {:error, :not_found} = Trading.get_sale(f.owner.id, original.id)
 
     FootballMarket.MarketCase.fresh(f.schema, """
-    assert {:ok, s} = FootballMarket.Market.Sales.get_for_seller(#{inspect(f.buyer.id)}, #{inspect(original.id)})
+    assert {:ok, s} = FootballMarket.Market.Trading.get_sale(#{inspect(f.buyer.id)}, #{inspect(original.id)})
     assert s.request_key == "sale-key"
     assert length(s.ledger) == 2
     """)
@@ -67,7 +67,7 @@ defmodule FootballMarket.Market.Sales.IdempotencyTest do
     assert {:ok, ^original} = SalesCase.sale(f)
 
     FootballMarket.MarketCase.fresh(f.schema, """
-    assert {:ok, s} = FootballMarket.Market.Sales.get_for_seller(#{inspect(f.buyer.id)}, #{inspect(original.id)})
+    assert {:ok, s} = FootballMarket.Market.Trading.get_sale(#{inspect(f.buyer.id)}, #{inspect(original.id)})
     assert s.quantity == 3
     assert s.id != #{inspect(later.id)}
     """)

@@ -1,7 +1,7 @@
 defmodule FootballMarket.Market.ConsistencyTest do
   use ExUnit.Case, async: true
   @moduletag :unit
-  alias FootballMarket.Market.Consistency
+  alias FootballMarket.Market.Initialization
 
   def valid do
     [p, u, b, i, q] = for _ <- 1..5, do: Ecto.UUID.generate()
@@ -39,7 +39,7 @@ defmodule FootballMarket.Market.ConsistencyTest do
 
   test "valid retained evidence permits redistribution and extra fixture quotes" do
     s = valid()
-    assert {:ok, :issued} = Consistency.validate(s)
+    assert {:ok, :issued} = Initialization.validate_snapshot(s)
     buyer = List.last(s.user_ids)
 
     for holdings <- [
@@ -58,11 +58,15 @@ defmodule FootballMarket.Market.ConsistencyTest do
       }
 
       assert {:ok, :issued} =
-               Consistency.validate(%{s | holdings: holdings, quotes: s.quotes ++ [later]})
+               Initialization.validate_snapshot(%{
+                 s
+                 | holdings: holdings,
+                   quotes: s.quotes ++ [later]
+               })
     end
 
     assert {:ok, :unissued} =
-             Consistency.validate(%{
+             Initialization.validate_snapshot(%{
                s
                | issuance: nil,
                  holdings: [],
@@ -94,7 +98,7 @@ defmodule FootballMarket.Market.ConsistencyTest do
 
     for holdings <- cases do
       assert {:error, %{kind: :inconsistent_state}} =
-               Consistency.validate(%{s | holdings: holdings})
+               Initialization.validate_snapshot(%{s | holdings: holdings})
     end
   end
 
@@ -105,7 +109,7 @@ defmodule FootballMarket.Market.ConsistencyTest do
 
     for field <- Map.keys(i) do
       assert {:error, %{kind: :inconsistent_state}} =
-               Consistency.validate(%{s | issuance: Map.delete(i, field)})
+               Initialization.validate_snapshot(%{s | issuance: Map.delete(i, field)})
     end
 
     for {key, value} <- [
@@ -120,12 +124,12 @@ defmodule FootballMarket.Market.ConsistencyTest do
           id: nil
         ] do
       assert {:error, %{kind: :inconsistent_state}} =
-               Consistency.validate(%{s | issuance: Map.put(i, key, value)})
+               Initialization.validate_snapshot(%{s | issuance: Map.put(i, key, value)})
     end
 
     for field <- Map.keys(q) do
       assert {:error, %{kind: :inconsistent_state}} =
-               Consistency.validate(%{s | quotes: [Map.delete(q, field)]})
+               Initialization.validate_snapshot(%{s | quotes: [Map.delete(q, field)]})
     end
 
     for {key, value} <- [
@@ -138,20 +142,23 @@ defmodule FootballMarket.Market.ConsistencyTest do
           inserted_at: nil
         ] do
       assert {:error, %{kind: :inconsistent_state}} =
-               Consistency.validate(%{s | quotes: [Map.put(q, key, value)]})
+               Initialization.validate_snapshot(%{s | quotes: [Map.put(q, key, value)]})
     end
 
     assert {:error, %{kind: :inconsistent_state}} =
-             Consistency.validate(%{s | fixed_recipient: nil})
+             Initialization.validate_snapshot(%{s | fixed_recipient: nil})
 
     assert {:error, %{kind: :recipient_conflict}} =
-             Consistency.validate(%{s | fixed_recipient: List.last(s.user_ids)})
+             Initialization.validate_snapshot(%{s | fixed_recipient: List.last(s.user_ids)})
 
     assert {:error, %{kind: :recipient_conflict}} =
-             Consistency.validate(%{s | issuance_recipients: [List.last(s.user_ids)]})
+             Initialization.validate_snapshot(%{s | issuance_recipients: [List.last(s.user_ids)]})
 
-    assert {:error, %{kind: :inconsistent_state}} = Consistency.validate(%{s | quotes: []})
-    assert {:error, %{kind: :inconsistent_state}} = Consistency.validate(%{s | issuance: nil})
+    assert {:error, %{kind: :inconsistent_state}} =
+             Initialization.validate_snapshot(%{s | quotes: []})
+
+    assert {:error, %{kind: :inconsistent_state}} =
+             Initialization.validate_snapshot(%{s | issuance: nil})
   end
 
   test "partial market recipient fixation is never repaired for a fresh player" do
@@ -159,17 +166,17 @@ defmodule FootballMarket.Market.ConsistencyTest do
     unissued = %{s | issuance: nil, holdings: [], quotes: []}
 
     assert {:error, %{kind: :inconsistent_state}} =
-             Consistency.validate(%{unissued | issuance_recipients: []})
+             Initialization.validate_snapshot(%{unissued | issuance_recipients: []})
 
     assert {:error, %{kind: :inconsistent_state}} =
-             Consistency.validate(%{unissued | fixed_recipient: nil})
+             Initialization.validate_snapshot(%{unissued | fixed_recipient: nil})
   end
 
   test "recipient conflicts short circuit malformed retained history before coherence" do
     s = valid()
 
     assert {:error, %{kind: :recipient_conflict, reason: :market_recipient_conflict}} =
-             Consistency.validate(%{
+             Initialization.validate_snapshot(%{
                s
                | fixed_recipient: List.last(s.user_ids),
                  holdings: :malformed,
@@ -177,7 +184,7 @@ defmodule FootballMarket.Market.ConsistencyTest do
              })
 
     assert {:error, %{kind: :inconsistent_state, reason: :partial_recipient_fixation}} =
-             Consistency.validate(%{
+             Initialization.validate_snapshot(%{
                s
                | fixed_recipient: nil,
                  holdings: :malformed,

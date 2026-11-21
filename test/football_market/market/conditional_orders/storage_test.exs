@@ -103,7 +103,7 @@ defmodule FootballMarket.Market.ConditionalOrders.StorageTest do
 
       {:ok, row} =
         Repo.transaction(fn ->
-          FootballMarket.Market.PurchaseTransaction.complete(%{
+          FootballMarket.Market.Trading.complete(:purchase, %{
             buyer_id: f.buyer.id,
             player_id: f.player.id,
             quantity: 3,
@@ -132,7 +132,7 @@ defmodule FootballMarket.Market.ConditionalOrders.StorageTest do
       before = financial.()
       Ecto.Migrator.run(Repo, "priv/repo/migrations", :up, all: true, prefix: schema, log: false)
       assert before == financial.()
-      upgraded = FootballMarket.Market.PurchaseTransaction.evidence(row)
+      upgraded = FootballMarket.Market.Trading.evidence(:purchase, row)
       assert {:ok, in_place} = PurchasesCase.purchase(f)
       assert Map.delete(in_place, :sale_id) == upgraded
       assert upgraded.transfer.from_user_id == f.owner.id

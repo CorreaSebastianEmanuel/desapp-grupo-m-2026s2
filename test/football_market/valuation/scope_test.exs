@@ -8,17 +8,18 @@ defmodule FootballMarket.Valuation.ScopeTest do
   @production [
     "lib/football_market/valuation.ex"
     | Enum.map(
-        ~w(types error request week statistics_reader preparation position_groups decimal_math scorer scoring evidence replay),
+        ~w(types request statistics_reader preparation scoring evidence decimal_math balanced position_aware),
         &"lib/football_market/valuation/#{&1}.ex"
       )
   ]
 
-  @legacy_production @production
-  @production @production ++
-                [
-                  "lib/football_market/valuation/balanced.ex",
-                  "lib/football_market/valuation/position_aware.ex"
-                ]
+  @legacy_production [
+    "lib/football_market/valuation.ex"
+    | Enum.map(
+        ~w(types error request week statistics_reader preparation position_groups decimal_math scorer scoring evidence replay),
+        &"lib/football_market/valuation/#{&1}.ex"
+      )
+  ]
 
   test "AST dependencies, production inventory and absence of writes, time and providers" do
     assert Enum.sort(
@@ -28,7 +29,7 @@ defmodule FootballMarket.Valuation.ScopeTest do
              Enum.sort(
                @production ++
                  Enum.map(
-                   ~w(configurations managed managed_types calculation_requests calculation_request),
+                   ~w(schemas configurations configuration_store managed calculation_requests),
                    &"lib/football_market/valuation/#{&1}.ex"
                  )
              )
@@ -46,8 +47,7 @@ defmodule FootballMarket.Valuation.ScopeTest do
                 Path.basename(path) in [
                   "statistics_reader.ex",
                   "request.ex",
-                  "week.ex",
-                  "replay.ex",
+                  "scoring.ex",
                   "evidence.ex"
                 ]
               )

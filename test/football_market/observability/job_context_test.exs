@@ -2,7 +2,8 @@ defmodule FootballMarket.Observability.JobContextTest do
   use FootballMarket.DataCase, async: false
   @moduletag :integration
   alias FootballMarket.{Repo, FreshnessCase, Synchronization}
-  alias FootballMarket.Observability.{Context, JobContext}
+  alias FootballMarket.Observability, as: Context
+  alias FootballMarket.Observability.JobContext
   alias FootballMarket.Synchronization.{Run, Recovery, Store}
 
   setup do

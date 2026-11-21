@@ -5,7 +5,7 @@ defmodule FootballMarketWeb.AdministrationLive do
   import FootballMarketWeb.WorkspaceComponents, only: [shell: 1, metric_name: 1, role_name: 1]
 
   alias FootballMarket.Valuation.Configurations
-  alias FootballMarketWeb.Workspace.Session
+  alias FootballMarketWeb.Workspace.Helpers, as: Session
 
   def mount(_, _, socket) do
     {:ok,

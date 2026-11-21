@@ -1,5 +1,15 @@
 defmodule FootballMarket.Synchronization do
-  @moduledoc "Trusted local catalog synchronization interface; no public route."
+  @moduledoc """
+  Public facade for durable catalog & statistics synchronization runs.
+
+  Sub-modules under `lib/football_market/synchronization/`:
+    * `Input` (`input.ex`) — scope/source normalization and safe execution config
+    * `Policy` (`policy.ex`) & `Clock` (`clock.ex`) — retry budgets and UTC clock
+    * `Store` (`store.ex`) — durable run ledger & Oban job admission
+    * `Scheduler` (`scheduler.ex`) & `Dispatcher` (`dispatcher.ex`) — cron & intent handoff
+    * `Execution` (`execution.ex`) & `runtime.ex` (`ExecutionGuard`, `Recovery`)
+    * `schemas.ex` — Ecto schemas for runs, attempts, triggers, and schedules
+  """
   alias FootballMarket.Synchronization.{Input, Store}
   alias FootballMarket.Providers.Request
 

@@ -2,12 +2,13 @@ defmodule FootballMarket.Valuation.Configurations.RulesTest do
   use ExUnit.Case, async: true
   @moduletag :unit
   import FootballMarket.ValuationConfigurationCase
-  alias FootballMarket.Valuation.Configurations.Rules
+  alias FootballMarket.Valuation.Configurations
   @position "00000000-0000-0000-0000-000000000001"
 
   test "both allowlisted formulas derive all configured requirements without defaults" do
     for strategy <- ["balanced", "position_aware"], weight <- [0, -2, Decimal.new("0.125")] do
-      assert {:ok, valid} = Rules.validate(rules(@position, strategy, %{goals: weight}))
+      assert {:ok, valid} =
+               Configurations.validate_rules(rules(@position, strategy, %{goals: weight}))
 
       scopes =
         if strategy == "balanced",
@@ -41,7 +42,8 @@ defmodule FootballMarket.Valuation.Configurations.RulesTest do
       %{r | position_mapping: [{"bad", :defender}]}
     ]
 
-    for value <- invalid, do: assert({:error, %{kind: :validation}} = Rules.validate(value))
+    for value <- invalid,
+        do: assert({:error, %{kind: :validation}} = Configurations.validate_rules(value))
 
     for n <- [
           1.0,
@@ -52,25 +54,33 @@ defmodule FootballMarket.Valuation.Configurations.RulesTest do
           %Decimal{sign: 0, coef: 1, exp: 0}
         ] do
       assert {:error, %{kind: :validation}} =
-               Rules.validate(%{r | config: %{weights: %{goals: n}}})
+               Configurations.validate_rules(%{r | config: %{weights: %{goals: n}}})
 
-      assert {:error, %{kind: :validation}} = Rules.validate(%{r | references: %{goals: n}})
+      assert {:error, %{kind: :validation}} =
+               Configurations.validate_rules(%{r | references: %{goals: n}})
     end
 
     for group <- [:goalkeeper, :defender, :midfielder, :forward] do
       p = rules(@position, "position_aware")
 
       assert {:error, _} =
-               Rules.validate(%{p | config: %{weights: Map.delete(p.config.weights, group)}})
+               Configurations.validate_rules(%{
+                 p
+                 | config: %{weights: Map.delete(p.config.weights, group)}
+               })
 
       assert {:error, _} =
-               Rules.validate(%{p | config: %{weights: Map.put(p.config.weights, group, %{})}})
+               Configurations.validate_rules(%{
+                 p
+                 | config: %{weights: Map.put(p.config.weights, group, %{})}
+               })
     end
 
-    assert {:error, %{kind: :unsupported_strategy}} = Rules.validate(%{r | formula_version: "2"})
+    assert {:error, %{kind: :unsupported_strategy}} =
+             Configurations.validate_rules(%{r | formula_version: "2"})
 
     assert {:error, %{kind: :unsupported_strategy}} =
-             Rules.validate(%{r | strategy_id: "arbitrary"})
+             Configurations.validate_rules(%{r | strategy_id: "arbitrary"})
   end
 
   test "each group's metric union is explicit, zero entries required and omission meaningful" do
@@ -82,17 +92,19 @@ defmodule FootballMarket.Valuation.Configurations.RulesTest do
         references: %{goals: 2, assists: 1}
     }
 
-    assert {:ok, valid} = Rules.validate(r)
+    assert {:ok, valid} = Configurations.validate_rules(r)
     assert valid.requirements.forward == [:assists]
     assert valid.requirements.defender == [:goals]
     refute Map.has_key?(valid.requirements, :overall)
-    assert {:error, _} = Rules.validate(%{r | references: %{goals: 2}})
+    assert {:error, _} = Configurations.validate_rules(%{r | references: %{goals: 2}})
     b = rules(@position, "balanced", %{goals: 0, assists: 0}, %{goals: 2, assists: 1})
-    assert {:ok, %{requirements: %{overall: [:goals, :assists]}}} = Rules.validate(b)
+
+    assert {:ok, %{requirements: %{overall: [:goals, :assists]}}} =
+             Configurations.validate_rules(b)
 
     assert {:ok, %{requirements: %{overall: [:goals]}}} =
-             Rules.validate(rules(@position, "balanced", %{goals: 0}))
+             Configurations.validate_rules(rules(@position, "balanced", %{goals: 0}))
 
-    assert {:error, _} = Rules.validate(%{b | config: %{weights: %{unknown: 0}}})
+    assert {:error, _} = Configurations.validate_rules(%{b | config: %{weights: %{unknown: 0}}})
   end
 end

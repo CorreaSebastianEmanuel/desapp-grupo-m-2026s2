@@ -14,7 +14,6 @@ defmodule FootballMarket.Valuation.Managed do
   }
 
   alias FootballMarket.Valuation.Configurations
-  alias FootballMarket.Valuation.Configurations.{Rules, Registry}
 
   def evaluate(subject, selector) do
     with {:ok, subject} <- Request.subject_week(subject),
@@ -101,9 +100,9 @@ defmodule FootballMarket.Valuation.Managed do
   defp resolve(_), do: Error.new(:validation, :invalid_configuration_selector)
 
   defp definition(v) do
-    with {:ok, module} <- Registry.resolve(v.strategy_id, v.formula_version),
+    with {:ok, module} <- Configurations.resolve(v.strategy_id, v.formula_version),
          {:ok, rules} <-
-           Rules.validate(
+           Configurations.validate_rules(
              Map.take(v, [:strategy_id, :formula_version, :config, :references, :position_mapping])
            ) do
       if Evidence.canonical(rules.requirements) == Evidence.canonical(v.requirements) do

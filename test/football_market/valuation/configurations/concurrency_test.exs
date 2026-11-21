@@ -35,7 +35,7 @@ defmodule FootballMarket.Valuation.Configurations.ConcurrencyTest do
     assert {:ok, %{versions: versions, active_version_id: nil}} = Configurations.list()
     assert length(versions) == 2
 
-    for code <- Map.keys(Configurations.Presets.roles()) do
+    for code <- Map.keys(Configurations.preset_roles()) do
       assert {:ok, _} = FootballMarket.Catalog.get_position_by_code(code)
     end
 

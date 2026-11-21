@@ -1,8 +1,7 @@
 defmodule FootballMarket.Market.Analytics.ProjectionTest do
   use ExUnit.Case, async: true
   @moduletag :unit
-  alias FootballMarket.Market.{Portfolio, PortfolioLedger}
-  alias FootballMarket.Market.Analytics.{Input, Projection}
+  alias FootballMarket.Market.{Analytics, Portfolio}
 
   test "daily replay includes opening trades, carry-forward quotes and retained closed profit" do
     trades = [trade("purchase", 2, "4", 1), trade("sale", 1, "3", 3), trade("sale", 1, "4", 4)]
@@ -52,7 +51,7 @@ defmodule FootballMarket.Market.Analytics.ProjectionTest do
         5
       )
 
-    result = exact(fn -> Projection.build(snapshot, :history) end)
+    result = exact(fn -> Analytics.build_projection(snapshot, :history) end)
     assert [point] = result.points
     assert point.partial
     assert point.cutoff_at == snapshot.as_of
@@ -64,14 +63,14 @@ defmodule FootballMarket.Market.Analytics.ProjectionTest do
     trades = [trade("purchase", 1, "1", 1), %{trade("purchase", 2, "2", 1) | player_id: "other"}]
     quotes = [price_quote(1, "2", 1), %{price_quote(1, "3", 1) | player_id: "other"}]
     snapshot = %{snapshot(trades, quotes, 1, 5) | players: %{"player" => "One", "other" => "Two"}}
-    result = exact(fn -> Projection.build(snapshot, :allocation) end)
+    result = exact(fn -> Analytics.build_projection(snapshot, :allocation) end)
     assert_money(result.totals.market_value, "8")
     [other, player] = result.positions
     assert_money(other.weight, "0.75")
     assert_money(player.weight, "0.25")
 
     incomplete =
-      exact(fn -> Projection.build(%{snapshot | quotes: [hd(quotes)]}, :allocation) end)
+      exact(fn -> Analytics.build_projection(%{snapshot | quotes: [hd(quotes)]}, :allocation) end)
 
     assert incomplete.totals.market_value == nil
     refute incomplete.totals.valuation_complete
@@ -118,26 +117,26 @@ defmodule FootballMarket.Market.Analytics.ProjectionTest do
 
   test "UTC ranges include leap days and enforce defaults, limits and strict query shapes" do
     today = ~D[2026-10-29]
-    assert {:ok, %{from: ~D[2026-09-30], to: ^today}} = Input.range(%{}, today)
+    assert {:ok, %{from: ~D[2026-09-30], to: ^today}} = Analytics.validate_range(%{}, today)
 
     assert {:ok, %{from: ~D[2026-09-02], to: ~D[2026-10-01]}} =
-             Input.range(%{to: ~D[2026-10-01]}, today)
+             Analytics.validate_range(%{to: ~D[2026-10-01]}, today)
 
     assert {:ok, %{from: ~D[2026-10-01], to: ^today}} =
-             Input.range(%{from: ~D[2026-10-01]}, today)
+             Analytics.validate_range(%{from: ~D[2026-10-01]}, today)
 
-    assert {:ok, _} = Input.range(%{from: ~D[2024-01-01], to: ~D[2024-12-31]}, today)
-
-    assert {:error, :invalid_date_range} =
-             Input.range(%{from: ~D[2024-01-01], to: ~D[2025-01-01]}, today)
+    assert {:ok, _} = Analytics.validate_range(%{from: ~D[2024-01-01], to: ~D[2024-12-31]}, today)
 
     assert {:error, :invalid_date_range} =
-             Input.range(%{from: today, to: Date.add(today, 1)}, today)
+             Analytics.validate_range(%{from: ~D[2024-01-01], to: ~D[2025-01-01]}, today)
 
     assert {:error, :invalid_date_range} =
-             Input.range(%{from: today, to: Date.add(today, -1)}, today)
+             Analytics.validate_range(%{from: today, to: Date.add(today, 1)}, today)
 
-    assert {:ok, %{from: ~D[2024-02-29], to: nil}} = Input.decode("from=2024-02-29")
+    assert {:error, :invalid_date_range} =
+             Analytics.validate_range(%{from: today, to: Date.add(today, -1)}, today)
+
+    assert {:ok, %{from: ~D[2024-02-29], to: nil}} = Analytics.decode_query("from=2024-02-29")
 
     for query <- [
           "from=",
@@ -149,10 +148,10 @@ defmodule FootballMarket.Market.Analytics.ProjectionTest do
           "from[x]=y",
           "to=2026-01-01&to[]=x"
         ] do
-      assert {:error, :invalid_date} = Input.decode(query)
+      assert {:error, :invalid_date} = Analytics.decode_query(query)
     end
 
-    assert {:ok, %{from: nil, to: nil}} = Input.decode("owner_id=someone-else")
+    assert {:ok, %{from: nil, to: nil}} = Analytics.decode_query("owner_id=someone-else")
     assert Enum.count(Date.range(~D[2024-02-28], ~D[2024-03-01])) == 3
   end
 
@@ -174,7 +173,7 @@ defmodule FootballMarket.Market.Analytics.ProjectionTest do
       players: %{"player" => "Player"}
     }
 
-    result = exact(fn -> Projection.build(snapshot, :history) end)
+    result = exact(fn -> Analytics.build_projection(snapshot, :history) end)
     [a, b, c] = result.points
     assert a.date == ~D[2024-02-28]
     assert a.cutoff_at == before
@@ -206,7 +205,7 @@ defmodule FootballMarket.Market.Analytics.ProjectionTest do
   end
 
   defp history(trades, quotes, from, to),
-    do: exact(fn -> Projection.build(snapshot(trades, quotes, from, to), :history) end)
+    do: exact(fn -> Analytics.build_projection(snapshot(trades, quotes, from, to), :history) end)
 
   defp snapshot(trades, quotes, from, to),
     do: %{
@@ -240,6 +239,6 @@ defmodule FootballMarket.Market.Analytics.ProjectionTest do
   defp date(day), do: Date.add(~D[2026-10-01], day)
   defp at(day), do: DateTime.new!(date(day), ~T[12:00:00], "Etc/UTC")
   defp decimal(value), do: value |> Decimal.parse(max_digits: :infinity) |> elem(0)
-  defp exact(fun), do: PortfolioLedger.exact(fun)
+  defp exact(fun), do: Portfolio.exact(fun)
   defp assert_money(actual, expected), do: assert(Decimal.equal?(actual, decimal(expected)))
 end

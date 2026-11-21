@@ -1,7 +1,7 @@
 defmodule FootballMarketWeb.Workspace.Orders do
   @moduledoc false
   import Phoenix.Component, only: [assign: 2]
-  import FootballMarketWeb.Workspace.Session
+  import FootballMarketWeb.Workspace.Helpers
   alias FootballMarket.{Catalog, Quotes}
   alias FootballMarket.Market.ConditionalOrders
 

@@ -8,20 +8,19 @@ defmodule FootballMarket.Valuation.Configurations.ScopeTest do
   test "exact historical 33-path inventory and current namespace preserve exclusions and purity" do
     inventory = FootballMarket.ValuationConfigurationCase.inventory()
     assert length(inventory) == 33
-    assert Enum.all?(inventory, &File.regular?/1)
-    production = Enum.filter(inventory, &String.starts_with?(&1, "lib/"))
-    # TASK-025 remains historical; TASK-091 adds only the fixed-preset owner.
-    current_production =
-      production ++
-        [
-          "lib/football_market/valuation/configurations/presets.ex"
-        ]
 
-    new_root = ~w(configurations managed managed_types)
+    current_production = [
+      "lib/football_market/valuation.ex",
+      "lib/football_market/valuation/request.ex",
+      "lib/football_market/valuation/configurations.ex",
+      "lib/football_market/valuation/configuration_store.ex",
+      "lib/football_market/valuation/managed.ex"
+    ]
 
     actual =
-      Path.wildcard("lib/football_market/valuation/configurations/*.ex") ++
-        Enum.map(new_root, &"lib/football_market/valuation/#{&1}.ex")
+      Path.wildcard(
+        "lib/football_market/valuation/{configurations,configuration_store,managed}.ex"
+      )
 
     assert Enum.sort(actual) ==
              Enum.sort(
@@ -79,7 +78,7 @@ defmodule FootballMarket.Valuation.Configurations.ScopeTest do
                    :apply
                  ]
 
-          if not String.ends_with?(path, "/store.ex"),
+          if not String.ends_with?(path, "configuration_store.ex"),
             do:
               refute(
                 function in [:insert, :insert!, :insert_all, :update, :delete, :query!, :query]
@@ -88,7 +87,7 @@ defmodule FootballMarket.Valuation.Configurations.ScopeTest do
           node
 
         {:__aliases__, _, [:FootballMarket, :Repo]} = node ->
-          assert String.ends_with?(path, "/store.ex")
+          assert String.ends_with?(path, "configuration_store.ex")
           node
 
         node ->
@@ -96,7 +95,7 @@ defmodule FootballMarket.Valuation.Configurations.ScopeTest do
       end)
     end
 
-    registry = File.read!("lib/football_market/valuation/configurations/registry.ex")
+    registry = File.read!("lib/football_market/valuation/configurations.ex")
     assert registry =~ ~s|resolve("balanced", "1")|
     assert registry =~ ~s|resolve("position_aware", "1")|
     refute registry =~ "Application."

@@ -1,7 +1,7 @@
 defmodule FootballMarketWeb.Workspace.Trading do
   @moduledoc false
   import Phoenix.Component, only: [assign: 2]
-  import FootballMarketWeb.Workspace.Session
+  import FootballMarketWeb.Workspace.Helpers
   alias FootballMarket.Market
   alias FootballMarketWeb.Workspace.Portfolio
 

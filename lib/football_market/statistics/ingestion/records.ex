@@ -4,7 +4,7 @@ defmodule FootballMarket.Statistics.Ingestion.Records do
   alias FootballMarket.{Repo, Catalog}
   alias FootballMarket.Catalog.Ingestion.{Scope, SourceBinding}
   alias FootballMarket.Statistics.{Match, Performance}
-  alias FootballMarket.Statistics.Ingestion.{MatchBinding, Identity, Positions, FotMobBinding}
+  alias FootballMarket.Statistics.Ingestion.{Canonical, FotMobBinding, MatchBinding}
 
   def persist_matches!(result, season, options) do
     Enum.map_reduce(result.facts.matches, 0, fn fact, count ->
@@ -81,7 +81,7 @@ defmodule FootballMarket.Statistics.Ingestion.Records do
   end
 
   defp source_id!(result, kind, ref) do
-    Identity.fetch!(result, kind, ref)
+    Canonical.fetch_source_id!(result, kind, ref)
   rescue
     _ -> Repo.rollback(:unbound_identity)
   end
@@ -170,7 +170,7 @@ defmodule FootballMarket.Statistics.Ingestion.Records do
         do: Repo.rollback(:invalid_position)
 
       {:ok, derived} =
-        Positions.derive(
+        Canonical.derive_position(
           %{player_id: player.id, season_id: season.id, kickoff_at: match.kickoff_at},
           prior
         )

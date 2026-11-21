@@ -19,19 +19,14 @@ defmodule FootballMarket.Synchronization.Policy do
 
   def normalize(_), do: {:error, :policy}
 
-  defp valid_policy?(policy) do
-    is_integer(policy.attempt_limit) and policy.attempt_limit > 0 and
-      is_list(policy.waits) and length(policy.waits) == policy.attempt_limit - 1 and
-      Enum.all?(policy.waits, &(is_integer(&1) and &1 > 0)) and
-      is_integer(policy.worker_timeout_ms) and policy.worker_timeout_ms > 1000
-  end
-
   def validate_runtime(config) do
     if Keyword.keyword?(config) and is_boolean(Keyword.get(config, :enabled, false)) and
          is_integer(Keyword.get(config, :concurrency, 1)) and
          Keyword.get(config, :concurrency, 1) > 0 and
          is_integer(Keyword.get(config, :tick_ms, 15_000)) and
-         Keyword.get(config, :tick_ms, 15_000) > 0, do: :ok, else: {:error, :policy}
+         Keyword.get(config, :tick_ms, 15_000) > 0,
+       do: :ok,
+       else: {:error, :policy}
   end
 
   def decision(outcome, number, policy, now) do
@@ -40,6 +35,13 @@ defmodule FootballMarket.Synchronization.Policy do
     else
       fail_non_retryable(outcome)
     end
+  end
+
+  defp valid_policy?(policy) do
+    is_integer(policy.attempt_limit) and policy.attempt_limit > 0 and
+      is_list(policy.waits) and length(policy.waits) == policy.attempt_limit - 1 and
+      Enum.all?(policy.waits, &(is_integer(&1) and &1 > 0)) and
+      is_integer(policy.worker_timeout_ms) and policy.worker_timeout_ms > 1000
   end
 
   defp retryable?(outcome) do

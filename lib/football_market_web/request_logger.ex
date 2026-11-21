@@ -2,7 +2,7 @@ defmodule FootballMarketWeb.RequestLogger do
   @moduledoc "HTTP logging context and safe lifecycle events, including early responses."
   @behaviour Plug
   require Logger
-  alias FootballMarket.Observability.Context
+  alias FootballMarket.Observability, as: Context
 
   @impl true
   def init(options), do: options

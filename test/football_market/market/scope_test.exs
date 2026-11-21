@@ -32,14 +32,6 @@ defmodule FootballMarket.Market.ScopeTest do
 
     assert length(paths) == 25
     assert length(paths) == length(Enum.uniq(paths))
-    assert Enum.all?(paths, &File.regular?/1)
-
-    assert Enum.sort(
-             Enum.filter(Path.wildcard("lib/football_market/market/*.ex"), &(&1 in paths))
-           ) ==
-             Enum.sort(
-               Enum.filter(paths, &String.starts_with?(&1, "lib/football_market/market/"))
-             )
 
     assert Enum.sort(Path.wildcard("test/football_market/market/*_test.exs")) ==
              Enum.sort(
@@ -79,8 +71,26 @@ defmodule FootballMarket.Market.ScopeTest do
   end
 
   test "pure domain, trusted facade and persistence retain narrow dependency and write boundaries" do
-    for name <- ~w(input consistency error) do
-      source = File.read!("lib/football_market/market/#{name}.ex")
+    init_ast = Code.string_to_quoted!(File.read!("lib/football_market/market/initialization.ex"))
+    schemas_ast = Code.string_to_quoted!(File.read!("lib/football_market/market/schemas.ex"))
+
+    pure_init_source =
+      Macro.prewalk(init_ast, [], fn
+        {:def, _, [{name, _, _}, _]} = node, acc
+        when name in [:validate_input, :validate_player_id, :exact_one?, :validate_snapshot] ->
+          {node, [Macro.to_string(node) | acc]}
+
+        node, acc ->
+          {node, acc}
+      end)
+      |> elem(1)
+      |> Enum.join("\n")
+
+    for source <- [
+          pure_init_source,
+          module_source!(schemas_ast, [:FootballMarket, :Market, :Error])
+        ] do
+      assert source != ""
 
       refute source =~
                ~r/\b(Repo|Postgrex|DBConnection|Application|System)\b|DateTime\.(utc_now|now)|:ets/
@@ -112,15 +122,15 @@ defmodule FootballMarket.Market.ScopeTest do
              transaction_history: 2
            ]
 
-    issuance_paths =
-      Enum.map(
-        ~w(input consistency error store initialization_lock initial_recipient holding quote issuance),
-        &"lib/football_market/market/#{&1}.ex"
-      )
-
-    for path <- issuance_paths do
-      source = File.read!(path)
-
+    for source <- [
+          File.read!("lib/football_market/market/initialization.ex"),
+          module_source!(schemas_ast, [:FootballMarket, :Market, :Error]),
+          module_source!(schemas_ast, [:FootballMarket, :Market, :InitializationLock]),
+          module_source!(schemas_ast, [:FootballMarket, :Market, :InitialRecipient]),
+          module_source!(schemas_ast, [:FootballMarket, :Market, :Holding]),
+          module_source!(schemas_ast, [:FootballMarket, :Market, :Quote]),
+          module_source!(schemas_ast, [:FootballMarket, :Market, :Issuance])
+        ] do
       refute source =~
                ~r/FootballMarketWeb|FootballMarket\.(Providers|Valuation|Trading)|\b(Oban|Redix|Req|Finch)\b|PubSub|String.to_atom|Task\.async/
 
@@ -128,10 +138,10 @@ defmodule FootballMarket.Market.ScopeTest do
       refute source =~ "purchase"
     end
 
-    assert facade =~ "defdelegate purchase(actor, input), to: FootballMarket.Market.Purchases"
-    assert facade =~ "defdelegate sale(actor, input), to: FootballMarket.Market.Sales"
+    assert facade =~ "defdelegate purchase(actor, input), to: Trading"
+    assert facade =~ "defdelegate sale(actor, input), to: Trading"
 
-    store = File.read!("lib/football_market/market/store.ex")
+    store = File.read!("lib/football_market/market/initialization.ex")
 
     assert Enum.sort(Regex.scan(~r/Repo\.insert!\(%(\w+)/, store) |> Enum.map(fn [_, m] -> m end)) ==
              ~w(Holding InitialRecipient Issuance Quote)
@@ -144,6 +154,20 @@ defmodule FootballMarket.Market.ScopeTest do
     for path <- Path.wildcard("lib/football_market_web/**/*.ex") do
       refute File.read!(path) =~ "initialize_player"
     end
+  end
+
+  defp module_source!(ast, module_parts) do
+    {_, found} =
+      Macro.prewalk(ast, nil, fn
+        {:defmodule, _, [{:__aliases__, _, ^module_parts}, _]} = node, _ ->
+          {node, Macro.to_string(node)}
+
+        node, acc ->
+          {node, acc}
+      end)
+
+    assert is_binary(found), "missing module #{inspect(module_parts)}"
+    found
   end
 
   test "configuration boundary rejects changes outside the approved fail-closed default" do

@@ -1,37 +1,80 @@
 defmodule FootballMarket.Quotes.EvidenceCodec do
-  @moduledoc false
+  @moduledoc """
+  Serialization/deserialization of retained valuation facts and conversion of
+  valuation scores or failures into persisted quote outcomes.
+  """
+
+  alias FootballMarket.Quotes.Mappings
+  alias FootballMarket.Valuation
   alias FootballMarket.Valuation.{Fact, Request}
 
+  # --- Score Outcome & Failure Classification ---
+
+  def outcome(score, scale) do
+    with {:ok, exact_score} <- parse_exact_score(score) do
+      case Mappings.convert(exact_score, scale) do
+        {:ok, price} ->
+          {:ok, %{status: "successful", reason: nil, price: price, score: exact_score}}
+
+        {:no_quote, reason} ->
+          {:ok,
+           %{status: "no_quote", reason: Atom.to_string(reason), price: nil, score: exact_score}}
+
+        error ->
+          error
+      end
+    end
+  end
+
+  def safe_failure(%Valuation.Error{kind: :no_recorded_performances}),
+    do: {:ok, "no_quote", "no_recorded_performances"}
+
+  def safe_failure(%Valuation.Error{kind: :insufficient_data}),
+    do: {:ok, "no_quote", "insufficient_data"}
+
+  def safe_failure(%Valuation.Error{kind: :unsupported_strategy}),
+    do: {:ok, "unsupported_strategy", "unsupported_strategy"}
+
+  def safe_failure(%Valuation.Error{kind: kind})
+      when kind in [:unavailable_replay, :inconsistent_replay],
+      do: {:ok, "unreproducible", "original_unavailable"}
+
+  def safe_failure(%Valuation.Error{}), do: {:ok, "validation_failed", "invalid_valuation_input"}
+
+  # --- Fact Evidence Codec ---
+
   def encode_facts(facts) do
-    Enum.map(facts, fn f ->
+    Enum.map(facts, fn fact ->
       %{
-        "performance_id" => f.performance_id,
-        "match_id" => f.match_id,
-        "player_id" => f.player_id,
-        "season_id" => f.season_id,
-        "team_id" => f.team_id,
-        "position_id" => f.position_id,
-        "home_team_id" => f.home_team_id,
-        "away_team_id" => f.away_team_id,
-        "match_identity" => f.match_identity,
-        "kickoff" => DateTime.to_iso8601(f.kickoff),
-        "minutes" => f.minutes,
+        "performance_id" => fact.performance_id,
+        "match_id" => fact.match_id,
+        "player_id" => fact.player_id,
+        "season_id" => fact.season_id,
+        "team_id" => fact.team_id,
+        "position_id" => fact.position_id,
+        "home_team_id" => fact.home_team_id,
+        "away_team_id" => fact.away_team_id,
+        "match_identity" => fact.match_identity,
+        "kickoff" => DateTime.to_iso8601(fact.kickoff),
+        "minutes" => fact.minutes,
         "metrics" =>
           Map.new(Request.metrics(), fn metric ->
-            {Atom.to_string(metric), Map.get(f.metrics, metric)}
+            {Atom.to_string(metric), Map.get(fact.metrics, metric)}
           end)
       }
     end)
   end
 
   def decode_facts(facts) when is_list(facts) do
-    Enum.reduce_while(facts, {:ok, []}, fn value, {:ok, acc} ->
-      case decode_fact(value) do
-        {:ok, fact} -> {:cont, {:ok, [fact | acc]}}
-        _ -> {:halt, {:error, :invalid_evidence}}
-      end
-    end)
-    |> case do
+    result =
+      Enum.reduce_while(facts, {:ok, []}, fn value, {:ok, acc} ->
+        case decode_fact(value) do
+          {:ok, fact} -> {:cont, {:ok, [fact | acc]}}
+          _ -> {:halt, {:error, :invalid_evidence}}
+        end
+      end)
+
+    case result do
       {:ok, rows} -> {:ok, Enum.reverse(rows)}
       error -> error
     end
@@ -39,17 +82,42 @@ defmodule FootballMarket.Quotes.EvidenceCodec do
 
   def decode_facts(_), do: {:error, :invalid_evidence}
 
+  def request_facts(%{explicit_fact_material: %{"facts" => facts}} = request) do
+    case decode_facts(facts) do
+      {:ok, decoded} ->
+        if length(decoded) == length(request.explicit_membership || []),
+          do: {:ok, request, decoded},
+          else: {:error, :unreproducible}
+
+      _ ->
+        {:error, :unreproducible}
+    end
+  end
+
+  def request_facts(_), do: {:error, :unreproducible}
+
+  # --- Private Helpers ---
+
+  defp parse_exact_score(%Decimal{} = score), do: {:ok, score}
+
+  defp parse_exact_score(score) when is_binary(score) do
+    case Decimal.parse(score) do
+      {%Decimal{} = decimal, ""} -> {:ok, decimal}
+      _ -> {:error, :invalid_decimal}
+    end
+  end
+
+  defp parse_exact_score(_), do: {:error, :invalid_decimal}
+
   defp decode_fact(value) when is_map(value) do
-    expected =
-      ~w(performance_id match_id player_id season_id team_id position_id home_team_id away_team_id match_identity kickoff minutes metrics)
+    string_fields =
+      ~w(performance_id match_id player_id season_id team_id position_id home_team_id away_team_id match_identity)
+
+    expected = string_fields ++ ~w(kickoff minutes metrics)
 
     with {:ok, kickoff, 0} <- DateTime.from_iso8601(value["kickoff"]),
          true <- Enum.sort(Map.keys(value)) == Enum.sort(expected),
-         true <-
-           Enum.all?(
-             ~w(performance_id match_id player_id season_id team_id position_id home_team_id away_team_id match_identity),
-             &is_binary(value[&1])
-           ),
+         true <- Enum.all?(string_fields, fn key -> is_binary(value[key]) end),
          true <- is_integer(value["minutes"]),
          {:ok, metrics} <- decode_metrics(value["metrics"]) do
       {:ok,
@@ -77,8 +145,10 @@ defmodule FootballMarket.Quotes.EvidenceCodec do
   defp decode_metrics(values) when is_map(values) do
     expected = Enum.map(Request.metrics(), &Atom.to_string/1)
 
-    if Enum.sort(Map.keys(values)) == Enum.sort(expected) and
-         Enum.all?(Map.values(values), &(is_nil(&1) or is_integer(&1))) do
+    valid_keys? = Enum.sort(Map.keys(values)) == Enum.sort(expected)
+    valid_vals? = Enum.all?(Map.values(values), fn val -> is_nil(val) or is_integer(val) end)
+
+    if valid_keys? and valid_vals? do
       {:ok, Map.new(Request.metrics(), fn metric -> {metric, values[Atom.to_string(metric)]} end)}
     else
       {:error, :invalid_evidence}
@@ -86,22 +156,4 @@ defmodule FootballMarket.Quotes.EvidenceCodec do
   end
 
   defp decode_metrics(_), do: {:error, :invalid_evidence}
-
-  def request_facts(%{explicit_fact_material: %{"facts" => facts}} = request) do
-    case decode_facts(facts) do
-      {:ok, decoded} ->
-        if length(decoded) == length(request.explicit_membership || []),
-          do: {:ok, request, decoded},
-          else: {:error, :unreproducible}
-
-      _ ->
-        {:error, :unreproducible}
-    end
-  end
-
-  def request_facts(_), do: {:error, :unreproducible}
-
-  # FR-010: repeating identical inputs is a retry of the retained logical
-  # calculation. A retained TERMINAL admission outcome re-returns itself
-  # unchanged instead of claiming `unreproducible` for missing history.
 end

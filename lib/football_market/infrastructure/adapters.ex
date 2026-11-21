@@ -2,12 +2,19 @@ defmodule FootballMarket.Infrastructure.Redis do
   @moduledoc "Application-owned Redis connectivity boundary; it stores no data."
 
   def start_link(config) do
-    opts = [host: config.host, port: config.port, sync_connect: true, socket_opts: [:inet]]
+    opts = [
+      host: config.host,
+      port: config.port,
+      timeout: Map.get(config, :timeout, 5_000),
+      sync_connect: true,
+      socket_opts: [:inet]
+    ]
+
     opts = if config.password, do: Keyword.put(opts, :password, config.password), else: opts
     Redix.start_link(opts)
   end
 
-  def ping(client), do: Redix.command(client, ["PING"])
+  def ping(client, timeout \\ 5_000), do: Redix.command(client, ["PING"], timeout: timeout)
 end
 
 defmodule FootballMarket.Infrastructure.Verification do

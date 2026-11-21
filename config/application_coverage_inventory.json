@@ -176,6 +176,12 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/infrastructure/configuration.ex."
     },
     {
+      "path": "lib/football_market/infrastructure/health.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/infrastructure/health.ex."
+    },
+    {
       "path": "lib/football_market/infrastructure/local_operations.ex",
       "role": "application",
       "disposition": "include",
@@ -732,6 +738,12 @@
       "role": "application",
       "disposition": "include",
       "reason": "Maintained first-party application implementation source: lib/football_market_web/controllers/conditional_order_controller.ex."
+    },
+    {
+      "path": "lib/football_market_web/controllers/health_controller.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market_web/controllers/health_controller.ex."
     },
     {
       "path": "lib/football_market_web/controllers/market_controllers.ex",

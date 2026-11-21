@@ -41,4 +41,17 @@ defmodule FootballMarketWeb.RouterAuthenticationPolicyTest do
       refute String.downcase(source) =~ "bearer "
     end)
   end
+
+  test "health endpoints are explicitly public" do
+    health_routes =
+      FootballMarketWeb.Router
+      |> Phoenix.Router.routes()
+      |> Enum.filter(&(&1.path in ["/health/live", "/health/ready"]))
+
+    assert MapSet.new(health_routes, &{&1.verb, &1.path, &1.metadata[:authentication_policy]}) ==
+             MapSet.new([
+               {:get, "/health/live", :api_public},
+               {:get, "/health/ready", :api_public}
+             ])
+  end
 end

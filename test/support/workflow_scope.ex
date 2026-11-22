@@ -68,6 +68,7 @@ defmodule FootballMarket.WorkflowScope do
       "scripts/sobelow_ci.py",
       "specs/039-prometheus-application-metrics/evaluation.md",
       "specs/039-prometheus-application-metrics/spec.md",
+      "test/football_market/accounts/api_key_security_test.exs",
       "test/football_market_web/metrics_controller_test.exs",
       "test/support/workflow_scope.ex"
     ]

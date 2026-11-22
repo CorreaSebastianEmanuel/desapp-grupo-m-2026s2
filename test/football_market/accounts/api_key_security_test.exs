@@ -7,6 +7,7 @@ defmodule FootballMarket.Accounts.ApiKeySecurityTest do
   import ExUnit.CaptureLog
 
   alias FootballMarket.Accounts.ApiKey
+  alias FootballMarket.Observability.Metrics
 
   setup do
     {:ok, user} = Accounts.register_user(registration_attrs())
@@ -41,8 +42,14 @@ defmodule FootballMarket.Accounts.ApiKeySecurityTest do
   end
 
   test "configured metrics and registered routes carry no key credential surface" do
-    for metric <- FootballMarketWeb.Telemetry.metrics() do
-      assert Map.get(metric, :tags, []) -- [:route, :event] == []
+    families = Metrics.families()
+
+    assert Enum.any?(families, fn {name, _help, type, _labels} ->
+             name == "football_market_http_requests_total" and type == :counter
+           end)
+
+    for {_name, _help, _type, labels} <- families do
+      assert labels -- ~w(route status_class kind queue outcome) == []
     end
 
     routes = Phoenix.Router.routes(FootballMarketWeb.Router)

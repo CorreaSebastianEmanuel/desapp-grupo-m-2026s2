@@ -105,10 +105,12 @@ defmodule FootballMarket.Observability.Metrics do
 
   def handle_event(_event, _measurements, _metadata, _config), do: :ok
 
+  def families, do: @families
+
   def scrape do
     rows = :ets.tab2list(@table)
 
-    Enum.map_join(@families, "", fn {name, help, type, label_names} ->
+    Enum.map_join(families(), "", fn {name, help, type, label_names} ->
       header = "# HELP #{name} #{help}\n# TYPE #{name} #{type}\n"
       header <> render_family(name, type, label_names, rows)
     end)

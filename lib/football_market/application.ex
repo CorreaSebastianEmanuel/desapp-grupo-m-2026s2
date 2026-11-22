@@ -1,6 +1,4 @@
 defmodule FootballMarket.Application do
-  # See https://elixir.hexdocs.pm/Application.html
-  # for more information on OTP Applications
   @moduledoc false
 
   use Application
@@ -12,24 +10,17 @@ defmodule FootballMarket.Application do
     children = [
       FootballMarket.Repo,
       {Oban, Application.fetch_env!(:football_market, Oban)},
-      FootballMarket.Synchronization.Dispatcher,
-      FootballMarket.Providers.Scraping.Budget,
       FootballMarketWeb.Telemetry,
       {DNSCluster, query: Application.get_env(:football_market, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: FootballMarket.PubSub},
-      # Start to serve requests, typically the last entry
       FootballMarketWeb.Endpoint
     ]
 
-    # See https://elixir.hexdocs.pm/Supervisor.html
-    # for other strategies and supported options
     opts = [strategy: :one_for_one, name: FootballMarket.Supervisor]
 
     case Supervisor.start_link(children, opts) do
       {:ok, _} = started ->
-        # Startup is a durable wake only; cron repairs a transient enqueue failure.
-        enqueue_order_recovery()
-        enqueue_statistics_preload()
+        enqueue_startup_jobs()
         started
 
       error ->
@@ -37,28 +28,6 @@ defmodule FootballMarket.Application do
     end
   end
 
-  defp enqueue_order_recovery do
-    options = Application.get_env(:football_market, FootballMarket.Market.OrderEvaluation, [])
-    if Keyword.get(options, :startup, true), do: FootballMarket.Market.OrderEvaluation.startup()
-  rescue
-    _ -> :ok
-  catch
-    :exit, _ -> :ok
-  end
-
-  defp enqueue_statistics_preload do
-    options = Application.get_env(:football_market, FootballMarket.Workers.StatisticsPreload, [])
-
-    if Keyword.get(options, :startup, true),
-      do: FootballMarket.Workers.StatisticsPreload.startup()
-  rescue
-    _ -> :ok
-  catch
-    :exit, _ -> :ok
-  end
-
-  # Tell Phoenix to update the endpoint configuration
-  # whenever the application is updated.
   @impl true
   def config_change(changed, _new, removed) do
     FootballMarketWeb.Endpoint.config_change(changed, removed)
@@ -67,4 +36,23 @@ defmodule FootballMarket.Application do
 
   @impl true
   def stop(_state), do: FootballMarket.Observability.detach()
+
+  defp enqueue_startup_jobs do
+    order_opts = Application.get_env(:football_market, FootballMarket.Market.OrderEvaluation, [])
+
+    preload_opts =
+      Application.get_env(:football_market, FootballMarket.Workers.StatisticsPreload, [])
+
+    if Keyword.get(order_opts, :startup, true) do
+      _ = FootballMarket.Market.OrderEvaluation.startup()
+    end
+
+    if Keyword.get(preload_opts, :startup, true) do
+      _ = FootballMarket.Workers.StatisticsPreload.startup()
+    end
+  rescue
+    _ -> :ok
+  catch
+    :exit, _ -> :ok
+  end
 end

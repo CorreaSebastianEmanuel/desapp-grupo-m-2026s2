@@ -62,24 +62,6 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/accounts.ex."
     },
     {
-      "path": "lib/football_market/accounts/authentication.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/accounts/authentication.ex."
-    },
-    {
-      "path": "lib/football_market/accounts/browser_sessions.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/accounts/browser_sessions.ex."
-    },
-    {
-      "path": "lib/football_market/accounts/schemas.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/accounts/schemas.ex."
-    },
-    {
       "path": "lib/football_market/application.ex",
       "role": "application",
       "disposition": "include",
@@ -92,130 +74,16 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/catalog.ex."
     },
     {
-      "path": "lib/football_market/catalog/development_seed.ex",
+      "path": "lib/football_market/catalog_seed.ex",
       "role": "application",
       "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/catalog/development_seed.ex."
+      "reason": "Maintained first-party application implementation source: lib/football_market/catalog_seed.ex."
     },
     {
-      "path": "lib/football_market/catalog/development_seed_manifest.ex",
+      "path": "lib/football_market/market/orders.ex",
       "role": "application",
       "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/catalog/development_seed_manifest.ex."
-    },
-    {
-      "path": "lib/football_market/catalog/ingestion.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/catalog/ingestion.ex."
-    },
-    {
-      "path": "lib/football_market/catalog/ingestion/canonical.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/catalog/ingestion/canonical.ex."
-    },
-    {
-      "path": "lib/football_market/catalog/ingestion/publisher.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/catalog/ingestion/publisher.ex."
-    },
-    {
-      "path": "lib/football_market/catalog/ingestion/reconciler.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/catalog/ingestion/reconciler.ex."
-    },
-    {
-      "path": "lib/football_market/catalog/ingestion/records.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/catalog/ingestion/records.ex."
-    },
-    {
-      "path": "lib/football_market/catalog/ingestion/schemas.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/catalog/ingestion/schemas.ex."
-    },
-    {
-      "path": "lib/football_market/catalog/player_cursor.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/catalog/player_cursor.ex."
-    },
-    {
-      "path": "lib/football_market/catalog/query.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/catalog/query.ex."
-    },
-    {
-      "path": "lib/football_market/catalog/schemas.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/catalog/schemas.ex."
-    },
-    {
-      "path": "lib/football_market/catalog/scouting.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/catalog/scouting.ex."
-    },
-    {
-      "path": "lib/football_market/infrastructure/adapters.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/infrastructure/adapters.ex."
-    },
-    {
-      "path": "lib/football_market/infrastructure/configuration.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/infrastructure/configuration.ex."
-    },
-    {
-      "path": "lib/football_market/infrastructure/health.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/infrastructure/health.ex."
-    },
-    {
-      "path": "lib/football_market/infrastructure/local_operations.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/infrastructure/local_operations.ex."
-    },
-    {
-      "path": "lib/football_market/market.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/market.ex."
-    },
-    {
-      "path": "lib/football_market/market/analytics.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/market/analytics.ex."
-    },
-    {
-      "path": "lib/football_market/market/conditional_orders.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/market/conditional_orders.ex."
-    },
-    {
-      "path": "lib/football_market/market/initialization.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/market/initialization.ex."
-    },
-    {
-      "path": "lib/football_market/market/order_evaluation.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/market/order_evaluation.ex."
+      "reason": "Maintained first-party application implementation source: lib/football_market/market/orders.ex."
     },
     {
       "path": "lib/football_market/market/portfolio.ex",
@@ -230,22 +98,10 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/market/schemas.ex."
     },
     {
-      "path": "lib/football_market/market/settlement.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/market/settlement.ex."
-    },
-    {
       "path": "lib/football_market/market/trading.ex",
       "role": "application",
       "disposition": "include",
       "reason": "Maintained first-party application implementation source: lib/football_market/market/trading.ex."
-    },
-    {
-      "path": "lib/football_market/market/transaction_history.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/market/transaction_history.ex."
     },
     {
       "path": "lib/football_market/observability.ex",
@@ -260,184 +116,10 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/providers.ex."
     },
     {
-      "path": "lib/football_market/providers/catalog.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/providers/catalog.ex."
-    },
-    {
-      "path": "lib/football_market/providers/contract.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/providers/contract.ex."
-    },
-    {
-      "path": "lib/football_market/providers/football_data_org.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/providers/football_data_org.ex."
-    },
-    {
-      "path": "lib/football_market/providers/performances.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/providers/performances.ex."
-    },
-    {
-      "path": "lib/football_market/providers/player_identity.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/providers/player_identity.ex."
-    },
-    {
-      "path": "lib/football_market/providers/request.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/providers/request.ex."
-    },
-    {
-      "path": "lib/football_market/providers/runtime.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/providers/runtime.ex."
-    },
-    {
-      "path": "lib/football_market/providers/scraping.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/providers/scraping.ex."
-    },
-    {
-      "path": "lib/football_market/providers/scraping/assessment.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/providers/scraping/assessment.ex."
-    },
-    {
-      "path": "lib/football_market/providers/scraping/budget.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/providers/scraping/budget.ex."
-    },
-    {
-      "path": "lib/football_market/providers/scraping/document.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/providers/scraping/document.ex."
-    },
-    {
-      "path": "lib/football_market/providers/scraping/http_transport.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/providers/scraping/http_transport.ex."
-    },
-    {
-      "path": "lib/football_market/providers/scraping/player_profile.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/providers/scraping/player_profile.ex."
-    },
-    {
-      "path": "lib/football_market/providers/scraping/source.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/providers/scraping/source.ex."
-    },
-    {
-      "path": "lib/football_market/providers/scraping/translator.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/providers/scraping/translator.ex."
-    },
-    {
-      "path": "lib/football_market/providers/scraping/transport.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/providers/scraping/transport.ex."
-    },
-    {
-      "path": "lib/football_market/providers/types.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/providers/types.ex."
-    },
-    {
-      "path": "lib/football_market/providers/validator.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/providers/validator.ex."
-    },
-    {
       "path": "lib/football_market/quotes.ex",
       "role": "application",
       "disposition": "include",
       "reason": "Maintained first-party application implementation source: lib/football_market/quotes.ex."
-    },
-    {
-      "path": "lib/football_market/quotes/admission.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/quotes/admission.ex."
-    },
-    {
-      "path": "lib/football_market/quotes/closing.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/quotes/closing.ex."
-    },
-    {
-      "path": "lib/football_market/quotes/engine.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/quotes/engine.ex."
-    },
-    {
-      "path": "lib/football_market/quotes/evidence_codec.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/quotes/evidence_codec.ex."
-    },
-    {
-      "path": "lib/football_market/quotes/import_requests.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/quotes/import_requests.ex."
-    },
-    {
-      "path": "lib/football_market/quotes/mappings.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/quotes/mappings.ex."
-    },
-    {
-      "path": "lib/football_market/quotes/membership.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/quotes/membership.ex."
-    },
-    {
-      "path": "lib/football_market/quotes/reader.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/quotes/reader.ex."
-    },
-    {
-      "path": "lib/football_market/quotes/recovery.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/quotes/recovery.ex."
-    },
-    {
-      "path": "lib/football_market/quotes/schemas.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/quotes/schemas.ex."
-    },
-    {
-      "path": "lib/football_market/quotes/store.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/quotes/store.ex."
     },
     {
       "path": "lib/football_market/ranking.ex",
@@ -458,136 +140,10 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/statistics.ex."
     },
     {
-      "path": "lib/football_market/statistics/freshness.ex",
+      "path": "lib/football_market/sync.ex",
       "role": "application",
       "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/statistics/freshness.ex."
-    },
-    {
-      "path": "lib/football_market/statistics/ingestion.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/statistics/ingestion.ex."
-    },
-    {
-      "path": "lib/football_market/statistics/ingestion/canonical.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/statistics/ingestion/canonical.ex."
-    },
-    {
-      "path": "lib/football_market/statistics/ingestion/fotmob_binding.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/statistics/ingestion/fotmob_binding.ex."
-    },
-    {
-      "path": "lib/football_market/statistics/ingestion/observations.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/statistics/ingestion/observations.ex."
-    },
-    {
-      "path": "lib/football_market/statistics/ingestion/provenance.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/statistics/ingestion/provenance.ex."
-    },
-    {
-      "path": "lib/football_market/statistics/ingestion/publisher.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/statistics/ingestion/publisher.ex."
-    },
-    {
-      "path": "lib/football_market/statistics/ingestion/records.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/statistics/ingestion/records.ex."
-    },
-    {
-      "path": "lib/football_market/statistics/ingestion/schemas.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/statistics/ingestion/schemas.ex."
-    },
-    {
-      "path": "lib/football_market/statistics/input.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/statistics/input.ex."
-    },
-    {
-      "path": "lib/football_market/statistics/query.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/statistics/query.ex."
-    },
-    {
-      "path": "lib/football_market/statistics/schemas.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/statistics/schemas.ex."
-    },
-    {
-      "path": "lib/football_market/synchronization.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/synchronization.ex."
-    },
-    {
-      "path": "lib/football_market/synchronization/clock.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/synchronization/clock.ex."
-    },
-    {
-      "path": "lib/football_market/synchronization/dispatcher.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/synchronization/dispatcher.ex."
-    },
-    {
-      "path": "lib/football_market/synchronization/execution.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/synchronization/execution.ex."
-    },
-    {
-      "path": "lib/football_market/synchronization/input.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/synchronization/input.ex."
-    },
-    {
-      "path": "lib/football_market/synchronization/policy.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/synchronization/policy.ex."
-    },
-    {
-      "path": "lib/football_market/synchronization/runtime.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/synchronization/runtime.ex."
-    },
-    {
-      "path": "lib/football_market/synchronization/scheduler.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/synchronization/scheduler.ex."
-    },
-    {
-      "path": "lib/football_market/synchronization/schemas.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/synchronization/schemas.ex."
-    },
-    {
-      "path": "lib/football_market/synchronization/store.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/synchronization/store.ex."
+      "reason": "Maintained first-party application implementation source: lib/football_market/sync.ex."
     },
     {
       "path": "lib/football_market/valuation.ex",
@@ -596,106 +152,10 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/valuation.ex."
     },
     {
-      "path": "lib/football_market/valuation/balanced.ex",
+      "path": "lib/football_market/workers.ex",
       "role": "application",
       "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/valuation/balanced.ex."
-    },
-    {
-      "path": "lib/football_market/valuation/calculation_requests.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/valuation/calculation_requests.ex."
-    },
-    {
-      "path": "lib/football_market/valuation/configuration_store.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/valuation/configuration_store.ex."
-    },
-    {
-      "path": "lib/football_market/valuation/configurations.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/valuation/configurations.ex."
-    },
-    {
-      "path": "lib/football_market/valuation/decimal_math.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/valuation/decimal_math.ex."
-    },
-    {
-      "path": "lib/football_market/valuation/evidence.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/valuation/evidence.ex."
-    },
-    {
-      "path": "lib/football_market/valuation/managed.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/valuation/managed.ex."
-    },
-    {
-      "path": "lib/football_market/valuation/position_aware.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/valuation/position_aware.ex."
-    },
-    {
-      "path": "lib/football_market/valuation/preparation.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/valuation/preparation.ex."
-    },
-    {
-      "path": "lib/football_market/valuation/request.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/valuation/request.ex."
-    },
-    {
-      "path": "lib/football_market/valuation/schemas.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/valuation/schemas.ex."
-    },
-    {
-      "path": "lib/football_market/valuation/scoring.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/valuation/scoring.ex."
-    },
-    {
-      "path": "lib/football_market/valuation/statistics_reader.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/valuation/statistics_reader.ex."
-    },
-    {
-      "path": "lib/football_market/valuation/types.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/valuation/types.ex."
-    },
-    {
-      "path": "lib/football_market/workers/order_workers.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/workers/order_workers.ex."
-    },
-    {
-      "path": "lib/football_market/workers/quote_workers.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/workers/quote_workers.ex."
-    },
-    {
-      "path": "lib/football_market/workers/sync_workers.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market/workers/sync_workers.ex."
+      "reason": "Maintained first-party application implementation source: lib/football_market/workers.ex."
     },
     {
       "path": "lib/football_market_web.ex",
@@ -704,64 +164,34 @@
       "reason": "Maintained first-party application implementation source: lib/football_market_web.ex."
     },
     {
+      "path": "lib/football_market_web/auth.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market_web/auth.ex."
+    },
+    {
+      "path": "lib/football_market_web/components/app_components.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market_web/components/app_components.ex."
+    },
+    {
       "path": "lib/football_market_web/components/core_components.ex",
       "role": "application",
       "disposition": "include",
       "reason": "Maintained first-party application implementation source: lib/football_market_web/components/core_components.ex."
     },
     {
-      "path": "lib/football_market_web/components/layouts.ex",
+      "path": "lib/football_market_web/controllers/api_controller.ex",
       "role": "application",
       "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market_web/components/layouts.ex."
-    },
-    {
-      "path": "lib/football_market_web/components/portfolio_components.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market_web/components/portfolio_components.ex."
-    },
-    {
-      "path": "lib/football_market_web/components/workspace_components.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market_web/components/workspace_components.ex."
-    },
-    {
-      "path": "lib/football_market_web/controllers/api_json.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market_web/controllers/api_json.ex."
-    },
-    {
-      "path": "lib/football_market_web/controllers/conditional_order_controller.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market_web/controllers/conditional_order_controller.ex."
-    },
-    {
-      "path": "lib/football_market_web/controllers/health_controller.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market_web/controllers/health_controller.ex."
-    },
-    {
-      "path": "lib/football_market_web/controllers/market_controllers.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market_web/controllers/market_controllers.ex."
+      "reason": "Maintained first-party application implementation source: lib/football_market_web/controllers/api_controller.ex."
     },
     {
       "path": "lib/football_market_web/controllers/pages.ex",
       "role": "application",
       "disposition": "include",
       "reason": "Maintained first-party application implementation source: lib/football_market_web/controllers/pages.ex."
-    },
-    {
-      "path": "lib/football_market_web/controllers/player_controller.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market_web/controllers/player_controller.ex."
     },
     {
       "path": "lib/football_market_web/controllers/session_controller.ex",
@@ -782,76 +212,16 @@
       "reason": "Maintained first-party application implementation source: lib/football_market_web/gettext.ex."
     },
     {
-      "path": "lib/football_market_web/live/administration_live.ex",
+      "path": "lib/football_market_web/live/admin_live.ex",
       "role": "application",
       "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market_web/live/administration_live.ex."
-    },
-    {
-      "path": "lib/football_market_web/live/browser_auth.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market_web/live/browser_auth.ex."
-    },
-    {
-      "path": "lib/football_market_web/live/local_admin_live.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market_web/live/local_admin_live.ex."
-    },
-    {
-      "path": "lib/football_market_web/live/workspace/helpers.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market_web/live/workspace/helpers.ex."
-    },
-    {
-      "path": "lib/football_market_web/live/workspace/orders.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market_web/live/workspace/orders.ex."
-    },
-    {
-      "path": "lib/football_market_web/live/workspace/players.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market_web/live/workspace/players.ex."
-    },
-    {
-      "path": "lib/football_market_web/live/workspace/portfolio.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market_web/live/workspace/portfolio.ex."
-    },
-    {
-      "path": "lib/football_market_web/live/workspace/trading.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market_web/live/workspace/trading.ex."
+      "reason": "Maintained first-party application implementation source: lib/football_market_web/live/admin_live.ex."
     },
     {
       "path": "lib/football_market_web/live/workspace_live.ex",
       "role": "application",
       "disposition": "include",
       "reason": "Maintained first-party application implementation source: lib/football_market_web/live/workspace_live.ex."
-    },
-    {
-      "path": "lib/football_market_web/plugs/authenticate_api.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market_web/plugs/authenticate_api.ex."
-    },
-    {
-      "path": "lib/football_market_web/plugs/browser_auth.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market_web/plugs/browser_auth.ex."
-    },
-    {
-      "path": "lib/football_market_web/request_logger.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market_web/request_logger.ex."
     },
     {
       "path": "lib/football_market_web/router.ex",
@@ -866,22 +236,10 @@
       "reason": "Maintained first-party application implementation source: lib/football_market_web/telemetry.ex."
     },
     {
-      "path": "lib/mix/tasks/catalog.seed.ex",
+      "path": "lib/mix/tasks/tasks.ex",
       "role": "application",
       "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/mix/tasks/catalog.seed.ex."
-    },
-    {
-      "path": "lib/mix/tasks/infrastructure.database.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/mix/tasks/infrastructure.database.ex."
-    },
-    {
-      "path": "lib/mix/tasks/infrastructure.verify.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/mix/tasks/infrastructure.verify.ex."
+      "reason": "Maintained first-party application implementation source: lib/mix/tasks/tasks.ex."
     },
     {
       "path": "mix.exs",
@@ -893,289 +251,289 @@
       "path": "priv/repo/migrations/20260913000000_create_infrastructure_probe.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20260913000000_create_infrastructure_probe.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20260913000000_create_infrastructure_probe.exs."
     },
     {
       "path": "priv/repo/migrations/20260917090000_create_catalog_tables.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20260917090000_create_catalog_tables.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20260917090000_create_catalog_tables.exs."
     },
     {
       "path": "priv/repo/migrations/20260922000000_create_users_and_password_credentials.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20260922000000_create_users_and_password_credentials.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20260922000000_create_users_and_password_credentials.exs."
     },
     {
       "path": "priv/repo/migrations/20260923000000_create_api_keys.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20260923000000_create_api_keys.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20260923000000_create_api_keys.exs."
     },
     {
       "path": "priv/repo/migrations/20260927000000_add_player_catalog_order_index.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20260927000000_add_player_catalog_order_index.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20260927000000_add_player_catalog_order_index.exs."
     },
     {
       "path": "priv/repo/migrations/20261003000000_create_match_statistics.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261003000000_create_match_statistics.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261003000000_create_match_statistics.exs."
     },
     {
       "path": "priv/repo/migrations/20261004000000_align_statistics_identity_whitespace.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261004000000_align_statistics_identity_whitespace.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261004000000_align_statistics_identity_whitespace.exs."
     },
     {
       "path": "priv/repo/migrations/20261008000000_create_catalog_ingestion_tables.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261008000000_create_catalog_ingestion_tables.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261008000000_create_catalog_ingestion_tables.exs."
     },
     {
       "path": "priv/repo/migrations/20261008000100_make_team_business_keys_deferrable.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261008000100_make_team_business_keys_deferrable.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261008000100_make_team_business_keys_deferrable.exs."
     },
     {
       "path": "priv/repo/migrations/20261013000000_create_valuation_configurations.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261013000000_create_valuation_configurations.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261013000000_create_valuation_configurations.exs."
     },
     {
       "path": "priv/repo/migrations/20261014000000_create_initial_player_issuance.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261014000000_create_initial_player_issuance.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261014000000_create_initial_player_issuance.exs."
     },
     {
       "path": "priv/repo/migrations/20261015000000_add_oban.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261015000000_add_oban.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261015000000_add_oban.exs."
     },
     {
       "path": "priv/repo/migrations/20261015000100_create_synchronization_ledgers.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261015000100_create_synchronization_ledgers.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261015000100_create_synchronization_ledgers.exs."
     },
     {
       "path": "priv/repo/migrations/20261015000200_create_catalog_delivery_receipts.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261015000200_create_catalog_delivery_receipts.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261015000200_create_catalog_delivery_receipts.exs."
     },
     {
       "path": "priv/repo/migrations/20261015235000_create_browser_sessions.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261015235000_create_browser_sessions.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261015235000_create_browser_sessions.exs."
     },
     {
       "path": "priv/repo/migrations/20261015235100_align_browser_session_contract.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261015235100_align_browser_session_contract.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261015235100_align_browser_session_contract.exs."
     },
     {
       "path": "priv/repo/migrations/20261016000100_extend_statistics_position_evidence.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261016000100_extend_statistics_position_evidence.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261016000100_extend_statistics_position_evidence.exs."
     },
     {
       "path": "priv/repo/migrations/20261016000200_create_statistics_ingestion.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261016000200_create_statistics_ingestion.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261016000200_create_statistics_ingestion.exs."
     },
     {
       "path": "priv/repo/migrations/20261016000300_extend_synchronization_operations.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261016000300_extend_synchronization_operations.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261016000300_extend_synchronization_operations.exs."
     },
     {
       "path": "priv/repo/migrations/20261018000000_create_quote_calculations.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261018000000_create_quote_calculations.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261018000000_create_quote_calculations.exs."
     },
     {
       "path": "priv/repo/migrations/20261018000100_add_quote_import_snapshots.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261018000100_add_quote_import_snapshots.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261018000100_add_quote_import_snapshots.exs."
     },
     {
       "path": "priv/repo/migrations/20261018000200_add_explicit_quote_requests.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261018000200_add_explicit_quote_requests.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261018000200_add_explicit_quote_requests.exs."
     },
     {
       "path": "priv/repo/migrations/20261018000300_reconcile_quote_import_snapshot_schema.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261018000300_reconcile_quote_import_snapshot_schema.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261018000300_reconcile_quote_import_snapshot_schema.exs."
     },
     {
       "path": "priv/repo/migrations/20261018000400_reconcile_quote_import_snapshot_facts.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261018000400_reconcile_quote_import_snapshot_facts.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261018000400_reconcile_quote_import_snapshot_facts.exs."
     },
     {
       "path": "priv/repo/migrations/20261018000500_reconcile_quote_mapping_schema.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261018000500_reconcile_quote_mapping_schema.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261018000500_reconcile_quote_mapping_schema.exs."
     },
     {
       "path": "priv/repo/migrations/20261018000600_reconcile_quote_calculation_requests.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261018000600_reconcile_quote_calculation_requests.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261018000600_reconcile_quote_calculation_requests.exs."
     },
     {
       "path": "priv/repo/migrations/20261018000700_reconcile_quote_calculation_attempts.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261018000700_reconcile_quote_calculation_attempts.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261018000700_reconcile_quote_calculation_attempts.exs."
     },
     {
       "path": "priv/repo/migrations/20261018000800_reconcile_quote_request_requested_mapping.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261018000800_reconcile_quote_request_requested_mapping.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261018000800_reconcile_quote_request_requested_mapping.exs."
     },
     {
       "path": "priv/repo/migrations/20261018000900_reconcile_legacy_quote_admission.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261018000900_reconcile_legacy_quote_admission.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261018000900_reconcile_legacy_quote_admission.exs."
     },
     {
       "path": "priv/repo/migrations/20261018001000_protect_quote_evaluation_deletion.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261018001000_protect_quote_evaluation_deletion.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261018001000_protect_quote_evaluation_deletion.exs."
     },
     {
       "path": "priv/repo/migrations/20261018001100_require_successful_quote_confirmation.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261018001100_require_successful_quote_confirmation.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261018001100_require_successful_quote_confirmation.exs."
     },
     {
       "path": "priv/repo/migrations/20261023000000_create_market_purchases.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261023000000_create_market_purchases.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261023000000_create_market_purchases.exs."
     },
     {
       "path": "priv/repo/migrations/20261026000000_index_statistics_freshness_reads.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261026000000_index_statistics_freshness_reads.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261026000000_index_statistics_freshness_reads.exs."
     },
     {
       "path": "priv/repo/migrations/20261026000100_add_synchronization_correlation.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261026000100_add_synchronization_correlation.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261026000100_add_synchronization_correlation.exs."
     },
     {
       "path": "priv/repo/migrations/20261027000000_create_conditional_buy_orders.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261027000000_create_conditional_buy_orders.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261027000000_create_conditional_buy_orders.exs."
     },
     {
       "path": "priv/repo/migrations/20261027000100_add_conditional_order_evaluation_passes.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261027000100_add_conditional_order_evaluation_passes.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261027000100_add_conditional_order_evaluation_passes.exs."
     },
     {
       "path": "priv/repo/migrations/20261027010000_create_market_sales.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261027010000_create_market_sales.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261027010000_create_market_sales.exs."
     },
     {
       "path": "priv/repo/migrations/20261029000000_add_nightly_quote_admission.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261029000000_add_nightly_quote_admission.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261029000000_add_nightly_quote_admission.exs."
     },
     {
       "path": "priv/repo/migrations/20261031000100_create_catalog_scout_runs.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261031000100_create_catalog_scout_runs.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261031000100_create_catalog_scout_runs.exs."
     },
     {
       "path": "priv/repo/migrations/20261102000000_create_provider_rate_limits.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261102000000_create_provider_rate_limits.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261102000000_create_provider_rate_limits.exs."
     },
     {
       "path": "priv/repo/migrations/20261102000100_add_player_scoped_statistics_checks.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261102000100_add_player_scoped_statistics_checks.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261102000100_add_player_scoped_statistics_checks.exs."
     },
     {
       "path": "priv/repo/migrations/20261102000200_add_unknown_catalog_position.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261102000200_add_unknown_catalog_position.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261102000200_add_unknown_catalog_position.exs."
     },
     {
       "path": "priv/repo/migrations/20261102000300_extend_browser_session_deadline.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261102000300_extend_browser_session_deadline.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261102000300_extend_browser_session_deadline.exs."
     },
     {
       "path": "priv/repo/migrations/20261110000100_add_performance_enrichments_and_presets.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261110000100_add_performance_enrichments_and_presets.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261110000100_add_performance_enrichments_and_presets.exs."
     },
     {
       "path": "priv/repo/migrations/20261110000200_guard_additive_performance_evidence.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261110000200_guard_additive_performance_evidence.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261110000200_guard_additive_performance_evidence.exs."
     },
     {
       "path": "priv/repo/migrations/20261116000000_add_initial_quote_eligibility.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261116000000_add_initial_quote_eligibility.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261116000000_add_initial_quote_eligibility.exs."
     },
     {
       "path": "priv/repo/migrations/20261117000000_scope_active_statistics_imports_by_player.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261117000000_scope_active_statistics_imports_by_player.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261117000000_scope_active_statistics_imports_by_player.exs."
     },
     {
       "path": "priv/repo/migrations/20261117000100_add_provider_volume_reservations.exs",
       "role": "migration",
       "disposition": "exclude",
-      "reason": "Database migration or private script, not application implementation: priv/repo/migrations/20261117000100_add_provider_volume_reservations.exs."
+      "reason": "Database migration or repo asset, not application implementation: priv/repo/migrations/20261117000100_add_provider_volume_reservations.exs."
     },
     {
       "path": "scripts/application_coverage_native.exs",
@@ -1223,1939 +581,187 @@
       "path": "specs/026-quote-recalculation-and-immutable-history/qa-evidence/20261021-independent/conflict_test.exs",
       "role": "archived-evidence",
       "disposition": "exclude",
-      "reason": "Archived verification evidence outside runtime application code: specs/026-quote-recalculation-and-immutable-history/qa-evidence/20261021-independent/conflict_test.exs."
+      "reason": "Archived verification evidence outside application scope: specs/026-quote-recalculation-and-immutable-history/qa-evidence/20261021-independent/conflict_test.exs."
     },
     {
       "path": "specs/026-quote-recalculation-and-immutable-history/qa-evidence/20261023-ack-expiry/ack_expiry_test.exs",
       "role": "archived-evidence",
       "disposition": "exclude",
-      "reason": "Archived verification evidence outside runtime application code: specs/026-quote-recalculation-and-immutable-history/qa-evidence/20261023-ack-expiry/ack_expiry_test.exs."
+      "reason": "Archived verification evidence outside application scope: specs/026-quote-recalculation-and-immutable-history/qa-evidence/20261023-ack-expiry/ack_expiry_test.exs."
     },
     {
       "path": "specs/026-quote-recalculation-and-immutable-history/qa-evidence/independent-20261021-current/admission-probe.exs",
       "role": "archived-evidence",
       "disposition": "exclude",
-      "reason": "Archived verification evidence outside runtime application code: specs/026-quote-recalculation-and-immutable-history/qa-evidence/independent-20261021-current/admission-probe.exs."
+      "reason": "Archived verification evidence outside application scope: specs/026-quote-recalculation-and-immutable-history/qa-evidence/independent-20261021-current/admission-probe.exs."
     },
     {
       "path": "specs/054-player-match-statistics/qa-evidence/adversarial_test.exs",
       "role": "archived-evidence",
       "disposition": "exclude",
-      "reason": "Archived verification evidence outside runtime application code: specs/054-player-match-statistics/qa-evidence/adversarial_test.exs."
+      "reason": "Archived verification evidence outside application scope: specs/054-player-match-statistics/qa-evidence/adversarial_test.exs."
     },
     {
       "path": "specs/054-player-match-statistics/qa-evidence/current/acceptance_test.exs",
       "role": "archived-evidence",
       "disposition": "exclude",
-      "reason": "Archived verification evidence outside runtime application code: specs/054-player-match-statistics/qa-evidence/current/acceptance_test.exs."
+      "reason": "Archived verification evidence outside application scope: specs/054-player-match-statistics/qa-evidence/current/acceptance_test.exs."
     },
     {
       "path": "specs/054-player-match-statistics/qa-evidence/current/malformed_identity_test.exs",
       "role": "archived-evidence",
       "disposition": "exclude",
-      "reason": "Archived verification evidence outside runtime application code: specs/054-player-match-statistics/qa-evidence/current/malformed_identity_test.exs."
+      "reason": "Archived verification evidence outside application scope: specs/054-player-match-statistics/qa-evidence/current/malformed_identity_test.exs."
     },
     {
       "path": "specs/054-player-match-statistics/qa-evidence/round3/acceptance_test.exs",
       "role": "archived-evidence",
       "disposition": "exclude",
-      "reason": "Archived verification evidence outside runtime application code: specs/054-player-match-statistics/qa-evidence/round3/acceptance_test.exs."
+      "reason": "Archived verification evidence outside application scope: specs/054-player-match-statistics/qa-evidence/round3/acceptance_test.exs."
     },
     {
       "path": "specs/056-football-scraping-adapter/handoffs/qa-evidence/ci-refresh/adversarial.exs",
       "role": "archived-evidence",
       "disposition": "exclude",
-      "reason": "Archived verification evidence outside runtime application code: specs/056-football-scraping-adapter/handoffs/qa-evidence/ci-refresh/adversarial.exs."
+      "reason": "Archived verification evidence outside application scope: specs/056-football-scraping-adapter/handoffs/qa-evidence/ci-refresh/adversarial.exs."
     },
     {
       "path": "specs/056-football-scraping-adapter/handoffs/qa-evidence/current/adversarial.exs",
       "role": "archived-evidence",
       "disposition": "exclude",
-      "reason": "Archived verification evidence outside runtime application code: specs/056-football-scraping-adapter/handoffs/qa-evidence/current/adversarial.exs."
+      "reason": "Archived verification evidence outside application scope: specs/056-football-scraping-adapter/handoffs/qa-evidence/current/adversarial.exs."
     },
     {
       "path": "specs/056-football-scraping-adapter/handoffs/qa-evidence/independent-ci/adversarial.exs",
       "role": "archived-evidence",
       "disposition": "exclude",
-      "reason": "Archived verification evidence outside runtime application code: specs/056-football-scraping-adapter/handoffs/qa-evidence/independent-ci/adversarial.exs."
+      "reason": "Archived verification evidence outside application scope: specs/056-football-scraping-adapter/handoffs/qa-evidence/independent-ci/adversarial.exs."
     },
     {
       "path": "specs/056-football-scraping-adapter/handoffs/qa-evidence/publication-gate.exs",
       "role": "archived-evidence",
       "disposition": "exclude",
-      "reason": "Archived verification evidence outside runtime application code: specs/056-football-scraping-adapter/handoffs/qa-evidence/publication-gate.exs."
+      "reason": "Archived verification evidence outside application scope: specs/056-football-scraping-adapter/handoffs/qa-evidence/publication-gate.exs."
     },
     {
       "path": "specs/056-football-scraping-adapter/handoffs/review-guard.exs",
       "role": "archived-evidence",
       "disposition": "exclude",
-      "reason": "Archived verification evidence outside runtime application code: specs/056-football-scraping-adapter/handoffs/review-guard.exs."
+      "reason": "Archived verification evidence outside application scope: specs/056-football-scraping-adapter/handoffs/review-guard.exs."
     },
     {
       "path": "specs/057-idempotent-catalog-ingestion/qa-evidence/adversarial_test.exs",
       "role": "archived-evidence",
       "disposition": "exclude",
-      "reason": "Archived verification evidence outside runtime application code: specs/057-idempotent-catalog-ingestion/qa-evidence/adversarial_test.exs."
+      "reason": "Archived verification evidence outside application scope: specs/057-idempotent-catalog-ingestion/qa-evidence/adversarial_test.exs."
     },
     {
       "path": "specs/058-valuation-contract-normalization/qa-evidence/fresh-20261013/task022_qa_adversarial.exs",
       "role": "archived-evidence",
       "disposition": "exclude",
-      "reason": "Archived verification evidence outside runtime application code: specs/058-valuation-contract-normalization/qa-evidence/fresh-20261013/task022_qa_adversarial.exs."
+      "reason": "Archived verification evidence outside application scope: specs/058-valuation-contract-normalization/qa-evidence/fresh-20261013/task022_qa_adversarial.exs."
     },
     {
       "path": "specs/058-valuation-contract-normalization/qa-evidence/fresh-20261013/task022_qa_fresh_acceptance_test.exs",
       "role": "archived-evidence",
       "disposition": "exclude",
-      "reason": "Archived verification evidence outside runtime application code: specs/058-valuation-contract-normalization/qa-evidence/fresh-20261013/task022_qa_fresh_acceptance_test.exs."
+      "reason": "Archived verification evidence outside application scope: specs/058-valuation-contract-normalization/qa-evidence/fresh-20261013/task022_qa_fresh_acceptance_test.exs."
     },
     {
       "path": "specs/059-balanced-valuation-strategy/qa-evidence/fresh-qa-cleanup-20261013/adversarial_test.exs",
       "role": "archived-evidence",
       "disposition": "exclude",
-      "reason": "Archived verification evidence outside runtime application code: specs/059-balanced-valuation-strategy/qa-evidence/fresh-qa-cleanup-20261013/adversarial_test.exs."
+      "reason": "Archived verification evidence outside application scope: specs/059-balanced-valuation-strategy/qa-evidence/fresh-qa-cleanup-20261013/adversarial_test.exs."
     },
     {
       "path": "specs/059-balanced-valuation-strategy/qa-evidence/independent-20261013/oracle_probe_test.exs",
       "role": "archived-evidence",
       "disposition": "exclude",
-      "reason": "Archived verification evidence outside runtime application code: specs/059-balanced-valuation-strategy/qa-evidence/independent-20261013/oracle_probe_test.exs."
+      "reason": "Archived verification evidence outside application scope: specs/059-balanced-valuation-strategy/qa-evidence/independent-20261013/oracle_probe_test.exs."
     },
     {
       "path": "specs/061-valuation-strategy-versioning/qa-evidence/fresh-feedback-20261013b/oracle_test.exs",
       "role": "archived-evidence",
       "disposition": "exclude",
-      "reason": "Archived verification evidence outside runtime application code: specs/061-valuation-strategy-versioning/qa-evidence/fresh-feedback-20261013b/oracle_test.exs."
+      "reason": "Archived verification evidence outside application scope: specs/061-valuation-strategy-versioning/qa-evidence/fresh-feedback-20261013b/oracle_test.exs."
     },
     {
       "path": "specs/061-valuation-strategy-versioning/qa-evidence/independent-20261013/adversarial.exs",
       "role": "archived-evidence",
       "disposition": "exclude",
-      "reason": "Archived verification evidence outside runtime application code: specs/061-valuation-strategy-versioning/qa-evidence/independent-20261013/adversarial.exs."
+      "reason": "Archived verification evidence outside application scope: specs/061-valuation-strategy-versioning/qa-evidence/independent-20261013/adversarial.exs."
     },
     {
       "path": "specs/062-initial-player-token-issuance/qa-evidence/independent-20261014-current/adversarial_probe.exs",
       "role": "archived-evidence",
       "disposition": "exclude",
-      "reason": "Archived verification evidence outside runtime application code: specs/062-initial-player-token-issuance/qa-evidence/independent-20261014-current/adversarial_probe.exs."
+      "reason": "Archived verification evidence outside application scope: specs/062-initial-player-token-issuance/qa-evidence/independent-20261014-current/adversarial_probe.exs."
     },
     {
       "path": "specs/062-initial-player-token-issuance/qa-evidence/independent-20261014/adversarial-absent-owner.exs",
       "role": "archived-evidence",
       "disposition": "exclude",
-      "reason": "Archived verification evidence outside runtime application code: specs/062-initial-player-token-issuance/qa-evidence/independent-20261014/adversarial-absent-owner.exs."
+      "reason": "Archived verification evidence outside application scope: specs/062-initial-player-token-issuance/qa-evidence/independent-20261014/adversarial-absent-owner.exs."
     },
     {
       "path": "specs/062-initial-player-token-issuance/qa-evidence/independent-feedback-20261014/adversarial_test.exs",
       "role": "archived-evidence",
       "disposition": "exclude",
-      "reason": "Archived verification evidence outside runtime application code: specs/062-initial-player-token-issuance/qa-evidence/independent-feedback-20261014/adversarial_test.exs."
+      "reason": "Archived verification evidence outside application scope: specs/062-initial-player-token-issuance/qa-evidence/independent-feedback-20261014/adversarial_test.exs."
     },
     {
       "path": "specs/062-initial-player-token-issuance/review-evidence/prefix_test.exs",
       "role": "archived-evidence",
       "disposition": "exclude",
-      "reason": "Archived verification evidence outside runtime application code: specs/062-initial-player-token-issuance/review-evidence/prefix_test.exs."
+      "reason": "Archived verification evidence outside application scope: specs/062-initial-player-token-issuance/review-evidence/prefix_test.exs."
     },
     {
       "path": "specs/063-liveview-shell-authentication/qa-evidence/b1-independent-20261016/task046_b1_qa_test.exs",
       "role": "archived-evidence",
       "disposition": "exclude",
-      "reason": "Archived verification evidence outside runtime application code: specs/063-liveview-shell-authentication/qa-evidence/b1-independent-20261016/task046_b1_qa_test.exs."
+      "reason": "Archived verification evidence outside application scope: specs/063-liveview-shell-authentication/qa-evidence/b1-independent-20261016/task046_b1_qa_test.exs."
     },
     {
       "path": "specs/063-liveview-shell-authentication/qa-evidence/independent-20261016/task046_qa_test.exs",
       "role": "archived-evidence",
       "disposition": "exclude",
-      "reason": "Archived verification evidence outside runtime application code: specs/063-liveview-shell-authentication/qa-evidence/independent-20261016/task046_qa_test.exs."
+      "reason": "Archived verification evidence outside application scope: specs/063-liveview-shell-authentication/qa-evidence/independent-20261016/task046_qa_test.exs."
     },
     {
       "path": "specs/063-liveview-shell-authentication/review-evidence/transport_expiry_test.exs",
       "role": "archived-evidence",
       "disposition": "exclude",
-      "reason": "Archived verification evidence outside runtime application code: specs/063-liveview-shell-authentication/review-evidence/transport_expiry_test.exs."
+      "reason": "Archived verification evidence outside application scope: specs/063-liveview-shell-authentication/review-evidence/transport_expiry_test.exs."
     },
     {
       "path": "specs/063-scheduled-synchronization-jobs/qa-evidence/independent-20261015-b1/adversarial.exs",
       "role": "archived-evidence",
       "disposition": "exclude",
-      "reason": "Archived verification evidence outside runtime application code: specs/063-scheduled-synchronization-jobs/qa-evidence/independent-20261015-b1/adversarial.exs."
+      "reason": "Archived verification evidence outside application scope: specs/063-scheduled-synchronization-jobs/qa-evidence/independent-20261015-b1/adversarial.exs."
     },
     {
       "path": "specs/063-scheduled-synchronization-jobs/qa-evidence/independent-20261015/adversarial.exs",
       "role": "archived-evidence",
       "disposition": "exclude",
-      "reason": "Archived verification evidence outside runtime application code: specs/063-scheduled-synchronization-jobs/qa-evidence/independent-20261015/adversarial.exs."
+      "reason": "Archived verification evidence outside application scope: specs/063-scheduled-synchronization-jobs/qa-evidence/independent-20261015/adversarial.exs."
     },
     {
-      "path": "test/ci/application_coverage_contract_test.exs",
+      "path": "test/accounts_test.exs",
       "role": "test",
       "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/ci/application_coverage_contract_test.exs."
+      "reason": "Automated test source, not application implementation: test/accounts_test.exs."
     },
     {
-      "path": "test/ci/application_coverage_native_test.exs",
+      "path": "test/catalog_test.exs",
       "role": "test",
       "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/ci/application_coverage_native_test.exs."
+      "reason": "Automated test source, not application implementation: test/catalog_test.exs."
     },
     {
-      "path": "test/ci/coverage_report_contract_test.exs",
+      "path": "test/e2e/market_journey_test.exs",
       "role": "test",
       "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/ci/coverage_report_contract_test.exs."
-    },
-    {
-      "path": "test/ci/cp1_coverage_inventory_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/ci/cp1_coverage_inventory_test.exs."
-    },
-    {
-      "path": "test/ci/credo_ci_contract_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/ci/credo_ci_contract_test.exs."
-    },
-    {
-      "path": "test/ci/credo_inventory_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/ci/credo_inventory_test.exs."
-    },
-    {
-      "path": "test/ci/credo_remediation_contract_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/ci/credo_remediation_contract_test.exs."
-    },
-    {
-      "path": "test/ci/e2e_runtime_contract_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/ci/e2e_runtime_contract_test.exs."
-    },
-    {
-      "path": "test/ci/e2e_supervisor_cleanup_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/ci/e2e_supervisor_cleanup_test.exs."
-    },
-    {
-      "path": "test/ci/portfolio_analytics_scope_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/ci/portfolio_analytics_scope_test.exs."
-    },
-    {
-      "path": "test/ci/profile_integration_sentinel_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/ci/profile_integration_sentinel_test.exs."
-    },
-    {
-      "path": "test/ci/profile_unit_sentinel_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/ci/profile_unit_sentinel_test.exs."
-    },
-    {
-      "path": "test/ci/quality_baseline_contract_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/ci/quality_baseline_contract_test.exs."
-    },
-    {
-      "path": "test/ci/quality_baseline_discovery_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/ci/quality_baseline_discovery_test.exs."
-    },
-    {
-      "path": "test/ci/sonarcloud_contract_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/ci/sonarcloud_contract_test.exs."
-    },
-    {
-      "path": "test/ci/structured_logging_scope_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/ci/structured_logging_scope_test.exs."
-    },
-    {
-      "path": "test/ci/test_profile_audit_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/ci/test_profile_audit_test.exs."
-    },
-    {
-      "path": "test/ci/test_profile_runner_contract_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/ci/test_profile_runner_contract_test.exs."
-    },
-    {
-      "path": "test/ci/test_profiles_quality_contract_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/ci/test_profiles_quality_contract_test.exs."
-    },
-    {
-      "path": "test/ci/test_profiles_scope_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/ci/test_profiles_scope_test.exs."
-    },
-    {
-      "path": "test/ci/workflow_scope_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/ci/workflow_scope_test.exs."
-    },
-    {
-      "path": "test/e2e/browser_reconnect_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/e2e/browser_reconnect_test.exs."
-    },
-    {
-      "path": "test/e2e/browser_shell_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/e2e/browser_shell_test.exs."
-    },
-    {
-      "path": "test/e2e/catalog_scouting_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/e2e/catalog_scouting_test.exs."
-    },
-    {
-      "path": "test/e2e/catalog_sync_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/e2e/catalog_sync_test.exs."
-    },
-    {
-      "path": "test/e2e/correlated_logging_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/e2e/correlated_logging_test.exs."
-    },
-    {
-      "path": "test/e2e/portfolio_analytics_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/e2e/portfolio_analytics_test.exs."
-    },
-    {
-      "path": "test/fixtures/providers/cases.exs",
-      "role": "fixture",
-      "disposition": "exclude",
-      "reason": "Test fixture data, not application implementation: test/fixtures/providers/cases.exs."
-    },
-    {
-      "path": "test/fixtures/providers/expected.exs",
-      "role": "fixture",
-      "disposition": "exclude",
-      "reason": "Test fixture data, not application implementation: test/fixtures/providers/expected.exs."
-    },
-    {
-      "path": "test/fixtures/providers/source_a.exs",
-      "role": "fixture",
-      "disposition": "exclude",
-      "reason": "Test fixture data, not application implementation: test/fixtures/providers/source_a.exs."
-    },
-    {
-      "path": "test/fixtures/providers/source_b.exs",
-      "role": "fixture",
-      "disposition": "exclude",
-      "reason": "Test fixture data, not application implementation: test/fixtures/providers/source_b.exs."
-    },
-    {
-      "path": "test/fixtures/scraping/cases.exs",
-      "role": "fixture",
-      "disposition": "exclude",
-      "reason": "Test fixture data, not application implementation: test/fixtures/scraping/cases.exs."
-    },
-    {
-      "path": "test/fixtures/scraping/documents.exs",
-      "role": "fixture",
-      "disposition": "exclude",
-      "reason": "Test fixture data, not application implementation: test/fixtures/scraping/documents.exs."
-    },
-    {
-      "path": "test/fixtures/scraping/expected.exs",
-      "role": "fixture",
-      "disposition": "exclude",
-      "reason": "Test fixture data, not application implementation: test/fixtures/scraping/expected.exs."
-    },
-    {
-      "path": "test/fixtures/scraping/inventory.exs",
-      "role": "fixture",
-      "disposition": "exclude",
-      "reason": "Test fixture data, not application implementation: test/fixtures/scraping/inventory.exs."
-    },
-    {
-      "path": "test/fixtures/statistics_ingestion/documents.exs",
-      "role": "fixture",
-      "disposition": "exclude",
-      "reason": "Test fixture data, not application implementation: test/fixtures/statistics_ingestion/documents.exs."
-    },
-    {
-      "path": "test/fixtures/statistics_ingestion/expected.exs",
-      "role": "fixture",
-      "disposition": "exclude",
-      "reason": "Test fixture data, not application implementation: test/fixtures/statistics_ingestion/expected.exs."
-    },
-    {
-      "path": "test/fixtures/statistics_ingestion/inventory.exs",
-      "role": "fixture",
-      "disposition": "exclude",
-      "reason": "Test fixture data, not application implementation: test/fixtures/statistics_ingestion/inventory.exs."
-    },
-    {
-      "path": "test/fixtures/synchronization/expected.exs",
-      "role": "fixture",
-      "disposition": "exclude",
-      "reason": "Test fixture data, not application implementation: test/fixtures/synchronization/expected.exs."
-    },
-    {
-      "path": "test/football_market/accounts/accounts_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/accounts/accounts_test.exs."
-    },
-    {
-      "path": "test/football_market/accounts/api_key_persistence_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/accounts/api_key_persistence_test.exs."
-    },
-    {
-      "path": "test/football_market/accounts/api_key_security_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/accounts/api_key_security_test.exs."
-    },
-    {
-      "path": "test/football_market/accounts/api_keys_performance_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/accounts/api_keys_performance_test.exs."
-    },
-    {
-      "path": "test/football_market/accounts/api_keys_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/accounts/api_keys_test.exs."
-    },
-    {
-      "path": "test/football_market/accounts/authentication_performance_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/accounts/authentication_performance_test.exs."
-    },
-    {
-      "path": "test/football_market/accounts/authentication_security_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/accounts/authentication_security_test.exs."
-    },
-    {
-      "path": "test/football_market/accounts/authentication_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/accounts/authentication_test.exs."
-    },
-    {
-      "path": "test/football_market/accounts/browser_credentials_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/accounts/browser_credentials_test.exs."
-    },
-    {
-      "path": "test/football_market/accounts/browser_sessions_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/accounts/browser_sessions_test.exs."
-    },
-    {
-      "path": "test/football_market/accounts/password_credential_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/accounts/password_credential_test.exs."
-    },
-    {
-      "path": "test/football_market/accounts/persistence_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/accounts/persistence_test.exs."
-    },
-    {
-      "path": "test/football_market/accounts/user_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/accounts/user_test.exs."
-    },
-    {
-      "path": "test/football_market/catalog/catalog_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/catalog/catalog_test.exs."
-    },
-    {
-      "path": "test/football_market/catalog/constraints_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/catalog/constraints_test.exs."
-    },
-    {
-      "path": "test/football_market/catalog/development_seed_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/catalog/development_seed_test.exs."
-    },
-    {
-      "path": "test/football_market/catalog/ingestion/canonical_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/catalog/ingestion/canonical_test.exs."
-    },
-    {
-      "path": "test/football_market/catalog/ingestion/concurrency_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/catalog/ingestion/concurrency_test.exs."
-    },
-    {
-      "path": "test/football_market/catalog/ingestion/delivery_receipt_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/catalog/ingestion/delivery_receipt_test.exs."
-    },
-    {
-      "path": "test/football_market/catalog/ingestion/identity_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/catalog/ingestion/identity_test.exs."
-    },
-    {
-      "path": "test/football_market/catalog/ingestion/isolation_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/catalog/ingestion/isolation_test.exs."
-    },
-    {
-      "path": "test/football_market/catalog/ingestion/matrix_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/catalog/ingestion/matrix_test.exs."
-    },
-    {
-      "path": "test/football_market/catalog/ingestion/outcome_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/catalog/ingestion/outcome_test.exs."
-    },
-    {
-      "path": "test/football_market/catalog/ingestion/publication_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/catalog/ingestion/publication_test.exs."
-    },
-    {
-      "path": "test/football_market/catalog/ingestion/reconciliation_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/catalog/ingestion/reconciliation_test.exs."
-    },
-    {
-      "path": "test/football_market/catalog/ingestion/replay_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/catalog/ingestion/replay_test.exs."
-    },
-    {
-      "path": "test/football_market/catalog/ingestion/retention_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/catalog/ingestion/retention_test.exs."
-    },
-    {
-      "path": "test/football_market/catalog/market_visibility_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/catalog/market_visibility_test.exs."
-    },
-    {
-      "path": "test/football_market/catalog/player_catalog_index_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/catalog/player_catalog_index_test.exs."
-    },
-    {
-      "path": "test/football_market/catalog/player_cursor_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/catalog/player_cursor_test.exs."
-    },
-    {
-      "path": "test/football_market/catalog/player_detail_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/catalog/player_detail_test.exs."
-    },
-    {
-      "path": "test/football_market/catalog/player_pagination_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/catalog/player_pagination_test.exs."
-    },
-    {
-      "path": "test/football_market/catalog/profiles_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/catalog/profiles_test.exs."
-    },
-    {
-      "path": "test/football_market/catalog/query_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/catalog/query_test.exs."
-    },
-    {
-      "path": "test/football_market/catalog/scouting_policy_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/catalog/scouting_policy_test.exs."
-    },
-    {
-      "path": "test/football_market/catalog/scouting_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/catalog/scouting_test.exs."
-    },
-    {
-      "path": "test/football_market/infrastructure/configuration_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/infrastructure/configuration_test.exs."
-    },
-    {
-      "path": "test/football_market/infrastructure/database_workflow_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/infrastructure/database_workflow_test.exs."
-    },
-    {
-      "path": "test/football_market/infrastructure/provider_rate_limit_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/infrastructure/provider_rate_limit_test.exs."
-    },
-    {
-      "path": "test/football_market/infrastructure/redis_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/infrastructure/redis_test.exs."
-    },
-    {
-      "path": "test/football_market/infrastructure/verification_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/infrastructure/verification_test.exs."
-    },
-    {
-      "path": "test/football_market/market/analytics/projection_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/analytics/projection_test.exs."
-    },
-    {
-      "path": "test/football_market/market/analytics/store_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/analytics/store_test.exs."
-    },
-    {
-      "path": "test/football_market/market/concurrency_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/concurrency_test.exs."
-    },
-    {
-      "path": "test/football_market/market/conditional_orders/cancellation_race_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/conditional_orders/cancellation_race_test.exs."
-    },
-    {
-      "path": "test/football_market/market/conditional_orders/cancellation_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/conditional_orders/cancellation_test.exs."
-    },
-    {
-      "path": "test/football_market/market/conditional_orders/concurrency_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/conditional_orders/concurrency_test.exs."
-    },
-    {
-      "path": "test/football_market/market/conditional_orders/contention_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/conditional_orders/contention_test.exs."
-    },
-    {
-      "path": "test/football_market/market/conditional_orders/creation_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/conditional_orders/creation_test.exs."
-    },
-    {
-      "path": "test/football_market/market/conditional_orders/evaluation_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/conditional_orders/evaluation_test.exs."
-    },
-    {
-      "path": "test/football_market/market/conditional_orders/handoff_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/conditional_orders/handoff_test.exs."
-    },
-    {
-      "path": "test/football_market/market/conditional_orders/input_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/conditional_orders/input_test.exs."
-    },
-    {
-      "path": "test/football_market/market/conditional_orders/projection_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/conditional_orders/projection_test.exs."
-    },
-    {
-      "path": "test/football_market/market/conditional_orders/quote_order_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/conditional_orders/quote_order_test.exs."
-    },
-    {
-      "path": "test/football_market/market/conditional_orders/reads_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/conditional_orders/reads_test.exs."
-    },
-    {
-      "path": "test/football_market/market/conditional_orders/rollback_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/conditional_orders/rollback_test.exs."
-    },
-    {
-      "path": "test/football_market/market/conditional_orders/scope_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/conditional_orders/scope_test.exs."
-    },
-    {
-      "path": "test/football_market/market/conditional_orders/storage_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/conditional_orders/storage_test.exs."
-    },
-    {
-      "path": "test/football_market/market/consistency_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/consistency_test.exs."
-    },
-    {
-      "path": "test/football_market/market/durability_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/durability_test.exs."
-    },
-    {
-      "path": "test/football_market/market/input_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/input_test.exs."
-    },
-    {
-      "path": "test/football_market/market/issuance_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/issuance_test.exs."
-    },
-    {
-      "path": "test/football_market/market/order_evaluation/contention_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/order_evaluation/contention_test.exs."
-    },
-    {
-      "path": "test/football_market/market/order_evaluation/delivery_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/order_evaluation/delivery_test.exs."
-    },
-    {
-      "path": "test/football_market/market/order_evaluation/eligibility_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/order_evaluation/eligibility_test.exs."
-    },
-    {
-      "path": "test/football_market/market/order_evaluation/notifications_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/order_evaluation/notifications_test.exs."
-    },
-    {
-      "path": "test/football_market/market/order_evaluation/ordering_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/order_evaluation/ordering_test.exs."
-    },
-    {
-      "path": "test/football_market/market/order_evaluation/recovery_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/order_evaluation/recovery_test.exs."
-    },
-    {
-      "path": "test/football_market/market/order_evaluation/retry_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/order_evaluation/retry_test.exs."
-    },
-    {
-      "path": "test/football_market/market/order_evaluation/scope_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/order_evaluation/scope_test.exs."
-    },
-    {
-      "path": "test/football_market/market/portfolio/calculation_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/portfolio/calculation_test.exs."
-    },
-    {
-      "path": "test/football_market/market/portfolio/positions_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/portfolio/positions_test.exs."
-    },
-    {
-      "path": "test/football_market/market/portfolio/quote_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/portfolio/quote_test.exs."
-    },
-    {
-      "path": "test/football_market/market/purchases/concurrency_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/purchases/concurrency_test.exs."
-    },
-    {
-      "path": "test/football_market/market/purchases/duplicate_race_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/purchases/duplicate_race_test.exs."
-    },
-    {
-      "path": "test/football_market/market/purchases/idempotency_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/purchases/idempotency_test.exs."
-    },
-    {
-      "path": "test/football_market/market/purchases/input_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/purchases/input_test.exs."
-    },
-    {
-      "path": "test/football_market/market/purchases/quote_order_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/purchases/quote_order_test.exs."
-    },
-    {
-      "path": "test/football_market/market/purchases/rejection_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/purchases/rejection_test.exs."
-    },
-    {
-      "path": "test/football_market/market/purchases/rollback_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/purchases/rollback_test.exs."
-    },
-    {
-      "path": "test/football_market/market/purchases/storage_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/purchases/storage_test.exs."
-    },
-    {
-      "path": "test/football_market/market/purchases/transfer_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/purchases/transfer_test.exs."
-    },
-    {
-      "path": "test/football_market/market/rejection_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/rejection_test.exs."
-    },
-    {
-      "path": "test/football_market/market/retry_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/retry_test.exs."
-    },
-    {
-      "path": "test/football_market/market/rollback_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/rollback_test.exs."
-    },
-    {
-      "path": "test/football_market/market/sales/duplicate_race_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/sales/duplicate_race_test.exs."
-    },
-    {
-      "path": "test/football_market/market/sales/idempotency_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/sales/idempotency_test.exs."
-    },
-    {
-      "path": "test/football_market/market/sales/input_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/sales/input_test.exs."
-    },
-    {
-      "path": "test/football_market/market/sales/quote_order_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/sales/quote_order_test.exs."
-    },
-    {
-      "path": "test/football_market/market/sales/rejection_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/sales/rejection_test.exs."
-    },
-    {
-      "path": "test/football_market/market/sales/transfer_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/sales/transfer_test.exs."
-    },
-    {
-      "path": "test/football_market/market/scope_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/scope_test.exs."
-    },
-    {
-      "path": "test/football_market/market/storage_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/market/storage_test.exs."
-    },
-    {
-      "path": "test/football_market/observability/context_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/observability/context_test.exs."
-    },
-    {
-      "path": "test/football_market/observability/job_context_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/observability/job_context_test.exs."
-    },
-    {
-      "path": "test/football_market/observability/job_logger_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/observability/job_logger_test.exs."
-    },
-    {
-      "path": "test/football_market/observability/json_formatter_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/observability/json_formatter_test.exs."
-    },
-    {
-      "path": "test/football_market/providers/catalog_contract_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/providers/catalog_contract_test.exs."
-    },
-    {
-      "path": "test/football_market/providers/catalog_isolation_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/providers/catalog_isolation_test.exs."
-    },
-    {
-      "path": "test/football_market/providers/deadline_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/providers/deadline_test.exs."
-    },
-    {
-      "path": "test/football_market/providers/equivalence_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/providers/equivalence_test.exs."
-    },
-    {
-      "path": "test/football_market/providers/error_safety_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/providers/error_safety_test.exs."
-    },
-    {
-      "path": "test/football_market/providers/fixture_matrix_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/providers/fixture_matrix_test.exs."
-    },
-    {
-      "path": "test/football_market/providers/fixture_preservation_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/providers/fixture_preservation_test.exs."
-    },
-    {
-      "path": "test/football_market/providers/football_data_org_config_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/providers/football_data_org_config_test.exs."
-    },
-    {
-      "path": "test/football_market/providers/football_data_org_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/providers/football_data_org_test.exs."
-    },
-    {
-      "path": "test/football_market/providers/ingestion_contract_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/providers/ingestion_contract_test.exs."
-    },
-    {
-      "path": "test/football_market/providers/media_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/providers/media_test.exs."
-    },
-    {
-      "path": "test/football_market/providers/performance_contract_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/providers/performance_contract_test.exs."
-    },
-    {
-      "path": "test/football_market/providers/request_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/providers/request_test.exs."
-    },
-    {
-      "path": "test/football_market/providers/scope_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/providers/scope_test.exs."
-    },
-    {
-      "path": "test/football_market/providers/scraping/assessment_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/providers/scraping/assessment_test.exs."
-    },
-    {
-      "path": "test/football_market/providers/scraping/catalog_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/providers/scraping/catalog_test.exs."
-    },
-    {
-      "path": "test/football_market/providers/scraping/deadline_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/providers/scraping/deadline_test.exs."
-    },
-    {
-      "path": "test/football_market/providers/scraping/equivalence_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/providers/scraping/equivalence_test.exs."
-    },
-    {
-      "path": "test/football_market/providers/scraping/isolation_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/providers/scraping/isolation_test.exs."
-    },
-    {
-      "path": "test/football_market/providers/scraping/matrix_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/providers/scraping/matrix_test.exs."
-    },
-    {
-      "path": "test/football_market/providers/scraping/performances_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/providers/scraping/performances_test.exs."
-    },
-    {
-      "path": "test/football_market/providers/scraping/safety_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/providers/scraping/safety_test.exs."
-    },
-    {
-      "path": "test/football_market/quotes/admission_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/quotes/admission_test.exs."
-    },
-    {
-      "path": "test/football_market/quotes/calculation_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/quotes/calculation_test.exs."
-    },
-    {
-      "path": "test/football_market/quotes/codec_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/quotes/codec_test.exs."
-    },
-    {
-      "path": "test/football_market/quotes/concurrency_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/quotes/concurrency_test.exs."
-    },
-    {
-      "path": "test/football_market/quotes/conversion_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/quotes/conversion_test.exs."
-    },
-    {
-      "path": "test/football_market/quotes/followup_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/quotes/followup_test.exs."
-    },
-    {
-      "path": "test/football_market/quotes/history_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/quotes/history_test.exs."
-    },
-    {
-      "path": "test/football_market/quotes/immutability_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/quotes/immutability_test.exs."
-    },
-    {
-      "path": "test/football_market/quotes/import_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/quotes/import_test.exs."
-    },
-    {
-      "path": "test/football_market/quotes/initial_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/quotes/initial_test.exs."
-    },
-    {
-      "path": "test/football_market/quotes/lifecycle_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/quotes/lifecycle_test.exs."
-    },
-    {
-      "path": "test/football_market/quotes/mapping_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/quotes/mapping_test.exs."
-    },
-    {
-      "path": "test/football_market/quotes/outcomes_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/quotes/outcomes_test.exs."
-    },
-    {
-      "path": "test/football_market/quotes/reader_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/quotes/reader_test.exs."
-    },
-    {
-      "path": "test/football_market/quotes/recovery_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/quotes/recovery_test.exs."
-    },
-    {
-      "path": "test/football_market/quotes/replay_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/quotes/replay_test.exs."
-    },
-    {
-      "path": "test/football_market/quotes/scope_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/quotes/scope_test.exs."
-    },
-    {
-      "path": "test/football_market/quotes/storage_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/quotes/storage_test.exs."
-    },
-    {
-      "path": "test/football_market/ranking/order_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/ranking/order_test.exs."
-    },
-    {
-      "path": "test/football_market/ranking/safety_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/ranking/safety_test.exs."
-    },
-    {
-      "path": "test/football_market/ranking/selection_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/ranking/selection_test.exs."
-    },
-    {
-      "path": "test/football_market/ranking/snapshot_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/ranking/snapshot_test.exs."
-    },
-    {
-      "path": "test/football_market/statistics/concurrency_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/statistics/concurrency_test.exs."
-    },
-    {
-      "path": "test/football_market/statistics/count_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/statistics/count_test.exs."
-    },
-    {
-      "path": "test/football_market/statistics/freshness/concurrency_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/statistics/freshness/concurrency_test.exs."
-    },
-    {
-      "path": "test/football_market/statistics/freshness/context_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/statistics/freshness/context_test.exs."
-    },
-    {
-      "path": "test/football_market/statistics/freshness/valuation_status_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/statistics/freshness/valuation_status_test.exs."
-    },
-    {
-      "path": "test/football_market/statistics/history_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/statistics/history_test.exs."
-    },
-    {
-      "path": "test/football_market/statistics/ingestion/acceptance_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/statistics/ingestion/acceptance_test.exs."
-    },
-    {
-      "path": "test/football_market/statistics/ingestion/calculation_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/statistics/ingestion/calculation_test.exs."
-    },
-    {
-      "path": "test/football_market/statistics/ingestion/canonical_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/statistics/ingestion/canonical_test.exs."
-    },
-    {
-      "path": "test/football_market/statistics/ingestion/completeness_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/statistics/ingestion/completeness_test.exs."
-    },
-    {
-      "path": "test/football_market/statistics/ingestion/concurrency_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/statistics/ingestion/concurrency_test.exs."
-    },
-    {
-      "path": "test/football_market/statistics/ingestion/enrichment_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/statistics/ingestion/enrichment_test.exs."
-    },
-    {
-      "path": "test/football_market/statistics/ingestion/fixtures_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/statistics/ingestion/fixtures_test.exs."
-    },
-    {
-      "path": "test/football_market/statistics/ingestion/fotmob_binding_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/statistics/ingestion/fotmob_binding_test.exs."
-    },
-    {
-      "path": "test/football_market/statistics/ingestion/integrity_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/statistics/ingestion/integrity_test.exs."
-    },
-    {
-      "path": "test/football_market/statistics/ingestion/isolation_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/statistics/ingestion/isolation_test.exs."
-    },
-    {
-      "path": "test/football_market/statistics/ingestion/metrics_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/statistics/ingestion/metrics_test.exs."
-    },
-    {
-      "path": "test/football_market/statistics/ingestion/outcome_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/statistics/ingestion/outcome_test.exs."
-    },
-    {
-      "path": "test/football_market/statistics/ingestion/positions_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/statistics/ingestion/positions_test.exs."
-    },
-    {
-      "path": "test/football_market/statistics/ingestion/provenance_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/statistics/ingestion/provenance_test.exs."
-    },
-    {
-      "path": "test/football_market/statistics/ingestion/recovery_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/statistics/ingestion/recovery_test.exs."
-    },
-    {
-      "path": "test/football_market/statistics/ingestion/replay_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/statistics/ingestion/replay_test.exs."
-    },
-    {
-      "path": "test/football_market/statistics/input_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/statistics/input_test.exs."
-    },
-    {
-      "path": "test/football_market/statistics/integrity_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/statistics/integrity_test.exs."
-    },
-    {
-      "path": "test/football_market/statistics/scope_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/statistics/scope_test.exs."
-    },
-    {
-      "path": "test/football_market/statistics/storage_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/statistics/storage_test.exs."
-    },
-    {
-      "path": "test/football_market/synchronization/concurrency_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/synchronization/concurrency_test.exs."
-    },
-    {
-      "path": "test/football_market/synchronization/input_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/synchronization/input_test.exs."
-    },
-    {
-      "path": "test/football_market/synchronization/inspection_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/synchronization/inspection_test.exs."
-    },
-    {
-      "path": "test/football_market/synchronization/integrity_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/synchronization/integrity_test.exs."
-    },
-    {
-      "path": "test/football_market/synchronization/migration_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/synchronization/migration_test.exs."
-    },
-    {
-      "path": "test/football_market/synchronization/policy_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/synchronization/policy_test.exs."
-    },
-    {
-      "path": "test/football_market/synchronization/recovery_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/synchronization/recovery_test.exs."
-    },
-    {
-      "path": "test/football_market/synchronization/request_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/synchronization/request_test.exs."
-    },
-    {
-      "path": "test/football_market/synchronization/retry_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/synchronization/retry_test.exs."
-    },
-    {
-      "path": "test/football_market/synchronization/scheduler_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/synchronization/scheduler_test.exs."
-    },
-    {
-      "path": "test/football_market/synchronization/scope_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/synchronization/scope_test.exs."
-    },
-    {
-      "path": "test/football_market/synchronization/statistics_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/synchronization/statistics_test.exs."
-    },
-    {
-      "path": "test/football_market/valuation/balanced/arithmetic_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/valuation/balanced/arithmetic_test.exs."
-    },
-    {
-      "path": "test/football_market/valuation/balanced/config_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/valuation/balanced/config_test.exs."
-    },
-    {
-      "path": "test/football_market/valuation/balanced/formula_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/valuation/balanced/formula_test.exs."
-    },
-    {
-      "path": "test/football_market/valuation/balanced/outcomes_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/valuation/balanced/outcomes_test.exs."
-    },
-    {
-      "path": "test/football_market/valuation/balanced/replay_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/valuation/balanced/replay_test.exs."
-    },
-    {
-      "path": "test/football_market/valuation/balanced/scope_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/valuation/balanced/scope_test.exs."
-    },
-    {
-      "path": "test/football_market/valuation/canonical_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/valuation/canonical_test.exs."
-    },
-    {
-      "path": "test/football_market/valuation/configurations/activation_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/valuation/configurations/activation_test.exs."
-    },
-    {
-      "path": "test/football_market/valuation/configurations/canonical_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/valuation/configurations/canonical_test.exs."
-    },
-    {
-      "path": "test/football_market/valuation/configurations/codec_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/valuation/configurations/codec_test.exs."
-    },
-    {
-      "path": "test/football_market/valuation/configurations/concurrency_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/valuation/configurations/concurrency_test.exs."
-    },
-    {
-      "path": "test/football_market/valuation/configurations/durability_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/valuation/configurations/durability_test.exs."
-    },
-    {
-      "path": "test/football_market/valuation/configurations/immutability_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/valuation/configurations/immutability_test.exs."
-    },
-    {
-      "path": "test/football_market/valuation/configurations/managed_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/valuation/configurations/managed_test.exs."
-    },
-    {
-      "path": "test/football_market/valuation/configurations/outcomes_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/valuation/configurations/outcomes_test.exs."
-    },
-    {
-      "path": "test/football_market/valuation/configurations/presets_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/valuation/configurations/presets_test.exs."
-    },
-    {
-      "path": "test/football_market/valuation/configurations/replay_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/valuation/configurations/replay_test.exs."
-    },
-    {
-      "path": "test/football_market/valuation/configurations/rules_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/valuation/configurations/rules_test.exs."
-    },
-    {
-      "path": "test/football_market/valuation/configurations/scope_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/valuation/configurations/scope_test.exs."
-    },
-    {
-      "path": "test/football_market/valuation/configurations/storage_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/valuation/configurations/storage_test.exs."
-    },
-    {
-      "path": "test/football_market/valuation/contract_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/valuation/contract_test.exs."
-    },
-    {
-      "path": "test/football_market/valuation/history_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/valuation/history_test.exs."
-    },
-    {
-      "path": "test/football_market/valuation/matrix_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/valuation/matrix_test.exs."
-    },
-    {
-      "path": "test/football_market/valuation/missing_data_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/valuation/missing_data_test.exs."
-    },
-    {
-      "path": "test/football_market/valuation/normalization_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/valuation/normalization_test.exs."
-    },
-    {
-      "path": "test/football_market/valuation/outcomes_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/valuation/outcomes_test.exs."
-    },
-    {
-      "path": "test/football_market/valuation/position_aware/arithmetic_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/valuation/position_aware/arithmetic_test.exs."
-    },
-    {
-      "path": "test/football_market/valuation/position_aware/config_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/valuation/position_aware/config_test.exs."
-    },
-    {
-      "path": "test/football_market/valuation/position_aware/formula_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/valuation/position_aware/formula_test.exs."
-    },
-    {
-      "path": "test/football_market/valuation/position_aware/mixed_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/valuation/position_aware/mixed_test.exs."
-    },
-    {
-      "path": "test/football_market/valuation/position_aware/outcomes_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/valuation/position_aware/outcomes_test.exs."
-    },
-    {
-      "path": "test/football_market/valuation/position_aware/replay_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/valuation/position_aware/replay_test.exs."
-    },
-    {
-      "path": "test/football_market/valuation/position_aware/scope_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/valuation/position_aware/scope_test.exs."
-    },
-    {
-      "path": "test/football_market/valuation/position_aware/selection_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/valuation/position_aware/selection_test.exs."
-    },
-    {
-      "path": "test/football_market/valuation/position_groups_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/valuation/position_groups_test.exs."
-    },
-    {
-      "path": "test/football_market/valuation/replay_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/valuation/replay_test.exs."
-    },
-    {
-      "path": "test/football_market/valuation/scope_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/valuation/scope_test.exs."
-    },
-    {
-      "path": "test/football_market/valuation/scoring_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/valuation/scoring_test.exs."
-    },
-    {
-      "path": "test/football_market/valuation/week_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/valuation/week_test.exs."
-    },
-    {
-      "path": "test/football_market/workers/conditional_order_evaluation_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market/workers/conditional_order_evaluation_test.exs."
-    },
-    {
-      "path": "test/football_market_web/administration_browser_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market_web/administration_browser_test.exs."
-    },
-    {
-      "path": "test/football_market_web/api_authentication_performance_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market_web/api_authentication_performance_test.exs."
-    },
-    {
-      "path": "test/football_market_web/api_authentication_security_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market_web/api_authentication_security_test.exs."
-    },
-    {
-      "path": "test/football_market_web/api_authentication_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market_web/api_authentication_test.exs."
-    },
-    {
-      "path": "test/football_market_web/browser_feedback_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market_web/browser_feedback_test.exs."
-    },
-    {
-      "path": "test/football_market_web/browser_return_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market_web/browser_return_test.exs."
-    },
-    {
-      "path": "test/football_market_web/components/portfolio_components_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market_web/components/portfolio_components_test.exs."
-    },
-    {
-      "path": "test/football_market_web/controllers/conditional_order_controller_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market_web/controllers/conditional_order_controller_test.exs."
-    },
-    {
-      "path": "test/football_market_web/controllers/error_html_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market_web/controllers/error_html_test.exs."
-    },
-    {
-      "path": "test/football_market_web/controllers/error_json_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market_web/controllers/error_json_test.exs."
-    },
-    {
-      "path": "test/football_market_web/controllers/page_controller_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market_web/controllers/page_controller_test.exs."
-    },
-    {
-      "path": "test/football_market_web/controllers/player_catalog_auth_precedence_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market_web/controllers/player_catalog_auth_precedence_test.exs."
-    },
-    {
-      "path": "test/football_market_web/controllers/player_catalog_performance_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market_web/controllers/player_catalog_performance_test.exs."
-    },
-    {
-      "path": "test/football_market_web/controllers/player_catalog_security_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market_web/controllers/player_catalog_security_test.exs."
-    },
-    {
-      "path": "test/football_market_web/controllers/player_controller_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market_web/controllers/player_controller_test.exs."
-    },
-    {
-      "path": "test/football_market_web/controllers/player_detail_controller_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market_web/controllers/player_detail_controller_test.exs."
-    },
-    {
-      "path": "test/football_market_web/controllers/player_freshness_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market_web/controllers/player_freshness_test.exs."
-    },
-    {
-      "path": "test/football_market_web/controllers/portfolio_controller_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market_web/controllers/portfolio_controller_test.exs."
-    },
-    {
-      "path": "test/football_market_web/controllers/purchase_controller_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market_web/controllers/purchase_controller_test.exs."
-    },
-    {
-      "path": "test/football_market_web/controllers/quote_controller_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market_web/controllers/quote_controller_test.exs."
-    },
-    {
-      "path": "test/football_market_web/controllers/ranking_controller_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market_web/controllers/ranking_controller_test.exs."
-    },
-    {
-      "path": "test/football_market_web/controllers/sale_controller_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market_web/controllers/sale_controller_test.exs."
-    },
-    {
-      "path": "test/football_market_web/controllers/session_controller_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market_web/controllers/session_controller_test.exs."
-    },
-    {
-      "path": "test/football_market_web/controllers/transaction_controller_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market_web/controllers/transaction_controller_test.exs."
-    },
-    {
-      "path": "test/football_market_web/live/administration_live_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market_web/live/administration_live_test.exs."
-    },
-    {
-      "path": "test/football_market_web/live/browser_session_lifecycle_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market_web/live/browser_session_lifecycle_test.exs."
-    },
-    {
-      "path": "test/football_market_web/live/catalog_scouting_live_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market_web/live/catalog_scouting_live_test.exs."
-    },
-    {
-      "path": "test/football_market_web/live/conditional_orders_live_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market_web/live/conditional_orders_live_test.exs."
-    },
-    {
-      "path": "test/football_market_web/live/local_admin_live_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market_web/live/local_admin_live_test.exs."
-    },
-    {
-      "path": "test/football_market_web/live/portfolio_live_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market_web/live/portfolio_live_test.exs."
-    },
-    {
-      "path": "test/football_market_web/live/workspace_navigation_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market_web/live/workspace_navigation_test.exs."
-    },
-    {
-      "path": "test/football_market_web/openapi_browser_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market_web/openapi_browser_test.exs."
-    },
-    {
-      "path": "test/football_market_web/openapi_contract_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market_web/openapi_contract_test.exs."
-    },
-    {
-      "path": "test/football_market_web/request_logger_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market_web/request_logger_test.exs."
-    },
-    {
-      "path": "test/football_market_web/router_authentication_policy_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market_web/router_authentication_policy_test.exs."
-    },
-    {
-      "path": "test/football_market_web/workspace_browser_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market_web/workspace_browser_test.exs."
-    },
-    {
-      "path": "test/football_market_web/workspace_http_runtime_test.exs",
-      "role": "test",
-      "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/football_market_web/workspace_http_runtime_test.exs."
+      "reason": "Automated test source, not application implementation: test/e2e/market_journey_test.exs."
     },
     {
       "path": "test/integration/infrastructure_migration_test.exs",
@@ -3164,94 +770,40 @@
       "reason": "Automated test source, not application implementation: test/integration/infrastructure_migration_test.exs."
     },
     {
-      "path": "test/mix/tasks/catalog.seed_test.exs",
+      "path": "test/orders_test.exs",
       "role": "test",
       "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/mix/tasks/catalog.seed_test.exs."
+      "reason": "Automated test source, not application implementation: test/orders_test.exs."
     },
     {
-      "path": "test/provider_contract_offline.exs",
+      "path": "test/portfolio_test.exs",
       "role": "test",
       "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/provider_contract_offline.exs."
+      "reason": "Automated test source, not application implementation: test/portfolio_test.exs."
     },
     {
-      "path": "test/runtime/conditional_orders_http.exs",
+      "path": "test/providers_sync_test.exs",
       "role": "test",
       "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/runtime/conditional_orders_http.exs."
+      "reason": "Automated test source, not application implementation: test/providers_sync_test.exs."
     },
     {
-      "path": "test/runtime/order_evaluation_http.exs",
+      "path": "test/quotes_test.exs",
       "role": "test",
       "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/runtime/order_evaluation_http.exs."
+      "reason": "Automated test source, not application implementation: test/quotes_test.exs."
     },
     {
-      "path": "test/runtime/purchase_http.exs",
+      "path": "test/ranking_test.exs",
       "role": "test",
       "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/runtime/purchase_http.exs."
+      "reason": "Automated test source, not application implementation: test/ranking_test.exs."
     },
     {
-      "path": "test/scraping_adapter_offline.exs",
+      "path": "test/statistics_test.exs",
       "role": "test",
       "disposition": "exclude",
-      "reason": "Automated test source, not application implementation: test/scraping_adapter_offline.exs."
-    },
-    {
-      "path": "test/support/accounts_case.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/accounts_case.ex."
-    },
-    {
-      "path": "test/support/api_authentication_probe.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/api_authentication_probe.ex."
-    },
-    {
-      "path": "test/support/authentication_helpers.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/authentication_helpers.ex."
-    },
-    {
-      "path": "test/support/browser_session_case.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/browser_session_case.ex."
-    },
-    {
-      "path": "test/support/catalog_case.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/catalog_case.ex."
-    },
-    {
-      "path": "test/support/catalog_concurrency_case.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/catalog_concurrency_case.ex."
-    },
-    {
-      "path": "test/support/catalog_filter_case.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/catalog_filter_case.ex."
-    },
-    {
-      "path": "test/support/conditional_orders/case.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/conditional_orders/case.ex."
-    },
-    {
-      "path": "test/support/conditional_orders/runtime_probe.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/conditional_orders/runtime_probe.ex."
+      "reason": "Automated test source, not application implementation: test/statistics_test.exs."
     },
     {
       "path": "test/support/conn_case.ex",
@@ -3272,228 +824,6 @@
       "reason": "Test support helper, not application implementation: test/support/data_case.ex."
     },
     {
-      "path": "test/support/e2e/fixture_adapter.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/e2e/fixture_adapter.ex."
-    },
-    {
-      "path": "test/support/e2e/fixtures.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/e2e/fixtures.ex."
-    },
-    {
-      "path": "test/support/e2e/interrupted_runtime.exs",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/e2e/interrupted_runtime.exs."
-    },
-    {
-      "path": "test/support/e2e/runtime.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/e2e/runtime.ex."
-    },
-    {
-      "path": "test/support/freshness_case.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/freshness_case.ex."
-    },
-    {
-      "path": "test/support/infrastructure_case.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/infrastructure_case.ex."
-    },
-    {
-      "path": "test/support/ingestion_fixtures.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/ingestion_fixtures.ex."
-    },
-    {
-      "path": "test/support/market_case.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/market_case.ex."
-    },
-    {
-      "path": "test/support/observability_worker.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/observability_worker.ex."
-    },
-    {
-      "path": "test/support/openapi_case.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/openapi_case.ex."
-    },
-    {
-      "path": "test/support/order_evaluation/case.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/order_evaluation/case.ex."
-    },
-    {
-      "path": "test/support/order_evaluation/runtime_probe.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/order_evaluation/runtime_probe.ex."
-    },
-    {
-      "path": "test/support/player_catalog_probe.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/player_catalog_probe.ex."
-    },
-    {
-      "path": "test/support/position_aware_case.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/position_aware_case.ex."
-    },
-    {
-      "path": "test/support/provider_contract_case.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/provider_contract_case.ex."
-    },
-    {
-      "path": "test/support/providers/fact_oracle.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/providers/fact_oracle.ex."
-    },
-    {
-      "path": "test/support/providers/fixture_data.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/providers/fixture_data.ex."
-    },
-    {
-      "path": "test/support/providers/fixture_runtime.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/providers/fixture_runtime.ex."
-    },
-    {
-      "path": "test/support/providers/fixture_source_a.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/providers/fixture_source_a.ex."
-    },
-    {
-      "path": "test/support/providers/fixture_source_b.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/providers/fixture_source_b.ex."
-    },
-    {
-      "path": "test/support/providers/scraping_fixture_data.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/providers/scraping_fixture_data.ex."
-    },
-    {
-      "path": "test/support/providers/test_provider_rate_limit.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/providers/test_provider_rate_limit.ex."
-    },
-    {
-      "path": "test/support/purchases/case.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/purchases/case.ex."
-    },
-    {
-      "path": "test/support/purchases/runtime_probe.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/purchases/runtime_probe.ex."
-    },
-    {
-      "path": "test/support/quotes/case.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/quotes/case.ex."
-    },
-    {
-      "path": "test/support/quotes/fixtures.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/quotes/fixtures.ex."
-    },
-    {
-      "path": "test/support/quotes/runtime_probe.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/quotes/runtime_probe.ex."
-    },
-    {
-      "path": "test/support/ranking_case.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/ranking_case.ex."
-    },
-    {
-      "path": "test/support/sales/case.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/sales/case.ex."
-    },
-    {
-      "path": "test/support/statistics_case.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/statistics_case.ex."
-    },
-    {
-      "path": "test/support/statistics_ingestion/case.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/statistics_ingestion/case.ex."
-    },
-    {
-      "path": "test/support/statistics_ingestion/fixtures.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/statistics_ingestion/fixtures.ex."
-    },
-    {
-      "path": "test/support/statistics_ingestion/runtime_probe.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/statistics_ingestion/runtime_probe.ex."
-    },
-    {
-      "path": "test/support/synchronization/case.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/synchronization/case.ex."
-    },
-    {
-      "path": "test/support/synchronization/clock.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/synchronization/clock.ex."
-    },
-    {
-      "path": "test/support/synchronization/fixtures.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/synchronization/fixtures.ex."
-    },
-    {
-      "path": "test/support/synchronization/runtime_probe.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/synchronization/runtime_probe.ex."
-    },
-    {
       "path": "test/support/test_profile_audit.ex",
       "role": "test-support",
       "disposition": "exclude",
@@ -3506,34 +836,52 @@
       "reason": "Test support helper, not application implementation: test/support/test_profile_formatter.ex."
     },
     {
-      "path": "test/support/valuation_case.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/valuation_case.ex."
-    },
-    {
-      "path": "test/support/valuation_configuration_case.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/valuation_configuration_case.ex."
-    },
-    {
-      "path": "test/support/valuation_scorers.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/valuation_scorers.ex."
-    },
-    {
-      "path": "test/support/workflow_scope.ex",
-      "role": "test-support",
-      "disposition": "exclude",
-      "reason": "Test support helper, not application implementation: test/support/workflow_scope.ex."
-    },
-    {
       "path": "test/test_helper.exs",
       "role": "test",
       "disposition": "exclude",
       "reason": "Automated test source, not application implementation: test/test_helper.exs."
+    },
+    {
+      "path": "test/trading_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Automated test source, not application implementation: test/trading_test.exs."
+    },
+    {
+      "path": "test/valuation_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Automated test source, not application implementation: test/valuation_test.exs."
+    },
+    {
+      "path": "test/web/admin_live_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Automated test source, not application implementation: test/web/admin_live_test.exs."
+    },
+    {
+      "path": "test/web/api_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Automated test source, not application implementation: test/web/api_test.exs."
+    },
+    {
+      "path": "test/web/openapi_contract_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Automated test source, not application implementation: test/web/openapi_contract_test.exs."
+    },
+    {
+      "path": "test/web/session_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Automated test source, not application implementation: test/web/session_test.exs."
+    },
+    {
+      "path": "test/web/workspace_live_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Automated test source, not application implementation: test/web/workspace_live_test.exs."
     }
   ]
 }

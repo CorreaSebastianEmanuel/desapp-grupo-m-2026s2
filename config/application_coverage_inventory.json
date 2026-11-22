@@ -110,6 +110,12 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/observability.ex."
     },
     {
+      "path": "lib/football_market/observability/metrics.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/observability/metrics.ex."
+    },
+    {
       "path": "lib/football_market/providers.ex",
       "role": "application",
       "disposition": "include",
@@ -188,6 +194,12 @@
       "reason": "Maintained first-party application implementation source: lib/football_market_web/controllers/api_controller.ex."
     },
     {
+      "path": "lib/football_market_web/controllers/metrics_controller.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market_web/controllers/metrics_controller.ex."
+    },
+    {
       "path": "lib/football_market_web/controllers/pages.ex",
       "role": "application",
       "disposition": "include",
@@ -222,6 +234,12 @@
       "role": "application",
       "disposition": "include",
       "reason": "Maintained first-party application implementation source: lib/football_market_web/live/workspace_live.ex."
+    },
+    {
+      "path": "lib/football_market_web/plugs/metrics_auth.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market_web/plugs/metrics_auth.ex."
     },
     {
       "path": "lib/football_market_web/router.ex",
@@ -758,10 +776,40 @@
       "reason": "Automated test source, not application implementation: test/catalog_test.exs."
     },
     {
+      "path": "test/ci/credo_ci_contract_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Automated test source, not application implementation: test/ci/credo_ci_contract_test.exs."
+    },
+    {
+      "path": "test/ci/quality_baseline_contract_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Automated test source, not application implementation: test/ci/quality_baseline_contract_test.exs."
+    },
+    {
+      "path": "test/ci/sonarcloud_contract_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Automated test source, not application implementation: test/ci/sonarcloud_contract_test.exs."
+    },
+    {
+      "path": "test/ci/test_profiles_quality_contract_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Automated test source, not application implementation: test/ci/test_profiles_quality_contract_test.exs."
+    },
+    {
       "path": "test/e2e/market_journey_test.exs",
       "role": "test",
       "disposition": "exclude",
       "reason": "Automated test source, not application implementation: test/e2e/market_journey_test.exs."
+    },
+    {
+      "path": "test/football_market_web/metrics_controller_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Automated test source, not application implementation: test/football_market_web/metrics_controller_test.exs."
     },
     {
       "path": "test/integration/infrastructure_migration_test.exs",
@@ -822,6 +870,12 @@
       "role": "test-support",
       "disposition": "exclude",
       "reason": "Test support helper, not application implementation: test/support/data_case.ex."
+    },
+    {
+      "path": "test/support/metrics_failure_endpoint.ex",
+      "role": "test-support",
+      "disposition": "exclude",
+      "reason": "Test support helper, not application implementation: test/support/metrics_failure_endpoint.ex."
     },
     {
       "path": "test/support/test_profile_audit.ex",

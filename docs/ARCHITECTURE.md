@@ -28,46 +28,25 @@ See [the search workflow](PLAYER_SEARCH_WORKFLOW.md), [ADR-0016](adr/0016-local-
 
 See [the Codebase Guide](CODEBASE_GUIDE.md) for a newcomer-friendly Elixir/Phoenix glossary and feature lookup table.
 
-The modular monolith keeps context APIs at `lib/football_market/<context>.ex` and
-1-file-per-module implementations under each context directory, grouping related
-Ecto schemas into `<context>/schemas.ex`:
+The modular monolith keeps a compact, readable 31-file `lib/` layout where each domain owns its Ecto schemas and business logic in one file (and `market/` uses four cohesive files):
 
-- `accounts/`: `schemas.ex`, `authentication.ex`, `browser_sessions.ex`.
-- `catalog/`: `schemas.ex`, `query.ex` (including batched profiles), `player_cursor.ex`,
-  `scouting.ex`, `development_seed.ex`, `development_seed_manifest.ex`, and
-  `ingestion/{schemas,canonical,reconciler,publisher,records}.ex`.
-- `market/`: `schemas.ex`, `settlement.ex`, `initialization.ex`, `trading.ex` (unified
-  purchase/sale execution), `portfolio.ex` (positions, credit balance, initial inventory),
-  `transaction_history.ex`, `analytics.ex`, `conditional_orders.ex`, `order_evaluation.ex`.
-- `quotes/`: `schemas.ex`, `mappings.ex` (including cent conversion), `evidence_codec.ex`,
-  `store.ex`, `reader.ex` (including replay), `admission.ex`, `import_requests.ex`,
-  `engine.ex`, `closing.ex`, `recovery.ex`, `membership.ex`.
-- `valuation/`: `schemas.ex`, `types.ex`, `request.ex`, `preparation.ex`,
-  `statistics_reader.ex`, `evidence.ex`, `decimal_math.ex`, `scoring.ex` (including replay),
-  `balanced.ex`, `position_aware.ex`, `managed.ex`, `calculation_requests.ex`,
-  `configurations.ex` (pure registry/rules/codec/presets), `configuration_store.ex`
-  (sole Repo boundary for configs).
-- `statistics/`: `schemas.ex`, `input.ex`, `query.ex`, `freshness.ex`, `ingestion.ex`,
-  and `ingestion/{schemas,canonical,provenance,fotmob_binding,observations,publisher,records}.ex`.
-- `synchronization/`: `schemas.ex`, `input.ex`, `policy.ex`, `clock.ex`, `store.ex`,
-  `scheduler.ex`, `dispatcher.ex`, `execution.ex`, `runtime.ex` (`ExecutionGuard` & `Recovery`).
-- `providers/`: `contract.ex`, `types.ex`, `request.ex`, `validator.ex`,
-  `catalog.ex`, `performances.ex`, `runtime.ex` (deadline runner), `player_identity.ex`
-  (with `TeamIdentity`), `football_data_org.ex`, `scraping.ex`, and
-  `scraping/{transport,budget,assessment,document,source,translator,player_profile,http_transport}.ex`.
-- `ranking.ex`, `observability.ex`, `infrastructure/{configuration,adapters,local_operations}.ex`,
-  and `workers/{sync_workers,quote_workers,order_workers}.ex` (unchanged persisted
-  `FootballMarket.Workers.*` module identities).
-- `football_market_web/`: `controllers/{api_json,market_controllers,pages,player_controller,conditional_order_controller,session_controller}.ex`,
-  `plugs/{authenticate_api,browser_auth}.ex`, `live/{browser_auth,administration_live,local_admin_live,workspace_live}.ex`,
-  `live/workspace/{helpers,orders,players,portfolio,trading}.ex` + `pages/*.html.heex`,
-  and `components/{core_components,layouts,portfolio_components,workspace_components}.ex`.
-- `test/football_market/` and `test/football_market_web/` mirror owners;
-  `test/support/` contains shared fixtures/runtime support; `test/scripts/` and
-  `tests/` preserve harness/checkpoint contracts. `scripts/`, `tools/openapi/`,
-  `config/`, `assets/`, `priv/` and root setup/release entrypoints retain their
-  existing external paths. Generated inventories enumerate real source ownership.
+- **Core & domains (`lib/football_market/`)**:
+  - `application.ex`, `repo.ex`, `observability.ex`
+  - `accounts.ex` (users, credentials, JWTs, API keys, browser sessions)
+  - `catalog.ex` (leagues, seasons, teams, positions, players, cursors, scouting, idempotent import) and `catalog_seed.ex`
+  - `statistics.ex` (matches, performances, freshness TTLs, scope checks, idempotent import)
+  - `valuation.ex` (deterministic `Decimal` scoring for `balanced` and `position_aware`, strategy configurations, presets, activation)
+  - `quotes.ex` (score-to-quote mappings, cent rounding, atomic confirmation, history, nightly close)
+  - `ranking.ex` (read-only market ranking for active strategy)
+  - `market/`: `schemas.ex`, `trading.ex` (facade, 100-token issuance, atomic/idempotent buy & sell), `portfolio.ex` (holdings, credit balance, history, allocation weights, valuation series), `orders.ex` (conditional orders CRUD & Oban evaluation)
+  - `providers.ex` (read-only FotMob scraper & Football-Data.org adapters), `sync.ex` (sync coordination & local ops snapshot), and `workers.ex` (all 9 Oban workers preserving persisted `FootballMarket.Workers.*` module names)
+- **Web layer (`lib/football_market_web/`)**:
+  - `endpoint.ex`, `router.ex`, `auth.ex`, `telemetry.ex`, `gettext.ex`
+  - `controllers/`: `api_controller.ex` (all `/api/*` endpoints & JSON views), `pages.ex` (docs, home & error views), `session_controller.ex`
+  - `live/`: `workspace_live.ex` (+ `workspace/pages/*.html.heex`) and `admin_live.ex`
+  - `components/`: `core_components.ex`, `app_components.ex` (+ `layouts/root.html.heex`)
+- **CLI & tests**:
+  - `lib/mix/tasks/tasks.ex` (`catalog.seed` and `infrastructure.*`)
+  - `test/` holds 17 focused Elixir test suites (unit, integration, e2e), shared `test/support/` helpers, and `test/scripts/` + `test/integration/` harness verification. `scripts/`, `tools/openapi/`, `config/`, `assets/`, `priv/` and root setup/release entrypoints retain their existing external paths.
 
-Financial command transaction owners retain lock order and idempotency. Stateless
-extractions use functions, and implementation dependencies never introduce new
-processes or cross-layer cycles. Historical specs, ADRs and evidence are preserved.
+Financial command transaction owners retain lock order, idempotency, and PostgreSQL trigger invariants. Historical migrations, specs, ADRs, and evidence are preserved.

@@ -1,14 +1,10 @@
 defmodule FootballMarket.Observability do
   @moduledoc """
-  Structured logging, telemetry lifecycle subscriptions, and correlation context.
+  Structured JSON logging, correlation IDs, and telemetry subscriptions.
 
-  Owns:
-    * Telemetry attach/detach (`attach/0`, `detach/0`) for HTTP & Oban job events
-    * Scoped Logger metadata helpers (`keys/0`, `capture/0`, `current/0`, `id/2`,
-      `valid?/1`, `put/1`, `with_context/2`)
-    * Oban job telemetry handler (`handle_event/4`)
-    * `Observability.JobContext` — database correlation lookup for Oban jobs
-    * `Observability.JSONFormatter` — structured JSON line Logger formatter
+  Every HTTP request and Oban background job gets a `correlation_id` attached
+  to Elixir's Logger metadata so all log lines for one operation can be traced
+  together.
   """
 
   require Logger
@@ -18,21 +14,13 @@ defmodule FootballMarket.Observability do
     run_id delivery_id intent_id calculation_request_id
   )a
 
-  @job_identifiers [
-    {"run_id", :run_id},
-    {"delivery_id", :delivery_id},
-    {"intent_id", :intent_id},
-    {"request_id", :calculation_request_id}
-  ]
-
   @subscriptions [
     {FootballMarketWeb.RequestLogger,
      [[:phoenix, :endpoint, :start], [:phoenix, :endpoint, :stop], [:phoenix, :error_rendered]]},
     {__MODULE__, [[:oban, :job, :start], [:oban, :job, :stop], [:oban, :job, :exception]]}
   ]
 
-  # --- Telemetry Lifecycle ---
-
+  @doc "Attaches HTTP request and Oban job telemetry handlers on application boot."
   def attach do
     Enum.each(@subscriptions, fn {module, events} ->
       case :telemetry.attach_many({__MODULE__, module}, events, &module.handle_event/4, nil) do
@@ -42,20 +30,18 @@ defmodule FootballMarket.Observability do
     end)
   end
 
+  @doc "Detaches telemetry handlers on application stop."
   def detach do
     Enum.each(@subscriptions, fn {module, _events} -> :telemetry.detach({__MODULE__, module}) end)
   end
 
-  # --- Logging Correlation Context ---
-
-  def keys, do: @context_keys
-  def capture, do: Keyword.take(Logger.metadata(), @context_keys)
-
+  @doc "Returns the current correlation ID from Logger metadata (or generates a new UUID)."
   def current do
     metadata = Logger.metadata()
     id(metadata[:correlation_id], metadata[:request_id])
   end
 
+  @doc "Picks the first valid correlation ID or generates a fresh UUID."
   def id(value, fallback \\ nil) do
     cond do
       valid?(value) -> value
@@ -69,10 +55,12 @@ defmodule FootballMarket.Observability do
 
   def valid?(_), do: false
 
+  @doc "Replaces observability keys in the current process's Logger metadata."
   def put(metadata) do
     Logger.reset_metadata(Keyword.merge(Keyword.drop(Logger.metadata(), @context_keys), metadata))
   end
 
+  @doc "Runs `fun` with temporary Logger metadata and restores the previous metadata afterwards."
   def with_context(metadata, fun) do
     previous = Logger.metadata()
 
@@ -84,7 +72,7 @@ defmodule FootballMarket.Observability do
     end
   end
 
-  # --- Oban Job Telemetry Handler ---
+  # --- Oban Telemetry Callbacks ---
 
   def handle_event([:oban, :job, :start], _, %{job: %Oban.Job{} = job}, _) do
     Process.put({__MODULE__, job.id}, Logger.metadata())
@@ -98,7 +86,9 @@ defmodule FootballMarket.Observability do
 
     try do
       with_context(job_metadata(job), fn ->
-        Logger.log(if(event == :exception, do: :error, else: :info), "Job delivery finished",
+        level = if event == :exception, do: :error, else: :info
+
+        Logger.log(level, "Job delivery finished",
           event: "job.#{event}",
           execution_state: job_state(meta[:state]),
           duration_ms: to_milliseconds(measures[:duration]),
@@ -114,25 +104,16 @@ defmodule FootballMarket.Observability do
   def handle_event(_, _, _, _), do: :ok
 
   defp job_metadata(job) do
-    args = if is_map(job.args), do: job.args, else: %{}
     meta = if is_map(job.meta), do: job.meta, else: %{}
 
-    identifiers =
-      for {argument, key} <- @job_identifiers,
-          {:ok, uuid} <- [Ecto.UUID.cast(Map.get(args, argument))],
-          do: {key, uuid}
-
-    fallback = Keyword.get(identifiers, :run_id) || List.first(Keyword.values(identifiers))
-    correlation = id(meta["correlation_id"], fallback || "oban:#{job.id}")
-
     [
-      correlation_id: correlation,
+      correlation_id: id(meta["correlation_id"], "oban:#{job.id}"),
       job_id: job.id,
       worker: job.worker,
       queue: job.queue,
       attempt: job.attempt,
       max_attempts: job.max_attempts
-    ] ++ identifiers
+    ]
   end
 
   defp to_milliseconds(value) when is_integer(value),
@@ -149,70 +130,8 @@ defmodule FootballMarket.Observability do
   defp job_state(_), do: :unknown
 end
 
-defmodule FootballMarket.Observability.Context do
-  @moduledoc false
-  defdelegate current(), to: FootballMarket.Observability
-end
-
-defmodule FootballMarket.Observability.JobContext do
-  @moduledoc "Durable logging lineage adapter, kept out of telemetry callbacks."
-  import Ecto.Query
-  alias FootballMarket.Observability
-  alias FootballMarket.Quotes.CalculationRequest
-  alias FootballMarket.Repo
-  alias FootballMarket.Statistics.Ingestion.{CalculationIntent, Check}
-  alias FootballMarket.Synchronization.Run
-
-  def for_run(run), do: Observability.id(run.correlation_id, run.id)
-
-  def annotate(changeset, correlation_id) do
-    meta = Ecto.Changeset.get_field(changeset, :meta) || %{}
-    Ecto.Changeset.put_change(changeset, :meta, Map.put(meta, "correlation_id", correlation_id))
-  end
-
-  def for_intents([]), do: %{}
-
-  def for_intents(ids) do
-    from(i in CalculationIntent,
-      left_join: c in Check,
-      on: c.id == i.accepted_check_id,
-      left_join: r in Run,
-      on: r.id == c.run_id,
-      where: i.id in ^ids,
-      select: {i.id, r.correlation_id, r.id}
-    )
-    |> load_contexts()
-  end
-
-  def for_calculations([]), do: %{}
-
-  def for_calculations(ids) do
-    from(q in CalculationRequest,
-      left_join: i in CalculationIntent,
-      on: i.id == q.intent_id,
-      left_join: c in Check,
-      on: c.id == i.accepted_check_id,
-      left_join: r in Run,
-      on: r.id == c.run_id,
-      where: q.id in ^ids,
-      select: {q.id, r.correlation_id, r.id}
-    )
-    |> load_contexts()
-  end
-
-  defp load_contexts(query) do
-    query
-    |> Repo.all()
-    |> Map.new(fn {id, correlation, run_id} ->
-      {id, Observability.id(correlation, run_id || id)}
-    end)
-  rescue
-    _ -> %{}
-  end
-end
-
 defmodule FootballMarket.Observability.JSONFormatter do
-  @moduledoc "Structured JSON line Logger formatter configured in `config/runtime.exs`."
+  @moduledoc "Structured JSON-line Logger formatter configured in `config/runtime.exs`."
 
   @fields ~w(
     actor_id event correlation_id request_id method route status duration_ms

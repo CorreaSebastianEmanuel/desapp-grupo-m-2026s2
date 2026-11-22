@@ -26,55 +26,6 @@ EXCEPTIONS = [
         "line": 11,
         "confidence": "high_confidence",
         "sha256": "a81d33f0e33070d7af0230b6eb1d7cab9f1527ec5d7df44852f36f29c272d2ae"
-    },
-    {
-        "type": "SQL.Query: SQL injection",
-        "file": "lib/football_market/catalog.ex",
-        "line": 258,
-        "confidence": "low_confidence",
-        "sha256": "30bc65bf1fd01ec6a4d02525c6f99be9a75515e86dd90dd3f0807d3f8a0be76c"
-    },
-    {
-        "type": "DOS.StringToAtom: Unsafe `String.to_atom`",
-        "file": "lib/football_market/quotes/admission.ex",
-        "line": 361,
-        "confidence": "low_confidence",
-        "sha256": "e7551b1514505aff3eb443c1e36f6593d19e0a8ca2feb94e78769f051c3fa7be"
-    },
-    {
-        "type": "SQL.Query: SQL injection",
-        "file": "lib/football_market/quotes/membership.ex",
-        "line": 194,
-        "confidence": "low_confidence",
-        "sha256": "1568bb2a7cee60567d68e72acc32e9783bc4b0ae41dfef8d3da7c9c1b74d3962"
-    },
-    {
-        "type": "SQL.Query: SQL injection",
-        "file": "lib/football_market/quotes/membership.ex",
-        "line": 220,
-        "confidence": "low_confidence",
-        "sha256": "1568bb2a7cee60567d68e72acc32e9783bc4b0ae41dfef8d3da7c9c1b74d3962"
-    },
-    {
-        "type": "Traversal.FileModule: Directory Traversal in `File.read`",
-        "file": "lib/football_market/statistics/ingestion/observations.ex",
-        "line": 41,
-        "confidence": "low_confidence",
-        "sha256": "1380cd6e3958fecff5d4e975f96fc247896992784d65068be335156c91c5f23f"
-    },
-    {
-        "type": "Traversal.FileModule: Directory Traversal in `File.read`",
-        "file": "lib/football_market/synchronization/input.ex",
-        "line": 184,
-        "confidence": "low_confidence",
-        "sha256": "e4da9727c0081de43f4ea51465ba9a7c823082d36ff4997134d4382fbadc4514"
-    },
-    {
-        "type": "XSS.HTML: XSS in `html`",
-        "file": "lib/football_market_web/controllers/session_controller.ex",
-        "line": 152,
-        "confidence": "medium_confidence",
-        "sha256": "2cbf9f169fd24af921e2faea946702afd92f966334448f438cfa4ccc6139f556"
     }
 ]
 

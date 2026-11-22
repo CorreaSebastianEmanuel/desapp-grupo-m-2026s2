@@ -1,11 +1,5 @@
 import Config
 
-if config_env() != :test do
-  config :football_market,
-         :provider_rate_limit_backend,
-         FootballMarket.Infrastructure.ProviderRateLimit
-end
-
 config :football_market, FootballMarket.Synchronization,
   enabled: false,
   automatic: config_env() != :test,

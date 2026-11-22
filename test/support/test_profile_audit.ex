@@ -4,19 +4,10 @@ defmodule FootballMarket.TestProfileAudit do
   @profiles ~w(unit integration e2e)
   @allowed_module_tags ~w(unit integration e2e performance)
   @committed_integration_files ~w(
-    test/football_market/catalog/ingestion/concurrency_test.exs
-    test/football_market/catalog/ingestion/matrix_test.exs
-    test/football_market/statistics/concurrency_test.exs
-    test/football_market/statistics/ingestion/concurrency_test.exs
-    test/football_market/statistics/ingestion/recovery_test.exs
-    test/football_market/quotes/concurrency_test.exs
-    test/football_market/quotes/replay_test.exs
-    test/football_market/quotes/outcomes_test.exs
-    test/football_market/synchronization/concurrency_test.exs
-    test/football_market/synchronization/statistics_test.exs
-    test/mix/tasks/catalog.seed_test.exs
-    test/football_market/catalog/development_seed_test.exs
-    test/football_market/catalog/constraints_test.exs
+    test/catalog_test.exs
+    test/quotes_test.exs
+    test/trading_test.exs
+    test/orders_test.exs
   )
 
   def audit!(profile, root \\ File.cwd!())

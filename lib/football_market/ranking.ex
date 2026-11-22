@@ -1,46 +1,26 @@
 defmodule FootballMarket.Ranking do
   @moduledoc """
-  Read-only market ranking of eligible players under the currently active
-  valuation configuration.
+  Read-only player ranking under the currently active valuation strategy.
 
-  Reads a single consistent PostgreSQL snapshot joining the active strategy
-  version with each player's latest confirmed performance quote, ordered by
-  unit price descending.
+  Reads one consistent `REPEATABLE READ, READ ONLY` PostgreSQL snapshot joining
+  the active strategy version with each issued player's latest confirmed
+  performance quote, ordered by unit price descending (player ID ascending on ties).
   """
+
   import Ecto.Query
 
-  alias FootballMarket.{Market.Issuance, Market.Quote, Quotes.Calculation, Repo}
+  alias FootballMarket.Market.{Issuance, Quote}
+  alias FootballMarket.Quotes.Calculation
+  alias FootballMarket.Repo
   alias FootballMarket.Valuation.Configurations
   alias FootballMarket.Valuation.Configurations.Version
 
-  @typedoc "One eligible player's selected active-configuration performance quote."
-  @type entry :: %{
-          player_id: Ecto.UUID.t(),
-          quote_id: Ecto.UUID.t(),
-          unit_price: Decimal.t(),
-          effective_at: DateTime.t(),
-          position: pos_integer()
-        }
-
-  @typedoc "The active configuration and deterministic ordered ranking entries."
-  @type result :: %{configuration: map(), entries: [entry()]}
-
-  @spec read() ::
-          {:ok, result()} | {:error, :no_active_configuration | :storage_unavailable}
+  @spec read() :: {:ok, map()} | {:error, :no_active_configuration | :storage_unavailable}
   def read do
     if Repo.in_transaction?(), do: {:error, :storage_unavailable}, else: read_snapshot()
   rescue
     _ in [DBConnection.ConnectionError, Postgrex.Error, Ecto.NoResultsError] ->
       {:error, :storage_unavailable}
-
-    error in RuntimeError ->
-      if Exception.message(error) in [
-           "valuation serialization anchor missing",
-           "valuation rule storage integrity failure",
-           "valuation selection integrity failure"
-         ],
-         do: {:error, :storage_unavailable},
-         else: reraise(error, __STACKTRACE__)
   end
 
   defp read_snapshot do
@@ -62,7 +42,7 @@ defmodule FootballMarket.Ranking do
 
   defp entries(%Version{} = active) do
     Repo.all(
-      from row in subquery(active_quotes(active)),
+      from row in subquery(active_quotes_query(active)),
         order_by: [desc: row.unit_price, asc: row.player_id],
         select: row
     )
@@ -70,15 +50,19 @@ defmodule FootballMarket.Ranking do
     |> Enum.map(fn {row, position} -> Map.put(row, :position, position) end)
   end
 
-  defp active_quotes(active) do
+  defp active_quotes_query(active) do
     from q in Quote,
       join: i in Issuance,
       on: i.player_id == q.player_id,
       join: c in Calculation,
       on: c.id == q.calculation_id,
-      where: ^active_version_predicate(active),
-      where: ^successful_positive_predicate(),
-      where: ^calculation_match_predicate(),
+      where:
+        q.configuration_version_id == ^active.id and q.rule_id == ^active.strategy_id and
+          q.rule_version == ^active.formula_version and c.configuration_version_id == ^active.id,
+      where: q.performance_sequence > 0 and q.unit_price > 0 and c.status == "successful",
+      where:
+        c.mapping_id == q.mapping_id and c.player_id == q.player_id and
+          c.unit_price == q.unit_price and c.effective_at == q.effective_at,
       distinct: q.player_id,
       order_by: [asc: q.player_id, desc: q.effective_at, desc: q.performance_sequence],
       select: %{
@@ -87,28 +71,5 @@ defmodule FootballMarket.Ranking do
         unit_price: q.unit_price,
         effective_at: q.effective_at
       }
-  end
-
-  defp active_version_predicate(active) do
-    dynamic(
-      [q, _i, c],
-      q.configuration_version_id == ^active.id and q.rule_id == ^active.strategy_id and
-        q.rule_version == ^active.formula_version and c.configuration_version_id == ^active.id
-    )
-  end
-
-  defp successful_positive_predicate do
-    dynamic(
-      [q, _i, c],
-      q.performance_sequence > 0 and q.unit_price > 0 and c.status == "successful"
-    )
-  end
-
-  defp calculation_match_predicate do
-    dynamic(
-      [q, _i, c],
-      c.mapping_id == q.mapping_id and c.player_id == q.player_id and
-        c.unit_price == q.unit_price and c.effective_at == q.effective_at
-    )
   end
 end

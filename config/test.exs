@@ -87,5 +87,3 @@ config :phoenix,
 
 import_config "synchronization.exs"
 config :football_market, Oban, testing: :manual
-
-config :football_market, :provider_rate_limit_backend, FootballMarket.TestProviderRateLimit

@@ -1,6 +1,6 @@
 ---
 id: TASK-041
-title: Redis ranking and catalog search cache
+title: Redis active-strategy ranking cache
 type: task
 checkpoint: CP3
 priority: critical
@@ -12,6 +12,6 @@ active_run: none
 
 ## Outcome
 
-Cache high-frequency ranking and catalog search reads with explicit scoped keys, TTLs and measurable hits. Redis TTL differs from statistics freshness TTL; misses/failure fall back to PostgreSQL without scraping names.
+Optimize high-frequency active-strategy ranking reads using the existing Redis infrastructure and explicit ranking keys that include the active strategy/configuration version. Use a bounded TTL and fall back to the authoritative PostgreSQL ranking when the cache misses or Redis is unavailable. Measure ranking cache hits/misses sufficiently to demonstrate the optimization. Do not expand this task to catalog search caching.
 
 Follow [CP2 architecture](../docs/CP2_ARCHITECTURE.md) and [ADR-0017](../docs/adr/0017-cp2-charts-and-conditional-orders.md).

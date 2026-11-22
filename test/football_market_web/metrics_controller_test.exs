@@ -5,8 +5,7 @@ defmodule FootballMarketWeb.MetricsControllerTest do
 
   @moduletag :integration
 
-  setup tags do
-    FootballMarket.DataCase.setup_sandbox(tags)
+  setup do
     previous = Application.fetch_env(:football_market, :metrics_scrape_token)
     Application.put_env(:football_market, :metrics_scrape_token, nil)
 
@@ -85,7 +84,24 @@ defmodule FootballMarketWeb.MetricsControllerTest do
              "text/plain; version=0.0.4; charset=utf-8"
            ]
 
-    assert response =~ "# TYPE football_market_http_requests_total counter"
+    assert Regex.scan(~r/^# TYPE football_market_(\S+) (\S+)$/m, response,
+             capture: :all_but_first
+           ) ==
+             [
+               ["http_requests_total", "counter"],
+               ["http_errors_total", "counter"],
+               ["http_request_duration_seconds", "histogram"],
+               ["repo_query_duration_seconds", "histogram"],
+               ["vm_memory_bytes", "gauge"],
+               ["vm_run_queue_length", "gauge"],
+               ["oban_jobs_total", "counter"],
+               ["oban_job_duration_seconds", "histogram"]
+             ]
+
+    for [label] <-
+          Regex.scan(~r/(?:\{|,)(\w+)="/, response, capture: :all_but_first) do
+      assert label in ~w(route status_class kind queue outcome le)
+    end
 
     assert response =~
              ~s(football_market_http_errors_total{route="/api/players",status_class="5xx"} 1)
@@ -124,6 +140,24 @@ defmodule FootballMarketWeb.MetricsControllerTest do
 
     assert next_scrape =~ ~s(route="/metrics")
     refute next_scrape =~ "private-query-marker"
+  end
+
+  test "scrape labels use the route template and omit account and request identifiers" do
+    Application.put_env(:football_market, :metrics_scrape_token, "scrape-test-secret")
+    user = create_user!()
+    {:ok, %{secret: secret}} = FootballMarket.Accounts.issue_api_key(user.id)
+    path = "/api/players/#{user.id}"
+
+    assert build_conn()
+           |> put_req_header("x-api-key", secret)
+           |> get(path)
+           |> response(404)
+
+    response = scrape()
+    assert response =~ ~s(route="/api/players/:player_id",status_class="4xx")
+    refute response =~ path
+    refute response =~ user.id
+    refute response =~ secret
   end
 
   test "rendered errors contribute exactly one request, error, and latency observation" do

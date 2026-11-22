@@ -1,6 +1,6 @@
 ---
 id: TASK-043
-title: Database performance and SLA validation
+title: Active-strategy ranking performance validation
 type: task
 checkpoint: CP3
 priority: high
@@ -12,5 +12,5 @@ active_run: none
 
 ## Outcome
 
-Add justified indexes, query analysis, SLA targets, and repeatable load measurements.
+Measure the active-strategy ranking query before and after TASK-041 under a repeatable high-frequency read workload. Use the results to confirm the optimization and identify any ranking-specific query/index change that is justified by evidence. Keep this task scoped to ranking performance; do not introduce application-wide SLA targets or unrelated database tuning.
 

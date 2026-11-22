@@ -7,7 +7,7 @@
 ## Outcome
 
 Expose operational Phoenix, Repo, BEAM VM, and Oban measurements in Prometheus
-text through a protected `GET /metrics` endpoint.
+text with stable metric names and types through a protected `GET /metrics` endpoint.
 
 ## Acceptance
 
@@ -21,9 +21,10 @@ text through a protected `GET /metrics` endpoint.
   deployment-configured `METRICS_SCRAPE_TOKEN`. Missing configuration, missing
   credentials, and invalid credentials all deny the scrape. Public liveness and
   readiness endpoints and existing product authentication are unchanged.
-- [ ] Focused tests prove scrape authorization and response format, plus
-  representative telemetry updates for HTTP, Repo, VM, and Oban metric
-  families.
+- [ ] HTTP tests verify scrape authorization, the content type, the expected
+  metric names and types, and the absence of account IDs, concrete paths and
+  unbounded labels. Tests exercise representative HTTP, Repo, VM and Oban
+  telemetry updates.
 - [ ] Deployment documentation shows how to configure the scraper using
   placeholders only; it contains no real credentials.
 
@@ -35,8 +36,7 @@ text through a protected `GET /metrics` endpoint.
 - Load the scrape token from runtime deployment configuration and fail closed
   when it is absent.
 - Add focused endpoint and telemetry tests, and document scraper configuration.
-- Register every task-owned path with the workflow scope guard and reconcile
-  affected source, lint, and test inventories.
+- Reconcile the affected source, lint, and test inventories.
 
 ## Non-goals
 

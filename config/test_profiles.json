@@ -828,6 +828,13 @@
       "profile": "integration"
     },
     {
+      "id": "120460bcebac1d8d9d56b2e0",
+      "runner": "exunit",
+      "file": "test/football_market_web/metrics_controller_test.exs",
+      "case_id": "FootballMarketWeb.MetricsControllerTest:test authorized scrape exports bounded HTTP, Repo, VM, and Oban metrics",
+      "profile": "integration"
+    },
+    {
       "id": "1209cd3f0be32d456b299c48",
       "runner": "exunit",
       "file": "test/football_market/market/analytics/store_test.exs",
@@ -1773,6 +1780,13 @@
       "profile": "unit"
     },
     {
+      "id": "288c3d059fb9d8ec6fda0627",
+      "runner": "exunit",
+      "file": "test/football_market_web/metrics_controller_test.exs",
+      "case_id": "FootballMarketWeb.MetricsControllerTest:test rendered errors contribute exactly one request, error, and latency observation",
+      "profile": "integration"
+    },
+    {
       "id": "2898e22fa057a8fd2f0c2a97",
       "runner": "exunit",
       "file": "test/football_market/valuation/configurations/canonical_test.exs",
@@ -2317,6 +2331,13 @@
       "file": "test/football_market/catalog/ingestion/canonical_test.exs",
       "case_id": "FootballMarket.Catalog.Ingestion.CanonicalTest:test collection permutations and reference bijections have identical semantic delivery",
       "profile": "unit"
+    },
+    {
+      "id": "352ded178e7a77594bcb38b8",
+      "runner": "exunit",
+      "file": "test/football_market_web/metrics_controller_test.exs",
+      "case_id": "FootballMarketWeb.MetricsControllerTest:test concurrent observations expose coherent duration histograms",
+      "profile": "integration"
     },
     {
       "id": "3587d46c0f2dd7051b124ae4",
@@ -6047,6 +6068,13 @@
       "runner": "exunit",
       "file": "test/mix/tasks/catalog.seed_test.exs",
       "case_id": "Mix.Tasks.Catalog.SeedTest:test denies the command from checked-in capability configuration",
+      "profile": "integration"
+    },
+    {
+      "id": "91ee953aee6fdd4a5fda813e",
+      "runner": "exunit",
+      "file": "test/football_market_web/metrics_controller_test.exs",
+      "case_id": "FootballMarketWeb.MetricsControllerTest:test scrape denies missing configuration and missing or invalid credentials",
       "profile": "integration"
     },
     {

@@ -34,6 +34,14 @@ end
 
 config :football_market, :quote_mapping_id, System.get_env("QUOTE_MAPPING_ID")
 
+metrics_scrape_token = System.get_env("METRICS_SCRAPE_TOKEN")
+
+config :football_market,
+       :metrics_scrape_token,
+       if(is_binary(metrics_scrape_token) and metrics_scrape_token != "",
+         do: metrics_scrape_token
+       )
+
 primary_account_id = System.get_env("MARKET_PRIMARY_ACCOUNT_ID")
 
 config :football_market,

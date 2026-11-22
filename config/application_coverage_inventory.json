@@ -254,6 +254,12 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/observability.ex."
     },
     {
+      "path": "lib/football_market/observability/metrics.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/observability/metrics.ex."
+    },
+    {
       "path": "lib/football_market/providers.ex",
       "role": "application",
       "disposition": "include",
@@ -752,6 +758,12 @@
       "reason": "Maintained first-party application implementation source: lib/football_market_web/controllers/market_controllers.ex."
     },
     {
+      "path": "lib/football_market_web/controllers/metrics_controller.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market_web/controllers/metrics_controller.ex."
+    },
+    {
       "path": "lib/football_market_web/controllers/pages.ex",
       "role": "application",
       "disposition": "include",
@@ -846,6 +858,12 @@
       "role": "application",
       "disposition": "include",
       "reason": "Maintained first-party application implementation source: lib/football_market_web/plugs/browser_auth.ex."
+    },
+    {
+      "path": "lib/football_market_web/plugs/metrics_auth.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market_web/plugs/metrics_auth.ex."
     },
     {
       "path": "lib/football_market_web/request_logger.ex",
@@ -3120,6 +3138,12 @@
       "role": "test",
       "disposition": "exclude",
       "reason": "Automated test source, not application implementation: test/football_market_web/live/workspace_navigation_test.exs."
+    },
+    {
+      "path": "test/football_market_web/metrics_controller_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Automated test source, not application implementation: test/football_market_web/metrics_controller_test.exs."
     },
     {
       "path": "test/football_market_web/openapi_browser_test.exs",

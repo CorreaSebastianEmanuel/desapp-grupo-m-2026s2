@@ -15,7 +15,7 @@ COMMAND = ["mix", "sobelow", "--private", "--no-config", "--strict",
 LEVELS = ("high_confidence", "medium_confidence", "low_confidence")
 # Exact findings on reviewed source bytes; changes require fresh individual triage.
 # The router already adds Phoenix secure browser headers; CSP needs a separate policy review.
-# TASK-038 adds JSON health routes outside the unchanged browser pipeline.
+# TASK-038 and TASK-039 add operational routes outside the unchanged browser pipeline.
 # Catalog SQL finding was rechecked after TASK-094 inserted a catalog function above it;
 # identifiers still come only from fixed filter_columns and values remain bound.
 # Statistics fixture reads use a fixed repository path and verify the fixture inventory digest.
@@ -26,7 +26,7 @@ EXCEPTIONS = [
         "file": "lib/football_market_web/router.ex",
         "line": 11,
         "confidence": "high_confidence",
-        "sha256": "11b7bb6cd509e34cc164cd1e1b5b5cd0826abb7304776d616cf6deff6fd39d87"
+        "sha256": "0e9043e666d1d91950d1e50be4ae4fde7e1b192290467dced53b751d1e2ba92e"
     },
     {
         "type": "SQL.Query: SQL injection",

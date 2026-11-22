@@ -49,6 +49,30 @@ defmodule FootballMarket.WorkflowScope do
     ]
   end
 
+  def paths("specs/039-prometheus-application-metrics") do
+    [
+      "backlog/TASK-039-prometheus-application-metrics.md",
+      "backlog/feedback/TASK-039.md",
+      "config/application_coverage_inventory.json",
+      "config/credo_inventory.json",
+      "config/runtime.exs",
+      "config/test_profiles.json",
+      "docs/OBSERVABILITY.md",
+      "docs/WORKFLOW_LESSONS.md",
+      "lib/football_market/observability/metrics.ex",
+      "lib/football_market_web/controllers/metrics_controller.ex",
+      "lib/football_market_web/plugs/metrics_auth.ex",
+      "lib/football_market_web/request_logger.ex",
+      "lib/football_market_web/router.ex",
+      "lib/football_market_web/telemetry.ex",
+      "scripts/sobelow_ci.py",
+      "specs/039-prometheus-application-metrics/evaluation.md",
+      "specs/039-prometheus-application-metrics/spec.md",
+      "test/football_market_web/metrics_controller_test.exs",
+      "test/support/workflow_scope.ex"
+    ]
+  end
+
   def paths("specs/086-administrator-issuer-and-readable-investor-frontend") do
     [
       "assets/css/app.css",

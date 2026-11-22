@@ -55,19 +55,23 @@ defmodule FootballMarketWeb.RequestLogger do
 
   defp log_finished(conn, status, event, state) do
     Context.with_context(state.context, fn ->
+      route = route(conn)
+      duration = System.monotonic_time() - state.started_at
+
+      :telemetry.execute(
+        [:football_market, :http, :request],
+        %{duration: duration},
+        %{route: route, status_class: "#{div(status, 100)}xx"}
+      )
+
       Logger.log(if(status >= 500, do: :error, else: :info), "HTTP request finished",
         event: event,
         method: state.method,
-        route: route(conn),
+        route: route,
         status: status,
         actor_id: actor_id(conn),
         parameters: parameters(conn),
-        duration_ms:
-          System.convert_time_unit(
-            System.monotonic_time() - state.started_at,
-            :native,
-            :millisecond
-          )
+        duration_ms: System.convert_time_unit(duration, :native, :millisecond)
       )
     end)
   end

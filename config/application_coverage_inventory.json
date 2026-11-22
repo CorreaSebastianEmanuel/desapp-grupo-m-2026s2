@@ -134,6 +134,12 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/ranking.ex."
     },
     {
+      "path": "lib/football_market/ranking/cache.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/ranking/cache.ex."
+    },
+    {
       "path": "lib/football_market/repo.ex",
       "role": "application",
       "disposition": "include",
@@ -806,6 +812,12 @@
       "reason": "Automated test source, not application implementation: test/e2e/market_journey_test.exs."
     },
     {
+      "path": "test/football_market/ranking_cache_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Automated test source, not application implementation: test/football_market/ranking_cache_test.exs."
+    },
+    {
       "path": "test/football_market_web/metrics_controller_test.exs",
       "role": "test",
       "disposition": "exclude",
@@ -876,6 +888,12 @@
       "role": "test-support",
       "disposition": "exclude",
       "reason": "Test support helper, not application implementation: test/support/metrics_failure_endpoint.ex."
+    },
+    {
+      "path": "test/support/ranking_cache.ex",
+      "role": "test-support",
+      "disposition": "exclude",
+      "reason": "Test support helper, not application implementation: test/support/ranking_cache.ex."
     },
     {
       "path": "test/support/test_profile_audit.ex",

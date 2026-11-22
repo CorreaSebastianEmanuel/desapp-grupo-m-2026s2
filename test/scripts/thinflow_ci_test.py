@@ -3,9 +3,16 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[2]
+from scripts.thinflow import select
 
 
 class ThinFlowCIContractTest(unittest.TestCase):
+    def test_root_level_exunit_suite_selects_application_checks(self):
+        selection = select(ROOT, ["test/ranking_test.exs"])
+
+        self.assertEqual(selection["blocked_paths"], [])
+        self.assertEqual(selection["checks"], ["format", "compile", "unit-profile"])
+
     def test_one_always_reporting_gate_aggregates_every_required_job(self):
         workflow = (ROOT / ".github/workflows/quality-baseline.yml").read_text()
         self.assertIn("name: ThinFlow required", workflow)

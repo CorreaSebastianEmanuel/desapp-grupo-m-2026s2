@@ -115,6 +115,9 @@ class EnvTest(ProviderFixture):
                          ['-m', 'opencode-go/glm-5.3-flash'])
         self.assertEqual(providers.command('codex', self.root, 'prompt'),
                          ['codex', 'exec', '-C', str(self.root), '--approve-for-me', '--ephemeral', 'prompt'])
+        self.assertEqual(providers.command('codex', self.root, 'prompt', model='gpt-6.1-sol'),
+                         ['codex', 'exec', '-C', str(self.root), '--approve-for-me', '--ephemeral',
+                          '--model', 'gpt-6.1-sol', 'prompt'])
         opencode = providers.command('opencode', self.root, 'prompt', model='opencode-go/glm-5.3-flash')
         self.assertEqual(opencode, ['opencode', 'run', '--auto', '-m', 'opencode-go/glm-5.3-flash', 'prompt'])
         self.assertEqual(providers.command('opencode', self.root, 'prompt'),

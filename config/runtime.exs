@@ -69,6 +69,17 @@ if config_env() == :dev do
 end
 
 if config_env() == :prod do
+  redis_port =
+    case Integer.parse(System.get_env("REDIS_PORT") || "6379") do
+      {port, ""} when port in 1..65_535 -> port
+      _ -> 6379
+    end
+
+  config :football_market, :redis,
+    host: System.get_env("REDIS_HOST") || "127.0.0.1",
+    port: redis_port,
+    password: System.get_env("REDIS_PASSWORD")
+
   jwt_issuer =
     System.get_env("JWT_ISSUER") || raise "JWT issuer configuration is missing"
 

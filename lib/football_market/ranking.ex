@@ -11,16 +11,44 @@ defmodule FootballMarket.Ranking do
 
   alias FootballMarket.Market.{Issuance, Quote}
   alias FootballMarket.Quotes.Calculation
+  alias FootballMarket.Ranking.Cache
   alias FootballMarket.Repo
   alias FootballMarket.Valuation.Configurations
   alias FootballMarket.Valuation.Configurations.Version
 
   @spec read() :: {:ok, map()} | {:error, :no_active_configuration | :storage_unavailable}
   def read do
-    if Repo.in_transaction?(), do: {:error, :storage_unavailable}, else: read_snapshot()
+    if Repo.in_transaction?(), do: {:error, :storage_unavailable}, else: read_active_ranking()
   rescue
     _ in [DBConnection.ConnectionError, Postgrex.Error, Ecto.NoResultsError] ->
       {:error, :storage_unavailable}
+  end
+
+  defp read_active_ranking do
+    case Configurations.active() do
+      {:ok, %Version{} = active} ->
+        case Cache.get(active) do
+          {:ok, entries} -> {:ok, %{configuration: active, entries: entries}}
+          :miss -> read_and_cache()
+        end
+
+      {:error, %{reason: :no_active_configuration}} ->
+        {:error, :no_active_configuration}
+    end
+  end
+
+  defp read_and_cache do
+    case read_snapshot() do
+      {:ok, %{configuration: %Version{} = configuration, entries: entries} = ranking} ->
+        # A strategy can change between the active-version lookup and the
+        # repeatable-read ranking snapshot. Cache only under the snapshot's
+        # actual configuration; the returned result is still authoritative.
+        Cache.put(configuration, entries)
+        {:ok, ranking}
+
+      error ->
+        error
+    end
   end
 
   defp read_snapshot do

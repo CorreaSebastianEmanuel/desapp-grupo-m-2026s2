@@ -167,7 +167,11 @@ def command(provider, root, prompt, model=None):
     such as verify), selected through the same provider seam."""
     provider = normalize(provider)
     if provider == "codex":
-        return [CLI[provider], "exec", "-C", str(root), EXTRA_ARGS[provider], "--ephemeral", prompt]
+        argv = [CLI[provider], "exec", "-C", str(root), EXTRA_ARGS[provider], "--ephemeral"]
+        if model:
+            argv.extend(["--model", model])
+        argv.append(prompt)
+        return argv
     if provider == "opencode":
         argv = [CLI[provider], "run", EXTRA_ARGS[provider]]
         if model:

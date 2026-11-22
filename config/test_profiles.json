@@ -1024,6 +1024,13 @@
       "profile": "unit"
     },
     {
+      "id": "447f3ae33cf44a6befe51c29",
+      "runner": "exunit",
+      "file": "test/football_market/ranking_cache_test.exs",
+      "case_id": "FootballMarket.Ranking.CacheTest:test falls back to PostgreSQL when Redis is unavailable",
+      "profile": "integration"
+    },
+    {
       "id": "448ff7849b6db52395b40e77",
       "runner": "python",
       "file": "test/scripts/application_coverage_test.py",
@@ -1043,6 +1050,13 @@
       "file": "test/scripts/agentflow_feedback_test.py",
       "case_id": "test.scripts.agentflow_feedback_test.FeedbackTest.test_without_checks_the_entry_format_is_byte_identical",
       "profile": "unit"
+    },
+    {
+      "id": "452640adeb71db0f2c5607eb",
+      "runner": "exunit",
+      "file": "test/football_market/ranking_cache_test.exs",
+      "case_id": "FootballMarket.Ranking.CacheTest:test treats malformed cached data as a miss and refreshes from PostgreSQL",
+      "profile": "integration"
     },
     {
       "id": "459004a76fe38dca7a31c55a",
@@ -1689,6 +1703,13 @@
       "profile": "unit"
     },
     {
+      "id": "7ede0972c20ffc70e2be1e4a",
+      "runner": "exunit",
+      "file": "test/football_market/ranking_cache_test.exs",
+      "case_id": "FootballMarket.Ranking.CacheTest:test reuses cached ranking entries and refreshes after expiry",
+      "profile": "integration"
+    },
+    {
       "id": "7f9c3a1ccbf4e99bdbecc17e",
       "runner": "exunit",
       "file": "test/quotes_test.exs",
@@ -1876,6 +1897,13 @@
       "file": "test/scripts/profile_safe_diagnostics_test.py",
       "case_id": "test.scripts.profile_safe_diagnostics_test.SafeProfileDiagnosticsTest.test_rejects_evidence_outside_protected_directory",
       "profile": "unit"
+    },
+    {
+      "id": "8c86a66237049ec3f4fffd13",
+      "runner": "exunit",
+      "file": "test/football_market/ranking_cache_test.exs",
+      "case_id": "FootballMarket.Ranking.CacheTest:test emits cache outcome telemetry for hit, miss, and Redis failure",
+      "profile": "integration"
     },
     {
       "id": "8ce0cec81fc79cf41fb1b7d4",
@@ -2844,6 +2872,13 @@
       "profile": "unit"
     },
     {
+      "id": "d04318ab7b03258db2d8d113",
+      "runner": "exunit",
+      "file": "test/football_market/ranking_cache_test.exs",
+      "case_id": "FootballMarket.Ranking.CacheTest:test uses a separate cache key for each active configuration version",
+      "profile": "integration"
+    },
+    {
       "id": "d0ac2f0048907127d844fbe1",
       "runner": "python",
       "file": "test/scripts/agentflow_evidence_test.py",
@@ -3271,6 +3306,13 @@
       "profile": "unit"
     },
     {
+      "id": "f265ce7968a64a51dff15ec6",
+      "runner": "python",
+      "file": "test/scripts/thinflow_ci_test.py",
+      "case_id": "test.scripts.thinflow_ci_test.ThinFlowCIContractTest.test_root_level_exunit_suite_selects_application_checks",
+      "profile": "unit"
+    },
+    {
       "id": "f2e0b37b0d0e9034c17ac857",
       "runner": "python",
       "file": "test/scripts/agentflow_recovery_test.py",
@@ -3485,6 +3527,7 @@
     "test/support/data_case.ex": "Fixture/support helper; cases owned by its importing native suite.",
     "test/support/e2e/supervisor_probe.py": "Real supervisor timeout/termination probe owned by SupervisorCleanupTest; no standalone test population.",
     "test/support/metrics_failure_endpoint.ex": "Endpoint fixture for HTTP metrics integration tests.",
+    "test/support/ranking_cache.ex": "In-memory Redis adapter fixture owned by RankingTest.",
     "test/support/test_profile_audit.ex": "Fixture/support helper; cases owned by its importing native suite.",
     "test/support/test_profile_formatter.ex": "Fixture/support helper; cases owned by its importing native suite.",
     "test/test_helper.exs": "Fixture/support helper; cases owned by its importing native suite.",

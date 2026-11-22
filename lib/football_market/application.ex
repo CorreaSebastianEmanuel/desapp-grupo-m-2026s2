@@ -7,14 +7,17 @@ defmodule FootballMarket.Application do
   def start(_type, _args) do
     :ok = FootballMarket.Observability.attach()
 
-    children = [
-      FootballMarket.Repo,
-      {Oban, Application.fetch_env!(:football_market, Oban)},
-      FootballMarketWeb.Telemetry,
-      {DNSCluster, query: Application.get_env(:football_market, :dns_cluster_query) || :ignore},
-      {Phoenix.PubSub, name: FootballMarket.PubSub},
-      FootballMarketWeb.Endpoint
-    ]
+    children =
+      ranking_cache_redis_children() ++
+        [
+          FootballMarket.Repo,
+          {Oban, Application.fetch_env!(:football_market, Oban)},
+          FootballMarketWeb.Telemetry,
+          {DNSCluster,
+           query: Application.get_env(:football_market, :dns_cluster_query) || :ignore},
+          {Phoenix.PubSub, name: FootballMarket.PubSub},
+          FootballMarketWeb.Endpoint
+        ]
 
     opts = [strategy: :one_for_one, name: FootballMarket.Supervisor]
 
@@ -25,6 +28,23 @@ defmodule FootballMarket.Application do
 
       error ->
         error
+    end
+  end
+
+  defp ranking_cache_redis_children do
+    case Application.get_env(:football_market, :redis) do
+      config when is_list(config) ->
+        opts =
+          config
+          |> Keyword.take([:host, :port, :password, :database, :ssl])
+          |> Keyword.put(:name, :ranking_cache_redis)
+          |> Keyword.put(:sync_connect, false)
+
+        [{Redix, opts}]
+
+      _ ->
+        # Redis is a disposable read optimization and must not prevent boot.
+        []
     end
   end
 

@@ -4,7 +4,7 @@ title: Application health checks
 type: task
 checkpoint: CP3
 priority: high
-status: todo
+status: done
 workflow: thinflow-v1
 depends_on: TASK-002
 active_run: none

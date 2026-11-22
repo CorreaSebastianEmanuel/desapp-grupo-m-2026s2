@@ -118,4 +118,30 @@ defmodule FootballMarketWeb.ApiTest do
 
     assert cancelled["data"]["status"] == "cancelled"
   end
+
+  test "public health endpoints report liveness and bounded dependency readiness", %{conn: conn} do
+    alias FootballMarket.Infrastructure.Health
+
+    assert conn |> get("/health/live") |> json_response(200) == %{"status" => "live"}
+
+    ready = conn |> get("/health/ready") |> json_response(200)
+    assert ready["status"] == "ready"
+    assert ready["dependencies"]["postgresql"] == "ready"
+    assert ready["dependencies"]["oban"] == "ready"
+    assert ready["dependencies"]["redis"] in ["ready", "degraded"]
+
+    assert %{status: :ready, dependencies: %{postgresql: :ready, oban: :ready, redis: :degraded}} =
+             Health.readiness(%{
+               postgresql: fn -> :ready end,
+               oban: fn -> :ready end,
+               redis: fn -> :unavailable end
+             })
+
+    assert %{status: :unavailable, dependencies: %{postgresql: :unavailable}} =
+             Health.readiness(%{
+               postgresql: fn -> :unavailable end,
+               oban: fn -> :ready end,
+               redis: fn -> :ready end
+             })
+  end
 end

@@ -863,6 +863,13 @@
       "profile": "unit"
     },
     {
+      "id": "401a9e40fde0bfac8a3cb4b8",
+      "runner": "exunit",
+      "file": "test/web/api_test.exs",
+      "case_id": "FootballMarketWeb.ApiTest:test public health endpoints report liveness and bounded dependency readiness",
+      "profile": "integration"
+    },
+    {
       "id": "414c4641cde82486d4703186",
       "runner": "python",
       "file": "test/scripts/workflow_artifact_probe_test.py",

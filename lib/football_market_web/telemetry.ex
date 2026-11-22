@@ -23,6 +23,18 @@ defmodule FootballMarketWeb.Telemetry do
         unit: {:native, :millisecond}
       ),
       summary("football_market.repo.query.total_time", unit: {:native, :millisecond}),
+      counter("football_market.ranking.cache.hit.count",
+        event_name: [:football_market, :ranking, :cache, :hit],
+        measurement: :count
+      ),
+      counter("football_market.ranking.cache.miss.count",
+        event_name: [:football_market, :ranking, :cache, :miss],
+        measurement: :count
+      ),
+      counter("football_market.ranking.cache.error.count",
+        event_name: [:football_market, :ranking, :cache, :error],
+        measurement: :count
+      ),
       summary("vm.memory.total", unit: {:byte, :kilobyte})
     ]
   end

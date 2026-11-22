@@ -11,8 +11,7 @@
       "timeout_seconds": 1200
     },
     "ci-contracts": {
-      "argv": ["mix", "test", "test/ci/sonarcloud_contract_test.exs", "test/ci/quality_baseline_contract_test.exs", "test/ci/credo_ci_contract_test.exs", "test/ci/test_profiles_quality_contract_test.exs"],
-      "env": {"MIX_ENV": "test"},
+      "argv": ["python3", "-m", "unittest", "test.scripts.agentflow_ci_check_test", "test.scripts.thinflow_ci_test", "test.scripts.sonar_checkpoint_gate_test", "test.scripts.test_profile_components_test", "test.scripts.dialyzer_ci_test"],
       "timeout_seconds": 600
     },
     "format": {
@@ -45,7 +44,7 @@
     },
     {
       "id": "application",
-      "patterns": [".env.example", "lib/**", "test/e2e/**", "test/football_market/**", "test/football_market_web/**", "test/ci/**", "test/support/**", "config/*.exs", "config/**/*.exs", "priv/**", "assets/**", "mix.exs", "mix.lock", ".formatter.exs", ".credo.exs"],
+      "patterns": [".env.example", "lib/**", "test/*_test.exs", "test/e2e/**", "test/football_market/**", "test/football_market_web/**", "test/ci/**", "test/support/**", "config/*.exs", "config/**/*.exs", "priv/**", "assets/**", "mix.exs", "mix.lock", ".formatter.exs", ".credo.exs"],
       "tier": "high",
       "checks": ["format", "compile", "unit-profile"]
     },

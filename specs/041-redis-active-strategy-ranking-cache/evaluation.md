@@ -1,68 +1,70 @@
 # Independent evaluation — TASK-041
 
-The repaired candidate is ready for CI and human merge. No blocking findings remain.
+The candidate is ready for CI and human merge. No blocking findings remain.
 
-## Review scope
+## Scope and repair assessment
 
-Independently reviewed the compact outcome spec, backlog task and feedback,
-REVIEW.md, repository product/architecture/checkpoint/constitution rules, current
-implementation diff, and local ThinFlow candidate evidence. This re-review
-focuses on the repair delta and affected surfaces. No implementation code was
-changed, no verification skill or `agentflow verify` was invoked, and no other
-agent session was started.
+Reviewed the compact outcome spec, backlog task and feedback, REVIEW.md,
+product/architecture/checkpoint/constitution rules, implementation diff and
+named local ThinFlow candidate evidence. This re-review focuses on the evidence
+repair for B4 and the affected ranking/telemetry surfaces. Previously resolved
+findings are not reopened. The implementation remains at merge commit
+`e322479f481eedd826dac3435223ae50fef3c51a`; the only working-tree change is this
+file. No skill, `./agentflow verify`, other agent session, or implementation
+modification was used.
 
-## Repair assessment
+**B4 resolved:** the regenerated candidate now records material digest
+`db4850125aaab2fad33b77001b2130086ee0a957d470f92d3527f60ce7fec56b`
+and the current 19-path selection against `origin/main`. Calling
+`readiness(Path.cwd(), 'TASK-041', require_evaluation=False)` returned
+`ready: True`. This checks task/branch identity, exact current selection and
+material digest, all required check results, and all five referenced log hashes.
+The receipt was inspected, not edited.
 
-- **B1 resolved:** all three new Elixir files are registered in both canonical
-  inventories with the appropriate application/test/support classifications.
-  `scripts.application_coverage.source_inventory()` now succeeds, including its
-  reconciliation of actual source paths against both inventories.
-- **B2 resolved:** `Cache.decode_entry/1` now requires a finite, positive Decimal.
-  Its coefficient guard rejects non-finite values before the positivity check.
-  The repaired integration test injects `NaN`, `Infinity`, `0`, and `-1` into
-  otherwise valid rows and proves PostgreSQL fallback and cache refresh for each.
-- **B3 resolved:** the application policy includes `test/*_test.exs`. A direct
-  selector probe for `test/ranking_test.exs` returns no blocked paths and selects
-  format, compile, and unit-profile. The added regression passes.
+## Acceptance assessment
 
-The affected ranking read boundary continues to return cache hits before the
-aggregation query, resolve the active configuration from PostgreSQL on each
-request, and cache misses under the configuration actually read by the snapshot.
-The Redis adapter retains `SET ... EX 30`; read/write errors retain PostgreSQL
-fallback. Cache events and metrics remain present. Existing ranking ordering and
-no-active-configuration regression tests pass. Web, domain, persistence and
-external-adapter boundaries remain intact; the repair changes no financial rules.
+- Cache hits return before `read_snapshot/0`, avoiding ranking aggregation.
+- Each read resolves the active configuration in PostgreSQL; cache keys include
+  configuration ID, strategy and formula version. Misses cache under the actual
+  snapshot configuration, including when activation races with the first lookup.
+- Redis writes use `SET ... EX 30`, bounding entry lifetime to 30 seconds.
+- Misses, malformed payloads and Redis read/write failures fall back to the
+  PostgreSQL result. Decoded prices must be finite and positive.
+- Hit, miss and error telemetry events carry count measurements, with metric
+  definitions present. Existing ranking order and no-active behavior remain.
 
-## Executed checks and candidate evidence
+Web, domain, persistence and Redis adapter responsibilities remain separated.
+The merge preserves the existing metrics supervisor, VM measurements and request
+events. No financial command or ranking business rule changed. The selected
+high risk tier is appropriate for application/runtime and harness paths.
 
-- Pinned runtime: `mise exec -- env MIX_ENV=test mix test
-  test/football_market/ranking_cache_test.exs test/ranking_test.exs
-  --warnings-as-errors` — **7 passed**.
-- `python3 -m unittest test.scripts.thinflow_ci_test
-  test.scripts.agentflow_providers_test` — **28 passed**.
-- Application source inventory validation and root-level suite selection — passed.
-- `git diff --check` — passed.
+## Evidence
 
-`readiness(Path.cwd(), 'TASK-041', require_evaluation=False)` returned ready.
-It validated branch/task identity, current selection and material digest,
-required check results, and referenced log hashes. Candidate digest:
-`22acc358cbb54191ba60859e338ac673a7950b2d5859710e5f21546f5705b6ed`.
-The selected high risk tier appropriately overrides the spec's descriptive
-moderate risk because application/runtime and harness policy surfaces changed.
+Executed in this re-review:
 
-The current receipt reports successful ci-contracts (36 tests), harness-tests
-(388 tests), format, compile, and unit-profile (424 expected, discovered,
-executed and passed cases). These are inspected builder receipts, separate from
-checks executed independently above. The focused run supplies direct evidence
-for the integration-tagged cache cases excluded from the unit profile.
+- Deterministic readiness check without requiring evaluation: passed.
+- `git diff --check`: passed.
+- Working-tree comparison against the reviewed merge: only evaluation.md differs.
 
-## Remaining limits
+Inspected refreshed builder logs: ci-contracts reports 36 tests passed;
+harness-tests reports 388 tests passed; format and compile have successful
+zero-exit receipts; unit-profile reports 451 expected, discovered, executed and
+passed cases with complete status. These are builder results, not full suites
+independently rerun in this re-review.
 
-Real Redis expiry/reconnection and the complete integration/E2E and hosted quality
-suites were not rerun in this re-review. Expiry is supported by the Redis command
-and simulated-expiry fixture; configuration separation by key construction and
-code inspection. These remain non-blocking coverage limits, not new findings.
-The accepted TTL allows up to 30 seconds of ranking staleness. The exact PR head
-must still pass `ThinFlow required`, followed by human merge.
+The preceding review of the same implementation recorded 12 passing focused
+ranking-cache, ranking and metrics-controller tests, including integration-tagged
+cache cases outside the selected unit profile. That result is retained as prior
+review evidence; this evidence-only repair did not require repeating those tests.
+
+## Limits
+
+No new advisory findings. Real Redis expiry/reconnection was not exercised;
+expiry is supported by the adapter command and simulated-expiry tests. Version
+isolation is supported by code and key tests rather than concurrent activation
+coverage. Cache events are not exported by the existing Prometheus collector;
+the settled acceptance requires telemetry events. The accepted TTL permits up
+to 30 seconds of staleness. The exact PR head must still pass hosted
+`ThinFlow required`, followed by human merge.
 
 Verdict: PASS

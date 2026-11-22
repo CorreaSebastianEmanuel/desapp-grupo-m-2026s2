@@ -1,25 +1,25 @@
 # Independent evaluation — TASK-039
 
-No blocking findings. Re-reviewed the repair against the compact outcome spec,
-backlog task, human feedback, REVIEW.md, and the candidate diff. The API-key
-security regression now checks the metric families and label declarations
-consumed by the Prometheus renderer. It also asserts a request counter exists,
-so the label check cannot pass on an empty registry. The existing route
-assertions remain in place, and the workflow scope guard covers the changed
-test file. No caller of the removed telemetry declarations remains in
-application code, tests, or config.
+No blocking findings. Reviewed the compact outcome spec, backlog task and
+feedback, REVIEW.md, and the feature diff against main at `9091906`. Re-reviewed
+the integration changes in `d2e8dca` across the endpoint, telemetry, tests, and
+inventories.
 
-The focused run passed all 11 tests across API-key security, the metrics
-endpoint, and router authentication policy. These exercised credential
-exclusion, fail-closed scraping, the metric families and exposition format,
-concurrent histogram observations, and health route authentication policy.
+All five focused metrics endpoint tests passed against local PostgreSQL. They
+covered fail-closed bearer authorization, the Prometheus content type and all
+eight metric families, bounded labels, exclusion of credentials and identifiers,
+exactly one HTTP error observation, and concurrent histogram updates. The
+endpoint suite uses representative telemetry inputs for Repo, VM, and Oban.
+The router diff preserves the existing health and product authentication
+pipelines. Deployment documentation uses a placeholder target and a
+credentials file.
 
-Read-only ThinFlow readiness validation matched the current candidate material
-digest, high-risk selection, and evidence hashes. The receipt records passing
-CI contracts (27 tests), harness tests (387), formatting, compilation, and
-the unit profile (744 of 744).
+Read-only ThinFlow readiness validation matched the candidate digest, high-risk
+check selection, and evidence hashes. The receipt recorded passing CI contracts
+(27 tests), harness tests (387), formatting, compilation, and the unit profile
+(450 of 450). The feature diff passed `git diff --check`.
 
-The independent run was limited to the three affected test modules. The exact
-PR head still requires the hosted `ThinFlow required` check and human merge.
+The exact PR head still requires the hosted `ThinFlow required` check and human
+merge.
 
 Verdict: PASS

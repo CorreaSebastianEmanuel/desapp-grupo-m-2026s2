@@ -4,7 +4,7 @@ title: Prometheus application metrics
 type: task
 checkpoint: CP3
 priority: high
-status: todo
+status: done
 workflow: thinflow-v1
 depends_on: TASK-036, TASK-038
 active_run: none

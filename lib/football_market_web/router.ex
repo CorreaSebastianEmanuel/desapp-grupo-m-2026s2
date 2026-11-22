@@ -15,6 +15,11 @@ defmodule FootballMarketWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :metrics_scrape do
+    plug :accepts, ["text"]
+    plug FootballMarketWeb.Plugs.MetricsAuth
+  end
+
   pipeline :api_protected do
     plug :accepts, ["json"]
     plug FootballMarketWeb.Plugs.AuthenticateAPI
@@ -25,6 +30,12 @@ defmodule FootballMarketWeb.Router do
 
     get "/", PageController, :home
     get "/docs", ApiDocsController, :index
+  end
+
+  scope "/", FootballMarketWeb do
+    pipe_through :metrics_scrape
+
+    get "/metrics", MetricsController, :index, metadata: %{authentication_policy: :metrics_token}
   end
 
   scope "/", FootballMarketWeb do

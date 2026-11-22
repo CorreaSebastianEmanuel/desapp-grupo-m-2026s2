@@ -23,6 +23,13 @@
       "profile": "unit"
     },
     {
+      "id": "026c1d726558ee60a1899b44",
+      "runner": "exunit",
+      "file": "test/ci/credo_ci_contract_test.exs",
+      "case_id": "FootballMarket.CredoCiContractTest:test workflow adds a mandatory independent step and complete always-upload artifact",
+      "profile": "unit"
+    },
+    {
       "id": "0279a346a681318f225f71f5",
       "runner": "exunit",
       "file": "test/ranking_test.exs",
@@ -34,6 +41,13 @@
       "runner": "python",
       "file": "test/scripts/agentflow_preflight_test.py",
       "case_id": "test.scripts.agentflow_preflight_test.PreflightTest.test_service_probe_timeout_is_unknown_and_safe",
+      "profile": "unit"
+    },
+    {
+      "id": "02da26c269c0c6316261a4d4",
+      "runner": "exunit",
+      "file": "test/ci/quality_baseline_contract_test.exs",
+      "case_id": "FootballMarket.QualityBaselineContractTest:test CI PostgreSQL uses the exact planned local service image",
       "profile": "unit"
     },
     {
@@ -177,10 +191,24 @@
       "profile": "unit"
     },
     {
+      "id": "0a71e44459c7b0cd698eaf82",
+      "runner": "exunit",
+      "file": "test/ci/quality_baseline_contract_test.exs",
+      "case_id": "FootballMarket.QualityBaselineContractTest:test workflow exposes exactly three ordered quality categories with bounded commands",
+      "profile": "unit"
+    },
+    {
       "id": "0b2e35edd1ff7e1f1388b63e",
       "runner": "python",
       "file": "test/scripts/application_coverage_test.py",
       "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_duplicate_json_keys_and_unsafe_report_paths_are_rejected",
+      "profile": "unit"
+    },
+    {
+      "id": "0b94e78c0d65100a472f29d5",
+      "runner": "exunit",
+      "file": "test/ci/sonarcloud_contract_test.exs",
+      "case_id": "FootballMarket.SonarCloudContractTest:test workflow covers every internal PR revision and main with least privilege",
       "profile": "unit"
     },
     {
@@ -223,6 +251,13 @@
       "runner": "python",
       "file": "test/scripts/agentflow_branch_test.py",
       "case_id": "test.scripts.agentflow_branch_test.RealStartPreproductTest.test_actual_start_one_two_foreign_with_absent_stale_pointer",
+      "profile": "unit"
+    },
+    {
+      "id": "0ed9c818f9fff2b0a351b61e",
+      "runner": "exunit",
+      "file": "test/ci/sonarcloud_contract_test.exs",
+      "case_id": "FootballMarket.SonarCloudContractTest:test workflow propagates failures and does not persist or summarize secrets",
       "profile": "unit"
     },
     {
@@ -273,6 +308,20 @@
       "file": "test/providers_sync_test.exs",
       "case_id": "FootballMarket.ProvidersSyncTest:test parses Football-Data.org competition teams and squads JSON",
       "profile": "unit"
+    },
+    {
+      "id": "11eb6217d960d277fb227221",
+      "runner": "exunit",
+      "file": "test/ci/quality_baseline_contract_test.exs",
+      "case_id": "FootballMarket.QualityBaselineContractTest:test CP1 tooling remains outside the locked baseline",
+      "profile": "unit"
+    },
+    {
+      "id": "120460bcebac1d8d9d56b2e0",
+      "runner": "exunit",
+      "file": "test/football_market_web/metrics_controller_test.exs",
+      "case_id": "FootballMarketWeb.MetricsControllerTest:test authorized scrape exports bounded HTTP, Repo, VM, and Oban metrics",
+      "profile": "integration"
     },
     {
       "id": "129863b220a4c9e394102ed5",
@@ -398,6 +447,13 @@
       "runner": "python",
       "file": "test/scripts/workflow_artifact_probe_test.py",
       "case_id": "test.scripts.workflow_artifact_probe_test.WorkflowArtifactProbeTest.test_develop_accepts_glob_when_an_artifact_matches",
+      "profile": "unit"
+    },
+    {
+      "id": "1b823c9d4d81b537e30e729f",
+      "runner": "exunit",
+      "file": "test/ci/quality_baseline_contract_test.exs",
+      "case_id": "FootballMarket.QualityBaselineContractTest:test CI Redis uses the pinned local image, test port and bounded health readiness",
       "profile": "unit"
     },
     {
@@ -576,6 +632,13 @@
       "profile": "unit"
     },
     {
+      "id": "288c3d059fb9d8ec6fda0627",
+      "runner": "exunit",
+      "file": "test/football_market_web/metrics_controller_test.exs",
+      "case_id": "FootballMarketWeb.MetricsControllerTest:test rendered errors contribute exactly one request, error, and latency observation",
+      "profile": "integration"
+    },
+    {
       "id": "29381f528aa75eacfe1b318c",
       "runner": "python",
       "file": "test/scripts/agentflow_evidence_test.py",
@@ -639,10 +702,24 @@
       "profile": "unit"
     },
     {
+      "id": "2e4c905487cbfa74c173b566",
+      "runner": "exunit",
+      "file": "test/ci/credo_ci_contract_test.exs",
+      "case_id": "FootballMarket.CredoCiContractTest:test wrapper preserves complete lists and both revisions and removes stale output",
+      "profile": "unit"
+    },
+    {
       "id": "2ef5ff1a2fa084c475e3e92c",
       "runner": "python",
       "file": "test/scripts/agentflow_branch_test.py",
       "case_id": "test.scripts.agentflow_branch_test.ConsumerRejectionTest.test_both_reports_and_required_artifacts_gate_direct_and_no_pr",
+      "profile": "unit"
+    },
+    {
+      "id": "2ef6af06f3f13bfc8224be97",
+      "runner": "exunit",
+      "file": "test/ci/quality_baseline_contract_test.exs",
+      "case_id": "FootballMarket.QualityBaselineContractTest:test workflow gates every pull request and main pushes in least-privilege jobs",
       "profile": "unit"
     },
     {
@@ -735,6 +812,13 @@
       "file": "test/scripts/agentflow_stage_checks_test.py",
       "case_id": "test.scripts.agentflow_stage_checks_test.StageSummaryTest.test_stage_summary_recovers_registered_event_summary_from_safe_evidence",
       "profile": "unit"
+    },
+    {
+      "id": "352ded178e7a77594bcb38b8",
+      "runner": "exunit",
+      "file": "test/football_market_web/metrics_controller_test.exs",
+      "case_id": "FootballMarketWeb.MetricsControllerTest:test concurrent observations expose coherent duration histograms",
+      "profile": "integration"
     },
     {
       "id": "35e3f862f1dc20efe4849084",
@@ -870,6 +954,13 @@
       "profile": "integration"
     },
     {
+      "id": "40f009b6d92893a81816478e",
+      "runner": "exunit",
+      "file": "test/ci/sonarcloud_contract_test.exs",
+      "case_id": "FootballMarket.SonarCloudContractTest:test actions are immutable, scanning waits boundedly, and token stays indirect",
+      "profile": "unit"
+    },
+    {
       "id": "414c4641cde82486d4703186",
       "runner": "python",
       "file": "test/scripts/workflow_artifact_probe_test.py",
@@ -944,6 +1035,13 @@
       "runner": "python",
       "file": "test/scripts/application_coverage_test.py",
       "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_duplicate_and_malformed_line_identities_fail_closed",
+      "profile": "unit"
+    },
+    {
+      "id": "44afa46c5fbf8dda8f3f018f",
+      "runner": "exunit",
+      "file": "test/ci/sonarcloud_contract_test.exs",
+      "case_id": "FootballMarket.SonarCloudContractTest:test TASK-069 probe is opt-in, exact-head guarded, and keeps imports out of normal analysis",
       "profile": "unit"
     },
     {
@@ -1098,6 +1196,13 @@
       "runner": "python",
       "file": "test/scripts/test_inventory_test.py",
       "case_id": "test.scripts.test_inventory_test.InventoryTest.test_substituted_identity_does_not_pass_equal_count",
+      "profile": "unit"
+    },
+    {
+      "id": "5143460d91f087779c176bd2",
+      "runner": "exunit",
+      "file": "test/ci/sonarcloud_contract_test.exs",
+      "case_id": "FootballMarket.SonarCloudContractTest:test JavaScript tests generate coverage before the unchanged scanner quality gate",
       "profile": "unit"
     },
     {
@@ -1381,6 +1486,13 @@
       "profile": "unit"
     },
     {
+      "id": "69f1df564fa5c12cd71d4e07",
+      "runner": "exunit",
+      "file": "test/ci/credo_ci_contract_test.exs",
+      "case_id": "FootballMarket.CredoCiContractTest:test README and evidence state commands, scope, retention, and interpretation limits",
+      "profile": "unit"
+    },
+    {
       "id": "6b1bb7c18da0b1dfd34a1444",
       "runner": "python",
       "file": "test/scripts/agentflow_metrics_test.py",
@@ -1661,6 +1773,13 @@
       "profile": "unit"
     },
     {
+      "id": "835e6f30d9562d1be69c1e40",
+      "runner": "exunit",
+      "file": "test/ci/test_profiles_quality_contract_test.exs",
+      "case_id": "FootballMarket.TestProfilesQualityContractTest:test baseline consumes independently reconciled component receipts",
+      "profile": "unit"
+    },
+    {
       "id": "83b8650991f58a61e3e5af4c",
       "runner": "python",
       "file": "test/scripts/test_inventory_test.py",
@@ -1714,6 +1833,13 @@
       "runner": "python",
       "file": "test/scripts/agentflow_completion_test.py",
       "case_id": "test.scripts.agentflow_completion_test.MultipleDependencyMetadataTest.test_invalid_later_dependency_cannot_follow_an_earlier_write",
+      "profile": "unit"
+    },
+    {
+      "id": "88d15c778e078275636a2047",
+      "runner": "exunit",
+      "file": "test/ci/credo_ci_contract_test.exs",
+      "case_id": "FootballMarket.CredoCiContractTest:test wrapper rejects output traversal before removing existing files",
       "profile": "unit"
     },
     {
@@ -1847,6 +1973,13 @@
       "runner": "exunit",
       "file": "test/trading_test.exs",
       "case_id": "FootballMarket.TradingTest:test rejects insufficient funds, insufficient inventory, and self-trades",
+      "profile": "integration"
+    },
+    {
+      "id": "91ee953aee6fdd4a5fda813e",
+      "runner": "exunit",
+      "file": "test/football_market_web/metrics_controller_test.exs",
+      "case_id": "FootballMarketWeb.MetricsControllerTest:test scrape denies missing configuration and missing or invalid credentials",
       "profile": "integration"
     },
     {
@@ -2109,6 +2242,13 @@
       "profile": "unit"
     },
     {
+      "id": "a768be5d478def02322bf368",
+      "runner": "exunit",
+      "file": "test/ci/quality_baseline_contract_test.exs",
+      "case_id": "FootballMarket.QualityBaselineContractTest:test workflow has no source-mutating or success-masking quality commands",
+      "profile": "unit"
+    },
+    {
       "id": "a7abd96a7475c4eca024ceb3",
       "runner": "python",
       "file": "test/scripts/sonar_checkpoint_gate_test.py",
@@ -2235,6 +2375,13 @@
       "profile": "unit"
     },
     {
+      "id": "afb5810d8d797b6a1ac74c07",
+      "runner": "exunit",
+      "file": "test/ci/sonarcloud_contract_test.exs",
+      "case_id": "FootballMarket.SonarCloudContractTest:test TASK-003 workflow matches its byte oracle and remains discoverable",
+      "profile": "unit"
+    },
+    {
       "id": "afc25827493924f289d41402",
       "runner": "python",
       "file": "test/scripts/agentflow_policy_test.py",
@@ -2289,6 +2436,13 @@
       "file": "test/scripts/application_coverage_test.py",
       "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_unsafe_paths_and_incomplete_partitions_are_rejected",
       "profile": "unit"
+    },
+    {
+      "id": "b4b82e2a59fd77d30a9e40ef",
+      "runner": "exunit",
+      "file": "test/football_market_web/metrics_controller_test.exs",
+      "case_id": "FootballMarketWeb.MetricsControllerTest:test scrape labels use the route template and omit account and request identifiers",
+      "profile": "integration"
     },
     {
       "id": "b5ff079e787448aebd885080",
@@ -2480,10 +2634,24 @@
       "profile": "integration"
     },
     {
+      "id": "c1584c2a1cb483d81cd699cb",
+      "runner": "exunit",
+      "file": "test/ci/sonarcloud_contract_test.exs",
+      "case_id": "FootballMarket.SonarCloudContractTest:test quality baseline prepares the pinned browser before browser-backed ExUnit tests",
+      "profile": "unit"
+    },
+    {
       "id": "c21ffb5090bf46333c624c4a",
       "runner": "python",
       "file": "test/scripts/agentflow_stage_checks_test.py",
       "case_id": "test.scripts.agentflow_stage_checks_test.CiParityTest.test_real_signal_exit_codes_are_nonzero_and_classified_interrupted",
+      "profile": "unit"
+    },
+    {
+      "id": "c2c53a63b71b4c0ae91d4a39",
+      "runner": "exunit",
+      "file": "test/ci/quality_baseline_contract_test.exs",
+      "case_id": "FootballMarket.QualityBaselineContractTest:test README documents prerequisites and the three locally equivalent commands",
       "profile": "unit"
     },
     {
@@ -2498,6 +2666,13 @@
       "runner": "python",
       "file": "test/scripts/agentflow_stage_checks_test.py",
       "case_id": "test.scripts.agentflow_stage_checks_test.StageExecutionTest.test_full_stage_attempt_token_is_forwarded_to_check_child",
+      "profile": "unit"
+    },
+    {
+      "id": "c3d4276a80ea4d08e9625308",
+      "runner": "exunit",
+      "file": "test/ci/quality_baseline_contract_test.exs",
+      "case_id": "FootballMarket.QualityBaselineContractTest:test quality reports and required aggregate are tied to the exact PR head",
       "profile": "unit"
     },
     {
@@ -2648,6 +2823,20 @@
       "profile": "unit"
     },
     {
+      "id": "cd3aa0f0e40412b78439b227",
+      "runner": "exunit",
+      "file": "test/ci/sonarcloud_contract_test.exs",
+      "case_id": "FootballMarket.SonarCloudContractTest:test gate separates PR and main freshness and exposes distinct summaries",
+      "profile": "unit"
+    },
+    {
+      "id": "cd3bdfc3d17a5a084fa524b0",
+      "runner": "exunit",
+      "file": "test/ci/credo_ci_contract_test.exs",
+      "case_id": "FootballMarket.CredoCiContractTest:test wrapper rejects a symlink output directory before replacing it",
+      "profile": "unit"
+    },
+    {
       "id": "cde4a405abece479f4b544fa",
       "runner": "python",
       "file": "test/scripts/agentflow_stage_checks_test.py",
@@ -2673,6 +2862,13 @@
       "runner": "python",
       "file": "test/scripts/agentflow_feedback_test.py",
       "case_id": "test.scripts.agentflow_feedback_test.FeedbackTest.test_preexisting_cycle_count_uses_configured_cap_without_resetting_history",
+      "profile": "unit"
+    },
+    {
+      "id": "d0404d8fe259983de1e7b9ba",
+      "runner": "exunit",
+      "file": "test/ci/sonarcloud_contract_test.exs",
+      "case_id": "FootballMarket.SonarCloudContractTest:test configuration imports measured JavaScript coverage without excluding new code",
       "profile": "unit"
     },
     {
@@ -2823,6 +3019,20 @@
       "profile": "unit"
     },
     {
+      "id": "dc9c81b6857ecace05bc8ed1",
+      "runner": "exunit",
+      "file": "test/ci/test_profiles_quality_contract_test.exs",
+      "case_id": "FootballMarket.TestProfilesQualityContractTest:test mandatory E2E job preserves existing CI and independent local profiles",
+      "profile": "unit"
+    },
+    {
+      "id": "dce75c760b8920e55b49d430",
+      "runner": "exunit",
+      "file": "test/ci/credo_ci_contract_test.exs",
+      "case_id": "FootballMarket.CredoCiContractTest:test incomplete oracle and changed snapshots fail and retain diagnostics",
+      "profile": "unit"
+    },
+    {
       "id": "dcf3e0b3749887467e6f7f08",
       "runner": "python",
       "file": "test/scripts/sobelow_ci_test.py",
@@ -2848,6 +3058,13 @@
       "runner": "python",
       "file": "test/scripts/agentflow_stage_checks_test.py",
       "case_id": "test.scripts.agentflow_stage_checks_test.SafeDiagnosticTest.test_incomplete_qa_projection_cannot_pass",
+      "profile": "unit"
+    },
+    {
+      "id": "de9862b121f4f8b6115ebffa",
+      "runner": "exunit",
+      "file": "test/ci/quality_baseline_contract_test.exs",
+      "case_id": "FootballMarket.QualityBaselineContractTest:test Credo reconciliation is mandatory and retains full evidence independently",
       "profile": "unit"
     },
     {
@@ -3110,6 +3327,13 @@
       "profile": "unit"
     },
     {
+      "id": "f496593da30ab8562fe7f015",
+      "runner": "exunit",
+      "file": "test/ci/credo_ci_contract_test.exs",
+      "case_id": "FootballMarket.CredoCiContractTest:test CLI and inventory failures independently fail the wrapper",
+      "profile": "unit"
+    },
+    {
       "id": "f4d6cbe55aaba998e139ad4c",
       "runner": "python",
       "file": "test/scripts/agentflow_models_test.py",
@@ -3302,6 +3526,7 @@
     "test/support/cp1_coverage_publisher.ex": "Fixture/support helper; cases owned by its importing native suite.",
     "test/support/data_case.ex": "Fixture/support helper; cases owned by its importing native suite.",
     "test/support/e2e/supervisor_probe.py": "Real supervisor timeout/termination probe owned by SupervisorCleanupTest; no standalone test population.",
+    "test/support/metrics_failure_endpoint.ex": "Endpoint fixture for HTTP metrics integration tests.",
     "test/support/ranking_cache.ex": "In-memory Redis adapter fixture owned by RankingTest.",
     "test/support/test_profile_audit.ex": "Fixture/support helper; cases owned by its importing native suite.",
     "test/support/test_profile_formatter.ex": "Fixture/support helper; cases owned by its importing native suite.",

@@ -8,7 +8,8 @@ defmodule FootballMarketWeb.Telemetry do
   @impl true
   def init(_arg) do
     children = [
-      {:telemetry_poller, measurements: [], period: 10_000}
+      FootballMarket.Observability.Metrics,
+      {:telemetry_poller, measurements: periodic_measurements(), period: 10_000}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)
@@ -37,6 +38,21 @@ defmodule FootballMarketWeb.Telemetry do
       ),
       summary("vm.memory.total", unit: {:byte, :kilobyte})
     ]
+  end
+
+  defp periodic_measurements do
+    [{__MODULE__, :measure_vm, []}]
+  end
+
+  def measure_vm do
+    :telemetry.execute([:vm, :memory], %{total: :erlang.memory(:total)}, %{})
+    total = :erlang.statistics(:run_queue_lengths) |> Enum.sum()
+
+    :telemetry.execute(
+      [:vm, :total_run_queue_lengths],
+      %{total: total},
+      %{}
+    )
   end
 end
 
@@ -97,19 +113,23 @@ defmodule FootballMarketWeb.RequestLogger do
 
   defp log_finished(conn, status, event, state) do
     Observability.with_context(state.context, fn ->
+      route = route(conn)
+      duration = System.monotonic_time() - state.started_at
+
+      :telemetry.execute(
+        [:football_market, :http, :request],
+        %{duration: duration},
+        %{route: route, status_class: "#{div(status, 100)}xx"}
+      )
+
       Logger.log(if(status >= 500, do: :error, else: :info), "HTTP request finished",
         event: event,
         method: state.method,
-        route: route(conn),
+        route: route,
         status: status,
         actor_id: actor_id(conn),
         parameters: safe_parameters(conn),
-        duration_ms:
-          System.convert_time_unit(
-            System.monotonic_time() - state.started_at,
-            :native,
-            :millisecond
-          )
+        duration_ms: System.convert_time_unit(duration, :native, :millisecond)
       )
     end)
   end

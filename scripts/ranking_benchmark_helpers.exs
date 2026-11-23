@@ -31,14 +31,7 @@ defmodule RankingBenchmarkHelpers do
       1..clients
       |> Task.async_stream(
         fn _client ->
-          Enum.map(1..reads_per_client, fn _read ->
-            {elapsed_us, {:ok, result}} = timed(read_fun)
-
-            unless length(result.entries) == expected_entries,
-              do: Mix.raise("ranking result changed")
-
-            elapsed_us
-          end)
+          Enum.map(1..reads_per_client, fn _read -> measure_read(read_fun, expected_entries) end)
         end,
         max_concurrency: clients,
         timeout: 120_000,
@@ -61,6 +54,15 @@ defmodule RankingBenchmarkHelpers do
       ranking_sql_statements: :atomics.get(counter, 1),
       ranking_aggregation_statements: :atomics.get(counter, 2)
     }
+  end
+
+  defp measure_read(read_fun, expected_entries) do
+    {elapsed_us, {:ok, result}} = timed(read_fun)
+
+    unless length(result.entries) == expected_entries,
+      do: Mix.raise("ranking result changed")
+
+    elapsed_us
   end
 
   def print_measurement(label, values) do

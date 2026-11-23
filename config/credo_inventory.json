@@ -251,6 +251,7 @@
     "test/ci/sonarcloud_contract_test.exs",
     "test/ci/test_profiles_quality_contract_test.exs",
     "test/e2e/market_journey_test.exs",
+    "test/football_market/ranking_benchmark_helpers_test.exs",
     "test/football_market/ranking_cache_test.exs",
     "test/football_market_web/metrics_controller_test.exs",
     "test/integration/infrastructure_migration_test.exs",

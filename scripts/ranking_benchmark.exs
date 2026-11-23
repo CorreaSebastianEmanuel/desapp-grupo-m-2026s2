@@ -14,19 +14,19 @@ defmodule RankingBenchmarkBaseline do
   alias FootballMarket.Valuation.Configurations.Version
 
   def read do
-    case Repo.transaction(fn ->
-           Repo.query!("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY")
+    Repo.transaction(fn ->
+      Repo.query!("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY")
+      read_active_ranking()
+    end)
+  end
 
-           case Configurations.active() do
-             {:ok, %Version{} = active} ->
-               %{configuration: active, entries: entries(active)}
+  defp read_active_ranking do
+    case Configurations.active() do
+      {:ok, %Version{} = active} ->
+        %{configuration: active, entries: entries(active)}
 
-             {:error, %{reason: :no_active_configuration}} ->
-               Repo.rollback(:no_active_configuration)
-           end
-         end) do
-      {:ok, ranking} -> {:ok, ranking}
-      error -> error
+      {:error, %{reason: :no_active_configuration}} ->
+        Repo.rollback(:no_active_configuration)
     end
   end
 

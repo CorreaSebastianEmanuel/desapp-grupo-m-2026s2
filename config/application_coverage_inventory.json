@@ -596,6 +596,18 @@
       "reason": "Repository automation script, not application implementation: scripts/verify_quote_runtime.exs."
     },
     {
+      "path": "scripts/ranking_benchmark.exs",
+      "role": "script",
+      "disposition": "exclude",
+      "reason": "Repository ranking benchmark script, not application implementation: scripts/ranking_benchmark.exs."
+    },
+    {
+      "path": "scripts/ranking_benchmark_helpers.exs",
+      "role": "script",
+      "disposition": "exclude",
+      "reason": "Repository ranking benchmark helper, not application implementation: scripts/ranking_benchmark_helpers.exs."
+    },
+    {
       "path": "scripts/verify_ranking_runtime.exs",
       "role": "script",
       "disposition": "exclude",
@@ -810,6 +822,12 @@
       "role": "test",
       "disposition": "exclude",
       "reason": "Automated test source, not application implementation: test/e2e/market_journey_test.exs."
+    },
+    {
+      "path": "test/football_market/ranking_benchmark_helpers_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Automated test source, not application implementation: test/football_market/ranking_benchmark_helpers_test.exs."
     },
     {
       "path": "test/football_market/ranking_cache_test.exs",

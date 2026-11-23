@@ -1297,6 +1297,13 @@
       "profile": "unit"
     },
     {
+      "id": "55de80ed8b298828b712cf06",
+      "runner": "exunit",
+      "file": "test/football_market/ranking_benchmark_helpers_test.exs",
+      "case_id": "FootballMarket.RankingBenchmarkHelpersTest:test concurrent workload elapsed time is distinct from cumulative request latency",
+      "profile": "unit"
+    },
+    {
       "id": "55e1f2454b0d5b6d093e3541",
       "runner": "exunit",
       "file": "test/web/session_test.exs",

@@ -110,3 +110,4 @@ list passes the checkpoint hygiene review.
 - 2026-11-21 — A candidate check reported a generic failure after development stopped with an unresolved product decision — inspect the compact spec and the builder's final message, then record the confirmed decision through classified feedback before resuming — TASK-041, TASK-038
 - 2026-11-22 — ThinFlow's application rule omitted root-level ExUnit suites, leaving behavioral test changes unmapped — cover `test/*_test.exs` and confirm the task selector assigns application checks — TASK-041
 - 2026-11-22 — Monitoring endpoint tasks left availability and access behavior undecided until development — settle both contracts in the outcome before starting and test them through the HTTP routes — TASK-038, TASK-039
+- 2026-11-23 — Concurrent benchmark totals obscured wall time and plan summaries omitted primary evidence — measure workload elapsed time separately from request latency and retain full query plans — TASK-043

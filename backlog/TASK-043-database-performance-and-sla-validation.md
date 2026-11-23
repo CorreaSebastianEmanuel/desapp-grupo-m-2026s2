@@ -4,10 +4,10 @@ title: Active-strategy ranking performance validation
 type: task
 checkpoint: CP3
 priority: high
-status: todo
+status: review
 workflow: thinflow-v1
 depends_on: TASK-032, TASK-042
-active_run: none
+active_run: 6b1bc9ee
 ---
 
 ## Outcome

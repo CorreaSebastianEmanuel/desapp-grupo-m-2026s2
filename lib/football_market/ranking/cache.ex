@@ -5,8 +5,8 @@ defmodule FootballMarket.Ranking.Cache do
 
   @ttl_seconds 30
 
-  def get(%Version{} = configuration) do
-    key = key(configuration)
+  def get(%Version{} = configuration, revision \\ "0") do
+    key = key(configuration, revision)
 
     case adapter().get(key) do
       {:ok, nil} ->
@@ -38,12 +38,12 @@ defmodule FootballMarket.Ranking.Cache do
       :miss
   end
 
-  def put(%Version{} = configuration, entries) when is_list(entries) do
+  def put(%Version{} = configuration, entries, revision \\ "0") when is_list(entries) do
     payload = Enum.map(entries, &encode_entry/1)
 
     case Jason.encode(payload) do
       {:ok, encoded} ->
-        case adapter().put(key(configuration), encoded, @ttl_seconds) do
+        case adapter().put(key(configuration, revision), encoded, @ttl_seconds) do
           :ok -> :ok
           _ -> emit(:error)
         end
@@ -63,8 +63,8 @@ defmodule FootballMarket.Ranking.Cache do
     Application.get_env(:football_market, :ranking_cache_adapter, __MODULE__.Redis)
   end
 
-  defp key(configuration) do
-    "football_market:ranking:v1:#{configuration.id}:#{configuration.strategy_id}:#{configuration.formula_version}"
+  defp key(configuration, revision) do
+    "football_market:ranking:v2:#{configuration.id}:#{configuration.strategy_id}:#{configuration.formula_version}:#{revision}"
   end
 
   defp encode_entry(entry) do

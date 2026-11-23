@@ -359,6 +359,13 @@
       "profile": "unit"
     },
     {
+      "id": "14c44f8c7f6d248af61d136e",
+      "runner": "exunit",
+      "file": "test/football_market/ranking_cache_test.exs",
+      "case_id": "FootballMarket.Ranking.CacheTest:test trading ignores cached ranking prices and uses the latest PostgreSQL quote",
+      "profile": "integration"
+    },
+    {
       "id": "15018ae8c6faf3158f978705",
       "runner": "python",
       "file": "test/scripts/agentflow_feature_test.py",
@@ -441,6 +448,13 @@
       "file": "test/scripts/agentflow_metrics_test.py",
       "case_id": "test.scripts.agentflow_metrics_test.MetricsTest.test_pilot_names_reproducible_observations_and_authorized_boundary",
       "profile": "unit"
+    },
+    {
+      "id": "1af5e42917d20c4fc17a5d13",
+      "runner": "exunit",
+      "file": "test/football_market/ranking_cache_test.exs",
+      "case_id": "FootballMarket.Ranking.CacheTest:test strategy invalidation waits for commit and reactivation uses a fresh key",
+      "profile": "integration"
     },
     {
       "id": "1b80c3e603fefd036bf71519",
@@ -539,6 +553,13 @@
       "file": "test/scripts/agentflow_evidence_test.py",
       "case_id": "test.scripts.agentflow_evidence_test.EvidenceTest.test_interrupted_receipt_counts_once_and_blocks_third_unchanged_attempt",
       "profile": "unit"
+    },
+    {
+      "id": "2133431b920d64a765cc87d7",
+      "runner": "exunit",
+      "file": "test/football_market/ranking_cache_test.exs",
+      "case_id": "FootballMarket.Ranking.CacheTest:test Redis failure during publication and recovery cannot reuse stale entries",
+      "profile": "integration"
     },
     {
       "id": "21ad3107d116c9751c9fe6e2",
@@ -1374,6 +1395,13 @@
       "profile": "unit"
     },
     {
+      "id": "5d0ee67ccf68127ed38a3d3b",
+      "runner": "exunit",
+      "file": "test/football_market/ranking_cache_test.exs",
+      "case_id": "FootballMarket.Ranking.CacheTest:test quote invalidation waits for outer commit and ignores rollback",
+      "profile": "integration"
+    },
+    {
       "id": "5eff7e05068320aab734f527",
       "runner": "python",
       "file": "test/scripts/agentflow_models_test.py",
@@ -1834,6 +1862,13 @@
       "file": "test/scripts/agentflow_completion_test.py",
       "case_id": "test.scripts.agentflow_completion_test.MultipleDependencyMetadataTest.test_invalid_later_dependency_cannot_follow_an_earlier_write",
       "profile": "unit"
+    },
+    {
+      "id": "88a4937614b5a03d34619cd0",
+      "runner": "exunit",
+      "file": "test/football_market/ranking_cache_test.exs",
+      "case_id": "FootballMarket.Ranking.CacheTest:test quotes for an inactive configuration leave the active cache intact",
+      "profile": "integration"
     },
     {
       "id": "88d15c778e078275636a2047",
@@ -2660,6 +2695,13 @@
       "file": "test/scripts/agentflow_models_test.py",
       "case_id": "test.scripts.agentflow_models_test.ModelTest.test_provider_error_with_zero_exit_is_failed_once",
       "profile": "unit"
+    },
+    {
+      "id": "c2eb35749c6382ad41867ad8",
+      "runner": "exunit",
+      "file": "test/football_market/ranking_cache_test.exs",
+      "case_id": "FootballMarket.Ranking.CacheTest:test late fills cannot revive an older ranking and hits never renew expiry",
+      "profile": "integration"
     },
     {
       "id": "c337e4d95da789570d021d90",

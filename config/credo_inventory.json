@@ -238,6 +238,8 @@
     "scripts/application_coverage_native.exs",
     "scripts/credo_inventory.exs",
     "scripts/dialyzer_analyze.exs",
+    "scripts/ranking_benchmark.exs",
+    "scripts/ranking_benchmark_helpers.exs",
     "scripts/test_profile_discovery.exs",
     "scripts/verify_conditional_orders_preflight.exs",
     "scripts/verify_quote_runtime.exs",

@@ -824,6 +824,12 @@
       "reason": "Automated test source, not application implementation: test/e2e/market_journey_test.exs."
     },
     {
+      "path": "test/football_market/ranking_benchmark_helpers_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Automated test source, not application implementation: test/football_market/ranking_benchmark_helpers_test.exs."
+    },
+    {
       "path": "test/football_market/ranking_cache_test.exs",
       "role": "test",
       "disposition": "exclude",

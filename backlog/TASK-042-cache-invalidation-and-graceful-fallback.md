@@ -4,10 +4,10 @@ title: Cache invalidation and graceful fallback
 type: task
 checkpoint: CP3
 priority: critical
-status: review
+status: done
 workflow: thinflow-v1
 depends_on: TASK-018, TASK-026, TASK-041, TASK-056
-active_run: 378c1167
+active_run: none
 ---
 
 ## Outcome

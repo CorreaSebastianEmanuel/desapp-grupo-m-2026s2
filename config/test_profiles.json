@@ -2179,6 +2179,13 @@
       "profile": "unit"
     },
     {
+      "id": "9e395d20b0190f459a796562",
+      "runner": "exunit",
+      "file": "test/providers_sync_test.exs",
+      "case_id": "FootballMarket.ProvidersSyncTest:test malformed provider response shapes fail atomically without raising or dropping rows",
+      "profile": "unit"
+    },
+    {
       "id": "9f08881088f49d40a342613b",
       "runner": "python",
       "file": "test/scripts/agentflow_models_test.py",
@@ -2473,6 +2480,13 @@
       "profile": "unit"
     },
     {
+      "id": "af03ee87cb1cc6cd1dd99e36",
+      "runner": "exunit",
+      "file": "test/providers_sync_test.exs",
+      "case_id": "FootballMarket.ProvidersSyncTest:test provider requests emit bounded outcome telemetry without payloads or credentials",
+      "profile": "unit"
+    },
+    {
       "id": "afb5810d8d797b6a1ac74c07",
       "runner": "exunit",
       "file": "test/ci/sonarcloud_contract_test.exs",
@@ -2750,6 +2764,13 @@
       "runner": "python",
       "file": "test/scripts/agentflow_stage_checks_test.py",
       "case_id": "test.scripts.agentflow_stage_checks_test.CiParityTest.test_real_signal_exit_codes_are_nonzero_and_classified_interrupted",
+      "profile": "unit"
+    },
+    {
+      "id": "c2602b467f94be886723025c",
+      "runner": "exunit",
+      "file": "test/providers_sync_test.exs",
+      "case_id": "FootballMarket.ProvidersSyncTest:test catalog sync failure policy retries only transient provider outcomes",
       "profile": "unit"
     },
     {

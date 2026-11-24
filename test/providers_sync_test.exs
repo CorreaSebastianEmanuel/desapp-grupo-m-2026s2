@@ -6,6 +6,7 @@ defmodule FootballMarket.ProvidersSyncTest do
   alias FootballMarket.Providers
   alias FootballMarket.Providers.{FootballDataOrg, Scraping}
   alias FootballMarket.Quotes
+  alias FootballMarket.Workers.ProviderRetry
 
   test "normalizes provider positions into GK, DEF, MID, FWD, or UNK" do
     assert Providers.normalize_position("Goalkeeper") == "GK"
@@ -65,8 +66,73 @@ defmodule FootballMarket.ProvidersSyncTest do
                http_get: fn _, _, _ -> {:ok, %{status: 403, headers: [], body: ""}} end
              )
 
+    for status <- [400, 404] do
+      assert {:error, :invalid_request} =
+               FootballDataOrg.fetch_catalog("PL", 2026, 2027,
+                 token: "tok",
+                 http_get: fn _, _, _ -> {:ok, %{status: status, headers: [], body: ""}} end
+               )
+
+      assert ProviderRetry.result(:invalid_request) == {:discard, :provider_failure}
+    end
+
+    assert {:error, :unavailable} =
+             FootballDataOrg.fetch_catalog("PL", 2026, 2027,
+               token: "tok",
+               http_get: fn _, _, _ -> {:ok, %{status: 503, headers: [], body: ""}} end
+             )
+
+    assert ProviderRetry.result(:unavailable) == {:error, :provider_temporarily_unavailable}
+
     assert {:error, :missing_configuration} =
              FootballDataOrg.fetch_catalog("PL", 2026, 2027, token: "")
+  end
+
+  test "provider requests emit bounded outcome telemetry without payloads or credentials" do
+    handler = {__MODULE__, make_ref()}
+    parent = self()
+
+    :ok =
+      :telemetry.attach(
+        handler,
+        [:football_market, :provider, :request],
+        fn event, measurements, metadata, _ ->
+          send(parent, {:provider_event, event, measurements, metadata})
+        end,
+        nil
+      )
+
+    on_exit(fn -> :telemetry.detach(handler) end)
+
+    assert {:error, :access_refused} =
+             FootballDataOrg.fetch_catalog("PL", 2026, 2027,
+               token: "sensitive-token",
+               http_get: fn _, _, _ -> {:ok, %{status: 403}} end
+             )
+
+    assert_receive {:provider_event, [:football_market, :provider, :request],
+                    %{duration: duration},
+                    %{provider: :football_data_org, operation: :catalog, outcome: :access_refused}}
+
+    assert is_integer(duration) and duration >= 0
+    refute_received {:provider_event, _, _, %{token: _}}
+  end
+
+  test "catalog sync failure policy retries only transient provider outcomes" do
+    assert ProviderRetry.result(:rate_limited) == {:error, :provider_temporarily_unavailable}
+    assert ProviderRetry.result(:timeout) == {:error, :provider_temporarily_unavailable}
+
+    assert ProviderRetry.result({:transport_error, :econnreset}) ==
+             {:error, :provider_temporarily_unavailable}
+
+    for permanent <- [
+          :access_refused,
+          :missing_configuration,
+          :invalid_response,
+          :invalid_request
+        ] do
+      assert ProviderRetry.result(permanent) == {:discard, :provider_failure}
+    end
   end
 
   test "parses FotMob player search and recent match history JSON" do
@@ -107,6 +173,31 @@ defmodule FootballMarket.ProvidersSyncTest do
     assert match.match_identity == "fotmob-5001"
     assert match.goals == 2
     assert match.minutes_played == 90
+  end
+
+  test "malformed provider response shapes fail atomically without raising or dropping rows" do
+    assert {:error, :invalid_response} =
+             FootballDataOrg.parse_catalog_response(
+               ~s({"teams":[{"tla":"ARS","name":"Arsenal","squad":[{"id":null,"name":"Player"}]}]}),
+               "PL",
+               2026,
+               2027
+             )
+
+    assert {:error, :invalid_response} =
+             Scraping.parse_search_results(
+               ~s([{"suggestions":[{"type":"player","id":{},"name":"Player"}]}])
+             )
+
+    assert {:error, :invalid_response} =
+             Scraping.parse_search_results(
+               ~s([{"suggestions":[{"type":"player","name":"Player"}]}])
+             )
+
+    assert {:error, :invalid_response} =
+             Scraping.parse_player_matches(
+               ~s({"recentMatches":[{"id":5001,"matchDate":{"utcTime":"2026-10-01T19:00:00Z"}},{"id":5002,"matchDate":"invalid"}]})
+             )
   end
 
   test "converts scores to exact 2-decimal prices with half-away-from-zero rounding" do

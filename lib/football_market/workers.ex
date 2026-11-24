@@ -2,6 +2,21 @@
 # Module names under `FootballMarket.Workers.*` are preserved so persisted
 # `oban_jobs` rows and `config/synchronization.exs` cron entries stay compatible.
 
+defmodule FootballMarket.Workers.ProviderRetry do
+  @moduledoc false
+
+  @retryable [:rate_limited, :timeout, :unavailable, :transport_error]
+
+  def result(reason) do
+    if retryable?(reason),
+      do: {:error, :provider_temporarily_unavailable},
+      else: {:discard, :provider_failure}
+  end
+
+  defp retryable?({:transport_error, _}), do: true
+  defp retryable?(reason), do: reason in @retryable
+end
+
 defmodule FootballMarket.Workers.CatalogSync do
   @moduledoc "Syncs a league/season catalog from Football-Data.org."
   use Oban.Worker, queue: :catalog_sync, max_attempts: 3
@@ -12,7 +27,7 @@ defmodule FootballMarket.Workers.CatalogSync do
       }) do
     case FootballMarket.Sync.sync_catalog(code, sy, ey) do
       {:ok, _summary} -> :ok
-      {:error, reason} -> {:error, reason}
+      {:error, reason} -> FootballMarket.Workers.ProviderRetry.result(reason)
     end
   end
 

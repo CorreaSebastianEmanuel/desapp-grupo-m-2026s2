@@ -10,6 +10,9 @@ defmodule FootballMarket.Observability.Metrics do
   @empty_histogram List.duplicate(0, @sum_index)
   @queues ~w(catalog_sync catalog_scout statistics_import quote_calculation conditional_orders)
   @outcomes ~w(success failure cancelled discard snoozed)
+  @providers ~w(football_data_org fotmob_public_html)
+  @provider_operations ~w(catalog player_search)
+  @provider_outcomes ~w(success rate_limited access_refused unavailable timeout invalid_response missing_configuration invalid_request transport_error unexpected_failure other_failure)
 
   @families [
     {"football_market_http_requests_total", "Completed HTTP requests", :counter,
@@ -24,7 +27,12 @@ defmodule FootballMarket.Observability.Metrics do
     {"football_market_vm_run_queue_length", "BEAM run queue length", :gauge, ["kind"]},
     {"football_market_oban_jobs_total", "Completed Oban jobs", :counter, ["queue", "outcome"]},
     {"football_market_oban_job_duration_seconds", "Oban job execution duration in seconds",
-     :histogram, ["queue", "outcome"]}
+     :histogram, ["queue", "outcome"]},
+    {"football_market_provider_requests_total", "External provider requests", :counter,
+     ["provider", "operation", "outcome"]},
+    {"football_market_provider_request_duration_seconds",
+     "External provider request duration in seconds", :histogram,
+     ["provider", "operation", "outcome"]}
   ]
 
   def start_link(opts \\ []),
@@ -49,7 +57,8 @@ defmodule FootballMarket.Observability.Metrics do
           [:vm, :memory],
           [:vm, :total_run_queue_lengths],
           [:oban, :job, :stop],
-          [:oban, :job, :exception]
+          [:oban, :job, :exception],
+          [:football_market, :provider, :request]
         ],
         &__MODULE__.handle_event/4,
         nil
@@ -101,6 +110,23 @@ defmodule FootballMarket.Observability.Metrics do
     labels = [queue, state]
     increment("football_market_oban_jobs_total", labels)
     observe("football_market_oban_job_duration_seconds", duration, labels)
+  end
+
+  def handle_event(
+        [:football_market, :provider, :request],
+        %{duration: duration},
+        metadata,
+        _config
+      )
+      when is_integer(duration) and duration >= 0 do
+    labels = [
+      bounded(@providers, metadata[:provider]),
+      bounded(@provider_operations, metadata[:operation]),
+      bounded(@provider_outcomes, metadata[:outcome])
+    ]
+
+    increment("football_market_provider_requests_total", labels)
+    observe("football_market_provider_request_duration_seconds", duration, labels)
   end
 
   def handle_event(_event, _measurements, _metadata, _config), do: :ok

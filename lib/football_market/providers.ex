@@ -140,32 +140,33 @@ defmodule FootballMarket.Providers.FootballDataOrg do
       url = "#{@base_url}/competitions/#{league_code}/teams?season=#{start_year}"
       headers = [{"X-Auth-Token", token}, {"Accept", "application/json"}]
 
-      case http_get.(url, headers, Keyword.get(opts, :timeout_ms, 15_000)) do
-        {:ok, %{status: 200, body: body}} ->
-          parse_catalog_response(body, league_code, start_year, end_year)
-
-        {:ok, %{status: 429}} ->
-          {:error, :rate_limited}
-
-        {:ok, %{status: status}} when status in [401, 403] ->
-          {:error, :access_refused}
-
-        {:ok, %{status: status}} when status in 400..499 ->
-          {:error, :invalid_request}
-
-        {:ok, %{status: status}} when status in 500..599 ->
-          {:error, :unavailable}
-
-        {:ok, %{status: _}} ->
-          {:error, :unavailable}
-
-        {:error, reason} ->
-          {:error, reason}
-      end
+      response = http_get.(url, headers, Keyword.get(opts, :timeout_ms, 15_000))
+      parse_catalog_http_response(response, league_code, start_year, end_year)
     else
       {:error, :missing_configuration}
     end
   end
+
+  defp parse_catalog_http_response(
+         {:ok, %{status: 200, body: body}},
+         league,
+         start_year,
+         end_year
+       ),
+       do: parse_catalog_response(body, league, start_year, end_year)
+
+  defp parse_catalog_http_response({:ok, %{status: 429}}, _, _, _), do: {:error, :rate_limited}
+
+  defp parse_catalog_http_response({:ok, %{status: status}}, _, _, _)
+       when status in [401, 403],
+       do: {:error, :access_refused}
+
+  defp parse_catalog_http_response({:ok, %{status: status}}, _, _, _)
+       when status in 400..499,
+       do: {:error, :invalid_request}
+
+  defp parse_catalog_http_response({:ok, %{status: _}}, _, _, _), do: {:error, :unavailable}
+  defp parse_catalog_http_response({:error, reason}, _, _, _), do: {:error, reason}
 
   @doc "Parses a Football-Data.org `/competitions/:code/teams` JSON payload into catalog entries."
   def parse_catalog_response(body, league_code, start_year, end_year) when is_binary(body) do
@@ -269,13 +270,7 @@ defmodule FootballMarket.Providers.Scraping do
             sections
             |> Enum.flat_map(&Map.get(&1, "suggestions", []))
             |> Enum.filter(&(Map.get(&1, "type") == "player"))
-            |> Enum.map(fn item ->
-              %{
-                source_id: to_string(item["id"]),
-                name: String.trim(to_string(item["name"] || "")),
-                team_name: String.trim(to_string(item["teamName"] || ""))
-              }
-            end)
+            |> Enum.map(&normalize_search_player/1)
             |> Enum.reject(&(&1.source_id == "" or &1.name == ""))
 
           {:ok, players}
@@ -289,6 +284,14 @@ defmodule FootballMarket.Providers.Scraping do
   end
 
   def parse_search_results(_), do: {:error, :invalid_response}
+
+  defp normalize_search_player(item) do
+    %{
+      source_id: to_string(item["id"]),
+      name: String.trim(to_string(item["name"] || "")),
+      team_name: String.trim(to_string(item["teamName"] || ""))
+    }
+  end
 
   defp valid_search_section?(%{"suggestions" => suggestions}) when is_list(suggestions),
     do: Enum.all?(suggestions, &valid_search_suggestion?/1)

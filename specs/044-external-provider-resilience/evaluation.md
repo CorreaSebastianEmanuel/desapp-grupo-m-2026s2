@@ -1,44 +1,27 @@
 # Independent evaluation — TASK-044
 
-Repair evaluation against the compact spec, task, current feedback, REVIEW.md, repository product/architecture/checkpoint/lessons/constitution guidance, candidate diff, implementation, affected tests, and named local ThinFlow evidence. Focused on the B1/B2 repair and affected parsing/retry surfaces. No implementation changes, other agents, workflow logs, or full-suite reruns.
+Reviewed the compact outcome spec, backlog task and feedback, REVIEW.md, repository product/architecture/checkpoint/lessons/constitution guidance, implementation diff, affected tests, and local ThinFlow candidate evidence. This re-review focuses on the repair delta and affected parsing/retry surfaces; previously resolved findings are not reopened. No implementation files were changed, and no skills, other agent sessions, or `agentflow verify` were invoked.
 
-## Acceptance and evidence
+## Acceptance and repair assessment
 
-| Acceptance | Assessment and evidence |
-| --- | --- |
-| One completion event with bounded, safe metadata and elapsed duration | Meets. Both external operations call `Providers.observe_request/3`; fixed call-site labels and normalized outcomes exclude payloads, URLs, credentials, and raw errors. Metrics bound provider/operation/outcome independently. Existing telemetry assertions execute in the unit profile. |
-| Successful catalog/scouting normalization and persistence retained | Meets. Existing valid catalog/search/match fixtures retain normalized results; repair changes only invalid suggestion admission and catalog HTTP error mapping. `Sync.sync_catalog/4` still imports only a successful complete snapshot. |
-| Only transient catalog failures retry, at most three attempts | Meets. Catalog 401/403 become access refusal, 429 rate limiting, other 4xx invalid request, and 5xx unavailable. `ProviderRetry` discards permanent/unknown reasons and returns errors for transient reasons; CatalogSync retains `max_attempts: 3`. Registered assertions cover classification; targeted HTTP-to-policy controls confirm the repaired boundary. |
-| Malformed response shapes fail atomically without raising | Meets. Complete collection validation precedes catalog/search/match normalization. The repaired generic suggestion clause explicitly excludes player suggestions; malformed players reach the rejecting clause. Unit assertions cover malformed nested data. Targeted mixed valid/invalid probes confirm the two prior failing cases return `{:error, :invalid_response}`. |
-| Provider failure preserves persisted data and local reads avoid HTTP | Meets by code inspection. Failed fetch/parse short-circuits before catalog import. Parsers do no writes; local catalog/statistics query paths remain persistence-backed and unchanged. |
-| Focused automated coverage of success, transient failure, refusal, malformed data, safe telemetry, bounded labels | Meets. Provider tests and their three added identities are registered in the unit inventory. Metrics controller assertions cover valid labels and replacement of arbitrary labels with `other`; those assertions are integration-tagged and outside the selected local unit profile. |
+- B1 remains resolved: player suggestions must satisfy identifier, name, and optional team-name validation. The generic suggestion clause explicitly excludes players, so malformed players reject the entire response before normalization. Extracting `normalize_search_player/1` preserves successful results.
+- B2 remains resolved: the extracted catalog HTTP response parser preserves 401/403 access refusal, 429 rate limiting, terminal other 4xx responses, and transient service failures. `ProviderRetry` discards terminal/unknown reasons and returns retryable errors for the declared transient reasons. CatalogSync retains `max_attempts: 3`.
+- Collection validation precedes catalog, search, and match normalization. Failed catalog fetch/parse returns before `Catalog.import_catalog/2`, preserving local records. Local reads remain persistence-backed.
+- External operations retain completion telemetry with fixed provider/operation labels, normalized outcomes, and elapsed native duration. Metrics independently bound labels and convert duration through the existing histogram path. No payload, credential, URL, or raw exception is included in the emitted metadata.
+- Existing success and focused failure tests remain registered. Metrics endpoint assertions cover both declared labels and arbitrary-label replacement; those tests are integration-tagged and are not executed by the selected local unit profile.
 
-## Risk and deterministic evidence integrity
+## Evidence
 
-High risk is appropriate under `.agentflow/thinflow.json`: application and delivery-harness rules apply, including the profile inventory change. Selection includes all material paths, with no unmapped paths. Required checks are `ci-contracts`, `harness-tests`, `format`, `compile`, and `unit-profile`.
+Executed `scripts.thinflow.readiness(Path.cwd(), "TASK-044", require_evaluation=False)` successfully. The validator confirmed task/branch identity, current diff selection, policy, material digest `ab7d7dbf733e738163c0f36880550477e7fc3a895c291019e33260ce6f10188e`, all required check statuses/exit codes, and evidence hashes against `.agentflow/runs/thinflow/TASK-044/candidate.json`.
 
-Executed the read-only `scripts.thinflow.readiness(Path.cwd(), "TASK-044", require_evaluation=False)` validator successfully. It verified current task/branch, exact selection/policy, current material digest `bfc8f1bc847b0afdc9cd8e29d28f97ecdc2f7b3d7c5d0db473f7c8934b5a9973`, successful exit/status for all five required checks, and evidence-file hashes against `.agentflow/runs/thinflow/TASK-044/candidate.json`.
+High risk is appropriate: application and delivery-harness rules select `ci-contracts`, `harness-tests`, `format`, `compile`, and `unit-profile`, with no unmapped paths. Inspected the named deterministic logs: CI contracts report 36 tests OK, harness checks 388 tests OK, and the unit receipt reports eight audits with expected/discovered/executed/passed all 460 and status complete. Format and compile logs are empty with recorded zero exit codes. These are inspected candidate results, not newly rerun full suites.
 
-Inspected only its named deterministic outputs: CI contracts ran 36 tests OK; harness checks ran 388 tests OK; the unit receipt reports eight audits and expected/discovered/executed/passed all 460, status complete. Format and compile logs are empty with recorded zero exit codes. Negative fixture diagnostics in harness output accompany passing controls, not candidate failures.
+Executed focused assertion controls using `MIX_OS_CONCURRENCY_LOCK=0 MIX_ENV=test mix run --no-start --no-compile`: mixed valid/malformed player suggestions with missing names or object names both returned `{:error, :invalid_response}`; HTTP 400/404/422/401/403 flowed to discard, while 429/503 flowed to retryable errors. All assertions passed using injected responses without provider network requests or database writes. The first invocation was blocked by the sandbox TCP lock restriction; the second disabled Mix concurrency locking for this isolated invocation and passed, with a nonfatal event-subscription warning.
 
-## Repair validation
+## Findings and limits
 
-B1 is resolved: the generic non-player suggestion clause cannot admit a malformed player. B2 is resolved: definitive catalog client errors now retain a terminal classification through the worker policy. No resolved finding is carried forward as a blocker.
+No blocking findings. The candidate is ready for CI and human merge review. Retaining exact mixed missing-name/object-name cases in the registered regression test remains an optional improvement; runnable controls establish the current behavior.
 
-One targeted `MIX_ENV=test mix run --no-start --no-compile` assertion probe was necessary because the repaired registered search tests do not reproduce the exact earlier missing-name/object-name cases mixed with a valid player. Both mixed responses returned `:invalid_response` without exceptions or partial results. The same probe exercised HTTP-to-policy mapping for 400/404/422/401/403 (discard) and 429/503 (retryable error). It completed successfully using injected responses, without network requests or database writes.
-
-## Blocking findings
-
-None. The candidate is ready for CI and human merge review.
-
-## Advisory findings
-
-The registered malformed-search regression could preserve the exact mixed missing-name/object-name cases from B1. Current code and the evaluator's runnable controls demonstrate correctness; this is an optional strengthening of retained regression evidence.
-
-## Architecture, security, and residual risks
-
-External parsing/HTTP remains in adapters, retry decisions in workers, and persistence in domain contexts. No web, financial, schema, credential, or provider-selection boundary changes. Added operational signals contain bounded metadata and preserve native duration conversion through the existing histogram implementation. No adapter retries, sleeps, or bypass behavior were introduced.
-
-Local selection does not execute the integration-tagged metrics endpoint assertions. Live provider compatibility and exceptional runtime failures beyond deterministic fixture paths are not established by this evaluation. Exact-head hosted `ThinFlow required` and human merge remain required; neither is claimed complete here.
+External adapters, job retry policy, and domain persistence remain separated. No financial, schema, provider-selection, or credential boundary changes were introduced. Live-provider compatibility and integration-tagged metrics endpoint execution are not established by this local evaluation. Exact-head hosted `ThinFlow required` and human merge remain required and are not claimed complete.
 
 Verdict: PASS

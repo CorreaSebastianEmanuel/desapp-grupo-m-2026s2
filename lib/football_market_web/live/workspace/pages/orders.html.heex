@@ -131,7 +131,7 @@
                   <code>{Map.get(order.execution, :purchase_id)}</code>
                 </dd>
                 <dt>Cotización utilizada</dt><dd>
-                  {money(order.execution.unit_price)} créditos por token
+                  <code>{Map.get(order.execution, :quote_id)}</code>
                 </dd>
                 <dt>Completada</dt><dd>
                   {timestamp(Map.get(order.execution, :completed_at))}

@@ -522,9 +522,15 @@ defmodule FootballMarketWeb.WorkspaceComponents do
               <dt>Total</dt><dd>{money(@trade_record.total)} créditos</dd>
               <dt>Completada</dt><dd>{timestamp(@trade_record.completed_at)}</dd>
               <dt>Cotización efectiva</dt><dd>{timestamp(@trade_record.quote_effective_at)}</dd>
+              <dt>Operación</dt><dd><code>{@trade_record.id}</code></dd>
+              <dt>Referencia de solicitud</dt><dd><code>{@trade_record.request_key}</code></dd>
+              <dt>Cotización</dt><dd><code>{@trade_record.quote_id}</code></dd>
               <dt>Estrategia</dt><dd>
                 {strategy_name(@trade_record.rule_id)} · versión {@trade_record.rule_version}
               </dd>
+              <dt>Configuración</dt><dd><code>{@trade_record.configuration_version_id}</code></dd>
+              <dt>Mapeo</dt><dd><code>{@trade_record.mapping_id}</code></dd>
+              <dt>Secuencia de rendimiento</dt><dd>{@trade_record.performance_sequence}</dd>
             </dl>
           </details>
           <button
@@ -598,7 +604,12 @@ defmodule FootballMarketWeb.WorkspaceComponents do
     <dl>
       <dt>Precio unitario</dt><dd>{money(@quote.unit_price)} créditos</dd>
       <dt>Vigente desde</dt><dd>{timestamp(@quote.effective_at)}</dd>
+      <dt>Identificador</dt><dd><code>{@quote.id}</code></dd>
       <dt>Estrategia</dt><dd>{strategy_name(@quote.rule_id)} · versión {@quote.rule_version}</dd>
+      <dt>Configuración</dt><dd><code>{@quote.configuration_version_id}</code></dd>
+      <dt>Mapeo</dt><dd><code>{@quote.mapping_id}</code></dd>
+      <dt>Cálculo</dt><dd><code>{@quote.calculation_id}</code></dd>
+      <dt>Secuencia de rendimiento</dt><dd>{@quote.performance_sequence}</dd>
       <dt>Fuente</dt><dd>{quote_source(@quote)}</dd>
       <dt>Registrada</dt><dd>{timestamp(@quote.inserted_at)}</dd>
     </dl>
@@ -714,6 +725,10 @@ defmodule FootballMarketWeb.WorkspaceComponents do
                     entry.effective_at
                   )} · {strategy_name(@ranking.configuration.strategy_id)} · versión {@ranking.configuration.formula_version}. Fuente: rendimiento deportivo.
                 </p>
+                <dl>
+                  <dt>Cotización</dt><dd><code>{entry.quote_id}</code></dd>
+                  <dt>Configuración</dt><dd><code>{@ranking.configuration.id}</code></dd>
+                </dl>
               </details>
             </li>
           </ol>
@@ -996,7 +1011,12 @@ defmodule FootballMarketWeb.PortfolioComponents do
                   {exact_money(item.quote.unit_price)} créditos por token · vigente desde {timestamp(
                     item.quote.effective_at
                   )}
-                </p><p :if={!item.quote}>Sin cotización disponible</p>
+                </p>
+                <dl :if={item.quote}>
+                  <dt>Cotización</dt><dd><code>{item.quote.id}</code></dd>
+                  <dt>Secuencia de rendimiento</dt><dd>{item.quote.performance_sequence}</dd>
+                </dl>
+                <p :if={!item.quote}>Sin cotización disponible</p>
               </details>
             </td>
           </tr>

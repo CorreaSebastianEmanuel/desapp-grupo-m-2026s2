@@ -4,10 +4,10 @@ title: Automated architecture boundaries
 type: task
 checkpoint: CP3
 priority: high
-status: review
+status: done
 workflow: thinflow-v1
 depends_on: TASK-019, TASK-030, TASK-036
-active_run: 02342e91
+active_run: none
 ---
 
 ## Outcome

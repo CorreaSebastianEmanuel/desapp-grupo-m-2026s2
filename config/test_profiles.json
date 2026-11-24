@@ -1129,6 +1129,13 @@
       "profile": "unit"
     },
     {
+      "id": "49886491a49b10d5a5cd39e6",
+      "runner": "exunit",
+      "file": "test/architecture_boundaries_test.exs",
+      "case_id": "FootballMarket.ArchitectureBoundariesTest:test domain contexts retain the documented Ecto persistence adapter",
+      "profile": "unit"
+    },
+    {
       "id": "4b34903a1d2343605b04e827",
       "runner": "python",
       "file": "test/scripts/agentflow_feature_test.py",
@@ -1801,6 +1808,13 @@
       "profile": "unit"
     },
     {
+      "id": "8266acfd3bdc1bd1fcf561f6",
+      "runner": "exunit",
+      "file": "test/architecture_boundaries_test.exs",
+      "case_id": "FootballMarket.ArchitectureBoundariesTest:test allowed provider, cache, worker, and endpoint configuration dependencies stay accepted",
+      "profile": "unit"
+    },
+    {
       "id": "832c3d785c8a4c099ca180f6",
       "runner": "python",
       "file": "test/scripts/agentflow_preflight_test.py",
@@ -2151,6 +2165,13 @@
       "profile": "unit"
     },
     {
+      "id": "9f85acd918ba9cbacd10c3bb",
+      "runner": "exunit",
+      "file": "test/architecture_boundaries_test.exs",
+      "case_id": "FootballMarket.ArchitectureBoundariesTest:test endpoint is forbidden outside the authorized secret configuration read",
+      "profile": "unit"
+    },
+    {
       "id": "9ffad32180fd52f3dca3849d",
       "runner": "python",
       "file": "test/scripts/workflow_artifact_probe_test.py",
@@ -2211,6 +2232,13 @@
       "runner": "python",
       "file": "test/scripts/agentflow_feature_test.py",
       "case_id": "test.scripts.agentflow_feature_test.FrontmatterEnumerationTest.test_scalar_separator_does_not_hide_competing_identity",
+      "profile": "unit"
+    },
+    {
+      "id": "a2a1bd6f25d47b98305f85c7",
+      "runner": "exunit",
+      "file": "test/architecture_boundaries_test.exs",
+      "case_id": "FootballMarket.ArchitectureBoundariesTest:test application source keeps the established layer dependencies",
       "profile": "unit"
     },
     {
@@ -3093,6 +3121,13 @@
       "runner": "shell",
       "file": "test/scripts/ci_unit_tests_test.sh",
       "case_id": "complete",
+      "profile": "unit"
+    },
+    {
+      "id": "dd59eae0964f0960f7e41a27",
+      "runner": "exunit",
+      "file": "test/architecture_boundaries_test.exs",
+      "case_id": "FootballMarket.ArchitectureBoundariesTest:test each layer rule rejects imports, aliases, grouped aliases, and direct references",
       "profile": "unit"
     },
     {

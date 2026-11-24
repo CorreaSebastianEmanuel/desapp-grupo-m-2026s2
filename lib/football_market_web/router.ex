@@ -97,6 +97,9 @@ defmodule FootballMarketWeb.Router do
   scope "/api", FootballMarketWeb do
     pipe_through :api_protected
 
+    get "/business-metrics", BusinessMetricsController, :index,
+      metadata: %{authentication_policy: :api_protected}
+
     post "/conditional-orders", ConditionalOrderController, :create,
       metadata: %{authentication_policy: :api_protected}
 

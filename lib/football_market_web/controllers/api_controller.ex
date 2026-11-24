@@ -535,3 +535,24 @@ defmodule FootballMarketWeb.ConditionalOrderController do
     conn |> put_status(status) |> json(%{error: %{code: kind}})
   end
 end
+
+defmodule FootballMarketWeb.BusinessMetricsController do
+  use FootballMarketWeb, :controller
+  alias FootballMarket.BusinessMetrics
+
+  def index(conn, _params) do
+    conn = put_resp_header(conn, "cache-control", "private, no-store")
+
+    case BusinessMetrics.snapshot(conn.assigns[:authenticated_actor]) do
+      {:ok, snapshot} ->
+        status = if is_nil(snapshot.as_of), do: 503, else: 200
+        conn |> put_status(status) |> json(%{data: snapshot})
+
+      {:error, :forbidden} ->
+        conn |> put_status(403) |> json(%{error: %{code: "forbidden"}})
+
+      {:error, :unauthenticated} ->
+        conn |> put_status(401) |> json(%{error: %{code: "unauthenticated"}})
+    end
+  end
+end

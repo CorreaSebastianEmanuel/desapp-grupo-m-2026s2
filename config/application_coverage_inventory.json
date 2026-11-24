@@ -68,6 +68,12 @@
       "reason": "Maintained first-party application implementation source: lib/football_market/application.ex."
     },
     {
+      "path": "lib/football_market/business_metrics.ex",
+      "role": "application",
+      "disposition": "include",
+      "reason": "Maintained first-party application implementation source: lib/football_market/business_metrics.ex."
+    },
+    {
       "path": "lib/football_market/catalog.ex",
       "role": "application",
       "disposition": "include",
@@ -792,6 +798,12 @@
       "role": "test",
       "disposition": "exclude",
       "reason": "Automated test source, not application implementation: test/architecture_boundaries_test.exs."
+    },
+    {
+      "path": "test/business_metrics_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Automated test source, not application implementation: test/business_metrics_test.exs."
     },
     {
       "path": "test/catalog_test.exs",

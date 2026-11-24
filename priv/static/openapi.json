@@ -1947,6 +1947,143 @@
           }
         ]
       }
+    },
+    "/api/business-metrics": {
+      "get": {
+        "tags": [
+          "Business metrics"
+        ],
+        "operationId": "getBusinessMetrics",
+        "summary": "Administrator business metrics snapshot",
+        "description": "Administrator authorization uses the existing primary account policy. One read-only repeatable-read snapshot of retained local records across all users and queues; no identifiers or financial amounts. Counts are records or integer token quantities, never lifetime totals or rates. Oban pruning reduces retained counts. Issuance and issuer holdings are excluded from portfolio activity; idempotent trade replays count once. Orders reflect persisted status without expiry transitions. No parameters change the reporting basis. Each section is empty with zero counts when no qualifying records exist, otherwise available. A required source failure invalidates every section: unavailable with null counts and null as_of (503), never fabricated zeros. No provider calls, writes, or new jobs.",
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Retained snapshot, including explicit empty sections.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "private, no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/BusinessMetrics"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid authentication.",
+            "headers": {
+              "WWW-Authenticate": {
+                "description": "Bearer authentication challenge.",
+                "schema": {
+                  "type": "string"
+                },
+                "example": "Bearer realm=\"api\""
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthenticatedError"
+                },
+                "examples": {
+                  "unauthenticated": {
+                    "value": {
+                      "error": {
+                        "code": "unauthenticated"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated actor is not the configured administrator.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "code"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "forbidden"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Snapshot unavailable; every count section is null.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "private, no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/BusinessMetrics"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -3982,6 +4119,387 @@
                 "enum": [
                   "temporarily_unavailable"
                 ]
+              }
+            }
+          }
+        }
+      },
+      "BusinessMetrics": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "basis",
+          "as_of",
+          "quotes",
+          "conditional_orders",
+          "portfolio_activity",
+          "ingestion",
+          "jobs"
+        ],
+        "properties": {
+          "basis": {
+            "type": "string",
+            "enum": [
+              "retained_local_records"
+            ]
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Database snapshot timestamp, or null when unavailable."
+          },
+          "quotes": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "counts"
+            ],
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "available",
+                  "empty",
+                  "unavailable"
+                ]
+              },
+              "counts": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "performance_quotes",
+                  "requests_by_state"
+                ],
+                "properties": {
+                  "performance_quotes": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Stored quotes with calculation_id, excluding issuance."
+                  },
+                  "requests_by_state": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "pending",
+                      "running",
+                      "retrying",
+                      "successful",
+                      "no_quote",
+                      "validation_failed",
+                      "unsupported_strategy",
+                      "unreproducible",
+                      "exhausted"
+                    ],
+                    "properties": {
+                      "pending": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Retained records in persisted pending state."
+                      },
+                      "running": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Retained records in persisted running state."
+                      },
+                      "retrying": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Retained records in persisted retrying state."
+                      },
+                      "successful": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Retained records in persisted successful state."
+                      },
+                      "no_quote": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Retained records in persisted no_quote state."
+                      },
+                      "validation_failed": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Retained records in persisted validation_failed state."
+                      },
+                      "unsupported_strategy": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Retained records in persisted unsupported_strategy state."
+                      },
+                      "unreproducible": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Retained records in persisted unreproducible state."
+                      },
+                      "exhausted": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Retained records in persisted exhausted state."
+                      }
+                    }
+                  }
+                },
+                "nullable": true
+              }
+            }
+          },
+          "conditional_orders": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "counts"
+            ],
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "available",
+                  "empty",
+                  "unavailable"
+                ]
+              },
+              "counts": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "by_status"
+                ],
+                "properties": {
+                  "by_status": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "pending",
+                      "executed",
+                      "cancelled",
+                      "expired",
+                      "rejected"
+                    ],
+                    "properties": {
+                      "pending": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Retained records in persisted pending state."
+                      },
+                      "executed": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Retained records in persisted executed state."
+                      },
+                      "cancelled": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Retained records in persisted cancelled state."
+                      },
+                      "expired": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Retained records in persisted expired state."
+                      },
+                      "rejected": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Retained records in persisted rejected state."
+                      }
+                    }
+                  }
+                },
+                "nullable": true
+              }
+            }
+          },
+          "portfolio_activity": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "counts"
+            ],
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "available",
+                  "empty",
+                  "unavailable"
+                ]
+              },
+              "counts": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "purchases",
+                  "sales"
+                ],
+                "properties": {
+                  "purchases": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "count",
+                      "token_quantity"
+                    ],
+                    "properties": {
+                      "count": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Completed purchases records."
+                      },
+                      "token_quantity": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Sum of integer player tokens in completed purchases."
+                      }
+                    }
+                  },
+                  "sales": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "count",
+                      "token_quantity"
+                    ],
+                    "properties": {
+                      "count": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Completed sales records."
+                      },
+                      "token_quantity": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Sum of integer player tokens in completed sales."
+                      }
+                    }
+                  }
+                },
+                "nullable": true
+              }
+            }
+          },
+          "ingestion": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "counts"
+            ],
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "available",
+                  "empty",
+                  "unavailable"
+                ]
+              },
+              "counts": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "accepted_scopes",
+                  "performance_records"
+                ],
+                "properties": {
+                  "accepted_scopes": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Retained scope records with a completed last_checked_at, including accepted empty checks. Not attempts or distinct players."
+                  },
+                  "performance_records": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Stored player match performance records."
+                  }
+                },
+                "nullable": true
+              }
+            }
+          },
+          "jobs": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "counts"
+            ],
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "available",
+                  "empty",
+                  "unavailable"
+                ]
+              },
+              "counts": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "by_state"
+                ],
+                "properties": {
+                  "by_state": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "suspended",
+                      "available",
+                      "scheduled",
+                      "executing",
+                      "retryable",
+                      "completed",
+                      "discarded",
+                      "cancelled"
+                    ],
+                    "properties": {
+                      "suspended": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Retained records in persisted suspended state."
+                      },
+                      "available": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Retained records in persisted available state."
+                      },
+                      "scheduled": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Retained records in persisted scheduled state."
+                      },
+                      "executing": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Retained records in persisted executing state."
+                      },
+                      "retryable": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Retained records in persisted retryable state."
+                      },
+                      "completed": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Retained records in persisted completed state."
+                      },
+                      "discarded": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Retained records in persisted discarded state."
+                      },
+                      "cancelled": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Retained records in persisted cancelled state."
+                      }
+                    }
+                  }
+                },
+                "nullable": true
               }
             }
           }

@@ -25,7 +25,7 @@ EXCEPTIONS = [
         "file": "lib/football_market_web/router.ex",
         "line": 11,
         "confidence": "high_confidence",
-        "sha256": "0e9043e666d1d91950d1e50be4ae4fde7e1b192290467dced53b751d1e2ba92e"
+        "sha256": "40fe5f6b593d06f59f2f998d9f5405a8fe4a150a8c044962681897f056f82134"
     }
 ]
 

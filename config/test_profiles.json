@@ -107,6 +107,13 @@
       "profile": "unit"
     },
     {
+      "id": "052dcb8053933cdff79a7d78",
+      "runner": "exunit",
+      "file": "test/business_metrics_test.exs",
+      "case_id": "FootballMarketWeb.BusinessMetricsTest:test a failed source invalidates all counts without exposing storage errors",
+      "profile": "integration"
+    },
+    {
       "id": "052f77fb38f26ee3f7a7a2ff",
       "runner": "python",
       "file": "test/scripts/agentflow_providers_test.py",
@@ -1479,6 +1486,13 @@
       "profile": "unit"
     },
     {
+      "id": "642753ae1c92552d7a85b5ce",
+      "runner": "exunit",
+      "file": "test/business_metrics_test.exs",
+      "case_id": "FootballMarketWeb.BusinessMetricsTest:test counts retained quotes, request states, orders, completed trades, accepted scopes and jobs exactly",
+      "profile": "integration"
+    },
+    {
       "id": "6449af7a7a854120530794bb",
       "runner": "python",
       "file": "test/scripts/agentflow_branch_test.py",
@@ -1749,6 +1763,13 @@
       "runner": "exunit",
       "file": "test/football_market/ranking_cache_test.exs",
       "case_id": "FootballMarket.Ranking.CacheTest:test reuses cached ranking entries and refreshes after expiry",
+      "profile": "integration"
+    },
+    {
+      "id": "7f7a769a32c808d0ad883ca3",
+      "runner": "exunit",
+      "file": "test/business_metrics_test.exs",
+      "case_id": "FootballMarketWeb.BusinessMetricsTest:test one snapshot excludes trades and jobs committed between its aggregate reads",
       "profile": "integration"
     },
     {
@@ -2100,6 +2121,13 @@
       "file": "test/scripts/agentflow_policy_test.py",
       "case_id": "test.scripts.agentflow_policy_test.WorkflowSpeedPolicyTest.test_high_risk_and_workflow_changes_are_excluded_and_no_selector_added",
       "profile": "unit"
+    },
+    {
+      "id": "9a7d222f69e49948768c2124",
+      "runner": "exunit",
+      "file": "test/business_metrics_test.exs",
+      "case_id": "FootballMarketWeb.BusinessMetricsTest:test requires one valid API credential and the existing administrator policy",
+      "profile": "integration"
     },
     {
       "id": "9b35aa75b72dcf9540b9a7b1",
@@ -2674,6 +2702,13 @@
       "file": "test/scripts/fast_lane_check_test.py",
       "case_id": "test.scripts.fast_lane_check_test.FastLaneCheckTest.test_clean_tree_reports_nothing",
       "profile": "unit"
+    },
+    {
+      "id": "bfb6e0c97aae6547694269ed",
+      "runner": "exunit",
+      "file": "test/business_metrics_test.exs",
+      "case_id": "FootballMarketWeb.BusinessMetricsTest:test empty retained sources return explicit zero counts and a database timestamp",
+      "profile": "integration"
     },
     {
       "id": "c011fa142ce12dfa0371b438",

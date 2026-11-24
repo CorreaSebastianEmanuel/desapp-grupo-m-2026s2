@@ -73,6 +73,20 @@ defmodule FootballMarketWeb.MetricsControllerTest do
       nil
     )
 
+    Metrics.handle_event(
+      [:football_market, :provider, :request],
+      %{duration: System.convert_time_unit(8, :millisecond, :native)},
+      %{provider: :fotmob_public_html, operation: :player_search, outcome: :access_refused},
+      nil
+    )
+
+    Metrics.handle_event(
+      [:football_market, :provider, :request],
+      %{duration: 1},
+      %{provider: "private-provider", operation: "private-operation", outcome: "private-error"},
+      nil
+    )
+
     scrape_conn =
       conn
       |> put_req_header("authorization", "Bearer scrape-test-secret")
@@ -95,12 +109,14 @@ defmodule FootballMarketWeb.MetricsControllerTest do
                ["vm_memory_bytes", "gauge"],
                ["vm_run_queue_length", "gauge"],
                ["oban_jobs_total", "counter"],
-               ["oban_job_duration_seconds", "histogram"]
+               ["oban_job_duration_seconds", "histogram"],
+               ["provider_requests_total", "counter"],
+               ["provider_request_duration_seconds", "histogram"]
              ]
 
     for [label] <-
           Regex.scan(~r/(?:\{|,)(\w+)="/, response, capture: :all_but_first) do
-      assert label in ~w(route status_class kind queue outcome le)
+      assert label in ~w(route status_class kind queue outcome provider operation le)
     end
 
     assert response =~
@@ -118,12 +134,23 @@ defmodule FootballMarketWeb.MetricsControllerTest do
     assert response =~ "football_market_oban_job_duration_seconds_count"
 
     assert response =~
+             ~s(football_market_provider_requests_total{provider="fotmob_public_html",operation="player_search",outcome="access_refused"} 1)
+
+    assert response =~
+             ~s(football_market_provider_requests_total{provider="other",operation="other",outcome="other"} 1)
+
+    assert response =~ "football_market_provider_request_duration_seconds_count"
+
+    assert response =~
              ~s(football_market_oban_job_duration_seconds_bucket{queue="other",outcome="failure",le="5.0"} 0)
 
     refute response =~ "scrape-test-secret"
     refute response =~ "sensitive query"
     refute response =~ "job-secret"
     refute response =~ "unknown-private-queue"
+    refute response =~ "private-provider"
+    refute response =~ "private-operation"
+    refute response =~ "private-error"
 
     _ =
       conn

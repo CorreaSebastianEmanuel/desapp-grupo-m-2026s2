@@ -4,10 +4,10 @@ title: External provider resilience
 type: task
 checkpoint: CP3
 priority: high
-status: todo
+status: review
 workflow: thinflow-v1
 depends_on: TASK-019, TASK-021
-active_run: none
+active_run: 60e7b00e
 ---
 
 ## Outcome

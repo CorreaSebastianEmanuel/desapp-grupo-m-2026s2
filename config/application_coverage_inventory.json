@@ -788,6 +788,12 @@
       "reason": "Automated test source, not application implementation: test/accounts_test.exs."
     },
     {
+      "path": "test/architecture_boundaries_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Automated test source, not application implementation: test/architecture_boundaries_test.exs."
+    },
+    {
       "path": "test/catalog_test.exs",
       "role": "test",
       "disposition": "exclude",

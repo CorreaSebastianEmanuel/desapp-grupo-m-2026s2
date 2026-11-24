@@ -263,15 +263,7 @@ defmodule FootballMarket.ArchitectureBoundariesTest do
     {_ast, references} =
       Macro.prewalk(ast, [], fn
         {{:., _, [{:__aliases__, _, prefix}, :{}]}, _, parts} = node, refs ->
-          grouped =
-            Enum.flat_map(parts, fn {:__aliases__, _, part} ->
-              case {normalize_alias(prefix), normalize_alias(part)} do
-                {prefix, part} when is_list(prefix) and is_list(part) -> [prefix ++ part]
-                _ -> []
-              end
-            end)
-
-          {node, grouped ++ refs}
+          {node, grouped_references(prefix, parts) ++ refs}
 
         {:__aliases__, _, parts} = node, refs when is_list(parts) ->
           case normalize_alias(parts) do
@@ -284,6 +276,15 @@ defmodule FootballMarket.ArchitectureBoundariesTest do
       end)
 
     references
+  end
+
+  defp grouped_references(prefix, parts) do
+    Enum.flat_map(parts, fn {:__aliases__, _, part} ->
+      case {normalize_alias(prefix), normalize_alias(part)} do
+        {prefix, part} when is_list(prefix) and is_list(part) -> [prefix ++ part]
+        _ -> []
+      end
+    end)
   end
 
   defp normalize_alias(parts) do

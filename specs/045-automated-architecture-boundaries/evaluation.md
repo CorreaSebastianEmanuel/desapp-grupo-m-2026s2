@@ -1,28 +1,22 @@
 # Independent evaluation — TASK-045 re-review
 
-Reviewed the compact outcome spec, backlog task and feedback, REVIEW.md, prior evaluation, actual candidate diff (including untracked files), repaired scanner, affected application boundaries, and local ThinFlow candidate evidence. This re-review concentrates on the namespace-alias repair and its affected surfaces; previously resolved findings are not reopened. Only this evaluation was edited. No verify command, skill, or other agent session was invoked.
+Reviewed the compact outcome spec, backlog task and feedback, REVIEW.md, previous evaluation, implementation, candidate diff against origin/main, current repair delta, and named local ThinFlow candidate evidence. This re-review focuses on the grouped-reference helper extraction and Credo inventory registration and their affected surfaces. Previously resolved findings remain resolved. No implementation code was changed; no verify command, skill, or other agent session was invoked.
 
-## Repair and acceptance
+## Repair assessment
 
-The remaining B1 is resolved. `forbidden?/3` now appends the reference suffix to the resolved alias target, preserving `Persistence.Query`, `App.Catalog`, and grouped `Ranking.Cache` dependencies. Added negative controls reproduce all five previously accepted forbidden examples across web, workers, providers, and cache. A positive namespace alias to an allowed web context remains accepted.
+The extraction into `grouped_references/2` preserves the existing AST traversal and reference construction exactly. Registering `test/architecture_boundaries_test.exs` in the sorted Credo source inventory brings the added suite into maintained lint coverage. The five unit cases remain registered in the profile inventory. Runtime application code is unchanged.
 
-Executed independently:
+The scanner still includes the root web module, handles imports, simple/grouped aliases and direct references, preserves namespace suffixes during alias resolution, and limits the Endpoint exemption to the specified secret configuration read. The representative forbidden and allowed controls and real source scan remain successful.
 
-- `elixir -e 'ExUnit.start(); Code.require_file("test/architecture_boundaries_test.exs")'`: **5 passed**, including the real application source scan, repaired alias mutation matrix, allowed dependencies, narrow Endpoint configuration exception, and repository adapter assertion.
-- `scripts.thinflow.readiness(Path.cwd(), "TASK-045", require_evaluation=False)`: **ready: true**. This recomputes candidate identity and selection and validates successful required checks and evidence hashes.
+## Executed validation and candidate evidence
 
-The root web module remains included, and the Endpoint exemption remains limited to the specified application/key secret read. Runtime application code is unchanged. The repair satisfies the remaining acceptance gap without expanding scope.
-
-## Candidate evidence and risk
-
-Validated `.agentflow/runs/thinflow/TASK-045/candidate.json`, digest `84e64e220d7fbe08d81fd43409bd8e7f40679ab890a8dc0e73fdfea1a961e30b`, and its named deterministic check outputs only. Actual-diff classification is **high**, with all six material paths mapped and required checks `ci-contracts`, `harness-tests`, `format`, `compile`, and `unit-profile` successful. The spec's conceptual medium risk does not override this authoritative selection.
-
-The linked outputs report 36 passing CI-contract tests, 388 passing harness tests, and unit profile membership of 457 expected/discovered/executed/passed cases with complete status. Format and compile have successful exit codes and empty output. These full checks were validated from current receipts rather than rerun during this focused re-review.
+- Independently ran `elixir -e 'ExUnit.start(); Code.require_file("test/architecture_boundaries_test.exs")'`: **5 passed**.
+- Independently ran `scripts.thinflow.readiness(Path.cwd(), "TASK-045", require_evaluation=False)`: **ready: true**. This validates current candidate identity, actual-diff selection, required check results, and linked evidence hashes.
+- Inspected `.agentflow/runs/thinflow/TASK-045/candidate.json`, digest `df512358bde0fb72c6010f645c8472055bbb1795e4df7e8ffd0aeefab78982f4`, and its named check outputs. All seven material paths are mapped; authoritative risk is **high**. Required `ci-contracts`, `harness-tests`, `format`, `compile`, and `unit-profile` checks passed.
+- Linked receipts report 36 CI-contract tests and 388 harness tests passing, and unit membership of 457 expected/discovered/executed/passed cases with complete status. Format and compile have zero exit codes and empty output. These full checks were validated from current evidence, not rerun in this focused re-review.
 
 ## Findings and remaining gates
 
-No blocking findings. No advisory findings.
-
-Static AST scanning does not establish dynamically constructed module dependencies. This limitation does not block the specified direct-dependency outcome. The candidate is ready for hosted CI and human review; the exact PR head must still pass `ThinFlow required`, and completion requires human merge.
+No blocking findings. No advisory findings. The repair is ready for hosted CI and human review. The exact PR head must still pass `ThinFlow required`; completion requires human merge.
 
 Verdict: PASS

@@ -245,6 +245,7 @@
     "scripts/verify_quote_runtime.exs",
     "scripts/verify_ranking_runtime.exs",
     "test/accounts_test.exs",
+    "test/architecture_boundaries_test.exs",
     "test/catalog_test.exs",
     "test/ci/credo_ci_contract_test.exs",
     "test/ci/quality_baseline_contract_test.exs",

@@ -3677,6 +3677,7 @@
     "tools/openapi/e2e_catalog_scouting.mjs": "Real Chromium catalog scouting journey helper; invoked by the E2E catalog scouting suite.",
     "tools/openapi/e2e_market.mjs": "Real Chromium market journey helper; invoked by the E2E portfolio suite.",
     "tools/openapi/e2e_market_reconnect.mjs": "Real Chromium offline commit and reconnect recovery journey helper; invoked by the E2E browser reconnect suite.",
+    "tools/openapi/e2e_parity.mjs": "Chromium catalog restoration, account isolation and portfolio parity journey owned by MarketJourneyTest.",
     "tools/openapi/player_statistics_browser.mjs": "Real Chromium first-load deadline, worker publication, retained values and failure navigation journey; owned by WorkspaceBrowserTest.",
     "tools/openapi/profile_reporter.mjs": "Fixture/support helper; cases owned by its importing native suite.",
     "tools/openapi/validate.mjs": "Fixture/support helper; cases owned by its importing native suite.",

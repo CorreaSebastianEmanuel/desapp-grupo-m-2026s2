@@ -54,11 +54,7 @@
           </td>
           <td>
             <details>
-              <summary>Ver referencia</summary><p>
-                {exact_money(transaction.unit_price)} créditos por token · operación del {timestamp(
-                  transaction.completed_at
-                )}
-              </p>
+              <summary>Ver referencia</summary><code>{transaction.quote_id}</code>
             </details>
           </td>
           <td>{timestamp(transaction.completed_at)}</td>

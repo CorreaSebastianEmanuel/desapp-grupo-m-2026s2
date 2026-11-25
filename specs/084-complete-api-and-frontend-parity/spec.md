@@ -26,6 +26,8 @@ The REST routes and OpenAPI contract remain unchanged. Every operation, accepted
 
 Concrete acceptance oracles: `PortfolioLiveTest` checks exact statistics, current/history/selected-date quote provenance and price, trade confirmation references and amounts, distinct transaction continuation identities, account isolation and foreign-cursor refusal. `PortfolioAnalyticsTest` checks persisted empty/open/closed allocation totals and daily values against domain reads, plus incomplete projection cells and missing-player references through the same table component. Its browser journey exercises combined filters, back/reload restoration at all three widths, trading, order execution, ranking and transaction navigation. Catalog cursor/pagination and scouting tests cover criteria binding, >10 matches, malformed input and filtered asynchronous refresh.
 
+After suite consolidation, `MarketJourneyTest` checks current and dated quote provenance and persisted references in confirmed trades, ranking, transactions and executed orders. Its Chromium journey verifies combined filters and a real continuation cursor through detail, back and reload at all three widths, distinct transaction pages, rejection of another account's cursor, and exact open and closed portfolio allocation and daily amounts. An incomplete projection is rendered through the same portfolio table component and checked for the missing values and player reference.
+
 ## Scope
 
 - Extend internal catalog search, filter and cursor queries; implement parity in authenticated LiveViews and their components.

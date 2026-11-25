@@ -4,10 +4,10 @@ title: API and UI security hardening
 type: task
 checkpoint: CP3
 priority: critical
-status: review
+status: done
 workflow: thinflow-v1
 depends_on: TASK-013, TASK-030, TASK-046
-active_run: b04ce297
+active_run: none
 ---
 
 ## Outcome

@@ -49,6 +49,37 @@ defmodule FootballMarket.AccountsTest do
     assert {:error, :invalid_token} = Accounts.validate_access_token("not.a.jwt")
   end
 
+  test "canonicalizes JWT UUID claims and rejects non-text UUID representations" do
+    alias FootballMarket.Accounts.Authentication
+
+    config = Application.fetch_env!(:football_market, Authentication)
+    key = Base.decode64!(config[:signing_key])
+    signer = Joken.Signer.create("HS256", key)
+    now = Authentication.system_time()
+    user_id = Ecto.UUID.generate()
+    token_id = Ecto.UUID.generate()
+
+    claims = %{
+      "sub" => String.upcase(user_id),
+      "jti" => String.upcase(token_id),
+      "iss" => config[:issuer],
+      "aud" => config[:audience],
+      "iat" => now,
+      "exp" => now + 60
+    }
+
+    assert {:ok, token, _} = Joken.generate_and_sign(%{}, claims, signer)
+
+    assert Accounts.validate_access_token(token) ==
+             {:ok, %{account_id: user_id, token_id: token_id}}
+
+    for claim <- ["sub", "jti"] do
+      invalid_claims = Map.put(claims, claim, "0123456789abcdef")
+      assert {:ok, token, _} = Joken.generate_and_sign(%{}, invalid_claims, signer)
+      assert Accounts.validate_access_token(token) == {:error, :invalid_token}
+    end
+  end
+
   test "issues, identifies, and irreversibly revokes API keys" do
     user = create_user!()
     other = create_user!()

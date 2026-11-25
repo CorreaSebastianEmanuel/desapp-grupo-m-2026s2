@@ -56,4 +56,37 @@ defmodule FootballMarketWeb.WorkspaceLiveTest do
     assert created_html =~ "Orden creada."
     assert created_html =~ "Pendiente"
   end
+
+  test "keeps the workspace connected when a form event has malformed values or missing state" do
+    market = create_tradable_market!()
+    conn = with_browser_session(build_conn(), market.investor)
+    {:ok, players, _} = live(conn, "/players")
+    malformed = %{"nested" => "value"}
+
+    assert is_binary(render_change(players, "search_players", %{"player_search" => malformed}))
+    assert is_binary(render_change(players, "search_players", %{"league_id" => malformed}))
+    assert is_binary(render_change(players, "quote_date", %{"date" => "2026-11-25"}))
+    {:ok, card, _} = live(conn, "/players?player_id=#{market.player.id}")
+    assert is_binary(render_change(card, "quote_date", %{"date" => malformed}))
+    assert is_binary(render_change(card, "trade_preview", %{"quantity" => malformed}))
+
+    assert render_submit(card, "trade", %{"side" => "buy", "quantity" => malformed}) =~
+             "Ingresá una cantidad"
+
+    {:ok, portfolio, _} = live(conn, "/portfolio")
+    assert is_binary(render_change(portfolio, "portfolio_range", %{"from" => malformed}))
+
+    {:ok, transactions, _} = live(conn, "/transactions")
+
+    assert is_binary(
+             render_change(transactions, "transaction_page_size", %{"page_size" => malformed})
+           )
+
+    {:ok, orders, _} = live(conn, "/conditional-orders")
+
+    assert render_submit(orders, "create_order", %{"quantity" => malformed}) =~
+             "Revisá el jugador"
+
+    assert is_binary(render_click(orders, "cancel_order", %{}))
+  end
 end

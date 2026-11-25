@@ -11,6 +11,7 @@ defmodule FootballMarketWeb.Plugs.AuthenticateAPI do
 
   alias FootballMarket.Accounts
   alias FootballMarket.Accounts.AuthenticatedActor
+  alias FootballMarketWeb.Plugs.RequestQuota, as: QuotaPlug
 
   @event [:football_market, :api, :authentication]
   @challenge ~s(Bearer realm="api")
@@ -29,7 +30,7 @@ defmodule FootballMarketWeb.Plugs.AuthenticateAPI do
       %{route_policy: :protected, outcome: outcome, authentication_method: method}
     )
 
-    conn
+    if outcome == :ok, do: QuotaPlug.authenticated_api(conn), else: conn
   end
 
   defp authenticate(conn, validator) do
@@ -94,6 +95,181 @@ defmodule FootballMarketWeb.Plugs.AuthenticateAPI do
     |> send_resp(401, @body)
     |> halt()
   end
+end
+
+defmodule FootballMarketWeb.RequestQuota do
+  @moduledoc "Supervised fixed-window request quotas for a single application instance."
+  use GenServer
+
+  def start_link(_), do: GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
+
+  def take(scope, subject) do
+    config = Application.fetch_env!(:football_market, __MODULE__)
+    {limit, window_ms} = Keyword.fetch!(config, scope)
+
+    case Process.whereis(__MODULE__) do
+      nil -> {:error, :unavailable}
+      server -> call(server, {:take, {scope, subject}, limit, window_ms})
+    end
+  end
+
+  def release({server, key, generation}), do: call(server, {:release, key, generation})
+
+  defp call(server, request) do
+    GenServer.call(server, request)
+  catch
+    :exit, _ -> {:error, :unavailable}
+  end
+
+  @impl true
+  def init(windows), do: {:ok, windows}
+
+  @impl true
+  def handle_call({:take, key, limit, window_ms}, _, windows) do
+    now = System.monotonic_time(:millisecond)
+
+    {count, expires_at, generation} =
+      case windows do
+        %{^key => {_count, expires_at, _generation} = window} when expires_at > now ->
+          window
+
+        _ ->
+          generation = :erlang.start_timer(window_ms, self(), {:expire, key})
+          {0, now + window_ms, generation}
+      end
+
+    if count < limit do
+      {:reply, {:ok, {self(), key, generation}},
+       Map.put(windows, key, {count + 1, expires_at, generation})}
+    else
+      {:reply, {:error, {:limited, div(expires_at - now + 999, 1000)}}, windows}
+    end
+  end
+
+  def handle_call({:release, key, generation}, _, windows) do
+    case windows do
+      %{^key => {1, _, ^generation}} ->
+        Process.cancel_timer(generation)
+        {:reply, :ok, Map.delete(windows, key)}
+
+      %{^key => {count, expires_at, ^generation}} ->
+        {:reply, :ok, Map.put(windows, key, {count - 1, expires_at, generation})}
+
+      _ ->
+        {:reply, :ok, windows}
+    end
+  end
+
+  @impl true
+  def handle_info({:timeout, generation, {:expire, key}}, windows) do
+    case windows do
+      %{^key => {_, _, ^generation}} -> {:noreply, Map.delete(windows, key)}
+      _ -> {:noreply, windows}
+    end
+  end
+end
+
+defmodule FootballMarketWeb.Plugs.RequestQuota do
+  @moduledoc "Applies request quotas at the browser and authenticated API boundaries."
+  import Plug.Conn
+  require Logger
+
+  alias FootballMarketWeb.RequestQuota
+
+  def init(scope), do: scope
+
+  def authenticated_api(conn) do
+    case RequestQuota.take(:api, conn.assigns.authenticated_actor.account_id) do
+      {:ok, _} ->
+        conn
+
+      {:error, :unavailable} ->
+        Logger.warning("Authenticated API rate limiter unavailable",
+          event: "api.rate_limit.unavailable"
+        )
+
+        conn
+
+      {:error, {:limited, seconds}} ->
+        conn
+        |> retry_after(seconds)
+        |> put_resp_content_type("application/json")
+        |> send_resp(429, ~s({"error":{"code":"rate_limited"}}))
+        |> halt()
+    end
+  end
+
+  def call(conn, scope) do
+    case RequestQuota.take(scope, source_ip(conn)) do
+      {:ok, _} -> conn
+      {:error, reason} -> browser_error(conn, reason)
+    end
+  end
+
+  def browser_error(conn, {:limited, seconds}) do
+    conn
+    |> retry_after(seconds)
+    |> put_resp_content_type("text/html")
+    |> send_resp(
+      429,
+      ~s(<main><p role="alert">Demasiadas solicitudes. Probá de nuevo más tarde.</p></main>)
+    )
+    |> halt()
+  end
+
+  def browser_error(conn, :unavailable) do
+    conn
+    |> put_resp_header("cache-control", "no-store")
+    |> put_resp_content_type("text/html")
+    |> send_resp(
+      503,
+      ~s(<main><p role="alert">El servicio no está disponible temporalmente. Probá de nuevo.</p></main>)
+    )
+    |> halt()
+  end
+
+  defp retry_after(conn, seconds) do
+    conn
+    |> put_resp_header("cache-control", "no-store")
+    |> put_resp_header("retry-after", Integer.to_string(seconds))
+  end
+
+  defp source_ip(conn) do
+    peer = conn |> get_peer_data() |> Map.fetch!(:address) |> canonical_ip()
+
+    trusted =
+      Enum.map(Application.get_env(:football_market, :trusted_proxies, []), &canonical_ip/1)
+
+    with true <- peer in trusted,
+         [_ | _] = headers <- get_req_header(conn, "x-forwarded-for"),
+         {:ok, hops} <- proxy_hops(headers) do
+      Enum.find(Enum.reverse(hops), peer, &(&1 not in trusted))
+    else
+      _ -> peer
+    end
+  end
+
+  defp proxy_hops(headers) do
+    hops =
+      headers
+      |> Enum.flat_map(&String.split(&1, ","))
+      |> Enum.map(fn value ->
+        if String.valid?(value) do
+          value |> String.trim() |> String.to_charlist() |> :inet.parse_strict_address()
+        else
+          :error
+        end
+      end)
+
+    if Enum.all?(hops, &match?({:ok, _}, &1)),
+      do: {:ok, Enum.map(hops, fn {:ok, ip} -> canonical_ip(ip) end)},
+      else: :error
+  end
+
+  defp canonical_ip({0, 0, 0, 0, 0, 65_535, high, low}),
+    do: {div(high, 256), rem(high, 256), div(low, 256), rem(low, 256)}
+
+  defp canonical_ip(ip), do: ip
 end
 
 defmodule FootballMarketWeb.Plugs.BrowserAuth do

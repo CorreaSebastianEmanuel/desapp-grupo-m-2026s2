@@ -2,6 +2,10 @@ defmodule FootballMarketWeb.ApiTest do
   use FootballMarketWeb.ConnCase, async: false
   @moduletag :integration
 
+  import ExUnit.CaptureLog
+
+  alias FootballMarketWeb.RequestQuota
+
   test "rejects unauthenticated and dual-credential requests to /api/*" do
     market = create_tradable_market!()
 
@@ -113,6 +117,14 @@ defmodule FootballMarketWeb.ApiTest do
            |> json_response(200)
            |> get_in(["data", "id"]) == order_id
 
+    other = build_conn() |> with_api_key(market.admin)
+
+    assert other |> get("/api/conditional-orders/#{order_id}") |> json_response(404) ==
+             %{"error" => %{"code" => "not_found"}}
+
+    assert other |> post("/api/conditional-orders/#{order_id}/cancel", %{}) |> json_response(404) ==
+             %{"error" => %{"code" => "not_found"}}
+
     cancelled =
       jwt_conn |> post("/api/conditional-orders/#{order_id}/cancel", %{}) |> json_response(200)
 
@@ -143,5 +155,84 @@ defmodule FootballMarketWeb.ApiTest do
                oban: fn -> :ready end,
                redis: fn -> :ready end
              })
+  end
+
+  test "shares the authenticated API quota across credentials and routes" do
+    user = create_user!()
+    jwt = with_jwt(build_conn(), user)
+    key = with_api_key(build_conn(), user)
+
+    assert get(put_req_header(key, "authorization", "Bearer invalid"), "/api/players").status ==
+             401
+
+    for _ <- 1..60 do
+      assert get(jwt, "/api/players").status == 200
+      assert get(key, "/api/transactions").status == 200
+    end
+
+    blocked = get(with_api_key(build_conn(), user), "/api/players")
+    assert json_response(blocked, 429) == %{"error" => %{"code" => "rate_limited"}}
+    assert [seconds] = get_resp_header(blocked, "retry-after")
+    assert {delay, ""} = Integer.parse(seconds)
+    assert delay in 1..60
+
+    assert get(with_jwt(build_conn(), create_user!()), "/api/players").status == 200
+    assert get(build_conn(), "/health/live").status == 200
+  end
+
+  test "fails closed on browser POSTs and admits only authenticated API requests during an outage" do
+    supervisor = FootballMarket.Supervisor
+    conn = with_api_key(build_conn(), create_user!())
+    [secret] = get_req_header(conn, "x-api-key")
+    :ok = Supervisor.terminate_child(supervisor, RequestQuota)
+    on_exit(fn -> {:ok, _} = Supervisor.restart_child(supervisor, RequestQuota) end)
+
+    assert post(build_conn(), "/sign-in", %{}).status == 503
+    assert post(build_conn(), "/register", %{}).status == 503
+    assert get(build_conn(), "/api/players").status == 401
+
+    log = capture_log(fn -> assert get(conn, "/api/players").status == 200 end)
+    assert log =~ "Authenticated API rate limiter unavailable"
+    refute log =~ secret
+  end
+
+  test "returns generic errors for malformed trade inputs without logging parameter values" do
+    conn = with_api_key(build_conn(), create_user!())
+    [secret] = get_req_header(conn, "x-api-key")
+    marker = "task050-secret-marker"
+    previous_level = Logger.level()
+    on_exit(fn -> Logger.configure(level: previous_level) end)
+    Logger.configure(level: :debug)
+
+    log =
+      capture_log(fn ->
+        assert conn
+               |> post("/api/purchases", %{
+                 "player_id" => "0123456789abcdef",
+                 "quantity" => 1,
+                 "request_key" => marker
+               })
+               |> json_response(400) == %{"error" => %{"code" => "invalid_request"}}
+
+        assert conn
+               |> post("/api/purchases", %{"authorization" => marker, "api_key" => secret})
+               |> json_response(400) == %{"error" => %{"code" => "invalid_request"}}
+      end)
+
+    assert log =~ "Processing with FootballMarketWeb.PurchaseController"
+    refute log =~ marker
+    refute log =~ secret
+
+    invalid_body = ~s({"password":) <> marker <> ~s(})
+    json_conn = put_req_header(conn, "content-type", "application/json")
+
+    assert {400, _headers, body} =
+             assert_error_sent(400, fn -> post(json_conn, "/api/purchases", invalid_body) end)
+
+    refute body =~ marker
+
+    assert_raise ArgumentError, "malformed JSON request", fn ->
+      FootballMarketWeb.RequestJSON.decode!(invalid_body)
+    end
   end
 end

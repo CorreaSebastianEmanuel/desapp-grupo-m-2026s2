@@ -324,7 +324,8 @@ defmodule FootballMarketWeb.SaleController do
   end
 
   defp parse_trade_input(params) when is_map(params) do
-    if Enum.sort(Map.keys(params)) == ~w(player_id quantity request_key) do
+    if Enum.sort(Map.keys(params)) == ~w(player_id quantity request_key) and
+         is_binary(params["player_id"]) and byte_size(params["player_id"]) == 36 do
       {:ok,
        %{
          player_id: params["player_id"],

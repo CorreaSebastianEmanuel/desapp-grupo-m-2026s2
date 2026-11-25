@@ -112,3 +112,5 @@ list passes the checkpoint hygiene review.
 - 2026-11-22 — Monitoring endpoint tasks left availability and access behavior undecided until development — settle both contracts in the outcome before starting and test them through the HTTP routes — TASK-038, TASK-039
 - 2026-11-23 — Concurrent benchmark totals obscured wall time and plan summaries omitted primary evidence — measure workload elapsed time separately from request latency and retain full query plans — TASK-043
 - 2026-11-24 — Architecture scans missed grouped aliases and root modules — cover alternate dependency syntax and source entry points with failing examples — TASK-045
+
+- 2026-11-25 — Sobelow reported a sibling fixture root without its leading parent segments — test analyzer path normalization from temporary checkouts and verify exact findings and links — TASK-050

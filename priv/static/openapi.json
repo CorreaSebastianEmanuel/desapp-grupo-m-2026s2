@@ -83,6 +83,9 @@
           }
         ],
         "responses": {
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
           "200": {
             "description": "Exactly data and pagination. data length never exceeds applied page_size. returned_count equals data length; has_more indicates another matching player follows; next_cursor is non-empty exactly when has_more is true, otherwise null. Empty pages retain all pagination fields.",
             "content": {
@@ -252,6 +255,9 @@
           }
         ],
         "responses": {
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
           "200": {
             "description": "Exactly one data player.",
             "content": {
@@ -425,6 +431,9 @@
           }
         },
         "responses": {
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
           "200": {
             "description": "Completed purchase or identical replay",
             "content": {
@@ -516,6 +525,9 @@
           }
         ],
         "responses": {
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
           "200": {
             "description": "Persisted immutable quote.",
             "content": {
@@ -652,6 +664,9 @@
           }
         ],
         "responses": {
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
           "200": {
             "description": "Full immutable quote history.",
             "content": {
@@ -800,6 +815,9 @@
           }
         ],
         "responses": {
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
           "200": {
             "description": "Persisted immutable quote.",
             "content": {
@@ -941,6 +959,9 @@
           }
         ],
         "responses": {
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
           "200": {
             "description": "Ranking for the identified active saved configuration; data may be empty.",
             "headers": {
@@ -1048,6 +1069,9 @@
           }
         ],
         "responses": {
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
           "201": {
             "description": "Pending instruction retained",
             "content": {
@@ -1161,6 +1185,9 @@
           }
         ],
         "responses": {
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
           "200": {
             "description": "Owned persisted outcome; expiry is derived",
             "content": {
@@ -1238,6 +1265,9 @@
           }
         ],
         "responses": {
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
           "200": {
             "description": "Owned persisted outcome; expiry is derived",
             "content": {
@@ -1336,6 +1366,9 @@
           }
         ],
         "responses": {
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
           "200": {
             "description": "Owned persisted outcome; expiry is derived",
             "content": {
@@ -1456,6 +1489,9 @@
           }
         },
         "responses": {
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
           "200": {
             "description": "Completed sale or identical replay",
             "content": {
@@ -1575,6 +1611,9 @@
           }
         ],
         "responses": {
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
           "200": {
             "description": "Transaction history page. data contains only the authenticated user’s purchases and sales.",
             "content": {
@@ -1739,6 +1778,9 @@
           }
         ],
         "responses": {
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
           "200": {
             "description": "Owner-scoped portfolio analytics; decimal strings preserve financial precision.",
             "headers": {
@@ -1836,6 +1878,9 @@
           }
         ],
         "responses": {
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
           "200": {
             "description": "Owner-scoped portfolio analytics; decimal strings preserve financial precision.",
             "headers": {
@@ -1965,6 +2010,9 @@
           }
         ],
         "responses": {
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
           "200": {
             "description": "Retained snapshot, including explicit empty sections.",
             "headers": {
@@ -2087,6 +2135,47 @@
     }
   },
   "components": {
+    "responses": {
+      "RateLimited": {
+        "description": "The authenticated account exceeded its request quota, shared across its credentials.",
+        "headers": {
+          "Retry-After": {
+            "description": "Seconds until the quota window resets.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": ["error"],
+              "additionalProperties": false,
+              "properties": {
+                "error": {
+                  "type": "object",
+                  "required": ["code"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "enum": ["rate_limited"]
+                    }
+                  }
+                }
+              }
+            },
+            "example": {
+              "error": {
+                "code": "rate_limited"
+              }
+            }
+          }
+        }
+      }
+    },
     "securitySchemes": {
       "BearerAuth": {
         "type": "http",

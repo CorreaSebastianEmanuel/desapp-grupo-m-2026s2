@@ -255,7 +255,7 @@ defmodule FootballMarketWeb.LocalAdminLive do
     {:noreply, socket |> assign(:notice, notice) |> reload_data()}
   end
 
-  def handle_event("run_job", %{"id" => id}, socket) do
+  def handle_event("run_job", %{"id" => id}, socket) when is_binary(id) or is_integer(id) do
     notice =
       case Sync.retry_job(id) do
         {:ok, job_id} -> "Job #{job_id} listo para ejecutarse."
@@ -264,6 +264,8 @@ defmodule FootballMarketWeb.LocalAdminLive do
 
     {:noreply, socket |> assign(:notice, notice) |> reload_data()}
   end
+
+  def handle_event(_, _, socket), do: {:noreply, socket}
 
   def render(assigns) do
     ~H"""

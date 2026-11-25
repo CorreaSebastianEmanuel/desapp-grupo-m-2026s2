@@ -20,7 +20,7 @@ defmodule FootballMarket.Accounts.User do
   def changeset(user, attrs) do
     user
     |> cast(attrs, [:email])
-    |> normalize_email()
+    |> normalize_email_change()
     |> validate_required([:email])
     |> validate_format(:email, ~r/^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "has invalid format")
     |> validate_change(:email, &validate_email_parts/2)
@@ -30,13 +30,18 @@ defmodule FootballMarket.Accounts.User do
 
   def public_projection(%__MODULE__{id: id, email: email}), do: %{id: id, email: email}
 
-  defp normalize_email(changeset) do
-    case get_change(changeset, :email) do
-      email when is_binary(email) ->
-        put_change(changeset, :email, email |> String.trim() |> String.downcase())
+  def normalize_email(email) when is_binary(email) do
+    if String.valid?(email) and not String.contains?(email, <<0>>) do
+      email |> String.trim() |> String.downcase()
+    end
+  end
 
-      _ ->
-        changeset
+  def normalize_email(_email), do: nil
+
+  defp normalize_email_change(changeset) do
+    case get_change(changeset, :email) do
+      nil -> changeset
+      email -> put_change(changeset, :email, normalize_email(email))
     end
   end
 
@@ -229,16 +234,14 @@ defmodule FootballMarket.Accounts do
   end
 
   @doc "Looks up a user by normalized email and returns `%{id, email}`."
-  def get_user_by_email(email) when is_binary(email) do
-    normalized_email = email |> String.trim() |> String.downcase()
-
-    case Repo.get_by(User, email: normalized_email) do
-      nil -> {:error, :not_found}
-      user -> {:ok, User.public_projection(user)}
+  def get_user_by_email(email) do
+    with normalized when is_binary(normalized) <- User.normalize_email(email),
+         %User{} = user <- Repo.get_by(User, email: normalized) do
+      {:ok, User.public_projection(user)}
+    else
+      _ -> {:error, :not_found}
     end
   end
-
-  def get_user_by_email(_email), do: {:error, :not_found}
 
   @doc "Authenticates email/password credentials and returns a short-lived JWT access token."
   def login(credentials) do
@@ -263,8 +266,8 @@ defmodule FootballMarket.Accounts do
     email = Map.get(credentials, :email, Map.get(credentials, "email"))
     password = Map.get(credentials, :password, Map.get(credentials, "password"))
 
-    with true <- is_binary(email) and is_binary(password),
-         normalized <- email |> String.trim() |> String.downcase(),
+    with true <- is_binary(password),
+         normalized when is_binary(normalized) <- User.normalize_email(email) || :invalid,
          {id, hash} when is_binary(hash) <- credential_for(normalized),
          true <- PasswordCredential.verify_password(password, hash),
          user when not is_nil(user) <- Repo.get(User, id) do
@@ -469,8 +472,8 @@ defmodule FootballMarket.Accounts.Authentication do
     with {:ok, config} <- configuration(),
          {:ok, now} <- invoke_integer(config.clock),
          {:ok, claims} <- Joken.verify(token, config.signer),
-         :ok <- validate_claims(claims, config, now) do
-      {:ok, %{account_id: claims["sub"], token_id: claims["jti"]}}
+         {:ok, actor} <- validate_claims(claims, config, now) do
+      {:ok, actor}
     else
       _ -> {:error, :invalid_token}
     end
@@ -525,17 +528,20 @@ defmodule FootballMarket.Accounts.Authentication do
     with true <- Enum.all?(@required_claims, &Map.has_key?(claims, &1)),
          true <- claims["iss"] == config.issuer,
          true <- claims["aud"] == config.audience,
-         {:ok, _subject} <- Ecto.UUID.cast(claims["sub"]),
-         {:ok, _jti} <- Ecto.UUID.cast(claims["jti"]),
+         {:ok, subject} <- wire_uuid(claims["sub"]),
+         {:ok, jti} <- wire_uuid(claims["jti"]),
          iat when is_integer(iat) <- claims["iat"],
          exp when is_integer(exp) <- claims["exp"],
          true <- iat <= now and exp > now,
          :ok <- validate_not_before(claims, now) do
-      :ok
+      {:ok, %{account_id: subject, token_id: jti}}
     else
       _ -> {:error, :invalid_claims}
     end
   end
+
+  defp wire_uuid(id) when is_binary(id) and byte_size(id) == 36, do: Ecto.UUID.cast(id)
+  defp wire_uuid(_), do: :error
 
   defp validate_not_before(%{"nbf" => nbf}, now) when is_integer(nbf) and nbf <= now, do: :ok
   defp validate_not_before(%{"nbf" => _nbf}, _now), do: {:error, :invalid_claims}

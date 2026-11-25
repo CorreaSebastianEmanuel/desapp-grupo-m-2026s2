@@ -88,11 +88,17 @@ def classify(findings, sources):
 def normalize_finding_paths(findings, root):
     """Strip only the configured or resolved scan root from analyzer paths."""
     configured_root = Path(root).absolute()
-    prefixes = {
+    relative_root = os.path.relpath(root, ROOT)
+    prefixes = [
         str(configured_root).lstrip("/") + "/",
         str(configured_root.resolve()).lstrip("/") + "/",
-        os.path.relpath(root, ROOT).rstrip("/") + "/",
-    }
+        relative_root + "/",
+    ]
+    # Sobelow can expand a relative root against /, dropping leading ../ segments.
+    reported_root = re.sub(r"^(?:\.\./)+", "", relative_root)
+    if reported_root != relative_root:
+        prefixes.append(reported_root + "/")
+
     normalized = []
     for finding in findings:
         row = dict(finding)

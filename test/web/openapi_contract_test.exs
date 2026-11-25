@@ -27,6 +27,19 @@ defmodule FootballMarketWeb.OpenApiContractTest do
       assert Map.has_key?(spec["paths"], path), "Missing OpenAPI path: #{path}"
     end
 
+    for {"/api/" <> _, methods} <- spec["paths"], {_method, operation} <- methods do
+      assert operation["responses"]["429"] == %{"$ref" => "#/components/responses/RateLimited"}
+    end
+
+    assert get_in(spec, [
+             "components",
+             "responses",
+             "RateLimited",
+             "headers",
+             "Retry-After",
+             "schema"
+           ]) == %{"type" => "integer", "minimum" => 1}
+
     # Verify /docs page renders Swagger UI and /openapi.json is served statically
     docs_conn = get(build_conn(), "/docs")
     assert docs_conn.status == 200

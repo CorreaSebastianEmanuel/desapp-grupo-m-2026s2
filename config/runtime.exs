@@ -32,6 +32,18 @@ if System.get_env("PHX_SERVER") do
   config :football_market, FootballMarketWeb.Endpoint, server: true
 end
 
+trusted_proxies =
+  (System.get_env("TRUSTED_PROXY_IPS") || "")
+  |> String.split(",", trim: true)
+  |> Enum.map(fn address ->
+    case address |> String.trim() |> String.to_charlist() |> :inet.parse_strict_address() do
+      {:ok, ip} -> ip
+      _ -> raise "TRUSTED_PROXY_IPS must contain comma-separated IP addresses"
+    end
+  end)
+
+config :football_market, :trusted_proxies, trusted_proxies
+
 config :football_market, :quote_mapping_id, System.get_env("QUOTE_MAPPING_ID")
 
 metrics_scrape_token = System.get_env("METRICS_SCRAPE_TOKEN")

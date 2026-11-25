@@ -16,7 +16,7 @@ except ImportError:
     import agentflow_providers as providers
 
 STAGES = ('product', 'product_challenge', 'architecture', 'develop', 'qa', 'review')
-MODELS = {'gpt-6-luna', 'gpt-6.1-sol'}
+MODELS = {'gpt-6-luna', 'gpt-6.1-sol', 'gpt-6.2-sol'}
 EFFORTS = {'low', 'medium', 'high'}
 
 

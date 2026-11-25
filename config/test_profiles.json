@@ -940,6 +940,13 @@
       "profile": "unit"
     },
     {
+      "id": "3e30ba40cd6a9c59a153851c",
+      "runner": "exunit",
+      "file": "test/web/api_test.exs",
+      "case_id": "FootballMarketWeb.ApiTest:test shares the authenticated API quota across credentials and routes",
+      "profile": "integration"
+    },
+    {
       "id": "3ec37ef449ad939e8b968cb3",
       "runner": "python",
       "file": "test/scripts/reconcile_merged_task_test.py",
@@ -994,6 +1001,13 @@
       "file": "test/scripts/workflow_artifact_probe_test.py",
       "case_id": "test.scripts.workflow_artifact_probe_test.WorkflowArtifactProbeTest.test_base_detached_and_wrong_branch_are_rejected",
       "profile": "unit"
+    },
+    {
+      "id": "4198ddcbb8340f4526380b8c",
+      "runner": "exunit",
+      "file": "test/web/workspace_live_test.exs",
+      "case_id": "FootballMarketWeb.WorkspaceLiveTest:test keeps the workspace connected when a form event has malformed values or missing state",
+      "profile": "integration"
     },
     {
       "id": "4320c261a7eff348197b42d8",
@@ -1444,6 +1458,13 @@
       "profile": "unit"
     },
     {
+      "id": "60300e9787c27434156236c3",
+      "runner": "exunit",
+      "file": "test/web/session_test.exs",
+      "case_id": "FootballMarketWeb.SessionTest:test identifier reservations are atomic and a late release cannot change a new window",
+      "profile": "integration"
+    },
+    {
       "id": "60ac05bf9e9a46ee22db03a6",
       "runner": "python",
       "file": "test/scripts/agentflow_evidence_test.py",
@@ -1540,6 +1561,13 @@
       "file": "test/scripts/sonar_elixir_probe_test.py",
       "case_id": "test.scripts.sonar_elixir_probe_test.SonarElixirProbeTest.test_external_issue_is_an_explicit_synthetic_credo_path_probe",
       "profile": "unit"
+    },
+    {
+      "id": "696b71aa7c17f0cb1aaf3e6d",
+      "runner": "exunit",
+      "file": "test/web/session_test.exs",
+      "case_id": "FootballMarketWeb.SessionTest:test limits all sign-in attempts per connection peer regardless of forwarded headers",
+      "profile": "integration"
     },
     {
       "id": "69f1df564fa5c12cd71d4e07",
@@ -2018,6 +2046,13 @@
       "profile": "unit"
     },
     {
+      "id": "8ffa9af89412ec6b96bffbf2",
+      "runner": "exunit",
+      "file": "test/web/api_test.exs",
+      "case_id": "FootballMarketWeb.ApiTest:test fails closed on browser POSTs and admits only authenticated API requests during an outage",
+      "profile": "integration"
+    },
+    {
       "id": "9055195240749a8784d3f19e",
       "runner": "python",
       "file": "test/scripts/agentflow_evidence_test.py",
@@ -2179,6 +2214,13 @@
       "profile": "unit"
     },
     {
+      "id": "9dd81b41f75831b531500d90",
+      "runner": "exunit",
+      "file": "test/accounts_test.exs",
+      "case_id": "FootballMarket.AccountsTest:test canonicalizes JWT UUID claims and rejects non-text UUID representations",
+      "profile": "integration"
+    },
+    {
       "id": "9e395d20b0190f459a796562",
       "runner": "exunit",
       "file": "test/providers_sync_test.exs",
@@ -2212,6 +2254,13 @@
       "file": "test/scripts/workflow_artifact_probe_test.py",
       "case_id": "test.scripts.workflow_artifact_probe_test.WorkflowArtifactProbeTest.test_develop_rejects_glob_that_escapes_repository",
       "profile": "unit"
+    },
+    {
+      "id": "a060727867537a52e1e0f656",
+      "runner": "exunit",
+      "file": "test/web/api_test.exs",
+      "case_id": "FootballMarketWeb.ApiTest:test returns generic errors for malformed trade inputs without logging parameter values",
+      "profile": "integration"
     },
     {
       "id": "a0845e2b3e3d36b6b8acbf5e",
@@ -2330,6 +2379,13 @@
       "runner": "python",
       "file": "test/scripts/sonar_checkpoint_gate_test.py",
       "case_id": "test.scripts.sonar_checkpoint_gate_test.GateTest.test_stale_missing_duplicate_and_malformed_analysis_fail",
+      "profile": "unit"
+    },
+    {
+      "id": "a69ac694af746c2abdf8f161",
+      "runner": "python",
+      "file": "test/scripts/sobelow_ci_test.py",
+      "case_id": "test.scripts.sobelow_ci_test.SobelowCiTest.test_finding_paths_normalize_only_the_exact_relative_fixture_root",
       "profile": "unit"
     },
     {
@@ -2592,6 +2648,13 @@
       "profile": "unit"
     },
     {
+      "id": "b9048183a4cbaa9fd51f4bbf",
+      "runner": "exunit",
+      "file": "test/web/session_test.exs",
+      "case_id": "FootballMarketWeb.SessionTest:test limits registration at the first untrusted hop and falls back for malformed chains",
+      "profile": "integration"
+    },
+    {
       "id": "b987c7f3b97df12e91925cf1",
       "runner": "python",
       "file": "test/scripts/agentflow_models_test.py",
@@ -2844,6 +2907,13 @@
       "profile": "unit"
     },
     {
+      "id": "c5692e1903caaad3263a96cf",
+      "runner": "exunit",
+      "file": "test/web/session_test.exs",
+      "case_id": "FootballMarketWeb.SessionTest:test uses body credentials and safely handles malformed browser forms",
+      "profile": "integration"
+    },
+    {
       "id": "c593958ea350f98679645f21",
       "runner": "python",
       "file": "test/scripts/agentflow_evidence_test.py",
@@ -3038,6 +3108,13 @@
       "file": "test/scripts/agentflow_branch_test.py",
       "case_id": "test.scripts.agentflow_branch_test.AgentflowBranchTest.test_resume_sets_pointer_from_owned_feature",
       "profile": "unit"
+    },
+    {
+      "id": "d3eea9717ab4cca47e5d97b0",
+      "runner": "exunit",
+      "file": "test/web/session_test.exs",
+      "case_id": "FootballMarketWeb.SessionTest:test limits normalized sign-in failures across peers while releasing successful attempts",
+      "profile": "integration"
     },
     {
       "id": "d452a85c8418e113c299418e",

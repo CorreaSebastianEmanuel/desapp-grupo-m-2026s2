@@ -274,6 +274,26 @@ end)
             {"file": unrelated_path},
         ])
 
+    def test_finding_paths_normalize_only_the_exact_relative_fixture_root(self):
+        checkout = Path("/tmp/workspace/checkout")
+        fixture = checkout.parent.parent / "fixtures" / ".security-probe"
+        relative_root = "../../fixtures/.security-probe"
+        reported_root = "fixtures/.security-probe"
+        source = "lib/probe.ex"
+        unaffected = [
+            source,
+            f"{reported_root}-other/{source}",
+            f"{relative_root}-other/{source}",
+            f"archive/{reported_root}/{source}",
+            f"fixtures/security-probe/{source}",
+        ]
+        paths = [f"{relative_root}/{source}", f"{reported_root}/{source}", *unaffected]
+
+        with patch.object(control, "ROOT", checkout):
+            normalized = control.normalize_finding_paths([{"file": path} for path in paths], fixture)
+
+        self.assertEqual([row["file"] for row in normalized], [source, source, *unaffected])
+
     def test_real_finding_and_recovery_reach_the_pr_summary(self):
         revision = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
         with tempfile.TemporaryDirectory(prefix="quality-summary-control-") as directory:
@@ -296,6 +316,7 @@ end
             evidence_dir = root / "tmp/sobelow-ci"
             self.assertEqual(control.analyze(root, evidence_dir), 1)
             unsafe = json.loads((evidence_dir / "evidence.json").read_text())
+            self.assertEqual([row["file"] for row in unsafe["blocking"]], ["lib/probe.ex"])
             unsafe["revision"] = revision
             (evidence_dir / "evidence.json").write_text(json.dumps(unsafe))
             env = {"GITHUB_SHA": revision, "GITHUB_REPOSITORY": "owner/project",

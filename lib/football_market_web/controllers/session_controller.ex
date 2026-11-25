@@ -1,10 +1,14 @@
 defmodule FootballMarketWeb.SessionController do
   use FootballMarketWeb, :controller
   alias FootballMarket.Accounts
-  alias FootballMarket.Accounts.BrowserSessions
+  alias FootballMarket.Accounts.{BrowserSessions, User}
   alias FootballMarketWeb.Plugs.BrowserAuth
+  alias FootballMarketWeb.Plugs.RequestQuota, as: QuotaPlug
+  alias FootballMarketWeb.RequestQuota
   plug :put_view, html: FootballMarketWeb.SessionHTML
   plug :no_store
+  plug QuotaPlug, :sign_in_ip when action == :create
+  plug QuotaPlug, :registration when action == :create_registration
   plug :audit_actor when action == :delete
 
   def new(conn, params) do
@@ -49,6 +53,11 @@ defmodule FootballMarketWeb.SessionController do
   end
 
   def create(conn, params) do
+    params =
+      conn.body_params
+      |> Map.take(~w(email password))
+      |> Map.put("return_to", params["return_to"])
+
     case BrowserSessions.validate(get_session(conn, :browser_handle)) do
       {:ok, actor} ->
         conn
@@ -86,7 +95,9 @@ defmodule FootballMarketWeb.SessionController do
     end
   end
 
-  def create_registration(conn, params) do
+  def create_registration(conn, _params) do
+    params = Map.take(conn.body_params, ~w(email password password_confirmation))
+
     case BrowserSessions.validate(get_session(conn, :browser_handle)) do
       {:ok, actor} ->
         conn |> assign(:browser_actor, actor) |> redirect303("/portfolio")
@@ -127,7 +138,7 @@ defmodule FootballMarketWeb.SessionController do
   end
 
   defp sign_in(conn, params) do
-    with {:ok, user} <- Accounts.verify_browser_credentials(params),
+    with {:ok, user} <- verify_credentials(params),
          {:ok, handle} <-
            authenticate_anonymous(conn, user.id) do
       Plug.CSRFProtection.delete_csrf_token()
@@ -139,6 +150,9 @@ defmodule FootballMarketWeb.SessionController do
       |> put_session(:browser_handle, handle)
       |> redirect303(BrowserAuth.destination(params["return_to"]))
     else
+      {:error, {:limited, _} = reason} ->
+        QuotaPlug.browser_error(conn, reason)
+
       {:error, :unavailable} ->
         form(
           conn,
@@ -153,6 +167,28 @@ defmodule FootballMarketWeb.SessionController do
       _ ->
         form(conn, params, 422, "No se pudo iniciar sesión con esos datos.")
     end
+  end
+
+  defp verify_credentials(params) do
+    with {:ok, reservation} <- reserve_identifier(User.normalize_email(params["email"])) do
+      result = Accounts.verify_browser_credentials(params)
+
+      case result do
+        {:error, :invalid} -> result
+        _ -> release_identifier(reservation, result)
+      end
+    end
+  end
+
+  defp reserve_identifier(identifier) when identifier in [nil, ""], do: {:ok, nil}
+
+  defp reserve_identifier(identifier),
+    do: RequestQuota.take(:sign_in_identifier, :crypto.hash(:sha256, identifier))
+
+  defp release_identifier(nil, result), do: result
+
+  defp release_identifier(reservation, result) do
+    with :ok <- RequestQuota.release(reservation), do: result
   end
 
   defp authenticate_anonymous(conn, user_id) do

@@ -31,6 +31,7 @@ defmodule FootballMarketWeb.AdminLiveTest do
     {:ok, view, html} = live(admin_conn, "/__local/ops")
     assert html =~ "Operaciones"
     assert html =~ "PostgreSQL"
+    assert render_click(view, "run_job", %{"id" => %{"nested" => "value"}}) =~ "Operaciones"
 
     notice_html = render_click(view, "run_support_job", %{"job" => "quote_close"})
     assert notice_html =~ "Job auxiliar encolado"

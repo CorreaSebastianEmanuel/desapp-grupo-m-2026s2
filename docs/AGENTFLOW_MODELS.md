@@ -1,6 +1,6 @@
 # Repository stage assignment
 
-`.agentflow/models.json` owns schema-1 defaults. The shared resolver validates both approved models (`gpt-6-luna`, `gpt-6.1-sol`) with low/medium/high effort. This matrix is local policy, not a provider availability guarantee.
+`.agentflow/models.json` owns schema-1 defaults. The shared resolver accepts `gpt-6-luna`, `gpt-6.1-sol`, and `gpt-6.2-sol` for Codex with low/medium/high effort. Provider availability is verified at launch.
 
 ThinFlow launches only `develop` (builder) and `qa` (independent evaluator).
 The remaining rows are retained so saved Agentflow 2.3 assignments can resume

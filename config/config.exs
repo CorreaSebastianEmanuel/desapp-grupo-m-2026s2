@@ -66,11 +66,14 @@ config :logger, :default_formatter,
   metadata:
     ~w(actor_id parameters event correlation_id request_id method route status duration_ms queue_time_ms job_id worker queue attempt max_attempts execution_state error_kind run_id delivery_id intent_id calculation_request_id)a
 
-# Use Jason for JSON parsing in Phoenix and redact opaque catalog continuations
-# before controller parameter logging can expose them.
-config :phoenix,
-  json_library: Jason,
-  filter_parameters: ["password", "token", "cursor", "browser_handle", "token_digest", "secret"]
+# The structured request logger already selects and validates safe fields.
+config :phoenix, json_library: Jason, filter_parameters: {:keep, []}
+
+config :football_market, FootballMarketWeb.RequestQuota,
+  sign_in_ip: {30, :timer.minutes(15)},
+  sign_in_identifier: {10, :timer.minutes(15)},
+  registration: {5, :timer.minutes(15)},
+  api: {120, :timer.minutes(1)}
 
 # Import a checked-in environment config when one exists. Unknown environments
 # retain the fail-closed defaults above so command-level capability checks can

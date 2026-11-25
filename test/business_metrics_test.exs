@@ -252,7 +252,7 @@ defmodule FootballMarketWeb.BusinessMetricsTest do
     assert_shape!(data, schema)
     operation = spec["paths"]["/api/business-metrics"]["get"]
     assert operation["security"] == [%{"BearerAuth" => []}, %{"ApiKeyAuth" => []}]
-    assert Enum.sort(Map.keys(operation["responses"])) == ~w(200 401 403 503)
+    assert Enum.sort(Map.keys(operation["responses"])) == ~w(200 401 403 429 503)
   end
 
   defp assert_shape!(nil, schema), do: assert(schema["nullable"])

@@ -13,6 +13,7 @@ defmodule FootballMarket.Application do
           FootballMarket.Repo,
           {Oban, Application.fetch_env!(:football_market, Oban)},
           FootballMarketWeb.Telemetry,
+          FootballMarketWeb.RequestQuota,
           {DNSCluster,
            query: Application.get_env(:football_market, :dns_cluster_query) || :ignore},
           {Phoenix.PubSub, name: FootballMarket.PubSub},

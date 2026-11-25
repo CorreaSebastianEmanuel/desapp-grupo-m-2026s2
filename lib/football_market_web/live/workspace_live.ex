@@ -94,10 +94,12 @@ defmodule FootballMarketWeb.Workspace.Helpers do
     end
   end
 
-  def handle_transaction_page_size(%{"page_size" => size}, socket) do
+  def handle_transaction_page_size(%{"page_size" => size}, socket) when is_binary(size) do
     {:noreply,
      push_patch(socket, to: "/transactions?" <> URI.encode_query(%{"page_size" => size}))}
   end
+
+  def handle_transaction_page_size(_, socket), do: {:noreply, socket}
 
   def load_transactions(socket, params) do
     size = page_size(params["page_size"])
@@ -311,27 +313,34 @@ defmodule FootballMarketWeb.WorkspaceLive do
   # --- UI Events: Players & Quotes ---
 
   def handle_event("search_players", params, socket) do
-    query =
-      %{
-        "q" => String.trim(Map.get(params, "player_search", "")),
-        "league_id" => Map.get(params, "league_id", ""),
-        "team_id" => Map.get(params, "team_id", ""),
-        "position_id" => Map.get(params, "position_id", ""),
-        "page_size" => Map.get(params, "page_size", "25")
-      }
-      |> Enum.reject(fn {_key, value} -> value in ["", nil] end)
-      |> Map.new()
+    filters =
+      params
+      |> Map.take(~w(league_id team_id position_id page_size))
+      |> Map.put_new("page_size", "25")
 
-    {:noreply,
-     push_patch(socket,
-       to: "/players?" <> URI.encode_query(query),
-       replace: Map.has_key?(params, "_target")
-     )}
+    search = Map.get(params, "player_search", "")
+
+    if is_binary(search) and Enum.all?(Map.values(filters), &is_binary/1) do
+      query = entered_values(Map.put(filters, "q", String.trim(search)))
+
+      {:noreply,
+       push_patch(socket,
+         to: "/players?" <> URI.encode_query(query),
+         replace: Map.has_key?(params, "_target")
+       )}
+    else
+      {:noreply, socket}
+    end
   end
 
-  def handle_event("quote_date", %{"date" => date}, socket) do
+  def handle_event(
+        "quote_date",
+        %{"date" => date},
+        %{assigns: %{card: %{player: player}}} = socket
+      )
+      when is_binary(date) do
     params =
-      %{"player_id" => socket.assigns.card.player.id, "date" => date}
+      %{"player_id" => player.id, "date" => date}
       |> Map.merge(
         Map.take(URI.decode_query(socket.assigns.catalog_state_query || ""), [
           "q",
@@ -349,15 +358,14 @@ defmodule FootballMarketWeb.WorkspaceLive do
   # --- UI Events: Portfolio & Transactions ---
 
   def handle_event("portfolio_range", params, socket) do
-    query =
-      %{"from" => params["from"], "to" => params["to"], "tab" => socket.assigns.portfolio_tab}
-      |> Enum.reject(fn {_key, value} -> value in ["", nil] end)
-      |> Map.new()
+    range = Map.take(params, ~w(from to))
 
-    path =
-      if map_size(query) == 0, do: "/portfolio", else: "/portfolio?" <> URI.encode_query(query)
-
-    {:noreply, push_patch(socket, to: path)}
+    if Enum.all?(Map.values(range), &is_binary/1) do
+      query = entered_values(Map.put(range, "tab", socket.assigns.portfolio_tab))
+      {:noreply, push_patch(socket, to: "/portfolio?" <> URI.encode_query(query))}
+    else
+      {:noreply, socket}
+    end
   end
 
   def handle_event("transaction_page_size", params, socket),
@@ -375,19 +383,19 @@ defmodule FootballMarketWeb.WorkspaceLive do
         {:noreply,
          assign(socket,
            trade_error: "Ingresá una cantidad entera mayor que cero y elegí un jugador.",
-           trade_quantity: Map.get(params, "quantity", "")
+           trade_quantity: form_value(params["quantity"])
          )}
     end
   end
 
-  def handle_event("trade_preview", %{"quantity" => qty}, socket),
+  def handle_event("trade_preview", %{"quantity" => qty}, socket) when is_binary(qty),
     do: {:noreply, assign(socket, trade_quantity: qty)}
 
   def handle_event("trade", params, socket) do
     {:noreply,
      assign(socket,
        trade_error: "Elegí comprar o vender e ingresá una cantidad entera mayor que cero.",
-       trade_quantity: Map.get(params, "quantity", "")
+       trade_quantity: form_value(params["quantity"])
      )}
   end
 
@@ -430,7 +438,7 @@ defmodule FootballMarketWeb.WorkspaceLive do
       {:error, error} ->
         {:noreply,
          assign(socket,
-           order_form: Map.new(empty_order_form(), fn {k, _} -> {k, params[k] || ""} end),
+           order_form: Map.new(empty_order_form(), fn {k, _} -> {k, form_value(params[k])} end),
            order_error: order_error_message(error),
            order_notice: nil
          )}
@@ -465,6 +473,12 @@ defmodule FootballMarketWeb.WorkspaceLive do
         {:noreply, assign(socket, order_error: order_error_message(error), order_notice: nil)}
     end
   end
+
+  def handle_event(_, _, socket), do: {:noreply, socket}
+
+  defp entered_values(params), do: Map.reject(params, fn {_, value} -> value in ["", nil] end)
+  defp form_value(value) when is_binary(value), do: value
+  defp form_value(_), do: ""
 
   def render(assigns), do: Pages.render(assigns)
 

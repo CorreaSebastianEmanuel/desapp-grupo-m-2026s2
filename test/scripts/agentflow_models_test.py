@@ -103,11 +103,11 @@ class LauncherTest(DeliveryFixture):
 
     def test_start_applies_frozen_override_and_propagates_one_child_rejection(self):
         self.git('switch','-q','-c','main')
-        result=self.invoke('start','TASK-003','--no-pr','--stage-model','develop=gpt-6.1-sol','--stage-effort','develop=medium')
+        result=self.invoke('start','TASK-003','--no-pr','--stage-model','develop=gpt-6.2-sol','--stage-effort','develop=medium')
         self.assertNotEqual(result.returncode,0,result.stdout+result.stderr)
         launches=[json.loads(line) for line in self.capture.read_text().splitlines()]
         self.assertEqual(len(launches),1)
-        self.assertIn('gpt-6.1-sol',launches[0])
+        self.assertIn('gpt-6.2-sol',launches[0])
         self.assertIn('model_reasoning_effort="medium"',launches[0])
         self.assertIn('status: blocked',(self.root/'backlog/TASK-003-example.md').read_text())
 

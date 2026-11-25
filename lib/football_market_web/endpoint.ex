@@ -1,3 +1,14 @@
+defmodule FootballMarketWeb.RequestJSON do
+  @moduledoc "Decodes HTTP JSON without attaching raw input to parse exceptions."
+
+  def decode!(body) do
+    case Phoenix.json_library().decode(body) do
+      {:ok, value} -> value
+      {:error, _} -> raise ArgumentError, "malformed JSON request"
+    end
+  end
+end
+
 defmodule FootballMarketWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :football_market
 
@@ -45,7 +56,7 @@ defmodule FootballMarketWeb.Endpoint do
   plug Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],
     pass: ["*/*"],
-    json_decoder: Phoenix.json_library()
+    json_decoder: FootballMarketWeb.RequestJSON
 
   plug Plug.MethodOverride
   plug Plug.Head

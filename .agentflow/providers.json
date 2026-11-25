@@ -2,7 +2,7 @@
   "schema_version": 1,
   "providers": {
     "codex": {
-      "models": ["gpt-6-luna", "gpt-6.1-sol"],
+      "models": ["gpt-6-luna", "gpt-6.1-sol", "gpt-6.2-sol"],
       "efforts": ["low", "medium", "high"],
       "verify_model": "gpt-6.1-sol"
     },

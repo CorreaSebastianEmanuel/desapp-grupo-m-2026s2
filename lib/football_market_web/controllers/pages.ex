@@ -73,6 +73,8 @@ defmodule FootballMarketWeb.HealthController do
 
   def ready(conn, _params), do: respond_ready(conn, Health.readiness())
 
+  def info(conn, _params), do: json(conn, Health.info())
+
   def respond_ready(conn, result) do
     body = %{
       status: Atom.to_string(result.status),

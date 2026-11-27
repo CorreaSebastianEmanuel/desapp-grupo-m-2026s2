@@ -131,10 +131,19 @@ defmodule FootballMarketWeb.ApiTest do
     assert cancelled["data"]["status"] == "cancelled"
   end
 
-  test "public health endpoints report liveness and bounded dependency readiness", %{conn: conn} do
+  test "public health endpoints report liveness, info, and bounded dependency readiness", %{
+    conn: conn
+  } do
     alias FootballMarket.Infrastructure.Health
 
     assert conn |> get("/health/live") |> json_response(200) == %{"status" => "live"}
+
+    info = conn |> get("/health/info") |> json_response(200)
+    assert Map.keys(info) |> Enum.sort() == ["application", "elixir", "otp_release", "version"]
+    assert info["application"] == "football_market"
+    assert is_binary(info["version"]) and info["version"] != ""
+    assert info["elixir"] == System.version()
+    assert is_binary(info["otp_release"]) and info["otp_release"] != ""
 
     ready = conn |> get("/health/ready") |> json_response(200)
     assert ready["status"] == "ready"

@@ -13,6 +13,7 @@ defmodule FootballMarket.Observability.Metrics do
   @providers ~w(football_data_org fotmob_public_html)
   @provider_operations ~w(catalog player_search)
   @provider_outcomes ~w(success rate_limited access_refused unavailable timeout invalid_response missing_configuration invalid_request transport_error unexpected_failure other_failure)
+  @ranking_cache_outcomes ~w(hit miss error)
 
   @families [
     {"football_market_http_requests_total", "Completed HTTP requests", :counter,
@@ -32,7 +33,9 @@ defmodule FootballMarket.Observability.Metrics do
      ["provider", "operation", "outcome"]},
     {"football_market_provider_request_duration_seconds",
      "External provider request duration in seconds", :histogram,
-     ["provider", "operation", "outcome"]}
+     ["provider", "operation", "outcome"]},
+    {"football_market_ranking_cache_total", "Active-strategy ranking cache lookups", :counter,
+     ["outcome"]}
   ]
 
   def start_link(opts \\ []),
@@ -58,7 +61,10 @@ defmodule FootballMarket.Observability.Metrics do
           [:vm, :total_run_queue_lengths],
           [:oban, :job, :stop],
           [:oban, :job, :exception],
-          [:football_market, :provider, :request]
+          [:football_market, :provider, :request],
+          [:football_market, :ranking, :cache, :hit],
+          [:football_market, :ranking, :cache, :miss],
+          [:football_market, :ranking, :cache, :error]
         ],
         &__MODULE__.handle_event/4,
         nil
@@ -127,6 +133,11 @@ defmodule FootballMarket.Observability.Metrics do
 
     increment("football_market_provider_requests_total", labels)
     observe("football_market_provider_request_duration_seconds", duration, labels)
+  end
+
+  def handle_event([:football_market, :ranking, :cache, outcome], %{count: count}, _metadata, _)
+      when is_integer(count) and count > 0 do
+    increment("football_market_ranking_cache_total", [bounded(@ranking_cache_outcomes, outcome)])
   end
 
   def handle_event(_event, _measurements, _metadata, _config), do: :ok

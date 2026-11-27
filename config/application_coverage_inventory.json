@@ -206,12 +206,6 @@
       "reason": "Maintained first-party application implementation source: lib/football_market_web/controllers/api_controller.ex."
     },
     {
-      "path": "lib/football_market_web/controllers/metrics_controller.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market_web/controllers/metrics_controller.ex."
-    },
-    {
       "path": "lib/football_market_web/controllers/pages.ex",
       "role": "application",
       "disposition": "include",
@@ -246,12 +240,6 @@
       "role": "application",
       "disposition": "include",
       "reason": "Maintained first-party application implementation source: lib/football_market_web/live/workspace_live.ex."
-    },
-    {
-      "path": "lib/football_market_web/plugs/metrics_auth.ex",
-      "role": "application",
-      "disposition": "include",
-      "reason": "Maintained first-party application implementation source: lib/football_market_web/plugs/metrics_auth.ex."
     },
     {
       "path": "lib/football_market_web/router.ex",

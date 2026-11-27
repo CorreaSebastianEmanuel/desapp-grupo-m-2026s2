@@ -20,14 +20,7 @@ defmodule FootballMarket.Ranking do
 
   @spec read() :: {:ok, map()} | {:error, :no_active_configuration | :storage_unavailable}
   def read do
-    if Repo.in_transaction?(), do: {:error, :storage_unavailable}, else: read_active_ranking()
-  rescue
-    _ in [DBConnection.ConnectionError, Postgrex.Error, Ecto.NoResultsError] ->
-      {:error, :storage_unavailable}
-  end
-
-  defp read_active_ranking do
-    case Repo.transaction(&read_transaction/0) do
+    case Repo.read_only_snapshot(&read_transaction/0) do
       {:ok, {ranking, revision, :miss}} ->
         Cache.put(ranking.configuration, ranking.entries, revision)
         {:ok, ranking}
@@ -44,8 +37,6 @@ defmodule FootballMarket.Ranking do
   end
 
   defp read_transaction do
-    Repo.query!("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY")
-
     case Configurations.active() do
       {:ok, %Version{} = active} ->
         revision = revision(active)

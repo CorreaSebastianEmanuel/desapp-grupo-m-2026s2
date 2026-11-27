@@ -16,7 +16,7 @@ defmodule FootballMarket.Catalog.League do
   def changeset(league, attrs) do
     league
     |> cast(attrs, [:code, :name])
-    |> trim_fields([:code, :name])
+    |> FootballMarket.Catalog.trim_fields([:code, :name])
     |> validate_required([:code, :name])
     |> validate_supported_pair()
     |> check_constraint(:code, name: :leagues_supported_code)
@@ -24,23 +24,12 @@ defmodule FootballMarket.Catalog.League do
     |> unique_constraint(:name, name: :leagues_normalized_name_index)
   end
 
-  def delete_changeset(league), do: league |> change() |> no_assoc_constraint(:seasons)
-
   defp validate_supported_pair(changeset) do
     pair = {get_field(changeset, :code), get_field(changeset, :name)}
 
     if pair in FootballMarket.Catalog.supported_leagues(),
       do: changeset,
       else: add_error(changeset, :code, "is not a supported league pair")
-  end
-
-  defp trim_fields(changeset, fields) do
-    Enum.reduce(fields, changeset, fn field, cs ->
-      case get_change(cs, field) do
-        value when is_binary(value) -> put_change(cs, field, String.trim(value))
-        _ -> cs
-      end
-    end)
   end
 end
 
@@ -68,16 +57,6 @@ defmodule FootballMarket.Catalog.Season do
     |> foreign_key_constraint(:league_id)
     |> unique_constraint([:league_id, :start_year, :end_year], name: :seasons_league_years_index)
     |> check_constraint(:end_year, name: :seasons_valid_year_span)
-  end
-
-  def delete_changeset(season) do
-    season
-    |> change()
-    |> no_assoc_constraint(:teams)
-    |> foreign_key_constraint(:matches,
-      name: :matches_season_witness_fkey,
-      message: "still has historical matches"
-    )
   end
 
   defp validate_year_span(changeset) do
@@ -110,37 +89,11 @@ defmodule FootballMarket.Catalog.Team do
   def changeset(team, attrs) do
     team
     |> cast(attrs, [:season_id, :code, :name])
-    |> trim_fields([:code, :name])
+    |> FootballMarket.Catalog.trim_fields([:code, :name])
     |> validate_required([:season_id, :code, :name])
     |> foreign_key_constraint(:season_id)
     |> unique_constraint(:code, name: :teams_season_normalized_code_index)
     |> unique_constraint(:name, name: :teams_season_normalized_name_index)
-  end
-
-  def delete_changeset(team) do
-    team
-    |> change()
-    |> foreign_key_constraint(:players,
-      name: :players_team_season_fkey,
-      message: "still has associated players"
-    )
-    |> foreign_key_constraint(:matches,
-      name: :matches_home_team_id_season_fkey,
-      message: "still has historical matches"
-    )
-    |> foreign_key_constraint(:matches,
-      name: :matches_away_team_id_season_fkey,
-      message: "still has historical matches"
-    )
-  end
-
-  defp trim_fields(changeset, fields) do
-    Enum.reduce(fields, changeset, fn field, cs ->
-      case get_change(cs, field) do
-        value when is_binary(value) -> put_change(cs, field, String.trim(value))
-        _ -> cs
-      end
-    end)
   end
 end
 
@@ -162,29 +115,10 @@ defmodule FootballMarket.Catalog.Position do
   def changeset(position, attrs) do
     position
     |> cast(attrs, [:code, :name])
-    |> trim_fields([:code, :name])
+    |> FootballMarket.Catalog.trim_fields([:code, :name])
     |> validate_required([:code, :name])
     |> unique_constraint(:code, name: :positions_normalized_code_index)
     |> unique_constraint(:name, name: :positions_normalized_name_index)
-  end
-
-  def delete_changeset(position) do
-    position
-    |> change()
-    |> no_assoc_constraint(:players)
-    |> foreign_key_constraint(:performances,
-      name: :player_match_performances_position_id_fkey,
-      message: "still has historical performances"
-    )
-  end
-
-  defp trim_fields(changeset, fields) do
-    Enum.reduce(fields, changeset, fn field, cs ->
-      case get_change(cs, field) do
-        value when is_binary(value) -> put_change(cs, field, String.trim(value))
-        _ -> cs
-      end
-    end)
   end
 end
 
@@ -209,7 +143,7 @@ defmodule FootballMarket.Catalog.Player do
     player
     |> cast(attrs, [:team_id, :position_id, :catalog_identity, :display_name])
     |> put_change(:season_id, season_id)
-    |> trim_fields([:catalog_identity, :display_name])
+    |> FootballMarket.Catalog.trim_fields([:catalog_identity, :display_name])
     |> validate_required([:team_id, :season_id, :position_id, :catalog_identity, :display_name])
     |> add_constraints()
   end
@@ -218,7 +152,7 @@ defmodule FootballMarket.Catalog.Player do
     player
     |> cast(attrs, [:team_id, :position_id, :display_name])
     |> put_change(:season_id, season_id)
-    |> trim_fields([:display_name])
+    |> FootballMarket.Catalog.trim_fields([:display_name])
     |> validate_required([:team_id, :season_id, :position_id, :catalog_identity, :display_name])
     |> add_constraints()
   end
@@ -232,15 +166,6 @@ defmodule FootballMarket.Catalog.Player do
       message: "must belong to the player's season"
     )
     |> unique_constraint(:catalog_identity, name: :players_season_normalized_identity_index)
-  end
-
-  defp trim_fields(changeset, fields) do
-    Enum.reduce(fields, changeset, fn field, cs ->
-      case get_change(cs, field) do
-        value when is_binary(value) -> put_change(cs, field, String.trim(value))
-        _ -> cs
-      end
-    end)
   end
 end
 
@@ -333,10 +258,16 @@ defmodule FootballMarket.Catalog do
     {"UNK", "Unknown"}
   ]
 
-  @player_filters [:league_id, :season_id, :team_id, :position_id, :search_name]
-
   def supported_leagues, do: @supported_leagues
-  def standard_positions, do: @standard_positions
+
+  def trim_fields(changeset, fields) do
+    Enum.reduce(fields, changeset, fn field, cs ->
+      case get_change(cs, field) do
+        value when is_binary(value) -> put_change(cs, field, String.trim(value))
+        _ -> cs
+      end
+    end)
+  end
 
   # --- Basic CRUD ---
 
@@ -369,19 +300,9 @@ defmodule FootballMarket.Catalog do
     end
   end
 
-  def delete_league(%League{} = league), do: league |> League.delete_changeset() |> Repo.delete()
-  def delete_season(%Season{} = season), do: season |> Season.delete_changeset() |> Repo.delete()
-  def delete_team(%Team{} = team), do: team |> Team.delete_changeset() |> Repo.delete()
-
-  def delete_position(%Position{} = position),
-    do: position |> Position.delete_changeset() |> Repo.delete()
-
   # --- Lookups ---
 
-  def get_league(id), do: one(from l in League, where: l.id == ^id)
-  def fetch_league!(id), do: Repo.get!(League, id)
   def get_league_by_code(code), do: one(by_normalized(League, :code, code))
-  def get_league_by_name(name), do: one(by_normalized(League, :name, name))
 
   def get_season(id), do: one(from s in Season, where: s.id == ^id)
 
@@ -393,13 +314,8 @@ defmodule FootballMarket.Catalog do
     )
   end
 
-  def get_team(id), do: one(from t in Team, where: t.id == ^id)
   def get_team_by_code(season_id, code), do: one(team_by(season_id, :code, code))
-  def get_team_by_name(season_id, name), do: one(team_by(season_id, :name, name))
-
-  def get_position(id), do: one(from p in Position, where: p.id == ^id)
   def get_position_by_code(code), do: one(by_normalized(Position, :code, code))
-  def get_position_by_name(name), do: one(by_normalized(Position, :name, name))
 
   def get_player(id) do
     Repo.get(Player, id) |> preload_one_player()
@@ -414,20 +330,6 @@ defmodule FootballMarket.Catalog do
     )
     |> Repo.one()
     |> preload_one_player()
-  end
-
-  def list_players(filters \\ %{}) do
-    filters = Map.new(filters)
-    unknown = Map.keys(filters) -- @player_filters
-
-    if unknown == [] do
-      filters
-      |> Enum.reduce(base_players(), &apply_filter/2)
-      |> order_by([p], asc: p.id)
-      |> Repo.all()
-    else
-      {:error, {:unknown_filters, Enum.sort(unknown)}}
-    end
   end
 
   def list_players_for_statistics do
@@ -457,17 +359,6 @@ defmodule FootballMarket.Catalog do
          statistics_status: FootballMarket.Statistics.Freshness.for_player(player)
        }}
     end
-  end
-
-  def provider_player_id(player_id, provider) when is_binary(provider) do
-    Repo.one(
-      from b in SourceBinding,
-        where: b.player_id == ^player_id and b.provider == ^provider and b.kind == "player",
-        select: b.source_id,
-        limit: 1
-    )
-  rescue
-    _ -> nil
   end
 
   # --- Pagination, Search, Filter Options & Profiles ---

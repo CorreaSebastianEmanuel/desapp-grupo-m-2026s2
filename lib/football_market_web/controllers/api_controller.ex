@@ -84,6 +84,48 @@ defmodule FootballMarketWeb.ApiJSON do
       exec -> exec |> Map.update!(:unit_price, &money/1) |> Map.update!(:total, &money/1)
     end)
   end
+
+  def unique_param(pairs, key, err) do
+    if Enum.any?(pairs, fn {k, _} -> String.starts_with?(k, key <> "[") end),
+      do: {:error, err},
+      else: pick_single_value(pairs, key, err)
+  end
+
+  defp pick_single_value(pairs, key, err) do
+    case for({^key, v} <- pairs, do: v) do
+      [] -> {:ok, nil}
+      [v] -> {:ok, v}
+      _ -> {:error, err}
+    end
+  end
+
+  def uuid_param(pairs, key, err) do
+    with {:ok, raw} <- unique_param(pairs, key, err), do: parse_optional_uuid(raw, err)
+  end
+
+  defp parse_optional_uuid(nil, _err), do: {:ok, nil}
+
+  defp parse_optional_uuid(val, err) do
+    with true <- Regex.match?(~r/\A[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}\z/, val),
+         {:ok, uuid} <- Ecto.UUID.cast(val) do
+      {:ok, uuid}
+    else
+      _ -> {:error, err}
+    end
+  end
+
+  def parse_page_size(nil), do: {:ok, 25}
+
+  def parse_page_size(value) do
+    if Regex.match?(~r/\A[0-9]+\z/, value) do
+      case Integer.parse(value) do
+        {size, ""} when size in 1..100 -> {:ok, size}
+        _ -> {:error, :invalid_page_size}
+      end
+    else
+      {:error, :invalid_page_size}
+    end
+  end
 end
 
 defmodule FootballMarketWeb.ErrorJSON do
@@ -142,12 +184,12 @@ defmodule FootballMarketWeb.PlayerController do
   defp pagination_params(query_string) do
     pairs = Enum.to_list(URI.query_decoder(query_string))
 
-    with {:ok, size_raw} <- unique_param(pairs, "page_size", :invalid_page_size),
-         {:ok, page_size} <- parse_page_size(size_raw),
-         {:ok, league_id} <- uuid_param(pairs, "league_id", :invalid_league_id),
-         {:ok, team_id} <- uuid_param(pairs, "team_id", :invalid_team_id),
-         {:ok, position_id} <- uuid_param(pairs, "position_id", :invalid_position_id),
-         {:ok, cursor} <- unique_param(pairs, "cursor", :invalid_cursor),
+    with {:ok, size_raw} <- ApiJSON.unique_param(pairs, "page_size", :invalid_page_size),
+         {:ok, page_size} <- ApiJSON.parse_page_size(size_raw),
+         {:ok, league_id} <- ApiJSON.uuid_param(pairs, "league_id", :invalid_league_id),
+         {:ok, team_id} <- ApiJSON.uuid_param(pairs, "team_id", :invalid_team_id),
+         {:ok, position_id} <- ApiJSON.uuid_param(pairs, "position_id", :invalid_position_id),
+         {:ok, cursor} <- ApiJSON.unique_param(pairs, "cursor", :invalid_cursor),
          :ok <- if(cursor == "", do: {:error, :invalid_cursor}, else: :ok) do
       filters =
         [league_id: league_id, team_id: team_id, position_id: position_id]
@@ -158,48 +200,6 @@ defmodule FootballMarketWeb.PlayerController do
     end
   rescue
     _ -> {:error, :invalid_page_size}
-  end
-
-  defp unique_param(pairs, key, err) do
-    if Enum.any?(pairs, fn {k, _} -> String.starts_with?(k, key <> "[") end),
-      do: {:error, err},
-      else: pick_single_value(pairs, key, err)
-  end
-
-  defp pick_single_value(pairs, key, err) do
-    case for({^key, v} <- pairs, do: v) do
-      [] -> {:ok, nil}
-      [v] -> {:ok, v}
-      _ -> {:error, err}
-    end
-  end
-
-  defp uuid_param(pairs, key, err) do
-    with {:ok, raw} <- unique_param(pairs, key, err), do: parse_optional_uuid(raw, err)
-  end
-
-  defp parse_optional_uuid(nil, _err), do: {:ok, nil}
-
-  defp parse_optional_uuid(val, err) do
-    with true <- Regex.match?(~r/\A[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}\z/, val),
-         {:ok, uuid} <- Ecto.UUID.cast(val) do
-      {:ok, uuid}
-    else
-      _ -> {:error, err}
-    end
-  end
-
-  defp parse_page_size(nil), do: {:ok, 25}
-
-  defp parse_page_size(value) do
-    if Regex.match?(~r/\A[0-9]+\z/, value) do
-      case Integer.parse(value) do
-        {size, ""} when size in 1..100 -> {:ok, size}
-        _ -> {:error, :invalid_page_size}
-      end
-    else
-      {:error, :invalid_page_size}
-    end
   end
 end
 
@@ -380,41 +380,14 @@ defmodule FootballMarketWeb.TransactionController do
   defp parse_pagination(query) do
     pairs = Enum.to_list(URI.query_decoder(query))
 
-    with {:ok, size_raw} <- unique_param(pairs, "page_size", :invalid_page_size),
-         {:ok, cursor} <- unique_param(pairs, "cursor", :invalid_cursor),
-         {:ok, page_size} <- parse_page_size(size_raw),
+    with {:ok, size_raw} <- ApiJSON.unique_param(pairs, "page_size", :invalid_page_size),
+         {:ok, cursor} <- ApiJSON.unique_param(pairs, "cursor", :invalid_cursor),
+         {:ok, page_size} <- ApiJSON.parse_page_size(size_raw),
          :ok <- if(cursor == "", do: {:error, :invalid_cursor}, else: :ok) do
       {:ok, %{page_size: page_size, cursor: cursor}}
     end
   rescue
     _ -> {:error, :invalid_page_size}
-  end
-
-  defp unique_param(pairs, key, err) do
-    if Enum.any?(pairs, fn {k, _} -> String.starts_with?(k, key <> "[") end),
-      do: {:error, err},
-      else: pick_single_value(pairs, key, err)
-  end
-
-  defp pick_single_value(pairs, key, err) do
-    case for({^key, v} <- pairs, do: v) do
-      [] -> {:ok, nil}
-      [v] -> {:ok, v}
-      _ -> {:error, err}
-    end
-  end
-
-  defp parse_page_size(nil), do: {:ok, 25}
-
-  defp parse_page_size(value) do
-    if Regex.match?(~r/\A[0-9]+\z/, value) do
-      case Integer.parse(value) do
-        {n, ""} when n in 1..100 -> {:ok, n}
-        _ -> {:error, :invalid_page_size}
-      end
-    else
-      {:error, :invalid_page_size}
-    end
   end
 
   defp error(conn, status, code), do: conn |> put_status(status) |> json(%{error: %{code: code}})

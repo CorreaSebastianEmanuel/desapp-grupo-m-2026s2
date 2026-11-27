@@ -107,7 +107,8 @@ defmodule FootballMarket.Market.Portfolio do
     with {:ok, anchor} <- decode_history_anchor(cursor, owner) do
       try do
         rows =
-          (fetch_purchases(owner, anchor, size + 1) ++ fetch_sales(owner, anchor, size + 1))
+          (fetch_trades(Purchase, :buyer_id, "purchase", owner, anchor, size + 1) ++
+             fetch_trades(Sale, :seller_id, "sale", owner, anchor, size + 1))
           |> Enum.sort_by(fn row ->
             {-DateTime.to_unix(row.completed_at, :microsecond), row.type, row.id}
           end)
@@ -328,17 +329,19 @@ defmodule FootballMarket.Market.Portfolio do
   defp read_analytics(_, _, _), do: Error.new(:unauthenticated, :unauthenticated)
 
   defp load_analytics_snapshot(owner_id, mode, options) do
-    if Repo.in_transaction?() do
-      {:error, :temporarily_unavailable}
-    else
-      Repo.transaction(fn -> query_analytics_snapshot!(owner_id, mode, options) end)
+    case Repo.read_only_snapshot(fn -> query_analytics_snapshot!(owner_id, mode, options) end) do
+      {:ok, result} ->
+        {:ok, result}
+
+      {:error, reason} when reason in [:in_transaction, :storage_unavailable] ->
+        {:error, :temporarily_unavailable}
+
+      {:error, reason} ->
+        {:error, reason}
     end
-  rescue
-    _ in [Postgrex.Error, DBConnection.ConnectionError] -> {:error, :temporarily_unavailable}
   end
 
   defp query_analytics_snapshot!(owner_id, mode, options) do
-    Repo.query!("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY")
     %{rows: [[as_of]]} = Repo.query!("SELECT transaction_timestamp()")
     range = resolve_range!(mode, options, DateTime.to_date(as_of))
     cutoff = if mode == :allocation, do: as_of, else: min_time(day_end(range.to), as_of)
@@ -531,42 +534,22 @@ defmodule FootballMarket.Market.Portfolio do
 
   # --- Transaction History Query & Cursor Helpers ---
 
-  defp fetch_purchases(owner, anchor, limit) do
-    from(p in Purchase,
-      where: p.buyer_id == ^owner,
+  defp fetch_trades(schema, owner_field, type, owner, anchor, limit) do
+    from(t in schema,
+      where: field(t, ^owner_field) == ^owner,
       select: %{
-        id: p.id,
-        type: "purchase",
-        player_id: p.player_id,
-        quantity: p.quantity,
-        unit_price: p.unit_price,
-        total: p.total,
-        quote_id: p.quote_id,
-        completed_at: p.completed_at
+        id: t.id,
+        type: ^type,
+        player_id: t.player_id,
+        quantity: t.quantity,
+        unit_price: t.unit_price,
+        total: t.total,
+        quote_id: t.quote_id,
+        completed_at: t.completed_at
       }
     )
-    |> after_anchor(anchor, "purchase")
-    |> order_by([p], desc: p.completed_at, asc: p.id)
-    |> limit(^limit)
-    |> Repo.all()
-  end
-
-  defp fetch_sales(owner, anchor, limit) do
-    from(s in Sale,
-      where: s.seller_id == ^owner,
-      select: %{
-        id: s.id,
-        type: "sale",
-        player_id: s.player_id,
-        quantity: s.quantity,
-        unit_price: s.unit_price,
-        total: s.total,
-        quote_id: s.quote_id,
-        completed_at: s.completed_at
-      }
-    )
-    |> after_anchor(anchor, "sale")
-    |> order_by([s], desc: s.completed_at, asc: s.id)
+    |> after_anchor(anchor, type)
+    |> order_by([t], desc: t.completed_at, asc: t.id)
     |> limit(^limit)
     |> Repo.all()
   end

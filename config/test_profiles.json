@@ -79,6 +79,13 @@
       "profile": "unit"
     },
     {
+      "id": "0459bc42370790a001cd1c8d",
+      "runner": "exunit",
+      "file": "test/web/workspace_live_test.exs",
+      "case_id": "FootballMarketWeb.WorkspaceLiveTest:test shows a rejected purchase without a success confirmation",
+      "profile": "integration"
+    },
+    {
       "id": "0478e67adea73feca50195df",
       "runner": "python",
       "file": "test/scripts/test_profile_runner_test.py",
@@ -1701,6 +1708,13 @@
       "file": "test/scripts/agentflow_workflow_gate_test.py",
       "case_id": "test.scripts.agentflow_workflow_gate_test.VersionedWorkflowTest.test_default_has_one_builder_one_evaluator_and_deterministic_gates",
       "profile": "unit"
+    },
+    {
+      "id": "7873d468c2ca860646d29bfa",
+      "runner": "exunit",
+      "file": "test/web/workspace_live_test.exs",
+      "case_id": "FootballMarketWeb.WorkspaceLiveTest:test shows buy and sell confirmations, investor holdings, and operation history",
+      "profile": "integration"
     },
     {
       "id": "7904458115c64b5db88e0b59",
@@ -3381,6 +3395,13 @@
       "file": "test/providers_sync_test.exs",
       "case_id": "FootballMarket.ProvidersSyncTest:test handles Football-Data.org HTTP errors cleanly",
       "profile": "unit"
+    },
+    {
+      "id": "e6291158c75ff3a50d5f6cf3",
+      "runner": "exunit",
+      "file": "test/web/workspace_live_test.exs",
+      "case_id": "FootballMarketWeb.WorkspaceLiveTest:test portfolio and operation history are scoped to the authenticated investor",
+      "profile": "integration"
     },
     {
       "id": "e6f9676e1a8d00e52b229524",

@@ -108,7 +108,7 @@ class InventoryTest(unittest.TestCase):
         from unittest.mock import patch
 
         for name in ('test/scripts/empty_test.py', 'test/unconfigured/nested_test.py',
-                     'tools/openapi/nested/rogue.test.mjs'):
+                     'scripts/openapi/nested/rogue.test.mjs'):
             with self.subTest(name=name), tempfile.TemporaryDirectory() as directory:
                 root = Path(directory)
                 known = root / self.case['file']

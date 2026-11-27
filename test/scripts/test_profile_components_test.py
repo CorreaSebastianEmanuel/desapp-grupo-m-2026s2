@@ -105,7 +105,7 @@ class ComponentsTest(unittest.TestCase):
             source.write_text("import test from 'node:test'; test('one',()=>{}); test('two',()=>{});\n")
             events = Path(directory) / 'events'
             subprocess.run(['node','--test','--test-isolation=none',
-                            '--test-reporter=./tools/openapi/profile_reporter.mjs',str(source)],
+                            '--test-reporter=./scripts/openapi/profile_reporter.mjs',str(source)],
                            env={**os.environ,'PROFILE_EVENTS':str(events),'PROFILE_NODE_FILE':'fixture'}, check=True)
             result = [json.loads(line) for line in events.read_text().splitlines()]
             self.assertEqual(Counter((e['case_id'],e['state']) for e in result),

@@ -68,7 +68,7 @@ class BrowserLaunchFailure(ValueError):
 def browser_launch_probe_script():
     """Classify the Playwright error privately and emit only a closed cause marker."""
     return (
-        'const {chromium}=require("./tools/openapi/node_modules/playwright-core");'
+        'const {chromium}=require("./scripts/openapi/node_modules/playwright-core");'
         'const options={headless:true,args:["--no-sandbox"],timeout:10000};'
         'if(process.env.CHROMIUM_PATH) options.executablePath=process.env.CHROMIUM_PATH;'
         'const classify=e=>{const c=e&&e.code,m=String(e&&e.message||"").toLowerCase();'
@@ -126,7 +126,7 @@ def browser_prerequisite(env, launch):
         return _browser_probe_error(error, "executable-missing")
     if result.returncode or not re.fullmatch(r"v24\.\d+\.\d+", result.stdout.strip()):
         return "launch-failed"
-    module_probe = "require.resolve('playwright-core',{paths:['./tools/openapi']})"
+    module_probe = "require.resolve('playwright-core',{paths:['./scripts/openapi']})"
     try:
         result = subprocess.run([node, "-e", module_probe], cwd=Path.cwd(), env=env,
                                 stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
@@ -135,7 +135,7 @@ def browser_prerequisite(env, launch):
         return _browser_probe_error(error, "dependency-missing")
     if result.returncode:
         return "dependency-missing"
-    executable_probe = ("const fs=require('fs'),p=require('./tools/openapi/node_modules/playwright-core');"
+    executable_probe = ("const fs=require('fs'),p=require('./scripts/openapi/node_modules/playwright-core');"
                         "const executable=process.env.CHROMIUM_PATH||p.chromium.executablePath();"
                         "process.exit(fs.existsSync(executable)?0:1)")
     try:
@@ -426,7 +426,7 @@ def main(profile):
             execute(['python3', 'scripts/test_profile_components.py'])
             for file in sorted({c['file'] for c in expected if c['runner'] == 'node'}):
                 execute(['node', '--test', '--test-isolation=none',
-                         '--test-reporter=./tools/openapi/profile_reporter.mjs', file],
+                         '--test-reporter=./scripts/openapi/profile_reporter.mjs', file],
                         {'PROFILE_NODE_FILE': file})
             for file in sorted({c['file'] for c in expected if c['runner'] == 'shell'}):
                 execute(['sh', file])

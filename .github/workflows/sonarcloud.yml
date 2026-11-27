@@ -43,7 +43,7 @@ jobs:
           node-version: '24'
 
       - name: Test workspace JavaScript and generate LCOV
-        run: node tools/openapi/workspace_coverage.mjs
+        run: node scripts/openapi/workspace_coverage.mjs
 
       - name: Publish exact-revision analysis and await native gate
         env:
@@ -161,8 +161,8 @@ jobs:
 
       - name: Prepare assets and browser
         run: |
-          npm ci --prefix tools/openapi
-          tools/openapi/node_modules/.bin/playwright-core install --with-deps chromium
+          npm ci --prefix scripts/openapi
+          scripts/openapi/node_modules/.bin/playwright-core install --with-deps chromium
           docker info >/dev/null
           docker compose version
 

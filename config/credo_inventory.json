@@ -2,8 +2,8 @@
   "excluded": [
     {
       "category": "archived-verification-evidence",
-      "path": "specs/056-football-scraping-adapter/handoffs/review-guard.exs",
-      "reason": "Archived standalone verification probe at specs/056-football-scraping-adapter/handoffs/review-guard.exs; retained as historical QA or review evidence, not maintained test source."
+      "path": "docs/specs/056-football-scraping-adapter/handoffs/review-guard.exs",
+      "reason": "Archived standalone verification probe at docs/specs/056-football-scraping-adapter/handoffs/review-guard.exs; retained as historical QA or review evidence, not maintained test source."
     }
   ],
   "maintained": [

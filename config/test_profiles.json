@@ -443,6 +443,13 @@
       "profile": "unit"
     },
     {
+      "id": "30c40ed977ab6ec5356839c9",
+      "runner": "exunit",
+      "file": "test/providers_sync_test.exs",
+      "case_id": "FootballMarket.ProvidersSyncTest:test fetches FotMob search via /api/data/search/suggest and parses __NEXT_DATA__ player profiles",
+      "profile": "unit"
+    },
+    {
       "id": "3209e4b12138bd6af17de4ba",
       "runner": "shell",
       "file": "test/scripts/task_002_acceptance_test.sh",
@@ -1722,6 +1729,13 @@
       "file": "test/scripts/test_profile_runner_test.py",
       "case_id": "test.scripts.test_profile_runner_test.RunnerTest.test_browser_preflight_supervisor_timeout_emits_safe_timeout_cause",
       "profile": "unit"
+    },
+    {
+      "id": "f1042ee7c07cc8510ee5a0a4",
+      "runner": "exunit",
+      "file": "test/statistics_test.exs",
+      "case_id": "FootballMarket.StatisticsTest:test sync_player_statistics scrapes FotMob search + profile HTML and imports league matches idempotently",
+      "profile": "integration"
     },
     {
       "id": "f13ceb889c0692f2d9f716da",

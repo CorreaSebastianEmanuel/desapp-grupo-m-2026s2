@@ -51,7 +51,14 @@ end
 
 defmodule FootballMarket.Workers.StatisticsImport do
   @moduledoc "Refreshes match statistics for one player/season scope."
-  use Oban.Worker, queue: :statistics_import, max_attempts: 3
+  use Oban.Worker,
+    queue: :statistics_import,
+    max_attempts: 3,
+    unique: [
+      period: 300,
+      fields: [:worker, :args],
+      states: [:available, :scheduled, :executing, :retryable]
+    ]
 
   @impl Oban.Worker
   def perform(%Oban.Job{
@@ -59,7 +66,8 @@ defmodule FootballMarket.Workers.StatisticsImport do
       }) do
     case FootballMarket.Sync.sync_player_statistics(player_id, season_id, source_ref) do
       {:ok, _} -> :ok
-      {:error, reason} -> {:error, reason}
+      {:error, :not_found} -> {:discard, :not_found}
+      {:error, reason} -> FootballMarket.Workers.ProviderRetry.result(reason)
     end
   end
 
@@ -68,7 +76,14 @@ end
 
 defmodule FootballMarket.Workers.StatisticsPreload do
   @moduledoc "Periodic job that queues stale statistics refreshes for tracked players."
-  use Oban.Worker, queue: :statistics_import, max_attempts: 1
+  use Oban.Worker,
+    queue: :statistics_import,
+    max_attempts: 1,
+    unique: [
+      period: 3_600,
+      fields: [:worker],
+      states: [:available, :scheduled, :executing, :retryable]
+    ]
 
   def startup do
     oban_name =

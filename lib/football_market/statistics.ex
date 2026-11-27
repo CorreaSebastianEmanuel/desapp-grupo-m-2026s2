@@ -652,11 +652,23 @@ defmodule FootballMarket.Statistics.Freshness do
   alias FootballMarket.Statistics.ScopeCheck
   alias FootballMarket.Workers.StatisticsImport
 
-  def preload do
-    Catalog.list_players_for_statistics()
-    |> Enum.each(&refresh_if_stale/1)
+  @preload_batch_size 20
+
+  def preload(limit \\ @preload_batch_size) when is_integer(limit) and limit > 0 do
+    _ =
+      Catalog.list_players_for_statistics()
+      |> Enum.reduce_while(0, &preload_player(&1, &2, limit))
 
     :ok
+  end
+
+  defp preload_player(_player, queued, limit) when queued >= limit, do: {:halt, queued}
+
+  defp preload_player(player, queued, _limit) do
+    case refresh_if_stale(player, 2) do
+      %{state: state} when state in ["queued", "running"] -> {:cont, queued + 1}
+      _ -> {:cont, queued}
+    end
   end
 
   def for_player(player) do
@@ -763,7 +775,7 @@ defmodule FootballMarket.Statistics.Freshness do
     }
   end
 
-  defp refresh_if_stale(player) do
+  defp refresh_if_stale(player, priority) do
     season = player.team.season
     config = Application.get_env(:football_market, __MODULE__, [])
     ttl = Keyword.get(config, :ttl_seconds, 86_400)
@@ -790,7 +802,7 @@ defmodule FootballMarket.Statistics.Freshness do
 
         if fresh?,
           do: %{state: "idle", run_id: nil, reason: nil, next_attempt_at: nil},
-          else: enqueue_refresh(player, source_ref)
+          else: enqueue_refresh(player, source_ref, priority)
     end
   rescue
     _ ->
@@ -802,7 +814,7 @@ defmodule FootballMarket.Statistics.Freshness do
       }
   end
 
-  defp enqueue_refresh(player, source_ref) do
+  defp enqueue_refresh(player, source_ref, priority \\ 0) do
     oban_name =
       Application.get_env(:football_market, FootballMarket.Synchronization, [])
       |> Keyword.get(:oban_name, Oban)
@@ -813,9 +825,10 @@ defmodule FootballMarket.Statistics.Freshness do
       "source_ref" => source_ref
     }
 
-    case Oban.insert(oban_name, StatisticsImport.new(args)) do
+    case Oban.insert(oban_name, StatisticsImport.new(args, priority: priority)) do
       {:ok, job} ->
-        %{state: "queued", run_id: to_string(job.id), reason: nil, next_attempt_at: nil}
+        state = if job.state == "executing", do: "running", else: "queued"
+        %{state: state, run_id: to_string(job.id), reason: nil, next_attempt_at: nil}
 
       _ ->
         %{

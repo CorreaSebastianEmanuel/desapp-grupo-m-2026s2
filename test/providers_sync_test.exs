@@ -22,7 +22,13 @@ defmodule FootballMarket.ProvidersSyncTest do
     assert Providers.media_url("fotmob-public-html", "player", "12345") ==
              "https://images.fotmob.com/image_resources/playerimages/12345.png"
 
+    assert Providers.media_url("fotmob-public-html-v1", "player", "12345") ==
+             "https://images.fotmob.com/image_resources/playerimages/12345.png"
+
     assert Providers.media_url("football-data-org", "team", "57") ==
+             "https://crests.football-data.org/57.png"
+
+    assert Providers.media_url("football-data.org-v4", "team", "57") ==
              "https://crests.football-data.org/57.png"
 
     assert Providers.media_url("fotmob-public-html", "player", "../etc/passwd") == nil
@@ -173,6 +179,105 @@ defmodule FootballMarket.ProvidersSyncTest do
     assert match.match_identity == "fotmob-5001"
     assert match.goals == 2
     assert match.minutes_played == 90
+  end
+
+  test "fetches FotMob search via /api/data/search/suggest and parses __NEXT_DATA__ player profiles" do
+    search_body =
+      Jason.encode!([
+        %{
+          "suggestions" => [
+            %{
+              "type" => "player",
+              "id" => "737066",
+              "name" => "Erling Haaland",
+              "teamName" => "Manchester City"
+            }
+          ]
+        },
+        %{
+          "suggestions" => [
+            %{
+              "type" => "player",
+              "id" => "737066",
+              "name" => "Erling Haaland",
+              "teamName" => "Manchester City"
+            }
+          ]
+        }
+      ])
+
+    assert {:ok, [%{source_id: "737066", name: "Erling Haaland", team_name: "Manchester City"}]} =
+             Scraping.search_player("Erling Haaland",
+               http_get: fn url, headers, _timeout ->
+                 assert url ==
+                          "https://www.fotmob.com/api/data/search/suggest?term=Erling+Haaland"
+
+                 assert Enum.any?(headers, fn {k, _} -> k == "User-Agent" end)
+                 {:ok, %{status: 200, headers: [], body: search_body}}
+               end
+             )
+
+    next_data =
+      Jason.encode!(%{
+        "props" => %{
+          "pageProps" => %{
+            "data" => %{
+              "id" => 737_066,
+              "name" => "Erling Haaland",
+              "primaryTeam" => %{"teamName" => "Manchester City"},
+              "recentMatches" => [
+                %{
+                  "id" => 5_795_522,
+                  "leagueId" => 47,
+                  "teamId" => 8456,
+                  "teamName" => "Manchester City",
+                  "opponentTeamId" => 9879,
+                  "opponentTeamName" => "Fulham",
+                  "isHomeTeam" => true,
+                  "playedInMatch" => true,
+                  "matchDate" => %{"utcTime" => "2026-11-21T12:30:00.000Z"},
+                  "minutesPlayed" => 90,
+                  "goals" => 2,
+                  "assists" => 1,
+                  "yellowCards" => 0,
+                  "redCards" => 0
+                }
+              ]
+            }
+          }
+        }
+      })
+
+    html =
+      ~s(<html><script id="__NEXT_DATA__" type="application/json">#{next_data}</script></html>)
+
+    assert {:ok, profile} =
+             Scraping.fetch_player_profile("737066",
+               http_get: fn url, _headers, _timeout ->
+                 assert url == "https://www.fotmob.com/players/737066"
+                 {:ok, %{status: 200, headers: [], body: html}}
+               end
+             )
+
+    assert profile.source_id == "737066"
+    assert profile.team_name == "Manchester City"
+
+    assert [%{id: "5795522", league_id: 47, opponent_team_name: "Fulham", goals: 2}] =
+             profile.matches
+
+    assert {:error, :invalid_request} = Scraping.fetch_player_profile("../bad")
+
+    assert {:error, :invalid_response} =
+             Scraping.parse_player_profile_html("<html>no data</html>")
+
+    assert Scraping.normalize_team_name("FC Bayern München", "BL1") ==
+             Scraping.normalize_team_name("Bayern Munich", "BL1")
+
+    assert Scraping.normalize_team_name("Brighton & Hove Albion FC", "PL") ==
+             Scraping.normalize_team_name("Brighton", "PL")
+
+    assert Scraping.normalize_team_name("FC Internazionale Milano", "SA") ==
+             Scraping.normalize_team_name("Inter", "SA")
   end
 
   test "malformed provider response shapes fail atomically without raising or dropping rows" do

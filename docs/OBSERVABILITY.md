@@ -49,3 +49,27 @@ Then open Prometheus at `http://127.0.0.1:9090`. Stop it with `docker compose -f
 ## Advanced business metrics (`GET /api/business-metrics`)
 
 Authenticated administrators can query `GET /api/business-metrics` (documented in `priv/static/openapi.json`) for a consistent `REPEATABLE READ, READ ONLY` snapshot of retained quotes, conditional orders, portfolio trading activity, ingestion records, and Oban job states.
+
+## SonarCloud CI & Local SonarQube (Elixir)
+
+### SonarCloud in GitHub Actions
+
+SonarCloud does not provide a native Elixir language analyzer and does not allow third-party plugins (see `docs/specs/069-verify-sonarcloud-external-elixir-report-compatibility/sonarcloud-probe.md`). To surface real Elixir static-analysis findings in SonarCloud alongside JavaScript LCOV coverage, `.github/workflows/sonarcloud.yml` generates a Sonar Generic Issue Import report from **Credo** and **Sobelow** on every PR and `main` run:
+
+```bash
+python3 scripts/sonar_elixir_reports.py issues --output tmp/sonar-elixir
+```
+
+### Full local Elixir analysis with SonarQube Community Build + `sonar-elixir`
+
+For full Elixir `ncloc`, syntax highlighting, code smells, security issues, and imported Elixir test coverage (`tmp/sonar-elixir/coverage.xml`) inside a SonarQube UI, run the optional local SonarQube Community Build stack with the `hpopp/sonar-elixir` plugin (does not modify `compose.yaml` or SonarCloud):
+
+```bash
+./scripts/sonarqube_local.sh start
+# Open http://127.0.0.1:9000 (default credentials admin / admin) and generate a user token
+SONAR_LOCAL_TOKEN="<your-local-token>" ./scripts/sonarqube_local.sh scan
+# Stop when finished (preserves volumes and scan history)
+./scripts/sonarqube_local.sh stop
+```
+
+Pass `--reuse-coverage` to `scan` to reuse an existing `cover/application/status.json` report.

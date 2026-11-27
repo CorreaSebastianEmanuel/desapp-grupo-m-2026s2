@@ -37,6 +37,28 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
 
+      - name: Install exact BEAM toolchain
+        uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124
+        with:
+          elixir-version: '1.20.3'
+          otp-version: '29.0.6'
+
+      - name: Restore locked dependency cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-otp-29.0.6-elixir-1.20.3-${{ hashFiles('mix.lock') }}
+
+      - name: Generate Elixir Credo and Sobelow generic issues
+        run: |
+          mix local.hex --if-missing --force
+          mix local.rebar --if-missing --force
+          mix deps.get --locked
+          MIX_ENV=test mix deps.compile
+          python3 scripts/sonar_elixir_reports.py issues --output tmp/sonar-elixir
+
       - name: Install pinned Node test toolchain
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
@@ -51,6 +73,7 @@ jobs:
         uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602
         with:
           args: >-
+            -Dsonar.externalIssuesReportPaths=tmp/sonar-elixir/external-issues.json
             -Dsonar.qualitygate.wait=true
             -Dsonar.qualitygate.timeout=300
 

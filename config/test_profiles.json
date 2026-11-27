@@ -387,6 +387,13 @@
       "profile": "integration"
     },
     {
+      "id": "29ed57901375da2f8c408083",
+      "runner": "python",
+      "file": "test/scripts/sonar_elixir_reports_test.py",
+      "case_id": "test.scripts.sonar_elixir_reports_test.SonarElixirReportsTest.test_filters_reviewed_sobelow_exception_unless_include_accepted_is_set",
+      "profile": "unit"
+    },
+    {
       "id": "2a0c0e114264d4c16ceb9ea8",
       "runner": "shell",
       "file": "test/scripts/task_002_scope_security_test.sh",
@@ -681,6 +688,13 @@
       "profile": "unit"
     },
     {
+      "id": "59b62b5b558f9a9ad13e29a8",
+      "runner": "python",
+      "file": "test/scripts/sonar_elixir_reports_test.py",
+      "case_id": "test.scripts.sonar_elixir_reports_test.SonarElixirReportsTest.test_empty_credo_and_sobelow_produce_valid_empty_generic_report",
+      "profile": "unit"
+    },
+    {
       "id": "5ac06259072d42d010c2b820",
       "runner": "node",
       "file": "scripts/openapi/workspace_session.test.mjs",
@@ -699,6 +713,20 @@
       "runner": "node",
       "file": "scripts/openapi/validate.test.mjs",
       "case_id": "malformed and incomplete disposable contracts are rejected",
+      "profile": "unit"
+    },
+    {
+      "id": "5f79daee4a7dd5d66c29c8c9",
+      "runner": "python",
+      "file": "test/scripts/sonar_elixir_reports_test.py",
+      "case_id": "test.scripts.sonar_elixir_reports_test.SonarElixirReportsTest.test_refuses_output_outside_tmp",
+      "profile": "unit"
+    },
+    {
+      "id": "5f85810dc59e10dc59cdac84",
+      "runner": "python",
+      "file": "test/scripts/sonar_elixir_reports_test.py",
+      "case_id": "test.scripts.sonar_elixir_reports_test.SonarElixirReportsTest.test_rejects_path_traversal_and_invalid_credo_shape",
       "profile": "unit"
     },
     {
@@ -881,6 +909,13 @@
       "runner": "python",
       "file": "test/scripts/test_profile_runner_test.py",
       "case_id": "test.scripts.test_profile_runner_test.RunnerTest.test_component_failure_identifies_unfinished_case_without_raw_name",
+      "profile": "unit"
+    },
+    {
+      "id": "814297f3e040d8a58343bade",
+      "runner": "python",
+      "file": "test/scripts/sonar_elixir_reports_test.py",
+      "case_id": "test.scripts.sonar_elixir_reports_test.SonarElixirReportsTest.test_converts_credo_and_blocking_sobelow_findings_and_skips_non_lib_paths",
       "profile": "unit"
     },
     {

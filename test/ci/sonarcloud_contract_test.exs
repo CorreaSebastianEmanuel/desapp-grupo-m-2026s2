@@ -87,7 +87,10 @@ defmodule FootballMarket.SonarCloudContractTest do
     for step <- job["steps"] do
       refute (step["run"] || "") =~ ~r/\$\{\{\s*secrets\.SONAR_TOKEN/
 
-      if step["name"] == "Test workspace JavaScript and generate LCOV" do
+      if step["name"] in [
+           "Test workspace JavaScript and generate LCOV",
+           "Generate Elixir Credo and Sobelow generic issues"
+         ] do
         refute Map.has_key?(step["env"] || %{}, "SONAR_TOKEN")
       end
     end
@@ -176,7 +179,7 @@ defmodule FootballMarket.SonarCloudContractTest do
     assert probe =~ "rm -f .scannerwork/report-task.txt"
     assert probe =~ "actions/upload-artifact@"
     assert probe =~ "Preserve scanner and quality-gate failures"
-    refute normal =~ "sonar.externalIssuesReportPaths"
+    assert normal =~ "sonar.externalIssuesReportPaths=tmp/sonar-elixir/external-issues.json"
     refute normal =~ "sonar.coverageReportPaths"
     assert probe =~ "SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}"
     refute probe =~ ~r/--token\s+\$\{\{\s*secrets\.SONAR_TOKEN/

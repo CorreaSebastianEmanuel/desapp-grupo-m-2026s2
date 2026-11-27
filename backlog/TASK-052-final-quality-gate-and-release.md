@@ -4,7 +4,7 @@ title: Final quality gate and release
 type: task
 checkpoint: CP3
 priority: critical
-status: review
+status: done
 workflow: thinflow-v1
 depends_on: TASK-004, TASK-034, TASK-051
 active_run: none

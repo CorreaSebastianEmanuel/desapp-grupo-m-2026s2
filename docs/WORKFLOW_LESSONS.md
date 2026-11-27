@@ -114,3 +114,4 @@ list passes the checkpoint hygiene review.
 - 2026-11-24 — Architecture scans missed grouped aliases and root modules — cover alternate dependency syntax and source entry points with failing examples — TASK-045
 
 - 2026-11-25 — Sobelow reported a sibling fixture root without its leading parent segments — test analyzer path normalization from temporary checkouts and verify exact findings and links — TASK-050
+- 2026-11-24 — A merged legacy PR left its task in review — verify the merged PR, its historical CI checks, and both independent verdicts before reconciling the backlog with `agentflow complete` — TASK-053

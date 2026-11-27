@@ -4,7 +4,7 @@ title: Workflow token audit and context efficiency
 type: task
 checkpoint: CP1
 priority: high
-status: review
+status: done
 depends_on: none
 active_run: none
 ---

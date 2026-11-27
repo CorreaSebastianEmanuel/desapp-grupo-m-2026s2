@@ -4,10 +4,10 @@ title: Trading and portfolio UI
 type: task
 checkpoint: CP3
 priority: critical
-status: review
+status: done
 workflow: thinflow-v1
 depends_on: TASK-029, TASK-030, TASK-031, TASK-032, TASK-046
-active_run: f4c101d3
+active_run: none
 ---
 
 ## Outcome

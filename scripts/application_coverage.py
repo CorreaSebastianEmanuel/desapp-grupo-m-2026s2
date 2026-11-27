@@ -19,7 +19,7 @@ import time
 import uuid
 
 ROOT = Path(__file__).resolve().parents[1]
-FEATURE = ROOT / 'specs/067-whole-application-elixir-coverage-and-report-reconciliation'
+FEATURE = ROOT / 'docs/specs/067-whole-application-elixir-coverage-and-report-reconciliation'
 SCOPE = ROOT / 'config/application_coverage_inventory.json'
 CANONICAL = ROOT / 'config/credo_inventory.json'
 STATUS = ROOT / 'cover/application/status.json'
@@ -190,7 +190,7 @@ def snapshot(output_root=OUTPUT):
             continue
         else:
             content = os.readlink(p).encode() if p.is_symlink() else p.read_bytes()
-            if relative.startswith('backlog/TASK-067-'):
+            if relative.startswith('docs/backlog/TASK-067-'):
                 content = re.sub(rb'(?m)^(status|active_run):[^\n]*', rb'\1: <workflow>', content)
             if relative.endswith('/tasks.md') or relative.endswith('tasks.md'):
                 content = content.replace(b'- [X]', b'- [ ]').replace(b'- [x]', b'- [ ]')
@@ -523,7 +523,7 @@ def preflight():
                 (['docker', 'info'], 'prerequisite'),
                 (['docker', 'compose', 'version'], 'prerequisite'),
                 (['mix', 'infrastructure.verify'], 'prerequisite'),
-                (['node', '-e', 'require("./tools/openapi/node_modules/playwright-core").chromium.launch({headless:true,args:["--no-sandbox"]}).then(b=>b.close()).catch(()=>process.exit(1))'], 'prerequisite'),
+                (['node', '-e', 'require("./scripts/openapi/node_modules/playwright-core").chromium.launch({headless:true,args:["--no-sandbox"]}).then(b=>b.close()).catch(()=>process.exit(1))'], 'prerequisite'),
                 (['mix', 'assets.build'], 'prerequisite'), (['mix', 'test.prepare'], 'prerequisite')]
     for command, category in commands:
         proc = subprocess.run(command, cwd=ROOT, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)

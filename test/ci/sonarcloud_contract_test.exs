@@ -25,8 +25,8 @@ defmodule FootballMarket.SonarCloudContractTest do
 
     steps = [
       "node-version: '24'",
-      "cache-dependency-path: tools/openapi/package-lock.json",
-      "npm ci --prefix tools/openapi",
+      "cache-dependency-path: scripts/openapi/package-lock.json",
+      "npm ci --prefix scripts/openapi",
       "playwright-core install --with-deps chromium",
       "run: python3 scripts/application_coverage.py run",
       "verify-receipts tmp/profile-ci"
@@ -112,7 +112,7 @@ defmodule FootballMarket.SonarCloudContractTest do
   test "JavaScript tests generate coverage before the unchanged scanner quality gate" do
     workflow = File.read!(@workflow)
     {node, _} = :binary.match(workflow, "node-version: '24'")
-    {coverage, _} = :binary.match(workflow, "run: node tools/openapi/workspace_coverage.mjs")
+    {coverage, _} = :binary.match(workflow, "run: node scripts/openapi/workspace_coverage.mjs")
     {scanner, _} = :binary.match(workflow, "uses: SonarSource/sonarqube-scan-action@")
     assert node < coverage and coverage < scanner
     assert workflow =~ "sonar.qualitygate.wait=true"

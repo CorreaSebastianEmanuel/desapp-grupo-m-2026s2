@@ -54,7 +54,7 @@ def discover_native():
     for case in python_cases():
         file = Path(inspect.getfile(type(case))).resolve().relative_to(Path.cwd()).as_posix()
         cases.append(entry('python', file, case.id(), 'unit'))
-    for file in sorted(Path('tools/openapi').glob('*.test.mjs')):
+    for file in sorted(Path('scripts/openapi').glob('*.test.mjs')):
         text = file.read_text()
         names = re.findall(r"^test\('([^']+)'", text, re.M)
         if not names or len(names) != len(re.findall(r'^test\(', text, re.M)):

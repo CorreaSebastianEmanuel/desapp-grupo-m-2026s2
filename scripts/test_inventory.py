@@ -123,7 +123,7 @@ def check():
         raise ValueError('schema')
     helpers = inventory.get('helpers', {})
     test_files = set()
-    for root in ('test', 'tools/openapi'):
+    for root in ('test', 'scripts/openapi'):
         for path in Path(root).rglob('*'):
             if 'node_modules' in path.parts or not path.is_file() or path.suffix not in ('.ex', '.exs', '.py', '.mjs', '.sh'):
                 continue

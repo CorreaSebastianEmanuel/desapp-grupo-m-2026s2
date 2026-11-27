@@ -2,24 +2,10 @@
   "schema_version": 1,
   "entries": [
     {
-      "id": "00b2ecbd571cd7ff0284d855",
-      "runner": "python",
-      "file": "test/scripts/agentflow_feature_test.py",
-      "case_id": "test.scripts.agentflow_feature_test.IdentityAndResolutionTest.test_true_absence_is_only_preproduct",
-      "profile": "unit"
-    },
-    {
       "id": "00dedbad951e075e5cd17311",
       "runner": "python",
       "file": "test/scripts/sobelow_ci_test.py",
       "case_id": "test.scripts.sobelow_ci_test.SobelowCiTest.test_publisher_appends_summary_and_fails_closed_on_nonapproved_result",
-      "profile": "unit"
-    },
-    {
-      "id": "01cf9de260df5fea7db63157",
-      "runner": "python",
-      "file": "test/scripts/agentflow_branch_test.py",
-      "case_id": "test.scripts.agentflow_branch_test.StrictConsumerMetadataTest.test_cross_file_claims_refuse_all_entrypoints_without_side_effects",
       "profile": "unit"
     },
     {
@@ -44,45 +30,10 @@
       "profile": "integration"
     },
     {
-      "id": "028ec37410c1e1f806f70a3f",
-      "runner": "python",
-      "file": "test/scripts/agentflow_preflight_test.py",
-      "case_id": "test.scripts.agentflow_preflight_test.PreflightTest.test_service_probe_timeout_is_unknown_and_safe",
-      "profile": "unit"
-    },
-    {
       "id": "02da26c269c0c6316261a4d4",
       "runner": "exunit",
       "file": "test/ci/quality_baseline_contract_test.exs",
       "case_id": "FootballMarket.QualityBaselineContractTest:test CI PostgreSQL uses the exact planned local service image",
-      "profile": "unit"
-    },
-    {
-      "id": "035058e2788ba82c2d3391e2",
-      "runner": "python",
-      "file": "test/scripts/agentflow_models_test.py",
-      "case_id": "test.scripts.agentflow_models_test.LauncherTest.test_start_applies_frozen_override_and_propagates_one_child_rejection",
-      "profile": "unit"
-    },
-    {
-      "id": "03684cf91342c446056b3d31",
-      "runner": "python",
-      "file": "test/scripts/agentflow_providers_test.py",
-      "case_id": "test.scripts.agentflow_providers_test.OuterLaunchTest.test_resume_preflight_refusal_precedes_recovery_and_saved_state_mutation",
-      "profile": "unit"
-    },
-    {
-      "id": "03915f0954f335c03c746500",
-      "runner": "python",
-      "file": "test/scripts/agentflow_stage_checks_test.py",
-      "case_id": "test.scripts.agentflow_stage_checks_test.StageExecutionTest.test_retry_limit_survives_unrelated_independent_input_change",
-      "profile": "unit"
-    },
-    {
-      "id": "0428bc01139958afe647be93",
-      "runner": "python",
-      "file": "test/scripts/agentflow_feedback_test.py",
-      "case_id": "test.scripts.agentflow_feedback_test.FeedbackTest.test_parser_accepts_and_rejects_check_ids",
       "profile": "unit"
     },
     {
@@ -100,24 +51,10 @@
       "profile": "unit"
     },
     {
-      "id": "0481f9203dcd82e891f52727",
-      "runner": "python",
-      "file": "test/scripts/thinflow_ci_test.py",
-      "case_id": "test.scripts.thinflow_ci_test.ThinFlowCIContractTest.test_sonar_runs_inside_the_aggregate_dependency_graph",
-      "profile": "unit"
-    },
-    {
       "id": "04860aae0961c7cc257d2690",
       "runner": "shell",
       "file": "test/scripts/verify_foundation_test.sh",
       "case_id": "readiness-5",
-      "profile": "unit"
-    },
-    {
-      "id": "052b34764f54158af54b474d",
-      "runner": "python",
-      "file": "test/scripts/agentflow_ci_check_test.py",
-      "case_id": "test.scripts.agentflow_ci_check_test.CollectionTest.test_nonzero_sentinel_collection_passes",
       "profile": "unit"
     },
     {
@@ -126,13 +63,6 @@
       "file": "test/business_metrics_test.exs",
       "case_id": "FootballMarketWeb.BusinessMetricsTest:test a failed source invalidates all counts without exposing storage errors",
       "profile": "integration"
-    },
-    {
-      "id": "052f77fb38f26ee3f7a7a2ff",
-      "runner": "python",
-      "file": "test/scripts/agentflow_providers_test.py",
-      "case_id": "test.scripts.agentflow_providers_test.ShimTest.test_missing_format_flag_fails_loudly_once",
-      "profile": "unit"
     },
     {
       "id": "05815b63a8c0fdffe9963782",
@@ -160,13 +90,6 @@
       "runner": "shell",
       "file": "test/scripts/ci_unit_tests_test.sh",
       "case_id": "membership-diagnostic",
-      "profile": "unit"
-    },
-    {
-      "id": "07822b81bcc657cf2c5d3d71",
-      "runner": "node",
-      "file": "tools/openapi/validate.test.mjs",
-      "case_id": "published contract is valid OpenAPI 3",
       "profile": "unit"
     },
     {
@@ -202,13 +125,6 @@
       "runner": "python",
       "file": "test/scripts/sonar_checkpoint_gate_test.py",
       "case_id": "test.scripts.sonar_checkpoint_gate_test.GateTest.test_transient_failures_retry_with_bounds_and_recover",
-      "profile": "unit"
-    },
-    {
-      "id": "0a0282e176161420ac8f5d49",
-      "runner": "python",
-      "file": "test/scripts/agentflow_artifacts_test.py",
-      "case_id": "test.scripts.agentflow_artifacts_test.ApplicabilityTest.test_escape_and_duplicate_decisions_fail_closed",
       "profile": "unit"
     },
     {
@@ -254,24 +170,10 @@
       "profile": "unit"
     },
     {
-      "id": "0d56489fd5086e91cf8745bd",
-      "runner": "python",
-      "file": "test/scripts/agentflow_evidence_test.py",
-      "case_id": "test.scripts.agentflow_evidence_test.EvidenceTest.test_safe_diagnostics_accept_only_closed_browser_cause_records",
-      "profile": "unit"
-    },
-    {
       "id": "0e357bc425aeb709d9ad970a",
       "runner": "python",
       "file": "test/scripts/sobelow_ci_test.py",
       "case_id": "test.scripts.sobelow_ci_test.SobelowCiTest.test_report_and_summary_fail_closed",
-      "profile": "unit"
-    },
-    {
-      "id": "0eb8982a54b37f0702ebf619",
-      "runner": "python",
-      "file": "test/scripts/agentflow_branch_test.py",
-      "case_id": "test.scripts.agentflow_branch_test.RealStartPreproductTest.test_actual_start_one_two_foreign_with_absent_stale_pointer",
       "profile": "unit"
     },
     {
@@ -282,38 +184,10 @@
       "profile": "unit"
     },
     {
-      "id": "0fcca5e9dbd9942a20cade70",
-      "runner": "node",
-      "file": "tools/openapi/workspace_session.test.mjs",
-      "case_id": "history hides content and restores persisted pages through fresh authentication",
-      "profile": "unit"
-    },
-    {
-      "id": "1018ee9417b1fa8aedccda22",
-      "runner": "node",
-      "file": "tools/openapi/workspace_session.test.mjs",
-      "case_id": "recovery tolerates pages without an active socket or connection notice",
-      "profile": "unit"
-    },
-    {
       "id": "104de124339d6d80c8bbfd86",
       "runner": "python",
       "file": "test/scripts/application_coverage_test.py",
       "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_union_counts_each_source_line_once_and_or_combines_profile_hits",
-      "profile": "unit"
-    },
-    {
-      "id": "108779bb69b9679152473580",
-      "runner": "python",
-      "file": "test/scripts/agentflow_fingerprint_test.py",
-      "case_id": "test.scripts.agentflow_fingerprint_test.SourceFingerprintTest.test_product_edits_still_change_the_fingerprint",
-      "profile": "unit"
-    },
-    {
-      "id": "116bf3deb11955414cee867c",
-      "runner": "python",
-      "file": "test/scripts/workflow_artifact_probe_test.py",
-      "case_id": "test.scripts.workflow_artifact_probe_test.WorkflowArtifactProbeTest.test_develop_accepts_existing_completed_task_artifacts",
       "profile": "unit"
     },
     {
@@ -352,31 +226,10 @@
       "profile": "unit"
     },
     {
-      "id": "12dfb4cd01ce6fd0d81ea900",
-      "runner": "python",
-      "file": "test/scripts/agentflow_feedback_test.py",
-      "case_id": "test.scripts.agentflow_feedback_test.FeedbackTest.test_completed_pointer_without_feedback_does_not_implicitly_rewind",
-      "profile": "unit"
-    },
-    {
       "id": "13e63e275a7459dc99b9d0c8",
       "runner": "python",
       "file": "test/scripts/profile_safe_diagnostics_test.py",
       "case_id": "test.scripts.profile_safe_diagnostics_test.SafeProfileDiagnosticsTest.test_maps_only_registered_identity_and_discards_raw_canaries",
-      "profile": "unit"
-    },
-    {
-      "id": "13f3f156f2c1bbeb828939bf",
-      "runner": "python",
-      "file": "test/scripts/reconcile_merged_task_test.py",
-      "case_id": "test.scripts.reconcile_merged_task_test.ReconcileMergedTaskTest.test_atomic_write_failure_leaves_task_unchanged",
-      "profile": "unit"
-    },
-    {
-      "id": "148d119af49d416bace10977",
-      "runner": "python",
-      "file": "test/scripts/reconcile_merged_task_test.py",
-      "case_id": "test.scripts.reconcile_merged_task_test.ReconcileMergedTaskTest.test_unequal_examples_command_and_function",
       "profile": "unit"
     },
     {
@@ -387,25 +240,11 @@
       "profile": "integration"
     },
     {
-      "id": "15018ae8c6faf3158f978705",
-      "runner": "python",
-      "file": "test/scripts/agentflow_feature_test.py",
-      "case_id": "test.scripts.agentflow_feature_test.AdversarialResolutionTest.test_pointer_and_modification_time_do_not_change_selection",
-      "profile": "unit"
-    },
-    {
       "id": "150211d800b118c3721544ff",
       "runner": "shell",
       "file": "test/scripts/local_services_failure_test.sh",
       "case_id": "reset-requires-confirmation",
       "profile": "integration"
-    },
-    {
-      "id": "153758e10f1f5211e2be49d8",
-      "runner": "python",
-      "file": "test/scripts/agentflow_stage_checks_test.py",
-      "case_id": "test.scripts.agentflow_stage_checks_test.ManifestContractTest.test_typed_prerequisites_reject_shell_like_targets",
-      "profile": "unit"
     },
     {
       "id": "1557a1cbc488c4a7207ff814",
@@ -415,59 +254,10 @@
       "profile": "integration"
     },
     {
-      "id": "15bbb034c7d07a78ff768993",
-      "runner": "python",
-      "file": "test/scripts/agentflow_preflight_test.py",
-      "case_id": "test.scripts.agentflow_preflight_test.PreflightTest.test_missing_setting_is_safe_and_service_failure_is_unavailable",
-      "profile": "unit"
-    },
-    {
-      "id": "16469319766d41a01adbcdca",
-      "runner": "python",
-      "file": "test/scripts/agentflow_workflow_gate_test.py",
-      "case_id": "test.scripts.agentflow_workflow_gate_test.VersionedWorkflowTest.test_workflows_are_explicitly_versioned_and_not_synchronized",
-      "profile": "unit"
-    },
-    {
-      "id": "166e6f4a2c74293b9b7a66c1",
-      "runner": "python",
-      "file": "test/scripts/agentflow_stage_checks_test.py",
-      "case_id": "test.scripts.agentflow_stage_checks_test.StageExecutionTest.test_concurrent_launchers_serialize_attempt_journal_without_lost_rows",
-      "profile": "unit"
-    },
-    {
       "id": "174db52dd6f2c2aea49988ba",
       "runner": "python",
       "file": "test/scripts/application_coverage_test.py",
       "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_exact_inventory_rejects_missing_files_wrong_roles_and_duplicate_paths",
-      "profile": "unit"
-    },
-    {
-      "id": "176cb96ce53d545b5e00c94f",
-      "runner": "python",
-      "file": "test/scripts/agentflow_providers_test.py",
-      "case_id": "test.scripts.agentflow_providers_test.SelectionTest.test_provider_configuration_is_external_and_validated",
-      "profile": "unit"
-    },
-    {
-      "id": "17d72d8e9101c60dfbe0fe5b",
-      "runner": "python",
-      "file": "test/scripts/workflow_artifact_probe_test.py",
-      "case_id": "test.scripts.workflow_artifact_probe_test.WorkflowArtifactProbeTest.test_develop_rejects_glob_without_a_matching_artifact",
-      "profile": "unit"
-    },
-    {
-      "id": "195ff0c708972e8476890eaf",
-      "runner": "python",
-      "file": "test/scripts/agentflow_feature_test.py",
-      "case_id": "test.scripts.agentflow_feature_test.IdentityAndResolutionTest.test_unequal_number_and_exact_branch",
-      "profile": "unit"
-    },
-    {
-      "id": "19bcdfe53e68e312ec9c9a1c",
-      "runner": "python",
-      "file": "test/scripts/agentflow_metrics_test.py",
-      "case_id": "test.scripts.agentflow_metrics_test.MetricsTest.test_pilot_names_reproducible_observations_and_authorized_boundary",
       "profile": "unit"
     },
     {
@@ -478,13 +268,6 @@
       "profile": "integration"
     },
     {
-      "id": "1b80c3e603fefd036bf71519",
-      "runner": "python",
-      "file": "test/scripts/workflow_artifact_probe_test.py",
-      "case_id": "test.scripts.workflow_artifact_probe_test.WorkflowArtifactProbeTest.test_develop_accepts_glob_when_an_artifact_matches",
-      "profile": "unit"
-    },
-    {
       "id": "1b823c9d4d81b537e30e729f",
       "runner": "exunit",
       "file": "test/ci/quality_baseline_contract_test.exs",
@@ -492,38 +275,17 @@
       "profile": "unit"
     },
     {
-      "id": "1ba7b45e4a11bd59c0fdc1b1",
-      "runner": "python",
-      "file": "test/scripts/agentflow_dedup_test.py",
-      "case_id": "test.scripts.agentflow_dedup_test.DedupTest.test_parity_checks_contract_without_starting_native_profiles",
+      "id": "1c2334b7df40acef8fe17802",
+      "runner": "node",
+      "file": "scripts/openapi/workspace_session.test.mjs",
+      "case_id": "history hides content and restores persisted pages through fresh authentication",
       "profile": "unit"
     },
     {
-      "id": "1be00bc71ffe6806945ea41a",
-      "runner": "python",
-      "file": "test/scripts/agentflow_metrics_test.py",
-      "case_id": "test.scripts.agentflow_metrics_test.MetricsTest.test_reordered_events_and_interrupted_attempt_remain_partial",
-      "profile": "unit"
-    },
-    {
-      "id": "1cb53ca8a856dc388e5aab7d",
-      "runner": "python",
-      "file": "test/scripts/agentflow_preflight_test.py",
-      "case_id": "test.scripts.agentflow_preflight_test.PreflightTest.test_mise_elixir_or_node_version_mismatch_fails_with_safe_remediation",
-      "profile": "unit"
-    },
-    {
-      "id": "1d1d27ada5912cbbd60d4352",
-      "runner": "python",
-      "file": "test/scripts/agentflow_artifacts_test.py",
-      "case_id": "test.scripts.agentflow_artifacts_test.ApplicabilityTest.test_direct_shell_and_cli_consumers_reject_missing_required_support",
-      "profile": "unit"
-    },
-    {
-      "id": "1d46406e762d0d4e2c4e37d3",
-      "runner": "python",
-      "file": "test/scripts/agentflow_artifacts_test.py",
-      "case_id": "test.scripts.agentflow_artifacts_test.ApplicabilityTest.test_whole_policy_deletion_cannot_pass_plan_or_tasks_gates",
+      "id": "1ce1e0bb532d8344c2180c72",
+      "runner": "node",
+      "file": "scripts/openapi/player_media.test.mjs",
+      "case_id": "missing and failed images keep the fallback, successful images reveal the photo",
       "profile": "unit"
     },
     {
@@ -531,13 +293,6 @@
       "runner": "python",
       "file": "test/scripts/test_profile_runner_test.py",
       "case_id": "test.scripts.test_profile_runner_test.RunnerTest.test_hard_kill_cannot_retain_a_previous_complete_receipt",
-      "profile": "unit"
-    },
-    {
-      "id": "1dc57d46ad1129951ed1241f",
-      "runner": "python",
-      "file": "test/scripts/agentflow_ci_check_test.py",
-      "case_id": "test.scripts.agentflow_ci_check_test.CollectionTest.test_partial_failed_or_unmarked_results_cannot_pass",
       "profile": "unit"
     },
     {
@@ -555,24 +310,10 @@
       "profile": "unit"
     },
     {
-      "id": "1eaeeeba91b0a94754a310a3",
-      "runner": "python",
-      "file": "test/scripts/agentflow_providers_test.py",
-      "case_id": "test.scripts.agentflow_providers_test.EnvTest.test_flag_shapes_and_direct_commands_per_provider",
-      "profile": "unit"
-    },
-    {
-      "id": "1edf9eab2fb61424c2477096",
-      "runner": "python",
-      "file": "test/scripts/agentflow_metrics_test.py",
-      "case_id": "test.scripts.agentflow_metrics_test.MetricsTest.test_identityless_duplicate_usage_stays_unknown",
-      "profile": "unit"
-    },
-    {
-      "id": "1ef60fec9388322ba8d4d991",
-      "runner": "python",
-      "file": "test/scripts/agentflow_evidence_test.py",
-      "case_id": "test.scripts.agentflow_evidence_test.EvidenceTest.test_interrupted_receipt_counts_once_and_blocks_third_unchanged_attempt",
+      "id": "1f395f30daae4af4e5e5e59d",
+      "runner": "node",
+      "file": "scripts/openapi/workspace_session.test.mjs",
+      "case_id": "recovery tolerates pages without an active socket or connection notice",
       "profile": "unit"
     },
     {
@@ -604,13 +345,6 @@
       "profile": "unit"
     },
     {
-      "id": "2229ed4f83f2417a54e6e47d",
-      "runner": "python",
-      "file": "test/scripts/agentflow_clean_checkout_test.py",
-      "case_id": "test.scripts.agentflow_clean_checkout_test.CandidateTest.test_missing_pointer_resolves_exact_durable_owner",
-      "profile": "unit"
-    },
-    {
       "id": "22c9bb592d5f71bbe045d0a3",
       "runner": "python",
       "file": "test/scripts/test_profile_components_test.py",
@@ -618,24 +352,10 @@
       "profile": "unit"
     },
     {
-      "id": "22ff311b00619bc955eb012c",
-      "runner": "python",
-      "file": "test/scripts/agentflow_metrics_test.py",
-      "case_id": "test.scripts.agentflow_metrics_test.MetricsTest.test_unknown_dimensions_and_identity_are_never_filled_from_defaults",
-      "profile": "unit"
-    },
-    {
       "id": "23e7ec5e9c3934dcd7b3f57c",
       "runner": "shell",
       "file": "test/scripts/ci_unit_tests_test.sh",
       "case_id": "missing",
-      "profile": "unit"
-    },
-    {
-      "id": "24ee8abc4f751ac12be215a9",
-      "runner": "python",
-      "file": "test/scripts/agentflow_stage_budget_test.py",
-      "case_id": "test.scripts.agentflow_stage_budget_test.StageBudgetTest.test_missing_knob_defaults_to_disabled",
       "profile": "unit"
     },
     {
@@ -653,24 +373,10 @@
       "profile": "unit"
     },
     {
-      "id": "27b4b1d93fa2422b59fe1df5",
-      "runner": "python",
-      "file": "test/scripts/agentflow_artifacts_test.py",
-      "case_id": "test.scripts.agentflow_artifacts_test.ApplicabilityTest.test_justified_minimal_plan_passes",
-      "profile": "unit"
-    },
-    {
       "id": "28409694384ceeaa120a495e",
       "runner": "exunit",
       "file": "test/providers_sync_test.exs",
       "case_id": "FootballMarket.ProvidersSyncTest:test converts scores to exact 2-decimal prices with half-away-from-zero rounding",
-      "profile": "unit"
-    },
-    {
-      "id": "288430f11cb6b859fcaa5614",
-      "runner": "python",
-      "file": "test/scripts/agentflow_feature_test.py",
-      "case_id": "test.scripts.agentflow_feature_test.AdversarialResolutionTest.test_unreadable_relevant_spec_and_both_reports",
       "profile": "unit"
     },
     {
@@ -679,13 +385,6 @@
       "file": "test/football_market_web/metrics_controller_test.exs",
       "case_id": "FootballMarketWeb.MetricsControllerTest:test rendered errors contribute exactly one request, error, and latency observation",
       "profile": "integration"
-    },
-    {
-      "id": "29381f528aa75eacfe1b318c",
-      "runner": "python",
-      "file": "test/scripts/agentflow_evidence_test.py",
-      "case_id": "test.scripts.agentflow_evidence_test.EvidenceTest.test_provider_early_exit_writes_complete_nonpass_qa_inventory",
-      "profile": "unit"
     },
     {
       "id": "2a0c0e114264d4c16ceb9ea8",
@@ -702,13 +401,6 @@
       "profile": "integration"
     },
     {
-      "id": "2a5d47501174fd88284d8bcc",
-      "runner": "python",
-      "file": "test/scripts/agentflow_artifacts_test.py",
-      "case_id": "test.scripts.agentflow_artifacts_test.ApplicabilityTest.test_legacy_plan_keeps_existing_policy",
-      "profile": "unit"
-    },
-    {
       "id": "2be3802d56167b1f97a846b6",
       "runner": "python",
       "file": "test/scripts/application_coverage_test.py",
@@ -723,24 +415,10 @@
       "profile": "integration"
     },
     {
-      "id": "2d3830e4fad0f7c2228ee60f",
-      "runner": "node",
-      "file": "tools/openapi/validate.test.mjs",
-      "case_id": "malformed and incomplete disposable contracts are rejected",
-      "profile": "unit"
-    },
-    {
       "id": "2d555a98a2ca56be7996b910",
       "runner": "shell",
       "file": "test/scripts/verify_foundation_test.sh",
       "case_id": "readiness-3",
-      "profile": "unit"
-    },
-    {
-      "id": "2d92ca1c40b13e1b0a11ee37",
-      "runner": "python",
-      "file": "test/scripts/agentflow_providers_test.py",
-      "case_id": "test.scripts.agentflow_providers_test.EnvTest.test_each_provider_interposes_only_its_own_shim",
       "profile": "unit"
     },
     {
@@ -751,59 +429,10 @@
       "profile": "unit"
     },
     {
-      "id": "2ef5ff1a2fa084c475e3e92c",
-      "runner": "python",
-      "file": "test/scripts/agentflow_branch_test.py",
-      "case_id": "test.scripts.agentflow_branch_test.ConsumerRejectionTest.test_both_reports_and_required_artifacts_gate_direct_and_no_pr",
-      "profile": "unit"
-    },
-    {
       "id": "2ef6af06f3f13bfc8224be97",
       "runner": "exunit",
       "file": "test/ci/quality_baseline_contract_test.exs",
       "case_id": "FootballMarket.QualityBaselineContractTest:test workflow gates every pull request and main pushes in least-privilege jobs",
-      "profile": "unit"
-    },
-    {
-      "id": "2f1d78b2b73949fbf7049b52",
-      "runner": "python",
-      "file": "test/scripts/agentflow_branch_test.py",
-      "case_id": "test.scripts.agentflow_branch_test.AgentflowBranchTest.test_discovery_unequal_examples_legacy_pointer_and_mtime",
-      "profile": "unit"
-    },
-    {
-      "id": "2f563f0c7ccb23a19ace56ae",
-      "runner": "python",
-      "file": "test/scripts/agentflow_branch_test.py",
-      "case_id": "test.scripts.agentflow_branch_test.VerificationRevalidationTest.test_verifier_cannot_promote_reports_after_ownership_changes",
-      "profile": "unit"
-    },
-    {
-      "id": "2fa9caffe9f1d9e2d965ce38",
-      "runner": "python",
-      "file": "test/scripts/agentflow_ci_check_test.py",
-      "case_id": "test.scripts.agentflow_ci_check_test.CollectionTest.test_empty_or_missing_discovery_fails",
-      "profile": "unit"
-    },
-    {
-      "id": "2fcf18df8bf0687a48ec070e",
-      "runner": "python",
-      "file": "test/scripts/thinflow_test.py",
-      "case_id": "test.scripts.thinflow_test.PolicyTest.test_invalid_policy_is_rejected",
-      "profile": "unit"
-    },
-    {
-      "id": "3070d63919b8529908c06e6f",
-      "runner": "python",
-      "file": "test/scripts/agentflow_models_test.py",
-      "case_id": "test.scripts.agentflow_models_test.LauncherTest.test_resume_preserves_saved_pair_after_repository_edit_and_fails_once",
-      "profile": "unit"
-    },
-    {
-      "id": "30b7dc369dd43557d851389c",
-      "runner": "python",
-      "file": "test/scripts/agentflow_completion_test.py",
-      "case_id": "test.scripts.agentflow_completion_test.AgentflowCompletionTest.test_invalid_update_metadata_and_unreadable_reports_have_no_partial_write",
       "profile": "unit"
     },
     {
@@ -814,45 +443,10 @@
       "profile": "integration"
     },
     {
-      "id": "321dfe46634ef0065a7753e1",
-      "runner": "python",
-      "file": "test/scripts/agentflow_providers_test.py",
-      "case_id": "test.scripts.agentflow_providers_test.CliProviderTest.test_resume_provider_guard_refuses_non_adopted_switch_without_spec_kit_state",
-      "profile": "unit"
-    },
-    {
-      "id": "3233ad7e002fe2500e355c1c",
-      "runner": "python",
-      "file": "test/scripts/agentflow_recovery_test.py",
-      "case_id": "test.scripts.agentflow_recovery_test.StageAttemptTest.test_corrupt_stage_journal_is_not_replaced",
-      "profile": "unit"
-    },
-    {
-      "id": "3291c8247eea1ed1891fcac6",
-      "runner": "python",
-      "file": "test/scripts/agentflow_ci_check_test.py",
-      "case_id": "test.scripts.agentflow_ci_check_test.InventoryTest.test_required_unavailable_evidence_cannot_pass_with_rationale",
-      "profile": "unit"
-    },
-    {
       "id": "3320801a3d8054ce591778f1",
       "runner": "python",
       "file": "test/scripts/test_profile_runner_test.py",
       "case_id": "test.scripts.test_profile_runner_test.RunnerTest.test_profile_timeout_ceilings_allow_full_integration_without_widening_other_profiles",
-      "profile": "unit"
-    },
-    {
-      "id": "340c530c33de4f318d8d34a3",
-      "runner": "python",
-      "file": "test/scripts/agentflow_preflight_test.py",
-      "case_id": "test.scripts.agentflow_preflight_test.PreflightTest.test_missing_child_executable_is_failed_with_safe_details",
-      "profile": "unit"
-    },
-    {
-      "id": "341578fd8e3e1ccf0469b566",
-      "runner": "python",
-      "file": "test/scripts/agentflow_stage_checks_test.py",
-      "case_id": "test.scripts.agentflow_stage_checks_test.StageSummaryTest.test_stage_summary_recovers_registered_event_summary_from_safe_evidence",
       "profile": "unit"
     },
     {
@@ -863,31 +457,10 @@
       "profile": "integration"
     },
     {
-      "id": "35e3f862f1dc20efe4849084",
-      "runner": "python",
-      "file": "test/scripts/agentflow_dedup_test.py",
-      "case_id": "test.scripts.agentflow_dedup_test.DedupTest.test_bare_http_request_without_runtime_result_is_rejected",
-      "profile": "unit"
-    },
-    {
       "id": "36e543b3442f9d0825bc32ce",
       "runner": "python",
       "file": "test/scripts/test_profile_runner_test.py",
       "case_id": "test.scripts.test_profile_runner_test.RunnerTest.test_signals_terminate_owned_children_and_return_failure",
-      "profile": "unit"
-    },
-    {
-      "id": "3733a5379e6f9c2525bfc5f3",
-      "runner": "python",
-      "file": "test/scripts/agentflow_branch_test.py",
-      "case_id": "test.scripts.agentflow_branch_test.ConsumerRejectionTest.test_task054_pr_carries_actual_merge_order_and_separate_branch",
-      "profile": "unit"
-    },
-    {
-      "id": "375942263d5ff152df6f7ee1",
-      "runner": "python",
-      "file": "test/scripts/fast_lane_check_test.py",
-      "case_id": "test.scripts.fast_lane_check_test.FastLaneCheckTest.test_application_paths_are_denied",
       "profile": "unit"
     },
     {
@@ -898,45 +471,10 @@
       "profile": "integration"
     },
     {
-      "id": "3801db678758986e2a6dc1e1",
-      "runner": "python",
-      "file": "test/scripts/agentflow_feedback_test.py",
-      "case_id": "test.scripts.agentflow_feedback_test.FeedbackTest.test_invalid_check_identifier_refuses_the_entry",
-      "profile": "unit"
-    },
-    {
-      "id": "3a177f1e583c223b1e49848c",
-      "runner": "python",
-      "file": "test/scripts/agentflow_evidence_test.py",
-      "case_id": "test.scripts.agentflow_evidence_test.EvidenceTest.test_declared_retry_environment_changes_hashed_check_identity_without_leaking_value",
-      "profile": "unit"
-    },
-    {
-      "id": "3a561576dae00d05725d69f4",
-      "runner": "python",
-      "file": "test/scripts/agentflow_metrics_test.py",
-      "case_id": "test.scripts.agentflow_metrics_test.MetricsTest.test_replayed_events_are_not_counted_twice",
-      "profile": "unit"
-    },
-    {
       "id": "3b1c38ed6916679f01f49df9",
       "runner": "python",
       "file": "test/scripts/test_profile_runner_test.py",
       "case_id": "test.scripts.test_profile_runner_test.RunnerTest.test_browser_preflight_classifies_only_closed_causes_and_keeps_raw_errors_private",
-      "profile": "unit"
-    },
-    {
-      "id": "3bbce4dd9f492a033953cdb4",
-      "runner": "python",
-      "file": "test/scripts/agentflow_models_test.py",
-      "case_id": "test.scripts.agentflow_models_test.LauncherTest.test_approval_policy_resolution_requires_never_for_full_access_preset_removal",
-      "profile": "unit"
-    },
-    {
-      "id": "3c06962142f4005ef138a071",
-      "runner": "python",
-      "file": "test/scripts/agentflow_stage_checks_test.py",
-      "case_id": "test.scripts.agentflow_stage_checks_test.CiParityTest.test_summary_fails_closed_for_bad_status_category_and_evidence",
       "profile": "unit"
     },
     {
@@ -947,13 +485,6 @@
       "profile": "integration"
     },
     {
-      "id": "3d27c699da2ab5efdf53b2c0",
-      "runner": "python",
-      "file": "test/scripts/agentflow_preflight_test.py",
-      "case_id": "test.scripts.agentflow_preflight_test.PreflightTest.test_changed_child_path_is_not_hidden_by_parent_path",
-      "profile": "unit"
-    },
-    {
       "id": "3e30ba40cd6a9c59a153851c",
       "runner": "exunit",
       "file": "test/web/api_test.exs",
@@ -961,52 +492,10 @@
       "profile": "integration"
     },
     {
-      "id": "3ec37ef449ad939e8b968cb3",
-      "runner": "python",
-      "file": "test/scripts/reconcile_merged_task_test.py",
-      "case_id": "test.scripts.reconcile_merged_task_test.ReconcileMergedTaskTest.test_review_and_unique_update_fields_before_any_write",
-      "profile": "unit"
-    },
-    {
-      "id": "3ef18189b094e7167c8a43f8",
-      "runner": "node",
-      "file": "tools/openapi/workspace_session.test.mjs",
-      "case_id": "online and offline events act only on a workspace",
-      "profile": "unit"
-    },
-    {
-      "id": "3f4c55d3d7742e2ba93066c1",
-      "runner": "python",
-      "file": "test/scripts/agentflow_stage_checks_test.py",
-      "case_id": "test.scripts.agentflow_stage_checks_test.StageSummaryTest.test_safe_command_preserves_only_allowlisted_browser_cause",
-      "profile": "unit"
-    },
-    {
-      "id": "3f7e17879089ff1cda535947",
-      "runner": "python",
-      "file": "test/scripts/agentflow_stage_checks_test.py",
-      "case_id": "test.scripts.agentflow_stage_checks_test.StageExecutionTest.test_interrupted_attempt_without_retry_scope_uses_complete_stage_snapshot",
-      "profile": "unit"
-    },
-    {
-      "id": "3fecd6734cca09cf25f7dc85",
-      "runner": "python",
-      "file": "test/scripts/agentflow_branch_test.py",
-      "case_id": "test.scripts.agentflow_branch_test.DeliveryAdapterSafeguardsTest.test_clean_branch_without_verified_commit_refuses_push",
-      "profile": "unit"
-    },
-    {
       "id": "40f009b6d92893a81816478e",
       "runner": "exunit",
       "file": "test/ci/sonarcloud_contract_test.exs",
       "case_id": "FootballMarket.SonarCloudContractTest:test actions are immutable, scanning waits boundedly, and token stays indirect",
-      "profile": "unit"
-    },
-    {
-      "id": "414c4641cde82486d4703186",
-      "runner": "python",
-      "file": "test/scripts/workflow_artifact_probe_test.py",
-      "case_id": "test.scripts.workflow_artifact_probe_test.WorkflowArtifactProbeTest.test_base_detached_and_wrong_branch_are_rejected",
       "profile": "unit"
     },
     {
@@ -1017,59 +506,10 @@
       "profile": "integration"
     },
     {
-      "id": "4320c261a7eff348197b42d8",
-      "runner": "python",
-      "file": "test/scripts/agentflow_stage_checks_test.py",
-      "case_id": "test.scripts.agentflow_stage_checks_test.StageExecutionTest.test_static_argv_and_effects_reject_unregistered_or_stateful_commands",
-      "profile": "unit"
-    },
-    {
       "id": "4341432c1d6afcf6d1899946",
       "runner": "python",
       "file": "test/scripts/sonar_checkpoint_gate_test.py",
       "case_id": "test.scripts.sonar_checkpoint_gate_test.GateTest.test_interface_and_exit_taxonomy_are_stable",
-      "profile": "unit"
-    },
-    {
-      "id": "436259b25ec368d2436c6581",
-      "runner": "python",
-      "file": "test/scripts/agentflow_evidence_test.py",
-      "case_id": "test.scripts.agentflow_evidence_test.EvidenceTest.test_profile_discrepancy_is_reported_without_legacy_profile_markers",
-      "profile": "unit"
-    },
-    {
-      "id": "439a7fe0988706a8ac1b1516",
-      "runner": "python",
-      "file": "test/scripts/agentflow_dedup_test.py",
-      "case_id": "test.scripts.agentflow_dedup_test.DedupTest.test_project_toolchain_checks_and_mix_commands_are_mise_scoped",
-      "profile": "unit"
-    },
-    {
-      "id": "43e3e0f1a4700f107b242f8f",
-      "runner": "python",
-      "file": "test/scripts/reconcile_merged_task_test.py",
-      "case_id": "test.scripts.reconcile_merged_task_test.ReconcileMergedTaskTest.test_wrong_branch_rejected_for_legacy_and_metadata_only",
-      "profile": "unit"
-    },
-    {
-      "id": "43fbbad4a3a81fe34636e5e9",
-      "runner": "python",
-      "file": "test/scripts/agentflow_evidence_test.py",
-      "case_id": "test.scripts.agentflow_evidence_test.EvidenceTest.test_safe_consumer_preserves_aggregate_summary_step",
-      "profile": "unit"
-    },
-    {
-      "id": "440940481443a9fbfd960687",
-      "runner": "python",
-      "file": "test/scripts/agentflow_feature_test.py",
-      "case_id": "test.scripts.agentflow_feature_test.AdversarialResolutionTest.test_contained_symlinks_aliases_and_unrelated_malformed_spec",
-      "profile": "unit"
-    },
-    {
-      "id": "441936e229e7149b4c2f5ef2",
-      "runner": "python",
-      "file": "test/scripts/agentflow_stage_checks_test.py",
-      "case_id": "test.scripts.agentflow_stage_checks_test.SafeDiagnosticTest.test_catalog_diagnostic_never_reflects_secret_or_exception_text",
       "profile": "unit"
     },
     {
@@ -1094,13 +534,6 @@
       "profile": "unit"
     },
     {
-      "id": "44d68e69125c02df06c930e5",
-      "runner": "python",
-      "file": "test/scripts/agentflow_feedback_test.py",
-      "case_id": "test.scripts.agentflow_feedback_test.FeedbackTest.test_without_checks_the_entry_format_is_byte_identical",
-      "profile": "unit"
-    },
-    {
       "id": "452640adeb71db0f2c5607eb",
       "runner": "exunit",
       "file": "test/football_market/ranking_cache_test.exs",
@@ -1108,17 +541,10 @@
       "profile": "integration"
     },
     {
-      "id": "459004a76fe38dca7a31c55a",
-      "runner": "python",
-      "file": "test/scripts/workflow_artifact_probe_test.py",
-      "case_id": "test.scripts.workflow_artifact_probe_test.WorkflowArtifactProbeTest.test_develop_ignores_documented_url_with_file_suffix",
-      "profile": "unit"
-    },
-    {
-      "id": "46e5228d091f3ec7d9b954bb",
-      "runner": "python",
-      "file": "test/scripts/agentflow_feedback_test.py",
-      "case_id": "test.scripts.agentflow_feedback_test.FeedbackTest.test_unknown_execution_schema_refuses_rewind_without_mutation",
+      "id": "475204de51a7e640552e1658",
+      "runner": "node",
+      "file": "scripts/openapi/player_media.test.mjs",
+      "case_id": "LiveView patches handle cached images and detach listeners from replaced images",
       "profile": "unit"
     },
     {
@@ -1143,31 +569,10 @@
       "profile": "unit"
     },
     {
-      "id": "487185d4197cb6d24d4f1387",
-      "runner": "python",
-      "file": "test/scripts/agentflow_stage_checks_test.py",
-      "case_id": "test.scripts.agentflow_stage_checks_test.ManifestContractTest.test_accepts_known_dependency_and_declared_effects",
-      "profile": "unit"
-    },
-    {
-      "id": "495ac726daf506072ad5d3f6",
-      "runner": "python",
-      "file": "test/scripts/thinflow_test.py",
-      "case_id": "test.scripts.thinflow_test.CandidateTest.test_timed_out_checks_are_recorded_and_third_unchanged_attempt_is_refused",
-      "profile": "unit"
-    },
-    {
       "id": "49886491a49b10d5a5cd39e6",
       "runner": "exunit",
       "file": "test/architecture_boundaries_test.exs",
       "case_id": "FootballMarket.ArchitectureBoundariesTest:test domain contexts retain the documented Ecto persistence adapter",
-      "profile": "unit"
-    },
-    {
-      "id": "4b34903a1d2343605b04e827",
-      "runner": "python",
-      "file": "test/scripts/agentflow_feature_test.py",
-      "case_id": "test.scripts.agentflow_feature_test.StrictMetadataTest.test_supported_scalars_comments_quotes_and_crlf",
       "profile": "unit"
     },
     {
@@ -1178,38 +583,10 @@
       "profile": "integration"
     },
     {
-      "id": "4b6b2f26eb4825b2c8457e2b",
-      "runner": "python",
-      "file": "test/scripts/agentflow_models_test.py",
-      "case_id": "test.scripts.agentflow_models_test.LauncherTest.test_launcher_forwards_resolved_mode_and_safe_metadata_overwrites_inherited_value",
-      "profile": "unit"
-    },
-    {
-      "id": "4c53549a93cce2d49b813b67",
-      "runner": "python",
-      "file": "test/scripts/agentflow_models_test.py",
-      "case_id": "test.scripts.agentflow_models_test.LauncherTest.test_each_stage_materializes_approved_pair_in_actual_child_argv",
-      "profile": "unit"
-    },
-    {
-      "id": "4c873dd211a24eebff56bcb1",
-      "runner": "python",
-      "file": "test/scripts/agentflow_stage_checks_test.py",
-      "case_id": "test.scripts.agentflow_stage_checks_test.ManifestContractTest.test_unknown_isolation_and_duplicate_effects_fail",
-      "profile": "unit"
-    },
-    {
       "id": "4d1b8537ae1a7665e404ff3a",
       "runner": "shell",
       "file": "test/scripts/ci_unit_tests_test.sh",
       "case_id": "child-failure",
-      "profile": "unit"
-    },
-    {
-      "id": "4e0ed8ae50369acb4f08aa35",
-      "runner": "python",
-      "file": "test/scripts/agentflow_stage_checks_test.py",
-      "case_id": "test.scripts.agentflow_stage_checks_test.StageExecutionTest.test_dependency_contamination_is_transitive_and_report_keeps_declaration_order",
       "profile": "unit"
     },
     {
@@ -1231,13 +608,6 @@
       "runner": "python",
       "file": "test/scripts/application_coverage_test.py",
       "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_coverage_runs_the_existing_ci_profile_wrapper_once",
-      "profile": "unit"
-    },
-    {
-      "id": "4eb4bf553ddcb38020a8be66",
-      "runner": "python",
-      "file": "test/scripts/agentflow_models_test.py",
-      "case_id": "test.scripts.agentflow_models_test.LauncherTest.test_sandbox_resolution_defaults_to_workspace_write_only_when_unconfigured",
       "profile": "unit"
     },
     {
@@ -1269,20 +639,6 @@
       "profile": "unit"
     },
     {
-      "id": "5211cf8682ae24ce1c4c12d3",
-      "runner": "python",
-      "file": "test/scripts/agentflow_recovery_test.py",
-      "case_id": "test.scripts.agentflow_recovery_test.StageAttemptTest.test_two_unchanged_failed_attempts_refuse_third_and_relevant_change_resets_scope",
-      "profile": "unit"
-    },
-    {
-      "id": "527461bc9694005e5a328974",
-      "runner": "python",
-      "file": "test/scripts/agentflow_ci_check_test.py",
-      "case_id": "test.scripts.agentflow_ci_check_test.InventoryTest.test_changed_workflow_requires_replanning",
-      "profile": "unit"
-    },
-    {
       "id": "533d80dca663a9c280b14ac8",
       "runner": "python",
       "file": "test/scripts/application_coverage_test.py",
@@ -1294,34 +650,6 @@
       "runner": "python",
       "file": "test/scripts/sobelow_ci_test.py",
       "case_id": "test.scripts.sobelow_ci_test.SobelowCiTest.test_real_finding_and_recovery_reach_the_pr_summary",
-      "profile": "unit"
-    },
-    {
-      "id": "545546465e681e24ef971a6b",
-      "runner": "python",
-      "file": "test/scripts/agentflow_clean_checkout_test.py",
-      "case_id": "test.scripts.agentflow_clean_checkout_test.CandidateTest.test_snapshot_preserves_base_and_candidate_edits_and_omits_pointer",
-      "profile": "unit"
-    },
-    {
-      "id": "5560df37468dbdb1930bfc94",
-      "runner": "python",
-      "file": "test/scripts/agentflow_providers_test.py",
-      "case_id": "test.scripts.agentflow_providers_test.ShimTest.test_command_without_name_is_refused_loudly",
-      "profile": "unit"
-    },
-    {
-      "id": "556a57f8e73d8492f463ce22",
-      "runner": "python",
-      "file": "test/scripts/workflow_artifact_probe_test.py",
-      "case_id": "test.scripts.workflow_artifact_probe_test.WorkflowArtifactProbeTest.test_pointer_is_not_authority",
-      "profile": "unit"
-    },
-    {
-      "id": "5574adeee736f18ffe68f7ca",
-      "runner": "python",
-      "file": "test/scripts/agentflow_branch_test.py",
-      "case_id": "test.scripts.agentflow_branch_test.DeliveryAdapterSafeguardsTest.test_dirty_publication_stages_and_commits_before_push",
       "profile": "unit"
     },
     {
@@ -1346,48 +674,6 @@
       "profile": "integration"
     },
     {
-      "id": "565a4b1d73b45a373f1934cb",
-      "runner": "python",
-      "file": "test/scripts/agentflow_feedback_test.py",
-      "case_id": "test.scripts.agentflow_feedback_test.FeedbackTest.test_completed_final_stage_preserves_publication_retry",
-      "profile": "unit"
-    },
-    {
-      "id": "56cf393e3d2d4f775c43f20a",
-      "runner": "python",
-      "file": "test/scripts/agentflow_stage_checks_test.py",
-      "case_id": "test.scripts.agentflow_stage_checks_test.ManifestContractTest.test_legacy_manifest_remains_valid_with_unknown_independence",
-      "profile": "unit"
-    },
-    {
-      "id": "57f8289bfee2f5664c034c97",
-      "runner": "python",
-      "file": "test/scripts/agentflow_providers_test.py",
-      "case_id": "test.scripts.agentflow_providers_test.ShimTest.test_codex_preflight_refusal_precedes_spawn_and_checks_final_context",
-      "profile": "unit"
-    },
-    {
-      "id": "5856237f497fc0463387434b",
-      "runner": "python",
-      "file": "test/scripts/agentflow_metrics_test.py",
-      "case_id": "test.scripts.agentflow_metrics_test.MetricsTest.test_cached_and_reasoning_subsets_are_not_added_to_parents",
-      "profile": "unit"
-    },
-    {
-      "id": "58d13020c427298204e97f33",
-      "runner": "python",
-      "file": "test/scripts/agentflow_stage_checks_test.py",
-      "case_id": "test.scripts.agentflow_stage_checks_test.StageExecutionTest.test_fresh_qa_requires_independent_assessment_even_when_all_checks_pass",
-      "profile": "unit"
-    },
-    {
-      "id": "592852ac100c7656669c3774",
-      "runner": "python",
-      "file": "test/scripts/thinflow_test.py",
-      "case_id": "test.scripts.thinflow_test.CandidateTest.test_evaluation_requires_exact_terminal_pass",
-      "profile": "unit"
-    },
-    {
       "id": "598b6e756c1bec96329827fe",
       "runner": "python",
       "file": "test/scripts/dialyzer_ci_test.py",
@@ -1395,45 +681,10 @@
       "profile": "unit"
     },
     {
-      "id": "59e5359c4e1656f1a51bf445",
-      "runner": "python",
-      "file": "test/scripts/agentflow_feedback_test.py",
-      "case_id": "test.scripts.agentflow_feedback_test.FeedbackTest.test_requested_stage_conflict_leaves_feedback_and_task_untouched",
-      "profile": "unit"
-    },
-    {
-      "id": "59f9c24ce8225bd418060c2e",
-      "runner": "python",
-      "file": "test/scripts/agentflow_feature_test.py",
-      "case_id": "test.scripts.agentflow_feature_test.IdentityAndResolutionTest.test_identity_missing_duplicate_and_filename_mismatch",
-      "profile": "unit"
-    },
-    {
-      "id": "5b6c0b1f4ea0d7383451629d",
-      "runner": "python",
-      "file": "test/scripts/agentflow_feature_test.py",
-      "case_id": "test.scripts.agentflow_feature_test.IdentityAndResolutionTest.test_metadata_only_agreement_and_legacy",
-      "profile": "unit"
-    },
-    {
-      "id": "5bb2c22a6eb4dff466120acb",
-      "runner": "python",
-      "file": "test/scripts/agentflow_preflight_test.py",
-      "case_id": "test.scripts.agentflow_preflight_test.PreflightTest.test_identical_context_produces_identical_redacted_results",
-      "profile": "unit"
-    },
-    {
-      "id": "5c2292ee1afff4173ab5ebb6",
-      "runner": "python",
-      "file": "test/scripts/workflow_artifact_probe_test.py",
-      "case_id": "test.scripts.workflow_artifact_probe_test.WorkflowArtifactProbeTest.test_develop_fails_when_completed_task_names_missing_artifact",
-      "profile": "unit"
-    },
-    {
-      "id": "5ccb042ae37e3d196e49d4c6",
-      "runner": "python",
-      "file": "test/scripts/agentflow_feedback_test.py",
-      "case_id": "test.scripts.agentflow_feedback_test.FeedbackTest.test_check_scoped_entry_is_read_back_by_feedback_guard",
+      "id": "5ac06259072d42d010c2b820",
+      "runner": "node",
+      "file": "scripts/openapi/workspace_session.test.mjs",
+      "case_id": "repeated disconnect and reconnect dispose sockets without replaying requests",
       "profile": "unit"
     },
     {
@@ -1444,17 +695,10 @@
       "profile": "integration"
     },
     {
-      "id": "5eff7e05068320aab734f527",
-      "runner": "python",
-      "file": "test/scripts/agentflow_models_test.py",
-      "case_id": "test.scripts.agentflow_models_test.ModelTest.test_defaults_precedence_and_development_isolation",
-      "profile": "unit"
-    },
-    {
-      "id": "5f7fed6ef73d95944b090885",
-      "runner": "python",
-      "file": "test/scripts/agentflow_providers_test.py",
-      "case_id": "test.scripts.agentflow_providers_test.ShimContinuationTest.test_frozen_selection_for_another_provider_is_refused",
+      "id": "5d24e761719ab3c9c55e686c",
+      "runner": "node",
+      "file": "scripts/openapi/validate.test.mjs",
+      "case_id": "malformed and incomplete disposable contracts are rejected",
       "profile": "unit"
     },
     {
@@ -1472,88 +716,11 @@
       "profile": "integration"
     },
     {
-      "id": "60ac05bf9e9a46ee22db03a6",
-      "runner": "python",
-      "file": "test/scripts/agentflow_evidence_test.py",
-      "case_id": "test.scripts.agentflow_evidence_test.EvidenceTest.test_abrupt_qa_exit_projects_partial_journal_as_nonpass_once",
-      "profile": "unit"
-    },
-    {
-      "id": "614abf653bea73731cdb63b0",
-      "runner": "python",
-      "file": "test/scripts/agentflow_branch_test.py",
-      "case_id": "test.scripts.agentflow_branch_test.AgentflowBranchTest.test_publication_and_clean_retry_use_owned_links_and_outcome",
-      "profile": "unit"
-    },
-    {
-      "id": "62050e7cfa79bef8501ed5f2",
-      "runner": "python",
-      "file": "test/scripts/agentflow_branch_test.py",
-      "case_id": "test.scripts.agentflow_branch_test.AgentflowBranchTest.test_explicit_base_refuses_start_from_another_branch",
-      "profile": "unit"
-    },
-    {
-      "id": "629e5624a938b8da52c5487c",
-      "runner": "python",
-      "file": "test/scripts/agentflow_recovery_test.py",
-      "case_id": "test.scripts.agentflow_recovery_test.StageAttemptTest.test_running_attempt_is_recovered_as_interrupted_and_counts_toward_cap",
-      "profile": "unit"
-    },
-    {
-      "id": "62b53d7cab43a87106422258",
-      "runner": "python",
-      "file": "test/scripts/agentflow_evidence_test.py",
-      "case_id": "test.scripts.agentflow_evidence_test.EvidenceTest.test_sandbox_mode_change_starts_new_retry_scope_but_same_mode_stays_blocked",
-      "profile": "unit"
-    },
-    {
-      "id": "63e7b07ad707d2b18168986c",
-      "runner": "python",
-      "file": "test/scripts/agentflow_branch_test.py",
-      "case_id": "test.scripts.agentflow_branch_test.DeliveryAdapterSafeguardsTest.test_start_existing_feature_populates_pointer",
-      "profile": "unit"
-    },
-    {
       "id": "642753ae1c92552d7a85b5ce",
       "runner": "exunit",
       "file": "test/business_metrics_test.exs",
       "case_id": "FootballMarketWeb.BusinessMetricsTest:test counts retained quotes, request states, orders, completed trades, accepted scopes and jobs exactly",
       "profile": "integration"
-    },
-    {
-      "id": "6449af7a7a854120530794bb",
-      "runner": "python",
-      "file": "test/scripts/agentflow_branch_test.py",
-      "case_id": "test.scripts.agentflow_branch_test.AgentflowBranchTest.test_verify_resolves_before_dispatch_and_does_not_recurse",
-      "profile": "unit"
-    },
-    {
-      "id": "65557020efb413a454508e02",
-      "runner": "python",
-      "file": "test/scripts/agentflow_evidence_test.py",
-      "case_id": "test.scripts.agentflow_evidence_test.EvidenceTest.test_handled_signal_inventory_stays_nonpass_and_retains_completed_rows",
-      "profile": "unit"
-    },
-    {
-      "id": "6601f9cae41ba4df285f160b",
-      "runner": "node",
-      "file": "tools/openapi/player_media.test.mjs",
-      "case_id": "LiveView patches handle cached images and detach listeners from replaced images",
-      "profile": "unit"
-    },
-    {
-      "id": "6656f092c160492073a70a2d",
-      "runner": "python",
-      "file": "test/scripts/reconcile_merged_task_test.py",
-      "case_id": "test.scripts.reconcile_merged_task_test.StrictPostMergeCLIRegressionTest.test_actual_command_rejects_all_hidden_metadata_even_done_retry",
-      "profile": "unit"
-    },
-    {
-      "id": "67ac9e179f1fa1dc4afe18de",
-      "runner": "python",
-      "file": "test/scripts/agentflow_providers_test.py",
-      "case_id": "test.scripts.agentflow_providers_test.SelectionTest.test_default_and_unknown_providers",
-      "profile": "unit"
     },
     {
       "id": "681ed358f137ad2f318bd02a",
@@ -1584,24 +751,10 @@
       "profile": "unit"
     },
     {
-      "id": "6b1bb7c18da0b1dfd34a1444",
-      "runner": "python",
-      "file": "test/scripts/agentflow_metrics_test.py",
-      "case_id": "test.scripts.agentflow_metrics_test.MetricsTest.test_actual_wrapper_keeps_repeated_reset_and_resumed_counters_partial",
-      "profile": "unit"
-    },
-    {
       "id": "6c5de9a9d84f185360f1bafb",
       "runner": "python",
       "file": "test/scripts/sonar_elixir_probe_test.py",
       "case_id": "test.scripts.sonar_elixir_probe_test.SonarElixirProbeTest.test_observation_binds_analysis_revision_and_reports_each_metric_delta",
-      "profile": "unit"
-    },
-    {
-      "id": "6da03c5d20f06ad7c669b5c0",
-      "runner": "python",
-      "file": "test/scripts/agentflow_dedup_test.py",
-      "case_id": "test.scripts.agentflow_dedup_test.DedupTest.test_parity_refuses_mismatched_workflow_or_missing_ci_obligation_without_profiles",
       "profile": "unit"
     },
     {
@@ -1610,13 +763,6 @@
       "file": "test/scripts/local_services_lifecycle_test.sh",
       "case_id": "local_services_lifecycle",
       "profile": "integration"
-    },
-    {
-      "id": "6e3ff134ff6de46f3bdf5fe7",
-      "runner": "python",
-      "file": "test/scripts/agentflow_branch_test.py",
-      "case_id": "test.scripts.agentflow_branch_test.AgentflowBranchTest.test_start_preproduct_clears_stale_pointer_without_other_feature",
-      "profile": "unit"
     },
     {
       "id": "6ef9478409532d7b19a3e482",
@@ -1638,6 +784,13 @@
       "file": "test/portfolio_test.exs",
       "case_id": "FootballMarket.PortfolioTest:test tracks holdings, credit balance, initial inventory, transaction history, allocation, and daily history",
       "profile": "integration"
+    },
+    {
+      "id": "707dfc211c972445f30b7fc8",
+      "runner": "node",
+      "file": "scripts/openapi/workspace_session.test.mjs",
+      "case_id": "disconnect removes private content before reloading authoritative state",
+      "profile": "unit"
     },
     {
       "id": "71673cef11bc3aa5a54bafc0",
@@ -1668,45 +821,10 @@
       "profile": "unit"
     },
     {
-      "id": "7348b2174b492ce3ff0aff59",
-      "runner": "python",
-      "file": "test/scripts/agentflow_providers_test.py",
-      "case_id": "test.scripts.agentflow_providers_test.ShimTest.test_stream_is_forced_to_json_and_session_is_recorded",
-      "profile": "unit"
-    },
-    {
       "id": "73a7da1217a88007792ffd65",
       "runner": "shell",
       "file": "test/scripts/verify_foundation_test.sh",
       "case_id": "readiness-1",
-      "profile": "unit"
-    },
-    {
-      "id": "751c6d048f034d4cc6b61e45",
-      "runner": "python",
-      "file": "test/scripts/thinflow_test.py",
-      "case_id": "test.scripts.thinflow_test.CandidateTest.test_third_unchanged_failure_is_refused",
-      "profile": "unit"
-    },
-    {
-      "id": "75354d2a86ba2b13dbbfe443",
-      "runner": "python",
-      "file": "test/scripts/agentflow_dedup_test.py",
-      "case_id": "test.scripts.agentflow_dedup_test.DedupTest.test_route_obligation_requires_runtime_assertions",
-      "profile": "unit"
-    },
-    {
-      "id": "75d44a46f42f677224846dd1",
-      "runner": "python",
-      "file": "test/scripts/agentflow_evidence_test.py",
-      "case_id": "test.scripts.agentflow_evidence_test.EvidenceTest.test_sigkill_recovery_demotes_historical_qa_pass",
-      "profile": "unit"
-    },
-    {
-      "id": "761a0e9abd321ab2bc09c1cd",
-      "runner": "python",
-      "file": "test/scripts/agentflow_workflow_gate_test.py",
-      "case_id": "test.scripts.agentflow_workflow_gate_test.VersionedWorkflowTest.test_default_has_one_builder_one_evaluator_and_deterministic_gates",
       "profile": "unit"
     },
     {
@@ -1717,31 +835,10 @@
       "profile": "integration"
     },
     {
-      "id": "7904458115c64b5db88e0b59",
-      "runner": "python",
-      "file": "test/scripts/agentflow_evidence_test.py",
-      "case_id": "test.scripts.agentflow_evidence_test.EvidenceTest.test_pass_then_failure_invalidates_pass_and_preserves_legacy_files",
-      "profile": "unit"
-    },
-    {
-      "id": "792ad973cf3a6b9f33af2322",
-      "runner": "python",
-      "file": "test/scripts/agentflow_completion_test.py",
-      "case_id": "test.scripts.agentflow_completion_test.AgentflowCompletionTest.test_explicit_complete_both_reports_required",
-      "profile": "unit"
-    },
-    {
       "id": "79f69634f085748a40d8e26c",
       "runner": "python",
       "file": "test/scripts/dialyzer_ci_test.py",
       "case_id": "test.scripts.dialyzer_ci_test.DialyzerCiTest.test_cache_invalidation_for_each_compatibility_input",
-      "profile": "unit"
-    },
-    {
-      "id": "7a25347b5d74636d4cfbae26",
-      "runner": "python",
-      "file": "test/scripts/agentflow_preflight_test.py",
-      "case_id": "test.scripts.agentflow_preflight_test.PreflightTest.test_incompatible_python_is_reported_without_version_output",
       "profile": "unit"
     },
     {
@@ -1752,52 +849,10 @@
       "profile": "unit"
     },
     {
-      "id": "7ab100fe3193f3c97df074f6",
-      "runner": "python",
-      "file": "test/scripts/agentflow_stage_checks_test.py",
-      "case_id": "test.scripts.agentflow_stage_checks_test.StageExecutionTest.test_registered_static_checks_overlap_by_at_most_two",
-      "profile": "unit"
-    },
-    {
-      "id": "7b53629391336149aca9cae5",
-      "runner": "python",
-      "file": "test/scripts/agentflow_evidence_test.py",
-      "case_id": "test.scripts.agentflow_evidence_test.EvidenceTest.test_sandbox_mode_changes_hashed_identity_without_exposing_value",
-      "profile": "unit"
-    },
-    {
-      "id": "7b7bf10d4ae5799724dcce4c",
-      "runner": "python",
-      "file": "test/scripts/agentflow_evidence_test.py",
-      "case_id": "test.scripts.agentflow_evidence_test.EvidenceTest.test_summary_is_bounded_idempotent_and_requires_independent_provenance",
-      "profile": "unit"
-    },
-    {
-      "id": "7beab42e7fc475929564bc36",
-      "runner": "python",
-      "file": "test/scripts/agentflow_feature_test.py",
-      "case_id": "test.scripts.agentflow_feature_test.ForeignPreproductTest.test_foreign_exception_does_not_hide_invalid_claims",
-      "profile": "unit"
-    },
-    {
-      "id": "7c8300bd7c66f26508fdc1fb",
-      "runner": "python",
-      "file": "test/scripts/reconcile_merged_task_test.py",
-      "case_id": "test.scripts.reconcile_merged_task_test.StrictPostMergeCLIRegressionTest.test_quoted_crlf_completion_preserves_all_other_bytes",
-      "profile": "unit"
-    },
-    {
       "id": "7c8c66c734720a41f2e037fd",
       "runner": "python",
       "file": "test/scripts/test_profile_components_test.py",
       "case_id": "test.scripts.test_profile_components_test.ComponentsTest.test_native_python_discovery_includes_own_case",
-      "profile": "unit"
-    },
-    {
-      "id": "7df51eaea404af7a32ff6666",
-      "runner": "python",
-      "file": "test/scripts/agentflow_completion_test.py",
-      "case_id": "test.scripts.agentflow_completion_test.AgentflowCompletionTest.test_dependency_only_after_confirmed_human_merge_and_only_dependencies",
       "profile": "unit"
     },
     {
@@ -1822,27 +877,6 @@
       "profile": "integration"
     },
     {
-      "id": "7fbebd57ae90e841a10c1d8c",
-      "runner": "python",
-      "file": "test/scripts/agentflow_stage_checks_test.py",
-      "case_id": "test.scripts.agentflow_stage_checks_test.StageSummaryTest.test_summary_maps_only_registered_profile_case_and_safe_category",
-      "profile": "unit"
-    },
-    {
-      "id": "7fdc529afca6d37fc94169ea",
-      "runner": "python",
-      "file": "test/scripts/agentflow_evidence_test.py",
-      "case_id": "test.scripts.agentflow_evidence_test.EvidenceTest.test_stage_attempt_token_is_bound_to_check_receipt",
-      "profile": "unit"
-    },
-    {
-      "id": "80af47eb8c910d8c1887937f",
-      "runner": "python",
-      "file": "test/scripts/fast_lane_check_test.py",
-      "case_id": "test.scripts.fast_lane_check_test.FastLaneCheckTest.test_untracked_application_file_is_denied_without_commit",
-      "profile": "unit"
-    },
-    {
       "id": "810597b713ce925d6b38d0ac",
       "runner": "python",
       "file": "test/scripts/test_profile_runner_test.py",
@@ -1857,31 +891,10 @@
       "profile": "integration"
     },
     {
-      "id": "82007de64834a708eef69e18",
-      "runner": "python",
-      "file": "test/scripts/agentflow_stage_checks_test.py",
-      "case_id": "test.scripts.agentflow_stage_checks_test.CiParityTest.test_ci_parity_accepts_unit_and_integration_profile_pair_and_rejects_mismatch",
-      "profile": "unit"
-    },
-    {
-      "id": "82642cc1871959d1d4bffa05",
-      "runner": "python",
-      "file": "test/scripts/workflow_artifact_probe_test.py",
-      "case_id": "test.scripts.workflow_artifact_probe_test.AuthoritativeReceiptSelectionTest.test_unequal_numbers_select_stage_and_receipt_despite_stale_pointer",
-      "profile": "unit"
-    },
-    {
       "id": "8266acfd3bdc1bd1fcf561f6",
       "runner": "exunit",
       "file": "test/architecture_boundaries_test.exs",
       "case_id": "FootballMarket.ArchitectureBoundariesTest:test allowed provider, cache, worker, and endpoint configuration dependencies stay accepted",
-      "profile": "unit"
-    },
-    {
-      "id": "832c3d785c8a4c099ca180f6",
-      "runner": "python",
-      "file": "test/scripts/agentflow_preflight_test.py",
-      "case_id": "test.scripts.agentflow_preflight_test.PreflightTest.test_product_launch_preflight_checks_task_toolchain_and_docs_only_manifest_can_opt_out",
       "profile": "unit"
     },
     {
@@ -1906,48 +919,6 @@
       "profile": "integration"
     },
     {
-      "id": "84efc35724bb95cf58a54b10",
-      "runner": "python",
-      "file": "test/scripts/thinflow_test.py",
-      "case_id": "test.scripts.thinflow_test.CandidateTest.test_prepare_check_evaluate_and_freshness",
-      "profile": "unit"
-    },
-    {
-      "id": "8519b7782c0d44c32e53129d",
-      "runner": "python",
-      "file": "test/scripts/agentflow_clean_checkout_test.py",
-      "case_id": "test.scripts.agentflow_clean_checkout_test.CandidateTest.test_empty_child_collection_cannot_pass",
-      "profile": "unit"
-    },
-    {
-      "id": "856eaaaab0c072c96bfa4efe",
-      "runner": "python",
-      "file": "test/scripts/reconcile_merged_task_test.py",
-      "case_id": "test.scripts.reconcile_merged_task_test.ReconcileMergedTaskTest.test_both_report_gates_preserve_all_files",
-      "profile": "unit"
-    },
-    {
-      "id": "861c052d977853f0d952135f",
-      "runner": "python",
-      "file": "test/scripts/agentflow_completion_test.py",
-      "case_id": "test.scripts.agentflow_completion_test.AgentflowCompletionTest.test_merged_confirmation_requires_merged_state_date_and_base",
-      "profile": "unit"
-    },
-    {
-      "id": "876701bc6e18558f801b2940",
-      "runner": "python",
-      "file": "test/scripts/agentflow_providers_test.py",
-      "case_id": "test.scripts.agentflow_providers_test.OuterLaunchTest.test_legacy_ci_baseline_resume_uses_saved_workflow_once_without_snapshot_write",
-      "profile": "unit"
-    },
-    {
-      "id": "8824d5822a7f20f067ccbd6b",
-      "runner": "python",
-      "file": "test/scripts/agentflow_completion_test.py",
-      "case_id": "test.scripts.agentflow_completion_test.MultipleDependencyMetadataTest.test_invalid_later_dependency_cannot_follow_an_earlier_write",
-      "profile": "unit"
-    },
-    {
       "id": "88a4937614b5a03d34619cd0",
       "runner": "exunit",
       "file": "test/football_market/ranking_cache_test.exs",
@@ -1969,13 +940,6 @@
       "profile": "unit"
     },
     {
-      "id": "8921e06caab2d75704f72282",
-      "runner": "node",
-      "file": "tools/openapi/player_media.test.mjs",
-      "case_id": "missing and failed images keep the fallback, successful images reveal the photo",
-      "profile": "unit"
-    },
-    {
       "id": "8a2f0b612839a223a2481561",
       "runner": "python",
       "file": "test/scripts/test_profile_runner_test.py",
@@ -1983,31 +947,10 @@
       "profile": "unit"
     },
     {
-      "id": "8b008ce435acae2299577574",
-      "runner": "python",
-      "file": "test/scripts/agentflow_feature_test.py",
-      "case_id": "test.scripts.agentflow_feature_test.StrictMetadataTest.test_competing_alternate_id_claim_is_not_discarded",
-      "profile": "unit"
-    },
-    {
       "id": "8b13361e8a7ecd823db9c29c",
       "runner": "python",
       "file": "test/scripts/application_coverage_test.py",
       "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_preflight_refuses_a_node_major_outside_the_existing_ci_toolchain",
-      "profile": "unit"
-    },
-    {
-      "id": "8b91648e6c167222267626db",
-      "runner": "python",
-      "file": "test/scripts/agentflow_models_test.py",
-      "case_id": "test.scripts.agentflow_models_test.LauncherTest.test_legacy_unknown_requires_explicit_adoption_without_default_backfill",
-      "profile": "unit"
-    },
-    {
-      "id": "8bbf9763bdbd7a15593441b7",
-      "runner": "python",
-      "file": "test/scripts/agentflow_branch_test.py",
-      "case_id": "test.scripts.agentflow_branch_test.AgentflowBranchTest.test_task_branch_and_switching",
       "profile": "unit"
     },
     {
@@ -2023,13 +966,6 @@
       "file": "test/football_market/ranking_cache_test.exs",
       "case_id": "FootballMarket.Ranking.CacheTest:test emits cache outcome telemetry for hit, miss, and Redis failure",
       "profile": "integration"
-    },
-    {
-      "id": "8ce0cec81fc79cf41fb1b7d4",
-      "runner": "python",
-      "file": "test/scripts/agentflow_feedback_test.py",
-      "case_id": "test.scripts.agentflow_feedback_test.FeedbackTest.test_implementation_feedback_preserves_settled_artifacts",
-      "profile": "unit"
     },
     {
       "id": "8ce3d84eb5b8ea7734b29137",
@@ -2067,31 +1003,10 @@
       "profile": "integration"
     },
     {
-      "id": "9055195240749a8784d3f19e",
-      "runner": "python",
-      "file": "test/scripts/agentflow_evidence_test.py",
-      "case_id": "test.scripts.agentflow_evidence_test.EvidenceTest.test_irrelevant_edit_cannot_reset_two_failure_budget",
-      "profile": "unit"
-    },
-    {
-      "id": "90f609d795b462c329e3df4a",
-      "runner": "python",
-      "file": "test/scripts/agentflow_stage_checks_test.py",
-      "case_id": "test.scripts.agentflow_stage_checks_test.StageSummaryTest.test_safe_command_and_stage_summary_preserve_complete_profile_details",
-      "profile": "unit"
-    },
-    {
       "id": "9138563090b5e6f15d1d1c41",
       "runner": "shell",
       "file": "test/scripts/ci_unit_tests_test.sh",
       "case_id": "wrong-profile",
-      "profile": "unit"
-    },
-    {
-      "id": "91526f50c3594fa3d4b588d8",
-      "runner": "python",
-      "file": "test/scripts/agentflow_artifacts_test.py",
-      "case_id": "test.scripts.agentflow_artifacts_test.ApplicabilityTest.test_missing_decision_and_empty_reason_fail",
       "profile": "unit"
     },
     {
@@ -2116,38 +1031,10 @@
       "profile": "unit"
     },
     {
-      "id": "94ae484caa86cf8502e08e3b",
-      "runner": "python",
-      "file": "test/scripts/agentflow_providers_test.py",
-      "case_id": "test.scripts.agentflow_providers_test.CliProviderTest.test_resume_refuses_access_provider_without_explicit_adoption",
-      "profile": "unit"
-    },
-    {
-      "id": "959caacbd161f57307ac267b",
-      "runner": "python",
-      "file": "test/scripts/agentflow_artifacts_test.py",
-      "case_id": "test.scripts.agentflow_artifacts_test.ApplicabilityTest.test_missing_applicable_artifacts_block_plan",
-      "profile": "unit"
-    },
-    {
-      "id": "97fb16f30dee84d858006987",
-      "runner": "python",
-      "file": "test/scripts/agentflow_stage_budget_test.py",
-      "case_id": "test.scripts.agentflow_stage_budget_test.StageBudgetTest.test_clock_resets_when_a_new_stage_appears",
-      "profile": "unit"
-    },
-    {
       "id": "984d7b0d070a91af13dbd049",
       "runner": "python",
       "file": "test/scripts/test_profile_runner_test.py",
       "case_id": "test.scripts.test_profile_runner_test.RunnerTest.test_missing_native_runner_is_failure",
-      "profile": "unit"
-    },
-    {
-      "id": "98d72a20f7a0f283dcda5e66",
-      "runner": "python",
-      "file": "test/scripts/agentflow_feedback_test.py",
-      "case_id": "test.scripts.agentflow_feedback_test.FeedbackTest.test_absent_impact_is_pending_and_blocks_resume",
       "profile": "unit"
     },
     {
@@ -2158,74 +1045,11 @@
       "profile": "integration"
     },
     {
-      "id": "9a090b9f772097950efb116b",
-      "runner": "python",
-      "file": "test/scripts/agentflow_branch_test.py",
-      "case_id": "test.scripts.agentflow_branch_test.AgentflowBranchTest.test_finalize_no_pr_and_failed_workflow",
-      "profile": "unit"
-    },
-    {
-      "id": "9a59d01a71e0549d6d89279e",
-      "runner": "python",
-      "file": "test/scripts/agentflow_policy_test.py",
-      "case_id": "test.scripts.agentflow_policy_test.WorkflowSpeedPolicyTest.test_high_risk_and_workflow_changes_are_excluded_and_no_selector_added",
-      "profile": "unit"
-    },
-    {
       "id": "9a7d222f69e49948768c2124",
       "runner": "exunit",
       "file": "test/business_metrics_test.exs",
       "case_id": "FootballMarketWeb.BusinessMetricsTest:test requires one valid API credential and the existing administrator policy",
       "profile": "integration"
-    },
-    {
-      "id": "9b35aa75b72dcf9540b9a7b1",
-      "runner": "python",
-      "file": "test/scripts/agentflow_stage_budget_test.py",
-      "case_id": "test.scripts.agentflow_stage_budget_test.StageBudgetTest.test_exceeded_stage_pauses_gracefully_with_resume_message",
-      "profile": "unit"
-    },
-    {
-      "id": "9b464a84b0f8adc0786a4623",
-      "runner": "python",
-      "file": "test/scripts/agentflow_evidence_test.py",
-      "case_id": "test.scripts.agentflow_evidence_test.EvidenceTest.test_explicit_reuse_does_not_spawn_and_changed_command_forces_execution",
-      "profile": "unit"
-    },
-    {
-      "id": "9b766ddad7114b20b9272411",
-      "runner": "python",
-      "file": "test/scripts/agentflow_workflow_gate_test.py",
-      "case_id": "test.scripts.agentflow_workflow_gate_test.VersionedWorkflowTest.test_legacy_snapshot_retains_full_agentflow_23_order",
-      "profile": "unit"
-    },
-    {
-      "id": "9c0d3db9a67ec7dac5dc4396",
-      "runner": "python",
-      "file": "test/scripts/agentflow_branch_test.py",
-      "case_id": "test.scripts.agentflow_branch_test.ConsumerRejectionTest.test_same_association_matrix_blocks_verifier_and_publication",
-      "profile": "unit"
-    },
-    {
-      "id": "9ca4d4f30157651d527e0bcc",
-      "runner": "python",
-      "file": "test/scripts/agentflow_branch_test.py",
-      "case_id": "test.scripts.agentflow_branch_test.StrictConsumerMetadataTest.test_all_entrypoints_refuse_before_any_write_or_dispatch",
-      "profile": "unit"
-    },
-    {
-      "id": "9cf78a1daf0009da2d6f7161",
-      "runner": "python",
-      "file": "test/scripts/agentflow_stage_checks_test.py",
-      "case_id": "test.scripts.agentflow_stage_checks_test.ManifestContractTest.test_static_class_requires_exact_registered_argv",
-      "profile": "unit"
-    },
-    {
-      "id": "9d76a5b39afa84ed827f726e",
-      "runner": "python",
-      "file": "test/scripts/agentflow_models_test.py",
-      "case_id": "test.scripts.agentflow_models_test.ModelTest.test_frozen_generation_ignores_repository_edits_and_cross_run_binding",
-      "profile": "unit"
     },
     {
       "id": "9dd81b41f75831b531500d90",
@@ -2249,13 +1073,6 @@
       "profile": "unit"
     },
     {
-      "id": "9f08881088f49d40a342613b",
-      "runner": "python",
-      "file": "test/scripts/agentflow_models_test.py",
-      "case_id": "test.scripts.agentflow_models_test.ModelTest.test_duplicate_unknown_and_unsupported_selections_fail",
-      "profile": "unit"
-    },
-    {
       "id": "9f80d7989dd9e1ac9c7974cc",
       "runner": "python",
       "file": "test/scripts/application_coverage_test.py",
@@ -2270,39 +1087,11 @@
       "profile": "unit"
     },
     {
-      "id": "9ffad32180fd52f3dca3849d",
-      "runner": "python",
-      "file": "test/scripts/workflow_artifact_probe_test.py",
-      "case_id": "test.scripts.workflow_artifact_probe_test.WorkflowArtifactProbeTest.test_develop_rejects_glob_that_escapes_repository",
-      "profile": "unit"
-    },
-    {
       "id": "a060727867537a52e1e0f656",
       "runner": "exunit",
       "file": "test/web/api_test.exs",
       "case_id": "FootballMarketWeb.ApiTest:test returns generic errors for malformed trade inputs without logging parameter values",
       "profile": "integration"
-    },
-    {
-      "id": "a0845e2b3e3d36b6b8acbf5e",
-      "runner": "python",
-      "file": "test/scripts/agentflow_evidence_test.py",
-      "case_id": "test.scripts.agentflow_evidence_test.EvidenceTest.test_schema_two_local_receipts_leave_no_feature_attempt_files",
-      "profile": "unit"
-    },
-    {
-      "id": "a0d006f0d98b5dd483345351",
-      "runner": "python",
-      "file": "test/scripts/agentflow_preflight_test.py",
-      "case_id": "test.scripts.agentflow_preflight_test.PreflightTest.test_configuration_change_and_explicit_path_override_use_final_child_context",
-      "profile": "unit"
-    },
-    {
-      "id": "a0ee6bbcf1967af49105945b",
-      "runner": "node",
-      "file": "tools/openapi/workspace_session.test.mjs",
-      "case_id": "disconnect removes private content before reloading authoritative state",
-      "profile": "unit"
     },
     {
       "id": "a178a2ea66033a8298e5f35d",
@@ -2326,20 +1115,6 @@
       "profile": "unit"
     },
     {
-      "id": "a1ee5ee9847f56f6c136f7e5",
-      "runner": "python",
-      "file": "test/scripts/agentflow_providers_test.py",
-      "case_id": "test.scripts.agentflow_providers_test.ShimTest.test_preflight_refusal_precedes_provider_spawn_and_checks_final_context",
-      "profile": "unit"
-    },
-    {
-      "id": "a2619fd7761792712ddf335d",
-      "runner": "python",
-      "file": "test/scripts/agentflow_feature_test.py",
-      "case_id": "test.scripts.agentflow_feature_test.FrontmatterEnumerationTest.test_scalar_separator_does_not_hide_competing_identity",
-      "profile": "unit"
-    },
-    {
       "id": "a2a1bd6f25d47b98305f85c7",
       "runner": "exunit",
       "file": "test/architecture_boundaries_test.exs",
@@ -2347,31 +1122,10 @@
       "profile": "unit"
     },
     {
-      "id": "a2e381488f13cbc5545bba7c",
-      "runner": "python",
-      "file": "test/scripts/reconcile_merged_task_test.py",
-      "case_id": "test.scripts.reconcile_merged_task_test.StrictPostMergeCLIRegressionTest.test_cross_file_claims_refuse_actual_command_even_done_retry",
-      "profile": "unit"
-    },
-    {
-      "id": "a32093d3377d73cf613379f7",
-      "runner": "python",
-      "file": "test/scripts/agentflow_feature_test.py",
-      "case_id": "test.scripts.agentflow_feature_test.ForeignPreproductTest.test_foreign_candidates_are_missing_only_for_requested_task",
-      "profile": "unit"
-    },
-    {
       "id": "a38a4df0d09fb54147c1fce8",
       "runner": "python",
       "file": "test/scripts/test_profile_runner_test.py",
       "case_id": "test.scripts.test_profile_runner_test.RunnerTest.test_mix_test_failure_emits_only_aggregate_lifecycle_counts",
-      "profile": "unit"
-    },
-    {
-      "id": "a3a1361dbfbe0144b46e6119",
-      "runner": "python",
-      "file": "test/scripts/agentflow_stage_checks_test.py",
-      "case_id": "test.scripts.agentflow_stage_checks_test.StageSummaryTest.test_summary_exposes_only_registered_ids_and_safe_allowlisted_fields",
       "profile": "unit"
     },
     {
@@ -2386,13 +1140,6 @@
       "runner": "python",
       "file": "test/scripts/application_coverage_test.py",
       "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_report_count_validation_rejects_boolean_and_non_integer_counts",
-      "profile": "unit"
-    },
-    {
-      "id": "a4f33ce5c81620a9827f30d2",
-      "runner": "python",
-      "file": "test/scripts/task_feature_binding_acceptance_test.py",
-      "case_id": "test.scripts.task_feature_binding_acceptance_test.ActualProviderFixtureTest.test_actual_command_two_value_delta_retry_and_source_preservation",
       "profile": "unit"
     },
     {
@@ -2415,13 +1162,6 @@
       "file": "test/scripts/local_services_failure_test.sh",
       "case_id": "postgres-occupied",
       "profile": "integration"
-    },
-    {
-      "id": "a70184a8f21ed32b2f2eefea",
-      "runner": "python",
-      "file": "test/scripts/agentflow_ci_check_test.py",
-      "case_id": "test.scripts.agentflow_ci_check_test.EnvironmentTest.test_unavailable_service_is_a_failure",
-      "profile": "unit"
     },
     {
       "id": "a768be5d478def02322bf368",
@@ -2473,13 +1213,6 @@
       "profile": "unit"
     },
     {
-      "id": "abe17dbb8d2496552e789ac7",
-      "runner": "python",
-      "file": "test/scripts/workflow_artifact_probe_test.py",
-      "case_id": "test.scripts.workflow_artifact_probe_test.WorkflowArtifactProbeTest.test_unchecked_task_does_not_require_future_artifact",
-      "profile": "unit"
-    },
-    {
       "id": "ac121952407c9950f9e7fcfb",
       "runner": "exunit",
       "file": "test/providers_sync_test.exs",
@@ -2487,24 +1220,10 @@
       "profile": "unit"
     },
     {
-      "id": "ac12d2a6de0bb30f137269f4",
-      "runner": "python",
-      "file": "test/scripts/reconcile_merged_task_test.py",
-      "case_id": "test.scripts.reconcile_merged_task_test.ReconcileMergedTaskTest.test_byte_preservation_crlf_and_idempotent_done_without_feature",
-      "profile": "unit"
-    },
-    {
       "id": "ac3e8d572019e9bde86abe37",
       "runner": "python",
       "file": "test/scripts/application_coverage_test.py",
       "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_cli_selects_test_environment_before_service_preflight",
-      "profile": "unit"
-    },
-    {
-      "id": "ac433f4f16ce39e1cffb35af",
-      "runner": "python",
-      "file": "test/scripts/agentflow_preflight_test.py",
-      "case_id": "test.scripts.agentflow_preflight_test.PreflightTest.test_unknown_prerequisite_kind_fails_closed",
       "profile": "unit"
     },
     {
@@ -2522,41 +1241,6 @@
       "profile": "integration"
     },
     {
-      "id": "ad231030bfca130d2d7c7e1b",
-      "runner": "python",
-      "file": "test/scripts/agentflow_feature_test.py",
-      "case_id": "test.scripts.agentflow_feature_test.StrictMetadataTest.test_unrelated_unsupported_identity_does_not_require_historical_repair",
-      "profile": "unit"
-    },
-    {
-      "id": "ae05678d8102ea07afaff68e",
-      "runner": "python",
-      "file": "test/scripts/agentflow_evidence_test.py",
-      "case_id": "test.scripts.agentflow_evidence_test.EvidenceTest.test_early_exit_lists_every_manifest_check_without_reflecting_private_cause",
-      "profile": "unit"
-    },
-    {
-      "id": "aeb951c59758010dc7f21a0f",
-      "runner": "python",
-      "file": "test/scripts/agentflow_ci_check_test.py",
-      "case_id": "test.scripts.agentflow_ci_check_test.InventoryTest.test_local_obligation_needs_a_real_check",
-      "profile": "unit"
-    },
-    {
-      "id": "aec033947f41ff3bb9960634",
-      "runner": "python",
-      "file": "test/scripts/agentflow_feature_test.py",
-      "case_id": "test.scripts.agentflow_feature_test.IdentityAndResolutionTest.test_second_unequal_example",
-      "profile": "unit"
-    },
-    {
-      "id": "aefe1d27ff3238408fd28bda",
-      "runner": "python",
-      "file": "test/scripts/agentflow_feature_test.py",
-      "case_id": "test.scripts.agentflow_feature_test.StrictMetadataTest.test_single_unsupported_fields_and_concealed_duplicates_refuse",
-      "profile": "unit"
-    },
-    {
       "id": "af03ee87cb1cc6cd1dd99e36",
       "runner": "exunit",
       "file": "test/providers_sync_test.exs",
@@ -2571,27 +1255,6 @@
       "profile": "unit"
     },
     {
-      "id": "afc25827493924f289d41402",
-      "runner": "python",
-      "file": "test/scripts/agentflow_policy_test.py",
-      "case_id": "test.scripts.agentflow_policy_test.WorkflowSpeedPolicyTest.test_low_risk_procedure_keeps_preflight_ci_independent_gates_and_human_merge",
-      "profile": "unit"
-    },
-    {
-      "id": "b0877e651c8ca885eefc483f",
-      "runner": "python",
-      "file": "test/scripts/agentflow_stage_checks_test.py",
-      "case_id": "test.scripts.agentflow_stage_checks_test.StageExecutionTest.test_safe_command_records_elapsed_time_from_monotonic_clock",
-      "profile": "unit"
-    },
-    {
-      "id": "b087b9bd697e9e48d8352e7d",
-      "runner": "python",
-      "file": "test/scripts/agentflow_metrics_test.py",
-      "case_id": "test.scripts.agentflow_metrics_test.MetricsTest.test_conflicting_duplicates_are_unknown",
-      "profile": "unit"
-    },
-    {
       "id": "b15e17df20b6247bc64279ef",
       "runner": "exunit",
       "file": "test/e2e/market_journey_test.exs",
@@ -2599,25 +1262,11 @@
       "profile": "e2e"
     },
     {
-      "id": "b241f71bae21104f81a9a42d",
-      "runner": "python",
-      "file": "test/scripts/agentflow_feature_test.py",
-      "case_id": "test.scripts.agentflow_feature_test.IdentityAndResolutionTest.test_terminal_reports_both_gates",
-      "profile": "unit"
-    },
-    {
       "id": "b2bf001c1cc48cff0115b4d5",
       "runner": "exunit",
       "file": "test/accounts_test.exs",
       "case_id": "FootballMarket.AccountsTest:test issues, identifies, and irreversibly revokes API keys",
       "profile": "integration"
-    },
-    {
-      "id": "b4182ca7237003dc58d6dfe0",
-      "runner": "python",
-      "file": "test/scripts/agentflow_stage_budget_test.py",
-      "case_id": "test.scripts.agentflow_stage_budget_test.StageBudgetTest.test_zero_budget_never_interrupts",
-      "profile": "unit"
     },
     {
       "id": "b420cf339701f49c4a68eea8",
@@ -2641,31 +1290,10 @@
       "profile": "unit"
     },
     {
-      "id": "b6bd5ed8cc62274bc12eea87",
-      "runner": "python",
-      "file": "test/scripts/agentflow_branch_test.py",
-      "case_id": "test.scripts.agentflow_branch_test.RealStartPreproductTest.test_actual_start_retains_legacy_and_rejects_invalid_candidates",
-      "profile": "unit"
-    },
-    {
       "id": "b746b795eda9eff668426bad",
       "runner": "shell",
       "file": "test/scripts/ci_unit_tests_test.sh",
       "case_id": "membership-extra-source",
-      "profile": "unit"
-    },
-    {
-      "id": "b78172c54cb6fca7814e69ae",
-      "runner": "python",
-      "file": "test/scripts/agentflow_providers_test.py",
-      "case_id": "test.scripts.agentflow_providers_test.OuterLaunchTest.test_mocked_windows_outer_spawn_uses_preflight_context_and_process_group",
-      "profile": "unit"
-    },
-    {
-      "id": "b79f25e22145fc495cea9e13",
-      "runner": "python",
-      "file": "test/scripts/agentflow_models_test.py",
-      "case_id": "test.scripts.agentflow_models_test.LauncherTest.test_sandbox_resolution_uses_configured_default_and_normalizes_explicit_selection",
       "profile": "unit"
     },
     {
@@ -2676,13 +1304,6 @@
       "profile": "integration"
     },
     {
-      "id": "b987c7f3b97df12e91925cf1",
-      "runner": "python",
-      "file": "test/scripts/agentflow_models_test.py",
-      "case_id": "test.scripts.agentflow_models_test.LauncherTest.test_adoption_removes_old_child_session_and_conflicts_fail_before_spawn",
-      "profile": "unit"
-    },
-    {
       "id": "ba377598688e16801ef6f408",
       "runner": "exunit",
       "file": "test/catalog_test.exs",
@@ -2690,24 +1311,10 @@
       "profile": "integration"
     },
     {
-      "id": "ba7489afa59f7ec031414893",
-      "runner": "python",
-      "file": "test/scripts/agentflow_preflight_test.py",
-      "case_id": "test.scripts.agentflow_preflight_test.PreflightTest.test_wrong_global_elixir_is_ignored_when_mise_selects_project_pin",
-      "profile": "unit"
-    },
-    {
       "id": "ba8e6dbb45458be3cefb7a5d",
       "runner": "python",
       "file": "test/scripts/dialyzer_ci_test.py",
       "case_id": "test.scripts.dialyzer_ci_test.DialyzerCiTest.test_preparation_requires_receipt_even_if_process_exits_zero",
-      "profile": "unit"
-    },
-    {
-      "id": "ba97fa4b22e094db312dcb17",
-      "runner": "python",
-      "file": "test/scripts/task_feature_binding_acceptance_test.py",
-      "case_id": "test.scripts.task_feature_binding_acceptance_test.ActualProviderFixtureTest.test_tools_and_exact_provenance",
       "profile": "unit"
     },
     {
@@ -2718,52 +1325,10 @@
       "profile": "unit"
     },
     {
-      "id": "bbf4e31c491bbff3b2eb45f9",
-      "runner": "python",
-      "file": "test/scripts/agentflow_clean_checkout_test.py",
-      "case_id": "test.scripts.agentflow_clean_checkout_test.CandidateTest.test_child_failure_propagates",
-      "profile": "unit"
-    },
-    {
       "id": "bc8ca79db33aba20164fa47d",
       "runner": "python",
       "file": "test/scripts/application_coverage_test.py",
       "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_batch_normalization_uses_one_worker_and_rejects_incomplete_outputs",
-      "profile": "unit"
-    },
-    {
-      "id": "bc95a2a6cdb383c0fb2d9d7a",
-      "runner": "python",
-      "file": "test/scripts/agentflow_artifacts_test.py",
-      "case_id": "test.scripts.agentflow_artifacts_test.ApplicabilityTest.test_required_directory_must_contain_nonempty_safe_file",
-      "profile": "unit"
-    },
-    {
-      "id": "bcf848dec36781d61dc8f786",
-      "runner": "python",
-      "file": "test/scripts/agentflow_providers_test.py",
-      "case_id": "test.scripts.agentflow_providers_test.ShimTest.test_command_dispatch_maps_onto_native_slash_invocation",
-      "profile": "unit"
-    },
-    {
-      "id": "bcff05234809dac42cfe88a3",
-      "runner": "python",
-      "file": "test/scripts/agentflow_providers_test.py",
-      "case_id": "test.scripts.agentflow_providers_test.ShimContinuationTest.test_continuation_flags_are_refused_under_adoption",
-      "profile": "unit"
-    },
-    {
-      "id": "bd58e7d5aa3ae5dac532e46b",
-      "runner": "python",
-      "file": "test/scripts/task_feature_binding_acceptance_test.py",
-      "case_id": "test.scripts.task_feature_binding_acceptance_test.WorkflowScopeTest.test_changed_file_allowlist_and_readme_boundary",
-      "profile": "unit"
-    },
-    {
-      "id": "be5b84e9671bf836929149fe",
-      "runner": "python",
-      "file": "test/scripts/agentflow_providers_test.py",
-      "case_id": "test.scripts.agentflow_providers_test.EnvTest.test_operator_shim_override_is_respected",
       "profile": "unit"
     },
     {
@@ -2774,53 +1339,11 @@
       "profile": "unit"
     },
     {
-      "id": "be760e92f034da7184f39ca4",
-      "runner": "python",
-      "file": "test/scripts/thinflow_ci_test.py",
-      "case_id": "test.scripts.thinflow_ci_test.ThinFlowCIContractTest.test_one_always_reporting_gate_aggregates_every_required_job",
-      "profile": "unit"
-    },
-    {
-      "id": "becfc1083ed73f8cca45a0c8",
-      "runner": "python",
-      "file": "test/scripts/task_feature_binding_acceptance_test.py",
-      "case_id": "test.scripts.task_feature_binding_acceptance_test.ToolingPreflightTest.test_tools_and_exact_provenance",
-      "profile": "unit"
-    },
-    {
-      "id": "bee247731f960342d8928870",
-      "runner": "python",
-      "file": "test/scripts/agentflow_fingerprint_test.py",
-      "case_id": "test.scripts.agentflow_fingerprint_test.SourceFingerprintTest.test_tooling_edits_do_not_change_the_fingerprint",
-      "profile": "unit"
-    },
-    {
-      "id": "bef1ed5924b684efb28a161a",
-      "runner": "python",
-      "file": "test/scripts/fast_lane_check_test.py",
-      "case_id": "test.scripts.fast_lane_check_test.FastLaneCheckTest.test_clean_tree_reports_nothing",
-      "profile": "unit"
-    },
-    {
       "id": "bfb6e0c97aae6547694269ed",
       "runner": "exunit",
       "file": "test/business_metrics_test.exs",
       "case_id": "FootballMarketWeb.BusinessMetricsTest:test empty retained sources return explicit zero counts and a database timestamp",
       "profile": "integration"
-    },
-    {
-      "id": "c011fa142ce12dfa0371b438",
-      "runner": "python",
-      "file": "test/scripts/agentflow_ci_check_test.py",
-      "case_id": "test.scripts.agentflow_ci_check_test.CollectionTest.test_subprocess_failure_and_unavailable_tool_are_bounded",
-      "profile": "unit"
-    },
-    {
-      "id": "c03bb6c8a62cc4c3a437e7e2",
-      "runner": "python",
-      "file": "test/scripts/agentflow_evidence_test.py",
-      "case_id": "test.scripts.agentflow_evidence_test.EvidenceTest.test_tampering_and_source_edits_block_reuse",
-      "profile": "unit"
     },
     {
       "id": "c06e9497646da892c8d00e07",
@@ -2844,13 +1367,6 @@
       "profile": "unit"
     },
     {
-      "id": "c21ffb5090bf46333c624c4a",
-      "runner": "python",
-      "file": "test/scripts/agentflow_stage_checks_test.py",
-      "case_id": "test.scripts.agentflow_stage_checks_test.CiParityTest.test_real_signal_exit_codes_are_nonzero_and_classified_interrupted",
-      "profile": "unit"
-    },
-    {
       "id": "c2602b467f94be886723025c",
       "runner": "exunit",
       "file": "test/providers_sync_test.exs",
@@ -2865,13 +1381,6 @@
       "profile": "unit"
     },
     {
-      "id": "c2ca91e74fe9115fd66d301c",
-      "runner": "python",
-      "file": "test/scripts/agentflow_models_test.py",
-      "case_id": "test.scripts.agentflow_models_test.ModelTest.test_provider_error_with_zero_exit_is_failed_once",
-      "profile": "unit"
-    },
-    {
       "id": "c2eb35749c6382ad41867ad8",
       "runner": "exunit",
       "file": "test/football_market/ranking_cache_test.exs",
@@ -2879,52 +1388,10 @@
       "profile": "integration"
     },
     {
-      "id": "c337e4d95da789570d021d90",
-      "runner": "python",
-      "file": "test/scripts/agentflow_stage_checks_test.py",
-      "case_id": "test.scripts.agentflow_stage_checks_test.StageExecutionTest.test_full_stage_attempt_token_is_forwarded_to_check_child",
-      "profile": "unit"
-    },
-    {
       "id": "c3d4276a80ea4d08e9625308",
       "runner": "exunit",
       "file": "test/ci/quality_baseline_contract_test.exs",
       "case_id": "FootballMarket.QualityBaselineContractTest:test quality reports and required aggregate are tied to the exact PR head",
-      "profile": "unit"
-    },
-    {
-      "id": "c3e3e905d225b9419bf199ec",
-      "runner": "python",
-      "file": "test/scripts/agentflow_evidence_test.py",
-      "case_id": "test.scripts.agentflow_evidence_test.EvidenceTest.test_required_artifacts_block_real_receipt_resume_and_finalization",
-      "profile": "unit"
-    },
-    {
-      "id": "c3f8a3dd16fd0e359f161c6f",
-      "runner": "python",
-      "file": "test/scripts/agentflow_ci_check_test.py",
-      "case_id": "test.scripts.agentflow_ci_check_test.EnvironmentTest.test_beam_failure_cannot_be_masked_by_other_tools",
-      "profile": "unit"
-    },
-    {
-      "id": "c4374996334ef0ea47fcf8a1",
-      "runner": "python",
-      "file": "test/scripts/fast_lane_check_test.py",
-      "case_id": "test.scripts.fast_lane_check_test.FastLaneCheckTest.test_untracked_no_behavior_files_are_checked_without_commit",
-      "profile": "unit"
-    },
-    {
-      "id": "c4af718d32d60a9a30bdc262",
-      "runner": "python",
-      "file": "test/scripts/agentflow_stage_checks_test.py",
-      "case_id": "test.scripts.agentflow_stage_checks_test.StageExecutionTest.test_retry_limit_allows_recovery_when_failed_or_dependency_input_changes",
-      "profile": "unit"
-    },
-    {
-      "id": "c4ee95fd6a734ea9f6ebaf18",
-      "runner": "python",
-      "file": "test/scripts/agentflow_artifacts_test.py",
-      "case_id": "test.scripts.agentflow_artifacts_test.ApplicabilityTest.test_setup_does_not_require_a_plan_before_creation",
       "profile": "unit"
     },
     {
@@ -2935,52 +1402,10 @@
       "profile": "integration"
     },
     {
-      "id": "c593958ea350f98679645f21",
-      "runner": "python",
-      "file": "test/scripts/agentflow_evidence_test.py",
-      "case_id": "test.scripts.agentflow_evidence_test.EvidenceTest.test_sandbox_mode_is_required_and_closed_before_profile_spawn",
-      "profile": "unit"
-    },
-    {
-      "id": "c67e628c5d991ac21b4b1e44",
-      "runner": "python",
-      "file": "test/scripts/fast_lane_check_test.py",
-      "case_id": "test.scripts.fast_lane_check_test.FastLaneCheckTest.test_root_level_application_files_are_denied",
-      "profile": "unit"
-    },
-    {
-      "id": "c6a8b4bdfe9b5d5db0fad508",
-      "runner": "python",
-      "file": "test/scripts/agentflow_dedup_test.py",
-      "case_id": "test.scripts.agentflow_dedup_test.DedupTest.test_vibecode_procedure_has_explicit_high_risk_exclusions",
-      "profile": "unit"
-    },
-    {
-      "id": "c6bfa59123c02703fc11f8be",
-      "runner": "python",
-      "file": "test/scripts/reconcile_merged_task_test.py",
-      "case_id": "test.scripts.reconcile_merged_task_test.ReconcileMergedTaskTest.test_invalid_branch",
-      "profile": "unit"
-    },
-    {
       "id": "c6d040d2b0eb5b263741265a",
       "runner": "python",
       "file": "test/scripts/sobelow_ci_test.py",
       "case_id": "test.scripts.sobelow_ci_test.SobelowCiTest.test_native_credo_findings_with_optional_positions_reach_summary",
-      "profile": "unit"
-    },
-    {
-      "id": "c74a0d33e8aaa25dc00a25db",
-      "runner": "python",
-      "file": "test/scripts/agentflow_completion_test.py",
-      "case_id": "test.scripts.agentflow_completion_test.StrictDependentMetadataTest.test_invalid_dependent_task_refuses_before_enumeration_or_completion",
-      "profile": "unit"
-    },
-    {
-      "id": "c79c5923614d4a16719b7246",
-      "runner": "python",
-      "file": "test/scripts/agentflow_preflight_test.py",
-      "case_id": "test.scripts.agentflow_preflight_test.PreflightTest.test_uses_child_path_and_working_directory",
       "profile": "unit"
     },
     {
@@ -2991,24 +1416,10 @@
       "profile": "integration"
     },
     {
-      "id": "c83498e0a41fbec1ba888301",
-      "runner": "python",
-      "file": "test/scripts/agentflow_preflight_test.py",
-      "case_id": "test.scripts.agentflow_preflight_test.PreflightTest.test_node_resolver_uses_nvm_24_when_effective_path_has_other_major",
-      "profile": "unit"
-    },
-    {
-      "id": "c8fc2e7cc9c102da98c8be29",
-      "runner": "python",
-      "file": "test/scripts/agentflow_stage_checks_test.py",
-      "case_id": "test.scripts.agentflow_stage_checks_test.StageExecutionTest.test_sigint_and_sigterm_are_recorded_as_interrupted_and_stop_following_checks",
-      "profile": "unit"
-    },
-    {
-      "id": "caa60f04b08a23353accaef5",
-      "runner": "python",
-      "file": "test/scripts/agentflow_fingerprint_test.py",
-      "case_id": "test.scripts.agentflow_fingerprint_test.ReceiptToolingIndependenceTest.test_tooling_edit_between_check_and_reuse_keeps_receipt_current",
+      "id": "c82cfeb9ca541b2a33146a41",
+      "runner": "node",
+      "file": "scripts/openapi/workspace_session.test.mjs",
+      "case_id": "online and offline events act only on a workspace",
       "profile": "unit"
     },
     {
@@ -3023,20 +1434,6 @@
       "runner": "python",
       "file": "test/scripts/test_inventory_test.py",
       "case_id": "test.scripts.test_inventory_test.InventoryTest.test_check_rejects_test_files_outside_discovered_native_population",
-      "profile": "unit"
-    },
-    {
-      "id": "cb28eb0d1340811d0df1a28f",
-      "runner": "python",
-      "file": "test/scripts/agentflow_artifacts_test.py",
-      "case_id": "test.scripts.agentflow_artifacts_test.ApplicabilityTest.test_direct_consumers_reject_whole_block_deletion",
-      "profile": "unit"
-    },
-    {
-      "id": "cc823190f6139b78aa6618db",
-      "runner": "node",
-      "file": "tools/openapi/workspace_session.test.mjs",
-      "case_id": "repeated disconnect and reconnect dispose sockets without replaying requests",
       "profile": "unit"
     },
     {
@@ -3061,34 +1458,6 @@
       "profile": "unit"
     },
     {
-      "id": "cde4a405abece479f4b544fa",
-      "runner": "python",
-      "file": "test/scripts/agentflow_stage_checks_test.py",
-      "case_id": "test.scripts.agentflow_stage_checks_test.StageExecutionTest.test_failure_continues_independent_and_blocks_state_dependent",
-      "profile": "unit"
-    },
-    {
-      "id": "ce98344a13604f248c8e321a",
-      "runner": "python",
-      "file": "test/scripts/agentflow_ci_check_test.py",
-      "case_id": "test.scripts.agentflow_ci_check_test.InventoryTest.test_missing_workflow_obligation_fails_closed",
-      "profile": "unit"
-    },
-    {
-      "id": "cf45d3792e71f68e8ab2c3f3",
-      "runner": "python",
-      "file": "test/scripts/agentflow_models_test.py",
-      "case_id": "test.scripts.agentflow_models_test.LauncherTest.test_workspace_write_keeps_loopback_network_and_model_options",
-      "profile": "unit"
-    },
-    {
-      "id": "cffd0ac6d9e05f104f74dd4d",
-      "runner": "python",
-      "file": "test/scripts/agentflow_feedback_test.py",
-      "case_id": "test.scripts.agentflow_feedback_test.FeedbackTest.test_preexisting_cycle_count_uses_configured_cap_without_resetting_history",
-      "profile": "unit"
-    },
-    {
       "id": "d0404d8fe259983de1e7b9ba",
       "runner": "exunit",
       "file": "test/ci/sonarcloud_contract_test.exs",
@@ -3103,31 +1472,10 @@
       "profile": "integration"
     },
     {
-      "id": "d0ac2f0048907127d844fbe1",
-      "runner": "python",
-      "file": "test/scripts/agentflow_evidence_test.py",
-      "case_id": "test.scripts.agentflow_evidence_test.EvidenceTest.test_qa_cannot_replace_development_or_be_reused",
-      "profile": "unit"
-    },
-    {
-      "id": "d118885ae6e9b2d5ffd1b5fe",
-      "runner": "python",
-      "file": "test/scripts/task_feature_binding_acceptance_test.py",
-      "case_id": "test.scripts.task_feature_binding_acceptance_test.WorkflowScopeTest.test_separate_correction_merge_order_is_versioned",
-      "profile": "unit"
-    },
-    {
       "id": "d17b6414046f9d310408c23e",
       "runner": "python",
       "file": "test/scripts/application_coverage_test.py",
       "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_hash_coherent_report_rejects_coercible_receipt_component_counts",
-      "profile": "unit"
-    },
-    {
-      "id": "d27d64af5d47970a39fd4546",
-      "runner": "python",
-      "file": "test/scripts/agentflow_branch_test.py",
-      "case_id": "test.scripts.agentflow_branch_test.AgentflowBranchTest.test_resume_sets_pointer_from_owned_feature",
       "profile": "unit"
     },
     {
@@ -3138,31 +1486,10 @@
       "profile": "integration"
     },
     {
-      "id": "d452a85c8418e113c299418e",
-      "runner": "python",
-      "file": "test/scripts/agentflow_feedback_test.py",
-      "case_id": "test.scripts.agentflow_feedback_test.FeedbackTest.test_replayed_feedback_recovery_is_idempotent_without_another_feedback_entry",
-      "profile": "unit"
-    },
-    {
-      "id": "d4d9a4efb40e86bb3e729653",
-      "runner": "python",
-      "file": "test/scripts/agentflow_preflight_test.py",
-      "case_id": "test.scripts.agentflow_preflight_test.PreflightTest.test_unknown_inventory_is_not_reported_as_ready",
-      "profile": "unit"
-    },
-    {
       "id": "d500b5c85745b171959fdc70",
       "runner": "python",
       "file": "test/scripts/test_inventory_test.py",
       "case_id": "test.scripts.test_inventory_test.InventoryTest.test_duplicate_unknown_and_wrong_assignment",
-      "profile": "unit"
-    },
-    {
-      "id": "d5989f982f50a375c615d701",
-      "runner": "python",
-      "file": "test/scripts/agentflow_artifacts_test.py",
-      "case_id": "test.scripts.agentflow_artifacts_test.ApplicabilityTest.test_new_plan_cannot_claim_legacy_in_policy_aware_repository",
       "profile": "unit"
     },
     {
@@ -3180,27 +1507,6 @@
       "profile": "unit"
     },
     {
-      "id": "d6fd3a614a8ae0c6f154e62d",
-      "runner": "python",
-      "file": "test/scripts/fast_lane_check_test.py",
-      "case_id": "test.scripts.fast_lane_check_test.FastLaneCheckTest.test_all_no_behavior_paths_are_allowed",
-      "profile": "unit"
-    },
-    {
-      "id": "d8db1891e3e0df8a25e9b19e",
-      "runner": "python",
-      "file": "test/scripts/agentflow_ci_check_test.py",
-      "case_id": "test.scripts.agentflow_ci_check_test.EnvironmentTest.test_wrong_node_cannot_pass",
-      "profile": "unit"
-    },
-    {
-      "id": "d9142a3b83b26e4b684572b2",
-      "runner": "python",
-      "file": "test/scripts/agentflow_evidence_test.py",
-      "case_id": "test.scripts.agentflow_evidence_test.EvidenceTest.test_profile_event_summary_accepts_only_bounded_aggregate_counts",
-      "profile": "unit"
-    },
-    {
       "id": "d9268e1941ba68154e708729",
       "runner": "shell",
       "file": "test/integration/redis_disposability_test.sh",
@@ -3215,31 +1521,10 @@
       "profile": "unit"
     },
     {
-      "id": "d9a2ee018e3bd30f6f420322",
-      "runner": "python",
-      "file": "test/scripts/agentflow_evidence_test.py",
-      "case_id": "test.scripts.agentflow_evidence_test.EvidenceTest.test_failure_diagnostics_expose_only_allowlisted_profile_locations",
-      "profile": "unit"
-    },
-    {
       "id": "d9e072c25bf97bc25183c407",
       "runner": "python",
       "file": "test/scripts/test_profile_runner_test.py",
       "case_id": "test.scripts.test_profile_runner_test.RunnerTest.test_generated_playwright_probe_preserves_only_closed_launch_causes",
-      "profile": "unit"
-    },
-    {
-      "id": "dbadd3d5ba71733fd2cc31d0",
-      "runner": "python",
-      "file": "test/scripts/agentflow_models_test.py",
-      "case_id": "test.scripts.agentflow_models_test.LauncherTest.test_provider_selection_maps_models_and_freezes_provider",
-      "profile": "unit"
-    },
-    {
-      "id": "dc29d76b03552918c8f86441",
-      "runner": "python",
-      "file": "test/scripts/agentflow_feature_test.py",
-      "case_id": "test.scripts.agentflow_feature_test.AdversarialResolutionTest.test_missing_duplicate_malformed_equal_number_specs_refuse_fallback",
       "profile": "unit"
     },
     {
@@ -3292,13 +1577,6 @@
       "profile": "unit"
     },
     {
-      "id": "de32380599bbd6b786d699c8",
-      "runner": "python",
-      "file": "test/scripts/agentflow_stage_checks_test.py",
-      "case_id": "test.scripts.agentflow_stage_checks_test.SafeDiagnosticTest.test_incomplete_qa_projection_cannot_pass",
-      "profile": "unit"
-    },
-    {
       "id": "de9862b121f4f8b6115ebffa",
       "runner": "exunit",
       "file": "test/ci/quality_baseline_contract_test.exs",
@@ -3313,31 +1591,10 @@
       "profile": "unit"
     },
     {
-      "id": "e0ab1a9bd10322a3ab2ae04d",
-      "runner": "python",
-      "file": "test/scripts/thinflow_test.py",
-      "case_id": "test.scripts.thinflow_test.CandidateTest.test_provider_failure_uses_thinflow_evaluation_not_legacy_manifest",
-      "profile": "unit"
-    },
-    {
       "id": "e0fa343b85dc7b02ba00964f",
       "runner": "python",
       "file": "test/scripts/application_coverage_test.py",
       "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_same_source_line_in_multiple_modules_counts_once_and_zero_is_valid",
-      "profile": "unit"
-    },
-    {
-      "id": "e1c616ac100671a45e041a49",
-      "runner": "node",
-      "file": "tools/openapi/workspace_session.test.mjs",
-      "case_id": "failed connectivity retries only the safe read after 500 milliseconds",
-      "profile": "unit"
-    },
-    {
-      "id": "e227b8617fabd03233e813ab",
-      "runner": "python",
-      "file": "test/scripts/agentflow_feedback_test.py",
-      "case_id": "test.scripts.agentflow_feedback_test.FeedbackTest.test_all_categories_route_to_earliest_owner",
       "profile": "unit"
     },
     {
@@ -3348,45 +1605,10 @@
       "profile": "unit"
     },
     {
-      "id": "e28f09edfd102b4ad4eb99cb",
-      "runner": "python",
-      "file": "test/scripts/task_feature_binding_acceptance_test.py",
-      "case_id": "test.scripts.task_feature_binding_acceptance_test.WorkflowScopeTest.test_finalize_workflow_safeguards_and_no_changes",
-      "profile": "unit"
-    },
-    {
-      "id": "e2bab919f96b7692e674c670",
-      "runner": "python",
-      "file": "test/scripts/agentflow_fingerprint_test.py",
-      "case_id": "test.scripts.agentflow_fingerprint_test.ReceiptToolingIndependenceTest.test_product_source_edit_between_check_and_reuse_still_invalidates",
-      "profile": "unit"
-    },
-    {
-      "id": "e35c1758e057e7dbfee10e4a",
-      "runner": "python",
-      "file": "test/scripts/agentflow_feedback_test.py",
-      "case_id": "test.scripts.agentflow_feedback_test.FeedbackTest.test_checks_option_scopes_remediation_after_regressions",
-      "profile": "unit"
-    },
-    {
-      "id": "e4027aad57d7a0d4b629eb00",
-      "runner": "python",
-      "file": "test/scripts/agentflow_metrics_test.py",
-      "case_id": "test.scripts.agentflow_metrics_test.MetricsTest.test_finished_attempt_without_usage_cannot_make_measurement_complete",
-      "profile": "unit"
-    },
-    {
-      "id": "e435b3e6e83a704a348c50b5",
-      "runner": "python",
-      "file": "test/scripts/agentflow_feature_test.py",
-      "case_id": "test.scripts.agentflow_feature_test.AdversarialResolutionTest.test_rejection_matrix_and_actionable_diagnostics",
-      "profile": "unit"
-    },
-    {
-      "id": "e5b07ae0fe5fa1d58479d756",
-      "runner": "python",
-      "file": "test/scripts/agentflow_stage_checks_test.py",
-      "case_id": "test.scripts.agentflow_stage_checks_test.ManifestContractTest.test_unknown_dependency_fails_before_any_execution",
+      "id": "e3214d3ded2e33c4c8b691e2",
+      "runner": "node",
+      "file": "scripts/openapi/workspace_session.test.mjs",
+      "case_id": "failed connectivity retries only the safe read after 500 milliseconds",
       "profile": "unit"
     },
     {
@@ -3411,31 +1633,10 @@
       "profile": "integration"
     },
     {
-      "id": "e6f9676e1a8d00e52b229524",
-      "runner": "python",
-      "file": "test/scripts/agentflow_stage_checks_test.py",
-      "case_id": "test.scripts.agentflow_stage_checks_test.StageExecutionTest.test_interrupted_check_stops_batch_and_leaves_remaining_unexecuted",
-      "profile": "unit"
-    },
-    {
-      "id": "e71c9582da1605c7c1ad744d",
-      "runner": "python",
-      "file": "test/scripts/agentflow_ci_check_test.py",
-      "case_id": "test.scripts.agentflow_ci_check_test.CollectionTest.test_pinned_exunit_result_format_retains_nonzero_collection",
-      "profile": "unit"
-    },
-    {
-      "id": "e86cae4c15cf1d71f0637e48",
-      "runner": "python",
-      "file": "test/scripts/agentflow_evidence_test.py",
-      "case_id": "test.scripts.agentflow_evidence_test.EvidenceTest.test_output_path_escape_and_wrong_workspace_fail",
-      "profile": "unit"
-    },
-    {
-      "id": "e9317791e2831aaea3a4ffb6",
-      "runner": "python",
-      "file": "test/scripts/agentflow_feedback_test.py",
-      "case_id": "test.scripts.agentflow_feedback_test.FeedbackTest.test_checks_counter_resets_per_entry",
+      "id": "e739bdb6fd5e1dba75660ae9",
+      "runner": "node",
+      "file": "scripts/openapi/validate.test.mjs",
+      "case_id": "published contract is valid OpenAPI 3",
       "profile": "unit"
     },
     {
@@ -3453,24 +1654,10 @@
       "profile": "unit"
     },
     {
-      "id": "eac3e37581bed57574570a5d",
-      "runner": "python",
-      "file": "test/scripts/agentflow_evidence_test.py",
-      "case_id": "test.scripts.agentflow_evidence_test.EvidenceTest.test_checklist_and_implementation_tasks_still_block",
-      "profile": "unit"
-    },
-    {
       "id": "eb0b2d456aeb5f78e894dac4",
       "runner": "python",
       "file": "test/scripts/application_coverage_test.py",
       "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_snapshot_detects_configuration_scripts_and_untracked_inputs",
-      "profile": "unit"
-    },
-    {
-      "id": "eb31a8972803104e3574093c",
-      "runner": "python",
-      "file": "test/scripts/agentflow_clean_checkout_test.py",
-      "case_id": "test.scripts.agentflow_clean_checkout_test.CandidateTest.test_full_collection_runs_once_on_candidate",
       "profile": "unit"
     },
     {
@@ -3495,45 +1682,10 @@
       "profile": "unit"
     },
     {
-      "id": "eebfd2e6e7c006dc233efac6",
-      "runner": "python",
-      "file": "test/scripts/agentflow_evidence_test.py",
-      "case_id": "test.scripts.agentflow_evidence_test.EvidenceTest.test_manifest_rejects_invalid_retry_environment_names",
-      "profile": "unit"
-    },
-    {
-      "id": "ef2f3e9293848dc6359cddf4",
-      "runner": "python",
-      "file": "test/scripts/reconcile_merged_task_test.py",
-      "case_id": "test.scripts.reconcile_merged_task_test.PostMergeRejectionMatrixTest.test_shared_ownership_matrix_has_no_writes",
-      "profile": "unit"
-    },
-    {
-      "id": "ef7436322706bb69436be950",
-      "runner": "python",
-      "file": "test/scripts/agentflow_models_test.py",
-      "case_id": "test.scripts.agentflow_models_test.LauncherTest.test_start_dry_run_does_not_mutate_or_launch",
-      "profile": "unit"
-    },
-    {
       "id": "eff523850177dfd78d691fba",
       "runner": "python",
       "file": "test/scripts/test_profile_runner_test.py",
       "case_id": "test.scripts.test_profile_runner_test.RunnerTest.test_browser_preflight_supervisor_timeout_emits_safe_timeout_cause",
-      "profile": "unit"
-    },
-    {
-      "id": "f079d00e4a1a571bf8182898",
-      "runner": "python",
-      "file": "test/scripts/agentflow_ci_check_test.py",
-      "case_id": "test.scripts.agentflow_ci_check_test.EnvironmentTest.test_exact_versions_and_services_are_asserted",
-      "profile": "unit"
-    },
-    {
-      "id": "f11eb6e6dd529c963663b5ef",
-      "runner": "python",
-      "file": "test/scripts/agentflow_providers_test.py",
-      "case_id": "test.scripts.agentflow_providers_test.CliProviderTest.test_start_passes_provider_input_and_fails_loudly_without_fake_cli",
       "profile": "unit"
     },
     {
@@ -3544,45 +1696,10 @@
       "profile": "unit"
     },
     {
-      "id": "f216b5a0932dd1055d83b995",
-      "runner": "python",
-      "file": "test/scripts/agentflow_feedback_test.py",
-      "case_id": "test.scripts.agentflow_feedback_test.FeedbackTest.test_third_feedback_cycle_is_allowed_and_fourth_preserves_history",
-      "profile": "unit"
-    },
-    {
-      "id": "f265ce7968a64a51dff15ec6",
-      "runner": "python",
-      "file": "test/scripts/thinflow_ci_test.py",
-      "case_id": "test.scripts.thinflow_ci_test.ThinFlowCIContractTest.test_root_level_exunit_suite_selects_application_checks",
-      "profile": "unit"
-    },
-    {
-      "id": "f2e0b37b0d0e9034c17ac857",
-      "runner": "python",
-      "file": "test/scripts/agentflow_recovery_test.py",
-      "case_id": "test.scripts.agentflow_recovery_test.StageAttemptTest.test_attempt_finalization_is_idempotent_and_preserves_partial_results",
-      "profile": "unit"
-    },
-    {
-      "id": "f45aa33cb2919496b2638bd3",
-      "runner": "python",
-      "file": "test/scripts/agentflow_completion_test.py",
-      "case_id": "test.scripts.agentflow_completion_test.AgentflowCompletionTest.test_explicit_and_dependency_rejection_matrix_never_mutates",
-      "profile": "unit"
-    },
-    {
       "id": "f496593da30ab8562fe7f015",
       "runner": "exunit",
       "file": "test/ci/credo_ci_contract_test.exs",
       "case_id": "FootballMarket.CredoCiContractTest:test CLI and inventory failures independently fail the wrapper",
-      "profile": "unit"
-    },
-    {
-      "id": "f4d6cbe55aaba998e139ad4c",
-      "runner": "python",
-      "file": "test/scripts/agentflow_models_test.py",
-      "case_id": "test.scripts.agentflow_models_test.LauncherTest.test_sandbox_cli_and_config_disagreement_refuses",
       "profile": "unit"
     },
     {
@@ -3593,38 +1710,10 @@
       "profile": "integration"
     },
     {
-      "id": "f5a92e9d85e0808dfb3cc06a",
-      "runner": "python",
-      "file": "test/scripts/agentflow_providers_test.py",
-      "case_id": "test.scripts.agentflow_providers_test.SelectionTest.test_legacy_repository_without_provider_file_stays_codex",
-      "profile": "unit"
-    },
-    {
-      "id": "f5cddf24c1e0ce2dd74ac682",
-      "runner": "python",
-      "file": "test/scripts/agentflow_providers_test.py",
-      "case_id": "test.scripts.agentflow_providers_test.OuterLaunchTest.test_start_preflight_refusal_precedes_branch_assignment_and_stage_spawn",
-      "profile": "unit"
-    },
-    {
-      "id": "f6a56cc03084072ad52daaed",
-      "runner": "python",
-      "file": "test/scripts/agentflow_feedback_test.py",
-      "case_id": "test.scripts.agentflow_feedback_test.FeedbackTest.test_feedback_rewind_invalidates_native_tree_and_preserves_checkpoint_backup",
-      "profile": "unit"
-    },
-    {
       "id": "f733a59a414b92271a5a534f",
       "runner": "shell",
       "file": "test/scripts/ci_unit_tests_test.sh",
       "case_id": "browser-diagnostic",
-      "profile": "unit"
-    },
-    {
-      "id": "f75ab9a8814c11f0189d140c",
-      "runner": "python",
-      "file": "test/scripts/agentflow_branch_test.py",
-      "case_id": "test.scripts.agentflow_branch_test.AgentflowBranchTest.test_explicit_base_accepts_stacked_start_and_publication",
       "profile": "unit"
     },
     {
@@ -3635,38 +1724,10 @@
       "profile": "integration"
     },
     {
-      "id": "f7c1739c1f09e9d2c11824c3",
-      "runner": "python",
-      "file": "test/scripts/agentflow_models_test.py",
-      "case_id": "test.scripts.agentflow_models_test.LauncherTest.test_ambiguous_sandbox_policy_refuses_before_spawn_without_leaking_config",
-      "profile": "unit"
-    },
-    {
       "id": "f7fe0e143874168e005cee51",
       "runner": "python",
       "file": "test/scripts/test_profile_components_test.py",
       "case_id": "test.scripts.test_profile_components_test.ComponentsTest.test_nested_integration_shell_suites_are_discovered_and_owned",
-      "profile": "unit"
-    },
-    {
-      "id": "f83bba6de7820806a6ca9eb1",
-      "runner": "python",
-      "file": "test/scripts/agentflow_stage_checks_test.py",
-      "case_id": "test.scripts.agentflow_stage_checks_test.ManifestContractTest.test_dependency_cycle_fails",
-      "profile": "unit"
-    },
-    {
-      "id": "f8829301eb978f7a7c07a48f",
-      "runner": "python",
-      "file": "test/scripts/agentflow_clean_checkout_test.py",
-      "case_id": "test.scripts.agentflow_clean_checkout_test.CandidateTest.test_base_branch_has_actionable_ownership_failure",
-      "profile": "unit"
-    },
-    {
-      "id": "f8a16cda682b74e78f0d7cb3",
-      "runner": "python",
-      "file": "test/scripts/agentflow_evidence_test.py",
-      "case_id": "test.scripts.agentflow_evidence_test.EvidenceTest.test_safe_consumer_redacts_registered_nonconventional_case_id",
       "profile": "unit"
     },
     {
@@ -3684,52 +1745,10 @@
       "profile": "unit"
     },
     {
-      "id": "f98c0984caa459bb7ab6601a",
-      "runner": "python",
-      "file": "test/scripts/agentflow_branch_test.py",
-      "case_id": "test.scripts.agentflow_branch_test.AgentflowBranchTest.test_publish_wrong_branch_and_foreign_feature_have_no_side_effects",
-      "profile": "unit"
-    },
-    {
-      "id": "f9d80065bba8430d8c109619",
-      "runner": "python",
-      "file": "test/scripts/agentflow_feature_test.py",
-      "case_id": "test.scripts.agentflow_feature_test.IdentityAndResolutionTest.test_explicit_match_beats_foreign_equal_number",
-      "profile": "unit"
-    },
-    {
       "id": "fa4e1e37fd9764e8663ece5c",
       "runner": "python",
       "file": "test/scripts/test_profile_components_test.py",
       "case_id": "test.scripts.test_profile_components_test.ComponentsTest.test_docker_wrapper_rewrites_only_owned_compose_targets",
-      "profile": "unit"
-    },
-    {
-      "id": "fa54aee22c2a99ea2239891c",
-      "runner": "python",
-      "file": "test/scripts/agentflow_providers_test.py",
-      "case_id": "test.scripts.agentflow_providers_test.SelectionTest.test_option_conflicts_refuse_before_any_dispatch",
-      "profile": "unit"
-    },
-    {
-      "id": "fc2485d71bb0eb96a96ba3c2",
-      "runner": "python",
-      "file": "test/scripts/workflow_artifact_probe_test.py",
-      "case_id": "test.scripts.workflow_artifact_probe_test.AuthoritativeReceiptSelectionTest.test_stage_selection_refuses_shared_invalid_associations",
-      "profile": "unit"
-    },
-    {
-      "id": "fc3ed364142ff3a65e561898",
-      "runner": "python",
-      "file": "test/scripts/agentflow_providers_test.py",
-      "case_id": "test.scripts.agentflow_providers_test.ShimTest.test_both_provider_shims_spawn_the_exact_preflight_context",
-      "profile": "unit"
-    },
-    {
-      "id": "fc615bfb19dcd4c53165da84",
-      "runner": "python",
-      "file": "test/scripts/agentflow_providers_test.py",
-      "case_id": "test.scripts.agentflow_providers_test.ShimTest.test_frozen_selection_inserts_model_before_positional_message",
       "profile": "unit"
     },
     {
@@ -3745,26 +1764,23 @@
       "file": "test/scripts/application_coverage_test.py",
       "case_id": "test.scripts.application_coverage_test.CoverageAccountingTest.test_real_profile_failure_preserves_nonzero_and_failed_status",
       "profile": "unit"
-    },
-    {
-      "id": "fe68a3894e1c9f5d69898917",
-      "runner": "python",
-      "file": "test/scripts/thinflow_test.py",
-      "case_id": "test.scripts.thinflow_test.PolicyTest.test_selection_is_deterministic_and_unmapped_paths_fail_closed",
-      "profile": "unit"
-    },
-    {
-      "id": "febe68293ef0699855b950a0",
-      "runner": "python",
-      "file": "test/scripts/agentflow_providers_test.py",
-      "case_id": "test.scripts.agentflow_providers_test.ConsoleTest.test_opencode_payloads_are_hidden_but_marker_events_show",
-      "profile": "unit"
     }
   ],
   "helpers": {
+    "scripts/openapi/administration_browser.mjs": "Chromium helper for the registered integration administration browser case.",
+    "scripts/openapi/browser.mjs": "Fixture/support helper; cases owned by its importing native suite.",
+    "scripts/openapi/e2e_browser.mjs": "Fixture/support helper; cases owned by its importing native suite.",
+    "scripts/openapi/e2e_catalog_scouting.mjs": "Real Chromium catalog scouting journey helper; invoked by the E2E catalog scouting suite.",
+    "scripts/openapi/e2e_market.mjs": "Real Chromium market journey helper; invoked by the E2E portfolio suite.",
+    "scripts/openapi/e2e_market_reconnect.mjs": "Real Chromium offline commit and reconnect recovery journey helper; invoked by the E2E browser reconnect suite.",
+    "scripts/openapi/e2e_parity.mjs": "Chromium catalog restoration, account isolation and portfolio parity journey owned by MarketJourneyTest.",
+    "scripts/openapi/player_statistics_browser.mjs": "Real Chromium first-load deadline, worker publication, retained values and failure navigation journey; owned by WorkspaceBrowserTest.",
+    "scripts/openapi/profile_reporter.mjs": "Fixture/support helper; cases owned by its importing native suite.",
+    "scripts/openapi/validate.mjs": "Fixture/support helper; cases owned by its importing native suite.",
+    "scripts/openapi/workspace_browser.mjs": "Fixture/support helper; cases owned by its importing native suite.",
+    "scripts/openapi/workspace_coverage.mjs": "Fixture/support helper; cases owned by its importing native suite.",
     "test/__init__.py": "Fixture/support helper; cases owned by its importing native suite.",
     "test/scripts/__init__.py": "Fixture/support helper; cases owned by its importing native suite.",
-    "test/scripts/support/agentflow_delivery_fixtures.py": "Fixture/support helper; cases owned by its importing native suite.",
     "test/scripts/support/local_services_test_helpers.sh": "Fixture/support helper; cases owned by its importing native suite.",
     "test/scripts/support/profile_events.sh": "Fixture/support helper; cases owned by its importing native suite.",
     "test/support/conn_case.ex": "Fixture/support helper; cases owned by its importing native suite.",
@@ -3775,18 +1791,6 @@
     "test/support/ranking_cache.ex": "In-memory Redis adapter fixture owned by RankingTest.",
     "test/support/test_profile_audit.ex": "Fixture/support helper; cases owned by its importing native suite.",
     "test/support/test_profile_formatter.ex": "Fixture/support helper; cases owned by its importing native suite.",
-    "test/test_helper.exs": "Fixture/support helper; cases owned by its importing native suite.",
-    "tools/openapi/administration_browser.mjs": "Chromium helper for the registered integration administration browser case.",
-    "tools/openapi/browser.mjs": "Fixture/support helper; cases owned by its importing native suite.",
-    "tools/openapi/e2e_browser.mjs": "Fixture/support helper; cases owned by its importing native suite.",
-    "tools/openapi/e2e_catalog_scouting.mjs": "Real Chromium catalog scouting journey helper; invoked by the E2E catalog scouting suite.",
-    "tools/openapi/e2e_market.mjs": "Real Chromium market journey helper; invoked by the E2E portfolio suite.",
-    "tools/openapi/e2e_market_reconnect.mjs": "Real Chromium offline commit and reconnect recovery journey helper; invoked by the E2E browser reconnect suite.",
-    "tools/openapi/e2e_parity.mjs": "Chromium catalog restoration, account isolation and portfolio parity journey owned by MarketJourneyTest.",
-    "tools/openapi/player_statistics_browser.mjs": "Real Chromium first-load deadline, worker publication, retained values and failure navigation journey; owned by WorkspaceBrowserTest.",
-    "tools/openapi/profile_reporter.mjs": "Fixture/support helper; cases owned by its importing native suite.",
-    "tools/openapi/validate.mjs": "Fixture/support helper; cases owned by its importing native suite.",
-    "tools/openapi/workspace_browser.mjs": "Fixture/support helper; cases owned by its importing native suite.",
-    "tools/openapi/workspace_coverage.mjs": "Fixture/support helper; cases owned by its importing native suite."
+    "test/test_helper.exs": "Fixture/support helper; cases owned by its importing native suite."
   }
 }

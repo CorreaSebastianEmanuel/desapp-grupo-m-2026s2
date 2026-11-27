@@ -172,7 +172,7 @@ defmodule FootballMarket.E2E.MarketJourneyTest do
     }
 
     {output, status} =
-      System.cmd("node", ["tools/openapi/e2e_parity.mjs", "http://127.0.0.1:#{port}"],
+      System.cmd("node", ["scripts/openapi/e2e_parity.mjs", "http://127.0.0.1:#{port}"],
         env: [
           {"E2E_PARITY", Jason.encode!(arguments)},
           {"E2E_EMAIL", investor.email},

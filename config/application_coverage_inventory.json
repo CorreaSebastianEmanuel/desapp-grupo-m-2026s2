@@ -56,6 +56,12 @@
       "reason": "Build or runtime configuration, not application implementation: config/test.exs."
     },
     {
+      "path": "docs/specs/056-football-scraping-adapter/handoffs/review-guard.exs",
+      "role": "archived-evidence",
+      "disposition": "exclude",
+      "reason": "Archived verification evidence outside application scope: docs/specs/056-football-scraping-adapter/handoffs/review-guard.exs."
+    },
+    {
       "path": "lib/football_market/accounts.ex",
       "role": "application",
       "disposition": "include",
@@ -572,12 +578,6 @@
       "reason": "Repository automation script, not application implementation: scripts/dialyzer_analyze.exs."
     },
     {
-      "path": "scripts/test_profile_discovery.exs",
-      "role": "script",
-      "disposition": "exclude",
-      "reason": "Repository automation script, not application implementation: scripts/test_profile_discovery.exs."
-    },
-    {
       "path": "scripts/ranking_benchmark.exs",
       "role": "script",
       "disposition": "exclude",
@@ -590,10 +590,10 @@
       "reason": "Repository ranking benchmark helper, not application implementation: scripts/ranking_benchmark_helpers.exs."
     },
     {
-      "path": "specs/056-football-scraping-adapter/handoffs/review-guard.exs",
-      "role": "archived-evidence",
+      "path": "scripts/test_profile_discovery.exs",
+      "role": "script",
       "disposition": "exclude",
-      "reason": "Archived verification evidence outside application scope: specs/056-football-scraping-adapter/handoffs/review-guard.exs."
+      "reason": "Repository automation script, not application implementation: scripts/test_profile_discovery.exs."
     },
     {
       "path": "test/accounts_test.exs",

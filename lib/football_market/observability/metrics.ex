@@ -11,7 +11,7 @@ defmodule FootballMarket.Observability.Metrics do
   @queues ~w(catalog_sync catalog_scout statistics_import quote_calculation conditional_orders)
   @outcomes ~w(success failure cancelled discard snoozed)
   @providers ~w(football_data_org fotmob_public_html)
-  @provider_operations ~w(catalog player_search player_profile)
+  @provider_operations ~w(catalog player_search player_profile match_details)
   @provider_outcomes ~w(success rate_limited access_refused unavailable timeout invalid_response missing_configuration invalid_request transport_error unexpected_failure other_failure)
   @ranking_cache_outcomes ~w(hit miss error)
 

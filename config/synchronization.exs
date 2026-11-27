@@ -100,7 +100,7 @@ config :football_market, Oban,
      crontab: [
        {"0 * * * *", FootballMarket.Workers.StatisticsPreload},
        {"* * * * *", FootballMarket.Workers.QuoteRecovery},
-       {"* * * * *", FootballMarket.Workers.QuoteClose},
+       {"0 0 * * *", FootballMarket.Workers.QuoteClose},
        {"* * * * *", FootballMarket.Workers.ConditionalOrderRecovery}
      ]}
   ],

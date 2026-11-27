@@ -8,7 +8,7 @@ defmodule FootballMarketWeb.AdministrationLive do
 
   import FootballMarketWeb.WorkspaceComponents, only: [shell: 1, metric_name: 1, role_name: 1]
 
-  alias FootballMarket.Valuation
+  alias FootballMarket.{Sync, Valuation}
   alias FootballMarket.Valuation.Configurations
   alias FootballMarketWeb.Workspace.Helpers, as: Session
 
@@ -28,6 +28,8 @@ defmodule FootballMarketWeb.AdministrationLive do
              socket.assigns.active_version_id
            ) do
         {:ok, _} ->
+          _ = Sync.run_support_job("quote_close")
+
           "Estrategia activa actualizada. La primera cotización se prepara en segundo plano; las siguientes cambian en el próximo cierre."
 
         {:error, :predecessor_conflict} ->

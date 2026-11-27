@@ -6,8 +6,9 @@ defmodule FootballMarket.Sync do
 
   import Ecto.Query
 
-  alias FootballMarket.{Catalog, Quotes, Repo, Statistics}
-  alias FootballMarket.Catalog.{League, Player, ScoutRun, Scouting, Season, SourceBinding, Team}
+  alias FootballMarket.{Catalog, Market, Quotes, Repo, Statistics}
+  alias FootballMarket.Catalog.{League, Player, Scouting, ScoutRun, Season, SourceBinding, Team}
+  alias FootballMarket.Market.Issuance
   alias FootballMarket.Providers.{FootballDataOrg, Scraping}
   alias FootballMarket.Quotes.CalculationRequest
   alias FootballMarket.Workers.{CatalogSync, ConditionalOrderRecovery, QuoteClose, QuoteRecovery}
@@ -21,8 +22,12 @@ defmodule FootballMarket.Sync do
 
   @doc "Fetches a league/season catalog from Football-Data.org and imports it idempotently."
   def sync_catalog(league_code, start_year, end_year, opts \\ []) do
-    with {:ok, snapshot} <- FootballDataOrg.fetch_catalog(league_code, start_year, end_year, opts) do
-      Catalog.import_catalog(snapshot, provider: FootballDataOrg.provider_label())
+    with {:ok, snapshot} <- FootballDataOrg.fetch_catalog(league_code, start_year, end_year, opts),
+         {:ok, summary} <-
+           Catalog.import_catalog(snapshot, provider: FootballDataOrg.provider_label()) do
+      persist_team_crest_bindings(summary, Map.get(snapshot, :team_source_ids, %{}))
+      initialize_season_players(summary.season_id)
+      {:ok, summary}
     end
   end
 
@@ -107,7 +112,7 @@ defmodule FootballMarket.Sync do
   defp import_fotmob_player(player, fotmob_id, source_ref, opts) do
     case Scraping.fetch_player_profile(fotmob_id, opts) do
       {:ok, profile} ->
-        envelopes = build_fotmob_envelopes(player, profile.matches)
+        envelopes = build_fotmob_envelopes(player, fotmob_id, profile.matches, opts)
 
         with {:ok, summary} <-
                Statistics.import_performances(player.season_id, envelopes,
@@ -240,7 +245,69 @@ defmodule FootballMarket.Sync do
     _ -> :ok
   end
 
-  defp build_fotmob_envelopes(player, matches) do
+  defp persist_team_crest_bindings(_summary, source_ids) when map_size(source_ids) == 0, do: :ok
+
+  defp persist_team_crest_bindings(summary, source_ids) do
+    with {:ok, season_bin} <- Ecto.UUID.dump(summary.season_id),
+         {:ok, league_bin} <- Ecto.UUID.dump(summary.league_id),
+         {:ok, %{rows: [[scope_bin]]}} <-
+           Repo.query(
+             "SELECT id FROM catalog_ingestion_scopes WHERE season_id = $1 AND league_id = $2 LIMIT 1",
+             [season_bin, league_bin]
+           ),
+         {:ok, scope_id} <- Ecto.UUID.load(scope_bin) do
+      teams = Repo.all(from t in Team, where: t.season_id == ^summary.season_id)
+      Enum.each(teams, &insert_team_crest_binding(&1, source_ids, summary, scope_id))
+    end
+
+    :ok
+  rescue
+    _ -> :ok
+  end
+
+  defp insert_team_crest_binding(team, source_ids, summary, scope_id) do
+    case Map.get(source_ids, team.code) do
+      source_id when is_binary(source_id) ->
+        %SourceBinding{
+          scope_id: scope_id,
+          season_scope_id: summary.season_id,
+          league_scope_id: summary.league_id,
+          provider: FootballDataOrg.provider_label(),
+          kind: "team",
+          source_id: source_id,
+          team_id: team.id
+        }
+        |> Repo.insert(on_conflict: :nothing)
+
+      _ ->
+        :ok
+    end
+  end
+
+  defp initialize_season_players(season_id) do
+    case Application.get_env(:football_market, :initial_issuance_recipients, []) do
+      [recipient_id] when is_binary(recipient_id) and byte_size(recipient_id) > 0 ->
+        uninitialized_ids =
+          Repo.all(
+            from p in Player,
+              left_join: i in Issuance,
+              on: i.player_id == p.id,
+              where: p.season_id == ^season_id and is_nil(i.player_id),
+              select: p.id
+          )
+
+        Enum.each(uninitialized_ids, &Market.initialize_player/1)
+
+      _ ->
+        :ok
+    end
+
+    :ok
+  rescue
+    _ -> :ok
+  end
+
+  defp build_fotmob_envelopes(player, fotmob_id, matches, opts) do
     season = player.season
     league_code = season.league.code
     expected_league_id = Scraping.league_id(league_code)
@@ -249,26 +316,69 @@ defmodule FootballMarket.Sync do
     season_teams = Repo.all(from t in Team, where: t.season_id == ^season.id)
     team_bindings = load_fotmob_team_bindings(season.id)
     existing_identities = load_existing_fotmob_match_identities(season.id)
+    recorded_identities = load_recorded_player_match_identities(player.id, season.id)
+    enrich? = Keyword.get(opts, :enrich_match_details, true)
 
     matches
     |> Enum.filter(&eligible_fotmob_match?(&1, expected_league_id, window_start, window_end))
     |> Enum.flat_map(fn match ->
-      case resolve_opponent_team(match, player.team_id, season_teams, team_bindings, league_code) do
-        nil ->
-          []
+      player_team =
+        resolve_match_team(
+          match.team_id,
+          match.team_name,
+          season_teams,
+          team_bindings,
+          league_code
+        ) ||
+          player.team
 
-        opponent ->
-          [
-            fotmob_envelope(
-              player,
-              opponent,
-              match,
-              Map.get(existing_identities, match.id, match.match_identity)
-            )
-          ]
+      opponent =
+        resolve_match_team(
+          match.opponent_team_id,
+          match.opponent_team_name,
+          season_teams,
+          team_bindings,
+          league_code
+        )
+
+      if opponent && opponent.id != player_team.id do
+        identity = Map.get(existing_identities, match.id, match.match_identity)
+
+        enriched =
+          maybe_enrich_match(match, identity, recorded_identities, fotmob_id, enrich?, opts)
+
+        [fotmob_envelope(player, player_team, opponent, enriched, identity)]
+      else
+        []
       end
     end)
   end
+
+  defp load_recorded_player_match_identities(player_id, season_id) do
+    Repo.all(
+      from p in Statistics.Performance,
+        join: m in Statistics.Match,
+        on: m.id == p.match_id,
+        where: p.player_id == ^player_id and p.season_id == ^season_id,
+        select: m.normalized_identity
+    )
+    |> MapSet.new()
+  end
+
+  defp maybe_enrich_match(match, identity, recorded, fotmob_id, true, opts) do
+    normalized = identity |> String.trim() |> String.downcase()
+
+    if MapSet.member?(recorded, normalized) do
+      match
+    else
+      case Scraping.fetch_match_player_stats(match.id, fotmob_id, opts) do
+        {:ok, details} -> Map.merge(match, details)
+        _ -> match
+      end
+    end
+  end
+
+  defp maybe_enrich_match(match, _identity, _recorded, _fotmob_id, false, _opts), do: match
 
   defp eligible_fotmob_match?(match, expected_league_id, window_start, window_end) do
     match.played_in_match == true and
@@ -304,18 +414,14 @@ defmodule FootballMarket.Sync do
     end)
   end
 
-  defp resolve_opponent_team(match, player_team_id, season_teams, team_bindings, league_code) do
+  defp resolve_match_team(source_id, team_name, season_teams, team_bindings, league_code) do
     by_binding =
-      case Map.get(team_bindings, match.opponent_team_id) do
+      case Map.get(team_bindings, source_id) do
         nil -> nil
         id -> Enum.find(season_teams, &(&1.id == id))
       end
 
-    opponent =
-      by_binding ||
-        match_team_by_name(season_teams, match.opponent_team_name, league_code)
-
-    if opponent && opponent.id != player_team_id, do: opponent
+    by_binding || match_team_by_name(season_teams, team_name, league_code)
   end
 
   defp match_team_by_name(_teams, name, _league_code) when not is_binary(name) or name == "",
@@ -337,11 +443,11 @@ defmodule FootballMarket.Sync do
       end
   end
 
-  defp fotmob_envelope(player, opponent, match, match_identity) do
+  defp fotmob_envelope(player, player_team, opponent, match, match_identity) do
     {home_team_id, away_team_id} =
       if match.is_home_team,
-        do: {player.team_id, opponent.id},
-        else: {opponent.id, player.team_id}
+        do: {player_team.id, opponent.id},
+        else: {opponent.id, player_team.id}
 
     %{
       match: %{
@@ -353,7 +459,7 @@ defmodule FootballMarket.Sync do
       performances: [
         %{
           player_id: player.id,
-          team_id: player.team_id,
+          team_id: player_team.id,
           position_id: player.position_id,
           minutes_played: match.minutes_played,
           goals: match.goals,
@@ -429,15 +535,29 @@ defmodule FootballMarket.Sync do
   end
 
   def run_support_job("quote_close"),
-    do: Oban.insert(Oban, QuoteClose.new(%{"mode" => "manual"}))
+    do: insert_support_job(QuoteClose.new(%{"mode" => "manual"}))
 
   def run_support_job("quote_recovery"),
-    do: Oban.insert(Oban, QuoteRecovery.new(%{}))
+    do: insert_support_job(QuoteRecovery.new(%{}))
 
   def run_support_job("conditional_recovery"),
-    do: Oban.insert(Oban, ConditionalOrderRecovery.new(%{}))
+    do: insert_support_job(ConditionalOrderRecovery.new(%{}))
 
   def run_support_job(_), do: nil
+
+  defp insert_support_job(changeset) do
+    name =
+      Application.get_env(:football_market, FootballMarket.Synchronization, [])
+      |> Keyword.get(:oban_name, Oban)
+
+    if Oban.Registry.lookup(name),
+      do: Oban.insert(name, changeset),
+      else: {:error, :unavailable}
+  rescue
+    _ -> {:error, :unavailable}
+  catch
+    :exit, _ -> {:error, :unavailable}
+  end
 
   def retry_job(id) do
     with {job_id, ""} when job_id > 0 <- Integer.parse(to_string(id)),

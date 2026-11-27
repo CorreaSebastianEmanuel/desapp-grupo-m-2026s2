@@ -37,7 +37,7 @@ mix infrastructure.verify                     # application connectivity for bot
 ./scripts/local_services.sh reset --confirm   # DESTRUCTIVE: remove only repository-scoped volumes
 ```
 
-The verifier reports PostgreSQL and Redis independently, prints only host/port/database targets, and exits nonzero if either fails. There is intentionally no public health endpoint. Test databases are restricted to `football_market_test` plus `MIX_TEST_PARTITION`; unsafe overrides fail before connection or schema mutation.
+The verifier reports PostgreSQL and Redis independently, prints only host/port/database targets, and exits nonzero if either fails. Public operational monitoring endpoints are exposed at `GET /health/live`, `GET /health/ready`, and `GET /health/info`; Prometheus scraping (`GET /metrics`, protected by `METRICS_SCRAPE_TOKEN`) and administrator business metrics (`GET /api/business-metrics`) are documented in [docs/OBSERVABILITY.md](docs/OBSERVABILITY.md). Test databases are restricted to `football_market_test` plus `MIX_TEST_PARTITION`; unsafe overrides fail before connection or schema mutation.
 
 For occupied ports, stop the conflicting process or override `POSTGRES_PORT`/`REDIS_PORT` consistently. Authentication, invalid configuration, unavailable service, readiness timeout, and migration failures name the affected category without printing passwords. Lifecycle mutations are serialized for this repository, and restart converges stopped or stale containers back to the declared Compose state before readiness succeeds. Routine start, stop, and restart preserve both named volumes; only the explicitly confirmed reset deletes them.
 

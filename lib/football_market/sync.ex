@@ -287,6 +287,21 @@ defmodule FootballMarket.Infrastructure.Health do
   @probe_timeout 500
   @redis_probe_timeout 3 * @probe_timeout
 
+  def info do
+    version =
+      case Application.spec(:football_market, :vsn) do
+        vsn when is_list(vsn) -> List.to_string(vsn)
+        _ -> "unknown"
+      end
+
+    %{
+      application: "football_market",
+      version: version,
+      elixir: System.version(),
+      otp_release: List.to_string(:erlang.system_info(:otp_release))
+    }
+  end
+
   def readiness(probes \\ default_probes()) when is_map(probes) do
     dependencies =
       Map.new([:postgresql, :redis, :oban], fn dependency ->

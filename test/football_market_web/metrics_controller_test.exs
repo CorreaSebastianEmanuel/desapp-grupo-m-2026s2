@@ -87,6 +87,17 @@ defmodule FootballMarketWeb.MetricsControllerTest do
       nil
     )
 
+    :telemetry.execute([:football_market, :ranking, :cache, :hit], %{count: 1}, %{})
+    :telemetry.execute([:football_market, :ranking, :cache, :miss], %{count: 1}, %{})
+    :telemetry.execute([:football_market, :ranking, :cache, :error], %{count: 1}, %{})
+
+    Metrics.handle_event(
+      [:football_market, :ranking, :cache, :private_outcome],
+      %{count: 1},
+      %{},
+      nil
+    )
+
     scrape_conn =
       conn
       |> put_req_header("authorization", "Bearer scrape-test-secret")
@@ -111,7 +122,8 @@ defmodule FootballMarketWeb.MetricsControllerTest do
                ["oban_jobs_total", "counter"],
                ["oban_job_duration_seconds", "histogram"],
                ["provider_requests_total", "counter"],
-               ["provider_request_duration_seconds", "histogram"]
+               ["provider_request_duration_seconds", "histogram"],
+               ["ranking_cache_total", "counter"]
              ]
 
     for [label] <-
@@ -144,6 +156,12 @@ defmodule FootballMarketWeb.MetricsControllerTest do
     assert response =~
              ~s(football_market_oban_job_duration_seconds_bucket{queue="other",outcome="failure",le="5.0"} 0)
 
+    assert response =~ ~s(football_market_ranking_cache_total{outcome="hit"} )
+    assert response =~ ~s(football_market_ranking_cache_total{outcome="miss"} )
+    assert response =~ ~s(football_market_ranking_cache_total{outcome="error"} )
+    assert response =~ ~s(football_market_ranking_cache_total{outcome="other"} 1)
+
+    refute response =~ "private_outcome"
     refute response =~ "scrape-test-secret"
     refute response =~ "sensitive query"
     refute response =~ "job-secret"

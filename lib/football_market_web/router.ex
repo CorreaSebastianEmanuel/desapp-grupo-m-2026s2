@@ -44,6 +44,8 @@ defmodule FootballMarketWeb.Router do
     get "/health/live", HealthController, :live, metadata: %{authentication_policy: :api_public}
 
     get "/health/ready", HealthController, :ready, metadata: %{authentication_policy: :api_public}
+
+    get "/health/info", HealthController, :info, metadata: %{authentication_policy: :api_public}
   end
 
   scope "/", FootballMarketWeb do

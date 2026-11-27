@@ -982,13 +982,6 @@
       "profile": "unit"
     },
     {
-      "id": "401a9e40fde0bfac8a3cb4b8",
-      "runner": "exunit",
-      "file": "test/web/api_test.exs",
-      "case_id": "FootballMarketWeb.ApiTest:test public health endpoints report liveness and bounded dependency readiness",
-      "profile": "integration"
-    },
-    {
       "id": "40f009b6d92893a81816478e",
       "runner": "exunit",
       "file": "test/ci/sonarcloud_contract_test.exs",
@@ -2218,6 +2211,13 @@
       "runner": "exunit",
       "file": "test/accounts_test.exs",
       "case_id": "FootballMarket.AccountsTest:test canonicalizes JWT UUID claims and rejects non-text UUID representations",
+      "profile": "integration"
+    },
+    {
+      "id": "9e0a67a81f4f19d9ead1e243",
+      "runner": "exunit",
+      "file": "test/web/api_test.exs",
+      "case_id": "FootballMarketWeb.ApiTest:test public health endpoints report liveness, info, and bounded dependency readiness",
       "profile": "integration"
     },
     {

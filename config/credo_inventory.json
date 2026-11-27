@@ -257,6 +257,7 @@
     "test/football_market/ranking_benchmark_helpers_test.exs",
     "test/football_market/ranking_cache_test.exs",
     "test/football_market_web/metrics_controller_test.exs",
+    "test/full_system_scenarios_test.exs",
     "test/integration/infrastructure_migration_test.exs",
     "test/orders_test.exs",
     "test/portfolio_test.exs",

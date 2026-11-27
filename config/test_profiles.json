@@ -37,6 +37,13 @@
       "profile": "integration"
     },
     {
+      "id": "0289b0e6b36d52328115791f",
+      "runner": "exunit",
+      "file": "test/full_system_scenarios_test.exs",
+      "case_id": "FootballMarket.FullSystemScenariosTest:test five-league ingestion, dated quotes, four users, five-player trades, portfolios, ranking, and metrics",
+      "profile": "integration"
+    },
+    {
       "id": "028ec37410c1e1f806f70a3f",
       "runner": "python",
       "file": "test/scripts/agentflow_preflight_test.py",

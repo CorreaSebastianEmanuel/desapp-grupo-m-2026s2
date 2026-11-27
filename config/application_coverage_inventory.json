@@ -860,6 +860,12 @@
       "reason": "Automated test source, not application implementation: test/football_market_web/metrics_controller_test.exs."
     },
     {
+      "path": "test/full_system_scenarios_test.exs",
+      "role": "test",
+      "disposition": "exclude",
+      "reason": "Automated test source, not application implementation: test/full_system_scenarios_test.exs."
+    },
+    {
       "path": "test/integration/infrastructure_migration_test.exs",
       "role": "test",
       "disposition": "exclude",

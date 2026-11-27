@@ -104,4 +104,109 @@ defmodule FootballMarket.StatisticsTest do
     assert status.scope.player_id == fixture.player.id
     assert status.freshness == "never_checked"
   end
+
+  test "sync_player_statistics scrapes FotMob search + profile HTML and imports league matches idempotently" do
+    fixture = create_catalog_fixture!()
+
+    search_body =
+      Jason.encode!([
+        %{
+          "suggestions" => [
+            %{
+              "type" => "player",
+              "id" => "737066",
+              "name" => fixture.player.display_name,
+              "teamName" => fixture.home_team.name
+            }
+          ]
+        }
+      ])
+
+    next_data =
+      Jason.encode!(%{
+        "props" => %{
+          "pageProps" => %{
+            "data" => %{
+              "id" => 737_066,
+              "name" => fixture.player.display_name,
+              "primaryTeam" => %{"teamName" => fixture.home_team.name},
+              "recentMatches" => [
+                %{
+                  "id" => 5_795_522,
+                  "leagueId" => 47,
+                  "teamId" => 8456,
+                  "teamName" => fixture.home_team.name,
+                  "opponentTeamId" => 9879,
+                  "opponentTeamName" => fixture.away_team.name,
+                  "isHomeTeam" => true,
+                  "playedInMatch" => true,
+                  "matchDate" => %{"utcTime" => "2026-11-21T12:30:00.000Z"},
+                  "minutesPlayed" => 90,
+                  "goals" => 2,
+                  "assists" => 1,
+                  "yellowCards" => 0,
+                  "redCards" => 0
+                },
+                %{
+                  "id" => 6_106_256,
+                  "leagueId" => 42,
+                  "teamId" => 8456,
+                  "teamName" => fixture.home_team.name,
+                  "opponentTeamId" => 9875,
+                  "opponentTeamName" => fixture.away_team.name,
+                  "isHomeTeam" => true,
+                  "playedInMatch" => true,
+                  "matchDate" => %{"utcTime" => "2026-11-24T20:00:00.000Z"},
+                  "minutesPlayed" => 90,
+                  "goals" => 1,
+                  "assists" => 0,
+                  "yellowCards" => 0,
+                  "redCards" => 0
+                }
+              ]
+            }
+          }
+        }
+      })
+
+    html =
+      ~s(<html><script id="__NEXT_DATA__" type="application/json">#{next_data}</script></html>)
+
+    stub_http = fn url, _headers, _timeout ->
+      cond do
+        String.contains?(url, "/api/data/search/suggest") ->
+          {:ok, %{status: 200, headers: [], body: search_body}}
+
+        String.ends_with?(url, "/players/737066") ->
+          {:ok, %{status: 200, headers: [], body: html}}
+      end
+    end
+
+    assert {:ok, first} =
+             FootballMarket.Sync.sync_player_statistics(
+               fixture.player.id,
+               fixture.season.id,
+               "fotmob-public-html",
+               http_get: stub_http
+             )
+
+    assert first.matches_added == 1
+    assert first.performances_added == 1
+
+    assert {:ok, summary} = Statistics.recorded_summary(fixture.player)
+    assert summary.recorded_match_count == 1
+    assert summary.goals == 2
+    assert summary.assists == 1
+
+    assert {:ok, second} =
+             FootballMarket.Sync.sync_player_statistics(
+               fixture.player.id,
+               fixture.season.id,
+               "fotmob-public-html",
+               http_get: stub_http
+             )
+
+    assert second.matches_added == 0
+    assert second.performances_added == 0
+  end
 end

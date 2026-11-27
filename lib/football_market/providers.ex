@@ -9,12 +9,14 @@ defmodule FootballMarket.Providers do
   """
 
   @doc "Builds a safe HTTPS player photo or team crest URL for a known provider."
-  def media_url("fotmob-public-html", "player", source_id) when is_binary(source_id) do
+  def media_url(provider, "player", source_id)
+      when provider in ["fotmob-public-html", "fotmob-public-html-v1"] and is_binary(source_id) do
     if Regex.match?(~r/\A[0-9]{1,12}\z/, source_id),
       do: "https://images.fotmob.com/image_resources/playerimages/#{source_id}.png"
   end
 
-  def media_url("football-data-org", "team", source_id) when is_binary(source_id) do
+  def media_url(provider, "team", source_id)
+      when provider in ["football-data-org", "football-data.org-v4"] and is_binary(source_id) do
     if Regex.match?(~r/\A[0-9]{1,12}\z/, source_id),
       do: "https://crests.football-data.org/#{source_id}.png"
   end
@@ -239,8 +241,86 @@ defmodule FootballMarket.Providers.Scraping do
   alias FootballMarket.Providers
 
   @base_url "https://www.fotmob.com"
+  @user_agent "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+  @league_ids %{"PL" => 47, "BL1" => 54, "PD" => 87, "SA" => 55, "FL1" => 53}
+  @club_tokens ~w(fc cf cfc afc sc sv fsv tsg vfb ac as us ss ssc ogc rc aj rcd ud ca 1 04 05 07 1899 1901 1907 1909 1913)
+  @team_aliases %{
+    "PL" => %{
+      "brighton hove albion" => "brighton",
+      "manchester united" => "manchester united",
+      "man utd" => "manchester united",
+      "nottm forest" => "nottingham forest",
+      "tottenham hotspur" => "tottenham",
+      "west ham united" => "west ham",
+      "wolverhampton wanderers" => "wolves"
+    },
+    "BL1" => %{
+      "bayern munich" => "bayern munchen",
+      "borussia m gladbach" => "borussia monchengladbach",
+      "koln" => "koln"
+    },
+    "SA" => %{
+      "acf fiorentina" => "fiorentina",
+      "cagliari calcio" => "cagliari",
+      "atalanta bc" => "atalanta",
+      "frosinone calcio" => "frosinone",
+      "parma calcio" => "parma",
+      "bologna" => "bologna",
+      "internazionale milano" => "inter",
+      "sassuolo calcio" => "sassuolo",
+      "udinese calcio" => "udinese"
+    },
+    "PD" => %{
+      "club atletico de madrid" => "atletico madrid",
+      "espanyol de barcelona" => "espanyol",
+      "rayo vallecano de madrid" => "rayo vallecano",
+      "real betis balompie" => "real betis",
+      "real racing club de santander" => "racing santander",
+      "real sociedad de futbol" => "real sociedad",
+      "celta de vigo" => "celta vigo",
+      "deportivo la coruna" => "deportivo a coruna"
+    },
+    "FL1" => %{
+      "olympique lyonnais" => "lyon",
+      "strasbourg alsace" => "strasbourg",
+      "stade brestois 29" => "brest",
+      "lille osc" => "lille",
+      "stade rennais" => "rennes",
+      "racing club de lens" => "lens",
+      "angers sco" => "angers",
+      "olympique de marseille" => "marseille"
+    }
+  }
 
   def provider_label, do: "fotmob-public-html"
+
+  @doc "Returns FotMob's numeric competition ID for a supported league code, or nil."
+  def league_id(code) when is_binary(code), do: Map.get(@league_ids, code)
+  def league_id(_), do: nil
+
+  @doc "Normalizes a person name (lowercase, ASCII-folded, collapsed whitespace)."
+  def normalize_name(name) when is_binary(name) do
+    name
+    |> String.downcase()
+    |> :unicode.characters_to_nfd_binary()
+    |> String.replace(~r/\p{Mn}/u, "")
+    |> String.replace(~r/[^a-z0-9]+/u, " ")
+    |> String.trim()
+  end
+
+  def normalize_name(_), do: ""
+
+  @doc "Normalizes a club name with league-aware aliases for cross-provider matching."
+  def normalize_team_name(name, league_code \\ nil) when is_binary(name) do
+    key =
+      name
+      |> normalize_name()
+      |> String.split()
+      |> Enum.reject(&(&1 in @club_tokens))
+      |> Enum.join(" ")
+
+    @team_aliases |> Map.get(league_code, %{}) |> Map.get(key, key)
+  end
 
   @doc "Searches FotMob's public player search endpoint for a player name."
   def search_player(name, opts \\ []) when is_binary(name) do
@@ -251,14 +331,76 @@ defmodule FootballMarket.Providers.Scraping do
 
   defp do_search_player(name, opts) do
     http_get = Keyword.get(opts, :http_get, &Providers.http_get/3)
-    url = "#{@base_url}/api/search/suggest?term=#{URI.encode_www_form(name)}"
+    url = "#{@base_url}/api/data/search/suggest?term=#{URI.encode_www_form(name)}"
+    headers = [{"Accept", "application/json"}, {"User-Agent", @user_agent}]
 
-    case http_get.(url, [{"Accept", "application/json"}], Keyword.get(opts, :timeout_ms, 10_000)) do
+    case http_get.(url, headers, Keyword.get(opts, :timeout_ms, 10_000)) do
       {:ok, %{status: 200, body: body}} -> parse_search_results(body)
       {:ok, %{status: 429}} -> {:error, :rate_limited}
+      {:ok, %{status: status}} when status in [401, 403] -> {:error, :access_refused}
       {:ok, %{status: _}} -> {:error, :unavailable}
       {:error, reason} -> {:error, reason}
     end
+  end
+
+  @doc "Fetches and parses a FotMob player profile page (`__NEXT_DATA__`) by numeric source ID."
+  def fetch_player_profile(source_id, opts \\ []) do
+    Providers.observe_request(:fotmob_public_html, :player_profile, fn ->
+      do_fetch_player_profile(to_string(source_id), opts)
+    end)
+  end
+
+  defp do_fetch_player_profile(source_id, opts) do
+    if Regex.match?(~r/\A[0-9]{1,12}\z/, source_id) do
+      http_get = Keyword.get(opts, :http_get, &Providers.http_get/3)
+      url = "#{@base_url}/players/#{source_id}"
+      headers = [{"Accept", "text/html"}, {"User-Agent", @user_agent}]
+
+      case http_get.(url, headers, Keyword.get(opts, :timeout_ms, 15_000)) do
+        {:ok, %{status: 200, body: body}} -> parse_player_profile_html(body)
+        {:ok, %{status: 404}} -> {:error, :not_found}
+        {:ok, %{status: 429}} -> {:error, :rate_limited}
+        {:ok, %{status: status}} when status in [401, 403] -> {:error, :access_refused}
+        {:ok, %{status: _}} -> {:error, :unavailable}
+        {:error, reason} -> {:error, reason}
+      end
+    else
+      {:error, :invalid_request}
+    end
+  end
+
+  @doc "Extracts player metadata and completed match rows from a FotMob HTML page."
+  def parse_player_profile_html(html) when is_binary(html) do
+    with [_, json] <-
+           Regex.run(~r/<script id="__NEXT_DATA__"[^>]*>(.*?)<\/script>/s, html),
+         {:ok, decoded} <- Jason.decode(json),
+         %{} = data <- get_in(decoded, ["props", "pageProps", "data"]),
+         {:ok, matches} <- extract_profile_matches(data) do
+      {:ok,
+       %{
+         source_id: to_string(data["id"]),
+         name: String.trim(to_string(data["name"] || "")),
+         team_name: String.trim(to_string(get_in(data, ["primaryTeam", "teamName"]) || "")),
+         matches: matches
+       }}
+    else
+      _ -> {:error, :invalid_response}
+    end
+  end
+
+  def parse_player_profile_html(_), do: {:error, :invalid_response}
+
+  defp extract_profile_matches(data) do
+    recent = if is_list(data["recentMatches"]), do: data["recentMatches"], else: []
+
+    initial =
+      case get_in(data, ["initialMatchesPage", "matches"]) do
+        list when is_list(list) -> list
+        _ -> []
+      end
+
+    merged = Enum.uniq_by(recent ++ initial, &to_string(&1["id"]))
+    parse_match_list(merged)
   end
 
   @doc "Parses FotMob search JSON into a list of `%{source_id, name, team_name}` maps."
@@ -272,6 +414,7 @@ defmodule FootballMarket.Providers.Scraping do
             |> Enum.filter(&(Map.get(&1, "type") == "player"))
             |> Enum.map(&normalize_search_player/1)
             |> Enum.reject(&(&1.source_id == "" or &1.name == ""))
+            |> Enum.uniq_by(& &1.source_id)
 
           {:ok, players}
         else
@@ -314,19 +457,20 @@ defmodule FootballMarket.Providers.Scraping do
   @doc "Extracts completed match performance maps from a FotMob player profile JSON payload."
   def parse_player_matches(body) when is_binary(body) do
     case Jason.decode(body) do
-      {:ok, %{"recentMatches" => matches}} when is_list(matches) ->
-        if Enum.all?(matches, &valid_match_row?/1) do
-          {:ok, Enum.flat_map(matches, &parse_match_row/1)}
-        else
-          {:error, :invalid_response}
-        end
-
-      _ ->
-        {:error, :invalid_response}
+      {:ok, %{"recentMatches" => matches}} when is_list(matches) -> parse_match_list(matches)
+      _ -> {:error, :invalid_response}
     end
   end
 
   def parse_player_matches(_), do: {:error, :invalid_response}
+
+  defp parse_match_list(matches) do
+    if Enum.all?(matches, &valid_match_row?/1) do
+      {:ok, Enum.flat_map(matches, &parse_match_row/1)}
+    else
+      {:error, :invalid_response}
+    end
+  end
 
   defp valid_match_row?(%{"id" => id} = match) when is_integer(id) or is_binary(id) do
     valid_identifier?(id) and parse_kickoff(match["matchDate"] || match["utcTime"]) != :error and
@@ -343,8 +487,16 @@ defmodule FootballMarket.Providers.Scraping do
       {:ok, kickoff_at} ->
         [
           %{
+            id: to_string(match["id"]),
             match_identity: "fotmob-#{match["id"]}",
             kickoff_at: kickoff_at,
+            league_id: optional_int(match["leagueId"]),
+            team_id: optional_string(match["teamId"]),
+            team_name: optional_string(match["teamName"]),
+            opponent_team_id: optional_string(match["opponentTeamId"]),
+            opponent_team_name: optional_string(match["opponentTeamName"]),
+            is_home_team: match["isHomeTeam"],
+            played_in_match: Map.get(match, "playedInMatch", true),
             minutes_played: non_neg_int(match["minutesPlayed"]),
             goals: non_neg_int(match["goals"]),
             assists: non_neg_int(match["assists"]),
@@ -367,7 +519,7 @@ defmodule FootballMarket.Providers.Scraping do
 
   defp parse_kickoff(text) when is_binary(text) do
     case DateTime.from_iso8601(text) do
-      {:ok, dt, 0} -> {:ok, DateTime.truncate(dt, :microsecond)}
+      {:ok, dt, 0} -> {:ok, %{dt | microsecond: {elem(dt.microsecond, 0), 6}}}
       _ -> :error
     end
   end
@@ -376,6 +528,20 @@ defmodule FootballMarket.Providers.Scraping do
 
   defp non_neg_int(val) when is_integer(val) and val >= 0, do: val
   defp non_neg_int(_), do: nil
+
+  defp optional_int(val) when is_integer(val), do: val
+
+  defp optional_int(val) when is_binary(val) do
+    case Integer.parse(val) do
+      {n, ""} -> n
+      _ -> nil
+    end
+  end
+
+  defp optional_int(_), do: nil
+
+  defp optional_string(nil), do: nil
+  defp optional_string(val), do: val |> to_string() |> String.trim()
 
   defp valid_identifier?(value) when is_integer(value) and value > 0, do: true
   defp valid_identifier?(value) when is_binary(value), do: String.trim(value) != ""

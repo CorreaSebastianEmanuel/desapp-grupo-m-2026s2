@@ -32,7 +32,7 @@
   "rules": [
     {
       "id": "delivery-docs",
-      "patterns": ["AGENTS.md", "CLAUDE.md", "README.md", "REVIEW.md", "docs/**", "backlog/**", "specs/**", ".agents/**", ".opencode/**"],
+      "patterns": ["AGENTS.md", "CLAUDE.md", "README.md", "RELEASE-NOTES.txt", "REVIEW.md", "docs/**", "backlog/**", "specs/**", ".agents/**", ".opencode/**"],
       "tier": "low",
       "checks": ["fast-lane"]
     },

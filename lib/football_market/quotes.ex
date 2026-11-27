@@ -245,17 +245,6 @@ defmodule FootballMarket.Quotes do
 
   def at_date(_, _), do: {:error, :invalid_date}
 
-  def get_calculation(id) do
-    with {:ok, uuid} <- Ecto.UUID.cast(id),
-         %Calculation{} = calc <- Repo.get(Calculation, uuid) do
-      {:ok, calc}
-    else
-      _ -> {:error, :not_found}
-    end
-  rescue
-    _ -> {:error, :temporarily_unavailable}
-  end
-
   # --- Quote Evaluation Event Handoff (Used by Conditional Orders) ---
 
   def pending_evaluations do

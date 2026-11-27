@@ -230,40 +230,6 @@ defmodule FootballMarket.Statistics do
 
   def record_performance(_), do: validation_error(:performance, :invalid_shape)
 
-  @doc "Records a list of `%{match: ..., performances: [...]}` envelopes atomically."
-  def record_batch(envelopes) when is_list(envelopes) do
-    transact(fn -> run_batch(envelopes) end)
-  end
-
-  def record_batch(_), do: validation_error(:batch, :invalid_shape)
-
-  defp run_batch(envelopes) do
-    season_ids =
-      envelopes
-      |> Enum.map(&envelope_season_id/1)
-      |> Enum.reject(&is_nil/1)
-
-    lock_seasons!(season_ids)
-
-    envelopes
-    |> Enum.with_index()
-    |> Enum.reduce_while({:ok, []}, &accumulate_envelope/2)
-    |> case do
-      {:ok, list} -> {:ok, Enum.reverse(list)}
-      error -> error
-    end
-  end
-
-  defp envelope_season_id(%{match: %{season_id: sid}}), do: sid
-  defp envelope_season_id(_), do: nil
-
-  defp accumulate_envelope({env, idx}, {:ok, acc}) do
-    case record_envelope(env, idx) do
-      {:ok, item} -> {:cont, {:ok, [item | acc]}}
-      {:error, err} -> {:halt, {:error, err}}
-    end
-  end
-
   @doc """
   Imports normalized matches and performances from an external provider into
   the local database idempotently. Existing matches/performances are reused.
@@ -486,48 +452,6 @@ defmodule FootballMarket.Statistics do
     end
   end
 
-  defp record_envelope(%{match: match_attrs, performances: perfs}, idx) when is_list(perfs) do
-    with {:ok, clean_match} <- validate_match_input(match_attrs),
-         {:ok, match} <- insert_match(clean_match),
-         {:ok, rows} <- record_envelope_performances(perfs, match, idx) do
-      {:ok, %{match: match, performances: rows}}
-    else
-      {:error, %{record: %{}} = err} -> {:error, err}
-      {:error, err} -> {:error, put_record_pos(err, idx, nil)}
-    end
-  end
-
-  defp record_envelope(_, idx),
-    do:
-      {:error,
-       %{
-         kind: :validation,
-         field: :batch,
-         reason: :invalid_shape,
-         record: %{match_index: idx, performance_index: nil}
-       }}
-
-  defp record_envelope_performances(perfs, match, idx) do
-    perfs
-    |> Enum.with_index()
-    |> Enum.reduce_while({:ok, []}, fn {perf, pidx}, {:ok, rows} ->
-      case insert_envelope_performance(perf, match) do
-        {:ok, row} -> {:cont, {:ok, [row | rows]}}
-        {:error, err} -> {:halt, {:error, put_record_pos(err, idx, pidx)}}
-      end
-    end)
-    |> case do
-      {:ok, rows} -> {:ok, Enum.reverse(rows)}
-      error -> error
-    end
-  end
-
-  defp insert_envelope_performance(perf, match) do
-    with {:ok, clean_perf} <- validate_performance_input(Map.put(perf, :match_id, match.id)) do
-      insert_performance(clean_perf, match)
-    end
-  end
-
   defp insert_match(attrs) do
     with {:ok, season} <- fetch_ref(Season, attrs.season_id, :season_id),
          {:ok, home} <- fetch_ref(Team, attrs.home_team_id, :home_team_id),
@@ -689,11 +613,6 @@ defmodule FootballMarket.Statistics do
   defp validation_error(field, reason),
     do: {:error, %{kind: :validation, field: field, reason: reason, record: nil}}
 
-  defp put_record_pos(err, midx, pidx) when is_map(err),
-    do: %{err | record: %{match_index: midx, performance_index: pidx}}
-
-  defp put_record_pos(err, _, _), do: err
-
   defp transact(fun) do
     Repo.transaction(fn ->
       case fun.() do
@@ -735,7 +654,7 @@ defmodule FootballMarket.Statistics.Freshness do
 
   def preload do
     Catalog.list_players_for_statistics()
-    |> Enum.each(fn player -> _ = refresh_if_stale(player, false) end)
+    |> Enum.each(&refresh_if_stale/1)
 
     :ok
   end
@@ -844,9 +763,7 @@ defmodule FootballMarket.Statistics.Freshness do
     }
   end
 
-  def refresh_now(player), do: refresh_if_stale(player, true)
-
-  defp refresh_if_stale(player, force) do
+  defp refresh_if_stale(player) do
     season = player.team.season
     config = Application.get_env(:football_market, __MODULE__, [])
     ttl = Keyword.get(config, :ttl_seconds, 86_400)
@@ -871,7 +788,7 @@ defmodule FootballMarket.Statistics.Freshness do
           check && check.last_checked_at &&
             DateTime.compare(now, DateTime.add(check.last_checked_at, ttl, :second)) == :lt
 
-        if not force and fresh?,
+        if fresh?,
           do: %{state: "idle", run_id: nil, reason: nil, next_attempt_at: nil},
           else: enqueue_refresh(player, source_ref)
     end

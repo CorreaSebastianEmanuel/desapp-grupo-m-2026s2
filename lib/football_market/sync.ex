@@ -138,38 +138,13 @@ defmodule FootballMarket.Sync do
 
   defp redis_status do
     case Application.get_env(:football_market, :redis) do
-      config when is_list(config) -> ping_redis(Map.new(config))
-      _ -> :unconfigured
-    end
-  rescue
-    _ -> :unavailable
-  catch
-    :exit, _ -> :unavailable
-  end
+      config when is_list(config) ->
+        if FootballMarket.Infrastructure.Health.ping_redis(config) == :ready,
+          do: :connected,
+          else: :unavailable
 
-  defp ping_redis(config) do
-    opts = [host: config.host, port: config.port, sync_connect: true, socket_opts: [:inet]]
-    opts = if config[:password], do: Keyword.put(opts, :password, config.password), else: opts
-    prev = Process.flag(:trap_exit, true)
-
-    try do
-      case Redix.start_link(opts) do
-        {:ok, client} ->
-          Process.unlink(client)
-
-          try do
-            if Redix.command(client, ["PING"]) == {:ok, "PONG"},
-              do: :connected,
-              else: :unavailable
-          after
-            GenServer.stop(client)
-          end
-
-        _ ->
-          :unavailable
-      end
-    after
-      Process.flag(:trap_exit, prev)
+      _ ->
+        :unconfigured
     end
   end
 
@@ -354,29 +329,45 @@ defmodule FootballMarket.Infrastructure.Health do
     end
   end
 
-  defp check_redis do
-    with config when is_list(config) <- Application.get_env(:football_market, :redis),
-         opts =
-           config
-           |> Keyword.take([:host, :port, :password, :database, :ssl])
-           |> Keyword.put(:timeout, @probe_timeout)
-           |> Keyword.put(:sync_connect, true),
-         {:ok, client} <- Redix.start_link(opts) do
-      try do
-        case Redix.command(client, ["PING"], timeout: @probe_timeout) do
-          {:ok, "PONG"} -> :ready
-          _ -> :unavailable
-        end
-      after
-        GenServer.stop(client, :normal, @probe_timeout)
+  def ping_redis(config, timeout \\ @probe_timeout) when is_list(config) do
+    opts =
+      config
+      |> Keyword.take([:host, :port, :password, :database, :ssl])
+      |> Enum.reject(fn {_k, v} -> is_nil(v) end)
+      |> Keyword.merge(timeout: timeout, sync_connect: true, socket_opts: [:inet])
+
+    prev = Process.flag(:trap_exit, true)
+
+    try do
+      case Redix.start_link(opts) do
+        {:ok, client} ->
+          Process.unlink(client)
+
+          try do
+            if Redix.command(client, ["PING"], timeout: timeout) == {:ok, "PONG"},
+              do: :ready,
+              else: :unavailable
+          after
+            GenServer.stop(client, :normal, timeout)
+          end
+
+        _ ->
+          :unavailable
       end
-    else
+    rescue
+      _ -> :unavailable
+    catch
+      :exit, _ -> :unavailable
+    after
+      Process.flag(:trap_exit, prev)
+    end
+  end
+
+  defp check_redis do
+    case Application.get_env(:football_market, :redis) do
+      config when is_list(config) -> ping_redis(config, @probe_timeout)
       _ -> :unavailable
     end
-  rescue
-    _ -> :unavailable
-  catch
-    :exit, _ -> :unavailable
   end
 
   defp oban_ready do

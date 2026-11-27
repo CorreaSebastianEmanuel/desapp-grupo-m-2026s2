@@ -215,28 +215,12 @@ defmodule Mix.Tasks.Infrastructure.Verify do
       end
 
     target = "redis://#{host}:#{port}"
-    opts = [host: host, port: port, sync_connect: true, socket_opts: [:inet]]
-    opts = if password, do: Keyword.put(opts, :password, password), else: opts
-    prev = Process.flag(:trap_exit, true)
+    config = [host: host, port: port, password: password]
 
     status =
-      try do
-        case Redix.start_link(opts) do
-          {:ok, pid} ->
-            res =
-              if Redix.command(pid, ["PING"]) == {:ok, "PONG"},
-                do: :ok,
-                else: {:error, :unavailable_or_authentication_failure}
-
-            GenServer.stop(pid)
-            res
-
-          {:error, _} ->
-            {:error, :unavailable_or_authentication_failure}
-        end
-      after
-        Process.flag(:trap_exit, prev)
-      end
+      if FootballMarket.Infrastructure.Health.ping_redis(config, 5_000) == :ready,
+        do: :ok,
+        else: {:error, :unavailable_or_authentication_failure}
 
     {"Redis", target, status}
   rescue

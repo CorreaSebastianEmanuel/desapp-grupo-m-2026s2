@@ -25,20 +25,13 @@ defmodule FootballMarket.BusinessMetrics do
   def snapshot(_), do: {:error, :unauthenticated}
 
   defp read_snapshot do
-    if Repo.in_transaction?() do
-      unavailable()
-    else
-      case Repo.transaction(&query_snapshot!/0) do
-        {:ok, result} -> result
-        {:error, _reason} -> unavailable()
-      end
+    case Repo.read_only_snapshot(&query_snapshot!/0) do
+      {:ok, result} -> result
+      {:error, _reason} -> unavailable()
     end
-  rescue
-    _ in [Postgrex.Error, DBConnection.ConnectionError] -> unavailable()
   end
 
   defp query_snapshot! do
-    Repo.query!("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY")
     %{rows: [[as_of]]} = Repo.query!("SELECT transaction_timestamp()")
 
     quotes = %{

@@ -2,143 +2,8 @@
   "excluded": [
     {
       "category": "archived-verification-evidence",
-      "path": "specs/026-quote-recalculation-and-immutable-history/qa-evidence/20261021-independent/conflict_test.exs",
-      "reason": "Archived standalone verification probe; retained as historical QA or review evidence, not maintained test source."
-    },
-    {
-      "category": "archived-verification-evidence",
-      "path": "specs/026-quote-recalculation-and-immutable-history/qa-evidence/20261023-ack-expiry/ack_expiry_test.exs",
-      "reason": "Standalone adversarial QA probe retained as task evidence, not maintained application or test source."
-    },
-    {
-      "category": "archived-verification-evidence",
-      "path": "specs/026-quote-recalculation-and-immutable-history/qa-evidence/independent-20261021-current/admission-probe.exs",
-      "reason": "Archived standalone verification probe; retained as historical QA or review evidence, not maintained test source."
-    },
-    {
-      "category": "archived-verification-evidence",
-      "path": "specs/054-player-match-statistics/qa-evidence/adversarial_test.exs",
-      "reason": "Archived standalone verification probe at specs/054-player-match-statistics/qa-evidence/adversarial_test.exs; retained as historical QA or review evidence, not maintained test source."
-    },
-    {
-      "category": "archived-verification-evidence",
-      "path": "specs/054-player-match-statistics/qa-evidence/current/acceptance_test.exs",
-      "reason": "Archived standalone verification probe at specs/054-player-match-statistics/qa-evidence/current/acceptance_test.exs; retained as historical QA or review evidence, not maintained test source."
-    },
-    {
-      "category": "archived-verification-evidence",
-      "path": "specs/054-player-match-statistics/qa-evidence/current/malformed_identity_test.exs",
-      "reason": "Archived standalone verification probe at specs/054-player-match-statistics/qa-evidence/current/malformed_identity_test.exs; retained as historical QA or review evidence, not maintained test source."
-    },
-    {
-      "category": "archived-verification-evidence",
-      "path": "specs/054-player-match-statistics/qa-evidence/round3/acceptance_test.exs",
-      "reason": "Archived standalone verification probe at specs/054-player-match-statistics/qa-evidence/round3/acceptance_test.exs; retained as historical QA or review evidence, not maintained test source."
-    },
-    {
-      "category": "archived-verification-evidence",
-      "path": "specs/056-football-scraping-adapter/handoffs/qa-evidence/ci-refresh/adversarial.exs",
-      "reason": "Archived standalone verification probe at specs/056-football-scraping-adapter/handoffs/qa-evidence/ci-refresh/adversarial.exs; retained as historical QA or review evidence, not maintained test source."
-    },
-    {
-      "category": "archived-verification-evidence",
-      "path": "specs/056-football-scraping-adapter/handoffs/qa-evidence/current/adversarial.exs",
-      "reason": "Archived standalone verification probe at specs/056-football-scraping-adapter/handoffs/qa-evidence/current/adversarial.exs; retained as historical QA or review evidence, not maintained test source."
-    },
-    {
-      "category": "archived-verification-evidence",
-      "path": "specs/056-football-scraping-adapter/handoffs/qa-evidence/independent-ci/adversarial.exs",
-      "reason": "Archived standalone verification probe at specs/056-football-scraping-adapter/handoffs/qa-evidence/independent-ci/adversarial.exs; retained as historical QA or review evidence, not maintained test source."
-    },
-    {
-      "category": "archived-verification-evidence",
-      "path": "specs/056-football-scraping-adapter/handoffs/qa-evidence/publication-gate.exs",
-      "reason": "Archived standalone verification probe at specs/056-football-scraping-adapter/handoffs/qa-evidence/publication-gate.exs; retained as historical QA or review evidence, not maintained test source."
-    },
-    {
-      "category": "archived-verification-evidence",
       "path": "specs/056-football-scraping-adapter/handoffs/review-guard.exs",
       "reason": "Archived standalone verification probe at specs/056-football-scraping-adapter/handoffs/review-guard.exs; retained as historical QA or review evidence, not maintained test source."
-    },
-    {
-      "category": "archived-verification-evidence",
-      "path": "specs/057-idempotent-catalog-ingestion/qa-evidence/adversarial_test.exs",
-      "reason": "Archived standalone verification probe at specs/057-idempotent-catalog-ingestion/qa-evidence/adversarial_test.exs; retained as historical QA or review evidence, not maintained test source."
-    },
-    {
-      "category": "archived-verification-evidence",
-      "path": "specs/058-valuation-contract-normalization/qa-evidence/fresh-20261013/task022_qa_adversarial.exs",
-      "reason": "Archived standalone verification probe at specs/058-valuation-contract-normalization/qa-evidence/fresh-20261013/task022_qa_adversarial.exs; retained as historical QA or review evidence, not maintained test source."
-    },
-    {
-      "category": "archived-verification-evidence",
-      "path": "specs/058-valuation-contract-normalization/qa-evidence/fresh-20261013/task022_qa_fresh_acceptance_test.exs",
-      "reason": "Archived standalone verification probe at specs/058-valuation-contract-normalization/qa-evidence/fresh-20261013/task022_qa_fresh_acceptance_test.exs; retained as historical QA or review evidence, not maintained test source."
-    },
-    {
-      "category": "archived-verification-evidence",
-      "path": "specs/059-balanced-valuation-strategy/qa-evidence/fresh-qa-cleanup-20261013/adversarial_test.exs",
-      "reason": "Archived standalone verification probe at specs/059-balanced-valuation-strategy/qa-evidence/fresh-qa-cleanup-20261013/adversarial_test.exs; retained as historical QA or review evidence, not maintained test source."
-    },
-    {
-      "category": "archived-verification-evidence",
-      "path": "specs/059-balanced-valuation-strategy/qa-evidence/independent-20261013/oracle_probe_test.exs",
-      "reason": "Archived standalone verification probe at specs/059-balanced-valuation-strategy/qa-evidence/independent-20261013/oracle_probe_test.exs; retained as historical QA or review evidence, not maintained test source."
-    },
-    {
-      "category": "archived-verification-evidence",
-      "path": "specs/061-valuation-strategy-versioning/qa-evidence/fresh-feedback-20261013b/oracle_test.exs",
-      "reason": "Archived standalone verification probe at specs/061-valuation-strategy-versioning/qa-evidence/fresh-feedback-20261013b/oracle_test.exs; retained as historical QA or review evidence, not maintained test source."
-    },
-    {
-      "category": "archived-verification-evidence",
-      "path": "specs/061-valuation-strategy-versioning/qa-evidence/independent-20261013/adversarial.exs",
-      "reason": "Archived standalone verification probe at specs/061-valuation-strategy-versioning/qa-evidence/independent-20261013/adversarial.exs; retained as historical QA or review evidence, not maintained test source."
-    },
-    {
-      "category": "archived-verification-evidence",
-      "path": "specs/062-initial-player-token-issuance/qa-evidence/independent-20261014-current/adversarial_probe.exs",
-      "reason": "Archived standalone verification probe at specs/062-initial-player-token-issuance/qa-evidence/independent-20261014-current/adversarial_probe.exs; retained as historical QA or review evidence, not maintained test source."
-    },
-    {
-      "category": "archived-verification-evidence",
-      "path": "specs/062-initial-player-token-issuance/qa-evidence/independent-20261014/adversarial-absent-owner.exs",
-      "reason": "Archived standalone verification probe at specs/062-initial-player-token-issuance/qa-evidence/independent-20261014/adversarial-absent-owner.exs; retained as historical QA or review evidence, not maintained test source."
-    },
-    {
-      "category": "archived-verification-evidence",
-      "path": "specs/062-initial-player-token-issuance/qa-evidence/independent-feedback-20261014/adversarial_test.exs",
-      "reason": "Archived standalone verification probe at specs/062-initial-player-token-issuance/qa-evidence/independent-feedback-20261014/adversarial_test.exs; retained as historical QA or review evidence, not maintained test source."
-    },
-    {
-      "category": "archived-verification-evidence",
-      "path": "specs/062-initial-player-token-issuance/review-evidence/prefix_test.exs",
-      "reason": "Archived standalone verification probe at specs/062-initial-player-token-issuance/review-evidence/prefix_test.exs; retained as historical QA or review evidence, not maintained test source."
-    },
-    {
-      "category": "archived-verification-evidence",
-      "path": "specs/063-liveview-shell-authentication/qa-evidence/b1-independent-20261016/task046_b1_qa_test.exs",
-      "reason": "Archived standalone verification probe at specs/063-liveview-shell-authentication/qa-evidence/b1-independent-20261016/task046_b1_qa_test.exs; retained as historical QA or review evidence, not maintained test source."
-    },
-    {
-      "category": "archived-verification-evidence",
-      "path": "specs/063-liveview-shell-authentication/qa-evidence/independent-20261016/task046_qa_test.exs",
-      "reason": "Archived standalone verification probe at specs/063-liveview-shell-authentication/qa-evidence/independent-20261016/task046_qa_test.exs; retained as historical QA or review evidence, not maintained test source."
-    },
-    {
-      "category": "archived-verification-evidence",
-      "path": "specs/063-liveview-shell-authentication/review-evidence/transport_expiry_test.exs",
-      "reason": "Archived standalone verification probe at specs/063-liveview-shell-authentication/review-evidence/transport_expiry_test.exs; retained as historical QA or review evidence, not maintained test source."
-    },
-    {
-      "category": "archived-verification-evidence",
-      "path": "specs/063-scheduled-synchronization-jobs/qa-evidence/independent-20261015-b1/adversarial.exs",
-      "reason": "Archived standalone verification probe at specs/063-scheduled-synchronization-jobs/qa-evidence/independent-20261015-b1/adversarial.exs; retained as historical QA or review evidence, not maintained test source."
-    },
-    {
-      "category": "archived-verification-evidence",
-      "path": "specs/063-scheduled-synchronization-jobs/qa-evidence/independent-20261015/adversarial.exs",
-      "reason": "Archived standalone verification probe at specs/063-scheduled-synchronization-jobs/qa-evidence/independent-20261015/adversarial.exs; retained as historical QA or review evidence, not maintained test source."
     }
   ],
   "maintained": [
@@ -240,9 +105,6 @@
     "scripts/ranking_benchmark.exs",
     "scripts/ranking_benchmark_helpers.exs",
     "scripts/test_profile_discovery.exs",
-    "scripts/verify_conditional_orders_preflight.exs",
-    "scripts/verify_quote_runtime.exs",
-    "scripts/verify_ranking_runtime.exs",
     "test/accounts_test.exs",
     "test/architecture_boundaries_test.exs",
     "test/business_metrics_test.exs",

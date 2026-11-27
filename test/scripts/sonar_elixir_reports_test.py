@@ -1,7 +1,5 @@
 import importlib.util
-import json
 from pathlib import Path
-import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -105,7 +103,7 @@ class SonarElixirReportsTest(unittest.TestCase):
         self.assertEqual(len(included["issues"]), 1)
 
     def test_refuses_output_outside_tmp(self):
-        with tempfile.TemporaryDirectory() as outside:
+        for outside in (ROOT / "config", ROOT / "tmp" / ".." / "lib", Path("/var/tmp/sonar-outside")):
             with self.assertRaisesRegex(ValueError, "output-must-be-under-tmp"):
                 MOD.ensure_safe_output(outside)
 

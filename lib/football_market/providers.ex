@@ -181,6 +181,7 @@ defmodule FootballMarket.Providers.FootballDataOrg do
              start_year: start_year,
              end_year: end_year,
              teams: Enum.map(teams, &parse_team/1),
+             team_source_ids: parse_team_source_ids(teams),
              players: Enum.flat_map(teams, &parse_team_squad/1)
            }}
         else
@@ -218,6 +219,17 @@ defmodule FootballMarket.Providers.FootballDataOrg do
   defp parse_team(team) do
     code = team["tla"] || "TEAM-#{team["id"]}"
     %{code: String.trim(to_string(code)), name: String.trim(to_string(team["name"]))}
+  end
+
+  defp parse_team_source_ids(teams) do
+    Enum.reduce(teams, %{}, fn team, acc ->
+      code = String.trim(to_string(team["tla"] || "TEAM-#{team["id"]}"))
+      id = team["id"]
+
+      if is_integer(id) and id > 0,
+        do: Map.put(acc, code, Integer.to_string(id)),
+        else: acc
+    end)
   end
 
   defp parse_team_squad(team) do
@@ -368,6 +380,86 @@ defmodule FootballMarket.Providers.Scraping do
       {:error, :invalid_request}
     end
   end
+
+  @doc "Fetches detailed per-player match metrics (shots, tackles, interceptions, saves, goals conceded)."
+  def fetch_match_player_stats(match_id, player_source_id, opts \\ []) do
+    Providers.observe_request(:fotmob_public_html, :match_details, fn ->
+      do_fetch_match_player_stats(to_string(match_id), to_string(player_source_id), opts)
+    end)
+  end
+
+  defp do_fetch_match_player_stats(match_id, player_source_id, opts) do
+    if Regex.match?(~r/\A[0-9]{1,12}\z/, match_id) and
+         Regex.match?(~r/\A[0-9]{1,12}\z/, player_source_id) do
+      http_get = Keyword.get(opts, :http_get, &Providers.http_get/3)
+      url = "#{@base_url}/api/data/matchDetails?matchId=#{match_id}"
+      headers = [{"Accept", "application/json"}, {"User-Agent", @user_agent}]
+
+      case http_get.(url, headers, Keyword.get(opts, :timeout_ms, 10_000)) do
+        {:ok, %{status: 200, body: body}} -> parse_match_player_stats(body, player_source_id)
+        {:ok, %{status: 404}} -> {:error, :not_found}
+        {:ok, %{status: 429}} -> {:error, :rate_limited}
+        {:ok, %{status: status}} when status in [401, 403] -> {:error, :access_refused}
+        {:ok, %{status: _}} -> {:error, :unavailable}
+        {:error, reason} -> {:error, reason}
+      end
+    else
+      {:error, :invalid_request}
+    end
+  end
+
+  @match_stat_keys %{
+    "ShotsOnTarget" => :shots_on_target,
+    "matchstats.headers.tackles" => :tackles,
+    "interceptions" => :interceptions,
+    "saves" => :saves,
+    "goals_conceded" => :goals_conceded
+  }
+
+  @doc "Parses detailed match metrics for a player from FotMob's `matchDetails` JSON payload."
+  def parse_match_player_stats(body, player_source_id) when is_binary(body) do
+    with {:ok, decoded} <- Jason.decode(body),
+         %{} = player_stats <- get_in(decoded, ["content", "playerStats"]),
+         %{} = entry <- Map.get(player_stats, to_string(player_source_id)),
+         groups when is_list(groups) <- entry["stats"] do
+      {:ok, collect_match_stats(groups, entry["isGoalkeeper"] == true)}
+    else
+      _ -> {:error, :invalid_response}
+    end
+  end
+
+  def parse_match_player_stats(_, _), do: {:error, :invalid_response}
+
+  defp collect_match_stats(groups, is_goalkeeper?) do
+    entries = Enum.flat_map(groups, &stat_group_entries/1)
+
+    metrics =
+      Enum.reduce(entries, %{}, fn entry, acc ->
+        case Map.get(@match_stat_keys, entry["key"]) do
+          nil -> acc
+          field -> put_stat_value(acc, field, get_in(entry, ["stat", "value"]))
+        end
+      end)
+
+    total_shots =
+      Enum.find_value(entries, fn entry ->
+        if entry["key"] == "total_shots", do: get_in(entry, ["stat", "value"])
+      end)
+
+    if entries != [] and not is_goalkeeper? and not Map.has_key?(metrics, :shots_on_target) and
+         total_shots in [nil, 0],
+       do: Map.put(metrics, :shots_on_target, 0),
+       else: metrics
+  end
+
+  defp stat_group_entries(%{"stats" => stats}) when is_map(stats), do: Map.values(stats)
+  defp stat_group_entries(%{"stats" => stats}) when is_list(stats), do: stats
+  defp stat_group_entries(_), do: []
+
+  defp put_stat_value(acc, field, val) when is_integer(val) and val >= 0,
+    do: Map.put(acc, field, val)
+
+  defp put_stat_value(acc, _field, _val), do: acc
 
   @doc "Extracts player metadata and completed match rows from a FotMob HTML page."
   def parse_player_profile_html(html) when is_binary(html) do

@@ -666,7 +666,7 @@ defmodule FootballMarket.Statistics.Freshness do
 
   defp preload_player(player, queued, _limit) do
     case refresh_if_stale(player, 2) do
-      %{state: state} when state in ["queued", "running"] -> {:cont, queued + 1}
+      %{state: state} when state in ["queued", "executing"] -> {:cont, queued + 1}
       _ -> {:cont, queued}
     end
   end
@@ -827,7 +827,7 @@ defmodule FootballMarket.Statistics.Freshness do
 
     case Oban.insert(oban_name, StatisticsImport.new(args, priority: priority)) do
       {:ok, job} ->
-        state = if job.state == "executing", do: "running", else: "queued"
+        state = if job.state == "executing", do: "executing", else: "queued"
         %{state: state, run_id: to_string(job.id), reason: nil, next_attempt_at: nil}
 
       _ ->

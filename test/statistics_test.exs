@@ -172,6 +172,28 @@ defmodule FootballMarket.StatisticsTest do
     html =
       ~s(<html><script id="__NEXT_DATA__" type="application/json">#{next_data}</script></html>)
 
+    match_details_body =
+      Jason.encode!(%{
+        "content" => %{
+          "playerStats" => %{
+            "737066" => %{
+              "stats" => [
+                %{
+                  "stats" => %{
+                    "Shots on target" => %{"key" => "ShotsOnTarget", "stat" => %{"value" => 4}},
+                    "Tackles" => %{
+                      "key" => "matchstats.headers.tackles",
+                      "stat" => %{"value" => 2}
+                    },
+                    "Interceptions" => %{"key" => "interceptions", "stat" => %{"value" => 1}}
+                  }
+                }
+              ]
+            }
+          }
+        }
+      })
+
     stub_http = fn url, _headers, _timeout ->
       cond do
         String.contains?(url, "/api/data/search/suggest") ->
@@ -179,6 +201,9 @@ defmodule FootballMarket.StatisticsTest do
 
         String.ends_with?(url, "/players/737066") ->
           {:ok, %{status: 200, headers: [], body: html}}
+
+        String.contains?(url, "/api/data/matchDetails?matchId=5795522") ->
+          {:ok, %{status: 200, headers: [], body: match_details_body}}
       end
     end
 
@@ -197,6 +222,9 @@ defmodule FootballMarket.StatisticsTest do
     assert summary.recorded_match_count == 1
     assert summary.goals == 2
     assert summary.assists == 1
+    assert summary.shots_on_target == 4
+    assert summary.tackles == 2
+    assert summary.interceptions == 1
 
     assert {:ok, second} =
              FootballMarket.Sync.sync_player_statistics(

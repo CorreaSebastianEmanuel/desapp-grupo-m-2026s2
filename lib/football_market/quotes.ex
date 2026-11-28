@@ -541,8 +541,7 @@ defmodule FootballMarket.Quotes.Closing do
   end
 
   defp recalculate_all_players(mapping_id, now) do
-    week_start = DateTime.add(now, -7 * 86_400, :second) |> DateTime.truncate(:microsecond)
-    week_end = DateTime.truncate(now, :microsecond)
+    cutoff = DateTime.new!(DateTime.to_date(now), ~T[23:59:59.000000], "Etc/UTC")
 
     player_rows =
       Repo.all(
@@ -551,16 +550,19 @@ defmodule FootballMarket.Quotes.Closing do
           on: perf.player_id == p.id and perf.season_id == p.season_id,
           join: m in Match,
           on: m.id == perf.match_id,
-          where: m.kickoff_at >= ^week_start and m.kickoff_at <= ^week_end,
-          distinct: p.id,
-          select: %{player_id: p.id, season_id: p.season_id}
+          where: m.kickoff_at <= ^cutoff,
+          group_by: [p.id, p.season_id],
+          select: %{
+            player_id: p.id,
+            season_id: p.season_id,
+            earliest: min(m.kickoff_at),
+            latest: max(m.kickoff_at)
+          }
       )
 
     counts =
       Enum.reduce(player_rows, %{calculated: 0, skipped: 0}, fn row, acc ->
-        subject = Map.merge(row, %{week_start: week_start, week_end: week_end})
-
-        case Quotes.calculate_and_publish(subject, :active, mapping_id) do
+        case recalculate_player(row, mapping_id) do
           {:ok, %{quote: %FootballMarket.Market.Quote{}}} ->
             %{acc | calculated: acc.calculated + 1}
 
@@ -570,5 +572,29 @@ defmodule FootballMarket.Quotes.Closing do
       end)
 
     {:ok, counts}
+  end
+
+  defp recalculate_player(row, mapping_id) do
+    latest = row.latest
+    week_start = DateTime.add(latest, -7 * 86_400, :second)
+
+    week_subject = %{
+      player_id: row.player_id,
+      season_id: row.season_id,
+      week_start: week_start,
+      week_end: latest
+    }
+
+    case Quotes.calculate_and_publish(week_subject, :active, mapping_id) do
+      {:ok, %{quote: nil}} when row.earliest != latest ->
+        Quotes.calculate_and_publish(
+          %{week_subject | week_start: row.earliest},
+          :active,
+          mapping_id
+        )
+
+      other ->
+        other
+    end
   end
 end

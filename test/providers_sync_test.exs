@@ -54,6 +54,7 @@ defmodule FootballMarket.ProvidersSyncTest do
     assert {:ok, snapshot} = FootballDataOrg.parse_catalog_response(body, "PL", 2026, 2027)
     assert snapshot.league_code == "PL"
     assert snapshot.teams == [%{code: "ARS", name: "Arsenal FC"}]
+    assert snapshot.team_source_ids == %{"ARS" => "57"}
     assert length(snapshot.players) == 2
     assert Enum.find(snapshot.players, &(&1.display_name == "Bukayo Saka")).position_code == "FWD"
     assert Enum.find(snapshot.players, &(&1.display_name == "David Raya")).position_code == "GK"
@@ -278,6 +279,51 @@ defmodule FootballMarket.ProvidersSyncTest do
 
     assert Scraping.normalize_team_name("FC Internazionale Milano", "SA") ==
              Scraping.normalize_team_name("Inter", "SA")
+
+    match_details =
+      Jason.encode!(%{
+        "content" => %{
+          "playerStats" => %{
+            "737066" => %{
+              "stats" => [
+                %{
+                  "stats" => %{
+                    "Shots on target" => %{
+                      "key" => "ShotsOnTarget",
+                      "stat" => %{"value" => 3}
+                    },
+                    "Tackles" => %{
+                      "key" => "matchstats.headers.tackles",
+                      "stat" => %{"value" => 1}
+                    },
+                    "Interceptions" => %{
+                      "key" => "interceptions",
+                      "stat" => %{"value" => 2}
+                    },
+                    "Saves" => %{"key" => "saves", "stat" => %{"value" => 0}},
+                    "Goals conceded" => %{"key" => "goals_conceded", "stat" => %{"value" => 1}}
+                  }
+                }
+              ]
+            }
+          }
+        }
+      })
+
+    assert {:ok,
+            %{
+              shots_on_target: 3,
+              tackles: 1,
+              interceptions: 2,
+              saves: 0,
+              goals_conceded: 1
+            }} =
+             Scraping.fetch_match_player_stats("5795522", "737066",
+               http_get: fn url, _headers, _timeout ->
+                 assert url == "https://www.fotmob.com/api/data/matchDetails?matchId=5795522"
+                 {:ok, %{status: 200, headers: [], body: match_details}}
+               end
+             )
   end
 
   test "malformed provider response shapes fail atomically without raising or dropping rows" do
